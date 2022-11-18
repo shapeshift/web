@@ -1,5 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import type { InputProps } from '@chakra-ui/react'
+import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
@@ -45,6 +45,7 @@ export type AssetSearchProps = {
   accountId?: AccountId
   assetListAsDropdown?: boolean
   hideZeroBalanceAmounts?: boolean
+  formProps?: BoxProps
 }
 
 export const AssetSearch: FC<AssetSearchProps> = ({
@@ -55,6 +56,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   accountId,
   assetListAsDropdown,
   hideZeroBalanceAmounts,
+  formProps,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -168,6 +170,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       px={4}
       visibility='visible'
       onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
+      {...formProps}
     >
       <InputGroup size='lg'>
         {/* Override zIndex to prevent element displaying on overlay components */}
@@ -201,7 +204,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       {isFocused && (
         <SlideFade in={isFocused}>
           <Card position='absolute' width='100%' mt={2} zIndex='banner'>
-            <Card.Body p={2}>
+            <Card.Body p={2} px={0}>
               <Box flex={1} height={300}>
                 <AssetList
                   mb='10'

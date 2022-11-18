@@ -119,7 +119,7 @@ export const Header = () => {
               justifyContent='center'
               display={{ base: 'none', md: 'block' }}
             >
-              <AssetSearch assetListAsDropdown />
+              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               <Box display={{ base: 'none', md: 'block' }}>

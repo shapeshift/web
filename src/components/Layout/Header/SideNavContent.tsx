@@ -64,7 +64,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             </Box>
           )}
           <Box width='full'>
-            <AssetSearch assetListAsDropdown />
+            <AssetSearch assetListAsDropdown formProps={{ px: 0 }} />
           </Box>
         </Flex>
       )}

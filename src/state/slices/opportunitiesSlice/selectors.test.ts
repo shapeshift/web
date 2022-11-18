@@ -27,9 +27,21 @@ import {
 import { serializeUserStakingId } from './utils'
 
 describe('opportunitiesSlice selectors', () => {
+  const walletId = 'walletId'
+  const wallet = {
+    byId: {
+      [walletId]: [gomesAccountId, fauxmesAccountId, catpuccinoAccountId],
+    },
+    ids: [walletId],
+  }
   const mockBaseState = {
     ...mockStore,
     opportunities: initialState,
+    portfolio: {
+      ...mockStore.portfolio,
+      walletId,
+      wallet,
+    },
   }
   describe('selects ID/s', () => {
     const accountMetadata = {

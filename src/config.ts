@@ -37,7 +37,7 @@ const validators = {
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_DAPP_URL: url({
-    default: 'http://127.0.0.1:9001/spec/swagger.json',
+    default: 'https://pioneers.dev/spec/swagger.json',
   }),
   REACT_APP_WALLET_MIGRATION_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),

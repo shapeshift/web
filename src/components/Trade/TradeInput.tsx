@@ -299,6 +299,12 @@ export const TradeInput = () => {
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
     if (!wallet) return 'common.connectWallet'
+    if (
+      sellTradeAsset?.asset?.chainId === undefined ||
+      buyTradeAsset?.asset?.chainId === undefined
+    ) {
+      return 'common.loadingText'
+    }
     if (!walletSupportsSellAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
@@ -340,6 +346,7 @@ export const TradeInput = () => {
     return 'trade.previewTrade'
   }, [
     bestTradeSwapper,
+    buyTradeAsset?.asset?.chainId,
     buyTradeAsset?.asset?.symbol,
     feeAssetBalance,
     feesExceedsSellAmount,
@@ -356,6 +363,7 @@ export const TradeInput = () => {
     sellFeeAsset?.precision,
     sellTradeAsset?.amount,
     sellTradeAsset?.asset?.assetId,
+    sellTradeAsset?.asset?.chainId,
     sellTradeAsset?.asset?.symbol,
     translate,
     wallet,

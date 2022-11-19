@@ -57,7 +57,7 @@ export const DappRegistryGrid: FC = () => {
   )
 
 
-  let findLatestReleaseLinks = async function (){
+  let findDapps = async function (){
     try{
       let spec = getConfig().REACT_APP_DAPP_URL
       let config = {
@@ -76,7 +76,7 @@ export const DappRegistryGrid: FC = () => {
     }
   }
   useEffect(() => {
-    findLatestReleaseLinks()
+    findDapps()
   }, []);
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)

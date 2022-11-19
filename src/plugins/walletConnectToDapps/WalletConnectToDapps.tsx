@@ -18,7 +18,7 @@ export const WalletConnectToDapps: FC = () => {
       let config = { queryKey:'key:public', spec }
       let Api = new Client(spec,config)
       let api = await Api.init()
-      let info = await api.instance.Info()
+      let info = await api.instance.Globals()
       console.log("info: ",info.data)
       setSetMotd(info.data.motd)
     }catch(e){

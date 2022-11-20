@@ -39,7 +39,6 @@ type SerializableOpportunity = Omit<
 
 export type IdleWithdrawState = {
   opportunity: SerializableOpportunity | undefined
-  userAddress: string | undefined
   approve: EstimatedGas
   withdraw: IdleWithdrawValues
   loading: boolean
@@ -48,7 +47,6 @@ export type IdleWithdrawState = {
 
 export enum IdleWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -65,11 +63,6 @@ type SetWithdraw = {
   payload: Partial<IdleWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: IdleWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: IdleWithdrawActionType.SET_LOADING
   payload: boolean
@@ -80,9 +73,4 @@ type SetTxid = {
   payload: string
 }
 
-export type IdleWithdrawActions =
-  | SetOpportunityAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type IdleWithdrawActions = SetOpportunityAction | SetWithdraw | SetLoading | SetTxid

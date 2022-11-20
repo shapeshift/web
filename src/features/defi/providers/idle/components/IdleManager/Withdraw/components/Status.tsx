@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -58,10 +58,12 @@ export const Status = () => {
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress && accountId)) return ''
-    return serializeTxIndex(accountId, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountId])
+    if (!(state?.txid && userAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

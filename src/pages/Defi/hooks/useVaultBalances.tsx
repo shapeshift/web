@@ -1,10 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useIdle } from 'features/defi/contexts/IdleProvider/useIdle'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import type { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
@@ -72,35 +70,6 @@ async function getYearnVaults(balances: AssetBalancesById, yearn: YearnInvestor 
   return acc
 }
 
-async function getIdleVaults(balances: AssetBalancesById, idleInvestor: IdleInvestor | undefined) {
-  if (!idleInvestor) return {}
-  const opportunities = await idleInvestor.findAll()
-
-  const acc: Record<string, IdleEarnVault> = opportunities.reduce(
-    (vaults: Record<string, IdleEarnVault>, vault) => {
-      const vaultAssetId = vault.positionAsset.assetId
-      const tokenAssetId = vault.underlyingAsset.assetId
-      const balance = balances[vaultAssetId]
-
-      if (balance) {
-        vaults[vault.id] = {
-          ...vault,
-          balance,
-          vaultAssetId,
-          tokenAssetId,
-          provider: DefiProvider.Idle,
-          chainId: fromAssetId(vault.positionAsset.assetId).chainId,
-          pricePerShare: vault?.positionAsset.underlyingPerPosition,
-        }
-      }
-      return vaults
-    },
-    {},
-  )
-
-  return acc
-}
-
 export type EarnVault = YearnEarnVault | IdleEarnVault
 
 export type MergedEarnVault = EarnVault & {
@@ -126,8 +95,6 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
-  const idleInvestor = useMemo(() => getIdleInvestor(), [])
-
   const { loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
 
@@ -139,12 +106,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
     ;(async () => {
       setLoading(true)
       try {
-        const [idleVaults, yearnVaults] = await Promise.all([
-          getIdleVaults(balances, idleInvestor),
-          getYearnVaults(balances, yearn),
-        ])
-
-        const allVaults = { ...idleVaults, ...yearnVaults }
+        const yearnVaults = await getYearnVaults(balances, yearn)
+        const allVaults = yearnVaults
 
         setVaults(allVaults)
       } catch (error) {
@@ -153,7 +116,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading, idleInvestor])
+  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn, idleLoading])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

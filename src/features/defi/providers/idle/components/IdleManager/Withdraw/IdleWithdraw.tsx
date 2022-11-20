@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -82,11 +82,6 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const userAddress = accountId && fromAccountId(accountId).account
-        if (userAddress && userAddress !== state.userAddress) {
-          dispatch({ type: IdleWithdrawActionType.SET_USER_ADDRESS, payload: userAddress })
-        }
-
         if (state.opportunity) return
         if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
           return
@@ -117,7 +112,6 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
     chainId,
     bip44Params,
     idleInvestor,
-    state.userAddress,
     state.opportunity,
     accountId,
   ])

@@ -1,5 +1,6 @@
 import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum DepositPath {
   Deposit = '/',
@@ -43,8 +44,7 @@ export type SerializableOpportunity = Omit<
 >
 
 export type IdleDepositState = {
-  opportunity: SerializableOpportunity | undefined
-  userAddress: string | undefined
+  opportunity: StakingEarnOpportunityType | undefined
   approve: EstimatedGas
   deposit: IdleDepositValues
   loading: boolean
@@ -54,7 +54,6 @@ export type IdleDepositState = {
 export enum IdleDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -62,7 +61,7 @@ export enum IdleDepositActionType {
 
 type SetOpportunityAction = {
   type: IdleDepositActionType.SET_OPPORTUNITY
-  payload: IdleOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetApprove = {
@@ -73,11 +72,6 @@ type SetApprove = {
 type SetDeposit = {
   type: IdleDepositActionType.SET_DEPOSIT
   payload: Partial<IdleDepositValues>
-}
-
-type SetUserAddress = {
-  type: IdleDepositActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -94,6 +88,5 @@ export type IdleDepositActions =
   | SetOpportunityAction
   | SetApprove
   | SetDeposit
-  | SetUserAddress
   | SetLoading
   | SetTxid

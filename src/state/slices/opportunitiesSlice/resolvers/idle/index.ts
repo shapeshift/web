@@ -44,6 +44,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
 
     const asset = selectAssetById(state, assetId)
+    const underlyingAsset = selectAssetById(state, opportunity.underlyingAsset.assetId)
 
     // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
     // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
@@ -83,7 +84,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
           underlyingAssetRatios: ['1'],
-          name: asset.name,
+          name: `${underlyingAsset.symbol} Vault (${opportunity.version})`,
         }
   }
 
@@ -138,9 +139,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance.toString())
-        .div(bn(10).pow(asset.precision))
-        .toString(),
+      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
       rewardsAmountsCryptoPrecision,
     }
   }

@@ -41,7 +41,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
 
-  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const foxEthLpOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserLpOpportunity(state, {
@@ -79,8 +79,9 @@ export function useEarnBalances(): UseEarnBalancesReturn {
       osmosisStakingOpportunities,
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities,
+    stakingOpportunities,
   })
+
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')

@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -14,10 +14,12 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,56 +36,81 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
+
+  const underlyingAssetId = useMemo(
+    () => opportunityData?.underlyingAssetIds[0] ?? '',
+    [opportunityData?.underlyingAssetIds],
+  )
+
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const balanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
   // user info
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
 
   const pricePerShare = useMemo(() => {
     if (!state?.opportunity) return bnOrZero(0)
     return bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
-      `1e+${asset?.precision}`,
+      `1e+${underlyingAsset?.precision}`,
     )
-  }, [state?.opportunity, asset])
+  }, [state?.opportunity, underlyingAsset])
 
   const vaultTokenPrice = pricePerShare.times(marketData.price).toString()
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(state?.userAddress && opportunity && assetReference)) return
+      if (!(userAddress && opportunity && assetReference)) return
       try {
         const idleOpportunity = await idleInvestor.findByOpportunityId(
           opportunity?.positionAsset.assetId,
         )
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareWithdrawal({
-          amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-          address: state.userAddress,
+          amount: bnOrZero(withdraw.cryptoAmount)
+            .times(`1e+${underlyingAsset.precision}`)
+            .integerValue(),
+          address: userAddress,
         })
         return bnOrZero(preparedTx.gasPrice)
           .times(preparedTx.estimatedGas)
@@ -94,12 +121,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
-    [state?.userAddress, opportunity, assetReference, idleInvestor, asset.precision],
+    [userAddress, opportunity, assetReference, idleInvestor, underlyingAsset.precision],
   )
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(state?.userAddress && opportunity && dispatch)) return
+      if (!(userAddress && opportunity && dispatch)) return
       // set withdraw state for future use
       dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
@@ -112,7 +139,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
     },
-    [state?.userAddress, getWithdrawGasEstimate, onNext, opportunity, dispatch],
+    [userAddress, getWithdrawGasEstimate, onNext, opportunity, dispatch],
   )
 
   const handleCancel = useCallback(() => {
@@ -131,25 +158,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset],
+    [opportunityData?.stakedAmountCryptoPrecision],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
       const fiat = crypto.times(vaultTokenPrice)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset, vaultTokenPrice],
+    [opportunityData?.stakedAmountCryptoPrecision, vaultTokenPrice],
   )
 
   if (!state) return null

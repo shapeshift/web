@@ -5,7 +5,6 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,7 +16,6 @@ import {
   fetchAllStakingOpportunitiesMetadata,
   fetchAllStakingOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
-import type { OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -31,17 +29,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
-export type FoxFarmingEarnOpportunityType = OpportunityMetadata & {
-  /**
-   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
-   */
-  unclaimedRewards?: string
-  stakedAmountCryptoPrecision?: string
-  rewardsAmountsCryptoPrecision?: readonly [string]
-  underlyingToken0Amount?: string
-  underlyingToken1Amount?: string
-  isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 type FoxEthProviderProps = {
   children: React.ReactNode
 }

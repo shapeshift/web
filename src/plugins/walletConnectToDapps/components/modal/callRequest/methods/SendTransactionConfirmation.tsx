@@ -145,7 +145,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             width='full'
             colorScheme='blue'
             type='submit'
-            onClick={form.handleSubmit(() => onConfirm(form.getValues()))}
+            onClick={form.handleSubmit(onConfirm)}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

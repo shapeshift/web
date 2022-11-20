@@ -1,14 +1,14 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { logger } from 'lib/logger'
+import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
-// import { logger } from 'lib/logger'
 import type {
   WalletConnectCallRequest,
   WalletConnectCallRequestResponseMap,
@@ -21,35 +21,47 @@ export type HDWalletWCBridgeOptions = {
   onCallRequest(request: WalletConnectCallRequest): void
 }
 
-// const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
+const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 export class WalletConnectBridge {
-  chainAdapter: ChainAdapter<KnownChainIds>
+  chainAdapter: EvmBaseAdapter<EvmChainId>
   constructor(
     private wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
     private chainId: ChainId,
-    private account: string | null,
+    private account: string,
+    private readonly accountMetadata: AccountMetadataById,
     private readonly options?: HDWalletWCBridgeOptions,
   ) {
-    this.chainAdapter = getChainAdapterManager().get(chainId) as ChainAdapter<KnownChainIds>
+    this.chainAdapter = getChainAdapterManager().get(
+      chainId,
+    ) as unknown as EvmBaseAdapter<EvmChainId>
   }
 
   static fromURI(
     uri: string,
     wallet: core.ETHWallet,
     chainId: ChainId,
-    account: string | null,
+    account: string,
+    accountMetadata: AccountMetadataById,
     options?: HDWalletWCBridgeOptions,
   ) {
-    return new WalletConnectBridge(wallet, new WalletConnect({ uri }), chainId, account, options)
+    return new WalletConnectBridge(
+      wallet,
+      new WalletConnect({ uri }),
+      chainId,
+      account,
+      accountMetadata,
+      options,
+    )
   }
 
   static fromSession(
     session: IWalletConnectSession,
     wallet: core.ETHWallet,
     chainId: ChainId,
-    account: string | null,
+    account: string,
+    accountMetadata: AccountMetadataById,
     options?: HDWalletWCBridgeOptions,
   ) {
     return new WalletConnectBridge(
@@ -57,6 +69,7 @@ export class WalletConnectBridge {
       new WalletConnect({ session }),
       chainId,
       account,
+      accountMetadata,
       options,
     )
   }
@@ -88,8 +101,8 @@ export class WalletConnectBridge {
     this.connector.on('call_request', this._onCallRequest.bind(this))
   }
 
-  async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
-    // moduleLogger.log('Session Request', { error })
+  async _onSessionRequest(error: Error | null, _payload: WalletConnectSessionRequestPayload) {
+    if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
 
     const address = this.account ?? (await this.wallet.ethGetAddress({ addressNList }))
     if (address) {
@@ -111,8 +124,10 @@ export class WalletConnectBridge {
   }) {
     this.wallet = wallet
     this.chainId = chainId
-    this.account = account ?? null
-    this.chainAdapter = getChainAdapterManager().get(chainId) as ChainAdapter<KnownChainIds>
+    if (account) this.account = account
+    this.chainAdapter = getChainAdapterManager().get(
+      chainId,
+    ) as unknown as EvmBaseAdapter<EvmChainId>
     const address = account ?? (await wallet.ethGetAddress({ addressNList }))
     if (address) {
       this.connector.updateSession({
@@ -122,20 +137,21 @@ export class WalletConnectBridge {
     }
   }
 
-  async _onSessionUpdate(error: Error | null, payload: any) {
-    // moduleLogger.info("Session Update", { error, payload });
+  async _onSessionUpdate(error: Error | null, _payload: any) {
+    if (error) moduleLogger.error(error, { fn: '_onSessionUpdate' }, 'Error updating session')
   }
 
-  async _onConnect(error: Error | null, payload: any) {
-    // moduleLogger.info("Connect", { error, payload })
+  async _onConnect(error: Error | null, _payload: any) {
+    if (error) moduleLogger.error(error, { fn: '_onConnect' }, 'Error connecting to a new session')
   }
 
-  async _onDisconnect(error: Error | null, payload: any) {
-    // moduleLogger.info("Disconnect", { error, payload });
+  async _onDisconnect(error: Error | null, _payload: any) {
+    if (error)
+      moduleLogger.error(error, { fn: '_onDisconnect' }, 'Error disconnecting from the session')
   }
 
   async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
-    // moduleLogger.info("Call Request", { error, payload });
+    if (error) moduleLogger.error(error, { fn: '_onCallRequest' }, 'Error on call request')
 
     this.options?.onCallRequest(payload)
   }
@@ -146,8 +162,8 @@ export class WalletConnectBridge {
       WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
     >,
   ) {
-    let result: any
-    // console.info(request, approveData);
+    let result: string | null = null
+    const { wallet } = this
     switch (request.method) {
       case 'eth_sign': {
         result = await this.signMessage(this.convertHexToUtf8IfPossible(request.params[1]))
@@ -163,32 +179,62 @@ export class WalletConnectBridge {
       }
       case 'eth_sendTransaction': {
         const tx = request.params[0]
-        const response = await this.wallet.ethSendTx?.({
-          addressNList,
-          chainId: parseInt(fromChainId(this.chainId).chainReference),
-          data: tx.data,
-          gasLimit: tx.gas,
-          nonce: tx.nonce,
+        const { bip44Params } = this.accountMetadata[this.account!]
+        const { txToSign } = await this.chainAdapter.buildSendTransaction({
           to: tx.to,
           value: tx.value,
-          ...approveData,
+          wallet,
+          bip44Params,
+          chainSpecific: {
+            gasLimit: tx.gas,
+            gasPrice: tx.gasPrice,
+          },
         })
-        result = response?.hash
+        console.info(request, txToSign, approveData)
+        try {
+          result = await (async () => {
+            if (wallet.supportsOfflineSigning()) {
+              console.info('here')
+              const signedTx = await this.chainAdapter.signTransaction({
+                txToSign,
+                wallet,
+              })
+              console.info(signedTx)
+              return this.chainAdapter.broadcastTransaction(signedTx)
+            } else if (wallet.supportsBroadcast()) {
+              /**
+               * signAndBroadcastTransaction is an optional method on the HDWallet interface.
+               * Check and see if it exists; if so, call and make sure a txhash is returned
+               */
+              if (!this.chainAdapter.signAndBroadcastTransaction) {
+                throw new Error('signAndBroadcastTransaction undefined for wallet')
+              }
+              return this.chainAdapter.signAndBroadcastTransaction?.({ txToSign, wallet })
+            } else {
+              throw new Error('Bad hdwallet config')
+            }
+          })()
+        } catch (error) {
+          console.error(error)
+          moduleLogger.error(error, { fn: 'eth_sendTransaction' }, 'Error sending transaction')
+        }
         break
       }
       case 'eth_signTransaction': {
         const tx = request.params[0]
-        const response = await this.wallet.ethSignTx({
-          addressNList,
-          chainId: parseInt(fromChainId(this.chainId).chainReference),
-          data: tx.data,
-          gasLimit: tx.gas,
-          nonce: tx.nonce,
-          to: tx.to,
-          value: tx.value,
-          ...approveData,
+        result = await this.chainAdapter.signTransaction({
+          txToSign: {
+            addressNList,
+            chainId: parseInt(fromChainId(this.chainId).chainReference),
+            data: tx.data,
+            gasLimit: tx.gas,
+            nonce: tx.nonce,
+            to: tx.to,
+            value: tx.value,
+            ...approveData,
+          },
+          wallet,
         })
-        result = response?.serialized
         break
       }
       default:
@@ -210,12 +256,13 @@ export class WalletConnectBridge {
   }
 
   async signMessage(message: string) {
-    return await (this.chainAdapter as unknown as EvmBaseAdapter<EvmChainId>).signMessage({
+    const { wallet } = this
+    return await this.chainAdapter.signMessage({
       messageToSign: {
         addressNList,
         message,
       },
-      wallet: this.wallet,
+      wallet,
     })
   }
 

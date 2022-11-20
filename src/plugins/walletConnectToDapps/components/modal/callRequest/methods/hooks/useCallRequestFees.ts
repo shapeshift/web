@@ -1,4 +1,3 @@
-import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
@@ -15,11 +14,9 @@ export function useCallRequestFees(
 ) {
   const [fees, setFees] = useState<FeePrice | undefined>()
 
-  const walletConnect = useWalletConnect()
+  const { evmChainId, ...walletConnect } = useWalletConnect()
   const address = walletConnect.bridge?.connector.accounts[0]
-  const connectedChainId = walletConnect.bridge?.connector.chainId
   const assets = useAppSelector(selectAssets)
-  const evmChainId = `${CHAIN_NAMESPACE.Evm}:${connectedChainId}`
 
   const feeAsset = useMemo(() => {
     const feeAssetId = getChainAdapterManager().get(evmChainId)?.getFeeAssetId()

@@ -6,7 +6,11 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssets } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectFirstAccountIdByChainId,
+  selectPortfolioAccountMetadata,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { WalletConnectCallRequest } from './bridge/types'
@@ -19,10 +23,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const wallet = useWallet().state.wallet
   const [bridge, setBridge] = useState<WalletConnectBridge>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
   const evmChainId = useMemo(
     () => connectedEvmChainId ?? `${CHAIN_NAMESPACE.Evm}:${CHAIN_REFERENCE.EthereumMainnet}`,
     [connectedEvmChainId],
   )
+  const firstAccountId = useAppSelector(s => selectFirstAccountIdByChainId(s, evmChainId))
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
       .get(supportedEvmChainIds.find(chainId => chainId === evmChainId) ?? '')
@@ -73,12 +79,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const connect = useCallback(
     async (uri: string, account: string | null) => {
       if (!wallet || !supportsETH(wallet)) return
+      if (!account && !firstAccountId) return
 
       const newBridge = WalletConnectBridge.fromURI(
         uri,
         wallet,
         connectedEvmChainId ?? evmChainId,
-        account,
+        account ?? firstAccountId!,
+        accountMetadata,
         {
           onCallRequest,
         },
@@ -90,7 +98,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
       setBridge(newBridge)
     },
-    [wallet, connectedEvmChainId, evmChainId, onCallRequest, rerender, disconnect],
+    [
+      wallet,
+      firstAccountId,
+      connectedEvmChainId,
+      evmChainId,
+      accountMetadata,
+      onCallRequest,
+      rerender,
+      disconnect,
+    ],
   )
 
   const tryConnectingToExistingSession = useCallback(async () => {
@@ -105,7 +122,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       session,
       wallet,
       connectedEvmChainId ?? evmChainId,
-      null,
+      session.accounts[0],
+      accountMetadata,
       {
         onCallRequest,
       },
@@ -114,7 +132,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     existingBridge.connector.on('disconnect', disconnect)
     await existingBridge.connect()
     setBridge(existingBridge)
-  }, [bridge, wallet, connectedEvmChainId, evmChainId, onCallRequest, rerender, disconnect])
+  }, [
+    bridge,
+    wallet,
+    connectedEvmChainId,
+    evmChainId,
+    accountMetadata,
+    onCallRequest,
+    rerender,
+    disconnect,
+  ])
 
   // if connectedEvmChainId or wallet changes, update the walletconnect session
   useEffect(() => {

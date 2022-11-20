@@ -2,6 +2,7 @@ import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType } from '@ethersproject/abi'
 import startCase from 'lodash/startCase'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
@@ -22,7 +23,7 @@ type Props = {
 }
 
 const EncodedText = ({ value }: { value: string }) => (
-  <Flex>
+  <Flex alignItems='center'>
     <RawText pr={2}>{new TextEncoder().encode(value).length} bytes</RawText>
     <CopyButton value={value} />
   </Flex>
@@ -40,6 +41,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
   )
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
+  const { accountExplorerAddressLink } = useWalletConnect()
 
   const renderAbiInput = (input: ParamType, index: number) => {
     const inputValue = transaction!.args[index].toString()
@@ -54,7 +56,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
             </Box>
             <CopyButton value={inputValue} />
             <ExternalLinkButton
-              href={`https://etherscan.com/address/${inputValue}`}
+              href={`${accountExplorerAddressLink}${inputValue}`}
               ariaLabel={inputValue}
             />
           </HStack>
@@ -99,7 +101,10 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
         {!!transaction &&
           transaction.functionFragment.inputs.map((input, index) => {
             const Wrapper = input.type === 'bytes[]' ? Flex : Fragment
-            const wrapperProps = input.type === 'bytes[]' ? { justifyContent: 'space-between' } : {}
+            const wrapperProps =
+              input.type === 'bytes[]'
+                ? { justifyContent: 'space-between', alignItems: 'center' }
+                : {}
             return (
               <Fragment key={index}>
                 <Wrapper {...wrapperProps}>
@@ -113,7 +118,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
             )
           })}
 
-        <Flex justifyContent='space-between'>
+        <Flex justifyContent='space-between' alignItems='center'>
           <Box>
             <Text
               color='gray.500'

@@ -1,4 +1,5 @@
 import { Box, HStack, useColorModeValue } from '@chakra-ui/react'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
@@ -18,6 +19,7 @@ export const AddressSummaryCard = ({
   icon,
   showWalletProviderName = true,
 }: AddressSummaryCardProps) => {
+  const { accountExplorerAddressLink } = useWalletConnect()
   const walletName = useWallet().state.walletInfo?.name ?? ''
   return (
     <Card bg={useColorModeValue('white', 'gray.850')} py={4} pl={4} pr={2} borderRadius='md'>
@@ -36,7 +38,7 @@ export const AddressSummaryCard = ({
           )}
         </Box>
         <CopyButton value={address} />
-        <ExternalLinkButton href={`https://etherscan.com/address/${address}`} ariaLabel={address} />
+        <ExternalLinkButton href={`${accountExplorerAddressLink}${address}`} ariaLabel={address} />
       </HStack>
     </Card>
   )

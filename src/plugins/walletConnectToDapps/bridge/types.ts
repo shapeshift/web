@@ -1,29 +1,29 @@
 import type { ETHSignMessage, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 
-export interface WalletConnectSessionRequestPayload {
+export type WalletConnectSessionRequestPayload = {
   params: {
     chainId: number
   }[]
 }
-export interface WalletConnectEthSignCallRequest {
+export type WalletConnectEthSignCallRequest = {
   id: number
   method: 'eth_sign'
   params: [string, string]
 }
 
-export interface WalletConnectEthSignTypedDataCallRequest {
+export type WalletConnectEthSignTypedDataCallRequest = {
   id: number
   method: 'eth_signTypedData'
   params: [string, string]
 }
 
-export interface WalletConnectPersonalSignCallRequest {
+export type WalletConnectPersonalSignCallRequest = {
   id: number
   method: 'personal_sign'
   params: [string, string]
 }
 
-export interface WalletConnectEthSendTransactionCallRequest {
+export type WalletConnectEthSendTransactionCallRequest = {
   id: number
   method: 'eth_sendTransaction'
   params: {
@@ -37,7 +37,7 @@ export interface WalletConnectEthSendTransactionCallRequest {
   }[]
 }
 
-export interface WalletConnectEthSignTransactionCallRequest {
+export type WalletConnectEthSignTransactionCallRequest = {
   id: number
   method: 'eth_signTransaction'
   params: {

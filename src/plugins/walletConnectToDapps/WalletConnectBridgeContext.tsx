@@ -10,7 +10,7 @@ type WalletConnectBridgeContextValue = {
   evmChainId: ChainId
   accountExplorerAddressLink: string
   bridge: WalletConnectBridge | undefined
-  dapp: IClientMeta | undefined
+  dapp: IClientMeta | null
   callRequests: WalletConnectCallRequest[]
   connect(uri: string, account: string | null): Promise<void>
   disconnect(): Promise<void>
@@ -23,7 +23,7 @@ export const WalletConnectBridgeContext = createContext<WalletConnectBridgeConte
   evmChainId: 'eip155:1',
   accountExplorerAddressLink: '',
   bridge: undefined,
-  dapp: undefined,
+  dapp: null,
   callRequests: [],
   connect: Promise.resolve,
   disconnect: Promise.resolve,

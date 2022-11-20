@@ -8,24 +8,30 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { FC } from 'react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import { breakpoints } from 'theme/theme'
 
-type AssetSearchModalProps = {
-  onClick: (asset: Asset) => void
-  filterBy?: (assets: Asset[]) => Asset[] | undefined
+interface AssetSearchModalProps extends AssetSearchProps {
+  onClick: Required<AssetSearchProps>['onClick']
 }
 
-export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) => {
+export const AssetSearchModal: FC<AssetSearchModalProps> = ({
+  onClick,
+  filterBy,
+  disableUnsupported,
+}) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
-  const { assetSearch } = useModal()
-  const { close, isOpen } = assetSearch
+  const {
+    assetSearch: { close, isOpen },
+  } = useModal()
   const handleClick = useCallback(
     (asset: Asset) => {
       onClick(asset)
@@ -33,7 +39,7 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
     },
     [close, onClick],
   )
-  const modalHeight: number | undefined = windowHeight
+  const modalHeight = windowHeight
     ? // Converts pixel units to vh for Modal component
       Math.min(Math.round((680 / windowHeight) * 100), 80)
     : 80
@@ -44,7 +50,11 @@ export const AssetSearchModal = ({ onClick, filterBy }: AssetSearchModalProps) =
         <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody p={2} display='flex' flexDir='column'>
-          <AssetSearch onClick={handleClick} filterBy={filterBy} />
+          <AssetSearch
+            onClick={handleClick}
+            filterBy={filterBy}
+            disableUnsupported={disableUnsupported}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>

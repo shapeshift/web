@@ -58,7 +58,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   } = useModal()
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
-  const shuffleMnemonic = useCallback(async () => {
+  const shuffleMnemonic = useCallback(() => {
     if (testCount >= TEST_COUNT_REQUIRED) return
     try {
       const words = revocableWallet.getWords()
@@ -91,9 +91,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
     }
   }, [testCount, revocableWallet, shuffledNumbers, revoker])
 
-  useEffect(() => {
-    shuffleMnemonic().catch(() => setError('walletProvider.shapeShift.create.error'))
-  }, [shuffleMnemonic])
+  useEffect(() => shuffleMnemonic(), [shuffleMnemonic])
 
   useEffect(() => {
     // If we've passed the required number of tests, then we can proceed

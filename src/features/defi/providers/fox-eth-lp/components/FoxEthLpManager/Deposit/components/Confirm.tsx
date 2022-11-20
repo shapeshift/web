@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -24,7 +25,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,12 +34,14 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
 
-export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
-  const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()
+  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { addLiquidity } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
   const opportunity = useMemo(() => state?.opportunity, [state])
   const { chainId, assetReference } = query
 
@@ -58,8 +61,12 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   if (!state || !dispatch) return null

@@ -1,13 +1,13 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { foxEthLpAssetId } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -18,10 +18,11 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,12 +31,14 @@ import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
+
+export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const translate = useTranslate()
-  const { lpAccountAddress, onOngoingLpTxIdChange } = useFoxEth()
-  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
+  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountId)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -47,15 +50,26 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: ethAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: ethAssetId, accountId: accountId ?? '' }),
+    [accountId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  const hasEnoughBalanceForGas = useMemo(
+    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+  )
 
-  const handleConfirm = async () => {
+  const handleCancel = useCallback(() => {
+    onNext(DefiStep.Info)
+  }, [onNext])
+
+  const handleConfirm = useCallback(async () => {
+    if (!(dispatch && walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
     try {
-      if (!(walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
 
       const txid = await removeLiquidity(
@@ -72,15 +86,19 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     } finally {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    dispatch,
+    onNext,
+    onOngoingLpTxIdChange,
+    opportunity,
+    removeLiquidity,
+    state?.withdraw.ethAmount,
+    state?.withdraw.foxAmount,
+    state?.withdraw.lpAmount,
+    walletState.wallet,
+  ])
 
-  const handleCancel = () => {
-    onNext(DefiStep.Info)
-  }
-
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto))
-    .gte(0)
+  if (!state || !dispatch || !opportunity) return null
 
   return (
     <ReusableConfirm

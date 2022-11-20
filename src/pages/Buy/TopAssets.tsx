@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
@@ -18,7 +19,7 @@ import { SparkLine } from './components/Sparkline'
 type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketData>[0]
 type RowProps = Row<AssetWithMarketData>
 
-export const TopAssets = () => {
+export const TopAssets: React.FC = () => {
   const { fiatRamps } = useModal()
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
@@ -81,24 +82,30 @@ export const TopAssets = () => {
   )
 
   const handleClick = useCallback(
-    (assetId: AssetId) => {
-      // Open fiat modal
-      fiatRamps.open({ assetId })
-    },
+    (assetId: AssetId) => fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy }),
     [fiatRamps],
   )
 
   return (
     <Box>
-      <PageContainer maxWidth='6xl' flexDir='column' gap={4} display='flex' py='5rem'>
+      <PageContainer
+        maxWidth='6xl'
+        flexDir='column'
+        gap={4}
+        display='flex'
+        py='5rem'
+        pt={{ base: 8, md: '5rem' }}
+      >
         <Heading as='h4' px={{ base: 2, xl: 4 }}>
-          {translate('buyPage.topAssets')}
+          {translate('buyPage.availableAssets')}
         </Heading>
         <ReactTable
           columns={columns}
           data={fiatRampBuyAssetsWithMarketData}
           initialState={{ sortBy: [{ id: 'marketCap', desc: true }] }}
           onRowClick={(row: RowProps) => handleClick(row.original.assetId)}
+          rowDataTestKey='name'
+          rowDataTestPrefix='fiat-ramp'
         />
       </PageContainer>
     </Box>

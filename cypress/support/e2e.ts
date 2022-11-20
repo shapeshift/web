@@ -17,4 +17,9 @@ Cypress.on('uncaught:exception', err => {
     return false
   // This can happen when an upstream node is down. Don't fail our CI because of it.
   if (err.message.includes('timeout while trying to connect')) return false
+  // non-deterministic error coming from hdwallet re the demo wallet
+  if (
+    err.message.includes('Isolation.Engines.Dummy - Invalid operation: private key not available')
+  )
+    return false
 })

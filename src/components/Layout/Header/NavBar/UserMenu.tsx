@@ -5,7 +5,7 @@ import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { useEnsName } from 'wagmi'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
@@ -38,17 +38,13 @@ export type WalletConnectedProps = {
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
     <MemoryRouter initialEntries={entries}>
-      <Switch>
-        <Route path='/'>
-          <WalletConnectedMenu
-            isConnected={props.isConnected}
-            walletInfo={props.walletInfo}
-            onDisconnect={props.onDisconnect}
-            onSwitchProvider={props.onSwitchProvider}
-            type={props.type}
-          />
-        </Route>
-      </Switch>
+      <WalletConnectedMenu
+        isConnected={props.isConnected}
+        walletInfo={props.walletInfo}
+        onDisconnect={props.onDisconnect}
+        onSwitchProvider={props.onSwitchProvider}
+        type={props.type}
+      />
     </MemoryRouter>
   )
 }
@@ -82,25 +78,23 @@ const WalletButton: FC<WalletButtonProps> = ({
   })
 
   useEffect(() => {
-    ;(async () => {
-      setWalletLabel('')
-      setShouldShorten(true)
-      if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
-      // Wallet has a native label, we don't care about ENS name here
-      if (!walletInfo?.meta?.address && walletInfo.meta.label) {
-        setShouldShorten(false)
-        return setWalletLabel(walletInfo.meta.label)
-      }
+    setWalletLabel('')
+    setShouldShorten(true)
+    if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
+    // Wallet has a native label, we don't care about ENS name here
+    if (!walletInfo?.meta?.address && walletInfo.meta.label) {
+      setShouldShorten(false)
+      return setWalletLabel(walletInfo.meta.label)
+    }
 
-      // ENS successfully fetched. Set ENS name as label
-      if (isEnsNameLoaded && ensName) {
-        setShouldShorten(false)
-        return setWalletLabel(ensName!)
-      }
+    // ENS successfully fetched. Set ENS name as label
+    if (isEnsNameLoaded && ensName) {
+      setShouldShorten(false)
+      return setWalletLabel(ensName!)
+    }
 
-      // No label or ENS name, set regular wallet address as label
-      return setWalletLabel(walletInfo?.meta?.address ?? '')
-    })()
+    // No label or ENS name, set regular wallet address as label
+    return setWalletLabel(walletInfo?.meta?.address ?? '')
   }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (

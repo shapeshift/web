@@ -30,7 +30,6 @@ import {
   selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
@@ -45,7 +44,7 @@ const moduleLogger = logger.child({
 
 type CosmosDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 
 export const CosmosDeposit: React.FC<CosmosDepositProps> = ({

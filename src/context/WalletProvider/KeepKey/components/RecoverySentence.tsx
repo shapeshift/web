@@ -1,5 +1,4 @@
-import { Alert, AlertIcon, Flex, useColorModeValue } from '@chakra-ui/react'
-import { ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Alert, AlertIcon, Flex, ModalBody, ModalHeader, useColorModeValue } from '@chakra-ui/react'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
 import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'

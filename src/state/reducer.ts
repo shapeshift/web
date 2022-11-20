@@ -7,7 +7,6 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
-import { foxEth, foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
@@ -22,7 +21,6 @@ export const slices = {
   validatorData,
   portfolio,
   preferences,
-  foxEth,
 }
 
 const preferencesPersistConfig = {
@@ -39,7 +37,6 @@ export const sliceReducers = {
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   validatorData: validatorData.reducer,
   swapperApi: swapperApi.reducer,
-  foxEth: foxEth.reducer,
   opportunities: opportunities.reducer,
 }
 
@@ -49,8 +46,9 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  swapperApi,
+  foxyApi,
   fiatRampApi,
-  foxEthApi,
   opportunitiesApi,
   abiApi,
 }
@@ -64,7 +62,6 @@ export const apiReducers = {
   [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
-  [foxEthApi.reducerPath]: foxEthApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
 }

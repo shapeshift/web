@@ -24,7 +24,6 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
 import { useHistory } from 'react-router-dom'
 import { useEnsName } from 'wagmi'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -42,7 +41,7 @@ import { ReceiveRoutes } from './ReceiveCommon'
 type ReceivePropsType = {
   asset: Asset
   accountId?: AccountId
-} & RouteComponentProps
+}
 
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
@@ -101,7 +100,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [ensName, isEnsNameLoaded])
 
   const handleVerify = async () => {
-    if (!(wallet && chainAdapter && receiveAddress)) return
+    if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
     const { chainNamespace } = fromChainId(asset.chainId)
     if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
     const deviceAddress = await chainAdapter.getAddress({

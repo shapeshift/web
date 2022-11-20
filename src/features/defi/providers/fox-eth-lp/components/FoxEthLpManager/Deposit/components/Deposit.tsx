@@ -25,7 +25,6 @@ import {
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -33,7 +32,7 @@ import { DepositContext } from '../DepositContext'
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange?: AccountDropdownProps['onChange']
 }
 
@@ -48,9 +47,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
-  const { lpAccountAddress } = useFoxEth()
-  const { allowance, getApproveGasData, getDepositGasData } =
-    useFoxEthLiquidityPool(lpAccountAddress)
+  const { lpAccountId } = useFoxEth()
+  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })

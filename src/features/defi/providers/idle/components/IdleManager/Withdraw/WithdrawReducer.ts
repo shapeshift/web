@@ -2,9 +2,9 @@ import type { IdleWithdrawActions, IdleWithdrawState } from './WithdrawCommon'
 import { IdleWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: IdleWithdrawState = {
-  txid: null,
-  opportunity: null,
-  userAddress: null,
+  txid: undefined,
+  opportunity: undefined,
+  userAddress: undefined,
   loading: false,
   approve: {},
   withdraw: {
@@ -22,7 +22,7 @@ export const reducer = (
 ): IdleWithdrawState => {
   switch (action.type) {
     case IdleWithdrawActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
+      return { ...state, opportunity: action.payload }
     case IdleWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case IdleWithdrawActionType.SET_USER_ADDRESS:

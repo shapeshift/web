@@ -4,7 +4,8 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
+import { useIdle } from 'features/defi/contexts/IdleProvider/useIdle'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import type { SerializableOpportunity as IdleSerializableOpportunity } from 'features/defi/providers/idle/components/IdleManager/Deposit/DepositCommon'
 import type { SerializableOpportunity as YearnSerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
@@ -14,7 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectMarketData,
@@ -46,7 +47,7 @@ export type IdleEarnVault = Partial<Account<ChainId>> &
     pricePerShare: BigNumber
   }
 
-async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInvestor | null) {
+async function getYearnVaults(balances: AssetBalancesById, yearn: YearnInvestor | null) {
   const acc: Record<string, YearnEarnVault> = {}
   if (!yearn) return acc
   const opportunities = await yearn.findAll()
@@ -71,7 +72,7 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnInves
   return acc
 }
 
-async function getIdleVaults(balances: PortfolioBalancesById, idleInvestor: IdleInvestor | null) {
+async function getIdleVaults(balances: AssetBalancesById, idleInvestor: IdleInvestor | undefined) {
   if (!idleInvestor) return {}
   const opportunities = await idleInvestor.findAll()
 
@@ -125,7 +126,9 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
-  const { idleInvestor, loading: idleLoading } = useIdle()
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
+
+  const { loading: idleLoading } = useIdle()
   const { yearn, loading: yearnLoading } = useYearn()
 
   const balances = useSelector(selectPortfolioAssetBalances)

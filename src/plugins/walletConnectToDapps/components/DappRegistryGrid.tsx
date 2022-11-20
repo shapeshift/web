@@ -73,7 +73,12 @@ export const DappRegistryGrid: FC = () => {
       {!!filteredListings.length ? (
         <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
           {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (
-            <Link key={listing.id} href={listing.homepage} isExternal>
+            <Link
+              key={listing.id}
+              href={listing.homepage}
+              isExternal
+              data-test={`dapp-button-${listing.name.toLowerCase().split(' ').join('-')}`}
+            >
               <Box
                 borderRadius='lg'
                 p={2}

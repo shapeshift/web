@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -18,16 +18,14 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
-  selectMarketDataById,
+  selectEarnUserLpOpportunity,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
-import { foxEthLpOpportunityName } from '../../../constants'
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
@@ -37,7 +35,7 @@ import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
 type FoxEthLpWithdrawProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -64,16 +62,17 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
     [accountId],
   )
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
-    }),
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   // user info
@@ -81,9 +80,9 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!walletState || !opportunity) return
-    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-  }, [opportunity, walletState])
+    if (!walletState || !foxEthLpOpportunity) return
+    dispatch({ type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
+  }, [foxEthLpOpportunity, walletState])
 
   const handleBack = () => {
     history.push({
@@ -108,11 +107,11 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
@@ -121,7 +120,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
     }
   }, [accountId, handleAccountIdChange, translate, underlyingAsset.symbol])
 
-  if (loading || !asset || !marketData)
+  if (loading || !asset || !foxEthLpOpportunity)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -133,7 +132,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: foxEthLpOpportunityName,
+            opportunity: foxEthLpOpportunity.opportunityName!,
           })}
           onBack={handleBack}
         />

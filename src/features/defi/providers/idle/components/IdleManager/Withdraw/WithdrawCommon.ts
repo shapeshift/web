@@ -38,12 +38,12 @@ type SerializableOpportunity = Omit<
 >
 
 export type IdleWithdrawState = {
-  opportunity: SerializableOpportunity | null
-  userAddress: string | null
+  opportunity: SerializableOpportunity | undefined
+  userAddress: string | undefined
   approve: EstimatedGas
   withdraw: IdleWithdrawValues
   loading: boolean
-  txid: string | null
+  txid: string | undefined
 }
 
 export enum IdleWithdrawActionType {

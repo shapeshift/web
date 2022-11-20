@@ -33,7 +33,7 @@ describe('useHasAppUpdated', () => {
       })
 
       const { result } = renderHook(() => useHasAppUpdated())
-      await act(async () => void 0)
+      await act(() => void 0)
       expect(result.current).toBe(false)
     })
 

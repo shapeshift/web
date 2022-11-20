@@ -61,10 +61,11 @@ export const OpportunityCard = ({
   opportunityName,
   version,
   highestBalanceAccountAddress,
+  underlyingAssetId,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
   const { assetReference } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)

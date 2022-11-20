@@ -53,7 +53,12 @@ export const Governance = () => {
                     <CText fontWeight='semibold'>{choice}</CText>
 
                     <Flex>
-                      <Amount value={proposal.results[i].absolute} fontWeight='semibold' mr={2} />
+                      <Amount
+                        value={proposal.results[i].absolute}
+                        maximumFractionDigits={2}
+                        fontWeight='semibold'
+                        mr={2}
+                      />
                       <Badge
                         colorScheme='blue'
                         display='flex'

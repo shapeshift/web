@@ -8,6 +8,7 @@ import {
   fauxmesAccountId,
   gomesAccountId,
   mockLpContractOne,
+  mockLpContractTwo,
   mockStakingContractOne,
 } from './mocks'
 import { initialState, opportunities } from './opportunitiesSlice'
@@ -19,7 +20,7 @@ describe('opportunitiesSlice', () => {
     clearState()
   })
 
-  it('returns uninitialized properties for initialState', async () => {
+  it('returns uninitialized properties for initialState', () => {
     expect(store.getState().opportunities).toEqual(initialState)
   })
 
@@ -34,30 +35,81 @@ describe('opportunitiesSlice', () => {
       it('inserts metadata', () => {
         const payload: GetOpportunityMetadataOutput = {
           byId: {
-            'eip155:1:0xMyContract': {
+            [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxEthLP,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
               underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+                string,
+                string,
+              ],
             },
           },
           type: DefiType.LiquidityPool,
         }
-        const expected = {
-          'eip155:1:0xMyContract': {
-            apy: '0.42',
-            assetId: foxEthLpAssetId,
-            provider: DefiProvider.FoxEthLP,
-            tvl: '424242',
-            type: DefiType.LiquidityPool,
-            underlyingAssetIds: [foxAssetId, ethAssetId],
-          },
-        }
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
-        expect(store.getState().opportunities.lp.byId).toEqual(expected)
+        expect(store.getState().opportunities.lp.byId).toEqual(payload.byId)
+        expect(store.getState().opportunities.lp.ids).toEqual([mockLpContractOne])
+      })
+
+      it('merges prevState and payload', () => {
+        const insertPayloadOne: GetOpportunityMetadataOutput = {
+          byId: {
+            [mockLpContractOne]: {
+              // The LP token AssetId
+              assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
+              provider: DefiProvider.FoxEthLP,
+              tvl: '424242',
+              apy: '0.42',
+              type: DefiType.LiquidityPool,
+              underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+                string,
+                string,
+              ],
+            },
+          },
+          type: DefiType.LiquidityPool,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadOne))
+        expect(store.getState().opportunities.lp.byId).toEqual(insertPayloadOne.byId)
+
+        const insertPayloadTwo: GetOpportunityMetadataOutput = {
+          byId: {
+            [mockLpContractTwo]: {
+              // The LP token AssetId
+              assetId: foxEthLpAssetId,
+              underlyingAssetId: foxEthLpAssetId,
+              provider: DefiProvider.FoxEthLP,
+              tvl: '424242',
+              apy: '0.42',
+              type: DefiType.LiquidityPool,
+              underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
+              underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [
+                string,
+                string,
+              ],
+            },
+          },
+          type: DefiType.LiquidityPool,
+        }
+
+        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadTwo))
+        expect(store.getState().opportunities.lp.byId).toEqual({
+          ...insertPayloadOne.byId,
+          ...insertPayloadTwo.byId,
+        })
+        expect(store.getState().opportunities.lp.ids).toEqual([
+          mockLpContractOne,
+          mockLpContractTwo,
+        ])
       })
     })
     describe('upsertOpportunityAccounts', () => {
@@ -141,14 +193,48 @@ describe('opportunitiesSlice', () => {
     describe('upsertUserStakingOpportunities', () => {
       it('inserts user data', () => {
         const payload = {
-          [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
-            stakedAmountCryptoPrecision: '42000',
-            rewardsAmountCryptoPrecision: '42',
+          byId: {
+            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountsCryptoPrecision: ['42'] as [string],
+            },
           },
         }
         store.dispatch(opportunities.actions.upsertUserStakingOpportunities(payload))
-        expect(store.getState().opportunities.userStaking.byId).toEqual(payload)
-        expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload))
+        expect(store.getState().opportunities.userStaking.byId).toEqual(payload.byId)
+        expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload.byId))
+      })
+      it('merges prevState and payload', () => {
+        const insertPayloadOne = {
+          byId: {
+            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountsCryptoPrecision: ['42'] as [string],
+            },
+          },
+        }
+        store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadOne))
+        expect(store.getState().opportunities.userStaking.byId).toEqual(insertPayloadOne.byId)
+        expect(store.getState().opportunities.userStaking.ids).toEqual(
+          Object.keys(insertPayloadOne.byId),
+        )
+
+        const insertPayloadTwo = {
+          byId: {
+            [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
+              stakedAmountCryptoPrecision: '42000',
+              rewardsAmountsCryptoPrecision: ['42'] as [string],
+            },
+          },
+        }
+        store.dispatch(opportunities.actions.upsertUserStakingOpportunities(insertPayloadTwo))
+        expect(store.getState().opportunities.userStaking.byId).toEqual({
+          ...insertPayloadOne.byId,
+          ...insertPayloadTwo.byId,
+        })
+        expect(store.getState().opportunities.userStaking.ids).toEqual(
+          Object.keys({ ...insertPayloadOne.byId, ...insertPayloadTwo.byId }),
+        )
       })
     })
   })

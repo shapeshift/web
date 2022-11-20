@@ -8,7 +8,10 @@ import { simpleLocale } from 'lib/browserLocale'
 dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
-  Osmosis: boolean
+  OsmosisSend: boolean
+  OsmosisStaking: boolean
+  OsmosisSwap: boolean
+  OsmosisLP: boolean
   Thorchain: boolean
   ThorSwap: boolean
   CowSwap: boolean
@@ -21,6 +24,7 @@ export type FeatureFlags = {
   WalletConnectToDapps: boolean
   MigrationMessage: boolean
   DashboardBreakdown: boolean
+  FiatPopup: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -41,7 +45,10 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
+    OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
+    OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
+    OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
+    OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
@@ -54,6 +61,7 @@ const initialState: Preferences = {
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
+    FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

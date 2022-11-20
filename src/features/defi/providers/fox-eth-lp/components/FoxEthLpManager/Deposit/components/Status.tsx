@@ -23,20 +23,20 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
-  selectFoxEthLpOpportunityByAccountAddress,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type StatusProps = { accountId: Nullable<AccountId> }
+type StatusProps = { accountId: AccountId | undefined }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
@@ -49,10 +49,16 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     [accountId],
   )
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectFoxEthLpOpportunityByAccountAddress(state, {
-      accountAddress: accountAddress ?? '',
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
     }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
   const feeAssetId = toAssetId({

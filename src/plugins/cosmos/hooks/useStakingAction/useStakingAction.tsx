@@ -63,7 +63,7 @@ export const useStakingAction = () => {
 
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
-      const { txToSign } = await (async () => {
+      const { txToSign } = await (() => {
         switch (action) {
           case StakingAction.Claim:
             return adapter.buildClaimRewardsTransaction({

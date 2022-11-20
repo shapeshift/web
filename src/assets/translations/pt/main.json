@@ -77,7 +77,26 @@
     "selectAsset": "Selecione um ativo.",
     "switchNetwork": "Mudar a rede",
     "unsupportedNetwork": "Rede não suportada",
-    "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}."
+    "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}.",
+    "search": "Procurar",
+    "enterAmount": "Insira a quantia",
+    "pageNotFound": "A página que você está procurando não pode ser encontrada"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Compre Cripto",
+      "second": "Em segundos"
+    },
+    "body": "Use cartão de crédito, débito ou conta bancária. Compre Bitcoin, Ethereum, USDT USDC ou outras centenas de criptomoedas. ",
+    "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
+    "cta": {
+      "title": {
+        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negocial, ganhar recompensas e",
+        "second": "monitorar suas criptos em 8 redes diferentes."
+      }
+    },
+    "availableAssets": "Ativos disponíveis",
+    "topAssets": "Maiores Ativos"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -108,6 +127,8 @@
       "value": "Valor",
       "priceChange": "Variação de Preço",
       "allocation": "Alocação",
+      "marketCap": "Capitalização de Mercado",
+      "sparkLine": "Brilho",
       "empty": {
         "title": "Cri.. Cri.. Eu ouvi um grilo?",
         "cta": "Envie cripto para seu endereço"
@@ -116,6 +137,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Transações Recentes"
+    },
+    "tradeCard": {
+      "trade": "Negocie",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -146,7 +171,8 @@
     "nonUS": "não residente nos EUA",
     "availableProviders": "Soluções disponíveis",
     "noProvidersAvailable": "Nenhuma solução disponível",
-    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo."
+    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo.",
+    "notSupported": "%{asset} não é suportado pela %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -249,6 +275,10 @@
         "claimYour": "Ganhar %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Por favor, não edite o memo da transação",
+      "body": "As transações vindas da ShapeShit ajudam a sustentar a DAO."
+    },
     "amountToStake": "Montante para depósito",
     "amountToUnstake": "Valor a retirar",
     "confirmDetails": "Confirmar",
@@ -283,6 +313,7 @@
     "asset": "Ativo",
     "category": "Categoria",
     "tvl": "TVL",
+    "type": "Tipo",
     "apy": "APY",
     "apr": "APR",
     "ended": "Finalizado",
@@ -364,6 +395,7 @@
     "assetStakingBalance": "Saldo em Staking %{assetName}"
   },
   "navBar": {
+    "home": "Início",
     "dashboard": "Painel de Controle",
     "assets": "Ativos",
     "assetDetails": "Detalhes do recurso",
@@ -383,7 +415,8 @@
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
     "explore": "Explorar",
-    "trade": "Negocie"
+    "trade": "Negocie",
+    "buyCrypto": "Compre Cripto"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -960,7 +993,7 @@
           "pin": "O PIN é uma combinação de até 9 números que você seleciona após inicializar a KeepKey. Um PIN protege seu dispositivo contra uso não autorizado caso sua KeepKey caia em mãos erradas.",
           "passphrase": "Habilite a capacidade de ter várias carteiras acessíveis usando uma senha exclusiva para cada carteira.",
           "label": "Nomear seu dispositivo permite distinguir facilmente um do outro.",
-          "timeout": "Seu dispositivo vai hibernar após 10 minutos de atividade por padrão. No entanto, você pode alterar isso.",
+          "timeout": "Seu dispositivo entra no modo de espera após 10 minutos de inatividade por padrão. No entanto, você pode mudar isso.",
           "buttonPrompt": "Pressione e segure o botão em sua KeepKey para alterar o dispositivo %{setting}.",
           "updateSuccess": "%{setting} atualizado com sucesso!",
           "updateFailed": "Ocorreu um erro durante a atualização do dispositivo %{setting}.",
@@ -1313,7 +1346,10 @@
     "selectChain": "Selecione a rede em que você deseja criar uma conta.",
     "requiresPriorTxHistory": "Você só pode adicionar uma nova conta se as contas existentes tiverem histórico de transações anteriores.",
     "newAccountAdded": "Nova conta %{name} adicionada",
-    "youCanNowUse": "Agora você pode usar %{name} Conta #%{accountNumber}"
+    "youCanNowUse": "Agora você pode usar %{name} Conta #%{accountNumber}",
+    "showAssets": "Mostrar ativos",
+    "hideAssets": "Esconder ativos",
+    "viewAccount": "Veja a conta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1430,6 +1466,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Assinatura de",
+          "requestFrom": "Requisitado por",
+          "message": "Mensagem",
+          "description": "Você precisa confirmar a assinatura da mensagem com a sua wallet conectada.",
+          "confirm": "Confirmar",
+          "reject": "Rejeitar"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Parâmetros Avançados",
+            "alert": "Somente para usuários avançados.\nModificar estas configurações pode resultar em transações não executadas.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "Nonce explicado aqui"
+            },
+            "gasLimit": {
+              "title": "Limite de Gas",
+              "placeholder": "Limite de Gas...",
+              "tooltip": "Explicação sobre o limite do gas aqui"
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps disponíveis.",
         "getStarted": "Começando",
@@ -1454,5 +1518,26 @@
         "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 minutos",
+      "average": "~ 3 minutos",
+      "fast": "~ 3 segundos"
+    },
+    "estGasCost": "Custo Estimado do Gas",
+    "gasPrice": {
+      "label": "Preço do Gas",
+      "tooltip": "TODO: Preço do Gas Tooltip"
+    },
+    "base": {
+      "label": "Taxa base",
+      "tooltip": "A taxa base é definida pela rede e muda a cada 13-14 segundos dependendo da demanda. Coloque o preço máximo (sem incluir a taxa de prioridade) em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "priority": {
+      "label": "Taxa de Prioridade",
+      "tooltip": "A taxa de prioridade é uma gorjeta opcional para incentivar os produtores de blocos a priorizar sua transação. Determine a taxa de prioridade em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "custom": "Customizar"
   }
 }

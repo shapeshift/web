@@ -102,6 +102,7 @@ export const useSwapper = () => {
     if (!bestTradeSwapper) return false
     switch (bestTradeSwapper.name) {
       case SwapperName.Thorchain:
+      case SwapperName.Osmosis:
         return true
       case SwapperName.Zrx:
       case SwapperName.CowSwap:
@@ -112,13 +113,10 @@ export const useSwapper = () => {
   }, [bestTradeSwapper])
 
   const getReceiveAddressFromBuyAsset = useCallback(
-    async (buyAsset: Asset) => {
-      return getReceiveAddress({
-        asset: buyAsset,
-        wallet,
-        bip44Params: buyAccountMetadata.bip44Params,
-        accountType: buyAccountMetadata.accountType,
-      })
+    (buyAsset: Asset) => {
+      if (!buyAccountMetadata) return
+      const { accountType, bip44Params } = buyAccountMetadata
+      return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
     },
     [buyAccountMetadata, wallet],
   )

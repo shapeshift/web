@@ -33,13 +33,13 @@ type SerializableOpportunity = Omit<
 >
 
 export type IdleClaimState = {
-  opportunity: SerializableOpportunity | null
-  userAddress: string | null
+  opportunity: SerializableOpportunity | undefined
+  userAddress: string | undefined
   approve: EstimatedGas
   claim: IdleClaimValues
   claimableTokens: ClaimableToken[]
   loading: boolean
-  txid: string | null
+  txid: string | undefined
 }
 
 export enum IdleClaimActionType {

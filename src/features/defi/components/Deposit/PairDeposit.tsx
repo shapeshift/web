@@ -15,12 +15,11 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { Nullable } from 'types/common'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
 type DepositProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   asset1: Asset
   asset2: Asset
   destAsset: Asset

@@ -12,7 +12,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
@@ -30,7 +30,6 @@ import {
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -84,10 +83,13 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
-  const feeAssetBalance = useAppSelector(state =>
-    sellFeeAsset
-      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellFeeAsset?.assetId })
-      : null,
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
+    [sellAssetAccountId, sellFeeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const sellAssetBalanceFilter = useMemo(
@@ -124,7 +126,9 @@ export const TradeInput = () => {
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
-  const gasFee = bnOrZero(fees?.networkFeeCryptoHuman).times(bnOrZero(feeAssetFiatRate)).toString()
+  const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
+    .times(bnOrZero(feeAssetFiatRate))
+    .toString()
 
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
@@ -150,7 +154,7 @@ export const TradeInput = () => {
     ],
   )
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(() => {
     try {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset
@@ -276,7 +280,7 @@ export const TradeInput = () => {
     [sellTradeAsset?.amount, buyTradeAsset?.amount, isTradeQuotePending],
   )
 
-  const getTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
+  const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellTradeAsset?.amount),
     )
@@ -345,14 +349,14 @@ export const TradeInput = () => {
   ])
 
   const hasError = useMemo(() => {
-    switch (getTranslationKey()) {
+    switch (getErrorTranslationKey()) {
       case 'trade.previewTrade':
       case 'trade.updatingQuote':
         return false
       default:
         return true
     }
-  }, [getTranslationKey])
+  }, [getErrorTranslationKey])
 
   const sellAmountTooSmall = useMemo(() => {
     switch (true) {
@@ -436,7 +440,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellTradeAsset?.asset?.symbol}
             buySymbol={buyTradeAsset?.asset?.symbol}
-            gasFee={gasFee}
+            gasFee={gasFeeFiat}
             rate={quote?.rate}
             isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
@@ -462,7 +466,7 @@ export const TradeInput = () => {
           isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
           isLoading={isLoading}
         >
-          <Text translation={getTranslationKey()} />
+          <Text translation={getErrorTranslationKey()} />
         </Button>
       </Stack>
     </SlideTransition>

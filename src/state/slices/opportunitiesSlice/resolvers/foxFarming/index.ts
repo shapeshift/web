@@ -115,7 +115,7 @@ export const foxFarmingLpMetadataResolver = async ({
       [opportunityId]: {
         apy,
         assetId: opportunityId,
-        provider: DefiProvider.FoxFarming,
+        provider: DefiProvider.FoxEthLP,
         tvl,
         type: DefiType.LiquidityPool,
         underlyingAssetId: foxEthLpAssetId,

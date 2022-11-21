@@ -264,7 +264,9 @@ export const TradeConfirm = () => {
         )}
       </Flex>
     )
-    const shouldRenderWarnings = tradeWarningElement.props.children.type !== null
+    const shouldRenderWarnings = tradeWarningElement.props?.children?.some(
+      (child: JSX.Element | false) => !!child,
+    )
     return shouldRenderWarnings ? tradeWarningElement : null
   }, [fees?.tradeFeeSource, trade.buyAsset.assetId, translate])
 

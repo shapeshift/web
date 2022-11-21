@@ -64,7 +64,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       ? {
           ...baseOpportunity,
           apy: opportunity.apy.toFixed(),
-          tvl: opportunity.tvl.balance.toFixed(),
+          tvl: opportunity.tvl.balanceUsdc.toFixed(),
         }
       : {
           apy: opportunity.apy.toFixed(),

@@ -230,8 +230,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   }, [connectedEvmChainId, wallet])
 
   const handleConnect = useCallback(
-    async (...args) => {
-      console.info(args)
+    async (err: Error | null, payload: any) => {
+      if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
+      moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
       if (!connector) return
       if (connector.connected) return
       await connector.createSession()

@@ -35,6 +35,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
+  const [dapp, setDapp] = useState<any>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
   const evmChainId = useMemo(() => connectedEvmChainId ?? ethChainId, [connectedEvmChainId])
@@ -76,12 +77,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   const handleSessionRequest = useCallback(
-    (error: Error | null, _payload: WalletConnectSessionRequestPayload) => {
-      debugger
+    (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
       if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
       if (!connector) return
       if (!wcAccountId) return
       const { chainId, account } = fromAccountId(wcAccountId)
+      moduleLogger.info(payload, 'approve wc session')
       connector.approveSession({
         chainId: parseInt(fromChainId(chainId).chainReference),
         accounts: [account],
@@ -201,7 +202,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSessionUpdate = useCallback(
     (...args: any) => {
-      moduleLogger.info('handleSessionUpdate', args)
+      console.info('handleSessionUpdate', args)
       debugger
       if (!connector) return
       if (!wcAccountId) return
@@ -225,6 +226,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector.off('connect')
     connector.off('disconnect')
     connector.off('call_request')
+    setDapp(undefined)
+    setConnector(undefined)
   }, [connector])
 
   // if connectedEvmChainId or wallet changes, update the walletconnect session
@@ -239,17 +242,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedEvmChainId, wallet])
 
-  const handleConnect = useCallback(
-    async (err: Error | null, payload: any) => {
-      debugger
-      if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
-      moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
-      if (!connector) return
-      if (connector.connected) return
-      await connector.createSession()
-    },
-    [connector],
-  )
+  const handleConnect = useCallback((err: Error | null, payload: any) => {
+    if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
+    moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
+    setDapp(payload.params[0].peerMeta)
+    debugger
+  }, [])
 
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.
@@ -318,8 +316,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const fromSession = useCallback((session: IWalletConnectSession) => {
     const c = new WalletConnect({ bridge, session })
     setConnector(c)
-    // TODO(0xdef1cafe): err handling
-    if (!c.connected) c.connect()
     return c
   }, [])
 
@@ -343,7 +339,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     // maybeHydrateSession()
   })
 
-  const dapp = useMemo(() => connector?.peerMeta ?? null, [connector?.peerMeta])
   console.info({ dapp })
 
   return (

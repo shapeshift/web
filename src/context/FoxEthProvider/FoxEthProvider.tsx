@@ -13,8 +13,6 @@ import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesS
 import {
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
-  fetchAllStakingOpportunitiesMetadata,
-  fetchAllStakingOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -103,18 +101,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
       })()
     }
   }, [adapter, wallet, lpBip44Params])
-
-  useEffect(() => {
-    // getting fox-eth lp token data
-    ;(async () => {
-      // getting fox-eth lp token balances
-      await fetchAllStakingOpportunitiesMetadata()
-      // getting fox farm contract data
-      ;[...stakingAccountIds, ...lpAccountIds].forEach(accountId =>
-        fetchAllStakingOpportunitiesUserData(accountId),
-      )
-    })()
-  }, [dispatch, stakingAccountIds, lpAccountIds])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

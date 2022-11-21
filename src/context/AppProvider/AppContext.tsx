@@ -218,9 +218,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       })
     })()
-    // this effect cares specifically about changes to portfolio accounts or assets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, portfolioLoadingStatus, portfolioAccounts, portfolioAssetIds])
+  }, [
+    dispatch,
+    portfolioLoadingStatus,
+    portfolioAccounts,
+    portfolioAssetIds,
+    wallet,
+    requestedAccountIds,
+  ])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date

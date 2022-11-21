@@ -34,11 +34,15 @@ export const fetchAllStakingOpportunitiesMetadata = async (
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
   await Promise.all([
-    opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Idle,
-      opportunityType: DefiType.Staking,
-    }),
+    opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+      {
+        defiType: DefiType.Staking,
+        defiProvider: DefiProvider.Idle,
+        opportunityType: DefiType.Staking,
+      },
+      // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+      { forceRefetch: false, ...options },
+    ),
     ...foxEthStakingIds.map(
       async opportunityId =>
         await store.dispatch(
@@ -123,7 +127,8 @@ export const fetchAllLpOpportunitiesUserdata = async (
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.Idle,
       opportunityType: DefiType.Staking,
-    }),
+      // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+      { forceRefetch: false, ...options }),
     ...foxEthLpAssetIds.map(
       async opportunityId =>
         await store.dispatch(

@@ -216,12 +216,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleDisconnect = useCallback(async () => {
     if (!connector) return
-    await connector.killSession()
     connector.off('session_request')
     connector.off('session_update')
     connector.off('connect')
     connector.off('disconnect')
     connector.off('call_request')
+    await connector.killSession()
     setDapp(undefined)
     setConnector(undefined)
   }, [connector])
@@ -258,8 +258,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     moduleLogger.info(args, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
   }, [])
 
-  const handleWcSessionUpdate = useCallback((...args: any) => {
-    moduleLogger.info(args, { fn: 'handleWcSessionUpdate' }, 'handleWcSessionUpdate')
+  const handleWcSessionUpdate = useCallback((err: Error | null, payload: any) => {
+    if (err) {
+      moduleLogger.error(err, 'handleWcSessionUpdate')
+    }
+    // TODO(0xdef1cafe): handle disconnect from dapp side here
+    console.info('handleWcSessionUpdate', payload)
+    if (!payload?.params?.[0]?.accounts) {
+      debugger
+    }
+    debugger
   }, [])
 
   useEffect(() => {
@@ -311,6 +319,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!wcSessionJsonString) return
     const session = JSON.parse(wcSessionJsonString)
     fromSession(session)
+    const d = session?.peerMeta
+    if (d) setDapp(d)
   }, [connector, fromSession])
 
   /**

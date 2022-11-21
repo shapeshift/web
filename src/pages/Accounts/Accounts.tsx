@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
@@ -15,7 +14,6 @@ import { ChainRow } from './components/ChainRow'
 
 const AccountHeader = () => {
   const translate = useTranslate()
-  const isMultiAccountEnabled = useFeatureFlag('MultiAccounts')
   const {
     state: { wallet },
   } = useWallet()
@@ -35,7 +33,7 @@ const AccountHeader = () => {
       <Heading>
         <Text translation='accounts.accounts' />
       </Heading>
-      {isMultiAccountEnabled && isMultiAccountWallet && (
+      {isMultiAccountWallet && (
         <Button
           loadingText={translate('accounts.addAccount')}
           leftIcon={<AddIcon />}

@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -52,14 +52,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const feeAssetId = chainAdapter?.getFeeAssetId()
 
   const opportunityId = useMemo(
@@ -125,14 +118,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           assetReference &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData?.assetId
         )
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        opportunity.positionAsset.assetId ?? '',
-      )
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData?.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
@@ -156,12 +148,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dispatch,
     bip44Params,
     userAddress,
-    state?.withdraw.cryptoAmount,
     walletState.wallet,
     assetReference,
     opportunity,
     chainAdapter,
+    opportunityData?.assetId,
     idleInvestor,
+    state?.withdraw.cryptoAmount,
     asset.precision,
     onNext,
   ])
@@ -196,11 +189,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

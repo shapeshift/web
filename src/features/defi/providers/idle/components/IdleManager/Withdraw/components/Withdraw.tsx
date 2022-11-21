@@ -37,7 +37,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  const opportunity = state?.opportunity
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -79,32 +78,24 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [opportunityData?.underlyingAssetIds],
   )
 
+  const assetId = useMemo(() => opportunityData?.assetId ?? '', [opportunityData?.assetId])
+
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
 
-  const pricePerShare = useMemo(() => {
-    if (!state?.opportunity) return bnOrZero(0)
-    return bnOrZero(state.opportunity?.positionAsset.underlyingPerPosition).div(
-      `1e+${underlyingAsset?.precision}`,
-    )
-  }, [state?.opportunity, underlyingAsset])
-
-  const vaultTokenPrice = pricePerShare.times(marketData.price).toString()
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(assetMarketData.price)
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(userAddress && opportunity && assetReference)) return
+      if (!(userAddress && opportunityData && assetReference)) return
       try {
-        const idleOpportunity = await idleInvestor.findByOpportunityId(
-          opportunity?.positionAsset.assetId,
-        )
+        const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData?.assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareWithdrawal({
           amount: bnOrZero(withdraw.cryptoAmount)
@@ -121,12 +112,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
       }
     },
-    [userAddress, opportunity, assetReference, idleInvestor, underlyingAsset.precision],
+    [userAddress, opportunityData, assetReference, idleInvestor, underlyingAsset.precision],
   )
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && opportunity && dispatch)) return
+      if (!(userAddress && dispatch)) return
       // set withdraw state for future use
       dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
@@ -139,7 +130,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
     },
-    [userAddress, getWithdrawGasEstimate, onNext, opportunity, dispatch],
+    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
   )
 
   const handleCancel = useCallback(() => {
@@ -149,11 +140,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(vaultTokenPrice)
+      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     },
-    [cryptoAmountAvailable, vaultTokenPrice, setValue],
+    [cryptoAmountAvailable, assetMarketData.price, setValue],
   )
 
   const validateCryptoAmount = useCallback(
@@ -170,13 +161,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
-      const fiat = crypto.times(vaultTokenPrice)
+      const fiat = crypto.times(assetMarketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [opportunityData?.stakedAmountCryptoPrecision, vaultTokenPrice],
+    [assetMarketData.price, opportunityData?.stakedAmountCryptoPrecision],
   )
 
   if (!state) return null
@@ -198,7 +189,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         marketData={{
           // The vault asset doesnt have market data.
           // We're making our own market data object for the withdraw view
-          price: vaultTokenPrice,
+          price: assetMarketData?.price,
           marketCap: '0',
           volume: '0',
           changePercent24Hr: 0,

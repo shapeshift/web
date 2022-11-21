@@ -32,9 +32,11 @@ export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
+
+  const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -42,11 +44,6 @@ export const Status = () => {
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -135,10 +132,10 @@ export const Status = () => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

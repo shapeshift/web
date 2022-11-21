@@ -28,6 +28,7 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
+  fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
@@ -186,6 +187,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
+      await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(async accountId => {

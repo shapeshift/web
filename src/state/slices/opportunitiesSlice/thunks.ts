@@ -52,6 +52,27 @@ export const fetchAllStakingOpportunitiesMetadata = async (
   )
 }
 
+export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreatorOptions) => {
+  const { getOpportunityIds } = opportunitiesApi.endpoints
+
+  const queries = [
+    {
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.Idle,
+    },
+    {
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.FoxFarming,
+    },
+    {
+      defiType: DefiType.LiquidityPool,
+      defiProvider: DefiProvider.FoxFarming,
+    },
+  ]
+
+  await Promise.all(queries.map(query => getOpportunityIds.initiate(query, options)))
+}
+
 export const fetchAllOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
   // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming

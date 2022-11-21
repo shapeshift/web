@@ -200,12 +200,12 @@ export const TradeConfirm = () => {
     }
   }
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (sellTxid) {
       reset()
     }
     history.push(TradeRoutePaths.Input)
-  }
+  }, [history, reset, sellTxid])
 
   const sellAmountCrypto = fromBaseUnit(
     bnOrZero(trade.sellAmountCryptoPrecision),

@@ -214,16 +214,20 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   //   [connector, wcAccountId],
   // )
 
-  const handleDisconnect = useCallback(async () => {
-    if (!connector) return
-    connector.off('session_request')
-    connector.off('session_update')
-    connector.off('connect')
-    connector.off('disconnect')
-    connector.off('call_request')
-    await connector.killSession()
+  const handleDisconnect = useCallback(() => {
+    connector?.off('session_request')
+    connector?.off('session_update')
+    connector?.off('connect')
+    connector?.off('disconnect')
+    connector?.off('call_request')
+    try {
+      connector?.killSession()
+    } catch (e) {
+      moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Error killing session')
+    }
     setDapp(undefined)
     setConnector(undefined)
+    localStorage.removeItem('walletconnect')
   }, [connector])
 
   // if connectedEvmChainId or wallet changes, update the walletconnect session
@@ -258,17 +262,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     moduleLogger.info(args, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
   }, [])
 
-  const handleWcSessionUpdate = useCallback((err: Error | null, payload: any) => {
-    if (err) {
-      moduleLogger.error(err, 'handleWcSessionUpdate')
-    }
-    // TODO(0xdef1cafe): handle disconnect from dapp side here
-    console.info('handleWcSessionUpdate', payload)
-    if (!payload?.params?.[0]?.accounts) {
-      debugger
-    }
-    debugger
-  }, [])
+  const handleWcSessionUpdate = useCallback(
+    (err: Error | null, payload: any) => {
+      if (err) {
+        moduleLogger.error(err, 'handleWcSessionUpdate')
+      }
+      moduleLogger.info('handleWcSessionUpdate', payload)
+      if (!payload?.params?.[0]?.accounts) handleDisconnect()
+    },
+    [handleDisconnect],
+  )
 
   useEffect(() => {
     if (!connector) return

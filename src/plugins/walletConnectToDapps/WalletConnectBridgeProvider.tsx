@@ -56,15 +56,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     return asset.explorerAddressLink
   }, [assets, evmChainId])
 
-  // ...?
-  const approveRequest = useCallback(
-    (response: Parameters<WalletConnect['approveRequest']>[0]) => {
-      if (!connector) return
-      connector.approveRequest(response)
-    },
-    [connector],
-  )
-
   const signMessage = useCallback(
     async (message: string) => {
       if (!message) return
@@ -96,25 +87,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [connector, wcAccountId],
   )
 
-  const handleCallRequest = useCallback(
+  const approveRequest = useCallback(
     async (
-      err: Error | null,
-      callReq: {
-        request: WalletConnectCallRequest
-        approveData?: Partial<
-          WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
-        >
-      },
+      request: WalletConnectCallRequest,
+      approveData: Partial<
+        WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
+      >,
     ) => {
-      if (err) {
-        moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
-      }
       if (!wallet) return
       if (!wcAccountId) return
       if (!connector) return
-
-      setCallRequest(callReq.request)
-      const { request, approveData } = callReq
 
       // console.info(request, approveData);
 
@@ -247,12 +229,33 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedEvmChainId, wallet])
 
-  const handleConnect = useCallback(async () => {
-    if (!connector) return
-    if (connector.connected) return
-    await connector.createSession()
-    // subscribeToEvents()
-  }, [connector])
+  const handleConnect = useCallback(
+    async (...args) => {
+      console.info(args)
+      if (!connector) return
+      if (connector.connected) return
+      await connector.createSession()
+      // subscribeToEvents()
+    },
+    [connector],
+  )
+
+  // incoming ws message, render the modal by setting the call request
+  // then approve or reject based on user inputs.
+  const handleCallRequest = useCallback(
+    (
+      err: Error | null,
+      callReq: {
+        request: WalletConnectCallRequest
+      },
+    ) => {
+      if (err) {
+        moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
+      }
+      setCallRequest(callReq.request)
+    },
+    [],
+  )
 
   const subscribeToEvents = useCallback(() => {
     if (!connector) return
@@ -278,9 +281,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const c = new WalletConnect({ uri })
       setConnector(c)
       subscribeToEvents()
-      // TODO(0xdef1cafe): err handling
-      c.connect()
-      return c
     },
     [subscribeToEvents],
   )
@@ -325,8 +325,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   return (
     <WalletConnectBridgeContext.Provider
       value={{
-        fromURI,
-        fromSession,
         connector,
         dapp,
         // callRequests,

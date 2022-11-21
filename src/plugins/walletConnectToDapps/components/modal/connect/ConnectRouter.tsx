@@ -12,7 +12,7 @@ export const ConnectRouter = ({
   handleAccountChange,
   account,
 }: {
-  handleConnect: (uri: string) => Promise<void>
+  handleConnect: (uri: string) => void
   handleAccountChange: (accountId: AccountId) => void
   account: AccountId | null
 }) => {

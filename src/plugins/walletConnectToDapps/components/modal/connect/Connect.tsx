@@ -22,8 +22,8 @@ const Connect = ({ isOpen, onClose }: Props) => {
   }, [])
   const { connect } = useWalletConnect()
   const handleConnect = useCallback(
-    async (uri: string) => {
-      await connect(uri, account ? fromAccountId(account).account : null)
+    (uri: string) => {
+      connect(uri, account ? fromAccountId(account).account : null)
       onClose()
     },
     [connect, onClose, account],

@@ -39,7 +39,7 @@ export const ConnectIndex = ({
   handleConnect,
   account,
 }: {
-  handleConnect: (uri: string) => Promise<void>
+  handleConnect: (uri: string) => void
   account: AccountId | null
 }) => {
   const translate = useTranslate()

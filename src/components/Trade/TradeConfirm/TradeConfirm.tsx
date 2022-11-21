@@ -257,8 +257,8 @@ export const TradeConfirm = () => {
     [handleBack, status],
   )
 
-  const tradeWarning: JSX.Element = useMemo(
-    () => (
+  const tradeWarning: JSX.Element | null = useMemo(() => {
+    const tradeWarningElement = (
       <Flex direction='column' gap={2}>
         {fees?.tradeFeeSource === 'Thorchain' && (
           <Alert status='info' width='auto' fontSize='sm'>
@@ -282,9 +282,10 @@ export const TradeConfirm = () => {
           </Alert>
         )}
       </Flex>
-    ),
-    [fees?.tradeFeeSource, trade.buyAsset.assetId, translate],
-  )
+    )
+    const shouldRenderWarnings = tradeWarningElement.props.children.type !== null
+    return shouldRenderWarnings ? tradeWarningElement : null
+  }, [fees?.tradeFeeSource, trade.buyAsset.assetId, translate])
 
   const sendReceiveSummary: JSX.Element = useMemo(
     () => (

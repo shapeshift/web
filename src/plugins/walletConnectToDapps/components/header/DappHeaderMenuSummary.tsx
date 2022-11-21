@@ -17,14 +17,14 @@ export const DappHeaderMenuSummary = () => {
   const translate = useTranslate()
 
   const walletConnect = useWalletConnect()
-  const connectedEvmChainId = walletConnect.connector.chainId
+  const connectedEvmChainId = walletConnect.connector?.chainId
 
   const handleDisconnect = walletConnect.disconnect
 
   // 0x evm address
-  const connectedAccountAddress = walletConnect?.connector.accounts[0] ?? ''
+  const connectedAccountAddress = walletConnect?.connector?.accounts[0] ?? ''
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  if (!walletConnect.connector || !walletConnect.dapp) return null
 
   return (
     <>
@@ -37,7 +37,7 @@ export const DappHeaderMenuSummary = () => {
           <DappAvatar
             name={walletConnect.dapp.name}
             image={walletConnect.dapp.icons[0]}
-            connected={walletConnect.bridge.connector.connected}
+            connected={walletConnect.connector?.connected}
           />
           <Box fontWeight='medium'>
             <RawText maxWidth='215px' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
@@ -62,7 +62,7 @@ export const DappHeaderMenuSummary = () => {
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.connected' color='gray.500' />
           <RawText>
-            {dayjs(walletConnect.bridge.connector.handshakeId / 1000)
+            {dayjs(walletConnect.connector?.handshakeId / 1000)
               .locale(selectedLocale)
               .format('ll hh:mm A')}
           </RawText>

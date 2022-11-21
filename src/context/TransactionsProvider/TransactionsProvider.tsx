@@ -22,7 +22,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch } from 'state/store'
 
 import { usePlugins } from '../PluginProvider/PluginProvider'
 
@@ -42,7 +42,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const { supportedChains } = usePlugins()
 
-  const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
+  const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
+
 
   const maybeRefetchOpportunities = useCallback(
     ({ chainId, transfers }: Transaction, accountId: AccountId) => {
@@ -75,7 +76,10 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         return
       ;(async () => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }))()
     },
-    [stakingOpportunitiesById],
+    // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope
+    // Investigate me, but for now having no deps here is our safest bet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
   /**
    * unsubscribe and cleanup logic

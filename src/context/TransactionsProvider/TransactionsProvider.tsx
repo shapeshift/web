@@ -62,7 +62,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
                 // - the Idle AssetId being withdrawn
                 Boolean(
                   opportunity?.assetId === assetId ||
-                    opportunity?.underlyingAssetId.includes(assetId) ||
+                    opportunity?.underlyingAssetId === assetId ||
                     (opportunity?.underlyingAssetIds?.length &&
                       opportunity?.underlyingAssetIds.includes(assetId)) ||
                     (opportunity?.rewardAssetIds?.length &&

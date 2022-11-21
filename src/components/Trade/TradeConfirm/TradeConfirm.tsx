@@ -82,9 +82,7 @@ export const TradeConfirm = () => {
     tradeAmounts,
     trade,
     fees,
-    sellAssetFiatRate,
     feeAssetFiatRate,
-    buyAssetFiatRate,
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
@@ -207,30 +205,13 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [history, reset, sellTxid])
 
-  const sellAmountCrypto = fromBaseUnit(
-    bnOrZero(trade.sellAmountCryptoPrecision),
-    trade.sellAsset?.precision ?? 0,
-  )
-  const buyAmountCrypto = fromBaseUnit(
-    bnOrZero(trade.buyAmountCryptoPrecision),
-    trade.buyAsset?.precision ?? 0,
-  )
-
-  const sellAmountFiat = bnOrZero(sellAmountCrypto)
-    .times(bnOrZero(sellAssetFiatRate))
-    .times(selectedCurrencyToUsdRate)
-
-  const buyAmountFiat = bnOrZero(buyAmountCrypto)
-    .times(bnOrZero(buyAssetFiatRate))
-    .times(selectedCurrencyToUsdRate)
-
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)
     .times(selectedCurrencyToUsdRate)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
-    .dividedBy(sellAmountFiat)
+    .dividedBy(tradeAmounts?.sellAmountBeforeFeesFiat ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
@@ -293,8 +274,20 @@ export const TradeConfirm = () => {
         <Row>
           <Row.Label>{translate('common.send')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Crypto value={sellAmountCrypto} symbol={trade.sellAsset.symbol} />
-            <Amount.Fiat color='gray.500' value={sellAmountFiat.toString()} prefix='≈' />
+            <Amount.Crypto
+              value={
+                fromBaseUnit(
+                  tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
+                  trade.sellAsset.precision,
+                ) ?? ''
+              }
+              symbol={trade.sellAsset.symbol}
+            />
+            <Amount.Fiat
+              color='gray.500'
+              value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
+              prefix='≈'
+            />
           </Row.Value>
         </Row>
         <ReceiveSummary
@@ -304,21 +297,22 @@ export const TradeConfirm = () => {
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
           slippage={slippage}
-          fiatAmount={buyAmountFiat.toString()}
+          fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
           swapperName={swapper?.name ?? ''}
         />
       </Stack>
     ),
     [
-      buyAmountFiat,
       buyTradeAsset?.amount,
-      sellAmountCrypto,
-      sellAmountFiat,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,
+      trade.sellAsset.precision,
       trade.sellAsset.symbol,
       tradeAmounts?.beforeFeesBuyAsset,
+      tradeAmounts?.buyAmountAfterFeesFiat,
+      tradeAmounts?.sellAmountBeforeFeesBaseUnit,
+      tradeAmounts?.sellAmountBeforeFeesFiat,
       tradeAmounts?.totalTradeFeeBuyAsset,
       translate,
     ],

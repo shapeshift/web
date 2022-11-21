@@ -44,7 +44,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
 
-
   const maybeRefetchOpportunities = useCallback(
     ({ chainId, transfers }: Transaction, accountId: AccountId) => {
       if (

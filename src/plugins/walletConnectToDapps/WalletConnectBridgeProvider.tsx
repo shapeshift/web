@@ -193,7 +193,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const rejectRequest = useCallback(
     (request: WalletConnectCallRequest) => {
-      debugger
       connector?.rejectRequest(request)
       setCallRequest(undefined)
     },
@@ -203,7 +202,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const handleSessionUpdate = useCallback(
     (...args: any) => {
       console.info('handleSessionUpdate', args)
-      debugger
       if (!connector) return
       if (!wcAccountId) return
       const { chainId, account: address } = fromAccountId(wcAccountId)
@@ -218,7 +216,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   const handleDisconnect = useCallback(async () => {
-    debugger
     if (!connector) return
     await connector.killSession()
     connector.off('session_request')
@@ -242,11 +239,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedEvmChainId, wallet])
 
+  // TODO(0xdef1cafe): type any
   const handleConnect = useCallback((err: Error | null, payload: any) => {
     if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
     moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
     setDapp(payload.params[0].peerMeta)
-    debugger
   }, [])
 
   // incoming ws message, render the modal by setting the call request
@@ -268,12 +265,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleWcSessionRequest = useCallback((...args: any) => {
     console.info('handleWcSessionRequest', args)
-    debugger
   }, [])
 
   const handleWcSessionUpdate = useCallback((...args: any) => {
     console.info('handleWcSessionUpdate', args)
-    debugger
   }, [])
 
   useEffect(() => {

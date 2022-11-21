@@ -30,6 +30,7 @@ const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
+  const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
@@ -55,20 +56,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     return asset.explorerAddressLink
   }, [assets, evmChainId])
 
-  // wtf?
-  const [callRequests, setCallRequests] = useState<WalletConnectCallRequest[]>([])
-
-  const onCallRequest = useCallback(
-    (request: WalletConnectCallRequest) => setCallRequests(prev => [...prev, request]),
-    [],
-  )
-
   // ...?
   const approveRequest = useCallback(
-    async (request: WalletConnectCallRequest, approveData: unknown) => {
+    (response: Parameters<WalletConnect['approveRequest']>[0]) => {
       if (!connector) return
-      connector.approveRequest(request, approveData as any)
-      // setCallRequests(prev => prev.filter(req => req.id !== request.id))
+      connector.approveRequest(response)
     },
     [connector],
   )
@@ -106,14 +98,23 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleCallRequest = useCallback(
     async (
-      request: WalletConnectCallRequest,
-      approveData?: Partial<
-        WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
-      >,
+      err: Error | null,
+      callReq: {
+        request: WalletConnectCallRequest
+        approveData?: Partial<
+          WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
+        >
+      },
     ) => {
+      if (err) {
+        moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
+      }
       if (!wallet) return
       if (!wcAccountId) return
       if (!connector) return
+
+      setCallRequest(callReq.request)
+      const { request, approveData } = callReq
 
       // console.info(request, approveData);
 
@@ -193,12 +194,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           break
       }
       if (result) {
-        // moduleLogger.info('Approve Request', { request, result })
         connector.approveRequest({ id: request.id, result })
+        setCallRequest(undefined)
       } else {
         const message = 'JSON RPC method not supported'
-        // moduleLogger.info("Reject Request (catch)", { request, message })
         connector.rejectRequest({ id: request.id, error: { message } })
+        setCallRequest(undefined)
       }
     },
     [wallet, wcAccountId, connector, signMessage, accountMetadataById],
@@ -207,43 +208,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const rejectRequest = useCallback(
     (request: WalletConnectCallRequest) => {
       connector?.rejectRequest(request)
-      // wat?
-      // setCallRequests(prev => prev.filter(req => req.id !== request.id))
+      setCallRequest(undefined)
     },
     [connector],
-  )
-
-  const subscribeToEvents = useCallback(() => {
-    if (!connector) return
-    connector.on('session_request', handleSessionRequest)
-    connector.on('session_update', handleSessionUpdate)
-    connector.on('connect', handleConnect)
-    connector.on('disconnect', handleDisconnect)
-    connector.on('call_request', handleCallRequest)
-  }, [connector])
-
-  const fromURI = useCallback(
-    (uri: string) => {
-      const c = new WalletConnect({ uri })
-      setConnector(c)
-      subscribeToEvents()
-      // TODO(0xdef1cafe): err handling
-      c.connect()
-      return c
-    },
-    [subscribeToEvents],
-  )
-
-  const fromSession = useCallback(
-    (session: IWalletConnectSession) => {
-      const c = new WalletConnect({ session })
-      setConnector(c)
-      subscribeToEvents()
-      // TODO(0xdef1cafe): err handling
-      c.connect()
-      return c
-    },
-    [subscribeToEvents],
   )
 
   const handleSessionUpdate = useCallback(() => {
@@ -258,13 +225,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     })
   }, [connector, wcAccountId])
 
-  const handleConnect = useCallback(async () => {
-    if (!connector) return
-    if (connector.connected) return
-    await connector.createSession()
-    subscribeToEvents()
-  }, [connector, subscribeToEvents])
-
   const handleDisconnect = useCallback(async () => {
     if (!connector) return
     await connector.killSession()
@@ -274,19 +234,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector.off('disconnect')
     connector.off('call_request')
   }, [connector])
-
-  /**
-   * public method for consumers
-   */
-  const connect = useCallback((uri: string) => fromURI(uri), [fromURI])
-
-  const maybeHydrateSession = useCallback(() => {
-    if (connector) return
-    const wcSessionJsonString = localStorage.getItem('walletconnect')
-    if (!wcSessionJsonString) return
-    const session = JSON.parse(wcSessionJsonString)
-    fromSession(session)
-  }, [connector, fromSession])
 
   // if connectedEvmChainId or wallet changes, update the walletconnect session
   useEffect(() => {
@@ -299,6 +246,72 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     // we want to only look for chainId or wallet changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectedEvmChainId, wallet])
+
+  const handleConnect = useCallback(async () => {
+    if (!connector) return
+    if (connector.connected) return
+    await connector.createSession()
+    // subscribeToEvents()
+  }, [connector])
+
+  const subscribeToEvents = useCallback(() => {
+    if (!connector) return
+    connector.on('session_request', handleSessionRequest)
+    connector.on('session_update', handleSessionUpdate)
+    connector.on('connect', handleConnect)
+    connector.on('disconnect', handleDisconnect)
+    connector.on('call_request', handleCallRequest)
+  }, [
+    connector,
+    handleCallRequest,
+    handleConnect,
+    handleDisconnect,
+    handleSessionRequest,
+    handleSessionUpdate,
+  ])
+
+  /**
+   * cold initialize from URI
+   */
+  const fromURI = useCallback(
+    (uri: string) => {
+      const c = new WalletConnect({ uri })
+      setConnector(c)
+      subscribeToEvents()
+      // TODO(0xdef1cafe): err handling
+      c.connect()
+      return c
+    },
+    [subscribeToEvents],
+  )
+
+  /**
+   * initialize from existing session via local storage
+   */
+  const fromSession = useCallback(
+    (session: IWalletConnectSession) => {
+      const c = new WalletConnect({ session })
+      setConnector(c)
+      subscribeToEvents()
+      // TODO(0xdef1cafe): err handling
+      c.connect()
+      return c
+    },
+    [subscribeToEvents],
+  )
+
+  const maybeHydrateSession = useCallback(() => {
+    if (connector) return
+    const wcSessionJsonString = localStorage.getItem('walletconnect')
+    if (!wcSessionJsonString) return
+    const session = JSON.parse(wcSessionJsonString)
+    fromSession(session)
+  }, [connector, fromSession])
+
+  /**
+   * public method for consumers
+   */
+  const connect = useCallback((uri: string) => fromURI(uri), [fromURI])
 
   /**
    * reconnect on mount
@@ -316,7 +329,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         fromSession,
         connector,
         dapp,
-        callRequests,
+        // callRequests,
         connect,
         disconnect: handleDisconnect,
         approveRequest,
@@ -329,7 +342,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       }}
     >
       {children}
-      <CallRequestModal callRequest={callRequests[0]} />
+      <CallRequestModal callRequest={callRequest} />
     </WalletConnectBridgeContext.Provider>
   )
 }

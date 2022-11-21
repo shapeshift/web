@@ -1,15 +1,15 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type WalletConnect from '@walletconnect/client'
 import type { IClientMeta } from '@walletconnect/types'
 import { createContext, useContext } from 'react'
 
 import type { WalletConnectCallRequest } from './bridge/types'
-import type { WalletConnectBridge } from './bridge/WalletConnectBridge'
 
 type WalletConnectBridgeContextValue = {
   chainName: string
   evmChainId: ChainId
   accountExplorerAddressLink: string
-  bridge: WalletConnectBridge | undefined
+  connector: WalletConnect | undefined
   dapp: IClientMeta | null
   callRequests: WalletConnectCallRequest[]
   connect(uri: string, account: string | null): Promise<void>
@@ -22,7 +22,7 @@ export const WalletConnectBridgeContext = createContext<WalletConnectBridgeConte
   chainName: '',
   evmChainId: 'eip155:1',
   accountExplorerAddressLink: '',
-  bridge: undefined,
+  connector: undefined,
   dapp: null,
   callRequests: [],
   connect: Promise.resolve,

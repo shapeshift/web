@@ -27,6 +27,8 @@ import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
+const bridge = 'https://bridge.walletconnect.org'
+
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
@@ -131,16 +133,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
               gasPrice: tx.gasPrice,
             },
           })
-          console.info(request, txToSign, approveData)
+          // console.info(request, txToSign, approveData)
           try {
             result = await (async () => {
               if (wallet.supportsOfflineSigning()) {
-                console.info('here')
+                // console.info('here')
                 const signedTx = await chainAdapter.signTransaction({
                   txToSign,
                   wallet,
                 })
-                console.info(signedTx)
+                // console.info(signedTx)
                 return chainAdapter.broadcastTransaction(signedTx)
               } else if (wallet.supportsBroadcast()) {
                 return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
@@ -149,7 +151,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
               }
             })()
           } catch (error) {
-            console.error(error)
+            // console.error(error)
             moduleLogger.error(error, { fn: 'eth_sendTransaction' }, 'Error sending transaction')
           }
           break
@@ -231,6 +233,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleConnect = useCallback(
     async (err: Error | null, payload: any) => {
+      debugger
       if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
       moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
       if (!connector) return
@@ -278,12 +281,18 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * cold initialize from URI
    */
   const fromURI = useCallback(
-    (uri: string) => {
-      const c = new WalletConnect({ uri })
+    async (uri: string) => {
+      if (!wcAccountId) return
+      const { chainId } = fromAccountId(wcAccountId)
+      const wcChainId = parseInt(fromChainId(chainId).chainReference)
+      const c = new WalletConnect({ bridge, uri })
       setConnector(c)
       subscribeToEvents()
+      await c.createSession({ chainId: wcChainId })
+      debugger
+      return c
     },
-    [subscribeToEvents],
+    [subscribeToEvents, wcAccountId],
   )
 
   /**
@@ -291,7 +300,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    */
   const fromSession = useCallback(
     (session: IWalletConnectSession) => {
-      const c = new WalletConnect({ session })
+      const c = new WalletConnect({ bridge, session })
       setConnector(c)
       subscribeToEvents()
       // TODO(0xdef1cafe): err handling

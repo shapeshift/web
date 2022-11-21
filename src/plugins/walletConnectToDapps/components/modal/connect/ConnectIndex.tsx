@@ -10,26 +10,18 @@ import {
   Link,
   VStack,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { FaQrcode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectAccountNumberByAccountId,
-  selectFirstAccountIdByChainId,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-import { AccountButton } from './AccountButton'
-import { ConnectRoutes } from './ConnectCommon'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 type FormValues = {
   uri: string
@@ -37,20 +29,12 @@ type FormValues = {
 
 export const ConnectIndex = ({
   handleConnect,
-  account,
 }: {
   handleConnect: (uri: string) => void
   account: AccountId | null
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
-  const {
-    state: { wallet },
-  } = useWallet()
-  const firstAccount = useAppSelector(s => selectFirstAccountIdByChainId(s, ethChainId))
-  const selectedAccount = account ?? firstAccount
-  const filter = useMemo(() => ({ accountId: selectedAccount ?? '' }), [selectedAccount])
-  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+  const { evmChainId, setWcAccountId } = useWalletConnect()
 
   const handleForm = (values: FormValues) => handleConnect(values.uri)
 
@@ -60,11 +44,12 @@ export const ConnectIndex = ({
   })
   const canConnect = !!useWatch({ control, name: 'uri' })
 
-  const isMultiAccountEnabled = useFeatureFlag('MultiAccounts')
-  const canShowAccountSelection = useMemo(
-    () => isMultiAccountEnabled && wallet?.supportsBip44Accounts() && selectedAccount,
-    [isMultiAccountEnabled, wallet, selectedAccount],
-  )
+  const feeAssetId: AssetId = useMemo(() => {
+    if (!evmChainId) return ethAssetId
+    const chainAdapter = getChainAdapterManager().get(evmChainId)
+    if (!chainAdapter) return ethAssetId
+    return chainAdapter.getFeeAssetId()
+  }, [evmChainId])
 
   return (
     <SlideTransition>
@@ -82,14 +67,7 @@ export const ConnectIndex = ({
             </Link>
 
             <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
-              {canShowAccountSelection && (
-                <AccountButton
-                  accountIds={[selectedAccount!]}
-                  accountNumber={accountNumber ?? 0}
-                  onClick={() => history.push(ConnectRoutes.Accounts)}
-                  buttonProps={{ mb: 4 }}
-                />
-              )}
+              <AccountDropdown assetId={feeAssetId} onChange={setWcAccountId} />
               <InputGroup size='lg'>
                 <InputRightElement pointerEvents='none'>
                   <FaQrcode color='gray.300' />

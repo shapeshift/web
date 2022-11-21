@@ -3,13 +3,11 @@ import { AnimatePresence } from 'framer-motion'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
-import { AccountSelection } from './AccountSelection'
 import { ConnectRoutes } from './ConnectCommon'
 import { ConnectIndex } from './ConnectIndex'
 
 export const ConnectRouter = ({
   handleConnect,
-  handleAccountChange,
   account,
 }: {
   handleConnect: (uri: string) => void
@@ -24,12 +22,6 @@ export const ConnectRouter = ({
           path={ConnectRoutes.Index}
           component={(props: RouteComponentProps) => (
             <ConnectIndex handleConnect={handleConnect} account={account} {...props} />
-          )}
-        />
-        <Route
-          path={ConnectRoutes.Accounts}
-          component={(props: RouteComponentProps) => (
-            <AccountSelection handleAccountChange={handleAccountChange} {...props} />
           )}
         />
       </Switch>

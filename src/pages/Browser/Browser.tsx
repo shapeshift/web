@@ -60,9 +60,8 @@ export const Browser = () => {
   }, [])
 
   useEffect(() => {
-    const webview: any = document.getElementById('webview')
-    if (!webview || !browserUrl || !hasMounted) return
-    if (browserUrl === url) return
+    if (!browserUrl || !hasMounted) return
+    if (browserUrl === inputUrl) return
     setUrl(browserUrl)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [browserUrl, hasMounted])

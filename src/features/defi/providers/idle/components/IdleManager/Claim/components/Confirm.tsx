@@ -144,7 +144,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
 
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount).toFixed(),
+        amount: bnOrZero(amount).toNumber(),
       }
       return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
     })

@@ -14,7 +14,7 @@ type WalletConnectBridgeContextValue = {
   dapp: IClientMeta | null
   // callRequests: WalletConnectCallRequest[]
   connect(uri: string, account: string | null): void
-  disconnect(): Promise<void>
+  disconnect(): void
   approveRequest(callRequest: WalletConnectCallRequest, approveData?: unknown): Promise<void>
   rejectRequest(callRequest: WalletConnectCallRequest): void
   wcAccountId: AccountId | undefined

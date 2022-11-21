@@ -199,21 +199,20 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [connector],
   )
 
-  const handleSessionUpdate = useCallback(
-    (...args: any) => {
-      console.info('handleSessionUpdate', args)
-      if (!connector) return
-      if (!wcAccountId) return
-      const { chainId, account: address } = fromAccountId(wcAccountId)
-      const chainAdapter = getChainAdapterManager().get(chainId)
-      if (!chainAdapter) return
-      // connector.updateSession({
-      //   chainId: parseInt(fromChainId(chainId).chainReference),
-      //   accounts: [address],
-      // })
-    },
-    [connector, wcAccountId],
-  )
+  // const handleSessionUpdate = useCallback(
+  //   (...args: any) => {
+  //     if (!connector) return
+  //     if (!wcAccountId) return
+  //     const { chainId, account: address } = fromAccountId(wcAccountId)
+  //     const chainAdapter = getChainAdapterManager().get(chainId)
+  //     if (!chainAdapter) return
+  //     // connector.updateSession({
+  //     //   chainId: parseInt(fromChainId(chainId).chainReference),
+  //     //   accounts: [address],
+  //     // })
+  //   },
+  //   [connector, wcAccountId],
+  // )
 
   const handleDisconnect = useCallback(async () => {
     if (!connector) return
@@ -248,33 +247,25 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.
-  const handleCallRequest = useCallback(
-    (
-      err: Error | null,
-      callReq: {
-        request: WalletConnectCallRequest
-      },
-    ) => {
-      if (err) {
-        moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
-      }
-      setCallRequest(callReq.request)
-    },
-    [],
-  )
+  const handleCallRequest = useCallback((err: Error | null, request: WalletConnectCallRequest) => {
+    if (err) {
+      moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
+    }
+    setCallRequest(request)
+  }, [])
 
   const handleWcSessionRequest = useCallback((...args: any) => {
-    console.info('handleWcSessionRequest', args)
+    moduleLogger.info(args, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
   }, [])
 
   const handleWcSessionUpdate = useCallback((...args: any) => {
-    console.info('handleWcSessionUpdate', args)
+    moduleLogger.info(args, { fn: 'handleWcSessionUpdate' }, 'handleWcSessionUpdate')
   }, [])
 
   useEffect(() => {
     if (!connector) return
     connector.on('session_request', handleSessionRequest)
-    connector.on('session_update', handleSessionUpdate)
+    // connector.on('session_update', handleSessionUpdate)
     connector.on('connect', handleConnect)
     connector.on('disconnect', handleDisconnect)
     connector.on('call_request', handleCallRequest)
@@ -286,7 +277,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     handleConnect,
     handleDisconnect,
     handleSessionRequest,
-    handleSessionUpdate,
+    // handleSessionUpdate,
     handleWcSessionRequest,
     handleWcSessionUpdate,
   ])
@@ -331,10 +322,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * reconnect on mount
    */
   useEffect(() => {
-    // maybeHydrateSession()
+    maybeHydrateSession()
   })
-
-  console.info({ dapp })
 
   return (
     <WalletConnectBridgeContext.Provider

@@ -30,8 +30,7 @@ type Props = {
   onReject(): void
 }
 
-export const SignTypedDataConfirmation = ({ request, onConfirm, onReject }: Props) => {
-  // const walletConnect = useWalletConnect()
+export const SignTypedDataConfirmation = ({ request }: Props) => {
   console.info(request)
   return null
 }

@@ -127,7 +127,6 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
         chainId === KnownChainIds.OsmosisMainnet
       )
         return false
-      if (!featureFlags.Thorchain && chainId === KnownChainIds.ThorchainMainnet) return false
       return true
     })
 

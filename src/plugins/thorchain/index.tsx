@@ -13,7 +13,6 @@ export default function register(): Plugins {
       'thorchainChainAdapter',
       {
         name: 'thorchainChainAdapter',
-        featureFlag: ['Thorchain'],
         providers: {
           chainAdapters: [
             [

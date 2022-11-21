@@ -220,10 +220,6 @@ export const TradeConfirm = () => {
     .times(bnOrZero(sellAssetFiatRate))
     .times(selectedCurrencyToUsdRate)
 
-  const buyAmountFiat = bnOrZero(buyAmountCrypto)
-    .times(bnOrZero(buyAssetFiatRate))
-    .times(selectedCurrencyToUsdRate)
-
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)
     .times(selectedCurrencyToUsdRate)
@@ -308,7 +304,7 @@ export const TradeConfirm = () => {
                   protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
                   shapeShiftFee='0'
                   slippage={slippage}
-                  fiatAmount={buyAmountFiat.toString()}
+                  fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
                   swapperName={swapper?.name ?? ''}
                 />
               </Stack>

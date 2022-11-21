@@ -262,12 +262,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [],
   )
 
-  const handleWcSessionRequest = useCallback(args => {
+  const handleWcSessionRequest = useCallback((...args: any) => {
     console.info('handleWcSessionRequest')
     debugger
   }, [])
 
-  const handleWcSessionUpdate = useCallback(args => {
+  const handleWcSessionUpdate = useCallback((...args: any) => {
     console.info('handleWcSessionUpdate')
     debugger
   }, [])
@@ -301,18 +301,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const fromURI = useCallback(
     async (uri: string) => {
       if (!wcAccountId) return
+      localStorage.removeItem('walletconnect') // purge any old sessions
       const c = new WalletConnect({ bridge, uri })
       setConnector(c)
       subscribeToEvents(c)
-      // Approve Session
-      // connector.approveSession({
-      //   accounts: [                 // required
-      //     '0x4292...931B3',
-      //     '0xa4a7...784E8',
-      //     ...
-      //   ],
-      //   chainId: 1                  // required
-      // })
       const { chainId, account } = fromAccountId(wcAccountId)
       debugger
       const wcChainId = parseInt(fromChainId(chainId).chainReference)
@@ -353,6 +345,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) return
     const session = JSON.parse(wcSessionJsonString)
+    debugger
     fromSession(session)
   }, [connector, fromSession])
 
@@ -365,14 +358,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * reconnect on mount
    */
   useEffect(() => {
-    // maybeHydrateSession()
+    maybeHydrateSession()
   })
 
-  const dapp = useMemo(() => {
-    const result = connector?.session?.peerMeta ?? null
-    if (connector) debugger
-    return result
-  }, [connector])
+  const dapp = useMemo(() => connector?.peerMeta ?? null, [connector?.peerMeta])
+  console.info({ dapp })
 
   return (
     <WalletConnectBridgeContext.Provider

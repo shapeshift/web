@@ -33,8 +33,13 @@ export const fetchAllStakingOpportunitiesMetadata = async (
 ) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
-  await Promise.all(
-    foxEthStakingIds.map(
+  await Promise.all([
+    opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.Idle,
+      opportunityType: DefiType.Staking,
+    }),
+    ...foxEthStakingIds.map(
       async opportunityId =>
         await store.dispatch(
           getOpportunityMetadata.initiate(
@@ -49,7 +54,7 @@ export const fetchAllStakingOpportunitiesMetadata = async (
           ),
         ),
     ),
-  )
+  ])
 }
 
 export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreatorOptions) => {
@@ -110,10 +115,16 @@ export const fetchAllLpOpportunitiesUserdata = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityUserData } = opportunitiesApi.endpoints
+  const { getOpportunityUserData, getOpportunitiesUserData } = opportunitiesApi.endpoints
 
-  await Promise.all(
-    foxEthLpAssetIds.map(
+  await Promise.all([
+    getOpportunitiesUserData.initiate({
+      accountId,
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.Idle,
+      opportunityType: DefiType.Staking,
+    }),
+    ...foxEthLpAssetIds.map(
       async opportunityId =>
         await store.dispatch(
           getOpportunityUserData.initiate(
@@ -129,7 +140,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
           ),
         ),
     ),
-  )
+  ])
 }
 
 export const fetchAllOpportunitiesUserData = (

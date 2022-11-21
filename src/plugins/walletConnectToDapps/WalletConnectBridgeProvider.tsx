@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import WalletConnect from '@walletconnect/client'
@@ -14,7 +14,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectAssets, selectPortfolioAccountMetadata } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import {
+  selectAssets,
+  selectPortfolioAccountMetadata,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type {
@@ -38,6 +43,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const [dapp, setDapp] = useState<any>()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
+  const walletAccountIds = useAppSelector(selectWalletAccountIds)
   const evmChainId = useMemo(() => connectedEvmChainId ?? ethChainId, [connectedEvmChainId])
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
@@ -69,6 +75,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const { bip44Params } = accountMetadata
       const addressNList = toAddressNList(bip44Params)
       const payload = { addressNList, message }
+      // TODO(0xdef1cafe): delet
       const signedMessage = (await (wallet as ETHWallet).ethSignMessage(payload))?.signature
       if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
       return signedMessage
@@ -315,6 +322,34 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     setConnector(c)
     return c
   }, [])
+
+  /**
+   * handle wallet switch
+   */
+  useEffect(() => {
+    if (!wallet) return
+    if (!walletAccountIds.length) return
+    const walletEvmAddresses = Array.from(
+      new Set(
+        walletAccountIds
+          .map(accountId => {
+            const { chainId, account } = fromAccountId(accountId)
+            if (!evmChainIds.includes(chainId as EvmChainId)) return undefined
+            return account
+          })
+          .filter(isSome),
+      ),
+    )
+
+    const wcSessionJsonString = localStorage.getItem('walletconnect')
+    if (!wcSessionJsonString) return
+    const session = JSON.parse(wcSessionJsonString)
+    const wcAddress: string | undefined = (session?.accounts ?? [])[0]
+    const isMissingWcAddress = !wcAddress
+    const isDifferentWallet = wcAddress && !walletEvmAddresses.includes(wcAddress)
+    const isNotOfflineSigningWallet = !wallet.supportsOfflineSigning()
+    if (isDifferentWallet || isNotOfflineSigningWallet || isMissingWcAddress) handleDisconnect()
+  }, [handleDisconnect, wallet, walletAccountIds])
 
   const maybeHydrateSession = useCallback(() => {
     if (connector) return

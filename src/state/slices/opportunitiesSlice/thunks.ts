@@ -10,20 +10,19 @@ export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryAction
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
   await Promise.all(
-    foxEthLpAssetIds.map(
-      async opportunityId =>
-        await store.dispatch(
-          getOpportunityMetadata.initiate(
-            {
-              opportunityId,
-              opportunityType: DefiType.LiquidityPool,
-              defiType: DefiType.LiquidityPool,
-              defiProvider: DefiProvider.FoxFarming,
-            },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false, ...options },
-          ),
+    foxEthLpAssetIds.map(opportunityId =>
+      store.dispatch(
+        getOpportunityMetadata.initiate(
+          {
+            opportunityId,
+            opportunityType: DefiType.LiquidityPool,
+            defiType: DefiType.LiquidityPool,
+            defiProvider: DefiProvider.FoxFarming,
+          },
+          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+          { forceRefetch: false, ...options },
         ),
+      ),
     ),
   )
 }
@@ -33,32 +32,37 @@ export const fetchAllStakingOpportunitiesMetadata = async (
 ) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
-  await Promise.all([
-    opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-      {
-        defiType: DefiType.Staking,
-        defiProvider: DefiProvider.Idle,
-        opportunityType: DefiType.Staking,
-      },
-      // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-      { forceRefetch: false, ...options },
+  const metadataPromises = [
+    store.dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+        {
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Idle,
+          opportunityType: DefiType.Staking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
     ),
-    ...foxEthStakingIds.map(
-      async opportunityId =>
-        await store.dispatch(
-          getOpportunityMetadata.initiate(
-            {
-              opportunityId,
-              opportunityType: DefiType.Staking,
-              defiType: DefiType.Staking,
-              defiProvider: DefiProvider.FoxFarming,
-            },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false, ...options },
-          ),
+    ...foxEthStakingIds.map(opportunityId =>
+      store.dispatch(
+        getOpportunityMetadata.initiate(
+          {
+            opportunityId,
+            opportunityType: DefiType.Staking,
+            defiType: DefiType.Staking,
+            defiProvider: DefiProvider.FoxFarming,
+          },
+          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+          { forceRefetch: false, ...options },
         ),
+      ),
     ),
-  ])
+  ]
+
+  for (const metadataPromise of metadataPromises) {
+    await metadataPromise
+  }
 }
 
 export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreatorOptions) => {
@@ -79,7 +83,11 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     },
   ]
 
-  await Promise.all(queries.map(query => getOpportunityIds.initiate(query, options)))
+  for (const query of queries) {
+    await store.dispatch(getOpportunityIds.initiate(query, options))
+  }
+
+  return
 }
 
 export const fetchAllOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
@@ -93,43 +101,51 @@ export const fetchAllStakingOpportunitiesUserData = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityUserData } = opportunitiesApi.endpoints
+  const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
-  await Promise.all(
-    foxEthStakingIds.map(
-      async opportunityId =>
-        await store.dispatch(
-          getOpportunityUserData.initiate(
-            {
-              accountId,
-              opportunityId,
-              opportunityType: DefiType.Staking,
-              defiType: DefiType.Staking,
-              defiProvider: DefiProvider.FoxFarming,
-            },
-            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-            { forceRefetch: false, ...options },
-          ),
-        ),
+  const userDataPromises = [
+    store.dispatch(
+      getOpportunitiesUserData.initiate(
+        {
+          accountId,
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Idle,
+          opportunityType: DefiType.Staking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
     ),
-  )
+    ...foxEthStakingIds.map(opportunityId =>
+      store.dispatch(
+        getOpportunityUserData.initiate(
+          {
+            accountId,
+            opportunityId,
+            opportunityType: DefiType.Staking,
+            defiType: DefiType.Staking,
+            defiProvider: DefiProvider.FoxFarming,
+          },
+          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+          { forceRefetch: false, ...options },
+        ),
+      ),
+    ),
+  ]
+
+  for (const userDataPromise of userDataPromises) {
+    await userDataPromise
+  }
 }
 
 export const fetchAllLpOpportunitiesUserdata = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityUserData, getOpportunitiesUserData } = opportunitiesApi.endpoints
+  const { getOpportunityUserData } = opportunitiesApi.endpoints
 
-  await Promise.all([
-    getOpportunitiesUserData.initiate({
-      accountId,
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Idle,
-      opportunityType: DefiType.Staking,
-      // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-      { forceRefetch: false, ...options }),
-    ...foxEthLpAssetIds.map(
+  await Promise.all(
+    foxEthLpAssetIds.map(
       async opportunityId =>
         await store.dispatch(
           getOpportunityUserData.initiate(
@@ -145,7 +161,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
           ),
         ),
     ),
-  ])
+  )
 }
 
 export const fetchAllOpportunitiesUserData = (

@@ -245,7 +245,9 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
         .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
         .toString(),
-      rewardsAmountsCryptoPrecision: (acc?.rewardsAmountsCryptoPrecision ?? []).map((amount, i) =>
+      rewardsAmountsCryptoPrecision: (
+        userStakingOpportunity.rewardsAmountsCryptoPrecision ?? []
+      ).map((amount, i) =>
         bnOrZero(acc?.rewardsAmountsCryptoPrecision?.[i]).plus(amount).toString(),
       ) as [string, string] | [string] | [],
     }

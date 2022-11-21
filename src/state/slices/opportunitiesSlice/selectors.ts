@@ -32,9 +32,18 @@ import type {
 } from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
 
+/**
+ * the accountIds from the wallet, not necessarily loaded
+ */
+// Redeclared because of circular deps, don't export me
+const selectWalletAccountIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.portfolio.walletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+)
 // Redeclared because of circular deps, don't export me
 const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.portfolio.accountMetadata.ids,
+  selectWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
@@ -45,15 +54,28 @@ const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
-export const selectUserStakingIds = (state: ReduxState) => state.opportunities.userStaking.ids
+export const selectUserStakingIds = createDeepEqualOutputSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.ids,
+  (walletAccountIds, userStakingIds): UserStakingId[] =>
+    userStakingIds.filter(userStakingId =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
-export const selectUserStakingOpportunitiesById = (state: ReduxState) =>
-  state.opportunities.userStaking.byId
+export const selectUserStakingOpportunitiesById = createSelector(
+  selectWalletAccountIds,
+  (state: ReduxState) => state.opportunities.userStaking.byId,
+  (walletAccountIds, userStakingById) =>
+    pickBy(userStakingById, (_userStaking, userStakingId) =>
+      walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
+    ),
+)
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
@@ -218,9 +240,15 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
         .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
         .toString(),
-      rewardsAmountCryptoPrecision: bnOrZero(acc?.rewardsAmountCryptoPrecision)
-        .plus(userStakingOpportunity.rewardsAmountCryptoPrecision)
-        .toString(),
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
+      // We will need to update them holistically after this goes in
+      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
+      // Which is fine since it isn't wired up yet
+      rewardsAmountsCryptoPrecision: [
+        bnOrZero(acc?.rewardsAmountsCryptoPrecision?.[0])
+          .plus(userStakingOpportunity.rewardsAmountsCryptoPrecision[0])
+          .toString(),
+      ],
     }
   }, undefined)
 }
@@ -257,6 +285,11 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
       isLoaded: true,
       icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
       opportunityName: opportunity.name,
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
+      // We will need to update them holistically after this goes in
+      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
+      // Which is fine since it isn't wired up yet
+      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]] as const,
     }),
 )
 
@@ -290,6 +323,11 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       isLoaded: true,
       icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
       opportunityName: opportunity.name,
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
+      // We will need to update them holistically after this goes in
+      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
+      // Which is fine since it isn't wired up yet
+      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]],
     })),
 )
 
@@ -304,15 +342,21 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
           cryptoAmount: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          fiatAmount: bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision)
-            .plus(acc?.rewardsAmountCryptoPrecision ?? 0)
+          // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
+          // We will need to update them holistically after this goes in
+          // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
+          // Which is fine since it isn't wired up yet
+          fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
+            .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
             .toString(),
           stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          rewardsAmountCryptoPrecision: bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision)
-            .plus(acc?.rewardsAmountCryptoPrecision ?? 0)
-            .toString(),
+          rewardsAmountsCryptoPrecision: [
+            bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
+              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
+              .toString(),
+          ],
         })
       },
       undefined,
@@ -420,7 +464,13 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
         .times(marketDataPrice ?? '0')
         .toString(),
       stakedAmountCryptoPrecision: userStakingOpportunity.stakedAmountCryptoPrecision ?? '0',
-      rewardsAmountCryptoPrecision: userStakingOpportunity.rewardsAmountCryptoPrecision ?? '0',
+      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
+      // We will need to update them holistically after this goes in
+      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
+      // Which is fine since it isn't wired up yet
+      rewardsAmountsCryptoPrecision: [
+        userStakingOpportunity.rewardsAmountsCryptoPrecision[0] ?? '0',
+      ],
       opportunityName: userStakingOpportunity.name,
       icons: userStakingOpportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
@@ -495,9 +545,11 @@ export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelec
           stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
             .plus(acc?.stakedAmountCryptoPrecision ?? 0)
             .toString(),
-          rewardsAmountCryptoPrecision: bnOrZero(currentOpportunity.rewardsAmountCryptoPrecision)
-            .plus(acc?.rewardsAmountCryptoPrecision ?? 0)
-            .toString(),
+          rewardsAmountsCryptoPrecision: [
+            bnOrZero(currentOpportunity.rewardsAmountsCryptoPrecision[0])
+              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
+              .toString(),
+          ],
         }
       },
       undefined,

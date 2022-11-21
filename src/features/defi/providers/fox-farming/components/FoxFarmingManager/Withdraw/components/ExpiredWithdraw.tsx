@@ -38,7 +38,9 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
-  const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
@@ -156,7 +158,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
             <Stack direction='row'>
               <AssetIcon assetId={foxAssetId} size='xs' />
               <Amount.Crypto
-                value={opportunity.rewardsAmountCryptoPrecision ?? '0'}
+                value={opportunity.rewardsAmountsCryptoPrecision?.[0] ?? '0'}
                 symbol={foxAsset.symbol}
               />
             </Stack>

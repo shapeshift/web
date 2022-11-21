@@ -5,6 +5,7 @@ import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import pull from 'lodash/pull'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -17,7 +18,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -45,15 +45,13 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
   EMPTY_COSMOS_ADDRESS,
   EMPTY_OSMOSIS_ADDRESS,
 } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -70,9 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
@@ -98,25 +94,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
-
-  /**
-   * handle wallet disconnect/switch logic
-   */
-  useEffect(() => {
-    // if we have a wallet and changed account ids, we have switched wallets
-    // NOTE! - the wallet will change before the account ids do, so clearing here is valid
-    // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && requestedAccountIds.length)
-    const disconnected = !wallet
-    switched && moduleLogger.info('Wallet switched')
-    disconnected && moduleLogger.info('Wallet disconnected')
-    if (switched || disconnected) {
-      dispatch(portfolio.actions.clear())
-      dispatch(txHistory.actions.clear())
-    }
-    // requestedAccountIds is changed by this effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, wallet])
 
   useEffect(() => {
     if (!wallet) return
@@ -220,12 +197,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             await dispatch(
+              opportunitiesApi.endpoints.getOpportunityIds.initiate({
+                defiType: DefiType.Staking,
+                defiProvider: DefiProvider.Idle,
+              }),
+            )
+            await dispatch(
               opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
                 defiType: DefiType.Staking,
                 defiProvider: DefiProvider.Idle,
                 opportunityType: DefiType.Staking,
               }),
             )
+            // await dispatch(
+            // opportunitiesApi.endpoints.getOpportunitiesUserData.initiate({
+            // accountId,
+            // defiType: DefiType.Staking,
+            // defiProvider: DefiProvider.Idle,
+            // opportunityType: DefiType.Staking,
+            // }),
+            // )
+
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
 
@@ -279,6 +271,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * portfolio loading error notification
    */
   useEffect(() => {
+    if (isEmpty(assets)) return
     const erroredAccountIds = entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
       (acc, [accountId, accountState]) => {
         accountState === 'error' && acc.push(accountId)

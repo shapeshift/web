@@ -60,7 +60,8 @@ export const selectMarketDataById = createCachedSelector(
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 // assets we have loaded market data for
-export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
+export const selectCryptoMarketDataIdsSortedByMarketCap = (state: ReduxState) =>
+  state.marketData.crypto.ids
 
 // if we don't have it, it's loading
 export const selectMarketDataLoadingById = createSelector(
@@ -104,22 +105,13 @@ const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) =
 export const selectCryptoPriceHistoryTimeframe = createSelector(
   selectCryptoPriceHistory,
   selectTimeframeParam,
-  (priceHistory, timeframe): PriceHistoryData | undefined => priceHistory?.[timeframe],
+  (priceHistory, timeframe): PriceHistoryData => priceHistory?.[timeframe] ?? {},
 )
 
 export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
   selectSelectedCurrency,
   selectTimeframeParam,
-  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] | undefined =>
-    fiatPriceHistory?.[timeframe]?.[selectedCurrency],
-)
-
-export const selectFiatPriceHistoriesLoadingByTimeframe = createSelector(
-  selectFiatPriceHistory,
-  selectSelectedCurrency,
-  selectTimeframeParam,
-  // if we don't have the data it's loading
-  (fiatPriceHistory, currency, timeframe): boolean =>
-    !Boolean(fiatPriceHistory?.[timeframe]?.[currency]),
+  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] =>
+    fiatPriceHistory?.[timeframe]?.[selectedCurrency] ?? [],
 )

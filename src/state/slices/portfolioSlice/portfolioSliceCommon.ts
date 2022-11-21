@@ -1,6 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { PartialRecord } from 'lib/utils'
+import type { Nominal } from 'types/common'
 
 import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 
@@ -58,10 +60,31 @@ export type PortfolioAccountMetadata = {
   ids: AccountId[]
 }
 
+export type WalletId = Nominal<string, 'WalletId'>
+
+export type PortfolioWallet = {
+  /**
+   * a 1:many mapping of a unique wallet id -> multiple account ids
+   */
+  byId: PartialRecord<WalletId, AccountId[]>
+  ids: WalletId[]
+}
+
 export type Portfolio = {
+  /**
+   * lookup of accountId -> accountMetadata
+   */
   accountMetadata: PortfolioAccountMetadata
   accounts: PortfolioAccounts
   accountBalances: PortfolioAccountBalances
+  /**
+   * 1:many mapping of a unique wallet id -> multiple account ids
+   */
+  wallet: PortfolioWallet
+  /**
+   * the currently connected wallet id, used to determine which accounts to index into
+   */
+  walletId?: WalletId
 }
 
 export const initialState: Portfolio = {
@@ -69,12 +92,15 @@ export const initialState: Portfolio = {
     byId: {},
     ids: [],
   },
-  // requested account ids and associated metadata from when the wallet is connected
   accountMetadata: {
     byId: {},
     ids: [],
   },
   accountBalances: {
+    byId: {},
+    ids: [],
+  },
+  wallet: {
     byId: {},
     ids: [],
   },

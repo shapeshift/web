@@ -22,3 +22,10 @@ export type OpportunityUserDataResolverInput = {
   accountId: AccountId
   reduxApi: ReduxApi
 }
+
+export type OpportunitiesUserDataResolverInput = {
+  opportunityIds: OpportunityId[]
+  opportunityType: OpportunityDefiType
+  accountId: AccountId
+  reduxApi: ReduxApi
+}

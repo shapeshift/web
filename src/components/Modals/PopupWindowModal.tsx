@@ -5,12 +5,14 @@ import {
   ModalContent,
   ModalOverlay,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { breakpoints } from 'theme/theme'
 
 function popupCenterWindow(url: string, windowName: string, w: number, h: number) {
   if (!window.top) return window.open(url, '_blank')?.focus()
@@ -42,10 +44,14 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const [popupWindow, setPopupWindow] = useState<Window | null | void>(null)
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 
-  const handleCloseWindow = useCallback(() => popupWindow?.close?.(), [popupWindow])
+  const handleCloseWindow = useCallback(() => {
+    popupWindow?.close?.()
+    popup.close()
+  }, [popup, popupWindow])
 
   const handleContinue = useCallback(() => window.open(url, '_blank')?.focus(), [url])
 
@@ -78,6 +84,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
           height={height}
           flexDirection='column'
           textAlign='center'
+          px={6}
           gap={6}
           position='relative'
         >
@@ -86,7 +93,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
             translation={popupWindow ? 'modals.popup.body' : 'modals.popup.body2'}
             fontSize='xl'
           />
-          {popupWindow ? (
+          {popupWindow && isLargerThanMd ? (
             <Button colorScheme='blue' onClick={handleFocusWindow}>
               {translate('modals.popup.showWindow')}
             </Button>
@@ -96,7 +103,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
             </Button>
           )}
           <Button onClick={handleCloseWindow} variant='ghost'>
-            {translate('modals.popup.cancel')}
+            {translate('common.close')}
           </Button>
         </Center>
       </ModalContent>

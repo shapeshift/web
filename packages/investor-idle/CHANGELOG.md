@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.0...@shapeshiftoss/investor-idle-v2.3.1) (2022-11-21)
+
+
+### Bug Fixes
+
+* return idle raw TVL values ([#1092](https://github.com/shapeshift/lib/issues/1092)) ([8424d94](https://github.com/shapeshift/lib/commit/8424d94355c44a727474b00f9ae805fa136ba516))
+
 # [@shapeshiftoss/investor-idle-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.2.0...@shapeshiftoss/investor-idle-v2.3.0) (2022-11-17)
 
 

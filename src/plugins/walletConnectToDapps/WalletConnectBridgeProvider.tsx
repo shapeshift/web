@@ -77,6 +77,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSessionRequest = useCallback(
     (error: Error | null, _payload: WalletConnectSessionRequestPayload) => {
+      debugger
       if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
       if (!connector) return
       if (!wcAccountId) return
@@ -261,21 +262,38 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [],
   )
 
-  const subscribeToEvents = useCallback(() => {
-    if (!connector) return
-    connector.on('session_request', handleSessionRequest)
-    connector.on('session_update', handleSessionUpdate)
-    connector.on('connect', handleConnect)
-    connector.on('disconnect', handleDisconnect)
-    connector.on('call_request', handleCallRequest)
-  }, [
-    connector,
-    handleCallRequest,
-    handleConnect,
-    handleDisconnect,
-    handleSessionRequest,
-    handleSessionUpdate,
-  ])
+  const handleWcSessionRequest = useCallback(args => {
+    console.info('handleWcSessionRequest')
+    debugger
+  }, [])
+
+  const handleWcSessionUpdate = useCallback(args => {
+    console.info('handleWcSessionUpdate')
+    debugger
+  }, [])
+
+  const subscribeToEvents = useCallback(
+    (c: WalletConnect) => {
+      debugger
+      // connect, disconnect, session_request, session_update, call_request, wc_sessionRequest, wc_sessionUpdate
+      c.on('session_request', handleSessionRequest)
+      c.on('session_update', handleSessionUpdate)
+      c.on('connect', handleConnect)
+      c.on('disconnect', handleDisconnect)
+      c.on('call_request', handleCallRequest)
+      c.on('wc_sessionRequest', handleWcSessionRequest)
+      c.on('wc_sessionUpdate', handleWcSessionUpdate)
+    },
+    [
+      handleCallRequest,
+      handleConnect,
+      handleDisconnect,
+      handleSessionRequest,
+      handleSessionUpdate,
+      handleWcSessionRequest,
+      handleWcSessionUpdate,
+    ],
+  )
 
   /**
    * cold initialize from URI
@@ -283,12 +301,31 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const fromURI = useCallback(
     async (uri: string) => {
       if (!wcAccountId) return
-      const { chainId } = fromAccountId(wcAccountId)
-      const wcChainId = parseInt(fromChainId(chainId).chainReference)
       const c = new WalletConnect({ bridge, uri })
       setConnector(c)
-      subscribeToEvents()
-      await c.createSession({ chainId: wcChainId })
+      subscribeToEvents(c)
+      // Approve Session
+      // connector.approveSession({
+      //   accounts: [                 // required
+      //     '0x4292...931B3',
+      //     '0xa4a7...784E8',
+      //     ...
+      //   ],
+      //   chainId: 1                  // required
+      // })
+      const { chainId, account } = fromAccountId(wcAccountId)
+      debugger
+      const wcChainId = parseInt(fromChainId(chainId).chainReference)
+      // await c.createSession()
+      if (c.session) {
+        c.approveSession({
+          chainId: wcChainId,
+          accounts: [account],
+        })
+      }
+      if (!c.connected) {
+        c.connect({ chainId: wcChainId })
+      }
       debugger
       return c
     },
@@ -300,11 +337,12 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    */
   const fromSession = useCallback(
     (session: IWalletConnectSession) => {
+      debugger
       const c = new WalletConnect({ bridge, session })
       setConnector(c)
-      subscribeToEvents()
+      subscribeToEvents(c)
       // TODO(0xdef1cafe): err handling
-      c.connect()
+      if (!c.connected) c.connect()
       return c
     },
     [subscribeToEvents],
@@ -327,10 +365,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * reconnect on mount
    */
   useEffect(() => {
-    maybeHydrateSession()
+    // maybeHydrateSession()
   })
 
-  const dapp = useMemo(() => connector?.peerMeta ?? null, [connector])
+  const dapp = useMemo(() => {
+    const result = connector?.session?.peerMeta ?? null
+    if (connector) debugger
+    return result
+  }, [connector])
 
   return (
     <WalletConnectBridgeContext.Provider

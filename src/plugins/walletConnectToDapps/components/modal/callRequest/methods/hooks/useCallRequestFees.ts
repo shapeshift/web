@@ -1,5 +1,5 @@
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -14,8 +14,7 @@ export function useCallRequestFees(
 ) {
   const [fees, setFees] = useState<FeePrice | undefined>()
 
-  const { evmChainId, ...walletConnect } = useWalletConnect()
-  const address = walletConnect.bridge?.connector.accounts[0]
+  const { evmChainId, wcAccountId } = useWalletConnect()
   const assets = useAppSelector(selectAssets)
 
   const feeAsset = useMemo(() => {
@@ -27,6 +26,8 @@ export function useCallRequestFees(
   }, [assets, evmChainId])
   const price = useAppSelector(state => selectMarketDataById(state, feeAsset?.assetId ?? '')).price
   const fetchFees = useCallback(async () => {
+    if (!wcAccountId) return
+    const { account: address } = fromAccountId(wcAccountId)
     if (!(address && evmChainId && feeAsset && price)) return undefined
 
     const adapter = getChainAdapterManager().get(evmChainId)
@@ -66,7 +67,7 @@ export function useCallRequestFees(
       },
       initialFees,
     )
-  }, [address, evmChainId, feeAsset, price, request.to, request.value, request.data])
+  }, [wcAccountId, evmChainId, feeAsset, price, request.to, request.value, request.data])
 
   useEffect(() => {
     fetchFees().then(setFees)

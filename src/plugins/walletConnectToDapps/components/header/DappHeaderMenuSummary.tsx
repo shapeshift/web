@@ -17,12 +17,12 @@ export const DappHeaderMenuSummary = () => {
   const translate = useTranslate()
 
   const walletConnect = useWalletConnect()
-  const connectedEvmChainId = walletConnect.bridge?.connector.chainId
+  const connectedEvmChainId = walletConnect.connector.chainId
 
   const handleDisconnect = walletConnect.disconnect
 
   // 0x evm address
-  const connectedAccountAddress = walletConnect?.bridge?.connector.accounts[0] ?? ''
+  const connectedAccountAddress = walletConnect?.connector.accounts[0] ?? ''
 
   if (!walletConnect.bridge || !walletConnect.dapp) return null
 

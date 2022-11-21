@@ -26,8 +26,8 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
   const cardBg = useColorModeValue('white', 'gray.850')
 
   const walletConnect = useWalletConnect()
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
-  const address = walletConnect.bridge?.connector.accounts[0]
+  if (!walletConnect.connector || !walletConnect.dapp) return null
+  const address = walletConnect.connector.accounts[0]
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>

@@ -52,8 +52,8 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
     },
   })
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
-  const address = walletConnect.bridge?.connector.accounts[0]
+  if (!walletConnect.connector || !walletConnect.dapp) return null
+  const address = walletConnect.connector.accounts[0]
 
   if (isInteractingWithContract === null)
     return (

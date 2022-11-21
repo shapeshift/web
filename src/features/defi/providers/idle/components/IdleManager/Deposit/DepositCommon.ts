@@ -1,4 +1,3 @@
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
@@ -29,19 +28,6 @@ type IdleDepositValues = DepositValues &
     txStatus: string
     usedGasFee: string
   }
-
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-export type SerializableOpportunity = Omit<
-  IdleOpportunity,
-  | 'allowance'
-  | 'prepareApprove'
-  | 'prepareDeposit'
-  | 'signAndBroadcast'
-  | 'prepareWithdrawal'
-  | 'prepareClaimTokens'
-  | 'getClaimableTokens'
-  | 'getRewardAssetIds'
->
 
 export type IdleDepositState = {
   opportunity: StakingEarnOpportunityType | undefined

@@ -3,7 +3,6 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { entries } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import pull from 'lodash/pull'
@@ -26,7 +25,6 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
@@ -190,7 +188,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
-      requestedAccountIds.forEach(async accountId => {
+      requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {
           case cosmosChainId:
@@ -198,28 +196,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             dispatch(getValidatorData.initiate(accountId, options))
             break
           case ethChainId:
-            await dispatch(
-              opportunitiesApi.endpoints.getOpportunityIds.initiate({
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.Idle,
-              }),
-            )
-            await dispatch(
-              opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.Idle,
-                opportunityType: DefiType.Staking,
-              }),
-            )
-            await dispatch(
-              opportunitiesApi.endpoints.getOpportunitiesUserData.initiate({
-                accountId,
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.Idle,
-                opportunityType: DefiType.Staking,
-              }),
-            )
-
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
 

@@ -192,25 +192,32 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const rejectRequest = useCallback(
     (request: WalletConnectCallRequest) => {
+      debugger
       connector?.rejectRequest(request)
       setCallRequest(undefined)
     },
     [connector],
   )
 
-  const handleSessionUpdate = useCallback(() => {
-    if (!connector) return
-    if (!wcAccountId) return
-    const { chainId, account: address } = fromAccountId(wcAccountId)
-    const chainAdapter = getChainAdapterManager().get(chainId)
-    if (!chainAdapter) return
-    connector.updateSession({
-      chainId: parseInt(fromChainId(chainId).chainReference),
-      accounts: [address],
-    })
-  }, [connector, wcAccountId])
+  const handleSessionUpdate = useCallback(
+    (...args: any) => {
+      moduleLogger.info('handleSessionUpdate', args)
+      debugger
+      if (!connector) return
+      if (!wcAccountId) return
+      const { chainId, account: address } = fromAccountId(wcAccountId)
+      const chainAdapter = getChainAdapterManager().get(chainId)
+      if (!chainAdapter) return
+      // connector.updateSession({
+      //   chainId: parseInt(fromChainId(chainId).chainReference),
+      //   accounts: [address],
+      // })
+    },
+    [connector, wcAccountId],
+  )
 
   const handleDisconnect = useCallback(async () => {
+    debugger
     if (!connector) return
     await connector.killSession()
     connector.off('session_request')
@@ -240,7 +247,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (!connector) return
       if (connector.connected) return
       await connector.createSession()
-      // subscribeToEvents()
     },
     [connector],
   )
@@ -263,89 +269,65 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   const handleWcSessionRequest = useCallback((...args: any) => {
-    console.info('handleWcSessionRequest')
+    console.info('handleWcSessionRequest', args)
     debugger
   }, [])
 
   const handleWcSessionUpdate = useCallback((...args: any) => {
-    console.info('handleWcSessionUpdate')
+    console.info('handleWcSessionUpdate', args)
     debugger
   }, [])
 
-  const subscribeToEvents = useCallback(
-    (c: WalletConnect) => {
-      debugger
-      // connect, disconnect, session_request, session_update, call_request, wc_sessionRequest, wc_sessionUpdate
-      c.on('session_request', handleSessionRequest)
-      c.on('session_update', handleSessionUpdate)
-      c.on('connect', handleConnect)
-      c.on('disconnect', handleDisconnect)
-      c.on('call_request', handleCallRequest)
-      c.on('wc_sessionRequest', handleWcSessionRequest)
-      c.on('wc_sessionUpdate', handleWcSessionUpdate)
-    },
-    [
-      handleCallRequest,
-      handleConnect,
-      handleDisconnect,
-      handleSessionRequest,
-      handleSessionUpdate,
-      handleWcSessionRequest,
-      handleWcSessionUpdate,
-    ],
-  )
+  useEffect(() => {
+    if (!connector) return
+    connector.on('session_request', handleSessionRequest)
+    connector.on('session_update', handleSessionUpdate)
+    connector.on('connect', handleConnect)
+    connector.on('disconnect', handleDisconnect)
+    connector.on('call_request', handleCallRequest)
+    connector.on('wc_sessionRequest', handleWcSessionRequest)
+    connector.on('wc_sessionUpdate', handleWcSessionUpdate)
+  }, [
+    connector,
+    handleCallRequest,
+    handleConnect,
+    handleDisconnect,
+    handleSessionRequest,
+    handleSessionUpdate,
+    handleWcSessionRequest,
+    handleWcSessionUpdate,
+  ])
 
   /**
    * cold initialize from URI
    */
   const fromURI = useCallback(
-    async (uri: string) => {
+    (uri: string) => {
       if (!wcAccountId) return
       localStorage.removeItem('walletconnect') // purge any old sessions
       const c = new WalletConnect({ bridge, uri })
       setConnector(c)
-      subscribeToEvents(c)
-      const { chainId, account } = fromAccountId(wcAccountId)
-      debugger
-      const wcChainId = parseInt(fromChainId(chainId).chainReference)
-      // await c.createSession()
-      if (c.session) {
-        c.approveSession({
-          chainId: wcChainId,
-          accounts: [account],
-        })
-      }
-      if (!c.connected) {
-        c.connect({ chainId: wcChainId })
-      }
-      debugger
       return c
     },
-    [subscribeToEvents, wcAccountId],
+    [wcAccountId],
   )
 
   /**
    * initialize from existing session via local storage
    */
-  const fromSession = useCallback(
-    (session: IWalletConnectSession) => {
-      debugger
-      const c = new WalletConnect({ bridge, session })
-      setConnector(c)
-      subscribeToEvents(c)
-      // TODO(0xdef1cafe): err handling
-      if (!c.connected) c.connect()
-      return c
-    },
-    [subscribeToEvents],
-  )
+  const fromSession = useCallback((session: IWalletConnectSession) => {
+    const c = new WalletConnect({ bridge, session })
+    setConnector(c)
+    // TODO(0xdef1cafe): err handling
+    if (!c.connected) c.connect()
+    return c
+  }, [])
 
   const maybeHydrateSession = useCallback(() => {
     if (connector) return
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) return
     const session = JSON.parse(wcSessionJsonString)
-    debugger
     fromSession(session)
   }, [connector, fromSession])
 
@@ -358,7 +340,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * reconnect on mount
    */
   useEffect(() => {
-    maybeHydrateSession()
+    // maybeHydrateSession()
   })
 
   const dapp = useMemo(() => connector?.peerMeta ?? null, [connector?.peerMeta])

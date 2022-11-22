@@ -42,7 +42,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const { vaults } = useVaultBalances()
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -69,7 +69,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
     foxEthLpOpportunity,
-    foxFarmingOpportunities,
+    stakingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||

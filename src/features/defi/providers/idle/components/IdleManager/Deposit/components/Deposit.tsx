@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -18,8 +19,11 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -45,14 +49,45 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const opportunity = state?.opportunity
+  const { chainId, assetReference, contractAddress } = query
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
+
+  const assetId = useMemo(
+    () => opportunityData?.underlyingAssetIds[0] ?? '',
+    [opportunityData?.underlyingAssetIds],
+  )
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>
@@ -64,12 +99,9 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(state?.userAddress && opportunity && assetReference && idleInvestor && accountId))
-        return
+      if (!(userAddress && assetReference && idleInvestor && accountId && opportunityData)) return
       try {
-        const idleOpportunity = await idleInvestor.findByOpportunityId(
-          opportunity.positionAsset.assetId ?? '',
-        )
+        const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData.assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
           amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
@@ -94,11 +126,11 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      state?.userAddress,
-      opportunity,
+      userAddress,
       assetReference,
       idleInvestor,
       accountId,
+      opportunityData,
       asset.precision,
       toast,
       translate,
@@ -106,13 +138,11 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
-    if (!(state?.userAddress && assetReference && opportunity)) return
+    if (!(userAddress && assetReference && opportunityData)) return
     try {
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        opportunity.positionAsset.assetId ?? '',
-      )
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData.assetId ?? '')
       if (!idleOpportunity) throw new Error('No opportunity')
-      const preparedApproval = await idleOpportunity.prepareApprove(state.userAddress)
+      const preparedApproval = await idleOpportunity.prepareApprove(userAddress)
       return bnOrZero(preparedApproval.gasPrice)
         .times(preparedApproval.estimatedGas)
         .integerValue()
@@ -129,21 +159,21 @@ export const Deposit: React.FC<DepositProps> = ({
         status: 'error',
       })
     }
-  }, [state?.userAddress, assetReference, opportunity, idleInvestor, toast, translate])
+  }, [userAddress, assetReference, opportunityData, idleInvestor, toast, translate])
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state?.userAddress && opportunity && dispatch)) return
+      if (!(userAddress && opportunityData && dispatch)) return
       // set deposit state for future use
       dispatch({ type: IdleDepositActionType.SET_DEPOSIT, payload: formValues })
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       try {
         // Check is approval is required for user address
         const idleOpportunity = await idleInvestor.findByOpportunityId(
-          opportunity.positionAsset.assetId ?? '',
+          opportunityData.assetId ?? '',
         )
         if (!idleOpportunity) throw new Error('No opportunity')
-        const _allowance = await idleOpportunity.allowance(state.userAddress)
+        const _allowance = await idleOpportunity.allowance(userAddress)
         const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
         // Skip approval step if user allowance is greater than requested deposit amount
@@ -178,8 +208,8 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      state?.userAddress,
-      opportunity,
+      userAddress,
+      opportunityData,
       dispatch,
       idleInvestor,
       asset.precision,
@@ -237,14 +267,14 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !opportunityData) return null
 
   return (
     <ReusableDeposit
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
-      apy={bnOrZero(opportunity?.metadata.apy?.net_apy).toString()}
+      apy={bnOrZero(opportunityData?.apy).toString()}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

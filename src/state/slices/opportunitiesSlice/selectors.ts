@@ -2,10 +2,9 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pickBy from 'lodash/pickBy'
+import uniqBy from 'lodash/uniqBy'
 import { createCachedSelector } from 're-reselect'
-import type { FoxFarmingEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -26,6 +25,7 @@ import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
   OpportunityMetadata,
+  StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
   UserStakingOpportunity,
@@ -139,9 +139,15 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     const userOpportunity = userStakingOpportunities[userStakingId]
     const opportunityMetadata = stakingOpportunities[stakingId]
 
-    if (!(opportunityMetadata && userOpportunity)) return
+    if (!opportunityMetadata) return
 
     return {
+      // Overwritten by userOpportunity if it exists, else we keep defaulting to 0
+      stakedAmountCryptoPrecision: '0',
+      rewardsAmountsCryptoPrecision: (opportunityMetadata.rewardAssetIds?.map(() => '0') ?? []) as
+        | []
+        | [string, string]
+        | [string],
       ...userOpportunity,
       ...opportunityMetadata,
     }
@@ -240,15 +246,11 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
         .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
         .toString(),
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
-      // We will need to update them holistically after this goes in
-      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
-      // Which is fine since it isn't wired up yet
-      rewardsAmountsCryptoPrecision: [
-        bnOrZero(acc?.rewardsAmountsCryptoPrecision?.[0])
-          .plus(userStakingOpportunity.rewardsAmountsCryptoPrecision[0])
-          .toString(),
-      ],
+      rewardsAmountsCryptoPrecision: (
+        userStakingOpportunity.rewardsAmountsCryptoPrecision ?? []
+      ).map((amount, i) =>
+        bnOrZero(acc?.rewardsAmountsCryptoPrecision?.[i]).plus(amount).toString(),
+      ) as [string, string] | [string] | [],
     }
   }, undefined)
 }
@@ -273,7 +275,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
   selectAggregatedUserStakingOpportunityByStakingId,
   selectMarketData,
   selectAssets,
-  (opportunity, marketData, assets): FoxFarmingEarnOpportunityType | undefined =>
+  (opportunity, marketData, assets): StakingEarnOpportunityType | undefined =>
     opportunity &&
     Object.assign({}, STAKING_EARN_OPPORTUNITIES[opportunity.assetId], opportunity, {
       chainId: fromAssetId(opportunity.assetId).chainId,
@@ -281,15 +283,10 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
       fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
         .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
         .toString(),
-      provider: DefiProvider.FoxFarming,
       isLoaded: true,
       icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
       opportunityName: opportunity.name,
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
-      // We will need to update them holistically after this goes in
-      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
-      // Which is fine since it isn't wired up yet
-      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]] as const,
+      rewardsAmountsCryptoPrecision: opportunity.rewardsAmountsCryptoPrecision,
     }),
 )
 
@@ -310,57 +307,105 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
   selectAggregatedUserStakingOpportunities,
   selectMarketData,
   selectAssets,
-  (aggregatedUserStakingOpportunities, marketData, assets): FoxFarmingEarnOpportunityType[] =>
-    aggregatedUserStakingOpportunities.map(opportunity => ({
-      ...STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
-      ...opportunity,
-      chainId: fromAssetId(opportunity.assetId).chainId,
-      cryptoAmount: opportunity.stakedAmountCryptoPrecision,
-      fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
-        .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
-        .toString(),
-      provider: DefiProvider.FoxFarming,
-      isLoaded: true,
-      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
-      opportunityName: opportunity.name,
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
-      // We will need to update them holistically after this goes in
-      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
-      // Which is fine since it isn't wired up yet
-      rewardsAmountsCryptoPrecision: [opportunity.rewardsAmountsCryptoPrecision[0]],
-    })),
+  (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
+    aggregatedUserStakingOpportunities.map(opportunity => {
+      return Object.assign(
+        {},
+        {
+          // TODO: The guts of getting contractAddress for Idle
+          // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+          // Can we generalize this? This is getting messy
+          contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+        },
+        STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
+        opportunity,
+        {
+          chainId: fromAssetId(opportunity.assetId).chainId,
+          cryptoAmount: opportunity.stakedAmountCryptoPrecision,
+          fiatAmount: bnOrZero(opportunity.stakedAmountCryptoPrecision)
+            .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
+            .toString(),
+          isLoaded: true,
+          icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
+          opportunityName: opportunity.name,
+          rewardsAmountsCryptoPrecision: opportunity.rewardsAmountsCryptoPrecision,
+        },
+      )
+    }),
 )
+
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingOpportunities,
+    selectStakingOpportunitiesById,
+    selectAssets,
+    (
+      aggregatedEarnUserStakingOpportunities,
+      stakingOpportunitiesById,
+      assets,
+    ): StakingEarnOpportunityType[] => {
+      const emptyEarnOpportunitiesTypes = Object.values(stakingOpportunitiesById)
+        .filter(isSome)
+        .reduce((acc, opportunity) => {
+          const earnOpportunity = Object.assign(
+            {},
+            {
+              // TODO: The guts of getting contractAddress for Idle
+              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+              // Can we generalize this? This is getting messy
+              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+            },
+            STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
+            opportunity,
+            {
+              chainId: fromAssetId(opportunity.assetId).chainId,
+              cryptoAmount: '0',
+              fiatAmount: '0',
+              isLoaded: true,
+              icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
+              opportunityName: opportunity.name,
+              rewardsAmountsCryptoPrecision: [] as const,
+            },
+          )
+
+          acc.push(earnOpportunity)
+
+          return acc
+        }, [] as StakingEarnOpportunityType[])
+
+      // Keep only the version with actual data if it exists, else keep the zero'd out version
+      return uniqBy(
+        [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
+        'contractAddress',
+      )
+    },
+  )
 
 // All opportunities, across all accounts, aggregated into one
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunities,
-  (earnOpportunities): FoxFarmingEarnOpportunityType | undefined =>
-    earnOpportunities.reduce<FoxFarmingEarnOpportunityType | undefined>(
-      (acc, currentOpportunity) => {
-        return Object.assign({}, acc, currentOpportunity, {
-          cryptoAmount: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
-            .plus(acc?.stakedAmountCryptoPrecision ?? 0)
+  (earnOpportunities): StakingEarnOpportunityType | undefined =>
+    earnOpportunities.reduce<StakingEarnOpportunityType | undefined>((acc, currentOpportunity) => {
+      return Object.assign({}, acc, currentOpportunity, {
+        cryptoAmount: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
+          .plus(acc?.stakedAmountCryptoPrecision ?? 0)
+          .toString(),
+        fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
+          .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
+          .toString(),
+        stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
+          .plus(acc?.stakedAmountCryptoPrecision ?? 0)
+          .toString(),
+        rewardsAmountsCryptoPrecision: (
+          currentOpportunity?.rewardsAmountsCryptoPrecision ?? []
+        ).map((amount, i) =>
+          bnOrZero(amount)
+            .plus(acc?.rewardsAmountsCryptoPrecision?.[i] ?? 0)
             .toString(),
-          // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
-          // We will need to update them holistically after this goes in
-          // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
-          // Which is fine since it isn't wired up yet
-          fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
-            .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
-            .toString(),
-          stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
-            .plus(acc?.stakedAmountCryptoPrecision ?? 0)
-            .toString(),
-          rewardsAmountsCryptoPrecision: [
-            bnOrZero(currentOpportunity?.rewardsAmountsCryptoPrecision?.[0])
-              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
-              .toString(),
-          ],
-        })
-      },
-      undefined,
-    ),
+        ),
+      })
+    }, undefined),
 )
 
 const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
@@ -403,7 +448,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     lpAssetBalance,
     assets,
     marketData,
-  ): FoxFarmingEarnOpportunityType | undefined => {
+  ): StakingEarnOpportunityType | undefined => {
     if (!lpId || !lpAssetBalance) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price
@@ -450,7 +495,7 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
   selectMarketData,
   selectAssets,
-  (userStakingOpportunity, marketData, assets): FoxFarmingEarnOpportunityType | undefined => {
+  (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
 
     const marketDataPrice = marketData[userStakingOpportunity.underlyingAssetId]?.price
@@ -464,13 +509,7 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
         .times(marketDataPrice ?? '0')
         .toString(),
       stakedAmountCryptoPrecision: userStakingOpportunity.stakedAmountCryptoPrecision ?? '0',
-      // TODO(gomes): Earn opportunities currently only handle a single rewardsAmountsCryptoPrecision
-      // We will need to update them holistically after this goes in
-      // This is a non-breaking change for current opportunities, but will give us rugged ones for idle
-      // Which is fine since it isn't wired up yet
-      rewardsAmountsCryptoPrecision: [
-        userStakingOpportunity.rewardsAmountsCryptoPrecision[0] ?? '0',
-      ],
+      rewardsAmountsCryptoPrecision: userStakingOpportunity.rewardsAmountsCryptoPrecision,
       opportunityName: userStakingOpportunity.name,
       icons: userStakingOpportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
     }
@@ -491,7 +530,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
     aggregatedLpAssetBalance,
     assets,
     marketData,
-  ): FoxFarmingEarnOpportunityType | undefined => {
+  ): StakingEarnOpportunityType | undefined => {
     if (!lpId || !aggregatedLpAssetBalance) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price
@@ -530,30 +569,6 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
 
     return opportunity
   },
-)
-
-// "Give me the total values over all my accounts aggregated into one for each opportunity, and then aggregated these into one final value"
-// TODO: testme
-export const selectAggregatedUserStakingOpportunity = createDeepEqualOutputSelector(
-  selectAggregatedUserStakingOpportunities,
-  (aggregatedOpportunities): (UserStakingOpportunity & OpportunityMetadata) | undefined =>
-    aggregatedOpportunities.reduce<(UserStakingOpportunity & OpportunityMetadata) | undefined>(
-      (acc, currentOpportunity) => {
-        return {
-          ...acc,
-          ...currentOpportunity,
-          stakedAmountCryptoPrecision: bnOrZero(currentOpportunity.stakedAmountCryptoPrecision)
-            .plus(acc?.stakedAmountCryptoPrecision ?? 0)
-            .toString(),
-          rewardsAmountsCryptoPrecision: [
-            bnOrZero(currentOpportunity.rewardsAmountsCryptoPrecision[0])
-              .plus(acc?.rewardsAmountsCryptoPrecision?.[0] ?? 0)
-              .toString(),
-          ],
-        }
-      },
-      undefined,
-    ),
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
@@ -648,19 +663,18 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     const underlyingAssetsIcons = userStakingOpportunities.underlyingAssetIds.map(
       assetId => assets[assetId].icon,
     )
-    return userStakingOpportunities.underlyingAssetIds.map((assetId, i) => ({
+    return userStakingOpportunities.underlyingAssetIds.map((assetId, i, original) => ({
       ...assets[assetId],
       cryptoBalance: bnOrZero(userStakingOpportunities.stakedAmountCryptoPrecision)
         .times(
           fromBaseUnit(
-            userStakingOpportunities.underlyingAssetRatios[i] ?? '0',
+            userStakingOpportunities.underlyingAssetRatios[i] ?? '1',
             assets[assetId].precision,
           ),
         )
-        .toFixed(6)
-        .toString(),
+        .toFixed(),
       icons: [underlyingAssetsIcons[i]],
-      allocationPercentage: '0.50',
+      allocationPercentage: bn('1').div(original.length).toString(),
     }))
   },
 )

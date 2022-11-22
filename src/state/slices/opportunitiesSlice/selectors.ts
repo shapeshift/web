@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import pickBy from 'lodash/pickBy'
+import uniqBy from 'lodash/uniqBy'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -332,6 +333,53 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       )
     }),
 )
+
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingOpportunities,
+    selectStakingOpportunitiesById,
+    selectAssets,
+    (
+      aggregatedEarnUserStakingOpportunities,
+      stakingOpportunitiesById,
+      assets,
+    ): StakingEarnOpportunityType[] => {
+      const emptyEarnOpportunitiesTypes = Object.values(stakingOpportunitiesById)
+        .filter(isSome)
+        .reduce((acc, opportunity) => {
+          const earnOpportunity = Object.assign(
+            {},
+            {
+              // TODO: The guts of getting contractAddress for Idle
+              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+              // Can we generalize this? This is getting messy
+              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+            },
+            STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
+            opportunity,
+            {
+              chainId: fromAssetId(opportunity.assetId).chainId,
+              cryptoAmount: '0',
+              fiatAmount: '0',
+              isLoaded: true,
+              icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
+              opportunityName: opportunity.name,
+              rewardsAmountsCryptoPrecision: [] as const,
+            },
+          )
+
+          acc.push(earnOpportunity)
+
+          return acc
+        }, [] as StakingEarnOpportunityType[])
+
+      // Keep only the version with actual data if it exists, else keep the zero'd out version
+      return uniqBy(
+        [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
+        'contractAddress',
+      )
+    },
+  )
 
 // All opportunities, across all accounts, aggregated into one
 // TODO: testme

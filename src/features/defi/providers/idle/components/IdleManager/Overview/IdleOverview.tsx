@@ -1,12 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
-import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
@@ -14,30 +11,27 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectAssets,
+  selectEarnUserStakingOpportunity,
   selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Overview', 'IdleOverview'],
-})
 
 const defaultMenu: DefiButtonProps[] = [
   {
@@ -61,146 +55,133 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const accountBip44Params = useAppSelector(state =>
-    selectBIP44ParamsByAccountId(state, accountFilter),
-  )
-  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
-  const defaultBip44Params = useAppSelector(state =>
-    selectBIP44ParamsByAccountId(state, { accountId: defaultAccountId }),
-  )
-  const bip44Params = useMemo(
-    () => accountBip44Params ?? defaultBip44Params,
-    [accountBip44Params, defaultBip44Params],
-  )
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
-  const toast = useToast()
-  const [menu, setMenu] = useState<DefiButtonProps[]>(defaultMenu)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const [opportunity, setOpportunity] = useState<IdleOpportunity | undefined>()
-  const [claimableTokens, setClaimableTokens] = useState<ClaimableToken[]>([])
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
-  const [walletAddress, setWalletAddress] = useState<string | undefined>()
+  const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+
   const vaultTokenId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: vaultAddress,
+    assetReference: contractAddress,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const vault = useAppSelector(state => selectAssetById(state, vaultTokenId))
-  const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
+  const assets = useAppSelector(selectAssets)
+  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balanceFilter = useMemo(
     () => ({ accountId, assetId: vaultTokenId }),
     [accountId, vaultTokenId],
   )
+  // user info
   const balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${vault.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId ?? defaultAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, defaultAccountId, highestBalanceAccountId],
+  )
 
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-  const { state: walletState } = useWallet()
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
 
-  useEffect(() => {
-    ;(async () => {
-      if (!(walletState.wallet && chainAdapter && bip44Params)) return
-      const walletAddress = await chainAdapter.getAddress({
-        wallet: walletState.wallet,
-        bip44Params,
-      })
-      setWalletAddress(walletAddress)
-    })()
-  }, [chainAdapter, walletState, bip44Params])
-
-  useEffect(() => {
-    if (!(vaultAddress && idleInvestor && walletAddress)) return
-    ;(async () => {
-      try {
-        const opportunity = await idleInvestor.findByOpportunityId(
-          toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-        )
-
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-        setOpportunity(opportunity)
-
-        const claimableTokens = await opportunity.getClaimableTokens(walletAddress)
-        setClaimableTokens(claimableTokens)
-
-        if (!opportunity.metadata.cdoAddress) {
-          const totalClaimableRewards = claimableTokens.reduce((totalRewards, token) => {
-            totalRewards = totalRewards.plus(token.amount)
-            return totalRewards
-          }, bnOrZero(0))
-
-          const claimDisabled = !totalClaimableRewards || totalClaimableRewards.lte(0)
-
-          setMenu([
-            ...defaultMenu,
-            {
-              icon: <FaGift />,
-              colorScheme: 'green',
-              label: 'common.claim',
-              variant: 'ghost-filled',
-              action: DefiAction.Claim,
-              isDisabled: claimDisabled,
-              toolTip: translate('defi.modals.overview.noWithdrawals'),
-            },
-          ])
-        }
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'IdleOverview:useEffect error')
-      }
-    })()
-  }, [vaultAddress, chainId, toast, translate, walletAddress, idleInvestor])
-
-  const assets = useAppSelector(selectorState => selectorState.assets.byId)
-
-  const rewardAssets = useMemo((): AssetWithBalance[] => {
-    if (!claimableTokens || !claimableTokens.length) return []
-    return claimableTokens.reduce((rewardAssets: AssetWithBalance[], token) => {
-      const rewardAsset = assets[token.assetId]
-      if (rewardAsset) {
-        rewardAssets.push({
-          ...rewardAsset,
-          cryptoBalance: bnOrZero(token.amount).div(`1e+${rewardAsset.precision}`).toPrecision(),
-        })
-      }
-      return rewardAssets
-    }, [])
-  }, [assets, claimableTokens])
-
+  const underlyingAssetId = useMemo(
+    () => opportunityData?.underlyingAssetIds?.[0],
+    [opportunityData?.underlyingAssetIds],
+  )
+  const underlyingAsset: Asset | undefined = useMemo(
+    () => assets[underlyingAssetId ?? ''],
+    [assets, underlyingAssetId],
+  )
   const underlyingAssets = useMemo(
     () => [
       {
-        ...underlyingToken,
+        ...underlyingAsset,
         cryptoBalance: cryptoAmountAvailable.toPrecision(),
         allocationPercentage: '1',
       },
     ],
-    [underlyingToken, cryptoAmountAvailable],
+    [cryptoAmountAvailable, underlyingAsset],
   )
 
-  if (!opportunity) {
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const descriptionQuery = useGetAssetDescriptionQuery({
+    assetId: underlyingAssetId,
+    selectedLocale,
+  })
+
+  const rewardAssets = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoPrecision?.length) return []
+
+    return opportunityData!.rewardsAmountsCryptoPrecision
+      .map((amount, i) => {
+        if (!opportunityData?.rewardAssetIds?.[i]) return undefined
+        if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
+        if (bnOrZero(amount).isZero()) return undefined
+        return {
+          ...assets[opportunityData.rewardAssetIds[i]],
+          cryptoBalance: bnOrZero(amount).toFixed(6),
+        }
+      })
+      .filter(isSome)
+  }, [assets, opportunityData])
+
+  const hasClaimBalance = useMemo(() => {
+    if (!opportunityData?.rewardAssetIds?.length) return false
+
+    return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
+      bnOrZero(opportunityData?.rewardsAmountsCryptoPrecision?.[i]).gt(0),
+    )
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoPrecision])
+
+  const menu: DefiButtonProps[] = useMemo(() => {
+    if (!(contractAddress && idleInvestor && opportunityData)) return defaultMenu
+    if (!opportunityData?.rewardsAmountsCryptoPrecision?.length) return defaultMenu
+
+    return [
+      ...defaultMenu,
+      {
+        icon: <FaGift />,
+        colorScheme: 'green',
+        label: 'common.claim',
+        variant: 'ghost-filled',
+        action: DefiAction.Claim,
+        isDisabled: !hasClaimBalance,
+        toolTip: translate('defi.modals.overview.noWithdrawals'),
+      },
+    ]
+  }, [contractAddress, idleInvestor, opportunityData, hasClaimBalance, translate])
+
+  if (!opportunityData) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -208,24 +189,26 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     )
   }
 
+  if (!underlyingAssets || !opportunityData) return null
+
   return (
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
-      asset={asset}
-      name={`${underlyingToken.name} Vault (${opportunity.version})`}
+      asset={vaultAsset}
+      name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssets={underlyingAssets}
       provider='Idle Finance'
       description={{
-        description: underlyingToken.description,
+        description: underlyingAsset.description,
         isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: underlyingToken.isTrustedDescription,
+        isTrustedDescription: underlyingAsset.isTrustedDescription,
       }}
-      tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toFixed(2)}
-      apy={opportunity.apy.toString()}
+      tvl={bnOrZero(opportunityData.tvl).div(bn(10).pow(vaultAsset?.precision)).toFixed(2)}
+      apy={opportunityData.apy}
       menu={menu}
-      {...(rewardAssets.length && { rewardAssets })}
+      rewardAssets={rewardAssets}
     />
   )
 }

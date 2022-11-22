@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.1...@shapeshiftoss/investor-idle-v2.3.2) (2022-11-22)
+
+
+### Bug Fixes
+
+* **investor-idle:** return idle raw underlyingPerPosition values ([#1096](https://github.com/shapeshift/lib/issues/1096)) ([9d22722](https://github.com/shapeshift/lib/commit/9d22722b596163544ce08bbe7a78f9915553187f))
+
 # [@shapeshiftoss/investor-idle-v2.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.0...@shapeshiftoss/investor-idle-v2.3.1) (2022-11-21)
 
 

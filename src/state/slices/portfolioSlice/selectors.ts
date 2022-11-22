@@ -463,7 +463,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAggregatedEarnUserStakingOpportunities,
-    selectAccountIdParamFromFilter, // TODO(gomes): selector
+    selectAccountIdParamFromFilter,
     (
       assetsById,
       accountBalances,

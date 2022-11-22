@@ -44,7 +44,7 @@ export type UserStakingOpportunity = {
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
   rewardsAmountsCryptoPrecision:
-    | readonly [string, string]
+    | readonly [string, string, string]
     | readonly [string, string]
     | readonly [string]
     | readonly []

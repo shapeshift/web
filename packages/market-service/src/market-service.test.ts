@@ -7,6 +7,11 @@ import {
   mockCGPriceHistoryData,
 } from './coingecko/coingeckoMockData'
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
+import {
+  mockIdleFindByAssetIdData,
+  mockIdlePriceHistoryData,
+  mockIdleServiceFindAllData,
+} from './idle/idleMockData'
 import { MarketServiceManager } from './market-service-manager'
 import {
   mockOsmosisFindAllData,
@@ -63,6 +68,22 @@ jest.mock('./yearn/yearn-vaults', () => ({
       findAll: yearnVaultFindAllMock,
       findByAssetId: yearnVaultFindByAssetIdMock,
       findPriceHistoryByAssetId: yearnVaultFindPriceHistoryByAssetIdMock,
+    }
+  }),
+}))
+
+const idleFindAllMock = jest.fn().mockImplementation(() => mockIdleServiceFindAllData)
+const idleFindByAssetIdMock = jest.fn().mockImplementation(() => mockIdleFindByAssetIdData)
+const idleFindPriceHistoryByAssetIdMock = jest
+  .fn()
+  .mockImplementation(() => mockIdlePriceHistoryData)
+
+jest.mock('./idle/idle', () => ({
+  IdleMarketService: jest.fn().mockImplementation(() => {
+    return {
+      findAll: idleFindAllMock,
+      findByAssetId: idleFindByAssetIdMock,
+      findPriceHistoryByAssetId: idleFindPriceHistoryByAssetIdMock,
     }
   }),
 }))
@@ -163,6 +184,7 @@ describe('market service', () => {
       yearnTokenFindAllMock.mockRejectedValueOnce({ error: 'error' })
       osmosisFindAllMock.mockRejectedValueOnce({ error: 'error' })
       foxyFindAllMock.mockRejectedValueOnce({ error: 'error' })
+      idleFindAllMock.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
         new Error('Cannot find market service provider for market data.'),
       )
@@ -207,6 +229,7 @@ describe('market service', () => {
       yearnTokenFindByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       osmosisFindByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       foxyFindByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
+      idleFindByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(args)
       expect(result).toBeNull()
@@ -244,6 +267,7 @@ describe('market service', () => {
       yearnTokenFindPriceHistoryByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       osmosisFindPriceHistoryByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       foxyFindPriceHistoryByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
+      idleFindPriceHistoryByAssetIdMock.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,

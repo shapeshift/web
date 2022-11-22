@@ -20,7 +20,7 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['txHistory', 'portfolio'],
+  whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
 }
 
@@ -44,6 +44,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
+  store.dispatch(slices.opportunities.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

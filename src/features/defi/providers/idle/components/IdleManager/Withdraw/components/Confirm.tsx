@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -22,9 +23,12 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -44,30 +48,60 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = chainAdapter?.getFeeAssetId()
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
+  const underlyingAssetId = useMemo(
+    () => opportunityData?.underlyingAssetIds[0] ?? '',
+    [opportunityData?.underlyingAssetIds],
+  )
+  const underlyingAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAssetId),
+  )
+
+  const asset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.assetId ?? ''),
+  )
+
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const { state: walletState } = useWallet()
@@ -85,22 +119,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       if (
         !(
-          state?.userAddress &&
+          userAddress &&
           walletState?.wallet &&
           assetReference &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData?.assetId &&
+          asset &&
+          underlyingAsset
         )
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        opportunity.positionAsset.assetId ?? '',
-      )
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData?.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareWithdrawal({
-        address: state.userAddress,
+        address: userAddress,
         amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
       const txid = await idleOpportunity.signAndBroadcast({
@@ -120,14 +155,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     dispatch,
     bip44Params,
-    state?.userAddress,
-    state?.withdraw.cryptoAmount,
+    userAddress,
     walletState.wallet,
     assetReference,
     opportunity,
     chainAdapter,
+    opportunityData?.assetId,
+    asset,
+    underlyingAsset,
     idleInvestor,
-    asset.precision,
+    state?.withdraw.cryptoAmount,
     onNext,
   ])
 

@@ -1,4 +1,4 @@
-import type { FoxFarmingEarnOpportunityType } from 'context/FoxEthProvider/FoxEthProvider'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -16,7 +16,7 @@ type FoxFarmingWithdrawValues = WithdrawValues &
   }
 
 export type FoxFarmingWithdrawState = {
-  opportunity: FoxFarmingEarnOpportunityType | null
+  opportunity: StakingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxFarmingWithdrawValues
@@ -36,7 +36,7 @@ export enum FoxFarmingWithdrawActionType {
 
 type SetOpportunityAction = {
   type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY
-  payload: FoxFarmingEarnOpportunityType
+  payload: StakingEarnOpportunityType
 }
 
 type SetWithdraw = {

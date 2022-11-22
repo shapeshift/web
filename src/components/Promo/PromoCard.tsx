@@ -1,0 +1,54 @@
+import { Button } from '@chakra-ui/react'
+import dayjs from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
+import { useMemo } from 'react'
+import { NavLink } from 'react-router-dom'
+import FoxyPromo from 'assets/foxy-promo.jpg'
+import { Card } from 'components/Card/Card'
+import { RawText } from 'components/Text'
+dayjs.extend(isBetween)
+
+const promoData = [
+  {
+    title: 'Earn 3.15% APY on FOX',
+    body: 'Your FOX is put to work across different DeFi protocols to earn the best yield possible.',
+    cta: 'Deposit FOX Now',
+    image: `url(${FoxyPromo})`,
+    colorScheme: 'pink',
+    startDate: '2022-11-22 2:20 PM',
+    endDate: '2022-11-22 3:30 PM',
+    href: '?chainId=eip155%3A1&contractAddress=0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b&assetReference=0xc770eefad204b5180df6a14ee197d99d808ee52d&rewardId=0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3&provider=ShapeShift&modal=overview',
+  },
+]
+
+export const PromoCard = () => {
+  const renderPromos = useMemo(() => {
+    const filteredPromoCards = promoData.filter(e =>
+      dayjs().isBetween(dayjs(e.startDate), dayjs(e.endDate)),
+    )
+    return filteredPromoCards.map(({ image, title, body, colorScheme = 'blue', href, cta }) => {
+      return (
+        <Card backgroundImage={image} backgroundSize='cover' backgroundPosition='center center'>
+          <Card.Body display='flex' flexDir='column' gap={2}>
+            <RawText fontWeight='bold'>{title}</RawText>
+            <RawText fontSize='sm' mr={24}>
+              {body}
+            </RawText>
+            <Button
+              variant='outline'
+              width='full'
+              colorScheme={colorScheme}
+              mt={2}
+              as={NavLink}
+              to={href}
+            >
+              {cta}
+            </Button>
+          </Card.Body>
+        </Card>
+      )
+    })
+  }, [])
+
+  return <>{renderPromos}</>
+}

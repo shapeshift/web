@@ -17,11 +17,9 @@ import {
 import {
   type AccountId,
   type AssetId,
-  btcChainId,
   CHAIN_NAMESPACE,
   fromAssetId,
   fromChainId,
-  ltcChainId,
 } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
@@ -30,7 +28,6 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { type ReduxState } from 'state/reducer'
@@ -254,17 +251,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     listProps,
     handleClick,
   ])
-
-  /**
-   * these chains already have multi account support via sending and receiving,
-   * and we need to use *and* render this new component while we retrofit the rest of the app
-   *
-   * the effectful logic above will still run for other chains, and return the first account
-   * via the onChange callback on mount, but nothing will be visually rendered
-   */
-  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-  if (!isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
 
   if (!accountIds.length) return null
 

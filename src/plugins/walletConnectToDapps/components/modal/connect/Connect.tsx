@@ -3,7 +3,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useCallback } from 'react'
 
-import { ConnectContent } from './ConnectIndex'
+import { ConnectContent } from './ConnectContent'
 
 type Props = {
   isOpen: boolean

@@ -4,21 +4,23 @@ import {
   FormControl,
   FormErrorMessage,
   Heading,
+  IconButton,
   Input,
   InputGroup,
   InputRightElement,
   Link,
   VStack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { FaQrcode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import { QRCodeIcon } from 'components/Icons/QRCode'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
+import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
@@ -28,15 +30,16 @@ type FormValues = {
 
 type ConnectContentProps = {
   handleConnect: (uri: string) => void
-  accountId?: AccountId
 }
 export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect }) => {
   const translate = useTranslate()
+  const [isQrCodeView, setIsQrCodeView] = useState<boolean>(false)
+  const toggleQrCodeView = useCallback(() => setIsQrCodeView(v => !v), [])
   const { evmChainId, setWcAccountId } = useWalletConnect()
 
   const handleForm = (values: FormValues) => handleConnect(values.uri)
 
-  const { register, handleSubmit, control, formState } = useForm<FormValues>({
+  const { register, handleSubmit, control, formState, setValue } = useForm<FormValues>({
     mode: 'onChange',
     defaultValues: { uri: '' },
   })
@@ -48,6 +51,17 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     if (!chainAdapter) return ethAssetId
     return chainAdapter.getFeeAssetId()
   }, [evmChainId])
+
+  if (isQrCodeView)
+    return (
+      <QrCodeScanner
+        onSuccess={(uri: string) => {
+          setValue('uri', uri)
+          toggleQrCodeView()
+        }}
+        onBack={toggleQrCodeView}
+      />
+    )
 
   return (
     <Box p={8}>
@@ -70,8 +84,14 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
               onChange={setWcAccountId}
             />
             <InputGroup size='lg'>
-              <InputRightElement pointerEvents='none'>
-                <FaQrcode color='gray.300' />
+              <InputRightElement>
+                <IconButton
+                  aria-label={translate('modals.send.scanQrCode')}
+                  icon={<QRCodeIcon />}
+                  onClick={toggleQrCodeView}
+                  size='sm'
+                  variant='ghost'
+                />
               </InputRightElement>
               <Input
                 {...register('uri')}

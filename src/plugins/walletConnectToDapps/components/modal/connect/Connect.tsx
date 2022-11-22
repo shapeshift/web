@@ -32,7 +32,7 @@ const Connect = ({ isOpen, onClose }: Props) => {
         maxWidth={{ base: 'full', md: '500px' }}
       >
         <ModalCloseButton position='absolute' color='gray.500' />
-        <ConnectContent handleConnect={handleConnect} accountId={wcAccountId} />
+        <ConnectContent handleConnect={handleConnect} />
       </ModalContent>
     </Modal>
   )

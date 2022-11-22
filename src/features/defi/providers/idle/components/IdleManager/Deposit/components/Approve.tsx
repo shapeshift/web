@@ -20,7 +20,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
@@ -76,7 +76,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
           amount: bnOrZero(deposit.cryptoAmount)
-            .times(`1e+${underlyingAsset?.precision}`)
+            .times(bn(10).pow(underlyingAsset?.precision))
             .integerValue(),
           address: userAddress,
         })
@@ -133,7 +133,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => idleOpportunity.allowance(address),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${underlyingAsset?.precision}`)
+          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
           return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
@@ -207,11 +207,11 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       asset={asset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

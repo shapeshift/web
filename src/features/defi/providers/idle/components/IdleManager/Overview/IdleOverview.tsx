@@ -17,7 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -81,7 +81,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${vaultAsset?.precision}`)
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const opportunityId = useMemo(
@@ -205,7 +205,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: underlyingAsset.isTrustedDescription,
       }}
-      tvl={bnOrZero(opportunityData.tvl).div(`1e+${vaultAsset.precision}`).toFixed(2)}
+      tvl={bnOrZero(opportunityData.tvl).div(bn(10).pow(vaultAsset?.precision)).toFixed(2)}
       apy={opportunityData.apy}
       menu={menu}
       rewardAssets={rewardAssets}

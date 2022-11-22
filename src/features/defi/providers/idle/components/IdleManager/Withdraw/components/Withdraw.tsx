@@ -12,7 +12,7 @@ import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -99,7 +99,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareWithdrawal({
           amount: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${underlyingAsset.precision}`)
+            .times(bn(10).pow(underlyingAsset?.precision))
             .integerValue(),
           address: userAddress,
         })

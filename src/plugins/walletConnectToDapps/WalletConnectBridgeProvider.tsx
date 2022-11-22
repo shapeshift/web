@@ -37,7 +37,9 @@ const bridge = 'https://bridge.walletconnect.org'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { wallet, isDemoWallet },
+  } = useWallet()
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
@@ -201,7 +203,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const rejectRequest = useCallback(
     (request: WalletConnectCallRequest) => {
-      connector?.rejectRequest(request)
+      const payload = { error: { message: 'User rejected request' }, id: request.id }
+      connector?.rejectRequest(payload)
       setCallRequest(undefined)
     },
     [connector],
@@ -335,10 +338,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
      * for now, disallow conencting to shapeshift via walletconnect, and
      * also using shapeshift as a wallet to connect to dapps
      */
-    if (wallet instanceof WalletConnectHDWallet) {
-      debugger
-      return
-    }
+    if (wallet instanceof WalletConnectHDWallet) return
     if (!walletAccountIds.length) return
     const walletEvmAddresses = Array.from(
       new Set(
@@ -363,17 +363,17 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   }, [handleDisconnect, wallet, walletAccountIds])
 
   const maybeHydrateSession = useCallback(() => {
+    if (isDemoWallet) return
     if (!wallet) return
     if (wallet instanceof WalletConnectHDWallet) return
     if (connector) return
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) return
     const session = JSON.parse(wcSessionJsonString)
-    debugger
     fromSession(session)
     const d = session?.peerMeta
     if (d) setDapp(d)
-  }, [connector, fromSession, wallet])
+  }, [connector, fromSession, isDemoWallet, wallet])
 
   /**
    * public method for consumers
@@ -392,7 +392,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       value={{
         connector,
         dapp,
-        // callRequests,
         connect,
         disconnect: handleDisconnect,
         approveRequest,

@@ -13,6 +13,8 @@ import type {
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
   OpportunityId,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -35,15 +37,19 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return await getIdleInvestor().findAll()
   })()
 
-  // TODO: Graceful handling of Idle API going down
-  // if (!opportunities?.length) {
-  // return {
-  // data: {
-  // byId: BASE_OPPORTUNITIES_BY_ID,
-  // type: opportunityType,
-  // },
-  // }
-  // }
+  if (!opportunities?.length) {
+    return {
+      data: {
+        byId: Object.fromEntries(
+          Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
+            opportunityId,
+            { ...opportunityMetadata, apy: '0', tvl: '0' },
+          ]),
+        ) as Partial<Record<StakingId, OpportunityMetadata>>,
+        type: opportunityType,
+      },
+    }
+  }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency

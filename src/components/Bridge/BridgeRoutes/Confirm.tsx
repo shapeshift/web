@@ -94,7 +94,7 @@ export const Confirm: React.FC = () => {
     ;(async () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
-        const baseUrl = 'https://axelar-lcd.quickapi.com/axelar/nexus/v1beta1/transfer_fee'
+        const baseUrl = 'https://lcd-axelar.imperator.co/axelar/nexus/v1beta1/transfer_fee'
         const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmount}${assetDenom}`
         const {
           data: {

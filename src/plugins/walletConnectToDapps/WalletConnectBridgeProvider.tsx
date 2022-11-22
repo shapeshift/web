@@ -6,7 +6,7 @@ import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
-import type { IWalletConnectSession } from '@walletconnect/types'
+import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -43,7 +43,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
-  const [dapp, setDapp] = useState<any>()
+  const [dapp, setDapp] = useState<IClientMeta | null>(null)
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
@@ -236,29 +236,43 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     } catch (e) {
       moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Error killing session')
     }
-    setDapp(undefined)
+    setDapp(null)
     setConnector(undefined)
     localStorage.removeItem('walletconnect')
   }, [connector])
 
-  // if connectedEvmChainId or wallet changes, update the walletconnect session
+  // if evmChainId or wallet changes, update the walletconnect session
   useEffect(() => {
-    if (connectedEvmChainId && connector && dapp && wallet && supportsETH(wallet) && wcAccountId) {
-      const chainReference = fromChainId(connectedEvmChainId).chainReference
-      const chainId = parseInt(chainReference)
-      const accounts = [fromAccountId(wcAccountId).account]
-      connector.updateSession({ chainId, accounts })
+    // only care if we have an active bridge
+    if (connector && dapp && wallet) {
+      /**
+       * if evmChainId changes, we change the session chainId
+       * if the wallet changes, we gotta make sure new wallet supports eth,
+       * and also supports offline signing.
+       *
+       * disconnect from the dapp if wallet does not meet the requirements
+       */
+      if (evmChainId && supportsETH(wallet) && wcAccountId && wallet.supportsOfflineSigning()) {
+        const chainReference = fromChainId(evmChainId).chainReference
+        const chainId = parseInt(chainReference)
+        const accounts = [fromAccountId(wcAccountId).account]
+        connector.updateSession({ chainId, accounts })
+      } else {
+        handleDisconnect()
+      }
     }
     // we want to only look for chainId or wallet changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectedEvmChainId, wallet])
+  }, [evmChainId, wallet])
 
-  // TODO(0xdef1cafe): type any
-  const handleConnect = useCallback((err: Error | null, payload: any) => {
-    if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
-    moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
-    setDapp(payload.params[0].peerMeta)
-  }, [])
+  const handleConnect = useCallback(
+    (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
+      if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
+      moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
+      setDapp(payload.params[0].peerMeta)
+    },
+    [],
+  )
 
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.

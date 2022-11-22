@@ -64,7 +64,11 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
           </Link>
 
           <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
-            <AccountDropdown assetId={feeAssetId} onChange={setWcAccountId} />
+            <AccountDropdown
+              buttonProps={{ width: 'full', ml: 0, mr: 0 }}
+              assetId={feeAssetId}
+              onChange={setWcAccountId}
+            />
             <InputGroup size='lg'>
               <InputRightElement pointerEvents='none'>
                 <FaQrcode color='gray.300' />

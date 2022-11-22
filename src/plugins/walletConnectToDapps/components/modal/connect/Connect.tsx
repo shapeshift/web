@@ -1,14 +1,9 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { useCallback } from 'react'
 
-import { ConnectRoutes } from './ConnectCommon'
-import { ConnectRouter } from './ConnectRouter'
-
-export const entries = [ConnectRoutes.Index, ConnectRoutes.Accounts]
+import { ConnectContent } from './ConnectIndex'
 
 type Props = {
   isOpen: boolean
@@ -16,17 +11,14 @@ type Props = {
 }
 
 const Connect = ({ isOpen, onClose }: Props) => {
-  const [account, setAccount] = useState<AccountId | null>(null)
-  const handleAccountChange = useCallback((account: AccountId) => {
-    setAccount(account)
-  }, [])
-  const { connect } = useWalletConnect()
+  const { connect, wcAccountId } = useWalletConnect()
   const handleConnect = useCallback(
     (uri: string) => {
-      connect(uri, account ? fromAccountId(account).account : null)
+      if (!wcAccountId) return
+      connect(uri, fromAccountId(wcAccountId).account)
       onClose()
     },
-    [connect, onClose, account],
+    [connect, onClose, wcAccountId],
   )
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='header-nav'>
@@ -40,17 +32,7 @@ const Connect = ({ isOpen, onClose }: Props) => {
         maxWidth={{ base: 'full', md: '500px' }}
       >
         <ModalCloseButton position='absolute' color='gray.500' />
-        <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route path='/'>
-              <ConnectRouter
-                handleConnect={handleConnect}
-                handleAccountChange={handleAccountChange}
-                account={account}
-              />
-            </Route>
-          </Switch>
-        </MemoryRouter>
+        <ConnectContent handleConnect={handleConnect} accountId={wcAccountId} />
       </ModalContent>
     </Modal>
   )

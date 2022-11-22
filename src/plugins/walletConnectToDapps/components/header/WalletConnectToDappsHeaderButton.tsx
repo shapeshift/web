@@ -1,6 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button } from '@chakra-ui/react'
+import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,12 +17,18 @@ import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
   const {
-    state: { isConnected },
+    state: { isConnected, wallet, isDemoWallet },
     dispatch,
   } = useWallet()
   const [isOpen, setOpen] = useState(false)
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
+
+  if (!wallet) return null
+  // no walletconnect inception
+  const isWalletConnectWallet = wallet instanceof WalletConnectHDWallet
+  const isNotOfflineSigningWallet = !wallet.supportsOfflineSigning()
+  if (isWalletConnectWallet || isNotOfflineSigningWallet || isDemoWallet) return null
 
   if (!walletConnect.connector || !walletConnect.dapp) {
     return (

@@ -4,6 +4,7 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8 } from '@walletconnect/utils'
@@ -328,6 +329,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    */
   useEffect(() => {
     if (!wallet) return
+    /**
+     * we are both a dapp, and a wallet
+     * they share the same connector, and it's hard to distinguish events
+     * for now, disallow conencting to shapeshift via walletconnect, and
+     * also using shapeshift as a wallet to connect to dapps
+     */
+    if (wallet instanceof WalletConnectHDWallet) {
+      debugger
+      return
+    }
     if (!walletAccountIds.length) return
     const walletEvmAddresses = Array.from(
       new Set(
@@ -352,14 +363,17 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   }, [handleDisconnect, wallet, walletAccountIds])
 
   const maybeHydrateSession = useCallback(() => {
+    if (!wallet) return
+    if (wallet instanceof WalletConnectHDWallet) return
     if (connector) return
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) return
     const session = JSON.parse(wcSessionJsonString)
+    debugger
     fromSession(session)
     const d = session?.peerMeta
     if (d) setDapp(d)
-  }, [connector, fromSession])
+  }, [connector, fromSession, wallet])
 
   /**
    * public method for consumers

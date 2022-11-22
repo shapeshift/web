@@ -26,8 +26,13 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  const idleInvestor = getIdleInvestor()
-  const opportunities = await idleInvestor.findAll()
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getIdleInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getIdleInvestor().initialize()
+    return await getIdleInvestor().findAll()
+  })()
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -116,7 +121,15 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const asset = selectAssetById(state, stakingOpportunityId)
     if (!asset || bnOrZero(balance).eq(0)) continue
 
-    const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
+    const opportunity = await (async () => {
+      const maybeOpportunities = await idleInvestor.findAll()
+      if (maybeOpportunities.length)
+        return await idleInvestor.findByOpportunityId(stakingOpportunityId)
+
+      await idleInvestor.findAll()
+      return await idleInvestor.findByOpportunityId(stakingOpportunityId)
+    })()
+
     if (!opportunity) continue
 
     let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
@@ -155,8 +168,13 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 export const idleStakingOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
-  const idleInvestor = getIdleInvestor()
-  const opportunities = await idleInvestor.findAll()
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getIdleInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getIdleInvestor().initialize()
+    return await getIdleInvestor().findAll()
+  })()
 
   return {
     data: opportunities.map(opportunity => {

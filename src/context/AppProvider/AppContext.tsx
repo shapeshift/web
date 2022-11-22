@@ -158,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    dispatch(getAllTxHistory.initiate(requestedAccountIds, { forceRefetch: true }))
+    dispatch(getAllTxHistory.initiate(requestedAccountIds))
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
@@ -185,8 +185,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
-      await fetchAllOpportunitiesIds({ forceRefetch: true })
-      await fetchAllOpportunitiesMetadata({ forceRefetch: true })
+      await fetchAllOpportunitiesIds()
+      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -197,7 +197,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+            fetchAllOpportunitiesUserData(accountId)
 
             /**
              * fetch all rebase history for foxy

@@ -13,6 +13,7 @@ import { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
+import { IdleMarketService } from './idle/idle'
 import { OsmosisMarketService } from './osmosis/osmosis'
 import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
@@ -50,6 +51,7 @@ export class MarketServiceManager {
       new CoinCapMarketService(),
       new YearnVaultMarketCapService({ yearnSdk }),
       new YearnTokenMarketCapService({ yearnSdk }),
+      new IdleMarketService({ providerUrls }),
       new OsmosisMarketService(),
       new FoxyMarketService({ coinGeckoAPIKey, providerUrls }),
     ]

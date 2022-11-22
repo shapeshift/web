@@ -39,6 +39,7 @@
     "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^10.0.0",
     "@shapeshiftoss/investor-foxy": "^7.0.0",
+    "@shapeshiftoss/investor-idle": "^2.3.2",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^10.0.1"
   },
@@ -46,6 +47,7 @@
     "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^10.0.0",
     "@shapeshiftoss/investor-foxy": "^7.0.0",
+    "@shapeshiftoss/investor-idle": "^2.3.2",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^10.0.1",
     "limiter": "^2.1.0"

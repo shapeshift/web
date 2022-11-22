@@ -84,11 +84,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunity(state, opportunityDataFilter),
   )
-  const assetId = useMemo(
+  const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds[0] ?? '',
     [opportunityData?.underlyingAssetIds],
   )
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
+  const underlyingAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAssetId),
+  )
+
+  const asset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.assetId ?? ''),
+  )
 
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
@@ -119,7 +125,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           supportsETH(walletState.wallet) &&
           opportunity &&
           chainAdapter &&
-          opportunityData?.assetId
+          opportunityData?.assetId &&
+          asset &&
+          underlyingAsset
         )
       )
         return
@@ -153,9 +161,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     opportunityData?.assetId,
+    asset,
+    underlyingAsset,
     idleInvestor,
     state?.withdraw.cryptoAmount,
-    asset.precision,
     onNext,
   ])
 
@@ -189,11 +198,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset.icon} />
-              <RawText>{asset.name}</RawText>
+              <AssetIcon size='xs' src={underlyingAsset.icon} />
+              <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>

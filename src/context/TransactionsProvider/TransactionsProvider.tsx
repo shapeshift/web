@@ -13,7 +13,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { fetchAllOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
+import {
+  fetchAllOpportunitiesIds,
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -73,7 +77,11 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         )
       )
         return
-      ;(async () => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }))()
+      ;(async () => {
+        await fetchAllOpportunitiesIds({ forceRefetch: true })
+        await fetchAllOpportunitiesMetadata({ forceRefetch: true })
+        await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+      })()
     },
     // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope
     // Investigate me, but for now having no deps here is our safest bet

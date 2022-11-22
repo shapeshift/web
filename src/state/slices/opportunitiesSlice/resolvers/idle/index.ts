@@ -35,14 +35,15 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return await getIdleInvestor().findAll()
   })()
 
-  if (!opportunities?.length) {
-    return {
-      data: {
-        byId: BASE_OPPORTUNITIES_BY_ID,
-        type: opportunityType,
-      },
-    }
-  }
+  // TODO: Graceful handling of Idle API going down
+  // if (!opportunities?.length) {
+  // return {
+  // data: {
+  // byId: BASE_OPPORTUNITIES_BY_ID,
+  // type: opportunityType,
+  // },
+  // }
+  // }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency

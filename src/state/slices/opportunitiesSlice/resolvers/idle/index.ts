@@ -12,6 +12,7 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -33,6 +34,15 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     await getIdleInvestor().initialize()
     return await getIdleInvestor().findAll()
   })()
+
+  if (!opportunities?.length) {
+    return {
+      data: {
+        byId: BASE_OPPORTUNITIES_BY_ID,
+        type: opportunityType,
+      },
+    }
+  }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -175,6 +185,12 @@ export const idleStakingOpportunityIdsResolver = async (): Promise<{
     await getIdleInvestor().initialize()
     return await getIdleInvestor().findAll()
   })()
+
+  if (!opportunities?.length) {
+    return {
+      data: Object.keys(BASE_OPPORTUNITIES_BY_ID) as OpportunityId[],
+    }
+  }
 
   return {
     data: opportunities.map(opportunity => {

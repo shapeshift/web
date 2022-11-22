@@ -4241,10 +4241,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-idle@^2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.3.1.tgz#41c5191354dc5f530d647958939b66887f5dc79a"
-  integrity sha512-WPeUUkIA/41tkX77TYD7I21aQvE0HBw2xAxTkxmIJvGj76MkEWgOidcwLVTlYS1Bc62ax+5Cwih4MDDY3Pnp1A==
+"@shapeshiftoss/investor-idle@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.3.2.tgz#2312ec1cace2d276a78d634a9173685626f89f54"
+  integrity sha512-Yn6h3wyr2nzX2ajHi8we5pYyqgekbokfCXCWZ6gSbVEYMcuiHp6tla5AIoBJSHCc7uU10uoDgz5s6LujP9lI3Q==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     bignumber.js "^9.0.2"

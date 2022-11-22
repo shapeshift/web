@@ -34,7 +34,7 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
-  const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
+  const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
 
   // TODO: We need to get the fee asset from the Opportunity
   const feeAssetId = toAssetId({

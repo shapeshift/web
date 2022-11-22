@@ -554,6 +554,10 @@
     },
     "errors": {
       "title": "Il y a eu un problème",
+      "sellAssetStartSentence": "Actif à vendre",
+      "buyAssetStartSentence": "Actif à acheter",
+      "sellAssetMiddleSentence": "actif à vendre",
+      "buyAssetMiddleSentence": "actif à acheter",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
       "amountTooSmall": "Minimum : %{minLimit}",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",

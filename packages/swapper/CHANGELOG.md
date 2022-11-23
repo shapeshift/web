@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.3...@shapeshiftoss/swapper-v14.3.0) (2022-11-23)
+
+
+### Features
+
+* calculate usd price from pools via thornode ([#1090](https://github.com/shapeshift/lib/issues/1090)) ([f3f9f61](https://github.com/shapeshift/lib/commit/f3f9f61f60ee55175ed81077ef455808a9cbb675))
+
 # [@shapeshiftoss/swapper-v14.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.2...@shapeshiftoss/swapper-v14.2.3) (2022-11-23)
 
 

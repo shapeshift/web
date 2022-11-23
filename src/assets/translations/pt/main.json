@@ -96,7 +96,7 @@
     "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
     "cta": {
       "title": {
-        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negocial, ganhar recompensas e",
+        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
         "second": "monitorar suas criptos em 8 redes diferentes."
       }
     },
@@ -184,7 +184,7 @@
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
-    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Detida pela Comunidade. Não custodial. Privada.",
+    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Propriedade da Comunidade. Não custodial. Privada.",
     "betaSunset": "Beta foi descontinuada, leia mais",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
@@ -1275,7 +1275,7 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie um"
+      "create": "Crie uma"
     }
   },
   "graph": {

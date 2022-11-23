@@ -82,6 +82,11 @@
     "enterAmount": "Entrer le montant",
     "pageNotFound": "La page que vous recherchez est introuvable"
   },
+  "errorPage": {
+    "title": "Oups !",
+    "body": "Quelque chose s'est mal passé",
+    "cta": "Réessayer"
+  },
   "buyPage": {
     "title": {
       "first": "Acheter des cryptos",
@@ -604,6 +609,13 @@
     "recentTrades": "Échanges récents"
   },
   "modals": {
+    "popup": {
+      "body": "Nous avons ouvert une fenêtre sécurisée pour finaliser votre ordre.",
+      "body2": "Vous ne voyez pas la fenêtre sécurisée ? Nous allons vous aider à rouvrir la fenêtre pour terminer votre ordre.",
+      "continue": "Cliquez pour continuer",
+      "showWindow": "Afficher la fenêtre",
+      "cancel": "Annuler"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

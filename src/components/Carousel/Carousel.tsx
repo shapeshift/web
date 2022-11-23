@@ -1,7 +1,15 @@
 import type { AnimationOptions, PanInfo } from 'framer-motion'
 import { animate, useMotionValue } from 'framer-motion'
 import type { ReactNode } from 'react'
-import React, { Children, forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  Children,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import { Arrow } from './Arrow'
 import { Dots } from './Dots'
@@ -46,21 +54,6 @@ export const Carousel = ({
     () => -index * (containerRef.current?.clientWidth || 0),
     [index],
   )
-
-  const handleEndDrag = (_e: Event, dragProps: PanInfo) => {
-    const clientWidth = containerRef.current?.clientWidth || 0
-
-    const { offset } = dragProps
-
-    if (offset.x > clientWidth / 4) {
-      handlePrev()
-    } else if (offset.x < -clientWidth / 4) {
-      handleNext()
-    } else {
-      animate(x, calculateNewX(), transition)
-    }
-  }
-
   const childrens = Children.toArray(children)
 
   const handleNext = useCallback(() => {
@@ -68,10 +61,27 @@ export const Carousel = ({
     setIndex(index + 1 === childrens.length ? idx : index + 1)
   }, [childrens.length, index, loop])
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     const idx = loop ? childrens.length - 1 : 0
     setIndex(index - 1 < 0 ? idx : index - 1)
-  }
+  }, [childrens.length, index, loop])
+
+  const handleEndDrag = useCallback(
+    (_e: Event, dragProps: PanInfo) => {
+      const clientWidth = containerRef.current?.clientWidth || 0
+
+      const { offset } = dragProps
+
+      if (offset.x > clientWidth / 4) {
+        handlePrev()
+      } else if (offset.x < -clientWidth / 4) {
+        handleNext()
+      } else {
+        animate(x, calculateNewX(), transition)
+      }
+    },
+    [calculateNewX, handleNext, handlePrev, x],
+  )
 
   useEffect(() => {
     const controls = animate(x, calculateNewX(), transition)
@@ -86,19 +96,23 @@ export const Carousel = ({
     return () => clearInterval(timer)
   }, [autoPlay, handleNext, interval])
 
+  const renderSlides = useMemo(() => {
+    return childrens.map((child, i) => (
+      <Slider
+        onDragEnd={handleEndDrag}
+        x={x}
+        i={i}
+        key={i}
+        enableDrag={childrens.length > 1 ? true : false}
+      >
+        {child}
+      </Slider>
+    ))
+  }, [childrens, handleEndDrag, x])
+
   return (
     <Contaier ref={containerRef}>
-      {childrens.map((child, i) => (
-        <Slider
-          onDragEnd={handleEndDrag}
-          x={x}
-          i={i}
-          key={i}
-          enableDrag={childrens.length > 1 ? true : false}
-        >
-          {child}
-        </Slider>
-      ))}
+      {renderSlides}
 
       {showArrows && (
         <>

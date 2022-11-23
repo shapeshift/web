@@ -18,7 +18,7 @@ export const Slider = ({ x, i, onDragEnd, enableDrag = true, children }: SliderP
       left: `${i * 100}%`,
       right: `${i * 100}%`,
     }}
-    drag={enableDrag ?? 'x'}
+    drag={enableDrag ? 'x' : false}
     dragElastic={0.3}
     onDragEnd={onDragEnd}
   >

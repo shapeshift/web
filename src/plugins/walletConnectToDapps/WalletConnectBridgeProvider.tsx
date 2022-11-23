@@ -1,3 +1,4 @@
+import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -37,6 +38,7 @@ const bridge = 'https://bridge.walletconnect.org'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
+  const toast = useToast()
   const {
     state: { wallet, isDemoWallet },
   } = useWallet()
@@ -322,14 +324,24 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    * cold initialize from URI
    */
   const fromURI = useCallback(
-    (uri: string) => {
+    (uri: string): { successful: boolean } | void => {
       if (!wcAccountId) return
       localStorage.removeItem('walletconnect') // purge any old sessions
-      const c = new WalletConnect({ bridge, uri })
-      setConnector(c)
-      return c
+      try {
+        const c = new WalletConnect({ bridge, uri })
+        setConnector(c)
+        return { successful: true }
+      } catch (error) {
+        moduleLogger.error(error, { fn: 'fromURI' }, 'Error connecting with uri')
+        const duration = 2500
+        const isClosable = true
+        const toastPayload = { duration, isClosable }
+        const title = translate('plugins.walletConnectToDapps.modal.connect.connectionError')
+        const status = 'error'
+        toast({ title, status, ...toastPayload })
+      }
     },
-    [wcAccountId],
+    [toast, translate, wcAccountId],
   )
 
   /**

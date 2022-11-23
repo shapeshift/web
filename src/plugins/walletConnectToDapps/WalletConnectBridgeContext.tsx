@@ -12,7 +12,7 @@ type WalletConnectBridgeContextValue = {
   accountExplorerAddressLink: string
   connector: WalletConnect | undefined
   dapp: IClientMeta | null
-  connect(uri: string, account: string | null): void
+  connect(uri: string, account: string | null): { successful: boolean } | void
   disconnect(): void
   approveRequest(callRequest: WalletConnectCallRequest, approveData?: unknown): Promise<void>
   rejectRequest(callRequest: WalletConnectCallRequest): void
@@ -25,7 +25,7 @@ export const WalletConnectBridgeContext = createContext<WalletConnectBridgeConte
   accountExplorerAddressLink: '',
   connector: undefined,
   dapp: null,
-  connect: Promise.resolve,
+  connect: () => {},
   setWcAccountId: Promise.resolve,
   disconnect: Promise.resolve,
   approveRequest: Promise.resolve,

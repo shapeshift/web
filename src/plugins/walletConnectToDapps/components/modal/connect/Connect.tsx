@@ -15,8 +15,8 @@ const Connect = ({ isOpen, onClose }: Props) => {
   const handleConnect = useCallback(
     (uri: string) => {
       if (!wcAccountId) return
-      connect(uri, fromAccountId(wcAccountId).account)
-      onClose()
+      const connectionResult = connect(uri, fromAccountId(wcAccountId).account)
+      if (connectionResult?.successful) onClose()
     },
     [connect, onClose, wcAccountId],
   )

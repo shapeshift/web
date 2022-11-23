@@ -21,6 +21,7 @@ export const slices = {
   validatorData,
   portfolio,
   preferences,
+  opportunities,
 }
 
 const preferencesPersistConfig = {

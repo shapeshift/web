@@ -4241,10 +4241,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-idle@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.2.0.tgz#e209a8bf99d01a1018dc4731c5f557cbed3d6373"
-  integrity sha512-NrNZJpfFap72RavFd7f9xo+2XHlrk1eSjs3d+dKs2TgCOJr9ZWKCQ5N7+wjCaNYLEQYW7z95YwlL/KT0x7u15A==
+"@shapeshiftoss/investor-idle@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.3.2.tgz#2312ec1cace2d276a78d634a9173685626f89f54"
+  integrity sha512-Yn6h3wyr2nzX2ajHi8we5pYyqgekbokfCXCWZ6gSbVEYMcuiHp6tla5AIoBJSHCc7uU10uoDgz5s6LujP9lI3Q==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     bignumber.js "^9.0.2"
@@ -4271,10 +4271,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
-"@shapeshiftoss/market-service@^7.1.3":
-  version "7.1.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.1.3.tgz#cf55f1b808df2d7d368e7cda0dcf5b1dd65a7b55"
-  integrity sha512-6CloUrLRK/diyXm93129Qre/CdDB2cjp/EfMdTcjdjZUqxEvOKQ9V3yNQlF/R2wSrhhQsycosWN4duExnoRV8Q==
+"@shapeshiftoss/market-service@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.2.0.tgz#70fa41c99dd1f673c6941377e5aaa5a5dd794879"
+  integrity sha512-MjGft3p6J4w7FeUbyW4goJn03FhihFt0Dt5G4P6W5aBzs6c6KyPasukKXfzbbl30H7IpNzVTjFUzIcgy/iup2Q==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.2.0"

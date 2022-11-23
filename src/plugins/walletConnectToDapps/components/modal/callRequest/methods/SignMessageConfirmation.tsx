@@ -8,6 +8,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { AddressSummaryCard } from './components/AddressSummaryCard'
 import { ExternalLinkButton } from './components/ExternalLinkButtons'
+import { ModalSection } from './components/ModalSection'
 
 type SignMessageConfirmationProps = {
   message: string
@@ -31,20 +32,10 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
-      <Box>
-        <Text
-          fontWeight='medium'
-          translation='plugins.walletConnectToDapps.modal.signMessage.signingFrom'
-          mb={4}
-        />
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
         <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
-      </Box>
-      <Box>
-        <Text
-          fontWeight='medium'
-          translation='plugins.walletConnectToDapps.modal.signMessage.requestFrom'
-          mb={4}
-        />
+      </ModalSection>
+      <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>
           <HStack align='center' p={4}>
             <Image borderRadius='full' boxSize='24px' src={walletConnect.dapp.icons[0]} />
@@ -65,7 +56,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
             </RawText>
           </Box>
         </Card>
-      </Box>
+      </ModalSection>
       <Text
         fontWeight='medium'
         color='gray.500'

@@ -16,7 +16,7 @@ import { handleAbiApiResponse } from 'state/apis/abi/utils'
 import { useCallRequestFees } from '../hooks/useCallRequestFees'
 import { CopyButton } from './CopyButton'
 import { ExternalLinkButton } from './ExternalLinkButtons'
-import { ModalSection } from './ModalSection'
+import { ModalCollapsableSection } from './ModalCollapsableSection'
 
 type Props = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -70,7 +70,7 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
     }
   }
   return (
-    <ModalSection
+    <ModalCollapsableSection
       title={
         <Box lineHeight={2.4} m={0}>
           {transaction?.name}
@@ -130,6 +130,6 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
           <EncodedText value={request.data} />
         </Flex>
       </Box>
-    </ModalSection>
+    </ModalCollapsableSection>
   )
 }

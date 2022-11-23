@@ -17,6 +17,7 @@ import { AmountCard } from './components/AmountCard'
 import { ContractInteractionBreakdown } from './components/ContractInteractionBreakdown'
 import { GasFeeEstimateLabel } from './components/GasFeeEstimateLabel'
 import { GasInput } from './components/GasInput'
+import { ModalCollapsableSection } from './components/ModalCollapsableSection'
 import { ModalSection } from './components/ModalSection'
 import { TransactionAdvancedParameters } from './components/TransactionAdvancedParameters'
 import { useCallRequestFees } from './hooks/useCallRequestFees'
@@ -65,50 +66,32 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
   return (
     <FormProvider {...form}>
       <VStack p={6} spacing={6} alignItems='stretch'>
-        <Box>
-          <Text
-            fontWeight='medium'
-            translation='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'
-            mb={4}
-          />
+        <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
           <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
-        </Box>
-        <Box>
-          <Text
-            fontWeight='medium'
-            translation={`plugins.walletConnectToDapps.modal.sendTransaction.${
-              isInteractingWithContract ? 'interactingWith' : 'sendingTo'
-            }`}
-            mb={4}
-          />
+        </ModalSection>
+        <ModalSection
+          title={`plugins.walletConnectToDapps.modal.sendTransaction.${
+            isInteractingWithContract ? 'interactingWith' : 'sendingTo'
+          }`}
+        >
           <AddressSummaryCard
             address={request.to}
             showWalletProviderName={false}
             icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
           />
-        </Box>
+        </ModalSection>
         {isInteractingWithContract ? (
-          <Box>
-            <Text
-              fontWeight='medium'
-              translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'
-              mb={4}
-            />
+          <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
             <Card bg={cardBg} borderRadius='md' px={4} py={2}>
               <ContractInteractionBreakdown request={request} />
             </Card>
-          </Box>
+          </ModalSection>
         ) : (
-          <Box>
-            <Text
-              fontWeight='medium'
-              translation='plugins.walletConnectToDapps.modal.sendTransaction.amount'
-              mb={4}
-            />
+          <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.amount'>
             {feeAsset && <AmountCard value={request.value} assetId={feeAsset.assetId} />}
-          </Box>
+          </ModalSection>
         )}
-        <ModalSection
+        <ModalCollapsableSection
           title={
             <HStack flex={1} justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
@@ -121,9 +104,8 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
           <Box pt={2}>
             <GasInput request={request} />
           </Box>
-        </ModalSection>
-
-        <ModalSection
+        </ModalCollapsableSection>
+        <ModalCollapsableSection
           title={translate(
             'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.title',
           )}
@@ -131,14 +113,12 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
           defaultOpen={false}
         >
           <TransactionAdvancedParameters />
-        </ModalSection>
-
+        </ModalCollapsableSection>
         <Text
           fontWeight='medium'
           color='gray.500'
           translation='plugins.walletConnectToDapps.modal.signTransaction.description'
         />
-
         <VStack spacing={4}>
           <Button
             size='lg'

@@ -12,7 +12,6 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import type { FC } from 'react'
@@ -22,8 +21,6 @@ import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
 import { RawText, Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 import type { ConfirmData } from '../../CallRequestCommon'
 import { useCallRequestFees } from '../hooks/useCallRequestFees'
@@ -36,7 +33,7 @@ type GasOption = {
   value: FeeDataKey
   label: string
   duration: string
-  amount: string
+  gasPriceGwei: string
   color: ThemeTypings['colorSchemes']
 }
 
@@ -49,10 +46,6 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
   const bgColor = useColorModeValue('white', 'gray.850')
   const translate = useTranslate()
 
-  const web3 = getWeb3InstanceByChainId(ethChainId)
-  console.log({ fees })
-  console.log({ request })
-
   const options = useMemo(
     (): GasOption[] =>
       fees
@@ -61,21 +54,21 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
               value: FeeDataKey.Slow,
               label: translate(getFeeTranslation(FeeDataKey.Slow)),
               duration: translate('gasInput.duration.slow'),
-              amount: fees.slow.txFee,
+              gasPriceGwei: fees.slow.gasPriceGwei ?? '0',
               color: 'green.200',
             },
             {
               value: FeeDataKey.Average,
               label: translate(getFeeTranslation(FeeDataKey.Average)),
               duration: translate('gasInput.duration.average'),
-              amount: fees.average.txFee,
+              gasPriceGwei: fees.average.gasPriceGwei ?? '0',
               color: 'blue.200',
             },
             {
               value: FeeDataKey.Fast,
               label: translate(getFeeTranslation(FeeDataKey.Fast)),
               duration: translate('gasInput.duration.fast'),
-              amount: fees.fast.txFee,
+              gasPriceGwei: fees.fast.gasPriceGwei ?? '0',
               color: 'red.400',
             },
           ]
@@ -105,7 +98,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
         </HelperTooltip>
         {!!selectedOption && (
           <RawText fontWeight='medium'>
-            {selectedOption.label} ({selectedOption.amount})
+            {selectedOption.label} - {selectedOption.gasPriceGwei} Gwei
           </RawText>
         )}
       </HStack>
@@ -131,13 +124,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                       </RawText>
                     </HStack>
                   </Radio>
-                  <RawText color={option.color}>
-                    {/* {bnOrZero(web3.utils.toWei(option.amount, 'ether'))
-                      .div(bn(10).pow(4)) // convert to gwei
-                      .toFixed(0)}{' '} */}
-                    {option.amount}
-                    Gwei
-                  </RawText>
+                  <RawText color={option.color}>{`${option.gasPriceGwei} Gwei`}</RawText>
                 </HStack>
                 <Divider />
               </Fragment>

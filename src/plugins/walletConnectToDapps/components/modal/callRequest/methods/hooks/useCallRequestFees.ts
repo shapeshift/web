@@ -28,14 +28,11 @@ export function useCallRequestFees(
     useAppSelector(state => selectMarketDataById(state, feeAsset?.assetId ?? ''))?.price ?? '0'
 
   useEffect(() => {
-    debugger
     if (!request) return
     if (!wcAccountId) return
     const { account: address } = fromAccountId(wcAccountId)
-    if (!(address && evmChainId && feeAsset && feeAssetPrice)) return
-
     const adapter = getChainAdapterManager().get(evmChainId)
-    if (!adapter) return
+    if (!(address && evmChainId && feeAsset && feeAssetPrice && adapter)) return
     ;(async () => {
       const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
         to: request.to,
@@ -51,17 +48,17 @@ export function useCallRequestFees(
         slow: {
           fiatFee: '',
           txFee: '',
-          gasPrice: '',
+          gasPriceGwei: '',
         },
         average: {
           fiatFee: '',
           txFee: '',
-          gasPrice: '',
+          gasPriceGwei: '',
         },
         fast: {
           fiatFee: '',
           txFee: '',
-          gasPrice: '',
+          gasPriceGwei: '',
         },
       }
       const result = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
@@ -70,8 +67,10 @@ export function useCallRequestFees(
             .dividedBy(bn(10).pow(feeAsset?.precision))
             .toPrecision()
           const fiatFee = bnOrZero(txFee).times(feeAssetPrice).toPrecision()
-          const gasPrice = estimatedFees[key].chainSpecific.gasPrice
-          acc[key] = { txFee, fiatFee, gasPrice }
+          const gasPriceGwei = bnOrZero(estimatedFees[key].chainSpecific.gasPrice)
+            .div(1e9)
+            .toString()
+          acc[key] = { txFee, fiatFee, gasPriceGwei }
           return acc
         },
         initialFees,

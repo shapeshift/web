@@ -33,9 +33,7 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const totalBalance = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, { accountAddress: '' }),
-  )
+  const totalBalance = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
 
   const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading
@@ -86,7 +84,6 @@ export const Portfolio = () => {
           )}
         </Flex>
         <BalanceChart
-          assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}

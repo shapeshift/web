@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 
 import { BridgeRoutes, entries } from './BridgeRoutes/BridgeRoutes'
 import type { BridgeState } from './types'
@@ -12,11 +12,7 @@ export const Bridge = () => {
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>
-        <Switch>
-          <Route path='/'>
-            <BridgeRoutes />
-          </Route>
-        </Switch>
+        <BridgeRoutes />
       </MemoryRouter>
     </FormProvider>
   )

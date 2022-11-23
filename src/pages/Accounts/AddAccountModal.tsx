@@ -93,7 +93,8 @@ export const AddAccountModal = () => {
     const chainAdapterManager = getChainAdapterManager()
     return chainIds.map(chainId => {
       const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
-      const asset = assets[assetId]
+      const asset = assets?.[assetId]
+      if (!asset) return null
       const { name, icon } = asset
       const key = chainId
       const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
@@ -103,7 +104,7 @@ export const AddAccountModal = () => {
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
-    return assets[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
+    return assets?.[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
   }, [assets, selectedChainId])
 
   const handleAddAccount = useCallback(() => {
@@ -121,19 +122,11 @@ export const AddAccountModal = () => {
 
       const { getAccount } = portfolioApi.endpoints
       const opts = { forceRefetch: true }
+      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
       const accountIds = Object.keys(accountMetadataByAccountId)
-      const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
-      const accountResults = await Promise.allSettled(accountPromises)
-      accountResults.forEach((res, idx) => {
-        if (res.status === 'rejected') return
-        const { data: account } = res.value
-        if (!account) return
-        const accountId = accountIds[idx]
-        const accountMetadata = accountMetadataByAccountId[accountId]
-        const payload = { [accountId]: accountMetadata }
-        dispatch(portfolio.actions.upsertAccountMetadata(payload))
-        dispatch(portfolio.actions.upsertPortfolio(account))
-      })
+      accountIds.forEach(accountId =>
+        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
+      )
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]
       toast({

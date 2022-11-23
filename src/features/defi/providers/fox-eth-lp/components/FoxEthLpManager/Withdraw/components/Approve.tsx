@@ -1,36 +1,41 @@
 import { useToast } from '@chakra-ui/react'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { UNISWAP_V2_WETH_FOX_POOL_ADDRESS } from 'features/defi/providers/fox-eth-lp/constants'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type FoxEthLpApproveProps = {
+type FoxEthLpApproveProps = StepComponentProps & {
+  accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 
 const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
 
-export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
-  const { lpAccountAddress } = useFoxEth()
-  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(lpAccountAddress)
+  const { lpAccountId } = useFoxEth()
+  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(lpAccountId)
   const opportunity = state?.opportunity
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -105,19 +110,27 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(estimatedGasCrypto) &&
+      isSome(accountId) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   if (!state || !dispatch) return null
@@ -126,11 +139,9 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .times(feeMarketData.price)
-        .toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}
@@ -138,7 +149,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={UNISWAP_V2_WETH_FOX_POOL_ADDRESS}
+      contractAddress={fromAssetId(foxEthLpAssetId).assetReference}
     />
   )
 }

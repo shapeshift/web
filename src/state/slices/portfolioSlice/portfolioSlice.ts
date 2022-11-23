@@ -8,7 +8,7 @@ import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
-import type { AccountMetadataById, Portfolio } from './portfolioSliceCommon'
+import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
@@ -22,14 +22,28 @@ export const portfolio = createSlice({
       moduleLogger.info('clearing portfolio')
       return initialState
     },
+    setWalletId: (state, { payload }: { payload: WalletId | undefined }) => {
+      // note this function can unset the walletId to undefined
+      moduleLogger.info(payload, 'setting wallet id')
+      state.walletId = payload
+      if (!payload) return
+      state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
+    },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')
       state.accountMetadata.byId = {
         ...state.accountMetadata.byId,
         ...payload,
       }
-      state.accountMetadata.ids = Array.from(
-        new Set([...state.accountMetadata.ids, ...Object.keys(payload)]),
+
+      state.accountMetadata.ids = Object.keys(state.accountMetadata.byId)
+
+      if (!state.walletId) return // realistically, at this point, we should have a walletId set
+      const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
+      const newWalletAccountIds = Object.keys(payload)
+      // keep an index of what account ids belong to this wallet
+      state.wallet.byId[state.walletId] = Array.from(
+        new Set([...existingWalletAccountIds, ...newWalletAccountIds]),
       )
     },
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
@@ -51,12 +65,17 @@ export const portfolio = createSlice({
   },
 })
 
+type GetAccountArgs = {
+  accountId: AccountId
+  upsertOnFetch?: boolean
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
   endpoints: build => ({
-    getAccount: build.query<Portfolio, AccountId>({
-      queryFn: async (accountId, { dispatch, getState }) => {
+    getAccount: build.query<Portfolio, GetAccountArgs>({
+      queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         // 0xdef1cafe: be careful with this, RTK query can't type this correctly
         const untypedState = getState()
@@ -68,6 +87,7 @@ export const portfolioApi = createApi({
           if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
+          upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           moduleLogger.error(e, `error fetching account ${accountId}`)

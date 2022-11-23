@@ -46,7 +46,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
   }, initial)
 
   const result = await Promise.all(
-    Object.entries(chainIdsByChainNamespace).map(async ([chainNamespace, chainIds]) =>
+    Object.entries(chainIdsByChainNamespace).map(([chainNamespace, chainIds]) =>
       deriveAccountIdsAndMetadataForChainNamespace[chainNamespace as ChainNamespaceKey]({
         accountNumber,
         chainIds,

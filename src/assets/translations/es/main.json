@@ -77,7 +77,25 @@
     "selectAsset": "Seleccione un Activo",
     "switchNetwork": "Cambiar Red",
     "unsupportedNetwork": "Red No Soportada",
-    "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}."
+    "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
+    "search": "Búsqueda",
+    "enterAmount": "Ingrese la cantidad",
+    "pageNotFound": "La página que buscas no se encuentra"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Comprar Cripto",
+      "second": "en Segundos"
+    },
+    "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
+    "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
+    "cta": {
+      "title": {
+        "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
+        "second": "Rastree su cripto en 8 cadenas"
+      }
+    },
+    "availableAssets": "Activos Disponibles"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -108,6 +126,8 @@
       "value": "Valor",
       "priceChange": "Cambio de precio",
       "allocation": "Asignación",
+      "marketCap": "Capitalizacion de Mercado",
+      "sparkLine": "Minigráfico",
       "empty": {
         "title": "Ruido de grillos...",
         "cta": "Envíate algo de cripto!"
@@ -116,6 +136,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Transacciones Recientes"
+    },
+    "tradeCard": {
+      "trade": "Intercambiar",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -146,7 +170,8 @@
     "nonUS": "NO-USA",
     "availableProviders": "Proveedores Disponibles",
     "noProvidersAvailable": "No hay Proveedores Disponibles",
-    "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso."
+    "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso.",
+    "notSupported": "%{asset} no es compatible con %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -249,6 +274,10 @@
         "claimYour": "Reclame su %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Por favor, no edite la nota de transacción.",
+      "body": "Las transacciones que se originan en ShapeShift ayudan a respaldar la DAO."
+    },
     "amountToStake": "Cantidad a Stake",
     "amountToUnstake": "Monto a Unstake",
     "confirmDetails": "Confirmar Detalles",
@@ -283,6 +312,7 @@
     "asset": "Activo",
     "category": "Categoría",
     "tvl": "TVL",
+    "type": "Escribe",
     "apy": "APY",
     "apr": "APR",
     "ended": "Finalizado",
@@ -364,6 +394,7 @@
     "assetStakingBalance": "%{assetName} Balance de Staking"
   },
   "navBar": {
+    "home": "Inicio",
     "dashboard": "Tablero de mandos",
     "assets": "Activos",
     "assetDetails": "Detalles de activos",
@@ -383,7 +414,8 @@
     "clickToConnect": "Haga clic para conectar una billetera",
     "wallet": "Billetera",
     "explore": "Explore",
-    "trade": "Intercambie"
+    "trade": "Intercambie",
+    "buyCrypto": "Comprar/Vender Cripto"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -963,7 +995,7 @@
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
           "passphrase": "Habilite la capacidad de tener múltiples billeteras, accesibles mediante el uso de una frase de contraseña única para cada billetera.",
           "label": "Etiquetar cada uno de los dispositivos le permite distinguir fácilmente uno de otro.",
-          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puede cambiar esto.",
+          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puedes cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",
@@ -1316,7 +1348,10 @@
     "selectChain": "Seleccione la cadena para la que le gustaría crear una cuenta.",
     "requiresPriorTxHistory": "Solo puede agregar una nueva cuenta si las cuentas existentes tienen un historial de transacciones",
     "newAccountAdded": "Nueva cuenta de %{name} añadida",
-    "youCanNowUse": "Ahora puede usar la cuenta %{name} #%{accountNumber}"
+    "youCanNowUse": "Ahora puede usar la cuenta %{name} #%{accountNumber}",
+    "showAssets": "Mostrar activos",
+    "hideAssets": "Ocultar activos",
+    "viewAccount": "Ver cuenta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1433,6 +1468,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Firmando desde",
+          "requestFrom": "Solicitud de",
+          "message": "Mensaje",
+          "description": "Deberá firmar el mensaje de confirmacion desde su billetera conectada.",
+          "confirm": "Confirmar",
+          "reject": "Rechazar"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Parámetros Avanzados",
+            "alert": "Solo para uso avanzado. La modificación de esta configuración podría resultar en transacciones atascadas.",
+            "nonce": {
+              "title": "Mientras tanto",
+              "placeholder": "Mientras tanto...",
+              "tooltip": "El número de transacciones enviadas desde una dirección determinada. Solo usuarios avanzados."
+            },
+            "gasLimit": {
+              "title": "Límite de Gas",
+              "placeholder": "Limite de Gas...",
+              "tooltip": "El límite de gas se refiere a la cantidad máxima de gas que un usuario puede consumir para realizar una transacción."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps Disponibles",
         "getStarted": "Iniciar",
@@ -1457,5 +1520,26 @@
         "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 minutos",
+      "average": "~ 3 minutos",
+      "fast": "~ 3 segundos"
+    },
+    "estGasCost": "Est. Costo de Gas",
+    "gasPrice": {
+      "label": "Precio de la Gas",
+      "tooltip": "El monto que desea pagar por unidad de gas como tarifa al minero o validador"
+    },
+    "base": {
+      "label": "Tarifa base",
+      "tooltip": "La tarifa base la establece la red y cambia cada 13-14 segundos según la demanda. Establece el precio máximo (sin incluir la tarifa de prioridad) en gwei que estás dispuesto a pagar por cada unidad de gas."
+    },
+    "priority": {
+      "label": "Tarifa prioritaria",
+      "tooltip": "La tarifa prioritaria es un consejo opcional para incentivar a los productores de bloques a priorizar su transacción. Establezca la tarifa de prioridad en gwei que le gustaría pagar por cada unidad de gas."
+    },
+    "custom": "Personalizar"
   }
 }

@@ -98,14 +98,14 @@ export const FoxPage = () => {
 
   const foxFilter = useMemo(() => ({ assetId: foxAssetId }), [])
   const foxyFilter = useMemo(() => ({ assetId: foxyAssetId }), [])
-  const fiatBalanceFox = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter))
-  const fiatBalanceFoxy = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter))
-  const cryptoHumanBalanceFox = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter),
-  )
-  const cryptoHumanBalanceFoxy = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter),
-  )
+  const fiatBalanceFox =
+    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter)) ?? '0'
+  const fiatBalanceFoxy =
+    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter)) ?? '0'
+  const cryptoHumanBalanceFox =
+    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter)) ?? '0'
+  const cryptoHumanBalanceFoxy =
+    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter)) ?? '0'
 
   const fiatBalances = useMemo(
     () => [fiatBalanceFox, fiatBalanceFoxy],
@@ -119,7 +119,7 @@ export const FoxPage = () => {
 
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
 
-  const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(fiatBalanceFoxy).toString()
+  const totalFiatBalance = bnOrZero(fiatBalanceFox).plus(bnOrZero(fiatBalanceFoxy)).toString()
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')

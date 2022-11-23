@@ -1,6 +1,5 @@
 import { Text } from '@chakra-ui/react'
-import { render } from '@testing-library/react'
-import { renderHook } from '@testing-library/react'
+import { render, renderHook } from '@testing-library/react'
 
 import { useRefCallback } from './useRefCallback'
 
@@ -24,7 +23,7 @@ describe('useRefCallback', () => {
     expect(result.current[0]).toBeTruthy()
   })
 
-  it('calls onDestroy and onInit twice', async () => {
+  it('calls onDestroy and onInit twice', () => {
     const { result, onInit, onDestroy, rerender } = setup<HTMLParagraphElement>()
     const [tokenListRef, setTokenListRef] = result.current
     expect(tokenListRef).toBe(null)

@@ -8,20 +8,20 @@ import { simpleLocale } from 'lib/browserLocale'
 dayjs.extend(localizedFormat)
 
 export type FeatureFlags = {
-  Osmosis: boolean
-  Thorchain: boolean
+  OsmosisSend: boolean
+  OsmosisStaking: boolean
+  OsmosisSwap: boolean
+  OsmosisLP: boolean
   ThorSwap: boolean
-  CowSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
   Axelar: boolean
   Zendesk: boolean
   Yat: boolean
-  MultiAccounts: boolean
   WalletConnectToDapps: boolean
-  MigrationMessage: boolean
   DashboardBreakdown: boolean
   Wherever: boolean
+  FiatPopup: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -42,20 +42,20 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
-    Osmosis: getConfig().REACT_APP_FEATURE_OSMOSIS,
-    Thorchain: getConfig().REACT_APP_FEATURE_THORCHAIN,
+    OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
+    OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
+    OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
+    OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
-    CowSwap: getConfig().REACT_APP_FEATURE_COWSWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
-    MultiAccounts: getConfig().REACT_APP_FEATURE_MULTI_ACCOUNTS,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    MigrationMessage: getConfig().REACT_APP_FEATURE_MIGRATION_MESSAGE,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
+    FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

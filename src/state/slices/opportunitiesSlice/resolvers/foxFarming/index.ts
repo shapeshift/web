@@ -1,18 +1,10 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  foxEthLpAssetId,
-  UNISWAP_V2_WETH_FOX_POOL_ADDRESS,
-} from 'features/defi/providers/fox-eth-lp/constants'
 import farmingAbi from 'features/defi/providers/fox-farming/abis/farmingAbi.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import {
@@ -25,41 +17,41 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { getOrCreateContract } from 'state/slices/foxEthSlice/contractManager'
-import { fetchPairData } from 'state/slices/foxEthSlice/utils'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
-import { foxEthPair } from '../constants'
+import {
+  foxEthLpAssetId,
+  foxEthLpAssetIds,
+  foxEthPair,
+  foxEthStakingIds,
+  LP_EARN_OPPORTUNITIES,
+  STAKING_ID_TO_NAME,
+} from '../../constants'
 import type {
+  GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunitiesState,
-  OpportunityDefiType,
-  StakingId,
-} from '../types'
-import { serializeUserStakingId } from '../utils'
-import type { ReduxApi } from './types'
+} from '../../types'
+import { serializeUserStakingId } from '../../utils'
+import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+import { fetchPairData, getOrCreateContract } from './contractManager'
 
 export const foxFarmingLpMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { dispatch, getState } = reduxApi
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
   const ethMarketData: MarketData = selectMarketDataById(state, ethAssetId)
 
-  if (!ethMarketData?.price) {
+  if (bnOrZero(ethMarketData?.price).isZero()) {
     throw new Error(`Market data not ready for ${ethAssetId}`)
   }
 
@@ -126,11 +118,13 @@ export const foxFarmingLpMetadataResolver = async ({
         provider: DefiProvider.FoxEthLP,
         tvl,
         type: DefiType.LiquidityPool,
+        underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
         ] as const,
+        name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,
@@ -143,11 +137,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -157,7 +147,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
@@ -165,7 +155,10 @@ export const foxFarmingStakingMetadataResolver = async ({
 
   const ethersProvider = getEthersProvider()
   const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
-  const uniV2LPContract = getOrCreateContract(UNISWAP_V2_WETH_FOX_POOL_ADDRESS, IUniswapV2Pair.abi)
+  const uniV2LPContract = getOrCreateContract(
+    fromAssetId(foxEthLpAssetId).assetReference,
+    IUniswapV2Pair.abi,
+  )
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -175,7 +168,7 @@ export const foxFarmingStakingMetadataResolver = async ({
     .toFixed(2)
 
   // apr
-  const foxRewardRatePerTokenV4 = await rewardRatePerToken(foxFarmingContract)
+  const foxRewardRatePerTokenV5 = await rewardRatePerToken(foxFarmingContract)
   const pair = await Fetcher.fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, ethPrecision),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, foxPrecision),
@@ -183,18 +176,12 @@ export const foxFarmingStakingMetadataResolver = async ({
   )
 
   // Getting the ratio of the LP token for each asset
-  // fetchPairData().reserve0 and reserve1 somehow return crypto human amounts as opposed to getReserves() using full precision notation
-  const foxReserves = toBaseUnit(
-    bnOrZero(bnOrZero(pair.reserve1.toFixed()).toString()).toString(),
-    pair.token1.decimals,
-  )
-
-  const ethReserves = toBaseUnit(
-    bnOrZero(bnOrZero(pair.reserve0.toFixed()).toString()).toString(),
-    pair.token0.decimals,
-  )
-  const ethPoolRatio = bnOrZero(ethReserves).div(totalSupply.toString()).toString()
-  const foxPoolRatio = bnOrZero(foxReserves).div(totalSupply.toString()).toString()
+  const reserves = await uniV2LPContract.getReserves()
+  const lpTotalSupply = (await uniV2LPContract.totalSupply()).toString()
+  const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
+  const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
+  const ethPoolRatio = ethReserves.div(lpTotalSupply).toString()
+  const foxPoolRatio = foxReserves.div(lpTotalSupply).toString()
 
   const totalSupplyV2 = await uniV2LPContract.totalSupply()
 
@@ -206,28 +193,31 @@ export const foxFarmingStakingMetadataResolver = async ({
     .div(bnOrZero(totalSupplyV2.toString()))
     .times(bn(10).pow(pair.token1.decimals)) // convert to base unit value
     .toString()
-  const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV4, foxEquivalentPerLPToken))
+  const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV5, foxEquivalentPerLPToken))
     .div(100)
     .toString()
 
   const timeStamp = await foxFarmingContract.periodFinish()
   const expired =
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
+  const name = STAKING_ID_TO_NAME[opportunityId]
 
   const data = {
     byId: {
       [opportunityId]: {
         apy,
         assetId: opportunityId,
-        provider: DefiProvider.FoxEthLP,
+        provider: DefiProvider.FoxFarming,
         tvl,
         type: DefiType.Farming,
+        underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
         ] as const,
         expired,
+        name,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,
@@ -236,17 +226,12 @@ export const foxFarmingStakingMetadataResolver = async ({
   return { data }
 }
 
-export const foxFarmingLpUserDataResolver = async ({
+export const foxFarmingLpUserDataResolver = ({
   opportunityId,
   opportunityType: _opportunityType,
   accountId,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  accountId: AccountId
-  reduxApi: ReduxApi
-}): Promise<void> => {
+}: OpportunityUserDataResolverInput): Promise<void> => {
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
@@ -257,7 +242,7 @@ export const foxFarmingLpUserDataResolver = async ({
 
   const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
 
-  const hasPortfolioData = Boolean(balances[accountId][opportunityId as AssetId])
+  const hasPortfolioData = Boolean(balances[accountId][opportunityId])
 
   // Reject RTK query if there's no account portfolio data for this LP token
   if (!hasPortfolioData) {
@@ -265,20 +250,15 @@ export const foxFarmingLpUserDataResolver = async ({
   }
 
   // All checks passed, resolve the promise so we continue the RTK query execution and populate LP/Account IDs
-  return
+  return Promise.resolve()
 }
 
 export const foxFarmingStakingUserDataResolver = async ({
   opportunityId,
-  opportunityType: _opportunityType,
+  opportunityType,
   accountId,
   reduxApi,
-}: {
-  opportunityId: LpId | StakingId
-  opportunityType: OpportunityDefiType
-  accountId: AccountId
-  reduxApi: ReduxApi
-}): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+}: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -287,7 +267,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId as AssetId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const { account: accountAddress } = fromAccountId(accountId)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
@@ -297,22 +277,31 @@ export const foxFarmingStakingUserDataResolver = async ({
   const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
-  const unclaimedRewards = await foxFarmingContract.earned(accountAddress)
+  const earned = await foxFarmingContract.earned(accountAddress)
   const stakedAmountCryptoPrecision = bnOrZero(stakedBalance.toString())
     .div(bn(10).pow(lpAssetPrecision))
     .toString()
-  const rewardsAmountCryptoPrecision = bnOrZero(unclaimedRewards.toString())
-    .div(bn(10).pow(foxPrecision))
-    .toString()
+  const rewardsAmountsCryptoPrecision = [
+    bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toFixed(),
+  ] as [string]
 
   const data = {
     byId: {
-      [serializeUserStakingId(accountId, opportunityId as StakingId)]: {
+      [serializeUserStakingId(accountId, opportunityId)]: {
         stakedAmountCryptoPrecision,
-        rewardsAmountCryptoPrecision,
+        rewardsAmountsCryptoPrecision,
       },
     },
+    type: opportunityType,
   }
 
   return { data }
 }
+
+export const foxFarmingLpOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthLpAssetIds] })
+
+export const foxFarmingStakingOpportunityIdsResolver = (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => Promise.resolve({ data: [...foxEthStakingIds] })

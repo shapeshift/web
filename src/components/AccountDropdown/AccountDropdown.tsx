@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { BoxProps } from '@chakra-ui/react'
-import { usePrevious } from '@chakra-ui/react'
 import {
   type ButtonProps,
   type MenuItemOptionProps,
@@ -13,15 +12,14 @@ import {
   Stack,
   Text,
   useColorModeValue,
+  usePrevious,
 } from '@chakra-ui/react'
 import {
   type AccountId,
   type AssetId,
-  btcChainId,
   CHAIN_NAMESPACE,
   fromAssetId,
   fromChainId,
-  ltcChainId,
 } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
@@ -30,7 +28,6 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { type ReduxState } from 'state/reducer'
@@ -43,7 +40,6 @@ import {
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
@@ -102,8 +98,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
   )
-  const [selectedAccountId, setSelectedAccountId] = useState<Nullable<AccountId>>(
-    defaultAccountId ?? null,
+  const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
+    defaultAccountId,
   )
   // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
   const previousSelectedAccountId = usePrevious(selectedAccountId)
@@ -255,17 +251,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     listProps,
     handleClick,
   ])
-
-  /**
-   * these chains already have multi account support via sending and receiving,
-   * and we need to use *and* render this new component while we retrofit the rest of the app
-   *
-   * the effectful logic above will still run for other chains, and return the first account
-   * via the onChange callback on mount, but nothing will be visually rendered
-   */
-  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-  if (!isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
 
   if (!accountIds.length) return null
 

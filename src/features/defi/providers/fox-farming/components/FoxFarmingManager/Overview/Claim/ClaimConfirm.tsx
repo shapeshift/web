@@ -26,10 +26,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   assetId: AssetId
   amount: string
   contractAddress: string
@@ -134,6 +133,8 @@ export const ClaimConfirm = ({
     walletState.wallet,
     foxFarmingContract,
   ])
+
+  if (!asset) return null
 
   return (
     <SlideTransition>

@@ -29,6 +29,21 @@ export const ButtonStyle: ComponentStyleConfig = {
         px: v === 'nav-link' ? 4 : 6,
       }
     },
+    'lg-multiline': (props: StyleFunctionProps) => {
+      const { variant: v } = props
+      return {
+        svg: {
+          width: '1.5rem',
+          height: '1.5rem',
+        },
+        fontSize: v === 'nav-link' ? 'md' : 'lg',
+        px: v === 'nav-link' ? 4 : 6,
+        whiteSpace: 'normal',
+        h: 'auto',
+        minH: '12',
+        py: '3',
+      }
+    },
   },
   // styles for different visual variants ("outline", "solid")
   variants: {

@@ -29,6 +29,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
+
 const moduleLogger = logger.child({ namespace: ['NativeLoad'] })
 
 type VaultInfo = {
@@ -118,10 +119,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     }
   }
 
-  const handleRename = async (wallet: VaultInfo) => {
-    const vault = wallet
-    history.push('/native/rename', { vault })
-  }
+  const handleRename = (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet })
 
   return (
     <>

@@ -82,13 +82,18 @@
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found"
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "buyPage": {
     "title": {
       "first": "Buy Crypto",
       "second": "in Seconds"
     },
     "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
-    "disclaimer": "*You can also sell crypto directly for cash into your bank account.", 
+    "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
@@ -273,6 +278,10 @@
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
       }
+    },
+    "memoNote": {
+      "title": "Please don't edit the transaction memo",
+      "body": "Transactions originating from ShapeShift help support the DAO."
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
@@ -550,6 +559,10 @@
     },
     "errors": {
       "title": "Something went wrong",
+      "sellAssetStartSentence": "Sell asset",
+      "buyAssetStartSentence": "Buy asset",
+      "sellAssetMiddleSentence": "sell asset",
+      "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
@@ -596,6 +609,13 @@
     "recentTrades": "Recent Trades"
   },
   "modals": {
+    "popup": {
+      "body": "We've launched a secure window to complete your order.",
+      "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
+      "continue": "Click to Continue",
+      "showWindow": "Show Window",
+      "cancel": "Cancel"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -987,7 +1007,7 @@
           "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
           "passphrase": "Enable the ability to have multiple wallets, accessible by using a unique passphrase for each wallet.",
           "label": "Labelling each of devices allows you to easily distinguish one from the other.",
-          "timeout": "Your device goes to sleep after 10 minutes of activity by default. However, you can change this.",
+          "timeout": "Your device goes to sleep after 10 minutes of inactivity by default. However, you can change this.",
           "buttonPrompt": "Press and hold the button on your KeepKey to change the device %{setting}.",
           "updateSuccess": "%{setting} successfully updated!",
           "updateFailed": "An error occurred whilst updating the %{setting}.",

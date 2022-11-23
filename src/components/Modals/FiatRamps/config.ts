@@ -20,7 +20,7 @@ import {
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
-import type { FiatRampAction } from './FiatRampsCommon'
+import type { CreateUrlProps } from './types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -42,7 +42,7 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
+  onSubmit: (args: CreateUrlProps) => string | undefined
   minimumSellThreshold?: number
 }
 
@@ -64,11 +64,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = parseGemSellAssets(currencyList)
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToGemTicker(assetId)
-        const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
-        window.open(gemPartnerUrl, '_blank')?.focus()
+        const gemPartnerUrl = makeGemPartnerUrl(props)
+        return gemPartnerUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
@@ -88,15 +87,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(
-          action,
-          assetId,
-          address,
-          window.location.href,
-        )
-        window.open(onRamperCheckoutUrl, '_blank')?.focus()
+        const onRamperCheckoutUrl = createOnRamperUrl(props)
+        return onRamperCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
@@ -109,17 +103,15 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     isActive: () => true,
     minimumSellThreshold: 50,
     order: 3,
-    getBuyAndSellList: async () => {
+    getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
-      return [buyAssetIds, sellAssetIds]
+      return Promise.resolve([buyAssetIds, sellAssetIds])
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToBanxaTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by Banxa')
-        const banxaCheckoutUrl = createBanxaUrl(action, ticker, address)
-        window.open(banxaCheckoutUrl, '_blank')?.focus()
+        const banxaCheckoutUrl = createBanxaUrl(props)
+        return banxaCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
       }
@@ -137,12 +129,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds: AssetId[] = []
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToJunoPayTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by JunoPay')
-        const junoPayCheckoutUrl = createJunoPayUrl(action, ticker, address)
-        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+        const junoPayCheckoutUrl = createJunoPayUrl(props)
+        return junoPayCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
       }
@@ -163,10 +153,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId) => {
+    onSubmit: props => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
-        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(props)
+        return mtPelerinCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
       }

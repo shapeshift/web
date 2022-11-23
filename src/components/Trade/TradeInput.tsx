@@ -6,13 +6,14 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
@@ -30,7 +31,6 @@ import {
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -58,6 +58,7 @@ export const TradeInput = () => {
     swapperSupportsCrossAccountTrade,
     receiveAddress,
   } = useSwapper()
+  const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { control, setValue, getValues, handleSubmit } = useFormContext<TS>()
@@ -84,10 +85,13 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
-  const feeAssetBalance = useAppSelector(state =>
-    sellFeeAsset
-      ? selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: sellFeeAsset?.assetId })
-      : null,
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
+    [sellAssetAccountId, sellFeeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const sellAssetBalanceFilter = useMemo(
@@ -124,7 +128,9 @@ export const TradeInput = () => {
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
-  const gasFee = bnOrZero(fees?.networkFeeCryptoHuman).times(bnOrZero(feeAssetFiatRate)).toString()
+  const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
+    .times(bnOrZero(feeAssetFiatRate))
+    .toString()
 
   const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
 
@@ -150,7 +156,7 @@ export const TradeInput = () => {
     ],
   )
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(() => {
     try {
       const currentValues = Object.freeze(getValues())
       const currentSellTradeAsset = currentValues.sellTradeAsset
@@ -276,7 +282,7 @@ export const TradeInput = () => {
     [sellTradeAsset?.amount, buyTradeAsset?.amount, isTradeQuotePending],
   )
 
-  const getTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
+  const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellTradeAsset?.amount),
     )
@@ -293,22 +299,34 @@ export const TradeInput = () => {
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
     if (!wallet) return 'common.connectWallet'
+    if (!sellTradeAsset?.asset || !buyTradeAsset?.asset) {
+      return 'common.loadingText'
+    }
     if (!walletSupportsSellAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
-        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'Sell asset' },
+        {
+          assetSymbol:
+            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
+        },
       ]
     if (!walletSupportsBuyAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
-        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'Buy asset' },
+        {
+          assetSymbol:
+            buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
+        },
       ]
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [
         'common.insufficientAmountForGas',
-        { assetSymbol: sellTradeAsset?.asset?.symbol ?? 'sell asset' },
+        {
+          assetSymbol:
+            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
+        },
       ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
@@ -316,13 +334,16 @@ export const TradeInput = () => {
     if (!receiveAddress)
       return [
         'trade.errors.noReceiveAddress',
-        { assetSymbol: buyTradeAsset?.asset?.symbol ?? 'buy asset' },
+        {
+          assetSymbol:
+            buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
+        },
       ]
 
     return 'trade.previewTrade'
   }, [
     bestTradeSwapper,
-    buyTradeAsset?.asset?.symbol,
+    buyTradeAsset?.asset,
     feeAssetBalance,
     feesExceedsSellAmount,
     hasValidSellAmount,
@@ -337,22 +358,22 @@ export const TradeInput = () => {
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellTradeAsset?.amount,
-    sellTradeAsset?.asset?.assetId,
-    sellTradeAsset?.asset?.symbol,
+    sellTradeAsset?.asset,
+    translate,
     wallet,
     walletSupportsBuyAssetChain,
     walletSupportsSellAssetChain,
   ])
 
   const hasError = useMemo(() => {
-    switch (getTranslationKey()) {
+    switch (getErrorTranslationKey()) {
       case 'trade.previewTrade':
       case 'trade.updatingQuote':
         return false
       default:
         return true
     }
-  }, [getTranslationKey])
+  }, [getErrorTranslationKey])
 
   const sellAmountTooSmall = useMemo(() => {
     switch (true) {
@@ -436,7 +457,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellTradeAsset?.asset?.symbol}
             buySymbol={buyTradeAsset?.asset?.symbol}
-            gasFee={gasFee}
+            gasFee={gasFeeFiat}
             rate={quote?.rate}
             isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
@@ -457,12 +478,12 @@ export const TradeInput = () => {
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
-          size='lg'
+          size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
           isLoading={isLoading}
         >
-          <Text translation={getTranslationKey()} />
+          <Text translation={getErrorTranslationKey()} />
         </Button>
       </Stack>
     </SlideTransition>

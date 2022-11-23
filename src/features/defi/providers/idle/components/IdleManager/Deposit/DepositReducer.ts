@@ -2,9 +2,8 @@ import type { IdleDepositActions, IdleDepositState } from './DepositCommon'
 import { IdleDepositActionType } from './DepositCommon'
 
 export const initialState: IdleDepositState = {
-  txid: null,
-  opportunity: null,
-  userAddress: null,
+  txid: undefined,
+  opportunity: undefined,
   loading: false,
   approve: {},
   deposit: {
@@ -19,13 +18,11 @@ export const initialState: IdleDepositState = {
 export const reducer = (state: IdleDepositState, action: IdleDepositActions): IdleDepositState => {
   switch (action.type) {
     case IdleDepositActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
+      return { ...state, opportunity: action.payload }
     case IdleDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case IdleDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case IdleDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case IdleDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case IdleDepositActionType.SET_TXID:

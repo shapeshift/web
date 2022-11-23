@@ -1,5 +1,5 @@
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum DepositPath {
   Deposit = '/',
@@ -29,31 +29,17 @@ type IdleDepositValues = DepositValues &
     usedGasFee: string
   }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-export type SerializableOpportunity = Omit<
-  IdleOpportunity,
-  | 'allowance'
-  | 'prepareApprove'
-  | 'prepareDeposit'
-  | 'signAndBroadcast'
-  | 'prepareWithdrawal'
-  | 'prepareClaimTokens'
-  | 'getClaimableTokens'
->
-
 export type IdleDepositState = {
-  opportunity: SerializableOpportunity | null
-  userAddress: string | null
+  opportunity: StakingEarnOpportunityType | undefined
   approve: EstimatedGas
   deposit: IdleDepositValues
   loading: boolean
-  txid: string | null
+  txid: string | undefined
 }
 
 export enum IdleDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -61,7 +47,7 @@ export enum IdleDepositActionType {
 
 type SetOpportunityAction = {
   type: IdleDepositActionType.SET_OPPORTUNITY
-  payload: IdleOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetApprove = {
@@ -72,11 +58,6 @@ type SetApprove = {
 type SetDeposit = {
   type: IdleDepositActionType.SET_DEPOSIT
   payload: Partial<IdleDepositValues>
-}
-
-type SetUserAddress = {
-  type: IdleDepositActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -93,6 +74,5 @@ export type IdleDepositActions =
   | SetOpportunityAction
   | SetApprove
   | SetDeposit
-  | SetUserAddress
   | SetLoading
   | SetTxid

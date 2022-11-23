@@ -4,6 +4,7 @@ import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shape
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { entries } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import pull from 'lodash/pull'
 import uniq from 'lodash/uniq'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -16,7 +17,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -26,6 +26,7 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
@@ -43,15 +44,13 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import {
   EMPTY_COSMOS_ADDRESS,
   EMPTY_OSMOSIS_ADDRESS,
 } from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['AppContext'] })
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -68,9 +67,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
@@ -97,25 +94,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
 
-  /**
-   * handle wallet disconnect/switch logic
-   */
-  useEffect(() => {
-    // if we have a wallet and changed account ids, we have switched wallets
-    // NOTE! - the wallet will change before the account ids do, so clearing here is valid
-    // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && requestedAccountIds.length)
-    const disconnected = !wallet
-    switched && moduleLogger.info('Wallet switched')
-    disconnected && moduleLogger.info('Wallet disconnected')
-    if (switched || disconnected) {
-      dispatch(portfolio.actions.clear())
-      dispatch(txHistory.actions.clear())
-    }
-    // requestedAccountIds is changed by this effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, wallet])
-
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
@@ -131,7 +109,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(async id => dispatch(getAccount.initiate(id, opts)))
+        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, opts)),
+        )
         const accountResults = await Promise.allSettled(accountPromises)
         /**
          * because UTXO chains can have multiple accounts per number, we need to aggregate
@@ -177,7 +158,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    dispatch(getAllTxHistory.initiate(requestedAccountIds, { forceRefetch: true }))
+    dispatch(getAllTxHistory.initiate(requestedAccountIds))
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
@@ -204,7 +185,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
-      await fetchAllOpportunitiesMetadata().catch(e => moduleLogger.error(e))
+      await fetchAllOpportunitiesIds()
+      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -215,7 +197,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case ethChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId).catch(e => moduleLogger.error(e))
+            fetchAllOpportunitiesUserData(accountId)
 
             /**
              * fetch all rebase history for foxy
@@ -236,9 +218,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       })
     })()
-    // this effect cares specifically about changes to portfolio accounts or assets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, portfolioLoadingStatus, portfolioAccounts, portfolioAssetIds])
+  }, [
+    dispatch,
+    portfolioLoadingStatus,
+    portfolioAccounts,
+    portfolioAssetIds,
+    wallet,
+    requestedAccountIds,
+  ])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
@@ -267,6 +254,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
    * portfolio loading error notification
    */
   useEffect(() => {
+    if (isEmpty(assets)) return
     const erroredAccountIds = entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
       (acc, [accountId, accountState]) => {
         accountState === 'error' && acc.push(accountId)
@@ -285,7 +273,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const handleRetry = () => {
       handleAccountErrorToastClose()
       erroredAccountIds.forEach(accountId =>
-        dispatch(portfolioApi.endpoints.getAccount.initiate(accountId, { forceRefetch: true })),
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountId, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        ),
       )
     }
     const toastOptions = {

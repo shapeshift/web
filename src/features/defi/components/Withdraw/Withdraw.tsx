@@ -28,7 +28,6 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { Nullable } from 'types/common'
 
 type InputDefaultValue = {
   cryptoAmount: string
@@ -36,7 +35,7 @@ type InputDefaultValue = {
 }
 
 type WithdrawProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   asset: Asset
   // Users available amount
   cryptoAmountAvailable: string
@@ -163,6 +162,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     }
     onContinue(values)
   }
+
+  if (!asset) return null
 
   return (
     <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>

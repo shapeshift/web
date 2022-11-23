@@ -4,6 +4,7 @@ import {
   type ChainId,
   avalancheAssetId,
   bchAssetId,
+  btcAssetId,
   CHAIN_NAMESPACE,
   cosmosAssetId,
   dogeAssetId,
@@ -15,7 +16,6 @@ import {
   osmosisAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { btcAssetId } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   type Swapper,
@@ -178,7 +178,7 @@ export const getDefaultAssetIdPairByChainId = (
   buyAssetChainId: ChainId | undefined,
   featureFlags: FeatureFlags,
 ): AssetIdTradePair => {
-  const osmosisEnabled = featureFlags.Osmosis
+  const osmosisEnabled = featureFlags.OsmosisSwap
   const ethFoxPair = {
     sellAssetId: ethAssetId,
     buyAssetId: foxAssetId,

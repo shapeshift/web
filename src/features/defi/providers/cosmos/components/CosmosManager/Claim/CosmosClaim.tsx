@@ -21,7 +21,6 @@ import { logger } from 'lib/logger'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { CosmosClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
@@ -33,7 +32,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
 })
 
-type CosmosClaimProps = { accountId?: Nullable<AccountId> }
+type CosmosClaimProps = { accountId: AccountId | undefined }
 
 export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)

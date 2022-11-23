@@ -18,7 +18,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 interface ClaimStatusState {
   txid: string
@@ -60,7 +59,7 @@ const StatusInfo = {
   },
 }
 
-type ClaimStatusProps = { accountId: Nullable<AccountId> }
+type ClaimStatusProps = { accountId: AccountId | undefined }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()

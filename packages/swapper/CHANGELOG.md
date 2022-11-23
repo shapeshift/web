@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.2...@shapeshiftoss/swapper-v14.2.3) (2022-11-23)
+
+
+### Bug Fixes
+
+* add floor of 0 to limit ([#1098](https://github.com/shapeshift/lib/issues/1098)) ([8c9dc1b](https://github.com/shapeshift/lib/commit/8c9dc1b1649f550d88fe71fae0257323f847a8d8))
+
 # [@shapeshiftoss/swapper-v14.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.2.1...@shapeshiftoss/swapper-v14.2.2) (2022-11-16)
 
 

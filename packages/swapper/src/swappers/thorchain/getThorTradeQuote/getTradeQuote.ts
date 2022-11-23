@@ -86,11 +86,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
 
-    const sellAssetUsdRate = await getUsdRate({ deps, input: { assetId: sellAsset.assetId } })
-    const buyFeeAssetUsdRate = await getUsdRate({
-      deps,
-      input: { assetId: buyAssetChainFeeAssetId },
-    })
+    const sellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
+    const buyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
 
     const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
       .times(estimatedBuyAssetTradeFeeFeeAssetCryptoHuman)

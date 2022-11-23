@@ -7,9 +7,15 @@ import {
   fromAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { cosmos, EvmBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import {
+  ChainAdapterManager,
+  cosmos,
+  EvmBaseAdapter,
+  UtxoBaseAdapter,
+} from '@shapeshiftoss/chain-adapters'
 import { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import Web3 from 'web3'
 
 import type {
   ApprovalNeededInput,
@@ -45,6 +51,7 @@ export * from './types'
 
 export class ThorchainSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Thorchain
+
   private sellSupportedChainIds: Record<ChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true,
@@ -65,12 +72,21 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.ThorchainMainnet]: true,
   }
 
-  private supportedSellAssetIds: AssetId[] = []
-  private supportedBuyAssetIds: AssetId[] = []
+  private supportedSellAssetIds: AssetId[] = [thorchainAssetId]
+  private supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
+
   deps: ThorchainSwapperDeps
+  daemonUrl: string
+  midgardUrl: string
+  adapterManager: ChainAdapterManager
+  web3: Web3
 
   constructor(deps: ThorchainSwapperDeps) {
     this.deps = deps
+    this.daemonUrl = deps.daemonUrl
+    this.midgardUrl = deps.midgardUrl
+    this.adapterManager = deps.adapterManager
+    this.web3 = deps.web3
   }
 
   async initialize() {
@@ -81,21 +97,15 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       const availablePools = allPools.filter((pool) => pool.status === 'Available')
 
-      this.supportedSellAssetIds = availablePools.reduce<AssetId[]>((acc, pool) => {
+      availablePools.forEach((pool) => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
-        if (!assetId || !this.sellSupportedChainIds[fromAssetId(assetId).chainId]) return acc
-        acc.push(assetId)
-        return acc
-      }, [])
-      this.supportedSellAssetIds.push(thorchainAssetId)
+        if (!assetId) return
 
-      this.supportedBuyAssetIds = availablePools.reduce<AssetId[]>((acc, pool) => {
-        const assetId = adapters.poolAssetIdToAssetId(pool.asset)
-        if (!assetId || !this.buySupportedChainIds[fromAssetId(assetId).chainId]) return acc
-        acc.push(assetId)
-        return acc
-      }, [])
-      this.supportedBuyAssetIds.push(thorchainAssetId)
+        const { chainId } = fromAssetId(assetId)
+
+        this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
+        this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
+      })
     } catch (e) {
       throw new SwapError('[thorchainInitialize]: initialize failed to set supportedAssetIds', {
         code: SwapErrorTypes.INITIALIZE_FAILED,
@@ -108,8 +118,8 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return SwapperType.Thorchain
   }
 
-  getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
-    return getUsdRate({ deps: this.deps, input })
+  async getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
+    return getUsdRate(this.daemonUrl, assetId)
   }
 
   async approvalNeeded(

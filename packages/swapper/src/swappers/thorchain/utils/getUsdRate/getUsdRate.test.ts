@@ -1,54 +1,54 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
-
-import { foxMidgardPool } from '../test-data/responses'
+import { foxThornodePool, usdcThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getUsdRate } from './getUsdRate'
 
 jest.mock('../thorService')
 
-describe('getUsdRate', () => {
-  const deps = {
-    midgardUrl: '',
-    daemonUrl: '',
-    adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{},
-  }
-  it('should return USD rate of given Thorchain asset', async () => {
-    const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-    ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: foxMidgardPool }),
-    )
+const mockedAxios = jest.mocked(thorService, true)
 
-    const rate = await getUsdRate({
-      deps,
-      input: { assetId },
+describe('getUsdRate', () => {
+  it('should return USD rate of given Thorchain asset', async () => {
+    mockedAxios.get.mockImplementation((url) => {
+      if (url.includes('lcd/thorchain/pools')) return Promise.resolve({ data: [usdcThornodePool] })
+      return Promise.resolve({ data: foxThornodePool })
     })
 
-    expect(rate).toEqual('0.15399605260336216')
-  })
-
-  it('should throw if no usd rate is returned', async () => {
     const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-    ;(thorService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
-
-    await expect(
-      getUsdRate({
-        deps,
-        input: { assetId },
-      }),
-    ).rejects.toThrow(`[getUsdRate]: No rate for ${assetId}`)
+    const rate = await getUsdRate('', assetId)
+    expect(rate).toEqual('0.153996052603362160')
   })
 
   it('should throw if no poolAssetId is found for specified assetId', async () => {
     const assetId = 'eip155:1/erc20:0xcfoo'
-    ;(thorService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
+    await expect(getUsdRate('', assetId)).rejects.toThrow(
+      `[getUsdRate]: no pool found for assetId: ${assetId}`,
+    )
+  })
 
-    await expect(
-      getUsdRate({
-        deps,
-        input: { assetId },
-      }),
-    ).rejects.toThrow(`[getUsdRate]: No thorchainPoolId found for assetId: ${assetId}`)
+  it('should throw if pool is no longer available', async () => {
+    const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    const pool = { ...foxThornodePool }
+    pool.status = 'Paused'
+    mockedAxios.get.mockImplementation(() => Promise.resolve({ data: pool }))
+    await expect(getUsdRate('', assetId)).rejects.toThrow(
+      `[getUsdRate]: pool is no longer available`,
+    )
+  })
+
+  it('should throw if pool has a 0 balance', async () => {
+    const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    const pool = { ...foxThornodePool }
+    pool.balance_asset = '0'
+    mockedAxios.get.mockImplementation(() => Promise.resolve({ data: pool }))
+    await expect(getUsdRate('', assetId)).rejects.toThrow(`[getUsdRate]: pool has a zero balance`)
+  })
+
+  it('should throw if there is no avaialable usd pool to calculate price from', async () => {
+    const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    mockedAxios.get.mockImplementation((url) => {
+      if (url.includes('lcd/thorchain/pools')) return Promise.resolve({ data: [] })
+      return Promise.resolve({ data: foxThornodePool })
+    })
+    await expect(getUsdRate('', assetId)).rejects.toThrow(`[getUsdRate]: no available usd pools`)
   })
 })

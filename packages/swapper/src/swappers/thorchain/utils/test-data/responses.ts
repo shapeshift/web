@@ -1,19 +1,4 @@
-import { InboundAddressResponse, MidgardPoolResponse, ThornodePoolResponse } from '../../types'
-
-export const btcMidgardPool: MidgardPoolResponse = {
-  asset: 'BTC.BTC',
-  assetDepth: '91027798705',
-  assetPrice: '10280.68095465986',
-  assetPriceUSD: '29850.505131750208',
-  liquidityUnits: '536055974608843',
-  poolAPY: '0.09305294391574037',
-  runeDepth: '935827756491105',
-  status: 'available',
-  synthSupply: '3281284823',
-  synthUnits: '9838954536080',
-  units: '545894929144923',
-  volume24h: '15031085906495',
-}
+import { InboundAddressResponse, ThornodePoolResponse } from '../../types'
 
 export const btcThornodePool: ThornodePoolResponse = {
   LP_units: '536055974608843',
@@ -26,21 +11,6 @@ export const btcThornodePool: ThornodePoolResponse = {
   status: 'Available',
   synth_supply: '3281284823',
   synth_units: '9838954536080',
-}
-
-export const ethMidgardPool: MidgardPoolResponse = {
-  asset: 'ETH.ETH',
-  assetDepth: '915018987646',
-  assetPrice: '676.2118757936507',
-  assetPriceUSD: '1595',
-  liquidityUnits: '273709963437801',
-  poolAPY: '0.10532151323548256',
-  runeDepth: '618746706022909',
-  status: 'available',
-  synthSupply: '3572065751',
-  synthUnits: '535301524652',
-  units: '274245264962453',
-  volume24h: '9890096673763',
 }
 
 export const ethThornodePool: ThornodePoolResponse = {
@@ -56,21 +26,6 @@ export const ethThornodePool: ThornodePoolResponse = {
   synth_units: '535301524652',
 }
 
-export const foxMidgardPool: MidgardPoolResponse = {
-  asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
-  assetDepth: '166650912393467',
-  assetPrice: '0.05303710198887871',
-  assetPriceUSD: '0.15399605260336216',
-  liquidityUnits: '10015457121887',
-  poolAPY: '0.2597568967423438',
-  runeDepth: '8838681437152',
-  status: 'available',
-  synthSupply: '17428372569375',
-  synthUnits: '552604585625',
-  units: '10568061707512',
-  volume24h: '251596933033',
-}
-
 export const foxThornodePool: ThornodePoolResponse = {
   LP_units: '10015457121887',
   asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
@@ -82,6 +37,19 @@ export const foxThornodePool: ThornodePoolResponse = {
   status: 'Available',
   synth_supply: '17428372569375',
   synth_units: '552604585625',
+}
+
+export const usdcThornodePool: ThornodePoolResponse = {
+  LP_units: '30018075345020',
+  asset: 'ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48',
+  balance_asset: '290355330190652994811',
+  balance_rune: '100000000000000000000',
+  pending_inbound_asset: '22020062300',
+  pending_inbound_rune: '0',
+  pool_units: '31954495292990',
+  status: 'Available',
+  synth_supply: '25598723155460',
+  synth_units: '1936419947970',
 }
 
 export const mockInboundAddresses: InboundAddressResponse[] = [

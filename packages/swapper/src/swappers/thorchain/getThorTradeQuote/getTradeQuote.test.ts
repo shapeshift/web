@@ -5,8 +5,8 @@ import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ThorchainSwapperDeps } from '../types'
+import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import {
-  ethMidgardPool,
   ethThornodePool,
   foxThornodePool,
   mockInboundAddresses,
@@ -16,11 +16,12 @@ import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../utils/thorService')
+jest.mock('../utils/getUsdRate/getUsdRate')
 
 const mockedAxios = jest.mocked(thorService, true)
 
 const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.00576',
+  minimumCryptoHuman: '59.658672054814851787728',
   maximum: '100000000000000000000000000',
   sellAmountCryptoPrecision: '10000000000000000000', // 1000 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -48,26 +49,16 @@ describe('getTradeQuote', () => {
     web3: <Web3>{},
   }
 
-  beforeEach(() => {
-    mockedAxios.get.mockImplementation((url) => {
-      const isMidgardPoolResponse = url.includes('/pool/')
-      const isThornodePoolsResponse = url.includes('lcd/thorchain/pools')
-
-      const data = (() => {
-        switch (true) {
-          case isMidgardPoolResponse:
-            return ethMidgardPool
-          case isThornodePoolsResponse:
-            return [ethThornodePool, foxThornodePool]
-          default:
-            return mockInboundAddresses
-        }
-      })()
-      return Promise.resolve({ data })
-    })
-  })
-
   it('should get a thorchain quote for a thorchain trade', async () => {
+    mockedAxios.get.mockImplementation((url) => {
+      return url.includes('lcd/thorchain/pools')
+        ? Promise.resolve({ data: [foxThornodePool, ethThornodePool] })
+        : Promise.resolve({ data: mockInboundAddresses })
+    })
+    ;(getUsdRate as jest.Mock<unknown>)
+      .mockReturnValueOnce(Promise.resolve('0.15399605260336216')) // sellAsset
+      .mockReturnValueOnce(Promise.resolve('1595')) // buyAsset
+
     const input: GetTradeQuoteInput = {
       ...quoteInput,
       sellAmountCryptoPrecision: '10000000000000000000', // 100 FOX

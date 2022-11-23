@@ -6,21 +6,6 @@ import type Web3 from 'web3'
 
 import type { Trade, UtxoSupportedChainIds } from '../../api'
 
-export type MidgardPoolResponse = {
-  asset: string
-  assetDepth: string
-  assetPrice: string
-  assetPriceUSD: string
-  liquidityUnits: string
-  poolAPY: string
-  runeDepth: string
-  status: string
-  synthSupply: string
-  synthUnits: string
-  units: string
-  volume24h: string
-}
-
 export type ThornodePoolResponse = {
   LP_units: string
   asset: string

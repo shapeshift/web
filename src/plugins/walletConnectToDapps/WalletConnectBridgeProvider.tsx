@@ -27,6 +27,7 @@ import { useAppSelector } from 'state/store'
 import type {
   WalletConnectCallRequest,
   WalletConnectCallRequestResponseMap,
+  WalletConnectSessionRequest,
   WalletConnectSessionRequestPayload,
 } from './bridge/types'
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
@@ -285,9 +286,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     setCallRequest(request)
   }, [])
 
-  const handleWcSessionRequest = useCallback((...args: any) => {
-    moduleLogger.info(args, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
-  }, [])
+  const handleWcSessionRequest = useCallback(
+    (err: Error | null, request: WalletConnectSessionRequest) => {
+      if (err) {
+        moduleLogger.error(err, { fn: 'handleWcSessionRequest' }, 'Error handling session request')
+      }
+      moduleLogger.info(request, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
+    },
+    [],
+  )
 
   const handleWcSessionUpdate = useCallback(
     (err: Error | null, payload: any) => {

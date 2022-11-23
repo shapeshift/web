@@ -51,12 +51,28 @@ export type WalletConnectEthSignTransactionCallRequest = {
   }[]
 }
 
+export type WalletConnectSessionRequest = {
+  id: number
+  method: 'wc_sessionRequest'
+  params: {
+    peerId: string
+    peerMeta: {
+      description: string
+      url: string
+      icons: string[]
+      name: string
+    }
+    chainId: unknown
+  }[]
+}
+
 export type WalletConnectCallRequest =
   | WalletConnectEthSignCallRequest
   | WalletConnectEthSignTypedDataCallRequest
   | WalletConnectPersonalSignCallRequest
   | WalletConnectEthSendTransactionCallRequest
   | WalletConnectEthSignTransactionCallRequest
+  | WalletConnectSessionRequest
 
 export type WalletConnectCallRequestResponseMap = {
   personal_sign: ETHSignMessage

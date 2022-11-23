@@ -90,9 +90,9 @@
   "buyPage": {
     "title": {
       "first": "Compre Cripto",
-      "second": "Em segundos"
+      "second": "Em instantes"
     },
-    "body": "Use cartão de crédito, débito ou conta bancária. Compre Bitcoin, Ethereum, USDT USDC ou outras centenas de criptomoedas. ",
+    "body": "Use cartão de crédito, débito ou PIX. Compre Bitcoin, Ethereum, USDT, USDC ou outras centenas de criptomoedas. ",
     "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
     "cta": {
       "title": {

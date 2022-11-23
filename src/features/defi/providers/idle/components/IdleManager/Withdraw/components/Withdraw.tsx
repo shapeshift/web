@@ -166,29 +166,27 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     (value: string) => {
       if (!idleOpportunity) return
 
-      const pricePerShare = idleOpportunity.positionAsset.underlyingPerPosition
-      const crypto = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).times(pricePerShare)
+      const crypto = bnOrZero(cryptoAmountAvailable.toPrecision())
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [idleOpportunity, opportunityData?.stakedAmountCryptoPrecision],
+    [cryptoAmountAvailable, idleOpportunity],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!idleOpportunity) return
 
-      const pricePerShare = idleOpportunity.positionAsset.underlyingPerPosition
-      const crypto = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).times(pricePerShare)
+      const crypto = bnOrZero(cryptoAmountAvailable.toPrecision())
       const fiat = crypto.times(assetMarketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [assetMarketData.price, idleOpportunity, opportunityData?.stakedAmountCryptoPrecision],
+    [assetMarketData.price, cryptoAmountAvailable, idleOpportunity],
   )
 
   if (!state) return null

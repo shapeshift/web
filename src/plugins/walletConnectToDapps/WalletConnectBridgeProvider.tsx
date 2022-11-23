@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
@@ -400,13 +400,27 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!wallet) return
     if (wallet instanceof WalletConnectHDWallet) return
     if (connector) return
+    if (!walletAccountIds.length) return
     const wcSessionJsonString = localStorage.getItem('walletconnect')
     if (!wcSessionJsonString) return
-    const session = JSON.parse(wcSessionJsonString)
+    const session = JSON.parse(wcSessionJsonString) as IWalletConnectSession
+    const wcChainId = session?.chainId
+    const wcAddress: string | undefined = (session?.accounts ?? [])[0]
+    const hydratedWcAccountId = walletAccountIds.find(accountId => {
+      const { chainId, account } = fromAccountId(accountId)
+      const { chainNamespace, chainReference } = fromChainId(chainId)
+      const isEvmChain = chainNamespace === CHAIN_NAMESPACE.Evm
+      const isMatchingAccount = account === wcAddress
+      const isMatchingChainReference = parseInt(chainReference) === wcChainId
+      const result = isEvmChain && isMatchingAccount && isMatchingChainReference
+      return result
+    })
+    if (!hydratedWcAccountId) handleDisconnect()
+    setWcAccountId(hydratedWcAccountId)
     fromSession(session)
     const d = session?.peerMeta
     if (d) setDapp(d)
-  }, [connector, fromSession, isDemoWallet, wallet])
+  }, [connector, fromSession, handleDisconnect, isDemoWallet, wallet, walletAccountIds])
 
   /**
    * public method for consumers

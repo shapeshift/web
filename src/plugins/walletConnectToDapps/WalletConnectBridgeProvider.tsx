@@ -3,7 +3,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
@@ -76,13 +75,17 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (!message) return
       if (!wallet) return
       if (!wcAccountId) return
+      const { chainId } = fromAccountId(wcAccountId)
+      const maybeChainAdapter = getChainAdapterManager().get(chainId)
+      if (!maybeChainAdapter) return
+      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
       const accountMetadata = accountMetadataById[wcAccountId]
       if (!accountMetadata) return
       const { bip44Params } = accountMetadata
       const addressNList = toAddressNList(bip44Params)
-      const payload = { addressNList, message }
-      // TODO(0xdef1cafe): delet
-      const signedMessage = (await (wallet as ETHWallet).ethSignMessage(payload))?.signature
+      const messageToSign = { addressNList, message }
+      const input = { messageToSign, wallet }
+      const signedMessage = await chainAdapter.signMessage(input)
       if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
       return signedMessage
     },

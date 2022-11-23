@@ -82,6 +82,11 @@
     "enterAmount": "Insira a quantia",
     "pageNotFound": "A página que você está procurando não pode ser encontrada"
   },
+  "errorPage": {
+    "title": "Opa!",
+    "body": "Algo deu errado",
+    "cta": "Tente novamente"
+  },
   "buyPage": {
     "title": {
       "first": "Compre Cripto",
@@ -602,6 +607,13 @@
     "shapeshiftFee": "Taxa ShapeShift"
   },
   "modals": {
+    "popup": {
+      "body": "Abrimos uma janela segura para completar sua ordem. ",
+      "body2": "Não vê a janela segura?\nReabriremos a janela para você completar sua ordem. ",
+      "continue": "Clique para continuar",
+      "showWindow": "Exibir Janela",
+      "cancel": "Cancelar"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

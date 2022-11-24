@@ -1,17 +1,31 @@
 import { useColorMode } from '@chakra-ui/react'
 import { IconButton } from '@chakra-ui/react'
 import type { CustomTheme } from '@wherever/react-notification-feed'
-import { NotificationBell, NotificationFeed } from '@wherever/react-notification-feed'
-import { NotificationFeedProvider } from '@wherever/react-notification-feed'
+import {
+  NotificationBell,
+  NotificationFeed,
+  NotificationFeedProvider,
+} from '@wherever/react-notification-feed'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { breakpoints } from 'theme/theme'
 import { theme } from 'theme/theme'
+
+const WHEREVER_ENABLED_WALLETS: KeyManager[] = [
+  KeyManager.TallyHo,
+  KeyManager.MetaMask,
+  KeyManager.WalletConnect,
+]
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
 
-  if (!isWhereverEnabled) return null
+  const currentWallet = getLocalWalletType()
+
+  if (!isWhereverEnabled || !currentWallet || !WHEREVER_ENABLED_WALLETS.includes(currentWallet))
+    return null
 
   const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
 
@@ -31,7 +45,6 @@ export const Notifications = () => {
 
   return (
     <NotificationFeedProvider
-      env={'staging'} // TODO(nivo33): Remove before PR is merged
       partnerKey={process.env.REACT_APP_WHEREVER_PARTNER_KEY as string}
       theme={{
         borderRadius: 'md',

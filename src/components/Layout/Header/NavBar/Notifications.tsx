@@ -1,18 +1,16 @@
-import { Box, useColorMode } from '@chakra-ui/react'
-import { IconButton } from '@chakra-ui/react'
+import { Box, IconButton, useColorMode } from '@chakra-ui/react'
 import type { CustomTheme } from '@wherever/react-notification-feed'
 import {
   NotificationBell,
   NotificationFeed,
   NotificationFeedProvider,
 } from '@wherever/react-notification-feed'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { breakpoints } from 'theme/theme'
-import { theme } from 'theme/theme'
+import { breakpoints, theme } from 'theme/theme'
 
 const WHEREVER_ENABLED_WALLETS: KeyManager[] = [
   KeyManager.TallyHo,

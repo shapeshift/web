@@ -132,7 +132,31 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           break
         }
         case 'eth_signTypedData': {
-          result = await signMessage(request.params[1])
+          // const web3 = getWeb3InstanceByChainId(evmChainId)
+          // if (!web3) return
+          // result = await (() =>
+          //   new Promise((resolve, reject) => {
+          //     ;(web3.currentProvider as HttpProvider).send(
+          //       {
+          //         method: 'eth_signTypedData',
+          //         params: request.params,
+          //         jsonrpc: '2.0',
+          //         // from: fromAccountId(wcAccountId).account,
+          //       },
+          //       function (err, result) {
+          //         if (err) {
+          //           console.error(err)
+          //           return reject()
+          //         }
+          //         if (result?.error) {
+          //           console.error('ERROR', result)
+          //           return reject()
+          //         }
+          //         console.log('TYPED SIGNED:' + JSON.stringify(result?.result))
+          //         resolve(result?.result)
+          //       },
+          //     )
+          //   }))()
           break
         }
         case 'personal_sign': {

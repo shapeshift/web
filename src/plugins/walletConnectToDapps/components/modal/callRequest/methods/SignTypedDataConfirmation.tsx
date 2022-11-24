@@ -1,4 +1,5 @@
 // import { Box, Button, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 // import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSignTypedDataCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 // import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
@@ -30,7 +31,6 @@ type Props = {
   onReject(): void
 }
 
-export const SignTypedDataConfirmation = ({ request }: Props) => {
-  console.info(request)
-  return null
+export const SignTypedDataConfirmation = ({ request, onConfirm }: Props) => {
+  return <Button onClick={onConfirm}>confirm</Button>
 }

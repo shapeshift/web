@@ -11,7 +11,6 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,7 +42,6 @@ type UseSendDetailsReturnType = {
   toggleCurrency(): void
   cryptoHumanBalance: BigNumber
   fiatBalance: BigNumber
-  estimateFees: (input: EstimateFeesInput) => Promise<FeeDataEstimate<ChainId>>
 }
 
 const moduleLogger = logger.child({
@@ -107,7 +105,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { assetReference } = fromAssetId(assetId)
   const contractAddress = tokenOrUndefined(assetReference)
 
-  const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
+  const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
@@ -179,15 +177,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ])
 
   // Stop calls to debouncedSetEstimatedFormFees on unmount
-  useEffect(() => {
-    return () => {
-      debouncedSetEstimatedFormFees.cancel()
-    }
-  }, [debouncedSetEstimatedFormFees])
+  useEffect(() => () => debouncedSetEstimatedFormFees.cancel(), [debouncedSetEstimatedFormFees])
 
-  const handleNextClick = async () => {
-    history.push(SendRoutes.Confirm)
-  }
+  const handleNextClick = () => history.push(SendRoutes.Confirm)
 
   const handleSendMax = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })
@@ -385,6 +377,5 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleInputChange,
     loading,
     toggleCurrency,
-    estimateFees,
   }
 }

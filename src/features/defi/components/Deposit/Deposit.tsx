@@ -4,7 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
-import type { ControllerProps } from 'react-hook-form'
+import type { ControllerProps, UseFormSetValue } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -15,10 +15,9 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { Nullable } from 'types/common'
 
 type DepositProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   asset: Asset
   rewardAsset?: Asset
   // Estimated apy (Deposit Only)
@@ -36,6 +35,7 @@ type DepositProps = {
   // Asset market data
   marketData: MarketData
   onAccountIdChange?: AccountDropdownProps['onChange']
+  onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
@@ -75,6 +75,7 @@ export const Deposit = ({
   isLoading,
   onAccountIdChange: handleAccountIdChange,
   onContinue,
+  onMaxClick,
   percentOptions,
   inputIcons,
   rewardAsset,
@@ -95,6 +96,8 @@ export const Deposit = ({
       [Field.Slippage]: DEFAULT_SLIPPAGE,
     },
   })
+
+  const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
   const { field: cryptoAmount } = useController({
@@ -129,15 +132,18 @@ export const Deposit = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount =
-        percent === 1
-          ? cryptoAmountAvailable
-          : bnOrZero(cryptoAmountAvailable).times(percent).precision(asset.precision)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), {
+      // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount
+        .decimalPlaces(asset.precision)
+        .toString()
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
         shouldValidate: true,
       })
     },
@@ -161,13 +167,14 @@ export const Deposit = ({
             assetId={asset.assetId}
             onAccountIdChange={handleAccountIdChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
+            {...(onMaxClick ? { onMaxClick: handleMaxClick } : {})}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}
             assetIcon={asset.icon}
             assetSymbol={asset.symbol}
             balance={cryptoAmountAvailable}
             fiatBalance={fiatAmountAvailable}
-            onMaxClick={value => handlePercentClick(value)}
+            onPercentOptionClick={handlePercentClick}
             percentOptions={percentOptions}
             icons={inputIcons}
           />

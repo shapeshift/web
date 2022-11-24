@@ -26,10 +26,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   assetId: AssetId
   amount: string
   contractAddress: string
@@ -65,6 +64,7 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -134,6 +134,8 @@ export const ClaimConfirm = ({
     foxFarmingContract,
   ])
 
+  if (!asset) return null
+
   return (
     <SlideTransition>
       <ModalBody>
@@ -150,6 +152,13 @@ export const ClaimConfirm = ({
               />
             </Skeleton>
           </Stack>
+          <Skeleton minWidth='100px' isLoaded={!!amount} textAlign='center'>
+            <Amount.Fiat
+              value={bnOrZero(amount).times(assetMarketData.price).toString()}
+              color='gray.500'
+              prefix='≈'
+            />
+          </Skeleton>
         </Stack>
       </ModalBody>
       <ModalFooter flexDir='column'>

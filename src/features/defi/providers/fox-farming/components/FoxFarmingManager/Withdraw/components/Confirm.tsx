@@ -1,4 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -9,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -23,7 +24,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,24 +35,20 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Confirm'],
 })
 
-type ConfirmProps = StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
-export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference, rewardId } = query
+  const { chainId, contractAddress, rewardId } = query
   const opportunity = state?.opportunity
   const { unstake } = useFoxFarming(contractAddress)
   const { onOngoingFarmingTxIdChange } = useFoxEth()
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const underlyingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -63,15 +60,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  const hasEnoughBalanceForGas = useMemo(
+    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+  )
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     try {
-      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
+      if (!dispatch || !state?.userAddress || !rewardId || !walletState.wallet || state.loading)
+        return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
@@ -82,11 +87,21 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext }) => {
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
-  }
+  }, [
+    contractAddress,
+    dispatch,
+    onNext,
+    onOngoingFarmingTxIdChange,
+    rewardId,
+    state?.loading,
+    state?.userAddress,
+    state?.withdraw.isExiting,
+    state?.withdraw.lpAmount,
+    unstake,
+    walletState.wallet,
+  ])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto))
-    .gte(0)
+  if (!state || !dispatch || !underlyingAsset || !opportunity) return null
 
   return (
     <ReusableConfirm

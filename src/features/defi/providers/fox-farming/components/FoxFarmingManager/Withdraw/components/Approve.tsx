@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -18,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { isSome } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,8 +30,11 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Approve'],
 })
 
-export const Approve = ({ onNext }: StepComponentProps) => {
+type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
+
+export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
@@ -113,19 +118,27 @@ export const Approve = ({ onNext }: StepComponentProps) => {
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(accountId) &&
+      isSome(estimatedGasCrypto) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, estimatedGasCrypto, feeAsset],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   if (!state || !dispatch || !opportunity) return null
@@ -134,11 +147,9 @@ export const Approve = ({ onNext }: StepComponentProps) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .times(feeMarketData.price)
-        .toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'

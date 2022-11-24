@@ -8,14 +8,13 @@ import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
+import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ConnectWallet = () => {
-  const isMigrationMessageEnabled = useFeatureFlag('MigrationMessage')
   const { state, dispatch, connectDemo } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
@@ -43,6 +42,7 @@ export const ConnectWallet = () => {
   }, [history, hasWallet, query, state, dispatch])
   return (
     <Page>
+      <SEO title={translate('common.connectWallet')} />
       <DarkMode>
         <Flex
           backgroundImage={AuroraBg}
@@ -77,9 +77,7 @@ export const ConnectWallet = () => {
                 fontSize='lg'
                 mb={12}
                 textAlign='center'
-                translation={
-                  isMigrationMessageEnabled ? 'connectWalletPage.body2' : 'connectWalletPage.body'
-                }
+                translation={'connectWalletPage.body2'}
               />
               <Stack
                 alignItems='center'
@@ -143,16 +141,14 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='common.privacy' />
                 </Link>
-                {isMigrationMessageEnabled && (
-                  <Link
-                    href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
-                    isExternal
-                    color='whiteAlpha.500'
-                    _hover={{ color: 'white' }}
-                  >
-                    <Text translation='connectWalletPage.betaSunset' />
-                  </Link>
-                )}
+                <Link
+                  href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
+                  isExternal
+                  color='whiteAlpha.500'
+                  _hover={{ color: 'white' }}
+                >
+                  <Text translation='connectWalletPage.betaSunset' />
+                </Link>
               </Flex>
             </Flex>
           </Flex>

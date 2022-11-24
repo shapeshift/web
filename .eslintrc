@@ -73,6 +73,8 @@
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-handler-names": "error",
-    "@shapeshiftoss/logger/no-native-console": "error"
+    "@shapeshiftoss/logger/no-native-console": "error",
+    "require-await": "error",
+    "import/no-duplicates": "error"
   }
 }

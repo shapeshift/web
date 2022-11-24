@@ -1,3 +1,5 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import type { HistoryData } from '@shapeshiftoss/types'
@@ -5,8 +7,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
 import type { Bucket } from './useBalanceChartData'
 import {
@@ -99,7 +100,7 @@ describe('calculateBucketPrices', () => {
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
 
-    const portfolioAssets: PortfolioAssets = {
+    const portfolioAssets: Record<AssetId, Asset> = {
       [foxAssetId]: fox,
     }
 
@@ -131,7 +132,7 @@ describe('calculateBucketPrices', () => {
       [ethAssetId]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
-    const portfolioAssets: PortfolioAssets = {
+    const portfolioAssets: Record<AssetId, Asset> = {
       [ethAssetId]: ethereum,
     }
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })

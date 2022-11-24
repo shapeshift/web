@@ -1,3 +1,4 @@
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
@@ -17,18 +18,15 @@ describe('txHistorySlice', () => {
   })
   afterAll(() => consoleInfoSpy.mockRestore())
 
-  it('returns empty object for initialState', async () => {
+  it('returns empty object for initialState', () => {
     expect(store.getState().txHistory).toEqual({
       txs: {
         byId: {},
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
-        status: 'loading',
       },
       rebases: {
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       },
@@ -42,7 +40,7 @@ describe('txHistorySlice', () => {
       txid: '974983662185eaa16f3a4a880f753c9085ef99cd8182d0135c90aa9d7193c6cf',
     }
 
-    it('can sort txs going into store', async () => {
+    it('can sort txs going into store', () => {
       // testTxs are in ascending order by time
       const transactions = reverse([...ethereumTransactions])
       const ethChainId = EthSend.chainId
@@ -61,13 +59,9 @@ describe('txHistorySlice', () => {
 
       // The full list of transactions should be sorted by time
       expect(history.ids).toStrictEqual(expected)
-      // The byAsset list should be sorted by time
-      expect(history.byAssetId['eip155:1/slip44:60']).toStrictEqual(expected)
-      // The byAccount list should be sorted by time
-      expect(history.byAccountId['eip155:1:0xdef1cafe']).toStrictEqual(expected)
     })
 
-    it('should add new transactions', async () => {
+    it('should add new transactions', () => {
       store.dispatch(txHistory.actions.clear())
 
       const ethAccountId = `${EthSend.chainId}:0xdef1cafe`
@@ -140,7 +134,7 @@ describe('txHistorySlice', () => {
       ).toEqual(BtcSendSegwit)
     })
 
-    it('should update existing transactions', async () => {
+    it('should update existing transactions', () => {
       const EthReceivePending = { ...EthReceive, status: TxStatus.Pending }
       const ethAccountId = `${EthReceive.chainId}:0xdef1cafe`
       store.dispatch(
@@ -164,7 +158,7 @@ describe('txHistorySlice', () => {
       ).toBe(TxStatus.Confirmed)
     })
 
-    it('should add txids by accountId', async () => {
+    it('should add txids by accountIdAssetId', () => {
       const ethAccountId = `${EthSend.chainId}:0xdef1cafe`
       const segwitNativeAccountId = `${BtcSend.chainId}:zpub`
       const segwitAccountId = `${BtcSend.chainId}:ypub`
@@ -191,16 +185,20 @@ describe('txHistorySlice', () => {
         }),
       )
 
-      expect(store.getState().txHistory.txs.byAccountId[ethAccountId]).toStrictEqual([
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId[ethAccountId]?.[ethAssetId],
+      ).toStrictEqual([
         serializeTxIndex(ethAccountId, EthSend.txid, EthSend.address),
         serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address),
       ])
 
-      expect(store.getState().txHistory.txs.byAccountId[segwitNativeAccountId]).toStrictEqual([
-        serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address),
-      ])
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId[segwitNativeAccountId]?.[btcAssetId],
+      ).toStrictEqual([serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address)])
 
-      expect(store.getState().txHistory.txs.byAccountId[segwitAccountId]).toStrictEqual([
+      expect(
+        store.getState().txHistory.txs.byAccountIdAssetId?.[segwitAccountId]?.[btcAssetId],
+      ).toStrictEqual([
         serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.address),
       ])
     })
@@ -210,14 +208,11 @@ describe('txHistorySlice', () => {
     it('should memoize', () => {
       const txs: TxsState = {
         byId: {},
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: ['a', 'b'],
-        status: 'loading',
       }
       const rebases: RebasesState = {
-        byAssetId: {},
-        byAccountId: {},
+        byAccountIdAssetId: {},
         ids: [],
         byId: {},
       }

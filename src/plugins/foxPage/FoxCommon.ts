@@ -1,4 +1,4 @@
-import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
 import type { TradeOpportunitiesBucket } from './components/TradeOpportunities'
 
@@ -11,14 +11,15 @@ export enum OpportunityTypes {
 }
 
 export type ExternalOpportunity = {
-  title: string
+  opportunityName: string | undefined
+  type?: DefiType
   apy?: string | null
   link?: string
-  icons: string[]
+  icons?: string[] | undefined
   isLoaded?: boolean
   isDisabled?: boolean
-  opportunityContractAddress?: string
-  opportunityProvider?: DefiProvider
+  contractAddress?: string
+  provider?: DefiProvider
   highestBalanceAccountAddress?: string
 }
 

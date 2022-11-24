@@ -16,7 +16,7 @@
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
-    "insufficientAmountForGas": "No hay suficiente ETH para cubrir el gas",
+    "insufficientAmountForGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
     "invalidAddress": "Dirección Inválida",
     "invalidAddressOrYat": "Dirección no válida o Yat",
     "deposit": "Depositar",
@@ -77,7 +77,25 @@
     "selectAsset": "Seleccione un Activo",
     "switchNetwork": "Cambiar Red",
     "unsupportedNetwork": "Red No Soportada",
-    "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}."
+    "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
+    "search": "Búsqueda",
+    "enterAmount": "Ingrese la cantidad",
+    "pageNotFound": "La página que buscas no se encuentra"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Comprar Cripto",
+      "second": "en Segundos"
+    },
+    "body": "Utilice una tarjeta de crédito, tarjeta de débito o cuenta bancaria. Compre Bitcoin, Ethereum, USDT, USDC o cientos de otras criptomonedas.",
+    "disclaimer": "*También puede vender cripto directamente en efectivohacia su cuenta bancaria.",
+    "cta": {
+      "title": {
+        "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
+        "second": "Rastree su cripto en 8 cadenas"
+      }
+    },
+    "availableAssets": "Activos Disponibles"
   },
   "updateToast": {
     "body": "Una nueva versión de la app está disponible",
@@ -108,6 +126,8 @@
       "value": "Valor",
       "priceChange": "Cambio de precio",
       "allocation": "Asignación",
+      "marketCap": "Capitalizacion de Mercado",
+      "sparkLine": "Minigráfico",
       "empty": {
         "title": "Ruido de grillos...",
         "cta": "Envíate algo de cripto!"
@@ -116,13 +136,17 @@
     },
     "recentTransactions": {
       "recentTransactions": "Transacciones Recientes"
+    },
+    "tradeCard": {
+      "trade": "Intercambiar",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
     "routeTitle": "Comprar o Vender",
     "routeTitleForGem": "Rampa de entrada Gem",
     "title": "Compra o Vende criptomonedas",
-    "titleMessage": "ShapeShift se ha asociado con varios proveedores de rampas fiduciarias para comprar y vender criptomonedas.",
+    "titleMessage": "Puede %{action} %{asset} usando:",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -146,7 +170,8 @@
     "nonUS": "NO-USA",
     "availableProviders": "Proveedores Disponibles",
     "noProvidersAvailable": "No hay Proveedores Disponibles",
-    "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso."
+    "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso.",
+    "notSupported": "%{asset} no es compatible con %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -249,6 +274,10 @@
         "claimYour": "Reclame su %{opportunity}"
       }
     },
+    "memoNote": {
+      "title": "Por favor, no edite la nota de transacción.",
+      "body": "Las transacciones que se originan en ShapeShift ayudan a respaldar la DAO."
+    },
     "amountToStake": "Cantidad a Stake",
     "amountToUnstake": "Monto a Unstake",
     "confirmDetails": "Confirmar Detalles",
@@ -283,6 +312,7 @@
     "asset": "Activo",
     "category": "Categoría",
     "tvl": "TVL",
+    "type": "Escribe",
     "apy": "APY",
     "apr": "APR",
     "ended": "Finalizado",
@@ -364,6 +394,7 @@
     "assetStakingBalance": "%{assetName} Balance de Staking"
   },
   "navBar": {
+    "home": "Inicio",
     "dashboard": "Tablero de mandos",
     "assets": "Activos",
     "assetDetails": "Detalles de activos",
@@ -376,14 +407,15 @@
     "overview": "Resúmenes",
     "transactions": "Transacciones",
     "tradeHistory": "Historia de Transacciones",
-    "foxToken": "FOX Opportunities",
+    "foxToken": "Oportunidades FOX",
     "dApps": "dApps",
     "featureFlags": "Indicadores de Funciones",
     "demoMode": "Modo Demo",
     "clickToConnect": "Haga clic para conectar una billetera",
     "wallet": "Billetera",
     "explore": "Explore",
-    "trade": "Intercambie"
+    "trade": "Intercambie",
+    "buyCrypto": "Comprar/Vender Cripto"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -407,6 +439,7 @@
       "weth": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "revoke": "Revocar",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -437,6 +470,25 @@
         "approve": "Aprobar",
         "revoke": "Revocar",
         "infinite": "Infinito ∞"
+      },
+      "staking": {
+        "delegate": "Delegar",
+        "begin_unbonding": "Retirar Delegación",
+        "begin_redelegate": "Redelegar",
+        "withdraw_delegator_reward": "Reclamar Recompensa"
+      },
+      "swap": {
+        "deposit": "Intercambiar",
+        "out": "Intercambiar",
+        "refund": "Reembolso",
+        "outbound": "Saliente"
+      },
+      "ibc": {
+        "transfer": "Enviado",
+        "recv_packet": "Recibido"
+      },
+      "lp": {
+        "deposit": "Añadir Liquidez"
       }
     },
     "unknown": "Transacción"
@@ -503,8 +555,8 @@
     "errors": {
       "title": "Algo salió mal",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
-      "amountTooSmall": "Cantidad demasiado pequeña. El monto mínimo de operación para este par es %{minLimit}.",
-      "sellAmountDoesNotCoverFee": "Cantidad demasiado pequeña. El monto de venta para este par es más bajo que la tarifa.",
+      "amountTooSmall": "Mínimo: %{minLimit}",
+      "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
@@ -534,8 +586,9 @@
       "executeTradeFailed": "Ocurrió un error al ejecutar su operación.",
       "unsupportedPair": "Este par comercial no es compatible actualmente.",
       "unsupportedChain": "Esta cadena no es compatible actualmente.",
-      "rateError": "Se produjo un error al obtener las tasas comerciales",
+      "rateError": "No podemos obtener una cotización para este par.",
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
+      "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -660,7 +713,7 @@
       "getBalanceError": "Error al obtener saldos de billetera",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
-      "tokenAddress": "Dirección de token",
+      "tokenAddress": "A Dirección",
       "addressInput": "A dirección, ENS o Yat",
       "scanQrCode": "Escanear código QR",
       "permissionsButton": "Intentar nuevamente",
@@ -762,7 +815,7 @@
       "status": {
         "pending": "Su transacción ha sido transmitida y está pendiente de confirmación.",
         "success": "Se ha retirado con éxito de %{opportunity}.",
-        "failed": "Hubo un problema con su depósito."
+        "failed": "Hubo un problema con tu retiro."
       },
       "info": {
         "delayed": "El retiro diferido tiene dos transacciones:",
@@ -880,7 +933,7 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "No se puede comunicar con su billetera"
+      "walletNotFound": "No se puede comunicar con su billetera. Si el problema persiste, comuníquese con el soporte de Keepkey."
     },
     "keepKey": {
       "errors": {
@@ -904,12 +957,12 @@
       },
       "newPin": {
         "header": "Ingrese su nuevo PIN",
-        "body": "Use el diseño de PIN que se muestra en su dispositivo para encontrar la ubicación en el teclado de PIN.",
+        "body": "Cree un nuevo PIN (hasta 9 dígitos) usando la pantalla de diseño en su KeepKey.",
         "button": "Confirmar"
       },
       "newPinConfirm": {
         "header": "Confirme Su Nuevo PIN",
-        "body": "Use el diseño de PIN que se muestra en su dispositivo para encontrar la ubicación en el teclado de PIN.",
+        "body": "Vuelva a ingresar su PIN usando el diseño que se muestra en su KeepKey.",
         "button": "Guardar PIN"
       },
       "settings": {
@@ -942,7 +995,7 @@
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
           "passphrase": "Habilite la capacidad de tener múltiples billeteras, accesibles mediante el uso de una frase de contraseña única para cada billetera.",
           "label": "Etiquetar cada uno de los dispositivos le permite distinguir fácilmente uno de otro.",
-          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puede cambiar esto.",
+          "timeout": "Su dispositivo entra en suspensión después de 10 minutos de inactividad de forma predeterminada. Sin embargo, puedes cambiar esto.",
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",
@@ -1116,8 +1169,8 @@
         "secretRecoveryPhraseTooShort": "La Frase de Recuperación Secreta es demasiado corta"
       },
       "password": {
-        "header": "Ingresa tu contraseña",
-        "body": "Ingrese una contraseña para encriptar su billetera. Así es como accederá a su billetera. No olvides esta contraseña.",
+        "header": "Crear una nueva contraseña",
+        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así es como accederá a su billetera.",
         "warning": "Nota: si olvida su contraseña, ShapeShift no puede ayudarlo a recuperarla.",
         "button": "Siguiente",
         "connect": "Conectarse a otra billetera"
@@ -1170,7 +1223,7 @@
         "23th": "23mo",
         "24th": "24mo",
         "body2": " palabra",
-        "body3": "en tu frase secreta.",
+        "body3": "en tu frase secreta?",
         "button": "Siguiente"
       },
       "rename": {
@@ -1295,7 +1348,10 @@
     "selectChain": "Seleccione la cadena para la que le gustaría crear una cuenta.",
     "requiresPriorTxHistory": "Solo puede agregar una nueva cuenta si las cuentas existentes tienen un historial de transacciones",
     "newAccountAdded": "Nueva cuenta de %{name} añadida",
-    "youCanNowUse": "Ahora puede usar la cuenta %{name} #%{accountNumber}"
+    "youCanNowUse": "Ahora puede usar la cuenta %{name} #%{accountNumber}",
+    "showAssets": "Mostrar activos",
+    "hideAssets": "Ocultar activos",
+    "viewAccount": "Ver cuenta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1334,9 +1390,10 @@
       "outputAddress": "Dirección de salida"
     },
     "transactionTypes": {
-      "send": "Enviar",
-      "receive": "Recibir",
-      "trade": "Intercambiar"
+      "Send": "Enviar",
+      "Receive": "Recibir",
+      "Trade": "Intercambiar",
+      "Refund": "Reembolso"
     },
     "assets": "Activos",
     "txid": "ID de TX",
@@ -1411,6 +1468,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Firmando desde",
+          "requestFrom": "Solicitud de",
+          "message": "Mensaje",
+          "description": "Deberá firmar el mensaje de confirmacion desde su billetera conectada.",
+          "confirm": "Confirmar",
+          "reject": "Rechazar"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Parámetros Avanzados",
+            "alert": "Solo para uso avanzado. La modificación de esta configuración podría resultar en transacciones atascadas.",
+            "nonce": {
+              "title": "Mientras tanto",
+              "placeholder": "Mientras tanto...",
+              "tooltip": "El número de transacciones enviadas desde una dirección determinada. Solo usuarios avanzados."
+            },
+            "gasLimit": {
+              "title": "Límite de Gas",
+              "placeholder": "Limite de Gas...",
+              "tooltip": "El límite de gas se refiere a la cantidad máxima de gas que un usuario puede consumir para realizar una transacción."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps Disponibles",
         "getStarted": "Iniciar",
@@ -1435,5 +1520,26 @@
         "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 minutos",
+      "average": "~ 3 minutos",
+      "fast": "~ 3 segundos"
+    },
+    "estGasCost": "Est. Costo de Gas",
+    "gasPrice": {
+      "label": "Precio de la Gas",
+      "tooltip": "El monto que desea pagar por unidad de gas como tarifa al minero o validador"
+    },
+    "base": {
+      "label": "Tarifa base",
+      "tooltip": "La tarifa base la establece la red y cambia cada 13-14 segundos según la demanda. Establece el precio máximo (sin incluir la tarifa de prioridad) en gwei que estás dispuesto a pagar por cada unidad de gas."
+    },
+    "priority": {
+      "label": "Tarifa prioritaria",
+      "tooltip": "La tarifa prioritaria es un consejo opcional para incentivar a los productores de bloques a priorizar su transacción. Establezca la tarifa de prioridad en gwei que le gustaría pagar por cada unidad de gas."
+    },
+    "custom": "Personalizar"
   }
 }

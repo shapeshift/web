@@ -1,6 +1,90 @@
-import { partitionCompare, partitionCompareWith, upsertArray } from './utils'
+import {
+  deepUpsertArray,
+  isValidAccountNumber,
+  partitionCompare,
+  partitionCompareWith,
+  upsertArray,
+} from './utils'
 
 describe('lib/utils', () => {
+  describe('deepUpsertArray', () => {
+    const l1Key = 'l1Key'
+    const l2Key = 'l2Key'
+    it('should add value that does not exist', () => {
+      const original = {
+        [l1Key]: {
+          [l2Key]: ['foo'],
+        },
+      }
+      const updated = {
+        [l1Key]: {
+          [l2Key]: ['foo', 'bar'],
+        },
+      }
+      const value = 'bar'
+      deepUpsertArray(original, l1Key, l2Key, value)
+      expect(original).toEqual(updated)
+    })
+
+    it('should not duplicate value that does exist', () => {
+      const original = {
+        [l1Key]: {
+          [l2Key]: ['foo'],
+        },
+      }
+      const updated = {
+        [l1Key]: {
+          [l2Key]: ['foo'],
+        },
+      }
+      const value = 'foo'
+      deepUpsertArray(original, l1Key, l2Key, value)
+      expect(original).toEqual(updated)
+    })
+
+    it('should deeply add value for empty root object', () => {
+      const original = {}
+      const updated = {
+        [l1Key]: {
+          [l2Key]: ['foo'],
+        },
+      }
+      const value = 'foo'
+      deepUpsertArray(original, l1Key, l2Key, value)
+      expect(original).toEqual(updated)
+    })
+  })
+  describe('isValidAccountNumber', () => {
+    it('should return true for 0', () => {
+      const accountNumber = 0
+      expect(isValidAccountNumber(accountNumber)).toBeTruthy()
+    })
+
+    it('should return true for 1', () => {
+      const accountNumber = 1
+      expect(isValidAccountNumber(accountNumber)).toBeTruthy()
+    })
+
+    it('should return false for undefined', () => {
+      const accountNumber = undefined
+      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
+    })
+
+    it('should return false for null', () => {
+      const accountNumber = null
+      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
+    })
+
+    it('should return false for negative numbers', () => {
+      const accountNumber = -1
+      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
+    })
+
+    it('should return false for non integers', () => {
+      const accountNumber = 1.1
+      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
+    })
+  })
   describe('partitionCompare', () => {
     it('should remove from first and keep from second', () => {
       const first = [1, 2]

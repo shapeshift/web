@@ -28,7 +28,6 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { CosmosClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
@@ -37,7 +36,7 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Claim', 'Confirm'],
 })
 
-type ConfirmProps = StepComponentProps & { accountId?: Nullable<AccountId> }
+type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(ClaimContext)

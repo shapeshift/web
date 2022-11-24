@@ -16,7 +16,7 @@
     "insufficientFunds": "Fonds insuffisants",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
-    "insufficientAmountForGas": "Solde ETH insuffisant pour couvrir le carburant",
+    "insufficientAmountForGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
     "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
@@ -26,8 +26,8 @@
     "withdrawAndClaim": "Retirer et réclamer",
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
-    "connectWallet": "Connecter Porte-monnaie",
-    "connectedWallet": "Porte-monnaie Connecté",
+    "connectWallet": "Connecter un porte-monnaie",
+    "connectedWallet": "Porte-monnaie connecté",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
     "seeAll": "Tout voir",
@@ -77,7 +77,25 @@
     "selectAsset": "Sélectionnez un actif",
     "switchNetwork": "Changer de réseau",
     "unsupportedNetwork": "Réseau non pris en charge",
-    "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}."
+    "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
+    "search": "Rehercher",
+    "enterAmount": "Entrer le montant",
+    "pageNotFound": "La page que vous recherchez est introuvable"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Acheter des cryptos",
+      "second": "en quelques secondes"
+    },
+    "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies majeures. Fournisseurs non-KYC disponibles.",
+    "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
+    "cta": {
+      "title": {
+        "first": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et",
+        "second": "suivre vos cryptos sur 8 chaînes"
+      }
+    },
+    "availableAssets": "Actifs disponibles"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
@@ -100,7 +118,7 @@
       "rainbowChart": "🌈 Arc-en-ciel",
       "totalChart": "💰 Total",
       "addAsset": "Ajouter un actif",
-      "yourAssets": "Vos actifs",
+      "yourAssets": "Actifs du porte-monnaie",
       "asset": "Actif",
       "portfolioBalance": "Solde du Portefeuille",
       "balance": "Solde",
@@ -108,6 +126,8 @@
       "value": "Valeur",
       "priceChange": "Changement de prix",
       "allocation": "Répartition",
+      "marketCap": "Capitalisation du marché",
+      "sparkLine": "Sparkline",
       "empty": {
         "title": "Bruits de grillons...",
         "cta": "Envoyez-vous un peu de crypto !"
@@ -116,13 +136,17 @@
     },
     "recentTransactions": {
       "recentTransactions": "Transactions récentes"
+    },
+    "tradeCard": {
+      "trade": "Échanger",
+      "bridge": "Pont"
     }
   },
   "fiatRamps": {
     "routeTitle": "Acheter ou Vendre",
     "routeTitleForGem": "Rampe de paiement Gem",
     "title": "Acheter ou Vendre des cryptos",
-    "titleMessage": "ShapeShift s'est associé à plusieurs fournisseurs de rampes de paiement pour l'achat et la vente de cryptomonnaies.",
+    "titleMessage": "Vous pouvez %{action} des %{asset} en utilisant :",
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
@@ -146,14 +170,15 @@
     "nonUS": "Hors USA",
     "availableProviders": "Fournisseurs disponibles",
     "noProvidersAvailable": "Aucun fournisseur disponible",
-    "noProvidersBody": "Il semble que nous n'ayons pas encore de fournisseur pour cet actif."
+    "noProvidersBody": "Il semble que nous n'ayons pas encore de fournisseur pour cet actif.",
+    "notSupported": "%{asset} n'est pas pris en charge par %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explorer l'",
-    "defiUniverse": "Univers DeFi",
-    "body": "100% Gratuit. Open Source. Propriété communautaire. Non-dépositaire. Privé.",
-    "body2": "Bienvenue sur le nouveau ShapeShift. 100% gratuit. Open-source. Appartenant à la communauté. Non-dépositaire. Privé.",
+    "exploreThe": "Explorez",
+    "defiUniverse": "l'Univers DeFi",
+    "body": "100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
+    "body2": "Bienvenue sur le nouveau ShapeShift. 100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
     "betaSunset": "La version Beta est terminée. En apprendre davantage",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
@@ -243,11 +268,15 @@
         "rewardAmount": "Montant de la récompense",
         "claimingRewards": "Réclamer des récompenses",
         "claimAmount": "Réclamer le montant",
-        "claimToAddress": "Réclamer vers l'adresse",
+        "claimToAddress": "Réclamer vers",
         "confirmClaim": "Confirmer la réclamation",
         "claimNow": "Réclamer maintenant",
         "claimYour": "Réclamer vos %{opportunity}"
       }
+    },
+    "memoNote": {
+      "title": "Merci de ne pas modifier le mémo de transaction",
+      "body": "Les transactions provenant de ShapeShift aident à soutenir la DAO."
     },
     "amountToStake": "Montant à miser",
     "amountToUnstake": "Montant à démiser",
@@ -283,13 +312,14 @@
     "asset": "Actif",
     "category": "Catégorie",
     "tvl": "TVL",
+    "type": "Type",
     "apy": "APY",
     "apr": "APR",
     "ended": "Terminé",
     "balance": "Solde",
     "defi": "DeFi",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
-    "netWorth": "Valeur nette",
+    "netWorth": "Patrimoine net",
     "walletBalance": "Solde du porte-monnaie",
     "earnBalance": "Solde des gains",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
@@ -364,6 +394,7 @@
     "assetStakingBalance": "Solde des mises en %{assetName}"
   },
   "navBar": {
+    "home": "Accueil",
     "dashboard": "Tableau de bord",
     "assets": "Actifs",
     "assetDetails": "Détails des actifs",
@@ -383,11 +414,12 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
-    "trade": "Échanger"
+    "trade": "Échanger",
+    "buyCrypto": "Acheter/Vendre des cryptos"
   },
   "transactionRow": {
-    "send": "Envoyé",
-    "receive": "Reçu",
+    "send": "Envoi",
+    "receive": "Réception",
     "moreDetails": "Plus de détails",
     "date": "Date",
     "txid": "ID de transaction",
@@ -405,52 +437,72 @@
     "for": "pour",
     "parser": {
       "weth": {
-        "deposit": "Déposer",
-        "approve": "Autoriser",
-        "withdraw": "Retirer",
-        "receive": "Recevoir"
+        "deposit": "Dépôt",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
+        "withdraw": "Retrait",
+        "receive": "Réception"
       },
       "yearn": {
-        "deposit": "Déposer",
-        "approve": "Autoriser",
-        "revoke": "Révoquer",
+        "deposit": "Dépôt",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
         "infinite": "Infini ∞",
-        "withdraw": "Retirer",
-        "receive": "Recevoir"
+        "withdraw": "Retrait",
+        "receive": "Réception"
       },
       "uniV2": {
-        "addLiquidityETH": "Ajouter des liquidités",
-        "stake": "Miser",
-        "exit": "Démiser",
-        "removeLiquidityETH": "Retirer des liquidités"
+        "addLiquidityETH": "Ajout de liquidités",
+        "stake": "Mise",
+        "exit": "Démise",
+        "removeLiquidityETH": "Retrait de liquidités"
       },
       "thor": {
-        "transferOut": "Transfert vers l'extérieur"
+        "transferOut": "Transfert sortant"
       },
       "foxy": {
-        "stake": "Miser",
-        "unstake": "Démiser",
-        "instantUnstake": "Démiser instantanément",
-        "claimWithdraw": "Réclamer un retrait"
+        "stake": "Mise",
+        "unstake": "Démise",
+        "instantUnstake": "Démise instantanée",
+        "claimWithdraw": "Réclamation de retrait"
       },
       "erc20": {
-        "approve": "Autoriser",
-        "revoke": "Révoquer",
+        "approve": "Autorisation",
+        "revoke": "Révocation",
         "infinite": "Infini ∞"
+      },
+      "staking": {
+        "delegate": "Déléguation",
+        "begin_unbonding": "Annulation de délégation",
+        "begin_redelegate": "Redéléguation",
+        "withdraw_delegator_reward": "Réclamation de récompense"
+      },
+      "swap": {
+        "deposit": "Échange",
+        "out": "Échange",
+        "refund": "Remboursement",
+        "outbound": "Sortant"
+      },
+      "ibc": {
+        "transfer": "Envoi",
+        "recv_packet": "Réception"
+      },
+      "lp": {
+        "deposit": "Ajout de liquidités"
       }
     },
     "unknown": "Transaction"
   },
   "bridge": {
-    "confirm": "Confirmer le transfert",
+    "confirm": "Confirmer le déplacement",
     "selectChain": "Sélectionner la chaîne",
     "selectAsset": "Sélectionner l'actif",
-    "startBridge": "Commencer le transfert",
-    "confirmBridge": "Confirmer le transfert",
-    "preview": "Prévisualiser le transfert",
-    "transferring": "En cours de transfert",
-    "transferComplete": "Transfert terminé",
-    "bridgeAnother": "Transférer un autre actif",
+    "startBridge": "Commencer le déplacement",
+    "confirmBridge": "Confirmer le déplacement",
+    "preview": "Prévisualiser le déplacement",
+    "transferring": "En cours de déplacement",
+    "transferComplete": "Déplacement terminé",
+    "bridgeAnother": "Déplacer un autre actif",
     "feeExceedsSend": "Les frais dépassent le montant à envoyer",
     "receiveAddress": "Adresse de réception",
     "route": "Itinéraire",
@@ -475,7 +527,7 @@
     "confirmAndTrade": "Confirmer et échanger",
     "complete": "Échange terminé",
     "approveAsset": "Autoriser l'interaction avec %{symbol}",
-    "needPermission": "Nous avons besoin de votre permission pour utiliser vos %{symbol}",
+    "needPermission": "a besoin de votre permission pour utiliser vos %{symbol}",
     "whyNeedThis": "Pourquoi dois-je faire cela ?",
     "estimatedGasFee": "Frais de carburant estimés",
     "receiveInclFee": "Recevoir (frais inclus)",
@@ -485,7 +537,7 @@
     "exact": "Exacte",
     "expectedAmount": "Montant attendu",
     "beforeFees": "Avant frais",
-    "minAmountAfterSlippage": "Montant minimum attendu après glissement/slippage (%{slippage}%)",
+    "minAmountAfterSlippage": "Min. attendu après glissement/slippage (%{slippage}%)",
     "free": "Gratuit",
     "slowSwapTitle": "Échange %{protocol}",
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
@@ -502,6 +554,10 @@
     },
     "errors": {
       "title": "Il y a eu un problème",
+      "sellAssetStartSentence": "Actif à vendre",
+      "buyAssetStartSentence": "Actif à acheter",
+      "sellAssetMiddleSentence": "actif à vendre",
+      "buyAssetMiddleSentence": "actif à acheter",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
       "amountTooSmall": "Minimum : %{minLimit}",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
@@ -536,6 +592,7 @@
       "unsupportedChain": "Chaîne non supportée actuellement.",
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
       "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
+      "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -658,7 +715,7 @@
       "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
-      "tokenAddress": "Adresse du jeton",
+      "tokenAddress": "Adresse de destination",
       "addressInput": "Adresse de destination, ENS ou Yat",
       "scanQrCode": "Scanner code QR",
       "permissionsButton": "Réessayer",
@@ -838,7 +895,7 @@
       "currencyFormat": "Format de devise",
       "language": "Langue",
       "balanceThreshold": "Seuil de solde",
-      "balanceThresholdTooltip": "Masquer les soldes en dessous de cette valeur",
+      "balanceThresholdTooltip": "Sur le tableau de bord et les graphiques, masquer les soldes en dessous de cette valeur",
       "currencies": {
         "CNY": "Yuan chinois",
         "USD": "Dollar américain (par défaut)",
@@ -878,7 +935,7 @@
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie"
+      "walletNotFound": "Impossible de communiquer avec votre porte-monnaie. Si le problème persiste, veuillez contacter le support Keepkey."
     },
     "keepKey": {
       "errors": {
@@ -902,12 +959,12 @@
       },
       "newPin": {
         "header": "Saisissez votre nouveau NIP",
-        "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
+        "body": "Créez un nouveau NIP (jusqu'à 9 chiffres) en utilisant la disposition affichée sur votre KeepKey.",
         "button": "Confirmer"
       },
       "newPinConfirm": {
         "header": "Confirmer votre nouveau NIP",
-        "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
+        "body": "Entrez à nouveau votre NIP en utilisant la disposition affichée sur votre KeepKey.",
         "button": "Enregistrer le NIP"
       },
       "settings": {
@@ -938,7 +995,7 @@
           "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
           "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de sécurité unique pour chaque porte-monnaie.",
           "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
-          "timeout": "Votre appareil se met en veille après 10 minutes d'activité par défaut. Cependant, vous pouvez changer cela.",
+          "timeout": "Votre appareil se met en veille après 10 minutes d'inactivité par défaut. Cependant, vous pouvez changer ceci.",
           "buttonPrompt": "Appuyez longuement sur le bouton de votre KeepKey pour modifier le %{setting} de l'appareil.",
           "updateSuccess": "%{setting} mis à jour avec succès !",
           "updateFailed": "Une erreur s'est produite lors de la mise à jour de %{setting}.",
@@ -1165,7 +1222,7 @@
         "23th": "23ème",
         "24th": "24ème",
         "body2": " mot",
-        "body3": "dans votre phrase secrète.",
+        "body3": "dans votre phrase secrète ?",
         "button": "Suivant"
       },
       "rename": {
@@ -1290,7 +1347,10 @@
     "selectChain": "Sélectionnez la chaîne pour laquelle vous souhaitez créer un compte.",
     "requiresPriorTxHistory": "Vous ne pouvez ajouter un nouveau compte que si le ou les comptes existants ont déjà un historique de transactions",
     "newAccountAdded": "Nouveau compte %{name} ajouté",
-    "youCanNowUse": "Vous pouvez maintenant utiliser %{name} Compte #%{accountNumber}"
+    "youCanNowUse": "Vous pouvez maintenant utiliser %{name} Compte #%{accountNumber}",
+    "showAssets": "Afficher les actifs",
+    "hideAssets": "Masquer les actifs",
+    "viewAccount": "Voir le compte"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1306,9 +1366,9 @@
       "10days": "10 jours",
       "30days": "30 jours",
       "90days": "90 jours",
-      "send": "Envoyer",
+      "send": "Envoi",
       "trade": "Échange",
-      "receive": "Recevoir",
+      "receive": "Réception",
       "custom": "Personnalisé",
       "apply": "Appliquer"
     },
@@ -1329,9 +1389,10 @@
       "outputAddress": "Adresse de sortie"
     },
     "transactionTypes": {
-      "send": "Envoyer",
-      "receive": "Recevoir",
-      "trade": "Échanger"
+      "Send": "Envoi",
+      "Receive": "Réception",
+      "Trade": "Échange",
+      "Refund": "Remboursement"
     },
     "assets": "Actifs",
     "txid": "ID TX",
@@ -1406,6 +1467,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Signature depuis",
+          "requestFrom": "Requête depuis",
+          "message": "Message",
+          "description": "Vous devrez confirmer la signature de ce message avec votre porte-monnaie connecté.",
+          "confirm": "Confirmer",
+          "reject": "Rejeter"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Paramètres avancés",
+            "alert": "Pour utilisation avancée uniquement. La modification de ces paramètres peut provoquer un blocage de transactions.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "Le nombre de transactions qui ont été envoyées à partir d'une adresse donnée. Utilisateurs avancés uniquement."
+            },
+            "gasLimit": {
+              "title": "Limite de carburant",
+              "placeholder": "Limite de carburant...",
+              "tooltip": "La limite de carburant fait référence à la quantité maximale de carburant qu'un utilisateur peut consommer pour effectuer une transaction."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "dApps disponibles",
         "getStarted": "Commencer",
@@ -1430,5 +1519,26 @@
         "description": "Votre Yat est votre nom d'utilisateur emoji universel, l'URL de votre site Web, votre adresse de paiement, etc."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 min.",
+      "average": "~ 3 min.",
+      "fast": "~ 3 sec."
+    },
+    "estGasCost": "Coût du carburant estimé",
+    "gasPrice": {
+      "label": "Prix du carburant",
+      "tooltip": "Le montant que vous souhaitez payer par unité de carburant à titre de frais pour le mineur ou validateur"
+    },
+    "base": {
+      "label": "Frais de base",
+      "tooltip": "Les frais de base sont fixés par le réseau et changent toutes les 13-14 secondes en fonction de la demande. Définissez le prix maximum (hors frais de priorité) en gwei que vous souhaitez payer pour chaque unité de carburant."
+    },
+    "priority": {
+      "label": "Frais de priorité",
+      "tooltip": "Les frais de priorité sont un pourboire facultatif pour inciter les producteurs de blocs à donner la priorité à votre transaction. Définissez les frais de priorité en gwei que vous souhaitez payer pour chaque unité de carburant."
+    },
+    "custom": "Personnalisé"
   }
 }

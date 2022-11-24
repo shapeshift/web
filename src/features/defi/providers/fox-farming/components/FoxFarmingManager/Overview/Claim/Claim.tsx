@@ -8,12 +8,11 @@ import qs from 'qs'
 import { MemoryRouter } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { Nullable } from 'types/common'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
 type ClaimProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
 }
 
 export const Claim: React.FC<ClaimProps> = ({ accountId }) => {

@@ -1,5 +1,7 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -8,7 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -21,10 +23,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,22 +39,61 @@ import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Confirm'] })
 
-export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
+  const assetId = useMemo(
+    () => opportunityData?.underlyingAssetIds[0],
+    [opportunityData?.underlyingAssetIds],
+  )
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const { state: walletState } = useWallet()
@@ -56,16 +101,20 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch) return
+    if (!dispatch || !bip44Params) return
     try {
       if (
         !(
-          state?.userAddress &&
+          userAddress &&
           assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
@@ -76,13 +125,12 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
         return
 
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
+      if (!state?.deposit.cryptoAmount) return
+
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareDeposit({
-        address: state.userAddress,
+        address: userAddress,
         amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
       })
       const txid = await idleOpportunity.signAndBroadcast({
@@ -107,14 +155,14 @@ export const Confirm: React.FC<StepComponentProps> = ({ onNext }) => {
     }
   }, [
     dispatch,
-    state?.userAddress,
-    state?.opportunity?.positionAsset.assetId,
-    state?.deposit.cryptoAmount,
+    bip44Params,
+    userAddress,
     assetReference,
     walletState.wallet,
     opportunity,
     chainAdapter,
     idleInvestor,
+    state,
     asset.precision,
     onNext,
     toast,

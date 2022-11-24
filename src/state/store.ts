@@ -11,7 +11,6 @@ import { foxyApi } from './apis/foxy/foxyApi'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
-import { foxEthApi } from './slices/foxEthSlice/foxEthSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
@@ -21,7 +20,7 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: [''],
+  whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
 }
 
@@ -31,7 +30,6 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
-  foxEthApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
   fiatRampApi.middleware,
@@ -46,13 +44,13 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
+  store.dispatch(slices.opportunities.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
-  store.dispatch(apiSlices.foxEthApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
 }
 

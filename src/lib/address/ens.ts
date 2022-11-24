@@ -9,11 +9,11 @@ import type {
   ValidateVanityAddress,
 } from './address'
 
-export const resolveEnsDomain: ResolveVanityAddress = async ({ value }) => ensLookup(value)
+export const resolveEnsDomain: ResolveVanityAddress = ({ value }) => ensLookup(value)
 
 // leave async such that this works with other async validators
-export const validateEnsDomain: ValidateVanityAddress = async ({ value }) =>
-  /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value)
+export const validateEnsDomain: ValidateVanityAddress = ({ value }) =>
+  Promise.resolve(/^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value))
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
   const address = await fetchEnsAddress({

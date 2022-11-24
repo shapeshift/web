@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { FiatRamp } from 'components/Modals/FiatRamps/config'
-import { fiatRamps, supportedFiatRamps } from 'components/Modals/FiatRamps/config'
+import { supportedFiatRamps } from 'components/Modals/FiatRamps/config'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -27,10 +27,13 @@ export const fiatRampApi = createApi({
   endpoints: build => ({
     getFiatRamps: build.query<FiatRampsByAssetId, void>({
       keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
-      queryFn: async () => {
+      queryFn: async (_, { getState }) => {
         try {
+          const activeProviders = Object.values(supportedFiatRamps).filter(provider =>
+            provider.isActive((getState() as any).preferences.featureFlags),
+          )
           const promiseResults = await Promise.allSettled(
-            Object.values(supportedFiatRamps).map(provider => provider.getBuyAndSellList()),
+            activeProviders.map(provider => provider.getBuyAndSellList()),
           )
 
           const data = promiseResults.reduce<FiatRampsByAssetId>(
@@ -43,12 +46,12 @@ export const fiatRampApi = createApi({
               const [buyAssetIds, sellAssetIds] = ramp
               buyAssetIds.forEach(assetId => {
                 if (!acc.byAssetId[assetId]) acc.byAssetId[assetId] = { buy: [], sell: [] }
-                acc.byAssetId[assetId]?.['buy'].push(fiatRamps[idx])
+                acc.byAssetId[assetId]?.['buy'].push(activeProviders[idx].id)
                 if (!acc.buyAssetIds.includes(assetId)) acc.buyAssetIds.push(assetId)
               })
               sellAssetIds.forEach(assetId => {
                 if (!acc.byAssetId[assetId]) acc.byAssetId[assetId] = { buy: [], sell: [] }
-                acc.byAssetId[assetId]?.['sell'].push(fiatRamps[idx])
+                acc.byAssetId[assetId]?.['sell'].push(activeProviders[idx].id)
                 if (!acc.sellAssetIds.includes(assetId)) acc.sellAssetIds.push(assetId)
               })
               return acc

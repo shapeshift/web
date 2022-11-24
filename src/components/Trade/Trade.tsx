@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
-import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
+import { TradeRoutes } from './TradeRoutes/TradeRoutes'
 import type { TS } from './types'
 import { TradeAmountInputField } from './types'
 
@@ -46,7 +46,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const defaultAssetsAreChainDefaults =
         sellAsset.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset.assetId === defaultAssetIdPair?.buyAssetId
-      if (!defaultAssetsAreChainDefaults) {
+      if (!defaultAssetsAreChainDefaults && defaultAssetIdPair) {
         // If the default assets are the chain defaults then keep this useEffect active as we might not have stabilized
         // Else, we know the default values have been set, so don't run this again unless the route changes
         setHasSetDefaultValues(true)
@@ -72,18 +72,15 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     hasSetDefaultValues,
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
+    defaultAssetIdPair,
   ])
 
   if (!methods) return null
 
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={entries}>
-        <Switch>
-          <Route path='/'>
-            <TradeRoutes />
-          </Route>
-        </Switch>
+      <MemoryRouter>
+        <TradeRoutes />
       </MemoryRouter>
     </FormProvider>
   )

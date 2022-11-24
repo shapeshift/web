@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -24,10 +24,9 @@ import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -36,21 +35,21 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Deposit', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<AccountId> }> = ({
+export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
   onNext,
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { contractAddress, assetReference } = query
   const { stake } = useFoxFarming(contractAddress)
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const opportunity = state?.opportunity
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
@@ -64,15 +63,22 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
   // notify
   const toast = useToast()
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  const hasEnoughBalanceForGas = useMemo(
+    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.deposit.estimatedGasCrypto)).gte(0),
+    [feeAssetBalance, state?.deposit.estimatedGasCrypto],
+  )
 
-  const handleDeposit = async () => {
+  const handleDeposit = useCallback(async () => {
+    if (!dispatch || !state || !accountAddress || !assetReference || !walletState.wallet) return
     try {
-      if (!accountAddress || !assetReference || !walletState.wallet) return
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       const txid = await stake(state.deposit.cryptoAmount)
       if (!txid) throw new Error('Transaction failed')
@@ -90,11 +96,21 @@ export const Confirm: React.FC<StepComponentProps & { accountId: Nullable<Accoun
     } finally {
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    accountAddress,
+    assetReference,
+    contractAddress,
+    dispatch,
+    onNext,
+    onOngoingFarmingTxIdChange,
+    stake,
+    state,
+    toast,
+    translate,
+    walletState.wallet,
+  ])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto))
-    .gte(0)
+  if (!state || !dispatch || !opportunity || !asset) return null
 
   return (
     <ReusableConfirm

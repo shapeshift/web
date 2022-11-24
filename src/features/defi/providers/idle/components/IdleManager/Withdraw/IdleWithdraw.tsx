@@ -1,6 +1,6 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -8,22 +8,21 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,17 +33,16 @@ import { IdleWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Withdraw', 'IdleWithdraw'],
-})
+type WithdrawProps = {
+  accountId: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
 
-export const IdleWithdraw = () => {
-  const { idleInvestor } = useIdle()
+export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -56,56 +54,49 @@ export const IdleWithdraw = () => {
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: vaultAddress,
+    assetReference: contractAddress,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+  )
+
   // user info
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
-  const loading = useSelector(selectPortfolioLoading)
-  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
-          return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          idleInvestor.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-        dispatch({ type: IdleWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: IdleWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-
-        moduleLogger.error(error, 'IdleWithdraw:useEffect error')
-      }
-    })()
-  }, [
-    idleInvestor,
-    chainAdapter,
-    vaultAddress,
-    walletState.wallet,
-    translate,
-    toast,
-    chainId,
-    bip44Params,
-  ])
+    if (state.opportunity) return
+    if (!(walletState.wallet && contractAddress && opportunityData)) return
+    dispatch({ type: IdleWithdrawActionType.SET_OPPORTUNITY, payload: opportunityData })
+  }, [contractAddress, opportunityData, state.opportunity, walletState.wallet])
 
   const handleBack = useCallback(() => {
     history.push({
@@ -124,11 +115,11 @@ export const IdleWithdraw = () => {
         description: translate('defi.steps.withdraw.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Withdraw,
+        component: ownProps => <Withdraw {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
@@ -136,9 +127,11 @@ export const IdleWithdraw = () => {
       },
     }
     // We only need this to update on symbol change
-  }, [translate, underlyingAsset.symbol])
+  }, [accountId, translate, underlyingAsset.symbol])
 
-  if (loading || !asset || !marketData)
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
+  if (!asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -146,7 +139,7 @@ export const IdleWithdraw = () => {
     )
 
   return (
-    <WithdrawContext.Provider value={{ state, dispatch }}>
+    <WithdrawContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {

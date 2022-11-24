@@ -1,17 +1,13 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import {
-  selectFoxEthLpAccountsOpportunitiesAggregated,
-  selectPortfolioTotalFiatBalanceWithStakingData,
-} from 'state/slices/selectors'
+import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StatCardProps = {
@@ -56,18 +52,8 @@ export const PortfolioBreakdown = () => {
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  const emptyFilter = useMemo(() => ({}), [])
-  //FOX/ETH LP Balance
-  const opportunity = useAppSelector(state =>
-    selectFoxEthLpAccountsOpportunitiesAggregated(state, emptyFilter),
-  )
-  const lpBalance = opportunity?.underlyingFoxAmount ?? 0
-  // Portfolio including Staking
-  const netWorth = useAppSelector(state =>
-    selectPortfolioTotalFiatBalanceWithStakingData(state, emptyFilter),
-  )
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpBalance)
-  const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const walletBalanceWithoutEarn = bn(netWorth).minus(bn(balances.totalEarningBalance))
   if (!isDashboardBreakdownEnabled) return null
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
@@ -79,8 +65,8 @@ export const PortfolioBreakdown = () => {
         isLoading={balances.loading}
       />
       <BreakdownCard
-        value={totalEarnBalance.toString()}
-        percentage={totalEarnBalance.div(netWorth).times(100).toNumber()}
+        value={balances.totalEarningBalance}
+        percentage={bnOrZero(balances.totalEarningBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
         onClick={() => history.push('/defi')}

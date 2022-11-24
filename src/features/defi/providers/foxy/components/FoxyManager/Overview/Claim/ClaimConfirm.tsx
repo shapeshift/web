@@ -31,10 +31,9 @@ import {
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type ClaimConfirmProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   assetId: AssetId
   amount?: string
   contractAddress: string
@@ -68,6 +67,7 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -80,6 +80,11 @@ export const ClaimConfirm = ({
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const cryptoHumanBalance = useMemo(
+    () => bnOrZero(claimAmount).div(`1e+${asset.precision}`),
+    [asset.precision, claimAmount],
+  )
 
   const handleConfirm = useCallback(async () => {
     if (!(walletState.wallet && contractAddress && userAddress && foxy && bip44Params)) return
@@ -177,10 +182,15 @@ export const ClaimConfirm = ({
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
-              value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
+              value={cryptoHumanBalance.toString()}
               symbol={asset?.symbol}
             />
           </Stack>
+          <Amount.Fiat
+            value={cryptoHumanBalance.times(assetMarketData.price).toString()}
+            color='gray.500'
+            prefix='≈'
+          />
         </Stack>
       </ModalBody>
       <ModalFooter flexDir='column'>

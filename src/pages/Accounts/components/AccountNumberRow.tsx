@@ -7,12 +7,19 @@ import {
   Flex,
   IconButton,
   ListItem,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { MdOutlineMoreVert } from 'react-icons/md'
+import { RiWindow2Line } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
@@ -151,6 +158,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />
           }
           {...buttonProps}
+          onClick={onToggle}
         >
           <Stack alignItems='flex-start' spacing={0}>
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
@@ -164,15 +172,33 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <Amount.Fiat value={fiatBalance} />
           </Stack>
         </Button>
-        <IconButton
-          size='sm'
-          variant='ghost'
-          isActive={isOpen}
-          aria-label='Expand Account'
-          data-test='expand-account-button'
-          icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
-          onClick={onToggle}
-        />
+        {buttonProps.onClick && (
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              size='sm'
+              variant='ghost'
+              aria-label='Expand Account'
+              icon={<MdOutlineMoreVert />}
+            />
+            <MenuList>
+              <MenuGroup
+                title={translate('accounts.accountNumber', { accountNumber })}
+                color='gray.500'
+              >
+                <MenuItem
+                  icon={<RiWindow2Line />}
+                  onClick={buttonProps.onClick && buttonProps.onClick}
+                >
+                  {translate('accounts.viewAccount')}
+                </MenuItem>
+                <MenuItem onClick={onToggle} icon={isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}>
+                  {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}
+                </MenuItem>
+              </MenuGroup>
+            </MenuList>
+          </Menu>
+        )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>
         <ListItem>{accountEntries}</ListItem>

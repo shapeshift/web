@@ -1,6 +1,7 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
@@ -19,6 +20,7 @@ type StakingTableProps = {
 type RowProps = Row<EarnOpportunityType>
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
+  const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
       {
@@ -29,12 +31,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
       {
-        Header: 'Asset',
+        Header: translate('defi.asset'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
-              assetId={row.original.assetId}
+              assetId={row.original.underlyingAssetId ?? row.original.assetId}
               subText={makeProviderName(row.original.provider)}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}
@@ -47,7 +49,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         disableSortBy: true,
       },
       {
-        Header: 'Type',
+        Header: translate('defi.type'),
         accessor: 'type',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
@@ -59,7 +61,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
       {
-        Header: 'APY',
+        Header: translate('defi.apy'),
         accessor: 'apy',
         isNumeric: true,
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
@@ -73,7 +75,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1,
       },
       {
-        Header: 'TVL',
+        Header: translate('defi.tvl'),
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
@@ -83,7 +85,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
       {
-        Header: 'Balance',
+        Header: translate('defi.balance'),
         accessor: 'fiatAmount',
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
@@ -99,7 +101,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [showTeaser],
+    [showTeaser, translate],
   )
 
   const handleRowClick = useCallback(

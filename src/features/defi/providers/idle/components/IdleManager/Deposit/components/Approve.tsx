@@ -1,5 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-idle'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -10,41 +12,53 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type IdleApproveProps = {
-  onNext: (arg: DefiStep) => void
-}
+type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
-export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const { idleInvestor } = useIdle()
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const underlyingAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
+  )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
@@ -56,15 +70,15 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(state?.userAddress && opportunity && assetReference && idleInvestor)) return
+      if (!(userAddress && opportunity && assetReference && idleInvestor && underlyingAsset)) return
       try {
-        const idleOpportunity = await idleInvestor.findByOpportunityId(
-          opportunity.positionAsset.assetId ?? '',
-        )
+        const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-          address: state.userAddress,
+          amount: bnOrZero(deposit.cryptoAmount)
+            .times(bn(10).pow(underlyingAsset?.precision))
+            .integerValue(),
+          address: userAddress,
         })
         // TODO: Figure out a better way for the safety factor
         return bnOrZero(preparedTx.gasPrice)
@@ -84,39 +98,30 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         })
       }
     },
-    [
-      state?.userAddress,
-      opportunity,
-      assetReference,
-      idleInvestor,
-      asset?.precision,
-      toast,
-      translate,
-    ],
+    [userAddress, opportunity, assetReference, idleInvestor, underlyingAsset, toast, translate],
   )
 
   const handleApprove = useCallback(async () => {
     if (
       !(
         dispatch &&
+        bip44Params &&
         assetReference &&
-        state?.userAddress &&
+        userAddress &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
         opportunity &&
-        chainAdapter
+        chainAdapter &&
+        underlyingAsset
       )
     )
       return
 
     try {
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        opportunity.positionAsset.assetId ?? '',
-      )
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId ?? '')
       if (!idleOpportunity) throw new Error('No opportunity')
-      const tx = await idleOpportunity.prepareApprove(state.userAddress)
+      const tx = await idleOpportunity.prepareApprove(userAddress)
       await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -124,11 +129,11 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
         feePriority: undefined,
         bip44Params,
       })
-      const address = state.userAddress
+      const address = userAddress
       await poll({
         fn: () => idleOpportunity.allowance(address),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
           return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
@@ -156,54 +161,63 @@ export const Approve: React.FC<IdleApproveProps> = ({ onNext }) => {
     }
   }, [
     dispatch,
+    bip44Params,
     assetReference,
-    state?.userAddress,
-    state?.deposit,
+    userAddress,
     walletState.wallet,
     opportunity,
     chainAdapter,
+    underlyingAsset,
     idleInvestor,
     getDepositGasEstimate,
+    state?.deposit,
     onNext,
-    asset.precision,
     toast,
     translate,
   ])
 
   const hasEnoughBalanceForGas = useMemo(
-    () => canCoverTxFees(feeAsset, state?.approve.estimatedGasCrypto),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    () =>
+      isSome(accountId) &&
+      isSome(estimatedGasCrypto) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
   const preFooter = useMemo(
     () => (
       <ApprovePreFooter
+        accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={state?.approve.estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCrypto}
       />
     ),
-    [feeAsset, state?.approve.estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCrypto],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !estimatedGasCrypto) return null
 
   return (
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+        .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}
-      providerIcon={asset.icon}
+      providerIcon={underlyingAsset.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

@@ -25,8 +25,9 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectFeeAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
@@ -61,8 +62,8 @@ export const Confirm = () => {
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
 
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset?.assetId ?? ''))
   const showMemoRow = useMemo(
     () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
     [asset],
@@ -72,6 +73,11 @@ export const Confirm = () => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }
     return bnOrZero(fiatAmount).plus(fiatFee).toString()
   }, [fiatAmount, fees, feeType])
+
+  const cryptoAmountFee = useMemo(() => {
+    const { txFee } = fees ? fees[feeType as FeeDataKey] : { txFee: 0 }
+    return txFee.toString()
+  }, [fees, feeType])
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -111,22 +117,20 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
-          {isMultiAccountsEnabled && (
-            <Row alignItems='center'>
-              <Row.Label>
-                <Text translation='modals.send.confirm.sendFrom' />
-              </Row.Label>
-              <Row.Value display='flex' alignItems='center'>
-                <AccountDropdown
-                  onChange={handleAccountChange}
-                  assetId={asset.assetId}
-                  defaultAccountId={accountId}
-                  buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
-                  disabled
-                />
-              </Row.Value>
-            </Row>
-          )}
+          <Row alignItems='center'>
+            <Row.Label>
+              <Text translation='modals.send.confirm.sendFrom' />
+            </Row.Label>
+            <Row.Value display='flex' alignItems='center'>
+              <AccountDropdown
+                onChange={handleAccountChange}
+                assetId={asset.assetId}
+                defaultAccountId={accountId}
+                buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                disabled
+              />
+            </Row.Value>
+          </Row>
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
@@ -160,28 +164,34 @@ export const Confirm = () => {
         </Stack>
       </ModalBody>
       <ModalFooter flexDirection='column' borderTopWidth={1} borderColor={borderColor}>
-        <Row>
-          <Box>
+        <Row gap={2}>
+          <Box flex={1}>
             <Row.Label color='inherit' fontWeight='bold'>
               <Text translation='modals.send.confirm.total' />
             </Row.Label>
-            <Row.Label flexDirection='row' display='flex'>
+            <Row.Label
+              flexDirection='row'
+              display='flex'
+              flexWrap='wrap'
+              justifyContent='flex-start'
+            >
               <Text translation='modals.send.confirm.amount' />
               <RawText mx={1}>+</RawText>
               <Text translation='modals.send.confirm.transactionFee' />
             </Row.Label>
           </Box>
-          <Box textAlign='right'>
-            <Row.Value>
+          <Box textAlign='right' flex={1}>
+            <Row.Value flex={1}>
+              <Amount.Fiat value={amountWithFees} fontWeight='bold' />
+            </Row.Value>
+            <Row.Label display='flex' gap={1} flexWrap='wrap' justifyContent='flex-end'>
               <Amount.Crypto
                 textTransform='uppercase'
                 maximumFractionDigits={6}
                 symbol={cryptoSymbol}
                 value={cryptoAmount}
               />
-            </Row.Value>
-            <Row.Label>
-              <Amount.Fiat value={amountWithFees} />
+              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset.symbol} />
             </Row.Label>
           </Box>
         </Row>

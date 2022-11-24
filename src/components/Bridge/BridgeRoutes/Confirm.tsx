@@ -6,7 +6,7 @@ import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import type { RouteComponentProps } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
 import { getAxelarAssetTransferSdk } from 'components/Bridge/axelarAssetTransferSdkSingleton'
@@ -19,8 +19,8 @@ import {
 import { Card } from 'components/Card/Card'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { useFormSend } from 'components/Modals/Send/hooks/useFormSend/useFormSend'
-import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -34,21 +34,18 @@ import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EditableAddress } from '../components/EditableAddress'
-import type { BridgeAsset, BridgeState } from '../types'
+import type { BridgeState } from '../types'
 import { BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
+
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
-type SelectAssetProps = {
-  onClick: (asset: BridgeAsset) => void
-} & RouteComponentProps
-
-export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
+export const Confirm: React.FC = () => {
+  const history = useHistory()
   const [isLoadingRelayerFee, setIsLoadingRelayerFee] = useState(true)
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const { handleSend } = useFormSend()
-  const { estimateFees } = useSendDetails()
   const translate = useTranslate()
 
   const axelarAssetTransferSdk = getAxelarAssetTransferSdk()
@@ -97,7 +94,7 @@ export const Confirm: React.FC<SelectAssetProps> = ({ history }) => {
     ;(async () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
-        const baseUrl = 'https://axelar-lcd.quickapi.com/axelar/nexus/v1beta1/transfer_fee'
+        const baseUrl = 'https://lcd-axelar.imperator.co/axelar/nexus/v1beta1/transfer_fee'
         const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmount}${assetDenom}`
         const {
           data: {

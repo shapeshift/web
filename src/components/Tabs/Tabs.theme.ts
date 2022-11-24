@@ -11,12 +11,12 @@ export const TabsStyle = {
     enclosed: (props: Record<string, any>) => ({
       tablist: {
         borerColor: mode('gray.100', 'gray.750')(props),
-        'button:first-child': {
+        'button:first-of-type': {
           borderLeftWidth: 0,
           borderTopRightRadius: 0,
           borderTopLeftRadius: 'xl',
         },
-        'button:last-child': {
+        'button:last-of-type': {
           borderRightWidth: 0,
           borderTopLeftRadius: 0,
           borderTopRightRadius: 'xl',

@@ -84,7 +84,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
-  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   // this is returning data grouped by validator, not by account
   const stakingOpportunitiesData = useAppSelector(s =>
@@ -225,6 +225,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     [asset?.chainId, asset.precision, asset.symbol, marketData.price],
   )
 
+  if (stakingOpportunitiesData.length === 0) return null
+
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
@@ -233,8 +235,15 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
             <Text translation='staking.staking' />
           </Card.Heading>
 
-          <Button size='sm' variant='link' colorScheme='blue' as={NavLink} to='/defi/earn'>
-            <Text translation='common.seeAll' /> <ArrowForwardIcon />
+          <Button
+            size='sm'
+            variant='link'
+            colorScheme='blue'
+            as={NavLink}
+            to='/defi/earn'
+            rightIcon={<ArrowForwardIcon />}
+          >
+            <Text translation='common.seeAll' />
           </Button>
         </HStack>
       </Card.Header>

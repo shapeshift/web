@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, foxAssetId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -17,20 +17,23 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectFoxFarmingOpportunityByContractAddress,
-  selectSelectedLocale,
+  selectAssets,
+  selectHighestBalanceAccountIdByStakingId,
+  selectMarketData,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
+  selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type FoxFarmingOverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -39,34 +42,70 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, highestBalanceAccountAddress, contractAddress, assetReference } = query
 
-  const highestBalanceAccountId = useMemo(
-    () =>
-      highestBalanceAccountAddress
-        ? toAccountId({
-            account: highestBalanceAccountAddress,
-            chainId: ethChainId,
-          })
-        : null,
-    [highestBalanceAccountAddress],
+  const assets = useAppSelector(selectAssets)
+  const lpAsset = assets[foxEthLpAssetId]
+  const marketData = useAppSelector(selectMarketData)
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, highestBalanceAccountAddress, contractAddress } = query
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [contractAddress, chainId],
   )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+  const opportunityData = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const underlyingAssetsIcons = useMemo(
+    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    [assets, opportunityData?.underlyingAssetIds],
+  )
+
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId ?? '').account : ''),
     [accountId],
   )
 
-  const filter = useMemo(
-    () => ({
-      accountAddress,
-      contractAddress,
-    }),
-    [accountAddress, contractAddress],
+  const underlyingAssetsFiatBalance = useMemo(() => {
+    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toString()
+    const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
+    return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
+  }, [marketData, opportunityData?.stakedAmountCryptoPrecision, opportunityData?.underlyingAssetId])
+
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
-  const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, filter),
+  const lpAssetWithBalancesAndIcons = useMemo(
+    () => ({
+      ...lpAsset,
+      cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoPrecision).toFixed(6),
+      allocationPercentage: '1',
+      icons: underlyingAssetsIcons,
+    }),
+    [lpAsset, opportunityData?.stakedAmountCryptoPrecision, underlyingAssetsIcons],
   )
 
   // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
@@ -78,24 +117,15 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highestBalanceAccountId])
 
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.underlyingAssetId ?? ''),
+  )
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
-  const fiatAmountAvailable = bnOrZero(opportunity?.fiatAmount)
-  const rewardAmountAvailable = bnOrZero(opportunity?.unclaimedRewards)
+  const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoPrecision)
+  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountsCryptoPrecision[0])
   const hasClaim = rewardAmountAvailable.gt(0)
 
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
-
-  if (!opportunity || !opportunity.isLoaded || !opportunity.apy) {
+  if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -105,12 +135,12 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     )
   }
 
-  if (!opportunity.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
+  if (!opportunityData.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: opportunity?.icons! }, rewardAsset]}
-        apy={opportunity.apy.toString() ?? ''}
-        opportunityName={opportunity.opportunityName || ''}
+        assets={[{ icons: underlyingAssetsIcons }, rewardAsset]}
+        apy={opportunityData.apy.toString() ?? ''}
+        opportunityName={opportunityData.name ?? ''}
         onClick={() =>
           history.push({
             pathname: location.pathname,
@@ -129,20 +159,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
-      name={opportunity.opportunityName ?? ''}
-      icons={opportunity.icons}
-      opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
-        {
-          ...stakingAsset,
-          cryptoBalance: cryptoAmountAvailable.toFixed(4),
-          allocationPercentage: '1',
-          icons: opportunity.icons,
-        },
-      ]}
+      name={opportunityData.name ?? ''}
+      icons={underlyingAssetsIcons}
+      opportunityFiatBalance={underlyingAssetsFiatBalance}
+      lpAsset={lpAssetWithBalancesAndIcons}
+      underlyingAssets={underlyingAssetsWithBalancesAndIcons}
       provider='ShapeShift'
       menu={
-        opportunity.expired
+        opportunityData.expired
           ? [
               {
                 label: 'common.withdrawAndClaim',
@@ -172,19 +196,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
               },
             ]
       }
-      description={{
-        description: stakingAsset.description,
-        isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: stakingAsset.isTrustedDescription,
-      }}
-      tvl={opportunity.tvl}
-      apy={opportunity.apy?.toString()}
-      expired={opportunity.expired}
+      tvl={opportunityData.tvl}
+      apy={opportunityData.apy}
+      expired={opportunityData.expired}
     >
       <WithdrawCard
         asset={rewardAsset}
         amount={rewardAmountAvailable.toString()}
-        expired={opportunity.expired}
+        expired={opportunityData.expired}
       />
     </Overview>
   )

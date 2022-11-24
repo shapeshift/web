@@ -1,6 +1,6 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -8,35 +8,26 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { IdleClaimActionType } from './ClaimCommon'
 import { ClaimContext } from './ClaimContext'
 import { initialState, reducer } from './ClaimReducer'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Idle', 'IdleClaim'],
-})
+type IdleClaimProps = { accountId: AccountId | undefined }
 
-export const IdleClaim = () => {
-  const { idleInvestor } = useIdle()
+export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: vaultAddress, assetReference } = query
 
@@ -57,52 +48,6 @@ export const IdleClaim = () => {
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
   // user info
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-  const { state: walletState } = useWallet()
-  const bip44Params = chainAdapter?.getBIP44Params({ accountNumber: 0 })
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && idleInvestor && chainAdapter && bip44Params))
-          return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          idleInvestor.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-
-        const claimableTokens = await opportunity.getClaimableTokens(address)
-
-        dispatch({ type: IdleClaimActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: IdleClaimActionType.SET_OPPORTUNITY, payload: opportunity })
-        dispatch({ type: IdleClaimActionType.SET_CLAIMABLE_TOKENS, payload: claimableTokens })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'IdleClaim:useEffect error')
-      }
-    })()
-  }, [
-    idleInvestor,
-    chainAdapter,
-    vaultAddress,
-    walletState.wallet,
-    translate,
-    toast,
-    chainId,
-    bip44Params,
-  ])
-
   const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
@@ -120,7 +65,7 @@ export const IdleClaim = () => {
         description: translate('defi.steps.claim.info.description', {
           asset: underlyingAsset.symbol,
         }),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
@@ -128,9 +73,9 @@ export const IdleClaim = () => {
       },
     }
     // We only need this to update on symbol change
-  }, [translate, underlyingAsset.symbol])
+  }, [accountId, translate, underlyingAsset.symbol])
 
-  if (!asset || !marketData || !state.userAddress || !state.claimableTokens)
+  if (!asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

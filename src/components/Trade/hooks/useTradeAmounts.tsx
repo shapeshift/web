@@ -5,7 +5,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
@@ -96,7 +96,7 @@ export const useTradeAmounts = () => {
       const buyAssetUsdRate = args.buyAssetUsdRate ?? buyAssetFiatRateFormState
       const sellAssetUsdRate = args.sellAssetUsdRate ?? sellAssetFiatRateFormState
       const fees = args.fees ?? feesFormState
-      if (sellAsset && buyAsset && amount && action && buyAssetUsdRate && sellAssetUsdRate) {
+      if (sellAsset && buyAsset && action && buyAssetUsdRate && sellAssetUsdRate) {
         setTradeAmounts({
           amount,
           action,

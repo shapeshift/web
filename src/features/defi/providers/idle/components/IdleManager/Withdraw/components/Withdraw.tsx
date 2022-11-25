@@ -78,7 +78,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     if (!opportunityData?.assetId) return
     ;(async () => {
-      setIdleOpportunity(await idleInvestor.findByOpportunityId(opportunityData?.assetId))
+      setIdleOpportunity(await idleInvestor.findByOpportunityId(opportunityData.assetId))
     })()
   }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
 

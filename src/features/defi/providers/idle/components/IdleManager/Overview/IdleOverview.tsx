@@ -83,8 +83,17 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailable = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision)),
+    [balance, vaultAsset?.precision],
+  )
+  const fiatAmountAvailable = useMemo(() => {
+    if (!idleOpportunity) return bn(0)
+
+    const pricePerShare = idleOpportunity.positionAsset.underlyingPerPosition
+
+    return bnOrZero(cryptoAmountAvailable).times(pricePerShare).times(marketData.price)
+  }, [cryptoAmountAvailable, idleOpportunity, marketData.price])
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),

@@ -1,6 +1,7 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
-import type WalletConnect from '@walletconnect/client'
-import { convertHexToUtf8 } from '@walletconnect/utils'
+import type LegacyWalletConnect from '@walletconnect/client'
+import type SignClient from "@walletconnect/sign-client"
+import { } from '@walletconnect/utils'
 import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
@@ -14,7 +15,7 @@ type WCServiceOptions = {
 export class WCService {
   constructor(
     private readonly wallet: core.ETHWallet,
-    public readonly connector: WalletConnect,
+    public readonly connector: LegacyWalletConnect | SignClient,
     private readonly options?: WCServiceOptions,
   ) {}
 

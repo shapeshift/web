@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import WalletConnect from '@walletconnect/client'
+import LegacyWalletConnect from '@walletconnect/client'
 import { WCService } from 'kkdesktop/walletconnect'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useState } from 'react'
@@ -8,6 +8,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
+import { getWalletConnect } from 'kkdesktop/walletconnect/utils'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const wallet = useWallet().state.wallet
@@ -33,15 +34,17 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const connect = useCallback(
     async (uri?: string) => {
       let newBridge
-      if (uri)
-        newBridge = new WCService(wallet as ETHWallet, new WalletConnect({ uri }), {
+      if (uri) {
+        const wc = await getWalletConnect(uri)
+        newBridge = new WCService(wallet as ETHWallet, wc, {
           onCallRequest: addRequest,
         })
+      }
       else {
         const wcSessionJsonString = localStorage.getItem('walletconnect')
         if (!wcSessionJsonString) return
         const session = JSON.parse(wcSessionJsonString)
-        newBridge = new WCService(wallet as ETHWallet, new WalletConnect({ session }), {
+        newBridge = new WCService(wallet as ETHWallet, new LegacyWalletConnect({ session }), {
           onCallRequest: addRequest,
         })
       }

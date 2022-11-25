@@ -1499,7 +1499,9 @@
           "message": "Message",
           "description": "You will need to confirm signing this message with your connected wallet.",
           "confirm": "Confirm",
-          "reject": "Reject"
+          "reject": "Reject",
+          "messageData": "Message data",
+          "domain": "Domain"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

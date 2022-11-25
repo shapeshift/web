@@ -22,8 +22,9 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -153,7 +154,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // These two notions should be decoupled and we should *not* have to calc back and forth from the wrapping and underlying assets
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
-        amount: idleAssetWithdrawAmountCryptoHuman.times(`1e+${asset.precision}`).integerValue(),
+        amount: bn(toBaseUnit(idleAssetWithdrawAmountCryptoHuman, asset.precision)),
       })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,

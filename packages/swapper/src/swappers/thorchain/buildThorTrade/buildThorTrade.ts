@@ -1,9 +1,11 @@
 import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { cosmos, ethereum, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { cosmos, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import {
   BuildTradeInput,
+  EvmSupportedChainAdapter,
+  EvmSupportedChainIds,
   GetUtxoTradeQuoteInput,
   SwapError,
   SwapErrorTypes,
@@ -15,15 +17,14 @@ import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { ThorchainSwapperDeps, ThorTrade } from '../types'
 import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
 import { getCosmosTxData } from '../utils/cosmos/getCosmosTxData'
-import { makeTradeTx } from '../utils/ethereum/makeTradeTx'
+import { makeTradeTx } from '../utils/evm/makeTradeTx'
 
-export const buildTrade = async ({
-  deps,
-  input,
-}: {
+type BuildTradeArgs = {
   deps: ThorchainSwapperDeps
   input: BuildTradeInput
-}): Promise<ThorTrade<ChainId>> => {
+}
+
+export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorTrade<ChainId>> => {
   try {
     const {
       buyAsset,
@@ -55,21 +56,19 @@ export const buildTrade = async ({
         bip44Params,
         sellAsset,
         buyAsset,
-        adapter: sellAdapter as unknown as ethereum.ChainAdapter,
+        adapter: sellAdapter as unknown as EvmSupportedChainAdapter,
         sellAmountCryptoPrecision,
         destinationAddress,
         deps,
         gasPrice:
-          (quote as TradeQuote<KnownChainIds.EthereumMainnet>).feeData.chainSpecific?.gasPrice ??
-          '0',
+          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific?.gasPrice ?? '0',
         gasLimit:
-          (quote as TradeQuote<KnownChainIds.EthereumMainnet>).feeData.chainSpecific
-            ?.estimatedGas ?? '0',
+          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific?.estimatedGas ?? '0',
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
 
       return {
-        chainId: KnownChainIds.EthereumMainnet,
+        chainId: sellAsset.chainId as EvmSupportedChainIds,
         ...quote,
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
@@ -95,7 +94,7 @@ export const buildTrade = async ({
         bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
         chainSpecific: {
           accountType: (input as GetUtxoTradeQuoteInput).accountType,
-          satoshiPerByte: (quote as TradeQuote<KnownChainIds.BitcoinMainnet>).feeData.chainSpecific
+          satoshiPerByte: (quote as TradeQuote<UtxoSupportedChainIds>).feeData.chainSpecific
             .satsPerByte,
           opReturnData,
         },

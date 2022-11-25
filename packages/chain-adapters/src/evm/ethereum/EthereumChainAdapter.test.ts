@@ -4,7 +4,7 @@
  * Test EthereumChainAdapter
  * @group unit
  */
-import { ASSET_REFERENCE, ethAssetId, ethChainId, fromChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, CHAIN_REFERENCE, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
@@ -328,7 +328,7 @@ describe('EthereumChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x0000000000000000',
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
@@ -356,7 +356,7 @@ describe('EthereumChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: 'notHexString',
           nonce: '0x0',
           gasPrice: '0x29d41057e0',
@@ -528,7 +528,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -587,7 +587,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -622,7 +622,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -658,7 +658,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
@@ -727,7 +727,7 @@ describe('EthereumChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',
           nonce: '0x2',
           gasLimit: '0x1c8',
@@ -768,7 +768,7 @@ describe('EthereumChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
-          chainId: Number(fromChainId(ethChainId).chainReference),
+          chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',
           nonce: '0x2',
           gasLimit: '0x1c8',

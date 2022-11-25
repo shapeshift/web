@@ -1,4 +1,4 @@
-import { THOR_ROUTER_CONTRACT_MAINNET } from '../../constants'
+import { THOR_ROUTER_CONTRACT_ETH_MAINNET } from '../../constants'
 
 export default {
   tx: {
@@ -8,7 +8,7 @@ export default {
     timestamp: 1622747859,
     status: 1,
     from: '0xCeb660E7623E8f8312B3379Df747c35f2217b595',
-    to: THOR_ROUTER_CONTRACT_MAINNET,
+    to: THOR_ROUTER_CONTRACT_ETH_MAINNET,
     confirmations: 2249964,
     value: '295040000000000000',
     fee: '1700235000000000',

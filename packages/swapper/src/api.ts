@@ -80,7 +80,7 @@ export type CosmosSdkSupportedChainIds =
   | KnownChainIds.OsmosisMainnet
   | KnownChainIds.ThorchainMainnet
 
-export type EvmSupportedChainAdapters = ethereum.ChainAdapter | avalanche.ChainAdapter
+export type EvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
 
 export type CosmosSdkSupportedChainAdapters = cosmos.ChainAdapter | osmosis.ChainAdapter
 

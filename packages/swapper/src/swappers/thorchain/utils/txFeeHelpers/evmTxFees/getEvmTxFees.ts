@@ -1,35 +1,29 @@
 import { AssetReference } from '@shapeshiftoss/caip'
-import { ChainAdapterManager, ethereum, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
-import { QuoteFeeData, SwapError, SwapErrorTypes } from '../../../../../api'
+import {
+  EvmSupportedChainAdapter,
+  EvmSupportedChainIds,
+  QuoteFeeData,
+  SwapError,
+  SwapErrorTypes,
+} from '../../../../../api'
 import { bn, bnOrZero } from '../../../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../../../utils/constants'
 import { THOR_ETH_GAS_LIMIT } from '../../constants'
 
-export const getEthTxFees = async ({
-  adapterManager,
-  sellAssetReference,
-  buyAssetTradeFeeUsd,
-}: {
-  adapterManager: ChainAdapterManager
+type GetEvmTxFeesArgs = {
+  adapter: EvmSupportedChainAdapter
   sellAssetReference: AssetReference | string
   buyAssetTradeFeeUsd: string
-}): Promise<QuoteFeeData<KnownChainIds.EthereumMainnet>> => {
-  try {
-    const adapter = adapterManager.get(KnownChainIds.EthereumMainnet) as
-      | ethereum.ChainAdapter
-      | undefined
-    if (!adapter) {
-      throw new SwapError(
-        `[getThorTxInfo] - No chain adapter found for ${KnownChainIds.EthereumMainnet}.`,
-        {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
-          details: { chainId: KnownChainIds.EthereumMainnet },
-        },
-      )
-    }
+}
 
+export const getEvmTxFees = async ({
+  adapter,
+  sellAssetReference,
+  buyAssetTradeFeeUsd,
+}: GetEvmTxFeesArgs): Promise<QuoteFeeData<EvmSupportedChainIds>> => {
+  try {
     const gasFeeData = await adapter.getGasFeeData()
 
     // this is a good value to cover all thortrades out of eth/erc20

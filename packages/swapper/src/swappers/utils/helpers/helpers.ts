@@ -5,7 +5,7 @@ import Web3 from 'web3'
 import { AbiItem, numberToHex } from 'web3-utils'
 
 import {
-  EvmSupportedChainAdapters,
+  EvmSupportedChainAdapter,
   EvmSupportedChainIds,
   SwapError,
   SwapErrorTypes,
@@ -16,7 +16,7 @@ import { erc20Abi as erc20AbiImported } from '../abi/erc20-abi'
 import { BN, bn, bnOrZero } from '../bignumber'
 
 export type IsApprovalRequiredArgs = {
-  adapter: EvmSupportedChainAdapters
+  adapter: EvmSupportedChainAdapter
   receiveAddress: string
   allowanceContract: string
   sellAsset: Asset
@@ -42,7 +42,7 @@ export type GetApproveContractDataArgs = {
 type GrantAllowanceArgs<T extends EvmSupportedChainIds> = {
   quote: TradeQuote<T>
   wallet: HDWallet
-  adapter: EvmSupportedChainAdapters
+  adapter: EvmSupportedChainAdapter
   erc20Abi: AbiItem[]
   web3: Web3
 }

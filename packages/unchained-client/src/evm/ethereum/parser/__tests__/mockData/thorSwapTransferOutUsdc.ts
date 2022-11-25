@@ -1,4 +1,4 @@
-import { THOR_ROUTER_CONTRACT_MAINNET } from '../../constants'
+import { THOR_ROUTER_CONTRACT_ETH_MAINNET } from '../../constants'
 
 export default {
   tx: {
@@ -8,7 +8,7 @@ export default {
     timestamp: 1621613233,
     status: 1,
     from: '0x2Ab5a16737bd4449Cc5c096598b3D2e32add0EF0',
-    to: THOR_ROUTER_CONTRACT_MAINNET,
+    to: THOR_ROUTER_CONTRACT_ETH_MAINNET,
     confirmations: 2334656,
     value: '0',
     fee: '37199999999936725',
@@ -24,7 +24,7 @@ export default {
         name: 'USD Coin',
         symbol: 'USDC',
         type: 'ERC20',
-        from: THOR_ROUTER_CONTRACT_MAINNET,
+        from: THOR_ROUTER_CONTRACT_ETH_MAINNET,
         to: '0x5a8C5afbCC1A58cCbe17542957b587F46828B38E',
         value: '47596471640',
       },

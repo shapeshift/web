@@ -1,8 +1,10 @@
-import { CHAIN_NAMESPACE, ChainId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import {
+  EvmSupportedChainAdapter,
+  EvmSupportedChainIds,
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   SwapError,
@@ -24,8 +26,8 @@ import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataFor
 import { getTradeRate } from '../utils/getTradeRate/getTradeRate'
 import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { isRune } from '../utils/isRune/isRune'
-import { getBtcTxFees } from '../utils/txFeeHelpers/btcTxFees/getBtcTxFees'
-import { getEthTxFees } from '../utils/txFeeHelpers/ethTxFees/getEthTxFees'
+import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
+import { getUtxoTxFees } from '../utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
 
@@ -118,13 +120,20 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-        return (async (): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> => {
-          const ethAddressData = await getInboundAddressDataForChain(deps.daemonUrl, ethAssetId)
+        return (async (): Promise<TradeQuote<EvmSupportedChainIds>> => {
+          const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
+          const ethAddressData = await getInboundAddressDataForChain(
+            deps.daemonUrl,
+            sellChainFeeAssetId,
+          )
           const router = ethAddressData?.router
-          if (!router) throw new SwapError('[getThorTradeQuote] No router address found for ETH')
+          if (!router)
+            throw new SwapError(
+              `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
+            )
 
-          const feeData = await getEthTxFees({
-            adapterManager: deps.adapterManager,
+          const feeData = await getEvmTxFees({
+            adapter: sellAdapter as unknown as EvmSupportedChainAdapter,
             sellAssetReference,
             buyAssetTradeFeeUsd,
           })
@@ -149,7 +158,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             buyAssetTradeFeeUsd,
           })
 
-          const feeData = await getBtcTxFees({
+          const feeData = await getUtxoTxFees({
             sellAmountCryptoPrecision,
             vault,
             opReturnData,

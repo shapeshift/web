@@ -1,12 +1,9 @@
 import { ASSET_REFERENCE, AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
-import { numberToHex } from 'web3-utils'
 
-import { ErrorHandler } from '../../error/ErrorHandler'
 import {
   FeeDataEstimate,
   GasFeeDataEstimate,
@@ -15,12 +12,9 @@ import {
   ValidAddressResultType,
   ZrxGasApiResponse,
 } from '../../types'
-import { toAddressNList } from '../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
-import { Fees } from '../types'
 import { getErc20Data } from '../utils'
-import { BuildCustomTxInput } from './types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -57,43 +51,6 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
   getFeeAssetId(): AssetId {
     return this.assetId
-  }
-
-  async buildCustomTx(tx: BuildCustomTxInput): Promise<{
-    txToSign: ETHSignTx
-  }> {
-    try {
-      const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = tx
-
-      const from = await this.getAddress({ bip44Params, wallet })
-      const account = await this.getAccount(from)
-
-      const fees = ((): Fees => {
-        if (tx.maxFeePerGas && tx.maxPriorityFeePerGas) {
-          return {
-            maxFeePerGas: numberToHex(tx.maxFeePerGas),
-            maxPriorityFeePerGas: numberToHex(tx.maxPriorityFeePerGas),
-          }
-        }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return { gasPrice: numberToHex(tx.gasPrice!) }
-      })()
-
-      const txToSign: ETHSignTx = {
-        addressNList: toAddressNList(bip44Params),
-        value: tx.value,
-        to: tx.to,
-        chainId: 1,
-        data: tx.data,
-        nonce: numberToHex(account.chainSpecific.nonce),
-        gasLimit: numberToHex(tx.gasLimit),
-        ...fees,
-      }
-
-      return { txToSign }
-    } catch (err) {
-      return ErrorHandler(err)
-    }
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {

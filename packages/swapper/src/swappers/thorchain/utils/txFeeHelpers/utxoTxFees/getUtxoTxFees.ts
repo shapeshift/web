@@ -4,7 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { QuoteFeeData, SwapError, SwapErrorTypes, UtxoSupportedChainIds } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
 
-type GetBtcTxFeesInput = {
+type GetUtxoTxFeesInput = {
   opReturnData: string
   vault: string
   sellAmountCryptoPrecision: string
@@ -14,7 +14,7 @@ type GetBtcTxFeesInput = {
   sendMax: boolean
 }
 
-export const getBtcTxFees = async ({
+export const getUtxoTxFees = async ({
   opReturnData,
   vault,
   sellAmountCryptoPrecision,
@@ -22,7 +22,7 @@ export const getBtcTxFees = async ({
   pubkey,
   buyAssetTradeFeeUsd,
   sendMax,
-}: GetBtcTxFeesInput): Promise<QuoteFeeData<UtxoSupportedChainIds>> => {
+}: GetUtxoTxFeesInput): Promise<QuoteFeeData<UtxoSupportedChainIds>> => {
   try {
     const feeDataOptions = await sellAdapter.getFeeData({
       to: vault,
@@ -58,6 +58,6 @@ export const getBtcTxFees = async ({
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getBtcTxFeess]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
+    throw new SwapError('[getUtxoTxFees]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
   }
 }

@@ -38,7 +38,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { Fees } from './types'
+import { BuildCustomTxInput, Fees } from './types'
 import { getErc20Data } from './utils'
 
 export const evmChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet] as const
@@ -372,5 +372,48 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   closeTxs(): void {
     this.providers.ws.close('txs')
+  }
+
+  async buildCustomTx({
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    gasPrice,
+    value,
+    data,
+    gasLimit,
+    to,
+    wallet,
+    bip44Params = this.defaultBIP44Params,
+  }: BuildCustomTxInput): Promise<{
+    txToSign: ETHSignTx
+  }> {
+    try {
+      const chainReference = fromChainId(this.chainId).chainReference
+      const from = await this.getAddress({ bip44Params, wallet })
+      const account = await this.getAccount(from)
+
+      const fees: Fees =
+        maxFeePerGas && maxPriorityFeePerGas
+          ? {
+              maxFeePerGas: numberToHex(maxFeePerGas),
+              maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
+            }
+          : { gasPrice: numberToHex(gasPrice ?? '0') }
+
+      const txToSign: ETHSignTx = {
+        addressNList: toAddressNList(bip44Params),
+        value,
+        to,
+        chainId: Number(chainReference),
+        data,
+        nonce: numberToHex(account.chainSpecific.nonce),
+        gasLimit: numberToHex(gasLimit),
+        ...fees,
+      }
+
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
   }
 }

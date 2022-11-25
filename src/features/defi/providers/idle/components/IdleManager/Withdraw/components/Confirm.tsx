@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -11,7 +12,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -21,8 +22,9 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -45,6 +47,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
+  const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -84,6 +87,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunity(state, opportunityDataFilter),
   )
+
+  useEffect(() => {
+    if (!opportunityData?.assetId) return
+    ;(async () => {
+      setIdleOpportunity(await idleInvestor.findByOpportunityId(opportunityData.assetId))
+    })()
+  }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
+
   const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds[0] ?? '',
     [opportunityData?.underlyingAssetIds],
@@ -132,11 +143,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData?.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
+
+      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount).div(
+        idleOpportunity.positionAsset.underlyingPerPosition,
+      )
+      // TODO: This is fine for now, but going forward we will need to:
+      // 1. Use base unit amounts everywhere, we shouldn't need to `.times(asset.precision)
+      // 2. Have a notion of a "display amount" and "underlying amount"
+      // These two notions should be decoupled and we should *not* have to calc back and forth from the wrapping and underlying assets
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        amount: bn(toBaseUnit(idleAssetWithdrawAmountCryptoHuman, asset.precision)),
       })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
@@ -163,7 +181,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.assetId,
     asset,
     underlyingAsset,
-    idleInvestor,
+    idleOpportunity,
     state?.withdraw.cryptoAmount,
     onNext,
   ])

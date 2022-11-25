@@ -146,6 +146,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
+    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
+    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
+    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
     if (bnOrZero(balance).eq(0)) {
       // Zero out this user staking opportunity including rewards - all rewards are automatically claimed when withdrawing, see
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1

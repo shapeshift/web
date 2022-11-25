@@ -216,7 +216,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: underlyingAsset.isTrustedDescription,
       }}
-      tvl={bnOrZero(opportunityData.tvl).div(bn(10).pow(vaultAsset?.precision)).toFixed(2)}
+      tvl={bnOrZero(opportunityData.tvl).toFixed(2)}
       apy={opportunityData.apy}
       menu={menu}
       rewardAssets={rewardAssets}

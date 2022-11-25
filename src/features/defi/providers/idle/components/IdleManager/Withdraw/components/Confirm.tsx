@@ -95,14 +95,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
 
-  const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
-  )
-  const underlyingAsset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, underlyingAssetId),
-  )
-
   const asset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, opportunityData?.assetId ?? ''),
   )
@@ -137,21 +129,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           opportunity &&
           chainAdapter &&
           opportunityData?.assetId &&
-          asset &&
-          underlyingAsset
+          asset
         )
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
       if (!idleOpportunity) throw new Error('No opportunity')
 
-      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount).div(
-        idleOpportunity.positionAsset.underlyingPerPosition,
-      )
-      // TODO: This is fine for now, but going forward we will need to:
-      // 1. Use base unit amounts everywhere, we shouldn't need to `.times(asset.precision)
-      // 2. Have a notion of a "display amount" and "underlying amount"
-      // These two notions should be decoupled and we should *not* have to calc back and forth from the wrapping and underlying assets
+      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
         amount: bn(toBaseUnit(idleAssetWithdrawAmountCryptoHuman, asset.precision)),
@@ -180,7 +165,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainAdapter,
     opportunityData?.assetId,
     asset,
-    underlyingAsset,
     idleOpportunity,
     state?.withdraw.cryptoAmount,
     onNext,
@@ -216,11 +200,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

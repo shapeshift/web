@@ -3,7 +3,6 @@ import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -12,7 +11,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -57,7 +56,6 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
-  const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
@@ -125,13 +123,6 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectEarnUserStakingOpportunity(state, opportunityDataFilter),
   )
 
-  useEffect(() => {
-    if (!opportunityData?.assetId) return
-    ;(async () => {
-      setIdleOpportunity(await idleInvestor.findByOpportunityId(opportunityData?.assetId))
-    })()
-  }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
-
   const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds?.[0],
     [opportunityData?.underlyingAssetIds],
@@ -140,18 +131,16 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-  const underlyingAssets = useMemo(() => {
-    if (!idleOpportunity) return []
-
-    const pricePerShare = idleOpportunity.positionAsset.underlyingPerPosition
-    return [
+  const underlyingAssets = useMemo(
+    () => [
       {
         ...underlyingAsset,
-        cryptoBalance: cryptoAmountAvailable.times(pricePerShare).toPrecision(),
+        cryptoBalance: cryptoAmountAvailable.toPrecision(),
         allocationPercentage: '1',
       },
-    ]
-  }, [cryptoAmountAvailable, idleOpportunity, underlyingAsset])
+    ],
+    [cryptoAmountAvailable, underlyingAsset],
+  )
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({

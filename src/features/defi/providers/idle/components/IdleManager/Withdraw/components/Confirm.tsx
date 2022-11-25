@@ -144,7 +144,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
       if (!idleOpportunity) throw new Error('No opportunity')
 
-      const idleAssetWithdrawAmount = bnOrZero(state.withdraw.cryptoAmount).div(
+      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount).div(
         idleOpportunity.positionAsset.underlyingPerPosition,
       )
       // TODO: This is fine for now, but going forward we will need to:
@@ -153,7 +153,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       // These two notions should be decoupled and we should *not* have to calc back and forth from the wrapping and underlying assets
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
-        amount: idleAssetWithdrawAmount.times(`1e+${asset.precision}`).integerValue(),
+        amount: idleAssetWithdrawAmountCryptoHuman.times(`1e+${asset.precision}`).integerValue(),
       })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,

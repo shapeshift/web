@@ -1,19 +1,30 @@
-import { Box, useColorMode } from '@chakra-ui/react'
-import { IconButton } from '@chakra-ui/react'
+import { Box, IconButton, useColorMode } from '@chakra-ui/react'
 import type { CustomTheme } from '@wherever/react-notification-feed'
-import { NotificationBell, NotificationFeed } from '@wherever/react-notification-feed'
-import { NotificationFeedProvider } from '@wherever/react-notification-feed'
+import {
+  NotificationBell,
+  NotificationFeed,
+  NotificationFeedProvider,
+} from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { breakpoints } from 'theme/theme'
-import { theme } from 'theme/theme'
+import { breakpoints, theme } from 'theme/theme'
+
+const WHEREVER_ENABLED_WALLETS: KeyManager[] = [
+  KeyManager.TallyHo,
+  KeyManager.MetaMask,
+  KeyManager.WalletConnect,
+]
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
 
+  const currentWallet = getLocalWalletType()
   const mobileBreakpoint = Number(breakpoints.md.replace('px', ''))
+
   const themeObj: CustomTheme = useMemo(() => {
     const baseTheme =
       colorMode === 'light'
@@ -33,7 +44,8 @@ export const Notifications = () => {
     }
   }, [colorMode, mobileBreakpoint])
 
-  if (!isWhereverEnabled) return null
+  if (!isWhereverEnabled || !currentWallet || !WHEREVER_ENABLED_WALLETS.includes(currentWallet))
+    return null
 
   const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY

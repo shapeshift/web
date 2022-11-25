@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.5...@shapeshiftoss/caip-v8.5.0) (2022-11-25)
+
+
+### Features
+
+* **swapper:** add AVAX pools to Thorchain swapper ([#1091](https://github.com/shapeshift/lib/issues/1091)) ([4acbeac](https://github.com/shapeshift/lib/commit/4acbeac8f921f0544154bbe92652a0ba5d2c339b))
+
 # [@shapeshiftoss/caip-v8.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.4...@shapeshiftoss/caip-v8.4.5) (2022-11-11)
 
 

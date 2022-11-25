@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.2.1...@shapeshiftoss/chain-adapters-v10.3.0) (2022-11-25)
+
+
+### Features
+
+* **swapper:** add AVAX pools to Thorchain swapper ([#1091](https://github.com/shapeshift/lib/issues/1091)) ([4acbeac](https://github.com/shapeshift/lib/commit/4acbeac8f921f0544154bbe92652a0ba5d2c339b))
+
 # [@shapeshiftoss/chain-adapters-v10.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.2.0...@shapeshiftoss/chain-adapters-v10.2.1) (2022-11-04)
 
 

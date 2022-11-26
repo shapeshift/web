@@ -1,5 +1,6 @@
 import { Box, Button, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { convertHexToNumber } from '@walletconnect/utils'
 import type { WalletConnectEthSignTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -47,8 +48,8 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
 
   const form = useForm<ConfirmData>({
     defaultValues: {
-      nonce: request.nonce,
-      gasLimit: request.gas,
+      nonce: convertHexToNumber(request.nonce).toString(),
+      gasLimit: convertHexToNumber(request.gas).toString(),
       speed: FeeDataKey.Average,
     },
   })
@@ -125,7 +126,8 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             width='full'
             colorScheme='blue'
             type='submit'
-            onClick={form.handleSubmit(() => onConfirm(form.getValues()))}
+            onClick={form.handleSubmit(onConfirm)}
+            isLoading={form.formState.isSubmitting}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

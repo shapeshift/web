@@ -3,11 +3,12 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
-import { convertHexToUtf8 } from '@walletconnect/utils'
+import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -118,8 +119,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (!wcAccountId) return
       if (!connector) return
 
-      // console.info(request, approveData);
-
       const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
       if (!maybeChainAdapter) return
       const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
@@ -164,27 +163,32 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           break
         }
         case 'eth_sendTransaction': {
+          const advancedParams = approveData as ETHSignTx
           const tx = request.params[0]
+          const advancedParamsNonce = convertNumberToHex(advancedParams.nonce)
+          const didUserChangeNonce = advancedParamsNonce !== tx.nonce
           const { bip44Params } = accountMetadataById[wcAccountId]
-          const { txToSign } = await chainAdapter.buildSendTransaction({
-            ...tx,
-            wallet,
-            bip44Params,
-            chainSpecific: {
-              gasLimit: tx.gas,
-              gasPrice: tx.gasPrice,
-            },
-          })
-          // console.info(request, txToSign, approveData)
+          const { txToSign: txToSignWithPossibleWrongNonce } =
+            await chainAdapter.buildSendTransaction({
+              ...tx,
+              wallet,
+              bip44Params,
+              chainSpecific: {
+                gasLimit: advancedParams.gasLimit ?? tx.gas,
+                gasPrice: tx.gasPrice,
+              },
+            })
+          const txToSign = {
+            ...txToSignWithPossibleWrongNonce,
+            nonce: didUserChangeNonce ? advancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
+          }
           try {
             result = await (async () => {
               if (wallet.supportsOfflineSigning()) {
-                // console.info('here')
                 const signedTx = await chainAdapter.signTransaction({
                   txToSign,
                   wallet,
                 })
-                // console.info(signedTx)
                 return chainAdapter.broadcastTransaction(signedTx)
               } else if (wallet.supportsBroadcast()) {
                 return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
@@ -193,24 +197,31 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
               }
             })()
           } catch (error) {
-            // console.error(error)
-            moduleLogger.error(error, { fn: 'eth_sendTransaction' }, 'Error sending transaction')
+            moduleLogger.error(
+              error,
+              { fn: 'approveRequest:eth_sendTransaction' },
+              'Error sending transaction',
+            )
           }
           break
         }
         case 'eth_signTransaction': {
           const tx = request.params[0]
+          const advancedParams = approveData as ETHSignTx
           const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
+          const nonce = advancedParams.nonce ? convertNumberToHex(advancedParams.nonce) : tx.nonce
+          const gasLimit = advancedParams.gasLimit
+            ? convertNumberToHex(advancedParams.gasLimit)
+            : tx.gas
           result = await chainAdapter.signTransaction({
             txToSign: {
               addressNList,
               chainId: parseInt(fromAccountId(wcAccountId).chainReference),
               data: tx.data,
-              gasLimit: tx.gas,
-              nonce: tx.nonce,
+              gasLimit,
+              nonce,
               to: tx.to,
               value: tx.value,
-              ...approveData,
             },
             wallet,
           })

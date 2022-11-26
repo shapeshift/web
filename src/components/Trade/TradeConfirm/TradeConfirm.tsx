@@ -57,6 +57,7 @@ import { ReceiveSummary } from './ReceiveSummary'
 export const TradeConfirm = () => {
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
   const {
@@ -405,9 +406,9 @@ export const TradeConfirm = () => {
                 </Row>
                 {isFeeRatioOverThreshold && (
                   <Flex justifyContent='center' gap={4} alignItems='center'>
-                    <WarningTwoIcon w={5} h={5} color='red.400' />
+                    <WarningTwoIcon w={5} h={5} color={warningColor} />
                     <Text
-                      color='red.400'
+                      color={warningColor}
                       translation={[
                         'trade.gasFeeExceedsTradeAmountThreshold',
                         { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },

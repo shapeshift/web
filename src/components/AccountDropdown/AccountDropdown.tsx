@@ -85,6 +85,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const { chainId } = fromAssetId(assetId)
 
   const color = useColorModeValue('black', 'white')
+  const labelColor = useColorModeValue('gray.600', 'gray.500')
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector((s: ReduxState) =>
@@ -271,7 +272,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color='gray.500'>
+            <Text fontWeight='medium' color={labelColor}>
               {accountLabel}
             </Text>
           </Stack>

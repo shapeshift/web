@@ -107,6 +107,8 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
     [assets, selectedLocale, tooltipBg, tooltipBorder, tooltipColor],
   )
 
+  const areaFillOpacity = useColorModeValue(0.15, 0.1)
+
   const areaLines = useMemo(
     () =>
       assetIds.map(assetId => (
@@ -115,12 +117,12 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
           data={data}
           dataKey={assetId}
           fill={assets[assetId].color}
-          fillOpacity={0.1}
+          fillOpacity={areaFillOpacity}
           xAccessor={accessors.x[assetId]}
           yAccessor={accessors.y[assetId]}
         />
       )),
-    [assets, accessors, assetIds, data],
+    [assetIds, data, assets, areaFillOpacity, accessors.x, accessors.y],
   )
 
   const verticalCrosshairStyle = useMemo(

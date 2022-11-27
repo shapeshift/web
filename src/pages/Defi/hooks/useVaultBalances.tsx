@@ -60,7 +60,9 @@ async function getYearnVaults(balances: AssetBalancesById, yearn: YearnInvestor 
 export type EarnVault = YearnEarnVault
 
 export type MergedEarnVault = EarnVault & {
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
   fiatAmount: string
   underlyingTokenBalanceUsdc?: string
 }
@@ -133,7 +135,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         const fiatAmount = makeVaultFiatAmount(vault)
         acc[vaultAddress] = {
           ...vault,
-          cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
+          cryptoAmountBaseUnit: vault.balance ?? '0',
+          cryptoAmountPrecision: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
           apy: vault.apy,
           underlyingTokenBalanceUsdc: bnOrZero(vault.tvl.balanceUsdc)

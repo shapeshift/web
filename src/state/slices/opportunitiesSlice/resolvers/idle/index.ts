@@ -154,7 +154,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        stakedAmountCryptoPrecision: '0',
+        stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoPrecision: [],
       }
       continue
@@ -184,7 +184,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     }
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
+      stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoPrecision,
     }
   }

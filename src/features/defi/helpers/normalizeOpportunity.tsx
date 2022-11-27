@@ -24,7 +24,9 @@ export type EarnOpportunityType = {
   underlyingAssetId?: AssetId
   assetId: AssetId
   fiatAmount: string
-  cryptoAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
   expired?: boolean
   chainId: ChainId
   moniker?: string
@@ -43,10 +45,11 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     const chainId = fromAssetId(vault.feeAsset.assetId).chainId
     let fiatAmount = '0'
-    let cryptoAmount = '0'
+    let cryptoAmountBaseUnit = '0'
+    let cryptoAmountPrecision = '0'
     if (vaultsWithBalances[vault.id]) {
       const balances = vaultsWithBalances[vault.id]
-      cryptoAmount = balances.cryptoAmount
+      cryptoAmountBaseUnit = balances.cryptoAmountBaseUnit
       fiatAmount = balances.fiatAmount
     }
     const assetId = vault.underlyingAsset.assetId
@@ -62,7 +65,8 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
       chainId,
       assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountBaseUnit,
+      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -77,7 +81,7 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
         bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
         (bnOrZero(vault?.apy).gt(200) && (vault?.isNew || false))
       ) {
-        if (bnOrZero(cryptoAmount).gt(0)) {
+        if (bnOrZero(cryptoAmountBaseUnit).gt(0)) {
           acc.push(data)
         }
       } else {
@@ -115,7 +119,8 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountBaseUnit: cryptoAmount,
+      cryptoAmountPrecision: cryptoAmount,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -137,7 +142,8 @@ const useTransformCosmosStaking = (
         chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
-        cryptoAmount: staking.cryptoAmount ?? '',
+        cryptoAmountBaseUnit: staking.cryptoAmount ?? '',
+        cryptoAmountPrecision: staking.cryptoAmount ?? '',
         moniker: staking.moniker,
         version:
           !bnOrZero(staking.cryptoAmount).isZero() &&
@@ -147,7 +153,11 @@ const useTransformCosmosStaking = (
       }
     })
     .sort((opportunityA, opportunityB) => {
-      return bnOrZero(opportunityA.cryptoAmount).gt(bnOrZero(opportunityB.cryptoAmount)) ? -1 : 1
+      return bnOrZero(opportunityA.cryptoAmountBaseUnit).gt(
+        bnOrZero(opportunityB.cryptoAmountBaseUnit),
+      )
+        ? -1
+        : 1
     })
 }
 

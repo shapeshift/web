@@ -45,7 +45,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   // user info
-  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmount)
+  const cryptoAmountAvailable = bnOrZero(opportunity?.cryptoAmountBaseUnit)
   const totalFiatBalance = opportunity?.fiatAmount
 
   if (!state || !dispatch || !opportunity || !totalFiatBalance) return null

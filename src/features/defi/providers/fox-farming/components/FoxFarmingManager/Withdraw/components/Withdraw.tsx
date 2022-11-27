@@ -122,36 +122,36 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(opportunity?.cryptoAmount).times(percent)
+      const cryptoAmount = bnOrZero(opportunity?.cryptoAmountBaseUnit).times(percent)
       const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
       // exit if max button was clicked
       setIsExiting(percent === 1)
     },
-    [opportunity?.cryptoAmount, opportunity?.fiatAmount, setValue],
+    [opportunity?.cryptoAmountBaseUnit, opportunity?.fiatAmount, setValue],
   )
 
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       const percentage = bnOrZero(value).div(
-        bnOrZero(isFiat ? opportunity?.fiatAmount : opportunity?.cryptoAmount),
+        bnOrZero(isFiat ? opportunity?.fiatAmount : opportunity?.cryptoAmountBaseUnit),
       )
       // exit if withdrawing total balance
       setIsExiting(percentage.eq(1))
     },
-    [opportunity?.cryptoAmount, opportunity?.fiatAmount],
+    [opportunity?.cryptoAmountBaseUnit, opportunity?.fiatAmount],
   )
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(opportunity?.cryptoAmount)
+      const crypto = bnOrZero(opportunity?.cryptoAmountBaseUnit)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [opportunity?.cryptoAmount],
+    [opportunity?.cryptoAmountBaseUnit],
   )
 
   const validateFiatAmount = useCallback(
@@ -173,7 +173,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={asset}
         icons={opportunity?.icons}
-        cryptoAmountAvailable={opportunity?.cryptoAmount}
+        cryptoAmountAvailable={opportunity?.cryptoAmountBaseUnit}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

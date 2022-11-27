@@ -41,7 +41,7 @@ export type OpportunityMetadata = {
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
-  stakedAmountCryptoPrecision: string
+  stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
   rewardsAmountsCryptoPrecision:
     | readonly [string, string, string]
@@ -123,7 +123,7 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
    * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
    */
   unclaimedRewards?: string
-  stakedAmountCryptoPrecision?: string
+  stakedAmountCryptoBaseUnit?: string
   rewardsAmountsCryptoPrecision?:
     | readonly [string, string, string]
     | readonly [string, string]

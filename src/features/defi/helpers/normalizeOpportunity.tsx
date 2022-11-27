@@ -50,6 +50,7 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
     if (vaultsWithBalances[vault.id]) {
       const balances = vaultsWithBalances[vault.id]
       cryptoAmountBaseUnit = balances.cryptoAmountBaseUnit
+      cryptoAmountPrecision = balances.cryptoAmountPrecision
       fiatAmount = balances.fiatAmount
     }
     const assetId = vault.underlyingAsset.assetId
@@ -142,19 +143,19 @@ const useTransformCosmosStaking = (
         chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
-        cryptoAmountBaseUnit: staking.cryptoAmount ?? '',
-        cryptoAmountPrecision: staking.cryptoAmount ?? '',
+        cryptoAmountBaseUnit: staking.cryptoAmountBaseUnit ?? '',
+        cryptoAmountPrecision: staking.cryptoAmountPrecision ?? '',
         moniker: staking.moniker,
         version:
-          !bnOrZero(staking.cryptoAmount).isZero() &&
+          !bnOrZero(staking.cryptoAmountBaseUnit).isZero() &&
           translate('defi.validatorMoniker', { moniker: staking.moniker }),
-        showAssetSymbol: bnOrZero(staking.cryptoAmount).isZero(),
+        showAssetSymbol: bnOrZero(staking.cryptoAmountBaseUnit).isZero(),
         isLoaded: Boolean(staking.isLoaded),
       }
     })
     .sort((opportunityA, opportunityB) => {
-      return bnOrZero(opportunityA.cryptoAmountBaseUnit).gt(
-        bnOrZero(opportunityB.cryptoAmountBaseUnit),
+      return bnOrZero(opportunityA.cryptoAmountPrecision).gt(
+        bnOrZero(opportunityB.cryptoAmountPrecision),
       )
         ? -1
         : 1

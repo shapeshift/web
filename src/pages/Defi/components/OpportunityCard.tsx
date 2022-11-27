@@ -52,7 +52,7 @@ export const OpportunityCard = ({
   chainId,
   isLoaded,
   apy,
-  cryptoAmountBaseUnit,
+  cryptoAmountPrecision,
   fiatAmount,
   expired,
   moniker,
@@ -157,7 +157,7 @@ export const OpportunityCard = ({
               </RawText>
               <Amount.Crypto
                 color='gray.500'
-                value={cryptoAmountBaseUnit}
+                value={cryptoAmountPrecision}
                 symbol={asset.symbol}
                 lineHeight={1}
               />

@@ -1006,7 +1006,9 @@ export type ActiveStakingOpportunity = {
   moniker: string
   apr: string
   tokens?: string
-  cryptoAmount?: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision?: string
+  cryptoAmountBaseUnit?: string
   rewards?: string
 }
 

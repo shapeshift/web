@@ -1,7 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import type LegacyWalletConnect from '@walletconnect/client'
-import type SignClient from "@walletconnect/sign-client"
-import { } from '@walletconnect/utils'
 import { ipcRenderer } from 'electron'
 import type { TxData } from 'plugins/walletConnectToDapps/components/modal/callRequest/SendTransactionConfirmation'
 import { web3ByChainId } from 'context/WalletProvider/web3byChainId'
@@ -12,12 +10,12 @@ type WCServiceOptions = {
   onCallRequest(request: any): void
 }
 
-export class WCService {
+export class LegacyWCService {
   constructor(
     private readonly wallet: core.ETHWallet,
-    public readonly connector: LegacyWalletConnect | SignClient,
+    public readonly connector: LegacyWalletConnect,
     private readonly options?: WCServiceOptions,
-  ) {}
+  ) { }
 
   async connect() {
     if (!this.connector.connected) {
@@ -132,7 +130,9 @@ export class WCService {
 
   private convertHexToUtf8IfPossible(hex: string) {
     try {
-      return convertHexToUtf8(hex)
+      const match = hex.match(/.{1,2}/g)
+      if (!match) return hex
+      return decodeURIComponent('%' + match.join('%'));
     } catch (e) {
       return hex
     }

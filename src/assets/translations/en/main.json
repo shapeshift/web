@@ -1528,6 +1528,13 @@
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
+        "sessionProposal": {
+          "title": "WalletConnect Session Proposal",
+          "approve": "Approve",
+          "reject": "Reject",
+          "methods": "Methods",
+          "events": "Events"
+        },
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",

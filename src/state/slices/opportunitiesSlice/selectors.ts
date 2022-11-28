@@ -6,7 +6,7 @@ import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -568,7 +568,9 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       chainId: fromAssetId(lpId as AssetId).chainId,
       underlyingToken1Amount,
       underlyingToken0Amount,
-      cryptoAmountBaseUnit: aggregatedLpAssetBalance,
+      cryptoAmountPrecision: aggregatedLpAssetBalance,
+      // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
+      cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, assets[lpId].precision),
       fiatAmount: bnOrZero(aggregatedLpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),

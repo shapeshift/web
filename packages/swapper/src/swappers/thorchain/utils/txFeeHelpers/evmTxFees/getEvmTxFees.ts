@@ -10,7 +10,7 @@ import {
 } from '../../../../../api'
 import { bn, bnOrZero } from '../../../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../../../utils/constants'
-import { THOR_ETH_GAS_LIMIT } from '../../constants'
+import { THOR_EVM_GAS_LIMIT } from '../../constants'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmSupportedChainAdapter
@@ -26,9 +26,10 @@ export const getEvmTxFees = async ({
   try {
     const gasFeeData = await adapter.getGasFeeData()
 
-    // this is a good value to cover all thortrades out of eth/erc20
+    // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way
-    const gasLimit = THOR_ETH_GAS_LIMIT
+    // TODO: calculate this dynamically
+    const gasLimit = THOR_EVM_GAS_LIMIT
 
     const feeDataOptions = {
       fast: {

@@ -122,11 +122,11 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       case CHAIN_NAMESPACE.Evm:
         return (async (): Promise<TradeQuote<EvmSupportedChainIds>> => {
           const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
-          const ethAddressData = await getInboundAddressDataForChain(
+          const evmAddressData = await getInboundAddressDataForChain(
             deps.daemonUrl,
             sellChainFeeAssetId,
           )
-          const router = ethAddressData?.router
+          const router = evmAddressData?.router
           if (!router)
             throw new SwapError(
               `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,

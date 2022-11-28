@@ -326,14 +326,18 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
         opportunity,
         {
           chainId: fromAssetId(opportunity.assetId).chainId,
-          cryptoAmountPrecision: bnOrZero(opportunity.stakedAmountCryptoBaseUnit).div(
-            bn(10).pow(assets[opportunity.assetId].precision),
-          ),
+          cryptoAmountPrecision: assets[opportunity.assetId]
+            ? bnOrZero(opportunity.stakedAmountCryptoBaseUnit).div(
+                bn(10).pow(assets[opportunity.assetId].precision),
+              )
+            : '0',
           cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit,
-          fiatAmount: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-            .div(bn(10).pow(assets[opportunity.assetId].precision))
-            .times(marketData[opportunity.assetId as AssetId]?.price ?? '0')
-            .toString(),
+          fiatAmount: assets[opportunity.assetId]
+            ? bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+                .div(bn(10).pow(assets[opportunity.assetId].precision))
+                .times(marketData[opportunity.assetId as AssetId]?.price ?? '0')
+                .toString()
+            : '0',
           isLoaded: true,
           icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
           opportunityName: opportunity.name,

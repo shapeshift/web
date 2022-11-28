@@ -17,11 +17,11 @@ import {
   foxEthLpAssetId,
   uniswapV2Router02AssetId,
 } from 'state/slices/opportunitiesSlice/constants'
+import farmingAbi from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contracts/farmingAbi.json'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import IUniswapV2Router02ABI from '../../fox-eth-lp/abis/IUniswapV2Router02.json'
-import farmAbi from '../abis/farmingAbi.json'
 const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
 // TODO: use wagmi provider
@@ -64,7 +64,7 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   )
 
   const foxFarmingContract = useMemo(
-    () => (skip ? null : new Contract(contractAddress, farmAbi, maybeEthersProvider(skip)!)),
+    () => (skip ? null : new Contract(contractAddress, farmingAbi, maybeEthersProvider(skip)!)),
     [contractAddress, skip],
   )
 

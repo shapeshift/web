@@ -2,10 +2,9 @@ import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshifto
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import IUniswapV2PairArtifacts from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import farmingAbi from 'features/defi/providers/fox-farming/abis/farmingAbi.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import {
   calculateAPRFromToken0,
@@ -39,6 +38,9 @@ import type {
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { fetchPairData, getOrCreateContract } from './contractManager'
+import type { FarmingAbi } from './contracts/FarmingAbi'
+import farmingAbi from './contracts/farmingAbi.json'
+import type { IUniswapV2Pair } from './contracts/IUniswapV2Pair'
 
 export const foxFarmingLpMetadataResolver = async ({
   opportunityId,
@@ -59,7 +61,7 @@ export const foxFarmingLpMetadataResolver = async ({
   const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
   const ethPrice = ethMarketData.price
   const ethersProvider = getEthersProvider()
-  const uniV2LPContract = getOrCreateContract(contractAddress, IUniswapV2Pair.abi)
+  const uniV2LPContract = getOrCreateContract(contractAddress, IUniswapV2PairArtifacts.abi)
   const pair = await fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, 18),
@@ -154,11 +156,11 @@ export const foxFarmingStakingMetadataResolver = async ({
   }
 
   const ethersProvider = getEthersProvider()
-  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
+  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi) as FarmingAbi
   const uniV2LPContract = getOrCreateContract(
     fromAssetId(foxEthLpAssetId).assetReference,
-    IUniswapV2Pair.abi,
-  )
+    IUniswapV2PairArtifacts.abi,
+  ) as IUniswapV2Pair
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -271,7 +273,7 @@ export const foxFarmingStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
+  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi) as FarmingAbi
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)

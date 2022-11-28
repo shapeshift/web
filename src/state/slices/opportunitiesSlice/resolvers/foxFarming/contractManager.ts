@@ -1,6 +1,7 @@
 import type { Fetcher, Token } from '@uniswap/sdk'
 import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 
 import {
@@ -10,8 +11,11 @@ import {
   foxEthStakingContractAddressV3,
   foxEthStakingContractAddressV4,
   foxEthStakingContractAddressV5,
+  uniswapV2Router02ContractAddress,
 } from '../../constants'
-import { FarmingAbi__factory } from './contracts'
+import { IUniswapV2Router02__factory } from './contracts'
+import { Erc20abi__factory } from './contracts/factories/Erc20abi__factory'
+import { FarmingAbi__factory } from './contracts/factories/FarmingAbi__factory'
 import { IUniswapV2Pair__factory } from './contracts/factories/IUniswapV2Pair__factory'
 
 type KnownContract<T extends KNOWN_CONTRACTS_ADDRESSES> = ReturnType<
@@ -25,6 +29,8 @@ type KNOWN_CONTRACTS_ADDRESSES =
   | typeof foxEthStakingContractAddressV3
   | typeof foxEthStakingContractAddressV4
   | typeof foxEthStakingContractAddressV5
+  | typeof FOX_TOKEN_CONTRACT_ADDRESS
+  | typeof uniswapV2Router02ContractAddress
 
 type DefinedContract = {
   contract: KnownContract<KNOWN_CONTRACTS_ADDRESSES>
@@ -40,6 +46,8 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [foxEthStakingContractAddressV3]: FarmingAbi__factory,
   [foxEthStakingContractAddressV4]: FarmingAbi__factory,
   [foxEthStakingContractAddressV5]: FarmingAbi__factory,
+  [FOX_TOKEN_CONTRACT_ADDRESS]: Erc20abi__factory,
+  [uniswapV2Router02ContractAddress]: IUniswapV2Router02__factory,
 } as const
 
 export const getOrCreateContract = <T extends KNOWN_CONTRACTS_ADDRESSES>(

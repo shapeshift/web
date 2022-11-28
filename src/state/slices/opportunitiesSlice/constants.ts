@@ -5,6 +5,9 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 
 import type { LpId, StakingId } from './types'
 
+// Exported as a string literal for contract address discrimination purposes
+export const uniswapV2Router02ContractAddress =
+  '0x7a250d5630b4cf539739df2c5dacb4c659f2488d' as const
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
 export const uniswapV2Router02AssetId: AssetId =
   'eip155:1/erc20:0x7a250d5630b4cf539739df2c5dacb4c659f2488d'

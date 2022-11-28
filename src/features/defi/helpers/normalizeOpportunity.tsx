@@ -106,7 +106,8 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       tokenAssetId: assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountPrecision,
+      cryptoAmountBaseUnit,
     } = foxy
     return {
       type: DefiType.TokenStaking,
@@ -120,8 +121,8 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       assetId,
       fiatAmount,
-      cryptoAmountBaseUnit: cryptoAmount,
-      cryptoAmountPrecision: cryptoAmount,
+      cryptoAmountBaseUnit,
+      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }

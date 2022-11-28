@@ -71,6 +71,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
   )
 
+  console.log({ foxyBalancesData })
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray: foxyBalancesData?.opportunities || [],

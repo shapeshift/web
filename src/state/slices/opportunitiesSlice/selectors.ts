@@ -145,6 +145,11 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
       // Overwritten by userOpportunity if it exists, else we keep defaulting to 0
       stakedAmountCryptoBaseUnit: '0',
       stakedAmountCryptoPrecision: '0',
+      rewardsAmountsCryptoBaseUnit: (opportunityMetadata.rewardAssetIds?.map(() => '0') ?? []) as
+        | []
+        | [string, string]
+        | [string],
+
       rewardsAmountsCryptoPrecision: (opportunityMetadata.rewardAssetIds?.map(() => '0') ?? []) as
         | []
         | [string, string]

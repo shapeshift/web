@@ -198,6 +198,7 @@ describe('opportunitiesSlice', () => {
               stakedAmountCryptoBaseUnit: '42000',
               stakedAmountCryptoPrecision: '0.000000000000042',
               rewardsAmountsCryptoPrecision: ['42'] as [string],
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }
@@ -212,6 +213,7 @@ describe('opportunitiesSlice', () => {
               stakedAmountCryptoBaseUnit: '42000',
               stakedAmountCryptoPrecision: '0.000000000000042',
               rewardsAmountsCryptoPrecision: ['42'] as [string],
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }
@@ -227,6 +229,7 @@ describe('opportunitiesSlice', () => {
               stakedAmountCryptoBaseUnit: '42000',
               stakedAmountCryptoPrecision: '0.000000000000042',
               rewardsAmountsCryptoPrecision: ['42'] as [string],
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }

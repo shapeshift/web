@@ -291,6 +291,7 @@ export const foxFarmingStakingUserDataResolver = async ({
   const rewardsAmountsCryptoPrecision = [
     bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toFixed(),
   ] as [string]
+  const rewardsAmountsCryptoBaseUnit = [earned.toString()] as [string]
 
   const data = {
     byId: {
@@ -298,6 +299,7 @@ export const foxFarmingStakingUserDataResolver = async ({
         stakedAmountCryptoBaseUnit,
         stakedAmountCryptoPrecision,
         rewardsAmountsCryptoPrecision,
+        rewardsAmountsCryptoBaseUnit,
       },
     },
     type: opportunityType,

@@ -13,10 +13,12 @@ import {
   foxEthStakingContractAddressV5,
   uniswapV2Router02ContractAddress,
 } from '../../constants'
-import { IUniswapV2Router02__factory } from './contracts'
-import { Erc20abi__factory } from './contracts/factories/Erc20abi__factory'
-import { FarmingAbi__factory } from './contracts/factories/FarmingAbi__factory'
-import { IUniswapV2Pair__factory } from './contracts/factories/IUniswapV2Pair__factory'
+import {
+  ERC20ABI__factory,
+  FarmingAbi__factory,
+  IUniswapV2Pair__factory,
+  IUniswapV2Router02__factory,
+} from './contracts/factories'
 
 type KnownContract<T extends KNOWN_CONTRACTS_ADDRESSES> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
@@ -46,7 +48,7 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [foxEthStakingContractAddressV3]: FarmingAbi__factory,
   [foxEthStakingContractAddressV4]: FarmingAbi__factory,
   [foxEthStakingContractAddressV5]: FarmingAbi__factory,
-  [FOX_TOKEN_CONTRACT_ADDRESS]: Erc20abi__factory,
+  [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
   [uniswapV2Router02ContractAddress]: IUniswapV2Router02__factory,
 } as const
 

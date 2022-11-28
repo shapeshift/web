@@ -20,6 +20,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
+import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +40,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
   const opportunity = state?.opportunity
-  const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getUnstakeGasData } = useFoxFarming(
+    contractAddress as FoxEthStakingContractAddress,
+  )
   const toast = useToast()
 
   const assetNamespace = 'erc20'

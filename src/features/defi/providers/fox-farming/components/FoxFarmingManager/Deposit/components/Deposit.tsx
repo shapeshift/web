@@ -19,6 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -64,7 +65,7 @@ export const Deposit: React.FC<DepositProps> = ({
     allowance: foxFarmingAllowance,
     getStakeGasData,
     getApproveGasData,
-  } = useFoxFarming(contractAddress)
+  } = useFoxFarming(contractAddress as FoxEthStakingContractAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))

@@ -120,10 +120,6 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 export type StakingEarnOpportunityType = OpportunityMetadata & {
-  /**
-   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
-   */
-  unclaimedRewards?: string
   stakedAmountCryptoBaseUnit?: string
   rewardsAmountsCryptoPrecision?:
     | readonly [string, string, string]

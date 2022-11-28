@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "./common";
 
-export interface Erc20abiInterface extends utils.Interface {
+export interface ERC20ABIInterface extends utils.Interface {
   functions: {
     "name()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
@@ -134,12 +134,12 @@ export type TransferEvent = TypedEvent<
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
-export interface Erc20abi extends BaseContract {
+export interface ERC20ABI extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: Erc20abiInterface;
+  interface: ERC20ABIInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

@@ -68,6 +68,8 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     selectEarnUserStakingOpportunity(state, opportunityDataFilter),
   )
 
+  console.log({ foxFarmingOpportunity })
+
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {

@@ -138,7 +138,10 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
     | readonly [string, string]
     | readonly [string]
     | readonly []
-  underlyingToken0Amount?: string
-  underlyingToken1Amount?: string
+  /** @deprecated use base unit underlying amounts instead and derive precision amount from it*/
+  underlyingToken0AmountCryptoPrecision?: string
+  underlyingToken1AmountCryptoPrecision?: string
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property

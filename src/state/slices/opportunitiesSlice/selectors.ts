@@ -513,7 +513,10 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
   (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
 
-    const marketDataPrice = marketData[userStakingOpportunity.underlyingAssetId]?.price
+    const asset = assets[userStakingOpportunity.assetId]
+    const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
+
+    const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset.assetId]?.price
 
     return {
       ...LP_EARN_OPPORTUNITIES[userStakingOpportunity.assetId ?? ''],
@@ -521,6 +524,7 @@ export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
       chainId: fromAssetId(userStakingOpportunity.assetId).chainId,
       cryptoAmountBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       fiatAmount: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+        .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
         .times(marketDataPrice ?? '0')
         .toString(),
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',

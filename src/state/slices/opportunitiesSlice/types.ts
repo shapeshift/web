@@ -42,6 +42,7 @@ export type OpportunityMetadata = {
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
+  stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
   rewardsAmountsCryptoPrecision:
     | readonly [string, string, string]

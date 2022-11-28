@@ -144,6 +144,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     return {
       // Overwritten by userOpportunity if it exists, else we keep defaulting to 0
       stakedAmountCryptoBaseUnit: '0',
+      stakedAmountCryptoPrecision: '0',
       rewardsAmountsCryptoPrecision: (opportunityMetadata.rewardAssetIds?.map(() => '0') ?? []) as
         | []
         | [string, string]
@@ -246,6 +247,9 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       stakedAmountCryptoBaseUnit: bnOrZero(acc?.stakedAmountCryptoBaseUnit)
         .plus(userStakingOpportunity.stakedAmountCryptoBaseUnit)
         .toString(),
+      stakedAmountCryptoPrecision: bnOrZero(acc?.stakedAmountCryptoPrecision)
+        .plus(userStakingOpportunity.stakedAmountCryptoPrecision)
+        .toFixed(),
       rewardsAmountsCryptoPrecision: (
         userStakingOpportunity.rewardsAmountsCryptoPrecision ?? []
       ).map((amount, i) =>
@@ -280,6 +284,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
     Object.assign({}, STAKING_EARN_OPPORTUNITIES[opportunity.assetId], opportunity, {
       chainId: fromAssetId(opportunity.assetId).chainId,
       cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit,
+      cryptoAmountPrecision: opportunity.stakedAmountCryptoPrecision,
       fiatAmount: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
         .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
         .toString(),

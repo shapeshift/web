@@ -45,7 +45,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const hoverColor = useColorModeValue('black', 'white')
   const redColor = useColorModeValue('red.500', 'red.300')
-  const greenColor = useColorModeValue('green.500', 'green.200')
+  const greenColor = useColorModeValue('green.600', 'green.200')
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()

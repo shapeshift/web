@@ -66,7 +66,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
       <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
-      <Flex alignItems='center' mr='auto'>
+      <Flex alignItems='center' mr='auto' flex={1}>
         <AssetIcon assetId={asset.assetId} boxSize='40px' />
         <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
           <Heading fontSize='2xl' lineHeight='shorter'>

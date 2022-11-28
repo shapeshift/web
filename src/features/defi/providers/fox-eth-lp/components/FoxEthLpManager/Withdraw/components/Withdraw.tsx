@@ -146,11 +146,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toString()
     const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
-    console.log({
-      fiatAmountAvailable,
-      fiatAmount,
-      cryptoAmountAvailable,
-    })
+
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
     if (

@@ -4,6 +4,7 @@ import memoize from 'lodash/memoize'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { getEthersProvider } from 'plugins/foxPage/utils'
 
+import type { FoxEthStakingContractAddress } from '../../constants'
 import {
   foxEthLpContractAddress,
   foxEthStakingContractAddressV1,
@@ -26,11 +27,7 @@ type KnownContract<T extends KNOWN_CONTRACTS_ADDRESSES> = ReturnType<
 
 type KNOWN_CONTRACTS_ADDRESSES =
   | typeof foxEthLpContractAddress
-  | typeof foxEthStakingContractAddressV1
-  | typeof foxEthStakingContractAddressV2
-  | typeof foxEthStakingContractAddressV3
-  | typeof foxEthStakingContractAddressV4
-  | typeof foxEthStakingContractAddressV5
+  | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS
   | typeof uniswapV2Router02ContractAddress
 

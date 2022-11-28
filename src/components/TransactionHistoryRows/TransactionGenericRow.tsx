@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import React, { useMemo } from 'react'
@@ -52,11 +52,12 @@ const TransactionIcon = ({
   value: string | undefined
   compactMode: boolean
 }) => {
+  const green = useColorModeValue('green.700', 'green.500')
   switch (type) {
     case TransferType.Send:
       return <ArrowUpIcon />
     case TransferType.Receive:
-      return <ArrowDownIcon color='green.500' />
+      return <ArrowDownIcon color={green} />
     case TradeType.Trade:
       return <FaExchangeAlt />
     case Method.Approve: {
@@ -148,7 +149,11 @@ export const TransactionGenericRow = ({
       >
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
-            <IconCircle mr={2} boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}>
+            <IconCircle
+              mr={2}
+              boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+              bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.200')}
+            >
               <TransactionIcon
                 type={type}
                 assetId={txData?.assetId}

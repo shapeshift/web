@@ -2,14 +2,12 @@ import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunities,
-  selectAggregatedUserStakingOpportunity,
-  selectMarketDataById,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -41,7 +39,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     assetId: osmosisAssetId,
   })
 
-  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const foxEthLpOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserLpOpportunity(state, {
@@ -50,16 +48,17 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     }),
   )
 
-  const farmContractsAggregatedOpportunity = useAppSelector(selectAggregatedUserStakingOpportunity)
-
-  const lpAssetMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+  const stakingContractsAggregatedOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunities,
+  )
 
   const farmContractsFiatBalance = useMemo(
     () =>
-      bnOrZero(farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision)
-        .times(lpAssetMarketData.price)
-        .toString(),
-    [farmContractsAggregatedOpportunity?.stakedAmountCryptoPrecision, lpAssetMarketData.price],
+      stakingContractsAggregatedOpportunities.reduce(
+        (acc, opportunity) => acc.plus(opportunity.fiatAmount),
+        bn(0),
+      ),
+    [stakingContractsAggregatedOpportunities],
   )
 
   const lpAssetBalanceFilter = useMemo(
@@ -79,8 +78,9 @@ export function useEarnBalances(): UseEarnBalancesReturn {
       osmosisStakingOpportunities,
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities,
+    stakingOpportunities,
   })
+
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(vaultsTotalBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')

@@ -22,3 +22,7 @@ fi
 git config --local include.path '../.gitconfig'
 
 yarn patch-package
+yarn typechain src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts/farmingAbi.json --target=ethers-v5 --out-dir ./src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts
+yarn typechain src/features/defi/providers/fox-eth-lp/abis/IUniswapV2Router02.json --target=ethers-v5 --out-dir ./src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts
+yarn typechain src/features/defi/providers/fox-eth-lp/abis/erc20abi.json --target=ethers-v5 --out-dir ./src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts
+yarn typechain ./node_modules/@uniswap/v2-core/build/IUniswapV2Pair.json  --target=ethers-v5 --out-dir ./src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts

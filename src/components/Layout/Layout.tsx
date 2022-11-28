@@ -1,13 +1,5 @@
 import type { ContainerProps } from '@chakra-ui/react'
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Button,
-  Container,
-  Flex,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Container, Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { entries, isEmpty, uniq } from 'lodash'
 import React, { useCallback, useMemo } from 'react'

@@ -87,16 +87,19 @@ describe('opportunitiesSlice selectors', () => {
           stakedAmountCryptoBaseUnit: '1337',
           stakedAmountCryptoPrecision: '0.000000000000001337',
           rewardsAmountsCryptoPrecision: ['420'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoBaseUnit: '4',
           stakedAmountCryptoPrecision: '0.000000000000000004',
           rewardsAmountsCryptoPrecision: ['3'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoBaseUnit: '9000',
           stakedAmountCryptoPrecision: '0.000000000000009',
           rewardsAmountsCryptoPrecision: ['1'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
       },
     }
@@ -188,11 +191,13 @@ describe('opportunitiesSlice selectors', () => {
           stakedAmountCryptoBaseUnit: '1337',
           stakedAmountCryptoPrecision: '0.000000000000001337',
           rewardsAmountsCryptoPrecision: ['420'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoBaseUnit: '4',
           stakedAmountCryptoPrecision: '0.000000000000000004',
           rewardsAmountsCryptoPrecision: ['3'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
       },
     }
@@ -278,16 +283,19 @@ describe('opportunitiesSlice selectors', () => {
           stakedAmountCryptoBaseUnit: '1337',
           stakedAmountCryptoPrecision: '0.000000000000001337',
           rewardsAmountsCryptoPrecision: ['420'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
           stakedAmountCryptoBaseUnit: '100',
           stakedAmountCryptoPrecision: '0.0000000000000001',
           rewardsAmountsCryptoPrecision: ['10'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           stakedAmountCryptoBaseUnit: '4',
           stakedAmountCryptoPrecision: '0.000000000000000004',
           rewardsAmountsCryptoPrecision: ['3'] as [string],
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
       },
     }

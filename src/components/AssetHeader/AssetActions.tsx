@@ -34,7 +34,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const filter = useMemo(() => ({ assetId, fiatRampAction: FiatRampAction.Buy }), [assetId])
+  const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
   useEffect(() => {

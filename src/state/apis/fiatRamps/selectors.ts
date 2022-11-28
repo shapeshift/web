@@ -1,6 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import { uniq } from 'lodash'
 import { createSelector } from 'reselect'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectFiatRampActionFromFilter } from 'state/selectors'
@@ -35,7 +36,7 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
     }, [])
   },
 )
-export const selectSupportsFiatRampByAssetId = createSelector(
+export const selectSupportsFiatRampActionByAssetId = createSelector(
   selectFiatBuyAssetIds,
   selectFiatSellAssetIds,
   selectAssetIdParamFromFilter,
@@ -44,6 +45,16 @@ export const selectSupportsFiatRampByAssetId = createSelector(
     if (!assetId) return false
     if (!fiatRampAction) return false
     const targetArray = fiatRampAction === 'buy' ? buyAssetIds : sellAssetIds
+    return targetArray.includes(assetId)
+  },
+)
+export const selectSupportsFiatRampByAssetId = createSelector(
+  selectFiatBuyAssetIds,
+  selectFiatSellAssetIds,
+  selectAssetIdParamFromFilter,
+  (buyAssetIds, sellAssetIds, assetId): boolean => {
+    if (!assetId) return false
+    const targetArray = uniq([...buyAssetIds, ...sellAssetIds])
     return targetArray.includes(assetId)
   },
 )

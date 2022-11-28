@@ -8,7 +8,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -49,6 +49,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
+  )
+
+  const amountAvailableCryptoPrecision = useMemo(
+    () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset.precision)).toFixed(),
+    [asset.precision, opportunity?.cryptoAmountBaseUnit],
   )
 
   const getWithdrawGasEstimate = useCallback(
@@ -122,36 +127,36 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(opportunity?.cryptoAmountBaseUnit).times(percent)
+      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
       const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
       // exit if max button was clicked
       setIsExiting(percent === 1)
     },
-    [opportunity?.cryptoAmountBaseUnit, opportunity?.fiatAmount, setValue],
+    [amountAvailableCryptoPrecision, opportunity?.fiatAmount, setValue],
   )
 
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       const percentage = bnOrZero(value).div(
-        bnOrZero(isFiat ? opportunity?.fiatAmount : opportunity?.cryptoAmountBaseUnit),
+        bnOrZero(isFiat ? opportunity?.fiatAmount : amountAvailableCryptoPrecision),
       )
       // exit if withdrawing total balance
       setIsExiting(percentage.eq(1))
     },
-    [opportunity?.cryptoAmountBaseUnit, opportunity?.fiatAmount],
+    [amountAvailableCryptoPrecision, opportunity?.fiatAmount],
   )
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(opportunity?.cryptoAmountBaseUnit)
+      const crypto = bnOrZero(opportunity?.cryptoAmountPrecision)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [opportunity?.cryptoAmountBaseUnit],
+    [opportunity?.cryptoAmountPrecision],
   )
 
   const validateFiatAmount = useCallback(
@@ -173,7 +178,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={asset}
         icons={opportunity?.icons}
-        cryptoAmountAvailable={opportunity?.cryptoAmountBaseUnit}
+        cryptoAmountAvailable={amountAvailableCryptoPrecision}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

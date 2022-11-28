@@ -73,6 +73,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   const fiatAmountAvailable = bnOrZero(foxEthLpOpportunity?.cryptoAmountBaseUnit)
+    .div(bn(10).pow(asset.precision))
     .times(marketData?.[foxEthLpAssetId]?.price ?? '0')
     .toString()
 

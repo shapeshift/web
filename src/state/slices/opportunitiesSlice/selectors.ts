@@ -283,8 +283,6 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
     opportunity &&
     Object.assign({}, STAKING_EARN_OPPORTUNITIES[opportunity.assetId], opportunity, {
       chainId: fromAssetId(opportunity.assetId).chainId,
-      cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit,
-      cryptoAmountPrecision: opportunity.stakedAmountCryptoPrecision,
       fiatAmount: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
         .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
         .toString(),

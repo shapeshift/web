@@ -144,8 +144,8 @@ const useTransformCosmosStaking = (
         chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
-        cryptoAmountBaseUnit: staking.cryptoAmountBaseUnit ?? '',
-        cryptoAmountPrecision: staking.cryptoAmountPrecision ?? '',
+        cryptoAmountBaseUnit: staking.cryptoAmountBaseUnit ?? '0',
+        cryptoAmountPrecision: staking.cryptoAmountPrecision ?? '0',
         moniker: staking.moniker,
         version:
           !bnOrZero(staking.cryptoAmountBaseUnit).isZero() &&

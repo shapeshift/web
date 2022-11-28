@@ -199,7 +199,6 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.1",
     "@types/bignumber.js": "^5.0.0",
-    "@types/bn.js": "^5.1.1",
     "@types/circular-dependency-plugin": "^5.0.5",
     "@types/crypto-js": "^4.0.2",
     "@types/d3-array": "^3.0.1",

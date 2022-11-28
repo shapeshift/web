@@ -17,7 +17,7 @@ import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSli
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,7 +35,9 @@ export const AllEarnOpportunities = () => {
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
-  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -64,7 +66,7 @@ export const AllEarnOpportunities = () => {
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
     foxEthLpOpportunity,
-    foxFarmingOpportunities: foxFarmingOpportunities.filter(
+    stakingOpportunities: stakingOpportunities.filter(
       opportunity =>
         !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
     ),

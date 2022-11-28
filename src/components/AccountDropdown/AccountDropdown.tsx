@@ -17,11 +17,9 @@ import {
 import {
   type AccountId,
   type AssetId,
-  btcChainId,
   CHAIN_NAMESPACE,
   fromAssetId,
   fromChainId,
-  ltcChainId,
 } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
@@ -30,7 +28,6 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { type ReduxState } from 'state/reducer'
@@ -88,6 +85,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const { chainId } = fromAssetId(assetId)
 
   const color = useColorModeValue('black', 'white')
+  const labelColor = useColorModeValue('gray.600', 'gray.500')
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector((s: ReduxState) =>
@@ -255,17 +253,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     handleClick,
   ])
 
-  /**
-   * these chains already have multi account support via sending and receiving,
-   * and we need to use *and* render this new component while we retrofit the rest of the app
-   *
-   * the effectful logic above will still run for other chains, and return the first account
-   * via the onChange callback on mount, but nothing will be visually rendered
-   */
-  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-  if (!isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
-
   if (!accountIds.length) return null
 
   return (
@@ -285,7 +272,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color='gray.500'>
+            <Text fontWeight='medium' color={labelColor}>
               {accountLabel}
             </Text>
           </Stack>

@@ -110,10 +110,10 @@ export const Overview: React.FC<OverviewProps> = ({
     const isClosable = true
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(vanityAddress || address)
+      await navigator.clipboard.writeText(address)
       const title = translate('common.copied')
       const status = 'success'
-      const description = vanityAddress ?? address
+      const description = address
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('common.copyFailed')
@@ -121,7 +121,7 @@ export const Overview: React.FC<OverviewProps> = ({
       const description = translate('common.copyFailedDescription')
       toast({ description, title, status })
     }
-  }, [address, vanityAddress, toast, translate])
+  }, [address, toast, translate])
 
   const supportsAddressVerification = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
 

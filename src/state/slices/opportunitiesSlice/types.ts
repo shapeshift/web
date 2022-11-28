@@ -1,9 +1,16 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
+
+export type AssetIdsTuple =
+  | readonly [AssetId, AssetId, AssetId]
+  | readonly [AssetId, AssetId]
+  | readonly [AssetId]
+  | readonly []
 
 export type OpportunityMetadata = {
   apy: string
@@ -21,15 +28,12 @@ export type OpportunityMetadata = {
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
   // For opportunities a la Idle, that's the asset the opportunity wraps
-  underlyingAssetIds: readonly [AssetId, AssetId] | readonly [AssetId]
+  underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
   underlyingAssetRatios: readonly [string, string] | readonly [string]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // TODO: Optional for backwards compatibility, but it should always be present
-  rewardAssetIds?:
-    | readonly [AssetId, AssetId, AssetId]
-    | readonly [AssetId, AssetId]
-    | readonly [AssetId]
+  rewardAssetIds?: AssetIdsTuple
   expired?: boolean
   name?: string
 }
@@ -39,7 +43,11 @@ export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountsCryptoPrecision: readonly [string, string] | [string, string] | [string]
+  rewardsAmountsCryptoPrecision:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
@@ -109,3 +117,19 @@ export type GetOpportunityUserStakingDataOutput = {
 }
 
 export type GetOpportunityIdsOutput = OpportunityId[]
+
+export type StakingEarnOpportunityType = OpportunityMetadata & {
+  /**
+   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
+   */
+  unclaimedRewards?: string
+  stakedAmountCryptoPrecision?: string
+  rewardsAmountsCryptoPrecision?:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
+  underlyingToken0Amount?: string
+  underlyingToken1Amount?: string
+  isVisible?: boolean
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property

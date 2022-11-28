@@ -12,6 +12,9 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityId,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -26,8 +29,27 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  const idleInvestor = getIdleInvestor()
-  const opportunities = await idleInvestor.findAll()
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getIdleInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getIdleInvestor().initialize()
+    return await getIdleInvestor().findAll()
+  })()
+
+  if (!opportunities?.length) {
+    return {
+      data: {
+        byId: Object.fromEntries(
+          Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
+            opportunityId,
+            { ...opportunityMetadata, apy: '0', tvl: '0' },
+          ]),
+        ) as Partial<Record<StakingId, OpportunityMetadata>>,
+        type: opportunityType,
+      },
+    }
+  }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -44,6 +66,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
 
     const asset = selectAssetById(state, assetId)
+    const underlyingAsset = selectAssetById(state, opportunity.underlyingAsset.assetId)
 
     // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
     // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
@@ -63,7 +86,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       ? {
           ...baseOpportunity,
           apy: opportunity.apy.toFixed(),
-          tvl: opportunity.tvl.balance.toFixed(),
+          tvl: opportunity.tvl.balanceUsdc.toFixed(),
         }
       : {
           apy: opportunity.apy.toFixed(),
@@ -83,7 +106,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
           underlyingAssetRatios: ['1'],
-          name: asset.name,
+          name: `${underlyingAsset.symbol} Vault (${opportunity.version})`,
         }
   }
 
@@ -113,9 +136,39 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset || bnOrZero(balance).eq(0)) continue
+    if (!asset) continue
 
-    const opportunity = await idleInvestor.findByOpportunityId(stakingOpportunityId)
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
+    }
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
+    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
+    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
+    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
+    if (bnOrZero(balance).eq(0)) {
+      // Zero out this user staking opportunity including rewards - all rewards are automatically claimed when withdrawing, see
+      // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
+      // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        stakedAmountCryptoPrecision: '0',
+        rewardsAmountsCryptoPrecision: [],
+      }
+      continue
+    }
+
+    const opportunity = await (async () => {
+      const maybeOpportunities = await idleInvestor.findAll()
+      if (maybeOpportunities.length)
+        return await idleInvestor.findByOpportunityId(stakingOpportunityId)
+
+      await idleInvestor.findAll()
+      return await idleInvestor.findByOpportunityId(stakingOpportunityId)
+    })()
+
     if (!opportunity) continue
 
     let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
@@ -130,17 +183,8 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       }) as [string] | [string, string]
     }
 
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-      assetReference: fromAssetId(stakingOpportunityId).assetReference,
-      chainId: fromAssetId(stakingOpportunityId).chainId,
-    }
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance.toString())
-        .div(bn(10).pow(asset.precision))
-        .toString(),
+      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
       rewardsAmountsCryptoPrecision,
     }
   }
@@ -156,8 +200,19 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 export const idleStakingOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
-  const idleInvestor = getIdleInvestor()
-  const opportunities = await idleInvestor.findAll()
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getIdleInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getIdleInvestor().initialize()
+    return await getIdleInvestor().findAll()
+  })()
+
+  if (!opportunities?.length) {
+    return {
+      data: Object.keys(BASE_OPPORTUNITIES_BY_ID) as OpportunityId[],
+    }
+  }
 
   return {
     data: opportunities.map(opportunity => {

@@ -3,6 +3,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
 import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import type BNJS from 'bn.js'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import farmingAbi from 'features/defi/providers/fox-farming/abis/farmingAbi.json'
@@ -276,10 +277,17 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
 
-  const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
+  const stakedBalance: BNJS = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)
-  const stakedAmountCryptoBaseUnit = stakedBalance.toFixed()
-  const stakedAmountCryptoPrecision = stakedBalance.div(bn(10).pow(lpAssetPrecision))
+  // Do NOT use toFixed() here:
+  // - ethers balanceOf() returns base unit amounts, so precision is a non-issue
+  // - ethers uses BN.js BigNumber flavor as opposed to BigNumber.js, and toFixed() only exists in the latter
+  // BN.js only works with integers, so we need to parse back the stringified BN to get the precision amount from it
+  // https://docs.ethers.io/v5/api/utils/bignumber/
+  const stakedAmountCryptoBaseUnit = stakedBalance.toString()
+  const stakedAmountCryptoPrecision = bn(stakedAmountCryptoBaseUnit)
+    .div(bn(10).pow(lpAssetPrecision))
+    .toFixed()
   const rewardsAmountsCryptoPrecision = [
     bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toFixed(),
   ] as [string]

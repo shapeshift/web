@@ -20,9 +20,11 @@ import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/p
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
+import type { FoxEthStakingContractAddress } from '../../constants'
 import {
   foxEthLpAssetId,
   foxEthLpAssetIds,
+  foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
   LP_EARN_OPPORTUNITIES,
@@ -57,7 +59,7 @@ export const foxFarmingLpMetadataResolver = async ({
   const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
   const ethPrice = ethMarketData.price
   const ethersProvider = getEthersProvider()
-  const uniV2LPContract = getOrCreateContract(contractAddress)
+  const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
   const pair = await fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, 18),
@@ -152,8 +154,8 @@ export const foxFarmingStakingMetadataResolver = async ({
   }
 
   const ethersProvider = getEthersProvider()
-  const foxFarmingContract = getOrCreateContract(contractAddress)
-  const uniV2LPContract = getOrCreateContract(fromAssetId(foxEthLpAssetId).assetReference)
+  const foxFarmingContract = getOrCreateContract(contractAddress as FoxEthStakingContractAddress)
+  const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -266,7 +268,7 @@ export const foxFarmingStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  const foxFarmingContract = getOrCreateContract(contractAddress)
+  const foxFarmingContract = getOrCreateContract(contractAddress as FoxEthStakingContractAddress)
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)

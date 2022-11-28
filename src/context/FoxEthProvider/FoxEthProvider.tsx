@@ -9,16 +9,18 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
+  fetchAllLpOpportunitiesUserdata,
   fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectLpAccountIds,
+  selectMarketDataById,
   selectStakingAccountIds,
   selectTxById,
 } from 'state/slices/selectors'
@@ -65,16 +67,20 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
+  const foxEthLpMarketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
+
   const lpAccountIds = useAppSelector(selectLpAccountIds)
   const stakingAccountIds = useAppSelector(selectStakingAccountIds)
 
   const refetchFoxEthLpAccountData = useCallback(async () => {
     await Promise.all(
       lpAccountIds.map(
-        async accountId => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }),
+        async accountId => await fetchAllLpOpportunitiesUserdata(accountId, { forceRefetch: true }),
       ),
     )
-  }, [lpAccountIds])
+    // We explicitly want to refetch when LP market data is ready
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lpAccountIds, foxEthLpMarketData])
 
   useEffect(() => {
     fetchAllOpportunitiesMetadata()

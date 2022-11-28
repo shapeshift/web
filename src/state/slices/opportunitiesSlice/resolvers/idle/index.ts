@@ -155,6 +155,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         stakedAmountCryptoBaseUnit: '0',
+        stakedAmountCryptoPrecision: '0',
         rewardsAmountsCryptoPrecision: [],
       }
       continue
@@ -185,6 +186,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       stakedAmountCryptoBaseUnit: balance,
+      stakedAmountCryptoPrecision: bn(balance)
+        .div(bn(10).pow(selectAssetById(state, opportunity.positionAsset.assetId).precision))
+        .toFixed(),
       rewardsAmountsCryptoPrecision,
     }
   }

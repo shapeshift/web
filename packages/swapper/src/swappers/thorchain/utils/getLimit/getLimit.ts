@@ -4,6 +4,7 @@ import max from 'lodash/max'
 
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
+import { ALLOWABLE_MARKET_MOVEMENT } from '../../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../../constants'
 import { ThorchainSwapperDeps } from '../../types'
 import { THORCHAIN_FIXED_PRECISION } from '../constants'
@@ -100,6 +101,7 @@ export const getLimit = async ({
     expectedBuyAmountCryptoPrecision8,
   )
     .times(bn(1).minus(slippageTolerance))
+    .times(bn(1).minus(ALLOWABLE_MARKET_MOVEMENT))
     .minus(highestPossibleFeeCryptoPrecision8 ?? 0)
     .decimalPlaces(0)
 

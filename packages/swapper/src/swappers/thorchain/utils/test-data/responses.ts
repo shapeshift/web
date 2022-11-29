@@ -52,6 +52,13 @@ export const usdcThornodePool: ThornodePoolResponse = {
   synth_units: '1936419947970',
 }
 
+export const thornodePools: ThornodePoolResponse[] = [
+  btcThornodePool,
+  ethThornodePool,
+  foxThornodePool,
+  usdcThornodePool,
+]
+
 export const mockInboundAddresses: InboundAddressResponse[] = [
   {
     chain: 'BCH',

@@ -6,11 +6,7 @@ import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ThorchainSwapperDeps } from '../types'
 import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
-import {
-  ethThornodePool,
-  foxThornodePool,
-  mockInboundAddresses,
-} from '../utils/test-data/responses'
+import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
@@ -20,7 +16,7 @@ jest.mock('../utils/getUsdRate/getUsdRate')
 
 const mockedAxios = jest.mocked(thorService, true)
 
-const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '59.658672054814851787728',
   maximum: '100000000000000000000000000',
   sellAmountCryptoPrecision: '10000000000000000000', // 1000 FOX
@@ -37,6 +33,7 @@ const quoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAsset: ETH,
   sellAsset: FOX,
   bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  recommendedSlippage: '0.00000608624714961082',
 }
 
 describe('getTradeQuote', () => {
@@ -51,9 +48,14 @@ describe('getTradeQuote', () => {
 
   it('should get a thorchain quote for a thorchain trade', async () => {
     mockedAxios.get.mockImplementation((url) => {
-      return url.includes('lcd/thorchain/pools')
-        ? Promise.resolve({ data: [foxThornodePool, ethThornodePool] })
-        : Promise.resolve({ data: mockInboundAddresses })
+      switch (url) {
+        case '/lcd/thorchain/pools':
+          return Promise.resolve({ data: thornodePools })
+        case '/lcd/thorchain/inbound_addresses':
+          return Promise.resolve({ data: mockInboundAddresses })
+        default:
+          return Promise.resolve({ data: undefined })
+      }
     })
     ;(getUsdRate as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve('0.15399605260336216')) // sellAsset
@@ -61,12 +63,12 @@ describe('getTradeQuote', () => {
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,
-      sellAmountCryptoPrecision: '10000000000000000000', // 100 FOX
+      sellAmountCryptoPrecision: '10000000000000000000', // 10 FOX
       buyAsset: ETH,
       sellAsset: FOX,
     }
 
     const tradeQuote = await getThorTradeQuote({ deps, input })
-    expect(tradeQuote).toEqual(quoteResponse)
+    expect(tradeQuote).toEqual(expectedQuoteResponse)
   })
 })

@@ -130,8 +130,9 @@ export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
   allowanceContract: string
   minimumCryptoHuman: string
   maximum: string
+  recommendedSlippage?: string
 
-  /** @deprecated Use sellAmountCryptoHuman instead */
+  /** @deprecated Use minimumCryptoHuman instead */
   minimum?: string
 }
 
@@ -284,5 +285,8 @@ export interface Swapper<T extends ChainId> {
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[]
 
+  /**
+   * Get transactions related to a trade
+   */
   getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs>
 }

@@ -10,12 +10,11 @@ import { thorService } from '../thorService'
 
 const THOR_PRECISION = 8
 
-const getSwapOutput = (inputAmount: BN, pool: ThornodePoolResponse, toRune: boolean): BN => {
-  const x = inputAmount
-  const X = toRune ? pool.balance_asset : pool.balance_rune
-  const Y = toRune ? pool.balance_rune : pool.balance_asset
-  const numerator = bn(x).times(X).times(Y)
-  const denominator = bn(x).plus(X).pow(2)
+export const getSwapOutput = (inputAmount: BN, pool: ThornodePoolResponse, toRune: boolean): BN => {
+  const inputBalance = toRune ? pool.balance_asset : pool.balance_rune
+  const outputBalance = toRune ? pool.balance_rune : pool.balance_asset
+  const numerator = inputAmount.times(inputBalance).times(outputBalance)
+  const denominator = inputAmount.plus(inputBalance).pow(2)
   return numerator.div(denominator)
 }
 

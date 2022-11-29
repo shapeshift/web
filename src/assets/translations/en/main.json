@@ -41,7 +41,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
-    "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "accountError": "Temporarily unable to fetch data for the following chains: %{erroredAccountNames}.",
     "degradedState": "The App is in a degraded state",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",

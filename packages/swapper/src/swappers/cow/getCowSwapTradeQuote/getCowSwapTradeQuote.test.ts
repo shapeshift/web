@@ -3,7 +3,7 @@ import { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import { GetTradeQuoteInput, SwapperName, TradeQuote } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { DEFAULT_APP_DATA } from '../utils/constants'
@@ -131,7 +131,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   },
   sellAmountCryptoPrecision: '1000000000000000000',
   buyAmountCryptoPrecision: '14501811818247595090576', // 14501 FOX
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,
@@ -154,7 +154,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   },
   sellAmountCryptoPrecision: '1000000000000000000000',
   buyAmountCryptoPrecision: '46868859830863283',
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
   sellAsset: FOX,
@@ -177,7 +177,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   },
   sellAmountCryptoPrecision: '1000000000000',
   buyAmountCryptoPrecision: '145018118182475950905', // 14501 FOX
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,

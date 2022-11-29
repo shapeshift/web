@@ -195,7 +195,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       sellAmountCryptoPrecision: sellAmountCryptoBase, // TODO(gomes): wat?
       sellAsset,
       bip44Params,
-      sources: [{ name: 'Osmosis', proportion: '100' }],
+      sources: [{ name: SwapperName.Osmosis, proportion: '100' }],
     }
   }
 

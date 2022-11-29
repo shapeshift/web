@@ -166,7 +166,7 @@ export type ApprovalNeededInput<C extends ChainId> = {
 }
 
 export type SwapSource = {
-  name: string
+  name: SwapperName
   proportion: string
 }
 
@@ -231,7 +231,7 @@ export enum SwapErrorTypes {
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */
-  readonly name: string
+  readonly name: SwapperName
 
   /** perform any necessary async initialization */
   initialize?(): Promise<void>

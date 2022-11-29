@@ -9,6 +9,7 @@ import {
   GetUtxoTradeQuoteInput,
   SwapError,
   SwapErrorTypes,
+  SwapperName,
   TradeQuote,
   UtxoSupportedChainIds,
 } from '../../../api'
@@ -123,7 +124,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       maximum: MAX_THORCHAIN_TRADE,
       sellAmountCryptoPrecision,
       buyAmountCryptoPrecision,
-      sources: [{ name: 'thorchain', proportion: '1' }],
+      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
       buyAsset,
       sellAsset,
       bip44Params,

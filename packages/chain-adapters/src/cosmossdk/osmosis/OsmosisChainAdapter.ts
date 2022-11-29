@@ -21,7 +21,7 @@ import {
   ChainAdapterArgs,
   CosmosSdkBaseAdapter,
 } from '../CosmosSdkBaseAdapter'
-import { Message, ValidatorAction } from '../types'
+import { ChainAdapterName, Message, ValidatorAction } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.OsmosisMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.OsmosisMainnet
@@ -47,7 +47,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
   }
 
   getDisplayName() {
-    return 'Osmosis'
+    return ChainAdapterName.Osmosis
   }
 
   getType(): KnownChainIds.OsmosisMainnet {

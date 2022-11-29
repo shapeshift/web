@@ -4,7 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 import Web3 from 'web3'
 
-import { ExecuteTradeInput } from '../../../api'
+import { ExecuteTradeInput, SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
@@ -60,7 +60,7 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   },
   sellAmountCryptoPrecision: '1000000000000000000',
   buyAmountCryptoPrecision: '14501811818247595090576',
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: FOX,
   sellAsset: ETH,
   bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
@@ -82,7 +82,7 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   },
   sellAmountCryptoPrecision: '20200000000000000',
   buyAmountCryptoPrecision: '272522025311597443544',
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: FOX,
   sellAsset: WETH,
   bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
@@ -104,7 +104,7 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   },
   sellAmountCryptoPrecision: '1000000000000000000000',
   buyAmountCryptoPrecision: '46868859830863283',
-  sources: [{ name: 'CowSwap', proportion: '1' }],
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
   bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

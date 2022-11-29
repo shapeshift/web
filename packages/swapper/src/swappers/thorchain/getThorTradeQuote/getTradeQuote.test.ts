@@ -2,6 +2,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import { SwapperName } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ThorchainSwapperDeps } from '../types'
@@ -29,7 +30,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFee: '700000',
   },
   rate: '0.0000784',
-  sources: [{ name: 'thorchain', proportion: '1' }],
+  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
   bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

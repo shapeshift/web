@@ -2,6 +2,7 @@ import { ASSET_REFERENCE, AssetId, ltcAssetId } from '@shapeshiftoss/caip'
 import { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
+import { ChainAdapterName } from '../../cosmossdk/types'
 import { ChainAdapterArgs, UtxoBaseAdapter } from '../UtxoBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.LitecoinMainnet]
@@ -37,7 +38,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.LitecoinMainnet>
   }
 
   getDisplayName() {
-    return 'Litecoin'
+    return ChainAdapterName.Litecoin
   }
 
   getType(): KnownChainIds.LitecoinMainnet {

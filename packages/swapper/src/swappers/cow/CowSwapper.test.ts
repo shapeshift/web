@@ -3,7 +3,7 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { SwapperType, TradeResult } from '../../api'
+import { SwapperName, SwapperType, TradeResult } from '../../api'
 import { BTC, ETH, FOX, WBTC, WETH } from '../utils/test-data/assets'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
@@ -204,7 +204,7 @@ describe('CowSwapper', () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountCryptoPrecision: '1000000000000000000',
         buyAmountCryptoPrecision: '14501811818247595090576',
-        sources: [{ name: 'CowSwap', proportion: '1' }],
+        sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
         buyAsset: FOX,
         sellAsset: WETH,
         bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },

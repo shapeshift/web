@@ -15,10 +15,11 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunity,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
@@ -37,6 +38,8 @@ export const Status = () => {
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+
+  const assets = useAppSelector(selectAssets)
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -110,18 +113,20 @@ export const Status = () => {
   )
 
   const claimableAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoPrecision?.length) return null
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
 
-    return opportunityData?.rewardsAmountsCryptoPrecision.map((amount, i) => {
+    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
       if (!opportunityData?.rewardAssetIds?.[i]) return null
 
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount).toNumber(),
+        amount: bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision))
+          .toNumber(),
       }
       return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
     })
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoPrecision])
+  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')

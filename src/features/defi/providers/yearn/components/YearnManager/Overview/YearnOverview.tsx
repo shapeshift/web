@@ -3,7 +3,7 @@ import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
-import { USDC_PRECISION } from 'constants/UsdcPrecision'
+import { USDC_PRECISION } from 'constants/constants'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,

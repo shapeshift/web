@@ -59,8 +59,8 @@ export const YearnOverview: React.FC<{
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const amountAvailableCryptoPrecision = bnOrZero(balance).div(`1e${asset.precision}`)
+  const fiatAmountAvailable = bnOrZero(amountAvailableCryptoPrecision).times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
@@ -94,11 +94,11 @@ export const YearnOverview: React.FC<{
     () => [
       {
         ...underlyingToken,
-        cryptoBalance: cryptoAmountAvailable.toPrecision(),
+        cryptoBalancePrecision: amountAvailableCryptoPrecision.toPrecision(),
         allocationPercentage: '1',
       },
     ],
-    [cryptoAmountAvailable, underlyingToken],
+    [amountAvailableCryptoPrecision, underlyingToken],
   )
 
   const description = useMemo(
@@ -141,7 +141,7 @@ export const YearnOverview: React.FC<{
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={underlyingAssets}
+      underlyingAssetsCryptoPrecision={underlyingAssets}
       provider='Yearn Finance'
       description={description}
       tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toString()}

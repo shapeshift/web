@@ -20,6 +20,7 @@ import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketData,
   selectMarketDataById,
@@ -45,6 +46,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const marketData = useAppSelector(selectMarketData)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+
+  const assets = useAppSelector(selectAssets)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -150,17 +153,27 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
     if (
-      foxEthLpOpportunity?.underlyingToken1AmountCryptoPrecision &&
-      foxEthLpOpportunity?.underlyingToken0AmountCryptoPrecision
+      foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
+      foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit
     ) {
       setFoxAmount(
         bnOrZero(percent)
-          .times(foxEthLpOpportunity.underlyingToken1AmountCryptoPrecision)
+          .times(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit)
+          .div(
+            bn(10).pow(
+              assets[foxEthLpOpportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
+            ),
+          )
           .toFixed(8),
       )
       setEthAmount(
         bnOrZero(percent)
-          .times(foxEthLpOpportunity.underlyingToken0AmountCryptoPrecision)
+          .times(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit)
+          .div(
+            bn(10).pow(
+              assets[foxEthLpOpportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
+            ),
+          )
           .toFixed(8),
       )
     }
@@ -171,14 +184,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailable),
     )
     if (
-      foxEthLpOpportunity?.underlyingToken1AmountCryptoPrecision &&
-      foxEthLpOpportunity?.underlyingToken0AmountCryptoPrecision
+      foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
+      foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit
     ) {
       setFoxAmount(
-        percentage.times(foxEthLpOpportunity.underlyingToken1AmountCryptoPrecision).toFixed(8),
+        percentage.times(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(8),
       )
       setEthAmount(
-        percentage.times(foxEthLpOpportunity.underlyingToken0AmountCryptoPrecision).toFixed(8),
+        percentage.times(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(8),
       )
     }
   }
@@ -234,8 +247,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
-            balance={foxEthLpOpportunity?.underlyingToken1AmountCryptoPrecision ?? undefined}
-            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken1AmountCryptoPrecision)
+            balance={foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? undefined}
+            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit)
               .times(foxMarketData.price)
               .toFixed(2)}
             percentOptions={[]}
@@ -248,8 +261,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
-            balance={foxEthLpOpportunity?.underlyingToken0AmountCryptoPrecision ?? undefined}
-            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken0AmountCryptoPrecision)
+            balance={foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? undefined}
+            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit)
               .times(ethMarketData.price)
               .toFixed(2)}
             percentOptions={[]}

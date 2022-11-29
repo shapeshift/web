@@ -1,18 +1,14 @@
 import type { ContainerProps } from '@chakra-ui/react'
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Button,
-  Container,
-  Flex,
-} from '@chakra-ui/react'
-import React, { useCallback } from 'react'
+import { Alert, AlertDescription, AlertIcon, Button, Container, Flex } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { entries, isEmpty, uniq } from 'lodash'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAssets,
   selectPortfolioLoadingStatus,
   selectPortfolioLoadingStatusGranular,
 } from 'state/slices/selectors'
@@ -25,18 +21,39 @@ const DegradedStateBanner = () => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
+  const assets = useSelector(selectAssets)
+
+  const erroredAccountIds = useMemo(() => {
+    return entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
+      (acc, [accountId, accountState]) => {
+        accountState === 'error' && acc.push(accountId)
+        return acc
+      },
+      [],
+    )
+  }, [portfolioLoadingStatusGranular])
+
+  const erroredAccountNames = useMemo(() => {
+    if (isEmpty(assets)) return
+    if (!erroredAccountIds.length) return // yay
+    // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
+    return uniq(
+      erroredAccountIds.map(
+        (accountId: AccountId) => assets[accountIdToFeeAssetId(accountId)].name,
+      ),
+    ).join(', ')
+  }, [assets, erroredAccountIds])
+
   const handleRetry = useCallback(() => {
-    Object.entries(portfolioLoadingStatusGranular)
-      .filter(([, accountState]) => accountState === 'error', [])
-      .forEach(([accountId]) => {
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountId, upsertOnFetch: true },
-            { forceRefetch: true },
-          ),
-        )
-      })
-  }, [dispatch, portfolioLoadingStatusGranular])
+    erroredAccountIds.forEach(accountId =>
+      dispatch(
+        portfolioApi.endpoints.getAccount.initiate(
+          { accountId, upsertOnFetch: true },
+          { forceRefetch: true },
+        ),
+      ),
+    )
+  }, [dispatch, erroredAccountIds])
 
   return (
     <Alert
@@ -47,13 +64,19 @@ const DegradedStateBanner = () => {
       flexDirection={{ base: 'column', lg: 'row' }}
     >
       <AlertIcon />
-      <AlertTitle>{translate('common.degradedState')}</AlertTitle>
       <AlertDescription textAlign={{ base: 'center', lg: 'left' }}>
-        {translate('common.degradedInfo')}
-        <Button ml={1} variant='link' onClick={handleRetry}>
-          {translate('common.retryQuestion')}
-        </Button>
+        {translate('common.accountError', { erroredAccountNames })}
       </AlertDescription>
+      <Button
+        variant='ghost'
+        colorScheme='yellow'
+        onClick={handleRetry}
+        size='sm'
+        ml={{ base: 0, lg: 'auto' }}
+        mt={{ base: 4, lg: 0 }}
+      >
+        {translate('errorPage.cta')}
+      </Button>
     </Alert>
   )
 }

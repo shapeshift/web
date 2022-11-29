@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Skeleton, Text as CText } from '@chakra-ui/react'
+import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -31,7 +31,7 @@ export const MainOpportunity = ({
   const {
     state: { wallet, isDemoWallet },
   } = useWallet()
-
+  const greenColor = useColorModeValue('green.600', 'green.400')
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
@@ -81,7 +81,7 @@ export const MainOpportunity = ({
           >
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
-              <Box color='green.400' fontSize={'xl'}>
+              <Box color={greenColor} fontSize={'xl'}>
                 <Amount.Percent value={apy} />
               </Box>
             </Skeleton>

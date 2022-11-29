@@ -81,7 +81,7 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     selectPortfolioAccountsFiatBalancesIncludingStaking,
   )
   const assetIds = useMemo(
-    () => Object.keys(accountAssetBalancesSortedFiat[accountId]),
+    () => Object.keys(accountAssetBalancesSortedFiat[accountId] ?? {}),
     [accountAssetBalancesSortedFiat, accountId],
   )
   return useMemo(

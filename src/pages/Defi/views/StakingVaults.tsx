@@ -24,11 +24,14 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { FeaturedCard } from '../components/FeaturedCards/FeaturedCard'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -125,9 +128,31 @@ const FoxFarmCTA = () => {
 }
 
 export const StakingVaults = () => {
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
+  const renderEligibleCards = useMemo(() => {
+    return stakingOpportunities.map(opportunity => <FeaturedCard {...opportunity} />)
+  }, [stakingOpportunities])
   return (
     <Main titleComponent={<DefiHeader />}>
       <FoxFarmCTA />
+      <Box
+        _after={{
+          content: "''",
+          width: '20px',
+          height: '100%',
+          bg: 'linear-gradient(to right, rgba(24, 28, 30, 0) 0%,rgba(24, 28, 39, 1) 100%);',
+          position: 'absolute',
+          right: 0,
+          top: 0,
+        }}
+        position='relative'
+      >
+        <Flex gap={6} overflowY='auto' position='relative' py={4}>
+          {renderEligibleCards}
+        </Flex>
+      </Box>
       <AllEarnOpportunities />
     </Main>
   )

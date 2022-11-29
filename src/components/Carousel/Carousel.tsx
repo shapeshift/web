@@ -29,7 +29,7 @@ const transition: AnimationOptions<any> = {
   bounce: 0,
 }
 
-const Contaier = forwardRef<HTMLDivElement, { children: ReactNode }>((props, ref) => (
+const Container = forwardRef<HTMLDivElement, { children: ReactNode }>((props, ref) => (
   <div ref={ref} style={containerStyle}>
     {props.children}
   </div>
@@ -111,7 +111,7 @@ export const Carousel = ({
   }, [childrens, handleEndDrag, x])
 
   return (
-    <Contaier ref={containerRef}>
+    <Container ref={containerRef}>
       {renderSlides}
 
       {showArrows && (
@@ -141,6 +141,6 @@ export const Carousel = ({
         ) : (
           <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
         ))}
-    </Contaier>
+    </Container>
   )
 }

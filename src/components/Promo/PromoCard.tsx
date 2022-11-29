@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
@@ -29,7 +30,7 @@ const promoData = [
 export const PromoCard = () => {
   const {
     dispatch,
-    state: { isDemoWallet, isConnected },
+    state: { wallet, isDemoWallet },
   } = useWallet()
   const history = useHistory()
 
@@ -41,7 +42,7 @@ export const PromoCard = () => {
   const handleClick = useCallback(
     ({ href, walletRequired }: { href: string; walletRequired: boolean }) => {
       if (walletRequired) {
-        if (isConnected && !isDemoWallet) {
+        if (wallet && !isDemoWallet && supportsETH(wallet)) {
           history.push(href)
         } else {
           handleWalletModalOpen()
@@ -50,7 +51,7 @@ export const PromoCard = () => {
         history.push(href)
       }
     },
-    [handleWalletModalOpen, history, isConnected, isDemoWallet],
+    [handleWalletModalOpen, history, isDemoWallet, wallet],
   )
 
   const renderPromos = useMemo(() => {

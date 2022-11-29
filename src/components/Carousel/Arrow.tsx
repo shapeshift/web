@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import type { ArrowProps } from './types'
 
@@ -19,15 +19,17 @@ const baseArrowStyle: React.CSSProperties = {
   cursor: 'pointer',
 }
 
-export const Arrow = ({ left = false, children, onClick }: ArrowProps) => (
-  <Box
-    onClick={onClick}
-    style={{
+export const Arrow = ({ left = false, children, onClick }: ArrowProps) => {
+  const style = useMemo(() => {
+    return {
       ...baseArrowStyle,
       left: left ? '20px' : 'initial',
       right: !left ? '10px' : 'initial',
-    }}
-  >
-    {children}
-  </Box>
-)
+    }
+  }, [left])
+  return (
+    <Box onClick={onClick} style={style}>
+      {children}
+    </Box>
+  )
+}

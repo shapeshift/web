@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import FoxyPromo from 'assets/foxy-promo.jpg'
 import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
 import { RawText } from 'components/Text'
@@ -17,7 +16,7 @@ const promoData = [
     title: 'Earn 3.15% APY on FOX',
     body: 'Your FOX is put to work across different DeFi protocols to earn the best yield possible.',
     cta: 'Deposit FOX Now',
-    image: `url(${FoxyPromo})`,
+    image: `url(https://uploads-ssl.webflow.com/5cec55545d0f47cfe2a39a8e/637d3eab8977b9c820ecb3fc_foxy-promo-1.jpg)`,
     colorScheme: 'pink',
     startDate: '2022-11-28 8:00 AM',
     endDate: '2022-12-4 8:00 AM',

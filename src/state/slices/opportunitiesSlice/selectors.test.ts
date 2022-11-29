@@ -365,6 +365,7 @@ describe('opportunitiesSlice selectors', () => {
           underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
+          rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
           rewardsAmountsCryptoPrecision: ['430'] as [string],
           stakedAmountCryptoBaseUnit: '1437',
           stakedAmountCryptoPrecision: '0.000000000000001437',

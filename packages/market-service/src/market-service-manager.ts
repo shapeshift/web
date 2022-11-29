@@ -51,7 +51,7 @@ export class MarketServiceManager {
       new CoinCapMarketService(),
       new YearnVaultMarketCapService({ yearnSdk }),
       new YearnTokenMarketCapService({ yearnSdk }),
-      new IdleMarketService({ providerUrls }),
+      new IdleMarketService({ coinGeckoAPIKey, providerUrls }),
       new OsmosisMarketService(),
       new FoxyMarketService({ coinGeckoAPIKey, providerUrls }),
     ]

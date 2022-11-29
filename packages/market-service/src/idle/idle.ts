@@ -5,14 +5,24 @@ import { MarketCapResult, MarketData, MarketDataArgs } from '@shapeshiftoss/type
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { MarketService } from '../api'
+import { CoinGeckoMarketService } from '../coingecko/coingecko'
 import { ProviderUrls } from '../market-service-manager'
+import { bn } from '../utils/bignumber'
 
-export class IdleMarketService implements MarketService {
+export class IdleMarketService extends CoinGeckoMarketService implements MarketService {
   baseUrl = ''
   providerUrls: ProviderUrls
   idleInvestor: IdleInvestor
 
-  constructor({ providerUrls }: { providerUrls: ProviderUrls }) {
+  constructor({
+    providerUrls,
+    coinGeckoAPIKey,
+  }: {
+    providerUrls: ProviderUrls
+    coinGeckoAPIKey: string
+  }) {
+    super({ coinGeckoAPIKey })
+
     this.providerUrls = providerUrls
     this.idleInvestor = new IdleInvestor({
       chainAdapter: new ethereum.ChainAdapter({
@@ -41,22 +51,30 @@ export class IdleMarketService implements MarketService {
       return await this.idleInvestor.findAll()
     })()
 
-    const marketDataById = idleOpportunities.reduce((acc, opportunity) => {
+    const marketDataById: MarketCapResult = {}
+
+    for (const idleOpportunity of idleOpportunities) {
       const assetId = toAssetId({
         assetNamespace: 'erc20',
-        assetReference: opportunity.id,
-        chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
+        assetReference: idleOpportunity.id,
+        chainId: fromAssetId(idleOpportunity.feeAsset.assetId).chainId,
       })
 
-      acc[assetId] = {
-        price: opportunity.tvl.balanceUsdc.div(opportunity.tvl.balance).toFixed(),
-        marketCap: opportunity.tvl.balanceUsdc.toFixed(), // For Idle, TVL and marketCap are effectively the same
+      const coinGeckoData = await super.findByAssetId({
+        assetId: idleOpportunity.underlyingAsset.assetId,
+      })
+
+      if (!coinGeckoData) continue
+
+      marketDataById[assetId] = {
+        price: bn(coinGeckoData.price)
+          .times(idleOpportunity.positionAsset.underlyingPerPosition)
+          .toFixed(),
+        marketCap: idleOpportunity.tvl.balanceUsdc.toFixed(), // For Idle, TVL and marketCap are effectively the same
         volume: '0',
         changePercent24Hr: 0,
       }
-
-      return acc
-    }, {} as MarketCapResult)
+    }
 
     return marketDataById
   }
@@ -72,8 +90,16 @@ export class IdleMarketService implements MarketService {
 
     if (!opportunity) return null
 
+    const coinGeckoData = await super.findByAssetId({
+      assetId: opportunity.underlyingAsset.assetId,
+    })
+
+    if (!coinGeckoData) return null
+
     return {
-      price: opportunity.tvl.balanceUsdc.div(opportunity.tvl.balance).toFixed(),
+      price: bn(coinGeckoData.price)
+        .times(opportunity.positionAsset.underlyingPerPosition)
+        .toFixed(),
       marketCap: opportunity.tvl.balanceUsdc.toFixed(), // For Idle, TVL and marketCap are effectively the same
       volume: '0',
       changePercent24Hr: 0,

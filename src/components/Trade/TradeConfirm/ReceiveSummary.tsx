@@ -13,7 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -23,7 +23,7 @@ type ReceiveSummaryProps = {
   beforeFees?: string
   protocolFee?: string
   shapeShiftFee?: string
-  slippage: number
+  slippage: string
   swapperName: string
 } & RowProps
 
@@ -49,9 +49,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
-  const amountAfterSlippage = bnOrZero(amount)
-    .times(1 - slippage)
-    .toString()
+  const amountAfterSlippage = bnOrZero(amount).times(bn(1).minus(slippage)).toString()
   const isAmountPositive = bnOrZero(amountAfterSlippage).gt(0)
 
   return (

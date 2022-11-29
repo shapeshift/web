@@ -9,38 +9,59 @@ import { WalletConnectSignClient } from 'kkdesktop/walletconnect/utils'
 import { getSdkError } from '@walletconnect/utils'
 import { Card } from 'components/Card/Card'
 import { formatChainName } from 'plugins/walletConnectToDapps/utils/formatChainName'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 
 export const SessionProposalModal = () => {
-    const { proposals, removeProposal } = useWalletConnect()
+    const { proposals, removeProposal, setPairingMeta } = useWalletConnect()
 
     const currentProposal = proposals[0] as SignClientTypes.EventArguments['session_proposal']
 
     const { id, params } = currentProposal
     const { proposer, requiredNamespaces, relays } = params
 
+    const { state: { wallet } } = useWallet()
+
     console.log(currentProposal)
 
     const onApprove = async () => {
         if (currentProposal) {
             const namespaces: SessionTypes.Namespaces = {}
-            // Object.keys(requiredNamespaces).forEach(key => {
-            //     const accounts: string[] = []
-            //     requiredNamespaces[key].chains.map(chain => {
-            //         selectedAccounts[key].map(acc => accounts.push(`${chain}:${acc}`))
-            //     })
-            //     namespaces[key] = {
-            //         accounts,
-            //         methods: requiredNamespaces[key].methods,
-            //         events: requiredNamespaces[key].events
-            //     }
-            // })
+            let w = wallet as KeepKeyHDWallet
 
-            const { acknowledged } = await WalletConnectSignClient.approve({
+            await Promise.all(Object.keys(requiredNamespaces).map(async key => {
+                const accounts: string[] = (await Promise.all(requiredNamespaces[key].chains.map(async chain => {
+                    let address;
+
+                    if (key === "eip155") {
+                        const accountPath = w.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: 0 })
+                        address = await w.ethGetAddress({ addressNList: accountPath[0].addressNList, showDisplay: false })
+                    } else if (key === "cosmos") {
+                        const accountPath = w.cosmosGetAccountPaths({ accountIdx: 0 })
+                        address = await w.cosmosGetAddress({ addressNList: accountPath[0].addressNList, showDisplay: false })
+                    }
+
+                    if (!address) return ""
+
+                    return `${chain}:${address}`
+                }))).filter((s) => s !== "")
+                namespaces[key] = {
+                    accounts,
+                    methods: requiredNamespaces[key].methods,
+                    events: requiredNamespaces[key].events
+                }
+            }))
+
+            const approveData = {
                 id,
                 relayProtocol: relays[0].protocol,
                 namespaces
-            })
-            await acknowledged()
+            }
+
+            const { acknowledged } = await WalletConnectSignClient.approve(approveData)
+            const { peer: { metadata } } = await acknowledged()
+            setPairingMeta(metadata)
+
         }
         removeProposal(id)
     }
@@ -59,11 +80,13 @@ export const SessionProposalModal = () => {
     return (
         <Modal
             isOpen={!!currentProposal}
-            onClose={() =>
+            onClose={() => {
+                removeProposal(id)
                 WalletConnectSignClient.reject({
                     id,
                     reason: getSdkError('USER_REJECTED_METHODS')
                 })
+            }
             }
             variant='header-nav'
         >
@@ -121,7 +144,7 @@ export const SessionProposalModal = () => {
                                     const allMethods = [...requiredNamespaces[chain].methods, ...extensionMethods]
                                     const allEvents = [...requiredNamespaces[chain].events, ...extensionEvents]
                                     return (
-                                        <Card>
+                                        <Card rounded='lg'>
                                             <Card.Header>
                                                 <Card.Heading>{formatChainName(chainId)}</Card.Heading>
                                             </Card.Header>

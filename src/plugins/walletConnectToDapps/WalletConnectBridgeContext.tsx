@@ -1,4 +1,4 @@
-import { CoreTypes, SignClientTypes } from '@walletconnect/types'
+import { CoreTypes } from '@walletconnect/types'
 import type { LegacyWCService } from 'kkdesktop/walletconnect'
 import { createContext, useContext } from 'react'
 

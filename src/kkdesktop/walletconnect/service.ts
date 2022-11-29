@@ -18,7 +18,10 @@ export class LegacyWCService {
   ) { }
 
   async connect() {
+    console.log("connecting")
+    await this.connector.createSession()
     if (!this.connector.connected) {
+      console.log("Creating session")
       await this.connector.createSession()
     }
     this.subscribeToEvents()

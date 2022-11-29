@@ -28,7 +28,7 @@ export const SignMessageConfirmation = () => {
 
   const [loading, setLoading] = useState(false)
 
-  const { bridge, requests, removeRequest } = useWalletConnect()
+  const { legacyBridge, requests, removeRequest } = useWalletConnect()
   const toast = useToast()
 
   const currentRequest = requests[0]
@@ -38,7 +38,7 @@ export const SignMessageConfirmation = () => {
     async (txData: any) => {
       try {
         setLoading(true)
-        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
+        await legacyBridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
         removeRequest(currentRequest.id)
       } catch (e) {
         toast({
@@ -50,19 +50,19 @@ export const SignMessageConfirmation = () => {
         setLoading(false)
       }
     },
-    [bridge, currentRequest.id, removeRequest, requests, toast],
+    [legacyBridge, currentRequest.id, removeRequest, requests, toast],
   )
 
   const onReject = useCallback(async () => {
-    await bridge?.connector.rejectRequest({
+    await legacyBridge?.connector.rejectRequest({
       id: currentRequest.id,
       error: { message: 'Rejected by user' },
     })
     removeRequest(currentRequest.id)
     setLoading(false)
-  }, [bridge, currentRequest, removeRequest])
+  }, [legacyBridge, currentRequest, removeRequest])
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  if (!walletConnect.legacyBridge || !walletConnect.dapp) return null
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>
@@ -73,7 +73,7 @@ export const SignMessageConfirmation = () => {
           mb={4}
         />
         <AddressSummaryCard
-          address={walletConnect.bridge?.connector.accounts[0]}
+          address={walletConnect.legacyBridge?.connector.accounts[0]}
           name='My Wallet' // TODO: what string do we put here?
           icon={<KeepKeyIcon color='gray.500' w='full' h='full' />}
         />

@@ -16,7 +16,7 @@ export const WalletConnectToDappsHeaderButton = () => {
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
 
-  if (!walletConnect?.bridge?.connector.connected || !walletConnect || !walletConnect.dapp) {
+  if (!walletConnect?.legacyBridge?.connector.connected || !walletConnect || !walletConnect.dapp) {
     return (
       <>
         <Button
@@ -39,7 +39,7 @@ export const WalletConnectToDappsHeaderButton = () => {
           <DappAvatar
             name={walletConnect.dapp.name}
             image={walletConnect.dapp.icons[0]}
-            connected={walletConnect.bridge.connector.connected}
+            connected={walletConnect.legacyBridge?.connector.connected}
             size={6}
             connectedDotSize={2}
             borderWidth={1}

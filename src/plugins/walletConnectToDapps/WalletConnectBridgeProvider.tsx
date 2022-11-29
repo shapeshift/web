@@ -36,6 +36,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const removeProposal = useCallback(
     (id: number) => {
       const newProposals = proposals.filter(proposal => proposal.id !== id)
+      delete newProposals[id]
       setProposals(newProposals)
     },
     [proposals],
@@ -52,6 +53,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (uri) {
         const wc = await getWalletConnect(wallet as ETHWallet, uri)
         if (wc instanceof LegacyWCService) {
+          console.log("Legacy wallet connect")
           setIsLegacy(true)
           wc.connector.on('call_request', (_e, payload) => {
             addRequest(payload)
@@ -61,7 +63,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           wc.connector.off('disconnect')
           wc.connector.off('wallet_switchEthereumChain')
           wc.connector.on('connect', rerender)
-          wc.connector.on('disconnect', rerender)
+          wc.connector.on('disconnect', () => {
+            setIsLegacy(false)
+            setLegacyBridge(undefined)
+            rerender()
+          })
           wc.connector.on('wallet_switchEthereumChain', (_, e) => {
             toast({
               title: 'Wallet Connect',

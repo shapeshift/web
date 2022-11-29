@@ -57,7 +57,7 @@ export const SendTransactionConfirmation = () => {
 
   const [loading, setLoading] = useState(false)
 
-  const { bridge, requests, removeRequest } = useWalletConnect()
+  const { legacyBridge, requests, removeRequest } = useWalletConnect()
   const toast = useToast()
 
   const currentRequest = requests[0]
@@ -66,7 +66,7 @@ export const SendTransactionConfirmation = () => {
     async (txData: any) => {
       try {
         setLoading(true)
-        await bridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
+        await legacyBridge?.approve(requests[0], txData).then(() => removeRequest(currentRequest.id))
         removeRequest(currentRequest.id)
       } catch (e) {
         toast({
@@ -78,17 +78,17 @@ export const SendTransactionConfirmation = () => {
         setLoading(false)
       }
     },
-    [bridge, currentRequest.id, removeRequest, requests, toast],
+    [legacyBridge, currentRequest.id, removeRequest, requests, toast],
   )
 
   const onReject = useCallback(async () => {
-    await bridge?.connector.rejectRequest({
+    await legacyBridge?.connector.rejectRequest({
       id: currentRequest.id,
       error: { message: 'Rejected by user' },
     })
     removeRequest(currentRequest.id)
     setLoading(false)
-  }, [bridge, currentRequest, removeRequest])
+  }, [legacyBridge, currentRequest, removeRequest])
 
   const [gasFeeData, setGasFeeData] = useState(undefined as any)
   const [priceData, setPriceData] = useState(bn(0))
@@ -107,7 +107,7 @@ export const SendTransactionConfirmation = () => {
     !!bnOrZero(inputGas).gt(0) ? inputGas : bnOrZero(requestGas).gt(0) ? requestGas : estimatedGas,
   )
   const walletConnect = useWalletConnect()
-  const address = walletConnect.bridge?.connector.accounts[0]
+  const address = walletConnect.legacyBridge?.connector.accounts[0]
 
   useEffect(() => {
     const adapterManager = getChainAdapterManager()
@@ -125,10 +125,10 @@ export const SendTransactionConfirmation = () => {
     })
 
     // for non mainnet chains we use the simple web3.getGasPrice()
-    const chainWeb3 = web3ByChainId(walletConnect?.bridge?.connector?.chainId as any) as any
+    const chainWeb3 = web3ByChainId(walletConnect?.legacyBridge?.connector?.chainId as any) as any
     chainWeb3?.eth?.web3?.eth?.getGasPrice().then((p: any) => setweb3GasFeeData(p))
     setChainWeb3(chainWeb3)
-  }, [form, txInputGas, walletConnect.bridge?.connector.chainId])
+  }, [form, txInputGas, walletConnect.legacyBridge?.connector.chainId])
 
   useEffect(() => {
     ;(async () => {
@@ -201,7 +201,7 @@ export const SendTransactionConfirmation = () => {
     try {
       ;(chainWeb3 as any).web3.eth
         .estimateGas({
-          from: walletConnect.bridge?.connector.accounts[0],
+          from: walletConnect.legacyBridge?.connector.accounts[0],
           nonce: txInputNonce,
           to: currentRequest.params[0].to,
           data: currentRequest.params[0].data,
@@ -217,11 +217,11 @@ export const SendTransactionConfirmation = () => {
     txInputNonce,
     address,
     chainWeb3,
-    walletConnect.bridge?.connector.accounts,
+    walletConnect.legacyBridge?.connector.accounts,
     currentRequest.params,
   ])
 
-  if (!walletConnect.bridge || !walletConnect.dapp) return null
+  if (!walletConnect.legacyBridge || !walletConnect.dapp) return null
 
   const txInput: TxData = {
     nonce: txInputNonce,
@@ -236,7 +236,7 @@ export const SendTransactionConfirmation = () => {
   // not mainnet and they havent entered custom gas fee data and no fee data from wc request.
   // default to the web3 gasPrice for the network
   if (
-    walletConnect.bridge?.connector.chainId !== 1 &&
+    walletConnect.legacyBridge?.connector.chainId !== 1 &&
     !inputMaxPriorityFeePerGas &&
     !requestMaxPriorityFeePerGas
   )

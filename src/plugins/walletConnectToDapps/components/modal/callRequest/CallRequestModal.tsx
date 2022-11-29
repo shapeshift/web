@@ -8,14 +8,14 @@ import { SendTransactionConfirmation } from './SendTransactionConfirmation'
 import { SignMessageConfirmation } from './SignMessageConfirmation'
 
 export const CallRequestModal = () => {
-  const { bridge, requests } = useWalletConnect()
+  const { legacyBridge, requests } = useWalletConnect()
   const currentRequest = requests[0] as any
 
   return (
     <Modal
       isOpen={!!currentRequest}
       onClose={() =>
-        bridge?.connector.rejectRequest({
+        legacyBridge?.connector.rejectRequest({
           id: currentRequest.id,
           error: { message: 'Rejected by user' },
         })

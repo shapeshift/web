@@ -39,7 +39,7 @@ type GasOption = {
 
 export const GasInput: FC<GasInputProps> = ({ request }) => {
   const { fees } = useCallRequestFees(request)
-  const { control, setValue } = useFormContext<ConfirmData>()
+  const { control, setValue, register } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -145,7 +145,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                     <Text translation='gasInput.base.label' color='gray.500' fontWeight='medium' />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='0 gwei' />
+                    <NumberInputField placeholder='0 gwei' {...register('customFee.baseFee')} />
                   </NumberInput>
                 </Box>
                 <Box>
@@ -157,7 +157,7 @@ export const GasInput: FC<GasInputProps> = ({ request }) => {
                     />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
-                    <NumberInputField placeholder='0 gwei' />
+                    <NumberInputField placeholder='0 gwei' {...register('customFee.priorityFee')} />
                   </NumberInput>
                 </Box>
               </SimpleGrid>

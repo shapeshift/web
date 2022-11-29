@@ -5,6 +5,7 @@ import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBrid
 import { useEffect, useMemo, useState } from 'react'
 import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -13,6 +14,7 @@ export function useCallRequestFees(
   request: WalletConnectEthSendTransactionCallRequest['params'][number],
 ) {
   const [fees, setFees] = useState<FeePrice | undefined>()
+  const [gasPrice, setGasPrice] = useState<BN | undefined>()
 
   const { evmChainId, wcAccountId } = useWalletConnect()
   const assets = useAppSelector(selectAssets)
@@ -61,6 +63,11 @@ export function useCallRequestFees(
           gasPriceGwei: '',
         },
       }
+      setGasPrice(
+        bnOrZero(estimatedFees.average.chainSpecific.gasPrice).div(
+          bnOrZero(estimatedFees.average.txFee),
+        ),
+      )
       const result = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
         (acc: FeePrice, key: FeeDataKey) => {
           const txFee = bnOrZero(estimatedFees[key].txFee)
@@ -79,5 +86,5 @@ export function useCallRequestFees(
     })()
   }, [wcAccountId, evmChainId, feeAsset, feeAssetPrice, request])
 
-  return { fees, feeAsset }
+  return { fees, feeAsset, feeAssetPrice, gasPrice }
 }

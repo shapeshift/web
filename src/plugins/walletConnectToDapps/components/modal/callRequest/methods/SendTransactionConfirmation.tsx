@@ -51,6 +51,10 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
       nonce: convertHexToNumber(request.nonce).toString(),
       gasLimit: convertHexToNumber(request.gas).toString(),
       speed: FeeDataKey.Average,
+      customFee: {
+        baseFee: '0',
+        priorityFee: '0',
+      },
     },
   })
 

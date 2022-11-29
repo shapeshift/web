@@ -6,7 +6,7 @@ export type ConfirmData = {
   gasLimit?: string
   speed: WalletConnectFeeDataKey
   customFee?: {
-    fiatFee: string
-    txFee: string
+    baseFee: string
+    priorityFee: string
   }
 }

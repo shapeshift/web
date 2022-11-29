@@ -3092,6 +3092,13 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
+"@findeth/abi@^0.3.0":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@findeth/abi/-/abi-0.3.1.tgz#fe9a25211bc0c840c8bc53f937fd9af7278b9dab"
+  integrity sha512-T9HUVEjEgM0MzVLY4gs52ffz5AlHeC3CSGFcEzL4ojKMVzMxa3na1GW/XCmunrhnWP2cDh4fE2MhqLxA0CHqTw==
+  dependencies:
+    keccak "^3.0.0"
+
 "@fioprotocol/fiojs@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@fioprotocol/fiojs/-/fiojs-1.0.1.tgz#81779437603741bc4ca1c76d119b64c4157a3874"
@@ -4071,7 +4078,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.38.0", "@shapeshiftoss/hdwallet-core@^1.38.0":
+"@shapeshiftoss/hdwallet-core@1.38.0":
   version "1.38.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.38.0.tgz#cfd60f8f6584016b32e08c0b7bb0ae7522269c31"
   integrity sha512-mUJDiZ9u7/GzC7xTEFQ8GRFVl0WFGZL2rvwV47it8iTXVOaf98/K+uFrUUHBVq141nV29K8u4THEXxzLE//HQA==
@@ -4080,6 +4087,10 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@1.39.0":
+  version "0.0.0"
+  uid ""
 
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.27.0"
@@ -4090,6 +4101,10 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@link:../hdwallet/packages/hdwallet-core":
+  version "0.0.0"
+  uid ""
 
 "@shapeshiftoss/hdwallet-keepkey-webusb@^1.38.0":
   version "1.38.0"
@@ -4159,7 +4174,7 @@
     uuid "^8.3.2"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-native@1.38.0", "@shapeshiftoss/hdwallet-native@^1.38.0":
+"@shapeshiftoss/hdwallet-native@1.38.0":
   version "1.38.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.38.0.tgz#b8c6d9434db5b58a619686dbdd89492663bf29f8"
   integrity sha512-bFzLIInsD1nl58N7V08Bi+/iP9KUClRcTHqbheVzp6VapFfbfV49l26dvVdXoV6aMnIXgmTeuXtwtleFSFEZmA==
@@ -4185,6 +4200,10 @@
     tendermint-tx-builder "^1.0.9"
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
+
+"@shapeshiftoss/hdwallet-native@link:../hdwallet/packages/hdwallet-native":
+  version "0.0.0"
+  uid ""
 
 "@shapeshiftoss/hdwallet-portis@^1.38.0":
   version "1.38.0"
@@ -10916,6 +10935,15 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
+
+eip-712@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/eip-712/-/eip-712-1.0.0.tgz#453b417a1801726f001c22896b46fb84ad445800"
+  integrity sha512-zVWGCUJQErhTpBH0mfYurP+t7wNdRizBq7PMAFj8M1Hq4/4QvKE7+FfXVcs7kL6b2ypbCnMgsimJQR1B2AfHpg==
+  dependencies:
+    "@findeth/abi" "^0.3.0"
+    "@noble/hashes" "^1.0.0"
+    superstruct "^0.15.3"
 
 eip1193-provider@1.0.1:
   version "1.0.1"
@@ -20880,6 +20908,11 @@ superstruct@^0.14.2:
   version "0.14.2"
   resolved "https://registry.yarnpkg.com/superstruct/-/superstruct-0.14.2.tgz#0dbcdf3d83676588828f1cf5ed35cda02f59025b"
   integrity sha512-nPewA6m9mR3d6k7WkZ8N8zpTWfenFH3q9pA2PkuiZxINr9DKB2+40wEQf0ixn8VaGuJ78AB6iWOtStI+/4FKZQ==
+
+superstruct@^0.15.3:
+  version "0.15.5"
+  resolved "https://registry.yarnpkg.com/superstruct/-/superstruct-0.15.5.tgz#0f0a8d3ce31313f0d84c6096cd4fa1bfdedc9dab"
+  integrity sha512-4AOeU+P5UuE/4nOUkmcQdW5y7i9ndt1cQd/3iUe+LTz3RxESf/W/5lg4B74HbDMMv8PHnPnGCQFH45kBcrQYoQ==
 
 supports-color@^5.3.0:
   version "5.5.0"

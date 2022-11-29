@@ -5,10 +5,13 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
+import type { TypedData } from 'eip-712'
+import type { ethers } from 'ethers'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -72,7 +75,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   }, [assets, evmChainId])
 
   const signMessage = useCallback(
-    async (message: string) => {
+    async (message: string | ethers.utils.Bytes) => {
       if (!message) return
       if (!wallet) return
       if (!wcAccountId) return
@@ -87,8 +90,25 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const messageToSign = { addressNList, message }
       const input = { messageToSign, wallet }
       const signedMessage = await chainAdapter.signMessage(input)
-      if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
+      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signMessage failed')
       return signedMessage
+    },
+    [accountMetadataById, wallet, wcAccountId],
+  )
+
+  const signTypedData = useCallback(
+    async (hashableData: TypedData) => {
+      if (!hashableData) return
+      if (!wallet) return
+      if (!wcAccountId) return
+      const accountMetadata = accountMetadataById[wcAccountId]
+      if (!accountMetadata) return
+      const { bip44Params } = accountMetadata
+      const addressNList = toAddressNList(bip44Params)
+      const messageToSign = { addressNList, hashableData }
+      const signedMessage = await (wallet as NativeHDWallet).ethSignTypedData(messageToSign)
+      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signTypedData failed')
+      return signedMessage.signature
     },
     [accountMetadataById, wallet, wcAccountId],
   )
@@ -131,31 +151,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           break
         }
         case 'eth_signTypedData': {
-          // const web3 = getWeb3InstanceByChainId(evmChainId)
-          // if (!web3) return
-          // result = await (() =>
-          //   new Promise((resolve, reject) => {
-          //     ;(web3.currentProvider as HttpProvider).send(
-          //       {
-          //         method: 'eth_signTypedData',
-          //         params: request.params,
-          //         jsonrpc: '2.0',
-          //         // from: fromAccountId(wcAccountId).account,
-          //       },
-          //       function (err, result) {
-          //         if (err) {
-          //           console.error(err)
-          //           return reject()
-          //         }
-          //         if (result?.error) {
-          //           console.error('ERROR', result)
-          //           return reject()
-          //         }
-          //         console.log('TYPED SIGNED:' + JSON.stringify(result?.result))
-          //         resolve(result?.result)
-          //       },
-          //     )
-          //   }))()
+          const payloadString = request.params[1]
+          const typedData = JSON.parse(payloadString)
+          const signed = await signTypedData(typedData)
+          if (!signed) break
+          result = signed
           break
         }
         case 'personal_sign': {
@@ -239,7 +239,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         setCallRequest(undefined)
       }
     },
-    [wallet, wcAccountId, connector, signMessage, accountMetadataById],
+    [wallet, wcAccountId, connector, signMessage, signTypedData, accountMetadataById],
   )
 
   const rejectRequest = useCallback(

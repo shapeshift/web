@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.2.1...@shapeshiftoss/market-service-v7.2.2) (2022-11-29)
+
+
+### Bug Fixes
+
+* idle market-service price ([#1100](https://github.com/shapeshift/lib/issues/1100)) ([21bf256](https://github.com/shapeshift/lib/commit/21bf256beacb70fcff46f3d4620d11c0bb6971d0))
+
 # [@shapeshiftoss/market-service-v7.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.2.0...@shapeshiftoss/market-service-v7.2.1) (2022-11-23)
 
 # [@shapeshiftoss/market-service-v7.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.1.3...@shapeshiftoss/market-service-v7.2.0) (2022-11-22)

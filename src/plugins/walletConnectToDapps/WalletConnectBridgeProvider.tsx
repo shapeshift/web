@@ -5,7 +5,8 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
@@ -106,9 +107,13 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const { bip44Params } = accountMetadata
       const addressNList = toAddressNList(bip44Params)
       const messageToSign = { addressNList, hashableData }
-      const signedMessage = await (wallet as NativeHDWallet).ethSignTypedData(messageToSign)
-      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signTypedData failed')
-      return signedMessage.signature
+      if (wallet instanceof KeepKeyHDWallet || wallet instanceof NativeHDWallet) {
+        const signedMessage = await wallet?.ethSignTypedData(messageToSign)
+        if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signTypedData failed')
+        console.log({ signedMessage })
+        debugger
+        return signedMessage.signature
+      }
     },
     [accountMetadataById, wallet, wcAccountId],
   )

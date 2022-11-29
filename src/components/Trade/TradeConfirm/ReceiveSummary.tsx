@@ -23,7 +23,7 @@ type ReceiveSummaryProps = {
   beforeFees?: string
   protocolFee?: string
   shapeShiftFee?: string
-  slippage: number
+  slippage: string
   swapperName: string
 } & RowProps
 
@@ -50,7 +50,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const amountAfterSlippage = bnOrZero(amount)
-    .times(1 - slippage)
+    .times(1 - Number(slippage))
     .toString()
   const isAmountPositive = bnOrZero(amountAfterSlippage).gt(0)
 

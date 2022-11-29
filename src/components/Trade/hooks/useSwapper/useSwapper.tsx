@@ -46,6 +46,7 @@ export const useSwapper = () => {
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
+  const slippage = useWatch({ control, name: 'slippage' })
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -176,6 +177,7 @@ export const useSwapper = () => {
       wallet,
       sendMax: isSendMax,
       receiveAddress,
+      slippage,
     }
     const sellAssetChainId = sellAsset.chainId
     if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
@@ -213,6 +215,7 @@ export const useSwapper = () => {
     sellAssetAccountId,
     sellTradeAsset?.amount,
     sellTradeAsset?.asset,
+    slippage,
     wallet,
   ])
 

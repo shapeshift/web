@@ -150,6 +150,8 @@ export const TradeConfirm = () => {
         return `${osmosisAsset?.explorerTxLink}${sellTxid}`
       case SwapperName.CowSwap:
         return `https://explorer.cow.fi/orders/${sellTxid}`
+      case SwapperName.Thorchain:
+        return `https://v2.viewblock.io/thorchain/tx/${sellTxid}`
       default:
         return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
     }

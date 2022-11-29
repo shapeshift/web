@@ -83,22 +83,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     })()
   }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
 
-  const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
-  )
-
-  const underlyingAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, underlyingAssetId),
-  )
-
-  // TODO(gomes): This is a dumb fix for release, to be reverted when lib market data is fixed
-  const assetMarketData = useMemo(
-    () =>
-      bnOrZero(underlyingAssetMarketData.price)
-        .times(idleOpportunity?.positionAsset.underlyingPerPosition ?? '1')
-        .toFixed(),
-    [idleOpportunity?.positionAsset.underlyingPerPosition, underlyingAssetMarketData.price],
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunityData?.assetId ?? ''),
   )
 
   const asset: Asset | undefined = useAppSelector(state =>
@@ -113,7 +99,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   }, [opportunityData?.stakedAmountCryptoPrecision])
 
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(assetMarketData),
+    () => bnOrZero(cryptoAmountAvailable).times(assetMarketData.price),
     [cryptoAmountAvailable, assetMarketData],
   )
 
@@ -165,7 +151,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData)
+      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(), { shouldValidate: true })
     },
@@ -186,7 +172,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(cryptoAmountAvailable.toPrecision())
-      const fiat = crypto.times(assetMarketData)
+      const fiat = crypto.times(assetMarketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -214,7 +200,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         marketData={{
           // The vault asset doesnt have market data.
           // We're making our own market data object for the withdraw view
-          price: assetMarketData,
+          price: assetMarketData.price,
           marketCap: '0',
           volume: '0',
           changePercent24Hr: 0,

@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
@@ -26,7 +27,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       sellTradeAsset: { amount: '0' },
       buyTradeAsset: { amount: '0' },
       isExactAllowance: false,
-      slippage: 0.002,
+      slippage: DEFAULT_SLIPPAGE,
       action: TradeAmountInputField.SELL_CRYPTO,
       isSendMax: false,
     },

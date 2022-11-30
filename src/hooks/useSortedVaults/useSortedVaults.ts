@@ -1,4 +1,4 @@
-import { USDC_PRECISION } from 'constants/UsdcPrecision'
+import { USDC_PRECISION } from 'constants/constants'
 import { useMemo } from 'react'
 import { useVaultWithoutBalance } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { bnOrZero } from 'lib/bignumber/bignumber'

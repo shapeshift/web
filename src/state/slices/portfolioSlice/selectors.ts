@@ -498,7 +498,12 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
       const foxEthLpTotalBalancesIncludingDelegations = aggregatedEarnUserStakingOpportunities
         ?.filter(opportunity => foxEthStakingIds.includes(opportunity.assetId as StakingId))
         .reduce<BN>(
-          (acc: BN, opportunity) => acc.plus(bnOrZero(opportunity.stakedAmountCryptoPrecision)),
+          (acc: BN, opportunity) =>
+            acc.plus(
+              bnOrZero(opportunity.stakedAmountCryptoBaseUnit).div(
+                bn(10).pow(assetsById[opportunity.underlyingAssetId].precision),
+              ),
+            ),
           bn(0),
         )
         .toFixed()
@@ -1001,7 +1006,9 @@ export type ActiveStakingOpportunity = {
   moniker: string
   apr: string
   tokens?: string
-  cryptoAmount?: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision?: string
+  cryptoAmountBaseUnit?: string
   rewards?: string
 }
 

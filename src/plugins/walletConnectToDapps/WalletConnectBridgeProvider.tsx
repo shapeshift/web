@@ -10,7 +10,6 @@ import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
-import type { TypedData } from 'eip-712'
 import type { ethers } from 'ethers'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -30,6 +29,11 @@ import { useAppSelector } from 'state/store'
 
 import type {
   WalletConnectCallRequest,
+  WalletConnectEthSendTransactionCallRequest,
+  WalletConnectEthSignCallRequest,
+  WalletConnectEthSignTransactionCallRequest,
+  WalletConnectEthSignTypedDataCallRequest,
+  WalletConnectPersonalSignCallRequest,
   WalletConnectSessionRequest,
   WalletConnectSessionRequestPayload,
 } from './bridge/types'
@@ -97,8 +101,39 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [accountMetadataById, wallet, wcAccountId],
   )
 
-  const signTypedData = useCallback(
-    async (typedData: TypedData) => {
+  const handleSessionRequest = useCallback(
+    (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
+      if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
+      if (!connector) return
+      if (!wcAccountId) return
+      const { chainId, account } = fromAccountId(wcAccountId)
+      moduleLogger.info(payload, 'approve wc session')
+      connector.approveSession({
+        chainId: parseInt(fromChainId(chainId).chainReference),
+        accounts: [account],
+      })
+    },
+    [connector, wcAccountId],
+  )
+
+  const eth_sign = useCallback(
+    async (request: WalletConnectEthSignCallRequest) => {
+      return await signMessage(convertHexToUtf8(request.params[1]))
+    },
+    [signMessage],
+  )
+
+  const personal_sign = useCallback(
+    async (request: WalletConnectPersonalSignCallRequest) => {
+      return await signMessage(convertHexToUtf8(request.params[0]))
+    },
+    [signMessage],
+  )
+
+  const eth_signTypedData = useCallback(
+    async (request: WalletConnectEthSignTypedDataCallRequest) => {
+      const payloadString = request.params[1]
+      const typedData = JSON.parse(payloadString)
       if (!typedData) return
       if (!wallet) return
       if (!wcAccountId) return
@@ -116,170 +151,162 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [accountMetadataById, wallet, wcAccountId],
   )
 
-  const handleSessionRequest = useCallback(
-    (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
-      if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
-      if (!connector) return
+  const eth_sendTransaction = useCallback(
+    async (request: WalletConnectEthSendTransactionCallRequest, approveData: ConfirmData) => {
+      if (!wallet) return
       if (!wcAccountId) return
-      const { chainId, account } = fromAccountId(wcAccountId)
-      moduleLogger.info(payload, 'approve wc session')
-      connector.approveSession({
-        chainId: parseInt(fromChainId(chainId).chainReference),
-        accounts: [account],
+      const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
+      if (!maybeChainAdapter) return
+      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      const tx = request.params[0]
+      const maybeAdvancedParamsNonce = approveData.nonce
+        ? convertNumberToHex(approveData.nonce)
+        : null
+      const didUserChangeNonce = maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== tx.nonce
+      const { speed, customFee } = approveData
+      const fees = await chainAdapter.getFeeData({
+        to: tx.to,
+        value: bnOrZero(tx.value).toFixed(0),
+        chainSpecific: {
+          from: fromAccountId(wcAccountId).account,
+          contractAddress: tx.to,
+          contractData: tx.data,
+        },
+      })
+      const gasData =
+        speed === 'custom' && customFee?.baseFee && customFee?.baseFee
+          ? {
+              maxPriorityFeePerGas: bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
+              maxFeePerGas: bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
+            }
+          : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
+      const { bip44Params } = accountMetadataById[wcAccountId]
+      const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildSendTransaction({
+        ...tx,
+        wallet,
+        bip44Params,
+        chainSpecific: {
+          gasLimit: approveData.gasLimit ?? tx.gas,
+          ...gasData,
+        },
+      })
+      const txToSign = {
+        ...txToSignWithPossibleWrongNonce,
+        nonce: didUserChangeNonce ? maybeAdvancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
+      }
+      try {
+        return await (async () => {
+          if (wallet.supportsOfflineSigning()) {
+            const signedTx = await chainAdapter.signTransaction({
+              txToSign,
+              wallet,
+            })
+            return chainAdapter.broadcastTransaction(signedTx)
+          } else if (wallet.supportsBroadcast()) {
+            return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
+          } else {
+            throw new Error('Bad hdwallet config')
+          }
+        })()
+      } catch (error) {
+        moduleLogger.error(
+          error,
+          { fn: 'approveRequest:eth_sendTransaction' },
+          'Error sending transaction',
+        )
+      }
+    },
+    [accountMetadataById, wallet, wcAccountId],
+  )
+
+  const eth_signTransaction = useCallback(
+    async (request: WalletConnectEthSignTransactionCallRequest, approveData: ConfirmData) => {
+      if (!wallet) return
+      if (!wcAccountId) return
+      const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
+      if (!maybeChainAdapter) return
+      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      const tx = request.params[0]
+      const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
+      const nonce = approveData.nonce ? convertNumberToHex(approveData.nonce) : tx.nonce
+      const gasLimit = approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas
+      const { speed, customFee } = approveData
+      const fees = await chainAdapter.getFeeData({
+        to: tx.to,
+        value: bnOrZero(tx.value).toFixed(0),
+        chainSpecific: {
+          from: fromAccountId(wcAccountId).account,
+          contractAddress: tx.to,
+          contractData: tx.data,
+        },
+      })
+      const gasData =
+        speed === 'custom' && customFee?.baseFee && customFee?.baseFee
+          ? {
+              maxPriorityFeePerGas: convertNumberToHex(
+                bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
+              ),
+              maxFeePerGas: convertNumberToHex(
+                bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
+              ),
+            }
+          : {
+              gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
+            }
+      return await chainAdapter.signTransaction({
+        txToSign: {
+          addressNList,
+          chainId: parseInt(fromAccountId(wcAccountId).chainReference),
+          data: tx.data,
+          gasLimit,
+          nonce,
+          to: tx.to,
+          value: tx.value,
+          ...gasData,
+        },
+        wallet,
       })
     },
-    [connector, wcAccountId],
+    [accountMetadataById, wallet, wcAccountId],
   )
 
   const approveRequest = useCallback(
     async (request: WalletConnectCallRequest, approveData: ConfirmData) => {
-      if (!wallet) return
-      if (!wcAccountId) return
       if (!connector) return
 
-      const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
-      if (!maybeChainAdapter) return
-      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      const result: any = await (async () => {
+        switch (request.method) {
+          case 'eth_sign':
+            return await eth_sign(request)
+          case 'eth_signTypedData':
+            return await eth_signTypedData(request)
+          case 'eth_sendTransaction':
+            return await eth_sendTransaction(request, approveData)
+          case 'eth_signTransaction':
+            return await eth_signTransaction(request, approveData)
+          case 'personal_sign':
+            return await personal_sign(request)
+          default:
+            return
+        }
+      })()
 
-      // TODO(0xdef1cafe): IIFE
-      let result: any
-      switch (request.method) {
-        case 'eth_sign': {
-          result = await signMessage(convertHexToUtf8(request.params[1]))
-          break
-        }
-        case 'eth_signTypedData': {
-          const payloadString = request.params[1]
-          const typedData = JSON.parse(payloadString)
-          const signed = await signTypedData(typedData)
-          if (!signed) break
-          result = signed
-          break
-        }
-        case 'personal_sign': {
-          result = await signMessage(convertHexToUtf8(request.params[0]))
-          break
-        }
-        case 'eth_sendTransaction': {
-          const tx = request.params[0]
-          const maybeAdvancedParamsNonce = approveData.nonce
-            ? convertNumberToHex(approveData.nonce)
-            : null
-          const didUserChangeNonce =
-            maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== tx.nonce
-          const { speed, customFee } = approveData
-          const fees = await chainAdapter.getFeeData({
-            to: tx.to,
-            value: bnOrZero(tx.value).toFixed(0),
-            chainSpecific: {
-              from: fromAccountId(wcAccountId).account,
-              contractAddress: tx.to,
-              contractData: tx.data,
-            },
+      result
+        ? connector.approveRequest({ id: request.id, result })
+        : connector.rejectRequest({
+            id: request.id,
+            error: { message: 'JSON RPC method not supported' },
           })
-          const gasData =
-            speed === 'custom' && customFee?.baseFee && customFee?.baseFee
-              ? {
-                  maxPriorityFeePerGas: bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
-                  maxFeePerGas: bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
-                }
-              : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
-          const { bip44Params } = accountMetadataById[wcAccountId]
-          const { txToSign: txToSignWithPossibleWrongNonce } =
-            await chainAdapter.buildSendTransaction({
-              ...tx,
-              wallet,
-              bip44Params,
-              chainSpecific: {
-                gasLimit: approveData.gasLimit ?? tx.gas,
-                ...gasData,
-              },
-            })
-          const txToSign = {
-            ...txToSignWithPossibleWrongNonce,
-            nonce: didUserChangeNonce
-              ? maybeAdvancedParamsNonce
-              : txToSignWithPossibleWrongNonce.nonce,
-          }
-          try {
-            result = await (async () => {
-              if (wallet.supportsOfflineSigning()) {
-                const signedTx = await chainAdapter.signTransaction({
-                  txToSign,
-                  wallet,
-                })
-                return chainAdapter.broadcastTransaction(signedTx)
-              } else if (wallet.supportsBroadcast()) {
-                return chainAdapter.signAndBroadcastTransaction({ txToSign, wallet })
-              } else {
-                throw new Error('Bad hdwallet config')
-              }
-            })()
-          } catch (error) {
-            moduleLogger.error(
-              error,
-              { fn: 'approveRequest:eth_sendTransaction' },
-              'Error sending transaction',
-            )
-          }
-          break
-        }
-        case 'eth_signTransaction': {
-          const tx = request.params[0]
-          const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
-          const nonce = approveData.nonce ? convertNumberToHex(approveData.nonce) : tx.nonce
-          const gasLimit = approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas
-          const { speed, customFee } = approveData
-          const fees = await chainAdapter.getFeeData({
-            to: tx.to,
-            value: bnOrZero(tx.value).toFixed(0),
-            chainSpecific: {
-              from: fromAccountId(wcAccountId).account,
-              contractAddress: tx.to,
-              contractData: tx.data,
-            },
-          })
-          const gasData =
-            speed === 'custom' && customFee?.baseFee && customFee?.baseFee
-              ? {
-                  maxPriorityFeePerGas: convertNumberToHex(
-                    bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
-                  ),
-                  maxFeePerGas: convertNumberToHex(
-                    bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
-                  ),
-                }
-              : {
-                  gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
-                }
-          result = await chainAdapter.signTransaction({
-            txToSign: {
-              addressNList,
-              chainId: parseInt(fromAccountId(wcAccountId).chainReference),
-              data: tx.data,
-              gasLimit,
-              nonce,
-              to: tx.to,
-              value: tx.value,
-              ...gasData,
-            },
-            wallet,
-          })
-          break
-        }
-        default:
-          break
-      }
-      if (result) {
-        connector.approveRequest({ id: request.id, result })
-        setCallRequest(undefined)
-      } else {
-        const message = 'JSON RPC method not supported'
-        connector.rejectRequest({ id: request.id, error: { message } })
-        setCallRequest(undefined)
-      }
+      setCallRequest(undefined)
     },
-    [wallet, wcAccountId, connector, signMessage, signTypedData, accountMetadataById],
+    [
+      connector,
+      eth_sign,
+      eth_signTypedData,
+      eth_sendTransaction,
+      eth_signTransaction,
+      personal_sign,
+    ],
   )
 
   const rejectRequest = useCallback(
@@ -306,14 +333,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   //   [connector, wcAccountId],
   // )
 
-  const handleDisconnect = useCallback(() => {
+  const handleDisconnect = useCallback(async () => {
     connector?.off('session_request')
     connector?.off('session_update')
     connector?.off('connect')
     connector?.off('disconnect')
     connector?.off('call_request')
     try {
-      connector?.killSession()
+      await connector?.killSession()
     } catch (e) {
       moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Error killing session')
     }

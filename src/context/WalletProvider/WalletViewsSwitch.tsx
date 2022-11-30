@@ -30,7 +30,15 @@ export const WalletViewsSwitch = () => {
   const translate = useTranslate()
   const match = useRouteMatch('/')
   const {
-    state: { wallet, modal, showBackButton, initialRoute, type, disconnectOnCloseModal },
+    state: {
+      wallet,
+      modal,
+      showBackButton,
+      initialRoute,
+      type,
+      disconnectOnCloseModal,
+      deviceState: { disposition },
+    },
     dispatch,
     disconnect,
   } = useWallet()
@@ -48,15 +56,22 @@ export const WalletViewsSwitch = () => {
   }, [toast, translate, wallet])
 
   const onClose = async () => {
-    history.replace('/')
-    if (disconnectOnCloseModal) {
+    if (disposition === 'initializing' || disposition === 'recovering') {
+      await wallet?.cancel()
       disconnect()
-      dispatch({ type: WalletActions.RESET_STATE })
       clearLocalWallet()
+      dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      history.replace('/')
+      if (disconnectOnCloseModal) {
+        disconnect()
+        dispatch({ type: WalletActions.RESET_STATE })
+        clearLocalWallet()
+      } else {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      }
+      await cancelWalletRequests()
     }
-    await cancelWalletRequests()
   }
 
   const handleBack = async () => {

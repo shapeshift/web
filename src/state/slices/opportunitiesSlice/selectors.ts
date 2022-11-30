@@ -399,7 +399,6 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
           .plus(acc?.stakedAmountCryptoBaseUnit ?? 0)
           .toString(),
         fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-          .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision))
           .plus(acc?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision))
           .toString(),
@@ -694,8 +693,9 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     )
     return userStakingOpportunity.underlyingAssetIds.map((assetId, i, original) => ({
       ...assets[assetId],
-      cryptoBalance: bnOrZero(userStakingOpportunities.stakedAmountCryptoBaseUnit)
-        .times(userStakingOpportunities.underlyingAssetRatios[i] ?? '1')
+      cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+        .times(userStakingOpportunity.underlyingAssetRatios[i] ?? '1') // Ratios are in base unit, this needs to be first
+        .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision))
         .toFixed(),
       icons: [underlyingAssetsIcons[i]],
       allocationPercentage: bn('1').div(original.length).toString(),

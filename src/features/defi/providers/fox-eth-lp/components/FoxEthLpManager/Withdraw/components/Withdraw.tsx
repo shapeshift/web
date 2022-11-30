@@ -248,11 +248,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
-            balance={foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? undefined}
+            balance={
+              fromBaseUnit(
+                foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit,
+                foxAsset.precision,
+              ) ?? undefined
+            }
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
-                asset.precision,
+                foxAsset.precision,
               ),
             )
               .times(foxMarketData.price)
@@ -267,7 +272,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
-            balance={foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? undefined}
+            balance={
+              fromBaseUnit(
+                foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
+                ethAsset.precision,
+              ) ?? undefined
+            }
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',

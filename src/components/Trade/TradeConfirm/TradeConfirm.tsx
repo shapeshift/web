@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -146,10 +146,12 @@ export const TradeConfirm = () => {
 
   const txLink = useMemo(() => {
     switch (trade?.sources[0]?.name) {
-      case 'Osmosis':
+      case SwapperName.Osmosis:
         return `${osmosisAsset?.explorerTxLink}${sellTxid}`
-      case 'CowSwap':
+      case SwapperName.CowSwap:
         return `https://explorer.cow.fi/orders/${sellTxid}`
+      case SwapperName.Thorchain:
+        return `https://v2.viewblock.io/thorchain/tx/${sellTxid}`
       default:
         return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
     }

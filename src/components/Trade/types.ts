@@ -51,7 +51,7 @@ export type TradeState<C extends ChainId> = {
   quoteError: string | null
   amount: string
   receiveAddress: string | null // TODO: Implement
-  slippage: number
+  slippage: string
   isSendMax: boolean
 }
 
@@ -86,7 +86,13 @@ export type TradeQuoteInputCommonArgs = Pick<
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
+  | 'sellAmountCryptoPrecision'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'sendMax'
+  | 'receiveAddress'
+  | 'wallet'
+  | 'slippage'
 >
 
 export type GetFormFeesArgs = {

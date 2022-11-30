@@ -25,12 +25,17 @@ type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputRe
 type FiatFormProps = {
   assetId: AssetId
   fiatRampAction: FiatRampAction
+  accountId?: AccountId
 }
 
-export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRampAction }) => {
+export const FiatForm: React.FC<FiatFormProps> = ({
+  assetId = ethAssetId,
+  fiatRampAction,
+  accountId: selectedAccountId,
+}) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [accountId, setAccountId] = useState<AccountId | undefined>()
+  const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
 

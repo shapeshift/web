@@ -710,10 +710,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
       ...assets[assetId],
       cryptoBalance: bnOrZero(userStakingOpportunities.stakedAmountCryptoBaseUnit)
         .times(
-          // fromBaseUnit(
           userStakingOpportunities.underlyingAssetRatios[i] ?? '1',
-          // assets[assetId].precision,
-          // ),
         )
         .toFixed(),
       icons: [underlyingAssetsIcons[i]],

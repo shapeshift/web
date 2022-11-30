@@ -41,9 +41,16 @@ export type OpportunityMetadata = {
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
+  stakedAmountCryptoBaseUnit: string
+  /** @deprecated use stakedAmountCryptoBaseUnit instead and derive precision amount from it*/
   stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
   rewardsAmountsCryptoPrecision:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
+  rewardsAmountsCryptoBaseUnit:
     | readonly [string, string, string]
     | readonly [string, string]
     | readonly [string]
@@ -119,17 +126,22 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 export type StakingEarnOpportunityType = OpportunityMetadata & {
-  /**
-   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
-   */
-  unclaimedRewards?: string
-  stakedAmountCryptoPrecision?: string
+  stakedAmountCryptoBaseUnit?: string
+  rewardsAmountsCryptoBaseUnit?:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
+  /** @deprecated use rewardsAmountsCryptoBaseUnit instead and derive precision amount from it*/
   rewardsAmountsCryptoPrecision?:
     | readonly [string, string, string]
     | readonly [string, string]
     | readonly [string]
     | readonly []
-  underlyingToken0Amount?: string
-  underlyingToken1Amount?: string
+  /** @deprecated use base unit underlying amounts instead and derive precision amount from it*/
+  underlyingToken0AmountCryptoPrecision?: string
+  underlyingToken1AmountCryptoPrecision?: string
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property

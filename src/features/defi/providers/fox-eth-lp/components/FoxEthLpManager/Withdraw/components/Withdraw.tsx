@@ -17,6 +17,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -248,7 +249,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
             balance={foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? undefined}
-            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit)
+            fiatBalance={bnOrZero(
+              fromBaseUnit(
+                foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
+                asset.precision,
+              ),
+            )
               .times(foxMarketData.price)
               .toFixed(2)}
             percentOptions={[]}
@@ -262,7 +268,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
             balance={foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? undefined}
-            fiatBalance={bnOrZero(foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit)
+            fiatBalance={bnOrZero(
+              fromBaseUnit(
+                foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
+                ethAsset.precision,
+              ),
+            )
               .times(ethMarketData.price)
               .toFixed(2)}
             percentOptions={[]}

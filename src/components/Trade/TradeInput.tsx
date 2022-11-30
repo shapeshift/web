@@ -299,9 +299,6 @@ export const TradeInput = () => {
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
     if (!wallet) return 'common.connectWallet'
-    if (!sellTradeAsset?.asset || !buyTradeAsset?.asset) {
-      return 'common.loadingText'
-    }
     if (!walletSupportsSellAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',

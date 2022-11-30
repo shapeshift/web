@@ -166,7 +166,7 @@ export type ApprovalNeededInput<C extends ChainId> = {
 }
 
 export type SwapSource = {
-  name: SwapperName
+  name: SwapperName | string
   proportion: string
 }
 

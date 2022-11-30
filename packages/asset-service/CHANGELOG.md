@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.5...@shapeshiftoss/asset-service-v8.2.0) (2022-11-30)
+
+
+### Features
+
+* **asset-service:** fetch idle asset symbols with Alchemy API ([#1106](https://github.com/shapeshift/lib/issues/1106)) ([3deb86e](https://github.com/shapeshift/lib/commit/3deb86e01234c68671968be53a7dba46bf7dd56c))
+
 # [@shapeshiftoss/asset-service-v8.1.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.4...@shapeshiftoss/asset-service-v8.1.5) (2022-10-24)
 
 # [@shapeshiftoss/asset-service-v8.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.3...@shapeshiftoss/asset-service-v8.1.4) (2022-10-24)

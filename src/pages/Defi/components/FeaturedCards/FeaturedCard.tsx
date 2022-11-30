@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Tag } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -9,6 +9,7 @@ import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   underlyingAssetIds,
   opportunityName,
+  apy,
 }) => {
   const renderIcons = useMemo(() => {
     return underlyingAssetIds.map(assetId => <AssetIcon size='sm' assetId={assetId} />)
@@ -29,7 +30,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       </Card.Header>
       <Card.Body py={0}>
         <RawText>Current APY</RawText>
-        <Amount.Percent value='0.99' fontSize='2xl' autoColor />
+        <Amount.Percent value={apy} fontSize='2xl' autoColor />
       </Card.Body>
       <Card.Footer display='flex' justifyContent='space-between' mt='auto'>
         <RawText fontSize='sm' color='gray.500'>

@@ -132,7 +132,9 @@ export const StakingVaults = () => {
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
   const renderEligibleCards = useMemo(() => {
-    return stakingOpportunities.map(opportunity => <FeaturedCard {...opportunity} />)
+    return stakingOpportunities
+      .filter(o => bnOrZero(o.cryptoAmount).eq(0))
+      .map(opportunity => <FeaturedCard {...opportunity} />)
   }, [stakingOpportunities])
   return (
     <Main titleComponent={<DefiHeader />}>

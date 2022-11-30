@@ -34,7 +34,7 @@ type Props = {
 
 export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Props) => {
   const walletConnect = useWalletConnect()
-  const { feeAsset } = useCallRequestFees(request)
+  const { feeAsset, fees } = useCallRequestFees(request)
   const { isInteractingWithContract } = useIsInteractingWithContract({
     evmChainId: walletConnect.evmChainId,
     address: request.to,
@@ -48,9 +48,13 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
 
   const form = useForm<ConfirmData>({
     defaultValues: {
-      nonce: convertHexToNumber(request.nonce).toString(),
-      gasLimit: convertHexToNumber(request.gas).toString(),
+      nonce: request.nonce ? convertHexToNumber(request.nonce).toString() : undefined,
+      gasLimit: request.gas ? convertHexToNumber(request.gas).toString() : undefined,
       speed: FeeDataKey.Average,
+      customFee: {
+        baseFee: '0',
+        priorityFee: '0',
+      },
     },
   })
 
@@ -128,6 +132,7 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             type='submit'
             onClick={form.handleSubmit(onConfirm)}
             isLoading={form.formState.isSubmitting}
+            disabled={!fees}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

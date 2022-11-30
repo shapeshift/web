@@ -15,14 +15,18 @@ type Props = {
 }
 
 export const GasFeeEstimateLabel = ({ request }: Props) => {
-  const { fees, feeAsset, feeAssetPrice, gasPrice } = useCallRequestFees(request)
+  const { fees, feeAsset, feeAssetPrice } = useCallRequestFees(request)
   const { control } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
+  const gasLimit = useWatch({ control, name: 'gasLimit' })
   const customFee = useWatch({ control, name: 'customFee' })
   const customFeeValue = useMemo(
     () =>
-      bnOrZero(customFee?.baseFee).plus(bnOrZero(customFee?.priorityFee)).times(bnOrZero(gasPrice)),
-    [customFee?.baseFee, customFee?.priorityFee, gasPrice],
+      bnOrZero(customFee?.baseFee)
+        .plus(bnOrZero(customFee?.priorityFee))
+        .times(bnOrZero(gasLimit))
+        .div(1e9),
+    [customFee?.baseFee, customFee?.priorityFee, gasLimit],
   )
   const fee = useMemo(
     () =>

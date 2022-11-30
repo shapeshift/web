@@ -1,9 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -19,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import {
@@ -30,10 +30,10 @@ import { useAppSelector } from 'state/store'
 
 import type {
   WalletConnectCallRequest,
-  WalletConnectCallRequestResponseMap,
   WalletConnectSessionRequest,
   WalletConnectSessionRequestPayload,
 } from './bridge/types'
+import type { ConfirmData } from './components/modal/callRequest/CallRequestCommon'
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
@@ -134,12 +134,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   const approveRequest = useCallback(
-    async (
-      request: WalletConnectCallRequest,
-      approveData: Partial<
-        WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]
-      >,
-    ) => {
+    async (request: WalletConnectCallRequest, approveData: ConfirmData) => {
       if (!wallet) return
       if (!wcAccountId) return
       if (!connector) return
@@ -168,10 +163,29 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           break
         }
         case 'eth_sendTransaction': {
-          const advancedParams = approveData as ETHSignTx
           const tx = request.params[0]
-          const advancedParamsNonce = convertNumberToHex(advancedParams.nonce)
-          const didUserChangeNonce = advancedParamsNonce !== tx.nonce
+          const maybeAdvancedParamsNonce = approveData.nonce
+            ? convertNumberToHex(approveData.nonce)
+            : null
+          const didUserChangeNonce =
+            maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== tx.nonce
+          const { speed, customFee } = approveData
+          const fees = await chainAdapter.getFeeData({
+            to: tx.to,
+            value: bnOrZero(tx.value).toFixed(0),
+            chainSpecific: {
+              from: fromAccountId(wcAccountId).account,
+              contractAddress: tx.to,
+              contractData: tx.data,
+            },
+          })
+          const gasData =
+            speed === 'custom' && customFee?.baseFee && customFee?.baseFee
+              ? {
+                  maxPriorityFeePerGas: bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
+                  maxFeePerGas: bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
+                }
+              : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
           const { bip44Params } = accountMetadataById[wcAccountId]
           const { txToSign: txToSignWithPossibleWrongNonce } =
             await chainAdapter.buildSendTransaction({
@@ -179,13 +193,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
               wallet,
               bip44Params,
               chainSpecific: {
-                gasLimit: advancedParams.gasLimit ?? tx.gas,
-                gasPrice: tx.gasPrice,
+                gasLimit: approveData.gasLimit ?? tx.gas,
+                ...gasData,
               },
             })
           const txToSign = {
             ...txToSignWithPossibleWrongNonce,
-            nonce: didUserChangeNonce ? advancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
+            nonce: didUserChangeNonce
+              ? maybeAdvancedParamsNonce
+              : txToSignWithPossibleWrongNonce.nonce,
           }
           try {
             result = await (async () => {
@@ -212,12 +228,32 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         }
         case 'eth_signTransaction': {
           const tx = request.params[0]
-          const advancedParams = approveData as ETHSignTx
           const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
-          const nonce = advancedParams.nonce ? convertNumberToHex(advancedParams.nonce) : tx.nonce
-          const gasLimit = advancedParams.gasLimit
-            ? convertNumberToHex(advancedParams.gasLimit)
-            : tx.gas
+          const nonce = approveData.nonce ? convertNumberToHex(approveData.nonce) : tx.nonce
+          const gasLimit = approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas
+          const { speed, customFee } = approveData
+          const fees = await chainAdapter.getFeeData({
+            to: tx.to,
+            value: bnOrZero(tx.value).toFixed(0),
+            chainSpecific: {
+              from: fromAccountId(wcAccountId).account,
+              contractAddress: tx.to,
+              contractData: tx.data,
+            },
+          })
+          const gasData =
+            speed === 'custom' && customFee?.baseFee && customFee?.baseFee
+              ? {
+                  maxPriorityFeePerGas: convertNumberToHex(
+                    bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
+                  ),
+                  maxFeePerGas: convertNumberToHex(
+                    bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
+                  ),
+                }
+              : {
+                  gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
+                }
           result = await chainAdapter.signTransaction({
             txToSign: {
               addressNList,
@@ -227,6 +263,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
               nonce,
               to: tx.to,
               value: tx.value,
+              ...gasData,
             },
             wallet,
           })

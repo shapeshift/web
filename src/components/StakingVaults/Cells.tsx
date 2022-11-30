@@ -29,6 +29,7 @@ type AssetCellProps = {
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
+  version?: string
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -55,6 +56,7 @@ export const AssetCell = ({
   postFix,
   icons,
   opportunityName,
+  version,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -132,6 +134,7 @@ export const AssetCell = ({
                 {subText}
               </RawText>
             )}
+            {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>
       </HStack>

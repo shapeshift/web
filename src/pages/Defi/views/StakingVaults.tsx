@@ -24,7 +24,7 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAggregatedEarnUserStakingEligibleOpportunities,
   selectAssetById,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
@@ -129,13 +129,11 @@ const FoxFarmCTA = () => {
 }
 
 export const StakingVaults = () => {
-  const stakingOpportunities = useAppSelector(
-    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  )
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
-    return stakingOpportunities
-      .filter(o => bnOrZero(o.cryptoAmount).eq(0))
-      .map(opportunity => <FeaturedCard key={opportunity.contractAddress} {...opportunity} />)
+    return stakingOpportunities.map(opportunity => (
+      <FeaturedCard key={opportunity.assetId} {...opportunity} />
+    ))
   }, [stakingOpportunities])
   return (
     <Main titleComponent={<DefiHeader />}>

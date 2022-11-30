@@ -1,4 +1,4 @@
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
@@ -22,6 +22,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   contractAddress,
   highestBalanceAccountAddress,
   rewardAddress,
+  version,
 }) => {
   const location = useLocation()
   const history = useHistory()
@@ -82,6 +83,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       </Box>
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <Flex flexDir='column'>
+          <Tag>{version}</Tag>
           <RawText fontWeight='bold' textShadow={textShadow}>
             {opportunityName}
           </RawText>

@@ -43,6 +43,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
               postFix={row.original.version && `(${row.original.version})`}
+              version={row.original.version}
             />
           </Skeleton>
         ),

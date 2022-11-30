@@ -36,6 +36,7 @@ export type OpportunityMetadata = {
   rewardAssetIds?: AssetIdsTuple
   expired?: boolean
   name?: string
+  version?: string
 }
 
 // User-specific values for this opportunity

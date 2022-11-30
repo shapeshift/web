@@ -1,5 +1,5 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Flex, Grid, GridProps, IconButton, useToken } from '@chakra-ui/react'
+import { Box, Flex, Grid, IconButton, useToken } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useRef } from 'react'
 import { RawText } from 'components/Text'

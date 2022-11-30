@@ -678,3 +678,21 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     }))
   },
 )
+
+export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectPortfolioAssetBalances,
+  (aggreggatedEarnUserStakingOpportunities, assetBalances): StakingEarnOpportunityType[] => {
+    const opportunitiesThatUserHas = aggreggatedEarnUserStakingOpportunities.reduce(
+      (acc, opportunity) => {
+        const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
+          bnOrZero(assetBalances[assetId]).gt(0),
+        )
+        if (hasBalance && !opportunity.expired) acc.push(opportunity)
+        return acc
+      },
+      [] as StakingEarnOpportunityType[],
+    )
+    return opportunitiesThatUserHas
+  },
+)

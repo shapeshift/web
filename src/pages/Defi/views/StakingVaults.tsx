@@ -32,6 +32,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from '../components/FeaturedCards/FeaturedCard'
+import { FeaturedList } from '../components/FeaturedCards/FeaturedList/FeaturedList'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -134,27 +135,12 @@ export const StakingVaults = () => {
   const renderEligibleCards = useMemo(() => {
     return stakingOpportunities
       .filter(o => bnOrZero(o.cryptoAmount).eq(0))
-      .map(opportunity => <FeaturedCard {...opportunity} />)
+      .map(opportunity => <FeaturedCard key={opportunity.contractAddress} {...opportunity} />)
   }, [stakingOpportunities])
   return (
     <Main titleComponent={<DefiHeader />}>
-      <FoxFarmCTA />
-      <Box
-        _after={{
-          content: "''",
-          width: '20px',
-          height: '100%',
-          bg: 'linear-gradient(to right, rgba(24, 28, 30, 0) 0%,rgba(24, 28, 39, 1) 100%);',
-          position: 'absolute',
-          right: 0,
-          top: 0,
-        }}
-        position='relative'
-      >
-        <Flex gap={6} overflowY='auto' position='relative' py={4}>
-          {renderEligibleCards}
-        </Flex>
-      </Box>
+      {/* <FoxFarmCTA /> */}
+      <FeaturedList slidesToShow={4}>{renderEligibleCards}</FeaturedList>
       <AllEarnOpportunities />
     </Main>
   )

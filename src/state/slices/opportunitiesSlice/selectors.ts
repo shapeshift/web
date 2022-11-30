@@ -709,9 +709,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     return userStakingOpportunities.underlyingAssetIds.map((assetId, i, original) => ({
       ...assets[assetId],
       cryptoBalance: bnOrZero(userStakingOpportunities.stakedAmountCryptoBaseUnit)
-        .times(
-          userStakingOpportunities.underlyingAssetRatios[i] ?? '1',
-        )
+        .times(userStakingOpportunities.underlyingAssetRatios[i] ?? '1')
         .toFixed(),
       icons: [underlyingAssetsIcons[i]],
       allocationPercentage: bn('1').div(original.length).toString(),

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.2...@shapeshiftoss/investor-idle-v2.4.0) (2022-11-30)
+
+
+### Features
+
+* **asset-service:** fetch idle asset symbols with Alchemy API ([#1106](https://github.com/shapeshift/lib/issues/1106)) ([3deb86e](https://github.com/shapeshift/lib/commit/3deb86e01234c68671968be53a7dba46bf7dd56c))
+
 # [@shapeshiftoss/investor-idle-v2.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.1...@shapeshiftoss/investor-idle-v2.3.2) (2022-11-22)
 
 

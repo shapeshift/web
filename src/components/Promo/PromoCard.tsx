@@ -1,6 +1,7 @@
 import { Button } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import isBetween from 'dayjs/plugin/isBetween'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
@@ -11,6 +12,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 dayjs.extend(isBetween)
+dayjs.extend(customParseFormat)
+const promoDateFormat = 'YYYY-MM-DD hh:mm A'
 
 const promoData = [
   {
@@ -19,8 +22,8 @@ const promoData = [
     cta: 'Deposit FOX Now',
     image: `url(https://uploads-ssl.webflow.com/5cec55545d0f47cfe2a39a8e/637d3eab8977b9c820ecb3fc_foxy-promo-1.jpg)`,
     colorScheme: 'pink',
-    startDate: '2022-11-28 8:00 AM',
-    endDate: '2022-12-4 8:00 AM',
+    startDate: '2022-11-28 08:00 AM',
+    endDate: '2022-12-04 08:00 AM',
     id: 'foxy-promo',
     walletRequired: true,
     href: '?chainId=eip155%3A1&contractAddress=0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b&assetReference=0xc770eefad204b5180df6a14ee197d99d808ee52d&rewardId=0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3&provider=ShapeShift&modal=deposit',
@@ -56,7 +59,7 @@ export const PromoCard = () => {
 
   const renderPromos = useMemo(() => {
     const filteredPromoCards = promoData.filter(e =>
-      dayjs().isBetween(dayjs(e.startDate), dayjs(e.endDate)),
+      dayjs().isBetween(dayjs(e.startDate, promoDateFormat), dayjs(e.endDate, promoDateFormat)),
     )
     return filteredPromoCards.map(
       ({ image, title, body, colorScheme = 'blue', href, cta, id, walletRequired }) => {
@@ -95,10 +98,9 @@ export const PromoCard = () => {
       },
     )
   }, [handleClick])
-
-  return (
+  return renderPromos.length > 0 ? (
     <Carousel autoPlay interval={10000} loop showArrows={false}>
       {renderPromos}
     </Carousel>
-  )
+  ) : null
 }

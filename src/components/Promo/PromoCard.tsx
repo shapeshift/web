@@ -9,6 +9,7 @@ import { Carousel } from 'components/Carousel/Carousel'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
 dayjs.extend(isBetween)
 
 const promoData = [
@@ -72,8 +73,10 @@ export const PromoCard = () => {
               gap={2}
               pb={filteredPromoCards.length > 1 ? 8 : 6}
             >
-              <RawText fontWeight='bold'>{title}</RawText>
-              <RawText fontSize='sm' mr={24}>
+              <RawText fontWeight='bold' color={'whiteAlpha.900'}>
+                {title}
+              </RawText>
+              <RawText fontSize='sm' mr={24} color={'whiteAlpha.900'}>
                 {body}
               </RawText>
               <Button

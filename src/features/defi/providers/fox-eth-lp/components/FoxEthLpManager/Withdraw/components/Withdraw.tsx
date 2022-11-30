@@ -175,24 +175,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit
     ) {
       setFoxAmountCryptoBaseUnit(
-        bnOrZero(percent)
-          .times(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit)
-          .div(
-            bn(10).pow(
-              assets[foxEthLpOpportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
-            ),
-          )
-          .toFixed(8),
+        bnOrZero(percent).times(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(),
       )
       setEthAmountCryptoBaseUnit(
-        bnOrZero(percent)
-          .times(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit)
-          .div(
-            bn(10).pow(
-              assets[foxEthLpOpportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
-            ),
-          )
-          .toFixed(8),
+        bnOrZero(percent).times(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(),
       )
     }
   }
@@ -265,12 +251,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
-            balance={
-              fromBaseUnit(
-                foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
-                foxAsset.precision,
-              ) ?? undefined
-            }
+            balance={bnOrZero(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit)
+              .div(
+                bn(10).pow(
+                  assets[foxEthLpOpportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
+                ),
+              )
+              .toFixed()}
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
@@ -284,17 +271,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={ethAmountCryptoBaseUnit}
+            cryptoAmount={ethAmountCryptoPrecision}
             fiatAmount={bnOrZero(ethAmountCryptoPrecision).times(ethMarketData.price).toFixed(2)}
             showFiatAmount={true}
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
-            balance={
-              fromBaseUnit(
-                foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
-                ethAsset.precision,
-              ) ?? undefined
-            }
+            balance={bnOrZero(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit)
+              .div(
+                bn(10).pow(
+                  assets[foxEthLpOpportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
+                ),
+              )
+              .toFixed()}
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',

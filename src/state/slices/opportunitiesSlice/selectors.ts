@@ -482,11 +482,11 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
           .toString(),
       )
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata?.underlyingAssetIds.map((_assetId, i) =>
+      opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .times(opportunityMetadata?.underlyingAssetRatios[i] ?? '0')
-          .toFixed(6)
-          .toString(),
+          .times(opportunityMetadata?.underlyingAssetRatios[i])
+          .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
+          .toFixed(6),
       )
 
     const opportunity = {
@@ -501,7 +501,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       underlyingToken1AmountCryptoBaseUnit,
       cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
       fiatAmount: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-        .div(assets[opportunityMetadata.assetId].precision)
+        .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
         .times(marketDataPrice ?? '0')
         .toString(),
       icons: opportunityMetadata.underlyingAssetIds.map(assetId => assets[assetId].icon),
@@ -570,7 +570,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
           .times(
             fromBaseUnit(
               opportunityMetadata?.underlyingAssetRatios[i] ?? '0',
-              assets[assetId].precision,
+              assets[assetId]?.precision,
             ),
           )
           .toFixed(6)
@@ -578,9 +578,10 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       )
 
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata.underlyingAssetIds.map((_assetId, i) =>
+      opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
           .times(opportunityMetadata?.underlyingAssetRatios[i] ?? '0')
+          .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
           .toFixed(6)
           .toString(),
       )
@@ -706,7 +707,12 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     return userStakingOpportunity.underlyingAssetIds.map((assetId, i, original) => ({
       ...assets[assetId],
       cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
-        .times(userStakingOpportunity.underlyingAssetRatios[i] ?? '1') // Ratios are in base unit, this needs to be first
+        .times(
+          fromBaseUnit(
+            userStakingOpportunity.underlyingAssetRatios[i],
+            assets[assetId]?.precision,
+          ) ?? '1',
+        )
         .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision))
         .toFixed(),
       icons: [underlyingAssetsIcons[i]],

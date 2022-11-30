@@ -559,6 +559,10 @@
     },
     "errors": {
       "title": "Что-то пошло не так",
+      "sellAssetStartSentence": "Продаваемый актив",
+      "buyAssetStartSentence": "Покупаемый актив",
+      "sellAssetMiddleSentence": "продаваемый актив",
+      "buyAssetMiddleSentence": "покупаемый актив",
       "notEnoughEth": "Недостаточно ETH для оплаты комиссии за газ в этой транзакции.",
       "amountTooSmall": "Минимум: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Сумма продажи меньше, чем комиссия",

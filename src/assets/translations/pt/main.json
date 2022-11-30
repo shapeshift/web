@@ -560,6 +560,10 @@
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
+      "sellAssetStartSentence": "Vender Ativo",
+      "buyAssetStartSentence": "Comprar Ativo",
+      "sellAssetMiddleSentence": "vender ativo",
+      "buyAssetMiddleSentence": "comprar ativo",
       "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",

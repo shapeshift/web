@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistReducer, persistStore } from 'redux-persist'
+import { createMigrate, PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
@@ -12,16 +12,33 @@ import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import {
+  initialState,
+  opportunitiesApi,
+  opportunitiesApiFactory,
+} from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
+const migrations = {
+  0: (state: ReduxState): ReduxState => {
+    // Migration to cleaopportunitiesApi and opportunitiesApi state
+    return {
+      ...state,
+      opportunities: initialState,
+      opportunitiesApi: opportunitiesApiFactory(),
+    }
+  },
+}
 const persistConfig = {
   key: 'root',
+  version: 1,
   whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
+  // @ts-ignore createMigrate typings are wrong
+  migrate: createMigrate(migrations, { debug: false }),
 }
 
 const apiMiddleware = [

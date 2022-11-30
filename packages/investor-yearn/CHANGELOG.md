@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v6.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.7...@shapeshiftoss/investor-yearn-v6.2.0) (2022-11-30)
+
+
+### Features
+
+* **asset-service:** fetch idle asset symbols with Alchemy API ([#1106](https://github.com/shapeshift/lib/issues/1106)) ([3deb86e](https://github.com/shapeshift/lib/commit/3deb86e01234c68671968be53a7dba46bf7dd56c))
+
 # [@shapeshiftoss/investor-yearn-v6.1.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.6...@shapeshiftoss/investor-yearn-v6.1.7) (2022-10-24)
 
 # [@shapeshiftoss/investor-yearn-v6.1.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.5...@shapeshiftoss/investor-yearn-v6.1.6) (2022-10-24)

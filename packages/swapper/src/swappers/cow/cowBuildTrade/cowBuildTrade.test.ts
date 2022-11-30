@@ -37,12 +37,7 @@ jest.mock('../utils/helpers/helpers', () => {
 jest.mock('../../utils/helpers/helpers', () => {
   return {
     ...jest.requireActual('../../utils/helpers/helpers'),
-    isApprovalRequired: (args: IsApprovalRequiredArgs) => {
-      if (args.sellAsset.assetId === WBTC.assetId) {
-        return true
-      }
-      return false
-    },
+    isApprovalRequired: (args: IsApprovalRequiredArgs) => args.sellAsset.assetId === WBTC.assetId,
     getApproveContractData: () => '0xABCDEFGHIJ',
   }
 })

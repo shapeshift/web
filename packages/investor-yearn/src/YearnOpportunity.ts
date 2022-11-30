@@ -18,8 +18,7 @@ import { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
 import { erc20Abi, MAX_ALLOWANCE, ssRouterContractAddress, yv2VaultAbi } from './constants'
-import { bn } from './utils'
-import { bnOrZero } from './utils/bignumber'
+import { bn, bnOrZero } from './utils'
 
 type YearnOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>

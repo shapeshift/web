@@ -1,7 +1,7 @@
 import { cosmosAssetId, cosmosChainId } from '@shapeshiftoss/caip'
 
 import { TransferType, TxStatus } from '../../../../types'
-import { ParsedTx } from '../../../parser/types'
+import { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import delegate from './mockData/delegate'
 import ibc_receive from './mockData/ibc_receive'

@@ -342,7 +342,7 @@ export class IdleOpportunity
   /**
    * Prepare an unsigned deposit transaction
    *
-   * @param input.address - The user's wallet address where the funds are
+   * @param address - The user's wallet address where the funds are
    */
   async getClaimableTokens(address: string): Promise<ClaimableToken[]> {
     if (this.metadata.cdoAddress) {

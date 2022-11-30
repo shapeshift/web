@@ -11,7 +11,7 @@ import {
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,
   hashOrder,
-} from '../helpers/helpers'
+} from './helpers'
 
 jest.mock('../cowService')
 

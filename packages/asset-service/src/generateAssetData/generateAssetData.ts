@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { AssetId, CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
@@ -13,11 +13,6 @@ import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
-
-export type AssetOverrides = Record<
-  AssetId,
-  Partial<Omit<Asset, 'assetId' | 'chainId' | 'precision'>> // fields that can't be overridden
->
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()

@@ -1,7 +1,7 @@
 import { BaseTxMetadata, Dex, TradeType } from '../../types'
-import { type Tx } from '../parser/types'
 import { type SubParser, type TxSpecific, txInteractsWithContract } from '.'
 import { ZRX_PROXY_CONTRACT } from './constants'
+import { type Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'zrx'

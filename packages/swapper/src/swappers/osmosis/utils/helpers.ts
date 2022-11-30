@@ -9,7 +9,7 @@ import {
   SwapError,
   SwapErrorTypes,
   TradeResult,
-} from '../../../index'
+} from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { OSMOSIS_PRECISION } from './constants'
 import { IbcTransferInput, PoolInfo } from './types'

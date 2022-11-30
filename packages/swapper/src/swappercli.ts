@@ -10,9 +10,8 @@ import Web3 from 'web3'
 
 import { UtxoSupportedChainIds } from '.'
 import { getAdapterManager } from './adapters'
-import { SwapperManager } from './manager/SwapperManager'
-import { ThorchainSwapper, ThorchainSwapperDeps } from './swappers'
-import { ZrxSwapper } from './swappers/zrx/ZrxSwapper'
+import { SwapperManager } from './manager'
+import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper } from './swappers'
 
 dotenv.config()
 

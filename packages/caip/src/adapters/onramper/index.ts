@@ -1,5 +1,6 @@
 import entries from 'lodash/entries'
 
+import { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -9,7 +10,6 @@ import {
   ethAssetId,
   ltcAssetId,
 } from '../../constants'
-import { AssetId } from './../../assetId/assetId'
 
 type OnRamperTokenId = string
 

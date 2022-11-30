@@ -2,7 +2,7 @@ import entries from 'lodash/entries'
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import { fromAssetId } from '../../assetId/assetId'
+import { AssetId, fromAssetId } from '../../assetId/assetId'
 import { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
@@ -14,7 +14,6 @@ import {
   ethAssetId,
   ethChainId,
 } from '../../constants'
-import { AssetId } from './../../assetId/assetId'
 
 /**
  * https://docs.google.com/spreadsheets/d/1KU6J1Hl4vxBTIWCwWdrFfSadNltuFheQRoJyPrd0LMQ/edit#gid=631982242

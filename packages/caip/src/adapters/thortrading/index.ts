@@ -1,3 +1,4 @@
+import { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -7,7 +8,6 @@ import {
   ethAssetId,
   ltcAssetId,
 } from '../../constants'
-import { AssetId } from './../../assetId/assetId'
 
 // derived from https://midgard.thorchain.info/v2/pools
 // Rarely changes. Will need to be updated as we add additional assets to thor swapper

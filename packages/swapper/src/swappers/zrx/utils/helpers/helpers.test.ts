@@ -1,8 +1,8 @@
 import { AxiosStatic } from 'axios'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
-import { getUsdRate } from '../helpers/helpers'
 import { zrxServiceFactory } from '../zrxService'
+import { getUsdRate } from './helpers'
 
 const axios: AxiosStatic = jest.createMockFromModule('axios')
 axios.create = jest.fn(() => axios)

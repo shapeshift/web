@@ -3,7 +3,7 @@ import { adapters, AssetId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorTypes } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
-import { isRune } from '../../utils/isRune/isRune'
+import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
 
 export const getPriceRatio = async (

@@ -23,7 +23,7 @@ function isConsole(reference: Reference) {
 
 export const rules: Record<
   string,
-  { meta: { type: string }; create: RuleModule<string, []>['create'] }
+  { meta: { type: string }; create: RuleModule<string>['create'] }
 > = {
   'no-native-console': {
     meta: {

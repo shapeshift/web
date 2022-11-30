@@ -5,9 +5,13 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { Swapper, SwapperType } from '../api'
-import { CowSwapper, ThorchainSwapper, ZrxSwapper } from '../swappers'
-import { CowSwapperDeps } from '../swappers/cow/CowSwapper'
-import { ThorchainSwapperDeps } from '../swappers/thorchain/types'
+import {
+  CowSwapper,
+  CowSwapperDeps,
+  ThorchainSwapper,
+  ThorchainSwapperDeps,
+  ZrxSwapper,
+} from '../swappers'
 import { ZrxSwapperDeps } from '../swappers/zrx/types'
 import { SwapperManager } from './SwapperManager'
 

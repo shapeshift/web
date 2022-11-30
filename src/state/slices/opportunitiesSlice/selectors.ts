@@ -366,7 +366,6 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               isLoaded: true,
               icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId].icon),
               opportunityName: opportunity.name,
-              rewardsAmountsCryptoPrecision: [] as const,
             },
           )
 

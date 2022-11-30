@@ -3,7 +3,6 @@ import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
 import assetsDescriptions from './descriptions'
-import { getRenderedIdenticonBase64, IdenticonOptions } from './GenerateAssetIcon'
 import localAssetData from './generatedAssetData.json'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
@@ -67,13 +66,5 @@ export class AssetService {
       const errorMessage = `AssetService:description: no description available for ${assetId}`
       throw new Error(errorMessage)
     }
-  }
-
-  async generateAssetIconBase64(
-    identity: string,
-    text?: string,
-    options?: IdenticonOptions,
-  ): Promise<string> {
-    return getRenderedIdenticonBase64(identity, text, options)
   }
 }

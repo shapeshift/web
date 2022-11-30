@@ -9,7 +9,7 @@ import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 
 const network = 1 // 1 for mainnet
-const provider = new JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
+const provider = new JsonRpcProvider(process.env.ETHEREUM_NODE_URL)
 export const yearnSdk = new Yearn(network, { provider })
 
 const explorerData = {

@@ -25,7 +25,6 @@ await api.initialize()
 * initialize
 * findAll
 * findByDepositVaultAddress
-* findByVaultTokenId
 * getGasPrice
 * getTxReceipt
 * checksumAddress

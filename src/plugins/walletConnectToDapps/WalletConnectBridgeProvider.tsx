@@ -98,20 +98,18 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   const signTypedData = useCallback(
-    async (hashableData: TypedData) => {
-      if (!hashableData) return
+    async (typedData: TypedData) => {
+      if (!typedData) return
       if (!wallet) return
       if (!wcAccountId) return
       const accountMetadata = accountMetadataById[wcAccountId]
       if (!accountMetadata) return
       const { bip44Params } = accountMetadata
       const addressNList = toAddressNList(bip44Params)
-      const messageToSign = { addressNList, hashableData }
+      const messageToSign = { addressNList, typedData }
       if (wallet instanceof KeepKeyHDWallet || wallet instanceof NativeHDWallet) {
         const signedMessage = await wallet?.ethSignTypedData(messageToSign)
         if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signTypedData failed')
-        console.log({ signedMessage })
-        debugger
         return signedMessage.signature
       }
     },

@@ -2,6 +2,7 @@
 
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import createCachedSelector from 're-reselect'
+import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 
 import type { ReduxState } from './reducer'
 import type { LpId, StakingId, UserStakingId } from './slices/opportunitiesSlice/types'
@@ -27,6 +28,7 @@ type ParamFilter = Partial<{
   userStakingId: UserStakingId
   stakingId: StakingId
   lpId: LpId
+  fiatRampAction: FiatRampAction
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -50,3 +52,4 @@ export const selectValidatorAddressParamFromFilter = selectParamFromFilter('vali
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
+export const selectFiatRampActionFromFilter = selectParamFromFilter('fiatRampAction')

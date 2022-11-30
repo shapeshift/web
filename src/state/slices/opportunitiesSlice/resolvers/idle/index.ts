@@ -136,7 +136,29 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset || bnOrZero(balance).eq(0)) continue
+    if (!asset) continue
+
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
+    }
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
+    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
+    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
+    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
+    if (bnOrZero(balance).eq(0)) {
+      // Zero out this user staking opportunity including rewards - all rewards are automatically claimed when withdrawing, see
+      // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
+      // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        stakedAmountCryptoPrecision: '0',
+        rewardsAmountsCryptoPrecision: [],
+      }
+      continue
+    }
 
     const opportunity = await (async () => {
       const maybeOpportunities = await idleInvestor.findAll()
@@ -161,13 +183,6 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       }) as [string] | [string, string]
     }
 
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-      assetReference: fromAssetId(stakingOpportunityId).assetReference,
-      chainId: fromAssetId(stakingOpportunityId).chainId,
-    }
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
       rewardsAmountsCryptoPrecision,

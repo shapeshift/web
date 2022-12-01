@@ -98,6 +98,7 @@ export const TransactionMethod = ({
     <>
       <TransactionGenericRow
         type={type}
+        status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         title={title}

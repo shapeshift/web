@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -55,8 +56,12 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
-    fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy, accountId })
-  }, [accountId, assetId, fiatRamps])
+    fiatRamps.open({
+      assetId: assetSupportsBuy ? assetId : ethAssetId,
+      fiatRampAction: FiatRampAction.Buy,
+      accountId,
+    })
+  }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
   return (
     <Stack
@@ -68,17 +73,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       flex={1}
     >
       <Flex direction='row' gap={2} flexWrap='wrap'>
-        {assetSupportsBuy && (
-          <Button
-            data-test='asset-action-buy-sell'
-            width={{ base: 'full', md: 'auto' }}
-            flex='auto'
-            onClick={handleBuySellClick}
-            leftIcon={<FaCreditCard />}
-          >
-            {translate('common.buySell')}
-          </Button>
-        )}
+        <Button
+          data-test='asset-action-buy-sell'
+          width={{ base: 'full', md: 'auto' }}
+          flex='auto'
+          onClick={handleBuySellClick}
+          leftIcon={<FaCreditCard />}
+          size='sm-multiline'
+        >
+          {assetSupportsBuy
+            ? translate('common.buySellAsset', { symbol: asset.symbol })
+            : translate('common.buySell')}
+        </Button>
 
         <Button
           onClick={handleSendClick}

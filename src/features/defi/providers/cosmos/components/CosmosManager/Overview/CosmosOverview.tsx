@@ -156,10 +156,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       asset={stakingAsset}
       name={opportunity.moniker}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
+      underlyingAssetsCryptoPrecision={[
         {
           ...stakingAsset,
-          cryptoBalance: cryptoAmountAvailable.toFixed(stakingAsset.precision),
+          cryptoBalancePrecision: cryptoAmountAvailable.toFixed(stakingAsset.precision),
           allocationPercentage: '1',
         },
       ]}

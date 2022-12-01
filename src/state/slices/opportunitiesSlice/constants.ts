@@ -75,7 +75,6 @@ export const baseEarnFarmingOpportunity = {
   fiatAmount: '',
   cryptoAmountBaseUnit: '',
   cryptoAmountPrecision: '',
-  rewardsAmountsCryptoPrecision: '',
   isLoaded: false,
   type: DefiType.Farming,
 }

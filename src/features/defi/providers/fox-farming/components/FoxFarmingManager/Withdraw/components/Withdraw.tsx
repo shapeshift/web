@@ -168,13 +168,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(opportunity?.cryptoAmountPrecision)
+      const crypto = bn(amountAvailableCryptoPrecision)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [opportunity?.cryptoAmountPrecision],
+    [amountAvailableCryptoPrecision],
   )
 
   const validateFiatAmount = useCallback(

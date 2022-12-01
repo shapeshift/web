@@ -59,7 +59,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
 
   const hoverOpportunityBg = useColorModeValue('gray.100', 'gray.750')
   const greenColor = useColorModeValue('green.600', 'green.400')
-  const hasActivePosition = bnOrZero(earnOpportunity?.cryptoAmount).gt(0) ?? false
+  const hasActivePosition = bnOrZero(earnOpportunity?.cryptoAmountBaseUnit).gt(0) ?? false
   const history = useHistory()
   const location = useLocation()
   const wrapperLinkProps = useMemo(

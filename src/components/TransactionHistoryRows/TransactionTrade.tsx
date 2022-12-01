@@ -66,7 +66,7 @@ export const TransactionTrade = ({
               <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
-          {txDetails.tx.trade && (
+          {txDetails.tx.trade?.type && (
             <Row title='transactionType'>
               <Text value={txDetails.tx.trade.type} />
             </Row>

@@ -147,7 +147,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
       ? transactions
           .filter(([, tx]) => {
             if (tx.transfers.length === 1) return types.includes(tx.transfers[0].type)
-            if (tx.trade) return types.includes(tx.trade.type)
+            if (tx.trade?.type) return types.includes(tx.trade.type)
             return false
           })
           .map(([txId]) => txId)

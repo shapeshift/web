@@ -182,7 +182,7 @@ export type ApprovalNeededOutput = {
 export enum SwapperName {
   Thorchain = 'THORChain',
   Osmosis = 'Osmosis',
-  CowSwap = 'CowSwap',
+  CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
 }
@@ -192,7 +192,7 @@ export enum SwapperType {
   ZrxAvalanche = '0xAvalanche',
   Thorchain = 'Thorchain',
   Osmosis = 'Osmosis',
-  CowSwap = 'CowSwap',
+  CowSwap = 'CoW Swap',
   Test = 'Test',
 }
 

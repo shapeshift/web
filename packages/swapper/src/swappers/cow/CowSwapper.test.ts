@@ -57,13 +57,13 @@ describe('CowSwapper', () => {
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
-      expect(swapper.name).toEqual('CowSwap')
+      expect(swapper.name).toEqual(SwapperName.CowSwap)
     })
   })
 
   describe('getType', () => {
     it('returns the correct type for CowSwapper', async () => {
-      await expect(swapper.getType()).toEqual(SwapperType.CowSwap)
+      expect(swapper.getType()).toEqual(SwapperType.CowSwap)
     })
   })
 

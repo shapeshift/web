@@ -776,6 +776,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
+    // remove existing dapp or wallet connections
+    if (type === KeyManager.WalletConnect) localStorage.removeItem('walletconnect')
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),

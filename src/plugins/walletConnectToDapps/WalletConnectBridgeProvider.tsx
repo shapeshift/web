@@ -49,11 +49,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const translate = useTranslate()
   const toast = useToast()
   const wallet = useWallet().state.wallet
+  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const [dapp, setDapp] = useState<IClientMeta | null>(null)
-  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
@@ -373,10 +373,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         moduleLogger.error(err, 'handleWcSessionUpdate')
       }
       moduleLogger.info('handleWcSessionUpdate', payload)
-      if (!payload?.params?.[0]?.accounts) {
-        debugger
-        handleDisconnect()
-      }
+      if (!payload?.params?.[0]?.accounts) handleDisconnect()
     },
     [handleDisconnect],
   )
@@ -464,10 +461,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     const isDifferentWallet = wcAddress && !walletEvmAddresses.includes(wcAddress)
     const isUnsupportedWallet = !isWalletConnectToDappsSupportedWallet
     const shouldDisconnect = isMissingWcAddress || isDifferentWallet || isUnsupportedWallet
-    if (shouldDisconnect) {
-      debugger
-      handleDisconnect()
-    }
+    shouldDisconnect && handleDisconnect()
   }, [handleDisconnect, isWalletConnectToDappsSupportedWallet, wallet, walletAccountIds])
 
   /**

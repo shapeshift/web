@@ -68,7 +68,8 @@ export const AllEarnOpportunities = () => {
     foxEthLpOpportunity,
     stakingOpportunities: stakingOpportunities.filter(
       opportunity =>
-        !opportunity.expired || (opportunity.expired && bnOrZero(opportunity.cryptoAmount).gt(0)),
+        !opportunity.expired ||
+        (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
   })
 

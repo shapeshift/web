@@ -262,9 +262,6 @@ export const foxFarmingStakingUserDataResolver = async ({
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const assets: AssetsState = state.assets
-  const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-  const foxPrecision = assets.byId[foxAssetId].precision
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
@@ -279,18 +276,14 @@ export const foxFarmingStakingUserDataResolver = async ({
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)
-  const stakedAmountCryptoPrecision = bnOrZero(stakedBalance.toString())
-    .div(bn(10).pow(lpAssetPrecision))
-    .toString()
-  const rewardsAmountsCryptoPrecision = [
-    bnOrZero(earned.toString()).div(bn(10).pow(foxPrecision)).toFixed(),
-  ] as [string]
+  const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
+  const rewardsAmountsCryptoBaseUnit = [earned.toString()] as [string]
 
   const data = {
     byId: {
       [serializeUserStakingId(accountId, opportunityId)]: {
-        stakedAmountCryptoPrecision,
-        rewardsAmountsCryptoPrecision,
+        stakedAmountCryptoBaseUnit,
+        rewardsAmountsCryptoBaseUnit,
       },
     },
     type: opportunityType,

@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 
@@ -157,8 +156,8 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        stakedAmountCryptoPrecision: '0',
-        rewardsAmountsCryptoPrecision: [],
+        stakedAmountCryptoBaseUnit: '0',
+        rewardsAmountsCryptoBaseUnit: [],
       }
       continue
     }
@@ -174,21 +173,21 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
     if (!opportunity) continue
 
-    let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
+    let rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
-      rewardsAmountsCryptoPrecision = claimableTokens.map(token => {
+      rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
-        return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
+        return bnOrZero(token.amount).toFixed()
       }) as [string] | [string, string]
     }
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
-      rewardsAmountsCryptoPrecision,
+      stakedAmountCryptoBaseUnit: balance,
+      rewardsAmountsCryptoBaseUnit,
     }
   }
 

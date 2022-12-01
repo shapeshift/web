@@ -559,6 +559,10 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
+      "sellAssetStartSentence": "Vermögenswerte verkaufen",
+      "buyAssetStartSentence": "Vermögenswerte kaufen",
+      "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
+      "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",

@@ -559,6 +559,10 @@
     },
     "errors": {
       "title": "Algo salió mal",
+      "sellAssetStartSentence": "Vender activo",
+      "buyAssetStartSentence": "Comprar activo",
+      "sellAssetMiddleSentence": "vender activo",
+      "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",

@@ -1,4 +1,4 @@
-import { Box, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
@@ -7,7 +7,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
@@ -20,47 +20,38 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   provider,
   chainId,
   contractAddress,
-  highestBalanceAccountAddress,
   rewardAddress,
   version,
 }) => {
   const location = useLocation()
   const history = useHistory()
-  const hoverBorderColor = useColorModeValue('blue.500', 'blue.200')
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
   const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
   const bgIcons = useMemo(() => {
-    return underlyingAssetIds.map(assetId => <AssetIcon size='2xl' assetId={assetId} />)
+    return underlyingAssetIds.map(assetId => (
+      <AssetIcon size='2xl' key={assetId} assetId={assetId} />
+    ))
   }, [underlyingAssetIds])
 
   const handleClick = useCallback(() => {
     const assetReference = fromAssetId(assetId).assetReference
 
     history.push({
-      pathname: `/defi/earn`,
+      pathname: location.pathname,
       search: qs.stringify({
         provider,
         chainId,
         contractAddress,
         assetReference,
-        highestBalanceAccountAddress: highestBalanceAccountAddress ?? '',
         rewardId: rewardAddress,
         modal: 'overview',
       }),
       state: { background: location },
     })
-  }, [
-    assetId,
-    chainId,
-    contractAddress,
-    highestBalanceAccountAddress,
-    history,
-    location,
-    provider,
-    rewardAddress,
-  ])
+  }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress])
   return (
     <Card
+      as='a'
       position='relative'
       scrollSnapAlign={{ base: 'center', md: 'start' }}
       overflow='hidden'
@@ -70,11 +61,9 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       width='full'
       transitionProperty='common'
       transitionDuration='normal'
+      data-test={`eligible-${provider}-${opportunityName?.replace(' ', '-').toLowerCase()}-button`}
       borderRadius={{ base: 'xl' }}
-      onClick={handleClick}
       _hover={{
-        borderColor: hoverBorderColor,
-        cursor: 'pointer',
         bg: hoverBgColor,
       }}
     >
@@ -96,9 +85,12 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       <Card.Footer display='flex' flexDir='column' mt='auto'>
         <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
         <Flex fontSize='sm' gap={1} color='gray.500'>
-          <RawText>Current TVL</RawText>
+          <Text translation='defi.currentTvl' />
           <Amount.Fiat value={tvl} fontWeight='bold' />
         </Flex>
+        <Button mt={4} variant='ghost-filled' colorScheme='blue' onClick={handleClick}>
+          Start Earning
+        </Button>
       </Card.Footer>
     </Card>
   )

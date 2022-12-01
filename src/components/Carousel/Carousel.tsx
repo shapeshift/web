@@ -1,3 +1,5 @@
+import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import { Box, Flex } from '@chakra-ui/react'
 import type { AnimationOptions, PanInfo } from 'framer-motion'
 import { animate, useMotionValue } from 'framer-motion'
 import type { ReactNode } from 'react'
@@ -40,11 +42,11 @@ export const Carousel = ({
   renderArrowLeft,
   renderArrowRight,
   renderDots,
-  autoPlay = true,
-  interval = 2000,
-  loop = true,
-  showArrows = true,
-  showDots = true,
+  autoPlay = false,
+  interval = 5000,
+  loop = false,
+  showArrows,
+  showDots,
 }: CarouselProps) => {
   const x = useMotionValue(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -111,36 +113,36 @@ export const Carousel = ({
   }, [childrens, handleEndDrag, x])
 
   return (
-    <Container ref={containerRef}>
-      {renderSlides}
-
-      {showArrows && (
-        <>
-          {/* left arrow */}
-          {renderArrowLeft ? (
-            renderArrowLeft({ handlePrev, activeIndex: index })
-          ) : (
-            <Arrow left onClick={handlePrev}>
-              &larr;
-            </Arrow>
-          )}
-          {/* right arrow */}
-          {renderArrowRight ? (
-            renderArrowRight({ handleNext, activeIndex: index })
-          ) : (
-            <Arrow onClick={handleNext}>&rarr;</Arrow>
-          )}
-        </>
+    <Box>
+      <Container ref={containerRef}>{renderSlides}</Container>
+      {(showArrows || showDots) && (
+        <Flex alignItems='center' justifyContent='space-between' mt={2}>
+          {showArrows &&
+            (renderArrowLeft ? (
+              renderArrowLeft({ handlePrev, activeIndex: index })
+            ) : (
+              <Arrow left onClick={handlePrev}>
+                <ArrowBackIcon />
+              </Arrow>
+            ))}
+          {/* dots */}
+          {showDots &&
+            childrens.length > 1 &&
+            (renderDots ? (
+              renderDots({ setActiveIndex: setIndex, activeIndex: index })
+            ) : (
+              <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
+            ))}
+          {showArrows &&
+            (renderArrowRight ? (
+              renderArrowRight({ handleNext, activeIndex: index })
+            ) : (
+              <Arrow onClick={handleNext}>
+                <ArrowForwardIcon />
+              </Arrow>
+            ))}
+        </Flex>
       )}
-
-      {/* dots */}
-      {showDots &&
-        childrens.length > 1 &&
-        (renderDots ? (
-          renderDots({ setActiveIndex: setIndex, activeIndex: index })
-        ) : (
-          <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
-        ))}
-    </Container>
+    </Box>
   )
 }

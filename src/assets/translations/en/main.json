@@ -81,7 +81,8 @@
     "search": "Search",
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found",
-    "buySell": "Buy/Sell"
+    "buySell": "Buy/Sell",
+    "viewAll": "View All"
   },
   "errorPage": {
     "title": "Oops!",
@@ -145,7 +146,8 @@
     },
     "tradeCard": {
       "trade": "Trade",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Earn"
     }
   },
   "fiatRamps": {
@@ -297,6 +299,7 @@
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
     "provider": "Provider",
+    "currentTvl": "Current TVL",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
     "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
     "confirmAndBroadcast": "Confirm & Broadcast",
@@ -326,6 +329,7 @@
     "ended": "Ended",
     "balance": "Balance",
     "defi": "DeFi",
+    "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
     "walletBalance": "Wallet Balance",

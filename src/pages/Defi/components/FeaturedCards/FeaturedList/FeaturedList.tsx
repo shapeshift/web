@@ -1,18 +1,21 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import type { BoxProps } from '@chakra-ui/react'
 import { Box, Flex, Grid, IconButton, useToken } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 
 type FeatureListProps = {
   slidesToShow?: number
   slideGap?: number
-} & PropsWithChildren
+} & PropsWithChildren &
+  BoxProps
 
 export const FeaturedList: React.FC<FeatureListProps> = ({
   children,
   slidesToShow = 4,
   slideGap = 4,
+  ...rest
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const gridGap = useToken('sizes', slideGap)
@@ -52,9 +55,9 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
   }, [handleScroll])
 
   return (
-    <Box position='relative' boxSizing='content-box' width='100%' my={4}>
+    <Box position='relative' boxSizing='content-box' width='100%' my={4} {...rest}>
       <Flex alignItems='center' justifyContent='space-between' mb={4} px={{ base: '20px', md: 6 }}>
-        <RawText fontWeight='bold'>Eligible Opportunities</RawText>
+        <Text translation='defi.eligibleOpportunities' fontWeight='bold' />
         <Flex gap={4}>
           <IconButton
             size='sm'

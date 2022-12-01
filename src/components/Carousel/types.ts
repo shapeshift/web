@@ -5,9 +5,9 @@ export type CarouselProps = {
   renderArrowLeft?: (args: { handlePrev: () => void; activeIndex: number }) => React.ReactNode
   renderArrowRight?: (args: { handleNext: () => void; activeIndex: number }) => React.ReactNode
   renderDots?: (args: Omit<DotProps, 'length'>) => React.ReactNode
-  autoPlay: boolean
-  interval: number
-  loop: boolean
+  autoPlay?: boolean
+  interval?: number
+  loop?: boolean
   showArrows?: boolean
   showDots?: boolean
 }

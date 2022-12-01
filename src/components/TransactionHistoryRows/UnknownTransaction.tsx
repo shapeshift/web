@@ -30,6 +30,7 @@ export const UnknownTransaction = ({
     <>
       <TransactionGenericRow
         type={''}
+        status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         title='transactionRow.unknown'

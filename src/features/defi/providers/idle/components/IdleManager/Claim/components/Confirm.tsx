@@ -27,7 +27,7 @@ import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -94,7 +94,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   // user info

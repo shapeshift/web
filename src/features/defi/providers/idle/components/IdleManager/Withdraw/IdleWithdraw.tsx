@@ -20,7 +20,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -86,7 +86,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   // user info

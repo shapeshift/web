@@ -20,7 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -83,7 +83,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   useEffect(() => {

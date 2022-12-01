@@ -24,7 +24,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssetById,
   selectAssets,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -117,7 +117,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   const underlyingAssetId = useMemo(

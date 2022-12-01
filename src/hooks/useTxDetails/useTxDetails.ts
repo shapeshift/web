@@ -1,5 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+//import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -23,7 +24,7 @@ export type Fee = unchained.Fee & { asset: Asset; marketData: MarketData }
 export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'unknown'
 
 // Adding a new supported method?
-// Also update transactionRow.parser translations and TransactionContract.tsx
+// Also update transactionRow.parser translations and TransactionMethod.tsx
 export enum Method {
   Deposit = 'deposit',
   Approve = 'approve',
@@ -70,10 +71,8 @@ export const getTransfers = (
   transfers: TxTransfer[],
   assets: AssetsById,
   marketData: Record<AssetId, MarketData | undefined>,
-  activeAsset?: Asset,
 ): Transfer[] => {
   return transfers.reduce<Transfer[]>((prev, transfer) => {
-    if (activeAsset && activeAsset.assetId !== transfer.assetId) return prev
     const asset = assets[transfer.assetId]
     return [
       ...prev,
@@ -82,13 +81,13 @@ export const getTransfers = (
   }, [])
 }
 
-export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
+export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectMarketData)
   const transfers = useMemo(
-    () => getTransfers(tx.transfers, assets, marketData, activeAsset),
-    [tx.transfers, assets, marketData, activeAsset],
+    () => getTransfers(tx.transfers, assets, marketData),
+    [tx.transfers, assets, marketData],
   )
 
   const fee = useMemo(() => {

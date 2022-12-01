@@ -131,3 +131,9 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type groupedElgibleOpportunityReturnType = {
+  underlyingAssetIds: string[]
+  opportunities: OpportunityId[]
+  netApy: number
+}

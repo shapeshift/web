@@ -28,6 +28,7 @@ import {
 import { selectMarketData } from '../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
+  groupedElgibleOpportunityReturnType,
   LpId,
   OpportunityId,
   OpportunityMetadata,
@@ -688,16 +689,10 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
   },
 )
 
-type groupedOpportunityReturnType = {
-  underlyingAssetIds: string[]
-  opportunities: OpportunityId[]
-  netApy: number
-}
-
 export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingEligibleOpportunities,
-    (userOpportunities): groupedOpportunityReturnType[] => {
+    (userOpportunities): groupedElgibleOpportunityReturnType[] => {
       const groupedList = chain(userOpportunities)
         .groupBy('underlyingAssetIds')
         .map((values, key) => {

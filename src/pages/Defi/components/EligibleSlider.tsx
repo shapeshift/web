@@ -1,5 +1,6 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -14,6 +15,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
     return stakingOpportunities
+      .filter(o => bnOrZero(o.tvl).gt(50000))
       .sort((a, b) => Number(b.apy) - Number(a.apy))
       .map(opportunity => <FeaturedCard key={opportunity.assetId} {...opportunity} />)
   }, [stakingOpportunities])

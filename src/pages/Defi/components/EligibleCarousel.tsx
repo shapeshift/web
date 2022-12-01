@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
@@ -14,6 +15,7 @@ export const EligibleCarousel = () => {
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
     return stakingOpportunities
+      .filter(o => bnOrZero(o.tvl).gt(50000))
       .sort((a, b) => Number(b.apy) - Number(a.apy))
       .map(opportunity => <FeaturedCard key={opportunity.assetId} {...opportunity} />)
   }, [stakingOpportunities])

@@ -86,7 +86,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.8.2",
-    "@shapeshiftoss/asset-service": "^8.1.5",
+    "@shapeshiftoss/asset-service": "^8.2.0",
     "@shapeshiftoss/caip": "^8.5.0",
     "@shapeshiftoss/chain-adapters": "^10.3.1",
     "@shapeshiftoss/errors": "^1.1.3",

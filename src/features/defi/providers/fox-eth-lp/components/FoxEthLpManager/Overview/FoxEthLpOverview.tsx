@@ -119,7 +119,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       icons={foxEthLpOpportunity.icons}
       name={foxEthLpOpportunity.opportunityName}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
-      underlyingAssets={underlyingAssetsWithBalancesAndIcons}
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={foxEthLpOpportunity.provider}
       description={{
         description: lpAsset?.description,

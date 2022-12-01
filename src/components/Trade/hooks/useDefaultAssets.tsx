@@ -23,9 +23,8 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-import { selectWalletAccountIds } from '../../../state/slices/portfolioSlice/selectors'
 
 /*
 The Default Asset Hook is responsible for populating the trade widget with initial assets.

@@ -14,9 +14,9 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs, SwapperName } from '@shapeshiftoss/swapper'
+import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -36,13 +36,14 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
-  selectAssetById,
   selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
+  selectTxById,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -66,7 +67,6 @@ export const TradeConfirm = () => {
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
-  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
   const flags = useSelector(selectFeatureFlags)
 
@@ -141,21 +141,14 @@ export const TradeConfirm = () => {
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
+  const sellTx = useAppSelector(state => selectTxById(state, sellTxid))
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const txLink = useMemo(() => {
-    switch (trade?.sources[0]?.name) {
-      case SwapperName.Osmosis:
-        return `${osmosisAsset?.explorerTxLink}${sellTxid}`
-      case SwapperName.CowSwap:
-        return `https://explorer.cow.fi/orders/${sellTxid}`
-      case SwapperName.Thorchain:
-        return `https://v2.viewblock.io/thorchain/tx/${sellTxid}`
-      default:
-        return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
-    }
-  }, [trade, sellTxid, osmosisAsset])
+  const sellTxLink = useMemo(
+    () => getTxLink({ tx: sellTx, defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '' }),
+    [sellTx, trade?.sellAsset?.explorerTxLink],
+  )
 
   const { showErrorToast } = useErrorHandler()
 
@@ -372,7 +365,7 @@ export const TradeConfirm = () => {
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={txLink}>
+                      <Link isExternal color='blue.500' href={sellTxLink}>
                         <Text translation='trade.viewTransaction' />
                       </Link>
                     </Box>

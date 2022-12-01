@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.4.1...@shapeshiftoss/unchained-client-v10.5.0) (2022-12-01)
+
+
+### Features
+
+* detect all active fox staking contracts ([#1112](https://github.com/shapeshift/lib/issues/1112)) ([03f08e2](https://github.com/shapeshift/lib/commit/03f08e2deaf3bba358d022beb67ff0701289f951))
+
 # [@shapeshiftoss/unchained-client-v10.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.4.0...@shapeshiftoss/unchained-client-v10.4.1) (2022-12-01)
 
 # [@shapeshiftoss/unchained-client-v10.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.3.0...@shapeshiftoss/unchained-client-v10.4.0) (2022-11-25)

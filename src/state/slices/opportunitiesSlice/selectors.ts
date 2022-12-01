@@ -4,7 +4,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
-import { createCachedSelector } from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -12,15 +11,19 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
   selectLpIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
+import {
+  selectPortfolioAccountBalances,
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectWalletAccountIds,
+} from '../common-selectors'
 import { selectMarketData } from '../marketDataSlice/selectors'
-import type { PortfolioAccountBalancesById } from '../portfolioSlice/portfolioSliceCommon'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
@@ -31,25 +34,6 @@ import type {
   UserStakingOpportunity,
 } from './types'
 import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
-
-/**
- * the accountIds from the wallet, not necessarily loaded
- */
-// Redeclared because of circular deps, don't export me
-const selectWalletAccountIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.portfolio.walletId,
-  (state: ReduxState) => state.portfolio.wallet.byId,
-  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
-)
-// Redeclared because of circular deps, don't export me
-const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
-  (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
-  (walletAccountIds, accountBalancesById) =>
-    pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
-      walletAccountIds.includes(accountId),
-    ),
-)
 
 // IDs selectors
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
@@ -407,43 +391,6 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
       })
     }, undefined),
 )
-
-const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalances,
-  (accountBalancesById): Record<AssetId, string> =>
-    Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAccountId) => {
-      Object.entries(byAccountId).forEach(
-        ([assetId, balance]) =>
-          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance).toString()).toString()),
-      )
-      return acc
-    }, {}),
-)
-
-const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
-  selectAssets,
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (assets, accountBalances, assetBalances, accountId, assetId): string | undefined => {
-    if (!assetId) return
-    const precision = assets?.[assetId]?.precision ?? 0
-    if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
-    return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
-  },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
-
-const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (accountBalances, assetBalances, accountId, assetId): string => {
-    if (accountId && assetId) return accountBalances?.[accountId]?.[assetId]
-    return assetId ? assetBalances[assetId] : '0'
-  },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
 // TODO: testme

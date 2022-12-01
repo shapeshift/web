@@ -1,12 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
-import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
+import type { IClientMeta } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
 import type { ethers } from 'ethers'
 import type { FC, PropsWithChildren } from 'react'
@@ -372,7 +373,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         moduleLogger.error(err, 'handleWcSessionUpdate')
       }
       moduleLogger.info('handleWcSessionUpdate', payload)
-      if (!payload?.params?.[0]?.accounts) handleDisconnect()
+      if (!payload?.params?.[0]?.accounts) {
+        debugger
+        handleDisconnect()
+      }
     },
     [handleDisconnect],
   )
@@ -422,20 +426,24 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   )
 
   /**
-   * initialize from existing session via local storage
-   */
-  const fromSession = useCallback((session: IWalletConnectSession) => {
-    const c = new WalletConnect({ bridge, session })
-    setConnector(c)
-    return c
-  }, [])
-
-  /**
    * handle wallet switch
    */
   useEffect(() => {
     if (!wallet) return
     if (!walletAccountIds.length) return
+    /**
+     * we are both a wallet, and a dapp. this is painful.
+     *
+     * if the wallet connected to us, as a dapp, is a walletconnect wallet,
+     * we don't want to disconnect, as the walletconnect connector is
+     * the same thing, whether we are acting as a dapp, or a wallet.
+     *
+     * e.g. we had a native wallet connected, and we were connected to a dapp
+     * via walletconnect, and a user switches from native to walletconnect wallet.
+     * hdwallet will overwrite the connector/session in local storage,
+     * leave it alone, and let hdwallet manage it.
+     */
+    if (wallet instanceof WalletConnectHDWallet) return
     const walletEvmAddresses = Array.from(
       new Set(
         walletAccountIds
@@ -456,51 +464,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     const isDifferentWallet = wcAddress && !walletEvmAddresses.includes(wcAddress)
     const isUnsupportedWallet = !isWalletConnectToDappsSupportedWallet
     const shouldDisconnect = isMissingWcAddress || isDifferentWallet || isUnsupportedWallet
-    if (shouldDisconnect) handleDisconnect()
+    if (shouldDisconnect) {
+      debugger
+      handleDisconnect()
+    }
   }, [handleDisconnect, isWalletConnectToDappsSupportedWallet, wallet, walletAccountIds])
-
-  const maybeHydrateSession = useCallback(() => {
-    if (!wallet) return
-    if (!isWalletConnectToDappsSupportedWallet) return
-    if (connector) return
-    if (!walletAccountIds.length) return
-    const wcSessionJsonString = localStorage.getItem('walletconnect')
-    if (!wcSessionJsonString) return
-    const session = JSON.parse(wcSessionJsonString) as IWalletConnectSession
-    const wcChainId = session?.chainId
-    const wcAddress: string | undefined = (session?.accounts ?? [])[0]
-    const hydratedWcAccountId = walletAccountIds.find(accountId => {
-      const { chainId, account } = fromAccountId(accountId)
-      const { chainNamespace, chainReference } = fromChainId(chainId)
-      const isEvmChain = chainNamespace === CHAIN_NAMESPACE.Evm
-      const isMatchingAccount = account === wcAddress
-      const isMatchingChainReference = parseInt(chainReference) === wcChainId
-      const result = isEvmChain && isMatchingAccount && isMatchingChainReference
-      return result
-    })
-    if (!hydratedWcAccountId) handleDisconnect()
-    setWcAccountId(hydratedWcAccountId)
-    fromSession(session)
-    const d = session?.peerMeta
-    if (d) setDapp(d)
-  }, [
-    connector,
-    fromSession,
-    handleDisconnect,
-    isWalletConnectToDappsSupportedWallet,
-    wallet,
-    walletAccountIds,
-  ])
 
   /**
    * public method for consumers
    */
   const connect = useCallback((uri: string) => fromURI(uri), [fromURI])
-
-  /**
-   * reconnect on mount
-   */
-  useEffect(() => maybeHydrateSession())
 
   return (
     <WalletConnectBridgeContext.Provider

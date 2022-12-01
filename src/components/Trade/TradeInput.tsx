@@ -32,7 +32,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'

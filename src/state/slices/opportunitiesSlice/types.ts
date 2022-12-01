@@ -42,14 +42,7 @@ export type OpportunityMetadata = {
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
-  /** @deprecated use stakedAmountCryptoBaseUnit instead and derive precision amount from it*/
-  stakedAmountCryptoPrecision: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountsCryptoPrecision:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
   rewardsAmountsCryptoBaseUnit:
     | readonly [string, string, string]
     | readonly [string, string]
@@ -132,15 +125,6 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
     | readonly [string, string]
     | readonly [string]
     | readonly []
-  /** @deprecated use rewardsAmountsCryptoBaseUnit instead and derive precision amount from it*/
-  rewardsAmountsCryptoPrecision?:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
-  /** @deprecated use base unit underlying amounts instead and derive precision amount from it*/
-  underlyingToken0AmountCryptoPrecision?: string
-  underlyingToken1AmountCryptoPrecision?: string
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean

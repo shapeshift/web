@@ -2,13 +2,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistReducer, persistStore } from 'redux-persist'
+import { createMigrate, PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -21,8 +22,11 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
+  version: 1,
   whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
+  // @ts-ignore createMigrate typings are wrong
+  migrate: createMigrate(migrations, { debug: false }),
 }
 
 const apiMiddleware = [

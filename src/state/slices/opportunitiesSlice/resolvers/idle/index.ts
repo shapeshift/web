@@ -154,8 +154,10 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        stakedAmountCryptoBaseUnit: '0',
         stakedAmountCryptoPrecision: '0',
         rewardsAmountsCryptoPrecision: [],
+        rewardsAmountsCryptoBaseUnit: [],
       }
       continue
     }
@@ -172,6 +174,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     if (!opportunity) continue
 
     let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
+    let rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
@@ -181,11 +184,20 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
         if (!asset) return '0'
         return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
       }) as [string] | [string, string]
+      rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
+        const asset = selectAssetById(state, token.assetId)
+        if (!asset) return '0'
+        return bnOrZero(token.amount).toFixed()
+      }) as [string] | [string, string]
     }
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
+      stakedAmountCryptoBaseUnit: balance,
+      stakedAmountCryptoPrecision: bn(balance)
+        .div(bn(10).pow(selectAssetById(state, opportunity.positionAsset.assetId).precision))
+        .toFixed(),
       rewardsAmountsCryptoPrecision,
+      rewardsAmountsCryptoBaseUnit,
     }
   }
 

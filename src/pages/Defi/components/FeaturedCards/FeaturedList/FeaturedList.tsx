@@ -1,7 +1,7 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Grid, IconButton, useToken } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { RawText } from 'components/Text'
 
 type FeatureListProps = {
@@ -16,6 +16,17 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const gridGap = useToken('sizes', slideGap)
+  const [isScrollEnd, setIsScrollEnd] = useState(false)
+  const [isScrollStart, setIsScrollStart] = useState(true)
+
+  const handleScroll = useCallback(() => {
+    if (!ref.current) return
+    const scrollWidth = ref.current.scrollWidth
+    const scrollOffset = ref.current.offsetWidth
+    const scrollLeft = ref.current.scrollLeft
+    setIsScrollEnd(scrollLeft + scrollOffset === scrollWidth)
+    setIsScrollStart(scrollLeft === 0)
+  }, [])
 
   const handleNext = useCallback(() => {
     if (!ref.current) return
@@ -31,8 +42,17 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
     ref.current.scrollLeft = currentPosition - width
   }, [])
 
+  useEffect(() => {
+    if (!ref.current) return
+    const scrollContainer = ref.current
+    scrollContainer.addEventListener('scroll', handleScroll)
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
+
   return (
-    <Box position='relative' boxSizing='content-box' width='100%' overflow='hidden' mt={4}>
+    <Box position='relative' boxSizing='content-box' width='100%' my={4}>
       <Flex alignItems='center' justifyContent='space-between' mb={4} px={{ base: '20px', md: 6 }}>
         <RawText fontWeight='bold'>Eligible Opportunities</RawText>
         <Flex gap={4}>
@@ -41,6 +61,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
             icon={<ArrowBackIcon />}
             aria-label='Back'
             onClick={handleBack}
+            isDisabled={isScrollStart}
             display={{ base: 'none', md: 'block' }}
           />
           <IconButton
@@ -48,6 +69,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
             size='sm'
             aria-label='Next'
             onClick={handleNext}
+            isDisabled={isScrollEnd}
             display={{ base: 'none', md: 'block' }}
           />
         </Flex>

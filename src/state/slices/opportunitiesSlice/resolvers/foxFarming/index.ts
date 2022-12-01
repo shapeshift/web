@@ -207,7 +207,7 @@ export const foxFarmingStakingMetadataResolver = async ({
       [opportunityId]: {
         apy,
         assetId: opportunityId,
-        provider: DefiProvider.FoxFarming,
+        provider: DefiProvider.ShapeShift,
         tvl,
         type: DefiType.Farming,
         underlyingAssetId: foxEthLpAssetId,

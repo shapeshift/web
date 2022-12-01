@@ -28,6 +28,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   const history = useHistory()
   const hoverBorderColor = useColorModeValue('blue.500', 'blue.200')
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
+  const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
   const bgIcons = useMemo(() => {
     return underlyingAssetIds.map(assetId => <AssetIcon size='2xl' assetId={assetId} />)
   }, [underlyingAssetIds])
@@ -74,34 +75,30 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       _hover={{
         borderColor: hoverBorderColor,
         cursor: 'pointer',
-        opacity: 0.7,
-        boxShadow: '0 0 0 4px rgba(0,0,0,.2)',
+        bg: hoverBgColor,
       }}
     >
-      <Box filter='blur(30px)' opacity='0.2' position='absolute' right='-10%' top='-10%'>
+      <Box filter='blur(30px)' opacity='0.2' position='absolute' left='-10%' top='-10%'>
         {bgIcons}
       </Box>
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
-        <Flex flexDir='column'>
-          <Tag>{version}</Tag>
-          <RawText fontWeight='bold' textShadow={textShadow}>
-            {opportunityName}
-          </RawText>
-          <RawText fontSize='sm' textTransform='uppercase' color='gray.500'>
-            {provider}
-          </RawText>
-        </Flex>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
+        <Tag mt={2}>{provider}</Tag>
       </Card.Header>
       <Card.Body py={0}>
-        <RawText>Current APY</RawText>
-        <Amount.Percent value={apy} fontSize='2xl' autoColor />
-      </Card.Body>
-      <Card.Footer display='flex' justifyContent='space-between' mt='auto'>
-        <RawText fontSize='sm' color='gray.500'>
-          Current TVL
+        <RawText fontWeight='bold' textShadow={textShadow}>
+          {opportunityName}
         </RawText>
-        <Amount.Fiat value={tvl} fontSize='sm' fontWeight='medium' />
+        <RawText fontSize='sm' color='gray.500'>
+          {version}
+        </RawText>
+      </Card.Body>
+      <Card.Footer display='flex' flexDir='column' mt='auto'>
+        <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
+        <Flex fontSize='sm' gap={1} color='gray.500'>
+          <RawText>Current TVL</RawText>
+          <Amount.Fiat value={tvl} fontWeight='bold' />
+        </Flex>
       </Card.Footer>
     </Card>
   )

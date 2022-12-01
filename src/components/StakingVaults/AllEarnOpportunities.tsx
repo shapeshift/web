@@ -110,7 +110,7 @@ export const AllEarnOpportunities = () => {
   )
 
   return (
-    <Card variant='outline' my={6} bg='transparent' border={0}>
+    <Card variant='unstyled' my={6}>
       <Card.Header flexDir='row' display='flex' px={4}>
         <Box>
           <Card.Heading>

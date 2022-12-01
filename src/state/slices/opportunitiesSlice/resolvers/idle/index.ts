@@ -87,6 +87,8 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           ...baseOpportunity,
           apy: opportunity.apy.toFixed(),
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
+          name: `${underlyingAsset.symbol} Vault`,
+          version: opportunity.version,
         }
       : {
           apy: opportunity.apy.toFixed(),

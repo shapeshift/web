@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import { chain, sumBy } from 'lodash'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import { createCachedSelector } from 're-reselect'
@@ -24,6 +25,7 @@ import type { PortfolioAccountBalancesById } from '../portfolioSlice/portfolioSl
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   LpId,
+  OpportunityId,
   OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
@@ -696,3 +698,29 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
     return opportunitiesThatUserHas
   },
 )
+
+type groupedOpportunityReturnType = {
+  underlyingAssetIds: string[]
+  opportunities: OpportunityId[]
+  netApy: number
+}
+
+export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingEligibleOpportunities,
+    (userOpportunities): groupedOpportunityReturnType[] => {
+      const groupedList = chain(userOpportunities)
+        .groupBy('underlyingAssetIds')
+        .map((values, key) => {
+          const netApy = sumBy(values, o => Number(o.apy))
+          const opportunities: any[] = values.map(o => o.assetId)
+          return {
+            underlyingAssetIds: key.split(','),
+            netApy,
+            opportunities,
+          }
+        })
+        .value()
+      return groupedList
+    },
+  )

@@ -25,6 +25,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAggregatedEarnUserStakingEligibleOpportunities,
+  selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId,
   selectAssetById,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
@@ -137,8 +138,8 @@ export const StakingVaults = () => {
   }, [stakingOpportunities])
   return (
     <Main titleComponent={<DefiHeader />}>
-      {/* <FoxFarmCTA /> */}
       <FeaturedList slidesToShow={4}>{renderEligibleCards}</FeaturedList>
+      <FoxFarmCTA />
       <AllEarnOpportunities />
     </Main>
   )

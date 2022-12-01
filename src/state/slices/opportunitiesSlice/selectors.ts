@@ -459,7 +459,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 
 // A staking opportunity parsed as an EarnOpportunityType
 // TODO: testme
-export const selectEarnUserStakingOpportunity = createDeepEqualOutputSelector(
+export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
   selectMarketData,
   selectAssets,

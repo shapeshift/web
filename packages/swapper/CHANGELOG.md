@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.5.3...@shapeshiftoss/swapper-v14.6.0) (2022-12-01)
+
+
+### Features
+
+* rename CowSwap -> CoW Swap ([#1111](https://github.com/shapeshift/lib/issues/1111)) ([5ca7439](https://github.com/shapeshift/lib/commit/5ca7439311da4b6d069cb9f28b10c7dffd083eba))
+
 # [@shapeshiftoss/swapper-v14.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.5.2...@shapeshiftoss/swapper-v14.5.3) (2022-12-01)
 
 # [@shapeshiftoss/swapper-v14.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.5.1...@shapeshiftoss/swapper-v14.5.2) (2022-11-30)

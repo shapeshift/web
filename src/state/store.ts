@@ -13,26 +13,12 @@ import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import {
-  initialState,
-  opportunitiesApi,
-  opportunitiesApiFactory,
-} from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
-const migrations = {
-  0: (state: ReduxState): ReduxState => {
-    // Migration to cleaopportunitiesApi and opportunitiesApi state
-    return {
-      ...state,
-      opportunities: initialState,
-      opportunitiesApi: opportunitiesApiFactory(),
-    }
-  },
-}
 const persistConfig = {
   key: 'root',
   version: 1,

@@ -20,6 +20,7 @@ import {
 import { selectAssets } from '../assetsSlice/selectors'
 import {
   selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectWalletAccountIds,

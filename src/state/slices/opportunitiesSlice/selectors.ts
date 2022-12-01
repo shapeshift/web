@@ -407,7 +407,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     assets,
     marketData,
   ): StakingEarnOpportunityType | undefined => {
-    if (!lpId || !lpAssetBalanceCryptoBaseUnit) return
+    if (!lpId) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price
     const opportunityMetadata = lpOpportunitiesById[lpId]

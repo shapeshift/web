@@ -20,7 +20,7 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const migrations = {
   0: (state: ReduxState): ReduxState => {
-    // Migration to cleaopportunitiesApi and opportunitiesApi state
+    // Migration to clear opportunitiesApi and opportunitiesApi state
     return {
       ...state,
       opportunities: initialState,

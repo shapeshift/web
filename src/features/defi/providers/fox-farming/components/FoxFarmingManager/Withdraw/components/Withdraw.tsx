@@ -15,7 +15,12 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -36,8 +41,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch } = useContext(WithdrawContext)
   const [isExiting, setIsExiting] = useState<boolean>(false)
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress } = query
-  const opportunity = state?.opportunity
+  const { chainId, contractAddress } = query
+
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
+
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })

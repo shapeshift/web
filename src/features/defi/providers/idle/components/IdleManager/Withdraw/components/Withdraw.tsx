@@ -19,7 +19,7 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -73,7 +73,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   useEffect(() => {

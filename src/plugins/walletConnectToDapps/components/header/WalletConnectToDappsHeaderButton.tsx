@@ -1,34 +1,27 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button } from '@chakra-ui/react'
-import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 
+import { useIsWalletConnectToDappsSupportedWallet } from '../../hooks/useIsWalletConnectToDappsSupportedWallet'
 import { ConnectModal } from '../modal/connect/Connect'
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
-  const {
-    state: { isConnected, wallet, isDemoWallet },
-    dispatch,
-  } = useWallet()
   const [isOpen, setOpen] = useState(false)
+  const handleOpen = useCallback(() => setOpen(true), [])
+  const handleClose = useCallback(() => setOpen(false), [])
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
 
-  if (!wallet) return null
-  // no walletconnect inception
-  const isWalletConnectWallet = wallet instanceof WalletConnectHDWallet
-  const isNotOfflineSigningWallet = !wallet.supportsOfflineSigning()
-  if (isWalletConnectWallet || isNotOfflineSigningWallet || isDemoWallet) return null
+  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
+  if (!isWalletConnectToDappsSupportedWallet) return null
 
   if (!walletConnect.connector || !walletConnect.dapp) {
     return (
@@ -36,16 +29,12 @@ export const WalletConnectToDappsHeaderButton = () => {
         <Button
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
-          onClick={() =>
-            isConnected
-              ? setOpen(true)
-              : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-          }
+          onClick={handleOpen}
           isLoading={!!walletConnect.connector}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>
-        <ConnectModal isOpen={isOpen} onClose={() => setOpen(false)} />
+        <ConnectModal isOpen={isOpen} onClose={handleClose} />
       </>
     )
   }

@@ -3,10 +3,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IWalletConnectSession } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
@@ -39,6 +37,7 @@ import type {
 } from './bridge/types'
 import type { ConfirmData } from './components/modal/callRequest/CallRequestCommon'
 import { CallRequestModal } from './components/modal/callRequest/CallRequestModal'
+import { useIsWalletConnectToDappsSupportedWallet } from './hooks/useIsWalletConnectToDappsSupportedWallet'
 import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
@@ -48,13 +47,12 @@ const bridge = 'https://bridge.walletconnect.org'
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
   const toast = useToast()
-  const {
-    state: { wallet, isDemoWallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const [dapp, setDapp] = useState<IClientMeta | null>(null)
+  const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
@@ -318,20 +316,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [connector],
   )
 
-  // const handleSessionUpdate = useCallback(
-  //   (...args: any) => {
-  //     if (!connector) return
-  //     if (!wcAccountId) return
-  //     const { chainId, account: address } = fromAccountId(wcAccountId)
-  //     const chainAdapter = getChainAdapterManager().get(chainId)
-  //     if (!chainAdapter) return
-  //     // connector.updateSession({
-  //     //   chainId: parseInt(fromChainId(chainId).chainReference),
-  //     //   accounts: [address],
-  //     // })
-  //   },
-  //   [connector, wcAccountId],
-  // )
+  const handleSessionUpdate = useCallback((args: unknown) => {
+    moduleLogger.info(args, 'handleSessionUpdate')
+  }, [])
 
   const handleDisconnect = useCallback(async () => {
     connector?.off('session_request')
@@ -349,30 +336,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     localStorage.removeItem('walletconnect')
   }, [connector])
 
-  // if evmChainId or wallet changes, update the walletconnect session
-  useEffect(() => {
-    // only care if we have an active bridge
-    if (connector && dapp && wallet) {
-      /**
-       * if evmChainId changes, we change the session chainId
-       * if the wallet changes, we gotta make sure new wallet supports eth,
-       * and also supports offline signing.
-       *
-       * disconnect from the dapp if wallet does not meet the requirements
-       */
-      if (evmChainId && supportsETH(wallet) && wcAccountId && wallet.supportsOfflineSigning()) {
-        const chainReference = fromChainId(evmChainId).chainReference
-        const chainId = parseInt(chainReference)
-        const accounts = [fromAccountId(wcAccountId).account]
-        connector.updateSession({ chainId, accounts })
-      } else {
-        handleDisconnect()
-      }
-    }
-    // we want to only look for chainId or wallet changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [evmChainId, wallet])
-
   const handleConnect = useCallback(
     (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
       if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
@@ -385,18 +348,20 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.
   const handleCallRequest = useCallback((err: Error | null, request: WalletConnectCallRequest) => {
-    if (err) {
-      moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
-    }
-    setCallRequest(request)
+    err
+      ? moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
+      : setCallRequest(request)
   }, [])
 
   const handleWcSessionRequest = useCallback(
     (err: Error | null, request: WalletConnectSessionRequest) => {
-      if (err) {
-        moduleLogger.error(err, { fn: 'handleWcSessionRequest' }, 'Error handling session request')
-      }
-      moduleLogger.info(request, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
+      err
+        ? moduleLogger.error(
+            err,
+            { fn: 'handleWcSessionRequest' },
+            'Error handling session request',
+          )
+        : moduleLogger.info(request, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
     },
     [],
   )
@@ -415,7 +380,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   useEffect(() => {
     if (!connector) return
     connector.on('session_request', handleSessionRequest)
-    // connector.on('session_update', handleSessionUpdate)
+    connector.on('session_update', handleSessionUpdate)
     connector.on('connect', handleConnect)
     connector.on('disconnect', handleDisconnect)
     connector.on('call_request', handleCallRequest)
@@ -427,7 +392,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     handleConnect,
     handleDisconnect,
     handleSessionRequest,
-    // handleSessionUpdate,
+    handleSessionUpdate,
     handleWcSessionRequest,
     handleWcSessionUpdate,
   ])
@@ -470,13 +435,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
    */
   useEffect(() => {
     if (!wallet) return
-    /**
-     * we are both a dapp, and a wallet
-     * they share the same connector, and it's hard to distinguish events
-     * for now, disallow conencting to shapeshift via walletconnect, and
-     * also using shapeshift as a wallet to connect to dapps
-     */
-    if (wallet instanceof WalletConnectHDWallet) return
     if (!walletAccountIds.length) return
     const walletEvmAddresses = Array.from(
       new Set(
@@ -496,14 +454,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     const wcAddress: string | undefined = (session?.accounts ?? [])[0]
     const isMissingWcAddress = !wcAddress
     const isDifferentWallet = wcAddress && !walletEvmAddresses.includes(wcAddress)
-    const isNotOfflineSigningWallet = !wallet.supportsOfflineSigning()
-    if (isDifferentWallet || isNotOfflineSigningWallet || isMissingWcAddress) handleDisconnect()
-  }, [handleDisconnect, wallet, walletAccountIds])
+    const isUnsupportedWallet = !isWalletConnectToDappsSupportedWallet
+    const shouldDisconnect = isMissingWcAddress || isDifferentWallet || isUnsupportedWallet
+    if (shouldDisconnect) handleDisconnect()
+  }, [handleDisconnect, isWalletConnectToDappsSupportedWallet, wallet, walletAccountIds])
 
   const maybeHydrateSession = useCallback(() => {
-    if (isDemoWallet) return
     if (!wallet) return
-    if (wallet instanceof WalletConnectHDWallet) return
+    if (!isWalletConnectToDappsSupportedWallet) return
     if (connector) return
     if (!walletAccountIds.length) return
     const wcSessionJsonString = localStorage.getItem('walletconnect')
@@ -525,7 +483,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     fromSession(session)
     const d = session?.peerMeta
     if (d) setDapp(d)
-  }, [connector, fromSession, handleDisconnect, isDemoWallet, wallet, walletAccountIds])
+  }, [
+    connector,
+    fromSession,
+    handleDisconnect,
+    isWalletConnectToDappsSupportedWallet,
+    wallet,
+    walletAccountIds,
+  ])
 
   /**
    * public method for consumers
@@ -535,9 +500,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   /**
    * reconnect on mount
    */
-  useEffect(() => {
-    maybeHydrateSession()
-  })
+  useEffect(() => maybeHydrateSession())
 
   return (
     <WalletConnectBridgeContext.Provider

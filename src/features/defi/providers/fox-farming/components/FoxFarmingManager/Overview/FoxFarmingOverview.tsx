@@ -114,7 +114,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
-      cryptoBalance: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+      cryptoBalancePrecision: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
         .div(bn(10).pow(stakingAsset.precision))
         .toFixed(6),
       allocationPercentage: '1',
@@ -141,7 +141,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(
     bn(10).pow(stakingAsset.precision),
   )
-  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountsCryptoPrecision[0])
+  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit[0]).div(
+    bn(10).pow(rewardAsset.precision),
+  )
   const hasClaim = rewardAmountAvailable.gt(0)
 
   if (!opportunityData || !underlyingAssetsWithBalancesAndIcons || !underlyingAssetsIcons) {
@@ -182,7 +184,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       icons={underlyingAssetsIcons}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       lpAsset={lpAssetWithBalancesAndIcons}
-      underlyingAssets={underlyingAssetsWithBalancesAndIcons}
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider='ShapeShift'
       menu={
         opportunityData.expired

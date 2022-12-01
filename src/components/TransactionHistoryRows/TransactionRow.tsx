@@ -25,7 +25,6 @@ export type TransactionRowProps = {
 
 export const TransactionRow = ({
   txId,
-  activeAsset,
   showDateAndGuide = false,
   useCompactMode = false,
   parentWidth,
@@ -40,7 +39,7 @@ export const TransactionRow = ({
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const txDetails = useTxDetails(txId, activeAsset)
+  const txDetails = useTxDetails(txId)
 
   const renderTransactionType = (
     txDetails: TxDetails,

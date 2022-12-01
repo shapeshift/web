@@ -8,25 +8,17 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { initialState, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
-const migrations = {
-  0: (state: ReduxState): ReduxState => {
-    // Migration to clear opportunitiesApi and opportunitiesApi state
-    return {
-      ...state,
-      opportunities: initialState,
-    }
-  },
-}
 const persistConfig = {
   key: 'root',
   version: 1,

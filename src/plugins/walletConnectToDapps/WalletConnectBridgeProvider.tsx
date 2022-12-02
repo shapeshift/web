@@ -123,10 +123,24 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           { chainId: candidateChainIdInt },
           'Unsupported chain id for wallet connect',
         )
-        // toast!
+        const supportedChainNames = evmChainIds
+          .map(chainId => {
+            return getChainAdapterManager().get(chainId)?.getDisplayName()
+          })
+          .join(', ')
+        const duration = 3000
+        const isClosable = true
+        const title = translate('plugins.walletConnectToDapps.unsupportedToast.title')
+        const description = translate('plugins.walletConnectToDapps.unsupportedToast.description', {
+          supportedChainNames,
+        })
+        const status = 'error' as const
+        const position = 'top-right' as const
+        const toastPayload = { title, description, status, duration, isClosable, position }
+        toast(toastPayload)
       }
     },
-    [connector, wcAccountId],
+    [connector, translate, toast, wcAccountId],
   )
 
   const eth_sign = useCallback(

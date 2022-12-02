@@ -1,6 +1,6 @@
 import { Box, Divider, useColorModeValue } from '@chakra-ui/react'
 import startCase from 'lodash/startCase'
-import { Fragment } from 'react'
+import { Fragment, useMemo } from 'react'
 import { FaCode } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -8,30 +8,32 @@ import { RawText } from 'components/Text'
 
 import { ModalCollapsableSection } from './ModalCollapsableSection'
 
-const PresenstKeyValues = ({ object }: { object: any }) => {
-  return (
-    <Box>
-      {Object.entries(object).map(([key, value], index, arr) => {
-        return (
-          <Fragment key={index}>
-            <>
-              <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
-                {startCase(key)}
-              </RawText>
-              {typeof value === 'object' ? (
-                <Box pt={4} pl={4}>
-                  <PresenstKeyValues object={value} />
-                </Box>
-              ) : (
-                <RawText fontFamily='monospace'>{value as string}</RawText>
-              )}
-            </>
-            {index !== arr.length - 1 && <Divider my={4} />}
-          </Fragment>
-        )
-      })}
-    </Box>
-  )
+/**
+ * yes, this is recursive jsx
+ */
+const PresentKeyValues = ({ object }: { object: any }) => {
+  const entries = useMemo(() => {
+    return Object.entries(object).map(([key, value], index, arr) => {
+      return (
+        <Fragment key={index}>
+          <>
+            <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
+              {startCase(key)}
+            </RawText>
+            {typeof value === 'object' ? (
+              <Box pt={4} pl={4}>
+                <PresentKeyValues object={value} />
+              </Box>
+            ) : (
+              <RawText fontFamily='monospace'>{value as string}</RawText>
+            )}
+          </>
+          {index !== arr.length - 1 && <Divider my={4} />}
+        </Fragment>
+      )
+    })
+  }, [object])
+  return <Box>{entries}</Box>
 }
 export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
   const cardBg = useColorModeValue('white', 'gray.850')
@@ -49,7 +51,7 @@ export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
           }
           icon={<FaCode />}
         >
-          <PresenstKeyValues object={parsedMessage.message} />
+          <PresentKeyValues object={parsedMessage.message} />
         </ModalCollapsableSection>
       </Card>
       {parsedMessage.domain && (
@@ -63,7 +65,7 @@ export const TypedMessageInfo = ({ typedData }: { typedData: string }) => {
             }
             icon={<FaCode />}
           >
-            <PresenstKeyValues object={parsedMessage.domain} />
+            <PresentKeyValues object={parsedMessage.domain} />
           </ModalCollapsableSection>
         </Card>
       )}

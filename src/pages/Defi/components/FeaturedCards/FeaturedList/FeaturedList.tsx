@@ -48,8 +48,12 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
   useEffect(() => {
     if (!ref.current) return
     const scrollContainer = ref.current
+    scrollContainer.addEventListener('resize', handleScroll)
     scrollContainer.addEventListener('scroll', handleScroll)
+    //check scroll position on mount
+    handleScroll()
     return () => {
+      scrollContainer.removeEventListener('resize', handleScroll)
       scrollContainer.removeEventListener('scroll', handleScroll)
     }
   }, [handleScroll])

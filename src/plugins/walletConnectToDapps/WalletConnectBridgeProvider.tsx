@@ -105,12 +105,26 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
       if (!connector) return
       if (!wcAccountId) return
-      const { chainId, account } = fromAccountId(wcAccountId)
+      const { account } = fromAccountId(wcAccountId)
       moduleLogger.info(payload, 'approve wc session')
-      connector.approveSession({
-        chainId: parseInt(fromChainId(chainId).chainReference),
-        accounts: [account],
-      })
+      // evm chain id integers (chain references in caip parlance, chainId in EVM parlance)
+      const supportedEvmChainReferenceInts = evmChainIds.map(chainId =>
+        parseInt(fromChainId(chainId).chainReference),
+      )
+      const candidateChainIdInt = payload.params[0].chainId
+      if (supportedEvmChainReferenceInts.includes(candidateChainIdInt)) {
+        connector.approveSession({
+          chainId: candidateChainIdInt,
+          accounts: [account],
+        })
+      } else {
+        connector.rejectSession()
+        moduleLogger.error(
+          { chainId: candidateChainIdInt },
+          'Unsupported chain id for wallet connect',
+        )
+        // toast!
+      }
     },
     [connector, wcAccountId],
   )

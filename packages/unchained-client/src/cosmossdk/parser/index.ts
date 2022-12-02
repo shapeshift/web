@@ -28,7 +28,7 @@ export class BaseTransactionParser<T extends Tx> {
       blockTime: tx.timestamp ?? Math.floor(Date.now() / 1000),
       chainId: this.chainId,
       confirmations: tx.confirmations,
-      status: tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending, // TODO: handle failed case
+      status: this.getStatus(tx),
       transfers: [],
       txid: tx.txid,
     }
@@ -76,5 +76,13 @@ export class BaseTransactionParser<T extends Tx> {
     })
 
     return parsedTx
+  }
+
+  private getStatus(tx: T): TxStatus {
+    if (tx.events['0']?.error) return TxStatus.Failed
+    if (tx.confirmations <= 0) return TxStatus.Pending
+    if (tx.confirmations > 0) return TxStatus.Confirmed
+
+    return TxStatus.Unknown
   }
 }

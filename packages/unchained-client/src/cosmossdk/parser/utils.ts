@@ -113,8 +113,10 @@ export const metaData = (
       }
     }
     case 'swap_exact_amount_in':
-      // TODO: parse applicable metadata
-      return
+      return {
+        parser: 'swap',
+        method: msg.type,
+      }
     case 'send':
       // known message types with no applicable metadata
       return

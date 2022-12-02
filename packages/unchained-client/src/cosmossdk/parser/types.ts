@@ -22,7 +22,7 @@ export interface IbcMetadata extends BaseTxMetadata {
 
 export interface SwapMetadata extends BaseTxMetadata {
   parser: 'swap'
-  memo: string
+  memo?: string
 }
 
 export interface LpMetadata extends BaseTxMetadata {

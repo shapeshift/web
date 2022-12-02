@@ -1,6 +1,6 @@
 import { osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 
-import { Fee, TransferType, TxStatus } from '../../../../types'
+import { Dex, Fee, TradeType, TransferType, TxStatus } from '../../../../types'
 import { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import delegate from './mockData/delegate'
@@ -375,7 +375,7 @@ describe('parseTx', () => {
 
   it('should be able to parse a swap exact amount in tx', async () => {
     const { tx, txNoFee, txWithFee } = swap_exact_amount_in
-    const address = 'osmo1qxtuxfu0axkrvwpncj26asv4py3x6mmw8hln6h'
+    const address = 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt'
 
     const fee: Fee = {
       assetId: osmosisAssetId,
@@ -394,13 +394,30 @@ describe('parseTx', () => {
       transfers: [
         {
           type: TransferType.Send,
-          assetId: osmosisAssetId,
+          assetId:
+            'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
           from: address,
-          to: '',
-          totalValue: '790572',
-          components: [{ value: '790572' }],
+          to: 'osmo1mw0ac6rwlp5r8wapwk3zs6g29h8fcscxqakdzw9emkne6c8wjp9q0t3v8t',
+          totalValue: '30000',
+          components: [{ value: '30000' }],
+        },
+        {
+          type: TransferType.Receive,
+          assetId: osmosisAssetId,
+          from: 'osmo1mw0ac6rwlp5r8wapwk3zs6g29h8fcscxqakdzw9emkne6c8wjp9q0t3v8t',
+          to: address,
+          totalValue: '268124',
+          components: [{ value: '268124' }],
         },
       ],
+      data: {
+        parser: 'swap',
+        method: 'swap_exact_amount_in',
+      },
+      trade: {
+        dexName: Dex.Osmosis,
+        type: TradeType.Trade,
+      },
     }
 
     const expectedWithFee = { ...expected, fee }

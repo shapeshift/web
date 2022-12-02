@@ -1080,8 +1080,15 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
     featureFlags,
   ): OpportunitiesDataFull[] => {
     // used to enable/disable staking by feature flag
-    const featureFlagFilter = !(assetId === osmosisAssetId && !featureFlags.OsmosisStaking)
-    if (defaultStakingData && featureFlagFilter) {
+    const shouldShowStakingOpportunities = (() => {
+      switch (assetId) {
+        case osmosisAssetId:
+          return featureFlags.OsmosisStaking
+        default:
+          return true
+      }
+    })()
+    if (defaultStakingData && shouldShowStakingOpportunities) {
       const dummy: OpportunitiesDataFull[] = [
         {
           isLoaded: true,
@@ -1095,7 +1102,8 @@ export const selectStakingOpportunitiesDataFullByFilter = createCachedSelector(
     }
     if (!assetId) return []
 
-    return portfolioValidatorIds.map(validatorId => {
+    const filteredValidatorIds = shouldShowStakingOpportunities ? portfolioValidatorIds : []
+    return filteredValidatorIds.map(validatorId => {
       const delegatedAmount = stakingDataByValidator
         .reduce((acc, currentStakingDataByValidator) => {
           acc = acc.plus(

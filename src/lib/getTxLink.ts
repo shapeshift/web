@@ -1,8 +1,9 @@
+import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Dex } from '@shapeshiftoss/unchained-client'
 
 type GetTxLink = {
-  name: SwapperName | Dex | undefined
+  name: SwapSource['name'] | Dex | undefined
   defaultExplorerBaseUrl: string
   txId: string
 }

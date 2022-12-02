@@ -19,15 +19,13 @@ type SignMessageConfirmationProps = {
 export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = props => {
   const { message, onConfirm, onReject } = props
   const translate = useTranslate()
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
-
   const cardBg = useColorModeValue('white', 'gray.850')
-
   const walletConnect = useWalletConnect()
+
   if (!walletConnect.connector || !walletConnect.dapp) return null
+
   const address = walletConnect.connector.accounts[0]
 
   return (
@@ -63,7 +61,7 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={() => onConfirm()}>
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={onReject}>

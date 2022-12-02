@@ -12,18 +12,20 @@ import { TypedMessageInfo } from './components/TypedMessageInfo'
 
 type CallRequest = WalletConnectEthSignTypedDataCallRequest
 
-type Props = {
+type SignTypedDataConfirmationPropsProps = {
   request: CallRequest
   onConfirm(): void
   onReject(): void
 }
 
-export const SignTypedDataConfirmation = ({ request, onConfirm, onReject }: Props) => {
+export const SignTypedDataConfirmation: React.FC<SignTypedDataConfirmationPropsProps> = ({
+  request,
+  onConfirm,
+  onReject,
+}) => {
   const walletConnect = useWalletConnect()
   const translate = useTranslate()
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
 
   if (!walletConnect.connector || !walletConnect.dapp) return null
@@ -41,7 +43,7 @@ export const SignTypedDataConfirmation = ({ request, onConfirm, onReject }: Prop
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={() => onConfirm()}>
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={onConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={onReject}>

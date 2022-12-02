@@ -77,7 +77,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <Tag size={{ base: 'sm', md: 'md' }} colorScheme='green'>
-              <Amount.Percent autoColor value={value ?? ''} />
+              <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>
         ),

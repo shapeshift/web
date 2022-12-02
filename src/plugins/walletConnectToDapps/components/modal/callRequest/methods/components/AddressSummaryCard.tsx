@@ -14,15 +14,19 @@ type AddressSummaryCardProps = {
   icon?: React.ReactNode
 }
 
-export const AddressSummaryCard = ({
+export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
   address,
   icon,
   showWalletProviderName = true,
-}: AddressSummaryCardProps) => {
+}) => {
   const { accountExplorerAddressLink } = useWalletConnect()
   const walletName = useWallet().state.walletInfo?.name ?? ''
+  const bgColor = useColorModeValue('white', 'gray.850')
+
+  if (!accountExplorerAddressLink) return null
+
   return (
-    <Card bg={useColorModeValue('white', 'gray.850')} py={4} pl={4} pr={2} borderRadius='md'>
+    <Card bg={bgColor} py={4} pl={4} pr={2} borderRadius='md'>
       <HStack spacing={0}>
         {icon && (
           <Box w={10} h={6} pr={4}>

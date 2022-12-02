@@ -43,6 +43,13 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     mode: 'onChange',
     defaultValues: { uri: '' },
   })
+  const handleSuccess = useCallback(
+    (uri: string) => {
+      setValue('uri', uri)
+      toggleQrCodeView()
+    },
+    [setValue, toggleQrCodeView],
+  )
   const canConnect = !!useWatch({ control, name: 'uri' })
 
   const feeAssetId: AssetId = useMemo(() => {
@@ -52,16 +59,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     return chainAdapter.getFeeAssetId()
   }, [evmChainId])
 
-  if (isQrCodeView)
-    return (
-      <QrCodeScanner
-        onSuccess={(uri: string) => {
-          setValue('uri', uri)
-          toggleQrCodeView()
-        }}
-        onBack={toggleQrCodeView}
-      />
-    )
+  if (isQrCodeView) return <QrCodeScanner onSuccess={handleSuccess} onBack={toggleQrCodeView} />
 
   return (
     <Box p={8}>

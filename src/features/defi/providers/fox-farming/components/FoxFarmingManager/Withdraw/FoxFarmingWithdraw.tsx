@@ -20,7 +20,10 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunity, selectPortfolioLoading } from 'state/slices/selectors'
+import {
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectPortfolioLoading,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
@@ -65,7 +68,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
     [accountId, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   const loading = useSelector(selectPortfolioLoading)

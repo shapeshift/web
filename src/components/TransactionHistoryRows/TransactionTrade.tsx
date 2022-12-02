@@ -35,6 +35,7 @@ export const TransactionTrade = ({
     <>
       <TransactionGenericRow
         type={txDetails.type}
+        status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}

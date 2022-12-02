@@ -85,9 +85,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           width={{ base: '100%', md: 'auto' }}
           isDisabled={!isValidChainId}
         >
-          <Link to={tradeAssetLink}>
-            {translate('assets.assetCards.assetActions.tradeAsset', { symbol: asset.symbol })}
-          </Link>
+          <Link to={tradeAssetLink}>{translate('assets.assetCards.assetActions.trade')}</Link>
         </Button>
         <Button
           data-test='asset-action-buy-sell'

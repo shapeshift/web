@@ -18,7 +18,7 @@ import { CopyButton } from './CopyButton'
 import { ExternalLinkButton } from './ExternalLinkButtons'
 import { ModalCollapsableSection } from './ModalCollapsableSection'
 
-type Props = {
+type ContractInteractionBreakdownProps = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
 }
 
@@ -29,7 +29,9 @@ const EncodedText = ({ value }: { value: string }) => (
   </Flex>
 )
 
-export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
+export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps> = ({
+  request,
+}) => {
   // TODO(Q): this shouldn't be feeAsset, get the real asset from request
   const { feeAsset } = useCallRequestFees(request)
 
@@ -69,6 +71,9 @@ export const ContractInteractionBreakdown: FC<Props> = ({ request }) => {
         )
     }
   }
+
+  if (!accountExplorerAddressLink) return null
+
   return (
     <ModalCollapsableSection
       title={

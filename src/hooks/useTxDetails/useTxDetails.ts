@@ -102,8 +102,9 @@ export const useTxDetails = (txId: string): TxDetails => {
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
 
   const explorerTxLink = getTxLink({
-    tx,
+    name: tx.trade?.dexName,
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+    txId: tx.txid,
   })
 
   return {

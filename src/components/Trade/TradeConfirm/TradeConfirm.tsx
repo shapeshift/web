@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { Swapper } from '@shapeshiftoss/swapper'
+import type { Swapper, SwapperName } from '@shapeshiftoss/swapper'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -36,7 +36,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLinkFromTrade } from 'lib/getTxLink'
+import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
@@ -145,8 +145,8 @@ export const TradeConfirm = () => {
 
   const sellTxLink = useMemo(
     () =>
-      getTxLinkFromTrade({
-        trade,
+      getTxLink({
+        name: trade?.sources[0]?.name as SwapperName,
         defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '',
         txId: sellTxid,
       }),

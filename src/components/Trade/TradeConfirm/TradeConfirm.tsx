@@ -36,14 +36,13 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLink } from 'lib/getTxLink'
+import { getTxLinkFromTrade } from 'lib/getTxLinkFromTx'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
   selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
-  selectTxById,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -141,13 +140,17 @@ export const TradeConfirm = () => {
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
-  const sellTx = useAppSelector(state => selectTxById(state, sellTxid))
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const sellTxLink = useMemo(
-    () => getTxLink({ tx: sellTx, defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '' }),
-    [sellTx, trade?.sellAsset?.explorerTxLink],
+    () =>
+      getTxLinkFromTrade({
+        trade,
+        defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '',
+        txId: sellTxid,
+      }),
+    [sellTxid, trade],
   )
 
   const { showErrorToast } = useErrorHandler()

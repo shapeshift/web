@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -112,9 +112,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         parseInt(fromChainId(chainId).chainReference),
       )
       const candidateChainIdInt = payload.params[0].chainId
-      if (supportedEvmChainReferenceInts.includes(candidateChainIdInt)) {
+      // some dapps don't send a chainId - default to eth mainnet
+      if (supportedEvmChainReferenceInts.includes(candidateChainIdInt) || !candidateChainIdInt) {
         connector.approveSession({
-          chainId: candidateChainIdInt,
+          chainId: candidateChainIdInt ?? parseInt(CHAIN_REFERENCE.EthereumMainnet),
           accounts: [account],
         })
       } else {

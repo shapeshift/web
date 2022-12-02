@@ -36,7 +36,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getTxLinkFromTrade } from 'lib/getTxLinkFromTx'
+import { getTxLinkFromTrade } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {

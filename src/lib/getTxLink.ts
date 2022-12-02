@@ -9,7 +9,7 @@ type getTxLinkFromTxArgs = {
   defaultExplorerBaseUrl: string
 }
 
-export const getTxLinkFromTx = ({ tx, defaultExplorerBaseUrl }: getTxLinkFromTxArgs) => {
+export const getTxLink = ({ tx, defaultExplorerBaseUrl }: getTxLinkFromTxArgs) => {
   switch (tx.trade?.dexName) {
     case Dex.Osmosis:
       return `https://www.mintscan.io/osmosis/txs/${tx.txid}`

@@ -1332,7 +1332,8 @@
       "assetActions": {
         "buy": "Buy",
         "sell": "Sell",
-        "trade": "Trade"
+        "trade": "Trade",
+        "tradeAsset": "Trade %{symbol}"
       },
       "accountTokens": "Account Tokens",
       "showTokens": "Show Tokens (%{amount})",

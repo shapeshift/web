@@ -1,9 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
+import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
@@ -29,6 +31,10 @@ type JunoPayResponse = {
       }[]
     }
   }
+}
+
+export const getSupportedJunoPayFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return ['USD', 'CAD', 'EUR', 'CZK']
 }
 
 export async function getJunoPayAssets(): Promise<AssetId[]> {

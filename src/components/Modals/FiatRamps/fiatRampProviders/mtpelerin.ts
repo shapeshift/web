@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
@@ -16,6 +17,10 @@ type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string
   }
+}
+
+export const getMtPerlinFiatCurrencies = (): SupportedFiatCurrencies[] => {
+  return ['USD', 'EUR', 'RUB']
 }
 
 export async function getMtPelerinAssets(): Promise<AssetId[]> {

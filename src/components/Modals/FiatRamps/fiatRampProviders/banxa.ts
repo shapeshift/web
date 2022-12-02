@@ -1,7 +1,12 @@
 import { adapters } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
+
+export const getSupportedBanxaFiatCurrencies = (): SupportedFiatCurrencies[] => {
+  return ['USD', 'CAD']
+}
 
 export const createBanxaUrl = ({ assetId, address, action }: CreateUrlProps): string => {
   const asset = adapters.assetIdToBanxaTicker(assetId)

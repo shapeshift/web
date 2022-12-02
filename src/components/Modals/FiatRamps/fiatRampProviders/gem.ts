@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import flatten from 'lodash/flatten'
@@ -39,6 +40,10 @@ export type SupportedCurrency = {
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'gem'],
 })
+
+export const getSupportedGemFiatCurrencies = (): SupportedFiatCurrencies[] => {
+  return ['USD', 'CAD']
+}
 
 export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
   moduleLogger.trace(

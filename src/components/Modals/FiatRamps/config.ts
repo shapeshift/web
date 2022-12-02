@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -9,17 +10,31 @@ import OnRamperLogo from 'assets/on-ramper.png'
 import { logger } from 'lib/logger'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import { createBanxaUrl } from './fiatRampProviders/banxa'
+import type commonFiatCurrencyList from './FiatCurrencyList.json'
+import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
+  getSupportedGemFiatCurrencies,
   makeGemPartnerUrl,
   parseGemBuyAssets,
   parseGemSellAssets,
 } from './fiatRampProviders/gem'
-import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
-import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
-import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
+import {
+  createJunoPayUrl,
+  getJunoPayAssets,
+  getSupportedJunoPayFiatCurrencies,
+} from './fiatRampProviders/junopay'
+import {
+  createMtPelerinUrl,
+  getMtPelerinAssets,
+  getMtPerlinFiatCurrencies,
+} from './fiatRampProviders/mtpelerin'
+import {
+  createOnRamperUrl,
+  getOnRamperAssets,
+  getSupportedOnRamperFiatCurrencies,
+} from './fiatRampProviders/onramper'
 import type { CreateUrlProps } from './types'
 
 const moduleLogger = logger.child({
@@ -28,6 +43,8 @@ const moduleLogger = logger.child({
 
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+
+export type CommonFiatCurrencies = keyof typeof commonFiatCurrencyList
 
 export interface SupportedFiatRampConfig {
   id: FiatRamp
@@ -42,6 +59,7 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
+  getSupportedFiatList?: () => CommonFiatCurrencies[]
   onSubmit: (args: CreateUrlProps) => string | undefined
   minimumSellThreshold?: number
 }
@@ -63,6 +81,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAssetIds = parseGemBuyAssets(currencyList)
       const sellAssetIds = parseGemSellAssets(currencyList)
       return [buyAssetIds, sellAssetIds]
+    },
+    getSupportedFiatList: () => {
+      return getSupportedGemFiatCurrencies()
     },
     onSubmit: props => {
       try {
@@ -87,6 +108,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
+    getSupportedFiatList: () => getSupportedOnRamperFiatCurrencies(),
     onSubmit: props => {
       try {
         const onRamperCheckoutUrl = createOnRamperUrl(props)
@@ -108,6 +130,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
+    getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)
@@ -129,6 +152,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds: AssetId[] = []
       return [buyAssetIds, sellAssetIds]
     },
+    getSupportedFiatList: () => getSupportedJunoPayFiatCurrencies(),
     onSubmit: props => {
       try {
         const junoPayCheckoutUrl = createJunoPayUrl(props)
@@ -152,6 +176,9 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     getBuyAndSellList: async () => {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
+    },
+    getSupportedFiatList: () => {
+      return getMtPerlinFiatCurrencies()
     },
     onSubmit: props => {
       try {

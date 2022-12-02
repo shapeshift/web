@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
@@ -43,6 +44,10 @@ const getGatewayData = async () => {
   } catch (e) {
     moduleLogger.error(e, 'Failed to fetch assets')
   }
+}
+
+export const getSupportedOnRamperFiatCurrencies = (): SupportedFiatCurrencies[] => {
+  return ['USD', 'CAD']
 }
 
 export const getOnRamperAssets = async (): Promise<AssetId[]> => {

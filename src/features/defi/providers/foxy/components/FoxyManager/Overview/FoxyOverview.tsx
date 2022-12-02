@@ -17,7 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -78,7 +78,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(foxyBalance).div(`1e${stakingAsset.precision}`)
+  const cryptoAmountAvailable = bnOrZero(foxyBalance).div(bn(10).pow(stakingAsset?.precision ?? 0))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(releaseTime))
   const hasClaim = rewardBalance.gt(0)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.7.0...@shapeshiftoss/unchained-client-v10.8.0) (2022-12-02)
+
+
+### Features
+
+* **unchained-client:** detect failed transaction for cosmossdk chains ([#1113](https://github.com/shapeshift/lib/issues/1113)) ([50a9b74](https://github.com/shapeshift/lib/commit/50a9b74e5ca532f796794c0cd1f9daed9d5d6700))
+
 # [@shapeshiftoss/unchained-client-v10.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.6.0...@shapeshiftoss/unchained-client-v10.7.0) (2022-12-02)
 
 

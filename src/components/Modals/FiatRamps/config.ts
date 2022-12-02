@@ -20,7 +20,7 @@ import {
 import { createJunoPayUrl, getJunoPayAssets } from './fiatRampProviders/junopay'
 import { createMtPelerinUrl, getMtPelerinAssets } from './fiatRampProviders/mtpelerin'
 import { createOnRamperUrl, getOnRamperAssets } from './fiatRampProviders/onramper'
-import type { FiatRampAction } from './FiatRampsCommon'
+import type { CreateUrlProps } from './types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'config'],
@@ -30,6 +30,7 @@ export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 export interface SupportedFiatRampConfig {
+  id: FiatRamp
   // key of translation jsons, will be used to show the provider name in the list
   label: string
   // key of translation jsons, will be used to show the provider info in the list
@@ -41,16 +42,17 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  onSubmit: (action: FiatRampAction, asset: AssetId, address: string) => void
+  onSubmit: (args: CreateUrlProps) => string | undefined
   minimumSellThreshold?: number
 }
 
-export const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
+const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper'] as const
 export type FiatRamp = typeof fiatRamps[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
 export const supportedFiatRamps: SupportedFiatRamp = {
   Gem: {
+    id: 'Gem',
     label: 'fiatRamps.gem',
     logo: gemLogo,
     order: 1,
@@ -62,19 +64,19 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = parseGemSellAssets(currencyList)
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToGemTicker(assetId)
-        const gemPartnerUrl = makeGemPartnerUrl(action, ticker, address)
-        window.open(gemPartnerUrl, '_blank')?.focus()
+        const gemPartnerUrl = makeGemPartnerUrl(props)
+        return gemPartnerUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Gem onSubmit' }, 'Asset not supported by Gem')
       }
     },
-    isActive: () => true,
+    isActive: () => false,
     minimumSellThreshold: 5,
   },
   OnRamper: {
+    id: 'OnRamper',
     label: 'fiatRamps.onRamper',
     tags: ['Aggregator'],
     logo: OnRamperLogo,
@@ -85,43 +87,38 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getOnRamperAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const onRamperCheckoutUrl = createOnRamperUrl(
-          action,
-          assetId,
-          address,
-          window.location.href,
-        )
-        window.open(onRamperCheckoutUrl, '_blank')?.focus()
+        const onRamperCheckoutUrl = createOnRamperUrl(props)
+        return onRamperCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'OnRamper onSubmit' }, 'Asset not supported by OnRamper')
       }
     },
   },
   Banxa: {
+    id: 'Banxa',
     label: 'fiatRamps.banxa',
     logo: banxaLogo,
     isActive: () => true,
     minimumSellThreshold: 50,
     order: 3,
-    getBuyAndSellList: async () => {
+    getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
       const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
-      return [buyAssetIds, sellAssetIds]
+      return Promise.resolve([buyAssetIds, sellAssetIds])
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToBanxaTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by Banxa')
-        const banxaCheckoutUrl = createBanxaUrl(action, ticker, address)
-        window.open(banxaCheckoutUrl, '_blank')?.focus()
+        const banxaCheckoutUrl = createBanxaUrl(props)
+        return banxaCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'Banxa onSubmit' }, 'Asset not supported by Banxa')
       }
     },
   },
   JunoPay: {
+    id: 'JunoPay',
     label: 'fiatRamps.junoPay',
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
@@ -132,18 +129,17 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds: AssetId[] = []
       return [buyAssetIds, sellAssetIds]
     },
-    onSubmit: (action, assetId, address) => {
+    onSubmit: props => {
       try {
-        const ticker = adapters.assetIdToJunoPayTicker(assetId)
-        if (!ticker) throw new Error('Asset not supported by JunoPay')
-        const junoPayCheckoutUrl = createJunoPayUrl(action, ticker, address)
-        window.open(junoPayCheckoutUrl, '_blank')?.focus()
+        const junoPayCheckoutUrl = createJunoPayUrl(props)
+        return junoPayCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'JunoPay onSubmit' }, 'Asset not supported by JunoPay')
       }
     },
   },
   MtPelerin: {
+    id: 'MtPelerin',
     label: 'fiatRamps.mtPelerin',
     tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
     logo: MtPelerinLogo,
@@ -157,10 +153,10 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    onSubmit: (action, assetId) => {
+    onSubmit: props => {
       try {
-        const mtPelerinCheckoutUrl = createMtPelerinUrl(action, assetId)
-        window.open(mtPelerinCheckoutUrl, '_blank')?.focus()
+        const mtPelerinCheckoutUrl = createMtPelerinUrl(props)
+        return mtPelerinCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
       }

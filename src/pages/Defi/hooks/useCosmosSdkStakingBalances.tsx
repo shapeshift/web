@@ -9,10 +9,9 @@ import {
   selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 type UseCosmosStakingBalancesProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   assetId: AssetId
 }
 
@@ -47,7 +46,7 @@ export function useCosmosSdkStakingBalances({
     selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
 
-  const mergedActiveStakingOpportunities = useMemo(() => {
+  const mergedActiveStakingOpportunities: MergedActiveStakingOpportunity[] = useMemo(() => {
     if (!asset) return []
     if (!marketData?.price) return []
 
@@ -63,10 +62,11 @@ export function useCosmosSdkStakingBalances({
         .toString()
       const data = {
         ...opportunity,
-        cryptoAmount: bnOrZero(opportunity.totalDelegations)
+        cryptoAmountBaseUnit: bnOrZero(opportunity.totalDelegations).toFixed(),
+        cryptoAmountPrecision: bnOrZero(opportunity.totalDelegations)
           .div(`1e+${asset?.precision}`)
           .decimalPlaces(asset.precision)
-          .toString(),
+          .toFixed(),
         tvl,
         fiatAmount,
         chainId: asset.chainId,

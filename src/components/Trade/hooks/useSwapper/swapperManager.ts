@@ -37,15 +37,13 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  if (flags.CowSwap) {
-    const cowSwapper = new CowSwapper({
-      adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-      web3: ethWeb3,
-    })
+  const cowSwapper = new CowSwapper({
+    adapter: ethereumChainAdapter,
+    apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+    web3: ethWeb3,
+  })
 
-    _swapperManager.addSwapper(cowSwapper)
-  }
+  _swapperManager.addSwapper(cowSwapper)
 
   const zrxEthereumSwapper = new ZrxSwapper({
     web3: ethWeb3,
@@ -78,9 +76,9 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     })()
   }
 
-  if (flags.Osmosis) {
-    const osmoUrl = getConfig().REACT_APP_OSMOSIS_NODE_URL
-    const cosmosUrl = getConfig().REACT_APP_COSMOS_NODE_URL
+  if (flags.OsmosisSwap) {
+    const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
+    const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
     _swapperManager.addSwapper(osmoSwapper)
   }

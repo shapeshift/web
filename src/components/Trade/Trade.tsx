@@ -1,10 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
-import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
+import { TradeRoutes } from './TradeRoutes/TradeRoutes'
 import type { TS } from './types'
 import { TradeAmountInputField } from './types'
 
@@ -26,7 +27,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       sellTradeAsset: { amount: '0' },
       buyTradeAsset: { amount: '0' },
       isExactAllowance: false,
-      slippage: 0.002,
+      slippage: DEFAULT_SLIPPAGE,
       action: TradeAmountInputField.SELL_CRYPTO,
       isSendMax: false,
     },
@@ -79,12 +80,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
 
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={entries}>
-        <Switch>
-          <Route path='/'>
-            <TradeRoutes />
-          </Route>
-        </Switch>
+      <MemoryRouter>
+        <TradeRoutes />
       </MemoryRouter>
     </FormProvider>
   )

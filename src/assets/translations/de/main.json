@@ -77,7 +77,30 @@
     "selectAsset": "Wählen Sie einen Vermögenswert aus",
     "switchNetwork": "Netzwerk wechseln",
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
-    "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar."
+    "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
+    "search": "Suchen",
+    "enterAmount": "Betrag eingeben",
+    "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden"
+  },
+  "errorPage": {
+    "title": "Hoppala!",
+    "body": "Etwas ist schief gelaufen",
+    "cta": "Versuchen Sie es nochmal"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Krypto kaufen",
+      "second": "in Sekunden"
+    },
+    "body": "Verwenden Sie eine Kreditkarte,  Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
+    "disclaimer": "*Sie können Krypto auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
+    "cta": {
+      "title": {
+        "first": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und",
+        "second": "Verfolgen Sie Ihre Krypto über 8 Ketten"
+      }
+    },
+    "availableAssets": "Verfügbare Vermögenswerte"
   },
   "updateToast": {
     "body": "Eine neue Version der App ist verfügbar",
@@ -108,6 +131,8 @@
       "value": "Wert",
       "priceChange": "Preisänderung",
       "allocation": "Vermögenskontingent",
+      "marketCap": "Marktkapitalisierung",
+      "sparkLine": "Sparkline",
       "empty": {
         "title": "Grillengeräusche...",
         "cta": "Schicken Sie sich ein paar Krypto!"
@@ -116,6 +141,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "kürzliche Transaktionen"
+    },
+    "tradeCard": {
+      "trade": "Handeln",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -146,7 +175,8 @@
     "nonUS": "Nicht-US Bürger",
     "availableProviders": "Verfügbare Anbieter",
     "noProvidersAvailable": "Keine Anbieter verfügbar",
-    "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert."
+    "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert.",
+    "notSupported": "%{asset} wird von %{wallet} nicht unterstützt"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -249,6 +279,10 @@
         "claimYour": "Fordern Sie Ihre %{opportunity} an"
       }
     },
+    "memoNote": {
+      "title": "Bitte bearbeiten Sie das Transaktionsmemo nicht",
+      "body": "Transaktionen, die von ShapeShift stammen, unterstützen die DAO."
+    },
     "amountToStake": "Betrag für Staking",
     "amountToUnstake": "Betrag von Staking entfernen",
     "confirmDetails": "Einzelheiten bestätigen",
@@ -283,6 +317,7 @@
     "asset": "Vermögenswert",
     "category": "Kategorie",
     "tvl": "TVL",
+    "type": "Art",
     "apy": "Jährlicher Zinsertrag",
     "apr": "Jährliche Rendite",
     "ended": "Beendet",
@@ -364,6 +399,7 @@
     "assetStakingBalance": "%{assetSymbol} Staking Kontostand"
   },
   "navBar": {
+    "home": "Startseite",
     "dashboard": "Dashboard",
     "assets": "Vermögenswerte",
     "assetDetails": "Details der Vermögenswerte ",
@@ -383,7 +419,8 @@
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
     "wallet": "Wallet",
     "explore": "Entdecken",
-    "trade": "Handeln"
+    "trade": "Handeln",
+    "buyCrypto": "Krypto kaufen/verkaufen"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -522,6 +559,10 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
+      "sellAssetStartSentence": "Vermögenswerte verkaufen",
+      "buyAssetStartSentence": "Vermögenswerte kaufen",
+      "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
+      "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
@@ -568,6 +609,13 @@
     "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
+    "popup": {
+      "body": "Wir haben ein sicheres Fenster geöffnet, um Ihre Bestellung abzuschließen.",
+      "body2": "Sie sehen das sichere Fenster nicht? Wir helfen Ihnen, das Fenster neu zu starten, um Ihre Bestellung abzuschließen.",
+      "continue": "Klicke um Fortzufahren",
+      "showWindow": "zeige Fenster",
+      "cancel": "Abbrechen"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -959,7 +1007,7 @@
           "pin": "Die PIN ist eine Kombination aus bis zu 9 Zahlen, die Sie nach der Initialisierung Ihres KeepKey auswählen. Eine PIN schützt Ihr Gerät vor unbefugter Nutzung, falls Ihr KeepKey in die falschen Hände gerät.",
           "passphrase": "Aktivieren Sie die Möglichkeit, mehrere Wallets zu haben, auf die Sie zugreifen können, indem Sie eine eindeutige Passphrase für jede Wallet verwenden.",
           "label": "Durch die Kennzeichnung der einzelnen Geräte können Sie sie leicht voneinander unterscheiden.",
-          "timeout": "Ihr Gerät wechselt standardmäßig nach 10 Minuten Aktivität in den Ruhezustand. Sie können dies jedoch ändern.",
+          "timeout": "Ihr Gerät wechselt standardmäßig nach 10 Minuten Inaktivität in den Ruhezustand. Sie können dies jedoch ändern.",
           "buttonPrompt": "Halten Sie die Taste auf Ihrem KeepKey gedrückt, um die %{Einstellung} des Geräts zu ändern.",
           "updateSuccess": "%{setting} erfolgreich aktualisiert!",
           "updateFailed": "Beim Aktualisieren von %{setting} ist ein Fehler aufgetreten.",
@@ -1311,7 +1359,10 @@
     "selectChain": "Wählen Sie das Netzwerk aus, für das Sie ein Konto erstellen möchten.",
     "requiresPriorTxHistory": "Sie können nur dann ein neues Konto hinzufügen, wenn die bestehenden Konten über einen früheren Transaktionsverlauf verfügen",
     "newAccountAdded": "Neues %{name} Konto hinzugefügt",
-    "youCanNowUse": "Verwenden Sie nun %{name} Konto #%{accountNumber}"
+    "youCanNowUse": "Verwenden Sie nun %{name} Konto #%{accountNumber}",
+    "showAssets": "Vermögen anzeigen",
+    "hideAssets": "Vermögenswerte ausblenden",
+    "viewAccount": "Konto ansehen"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1428,6 +1479,34 @@
       }
     },
     "walletConnectToDapps": {
+      "modal": {
+        "title": "Wallet verbinden",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Signieren von",
+          "requestFrom": "Anfrage von",
+          "message": "Nachricht",
+          "description": "Sie müssen das Signieren dieser Nachricht mit Ihrer verbundenen Wallet bestätigen.",
+          "confirm": "Bestätigen",
+          "reject": "Reject"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Erweiterte Parameter",
+            "alert": "Nur für fortgeschrittene Benutzer. Das Ändern dieser Einstellungen kann zu festgefahrenen Transaktionen führen.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "Die Anzahl der von einer bestimmten Adresse gesendeten Transaktionen. Nur fortgeschrittene Benutzer."
+            },
+            "gasLimit": {
+              "title": "Gas Limit",
+              "placeholder": "Gas Limit...",
+              "tooltip": "Das Gaslimit bezieht sich auf die maximale Menge an Gas, die ein Benutzer verbrauchen kann, um eine Transaktion durchzuführen."
+            }
+          }
+        }
+      },
       "registry": {
         "availableDapps": "Verfügbare dApps",
         "getStarted": "Loslegen",
@@ -1452,5 +1531,26 @@
         "description": "Yat ist Ihr universeller Emoji-Benutzername, Webseiten-URL, Zahlungsadresse und mehr."
       }
     }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 min",
+      "average": "~ 3 min",
+      "fast": "~ 3 s"
+    },
+    "estGasCost": "voraussichtliche Gas Kosten",
+    "gasPrice": {
+      "label": "Gaspreis",
+      "tooltip": "Der Betrag, den Sie pro Gaseinheit als Gebühr an den Miner oder Validator zahlen möchten"
+    },
+    "base": {
+      "label": "Grundgebühr",
+      "tooltip": "Die Grundgebühr wird vom Netzwerk festgelegt und ändert sich je nach Nachfrage alle 13-14 Sekunden. Legen Sie den Höchstpreis (ohne Prioritätsgebühr) in GWEI fest, den Sie für jede Gaseinheit zu zahlen bereit sind."
+    },
+    "priority": {
+      "label": "Prioritätsgebühr",
+      "tooltip": "Die Prioritätsgebühr ist ein optionales Trinkgeld, um Blockproduzenten anzuregen, Ihre Transaktion zu priorisieren. Legen Sie die Prioritätsgebühr in GWEI fest, die Sie für jede Gaseinheit zahlen möchten."
+    },
+    "custom": "Benutzerdefiniert"
   }
 }

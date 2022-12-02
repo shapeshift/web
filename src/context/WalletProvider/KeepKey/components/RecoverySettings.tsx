@@ -54,7 +54,7 @@ export const KeepKeyRecoverySettings = () => {
   const grayTextColor = useColorModeValue('gray.900', 'gray.400')
   const grayBackgroundColor = useColorModeValue('gray.100', 'gray.700')
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setDeviceState({
       recoverWithPassphrase: useRecoveryPassphrase,
       recoveryEntropy: sentenceLengthSelection,

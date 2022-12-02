@@ -19,23 +19,27 @@ import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTea
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import type { Nullable } from 'types/common'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
 import { PairIcons } from '../PairIcons/PairIcons'
+import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
+import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
 export type AssetWithBalance = {
-  cryptoBalance: string
+  cryptoBalancePrecision: string
   allocationPercentage?: string
   icons?: string[]
 } & Asset
 
 type OverviewProps = {
-  accountId?: Nullable<AccountId>
+  accountId?: AccountId | undefined
   onAccountIdChange?: (accountId: AccountId) => void
-  underlyingAssets: AssetWithBalance[]
-  rewardAssets?: AssetWithBalance[]
+  // The LP asset this opportunity represents
+  lpAsset?: AssetWithBalance
+  // The assets underlying the LP one
+  underlyingAssetsCryptoPrecision: AssetWithBalance[]
+  rewardAssetsCryptoPrecision?: AssetWithBalance[]
   name: string
   description?: AssetDescriptionTeaserProps
   asset: Asset
@@ -51,8 +55,9 @@ type OverviewProps = {
 export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
-  underlyingAssets,
-  rewardAssets,
+  lpAsset,
+  underlyingAssetsCryptoPrecision,
+  rewardAssetsCryptoPrecision,
   asset,
   name,
   opportunityFiatBalance,
@@ -65,33 +70,15 @@ export const Overview: React.FC<OverviewProps> = ({
   children,
   expired,
 }) => {
-  const renderUnderlyingAssets = useMemo(() => {
-    return underlyingAssets.map(asset => {
-      return (
-        <Tag variant='xs-subtle' columnGap={2} key={asset.symbol}>
-          {asset.icons ? (
-            <PairIcons icons={asset.icons} iconSize='2xs' bg='transparent' />
-          ) : (
-            <AssetIcon src={asset.icon} size='2xs' />
-          )}
-          <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
-          {asset.allocationPercentage && (
-            <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-          )}
-        </Tag>
-      )
-    })
-  }, [underlyingAssets])
-
   const renderRewardAssets = useMemo(() => {
-    if (!rewardAssets) return null
-    return rewardAssets.map((asset, index) => (
+    if (!rewardAssetsCryptoPrecision) return null
+    return rewardAssetsCryptoPrecision.map((asset, index) => (
       <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
-        <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
+        <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
       </Tag>
     ))
-  }, [rewardAssets])
+  }, [rewardAssetsCryptoPrecision])
 
   return (
     <Flex
@@ -140,10 +127,20 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {renderUnderlyingAssets}
+                {lpAsset ? (
+                  <UnderlyingAssetsMenu
+                    lpAsset={lpAsset}
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                  />
+                ) : (
+                  <UnderlyingAssetsTags
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                    showPercentage
+                  />
+                )}
               </Flex>
             </Stack>
-            {rewardAssets && (
+            {rewardAssetsCryptoPrecision && (
               <Stack flex={1} spacing={4}>
                 <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>

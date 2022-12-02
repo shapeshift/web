@@ -11,7 +11,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 import { fromBaseUnit } from 'lib/math'
-import type { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataById,
@@ -49,7 +49,7 @@ jest.mock('state/slices/selectors', () => ({
 const ethAssetId = 'eip155:1/slip44:60'
 const runeAssetId = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
 
-const balances: PortfolioBalancesById = {
+const balances: AssetBalancesById = {
   [ethAssetId]: '5000000000000000000',
   [runeAssetId]: '21000000000000000000',
 }
@@ -142,7 +142,7 @@ describe('useSendDetails', () => {
           [KnownChainIds.EthereumMainnet, mockAdapter],
         ]),
     )
-    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
       address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
       error: false,
     }))
@@ -152,7 +152,7 @@ describe('useSendDetails', () => {
     jest.restoreAllMocks()
   })
 
-  it('returns the default useSendDetails state', async () => {
+  it('returns the default useSendDetails state', () => {
     const { result } = setup({
       assetBalance: balances[ethAssetId],
     })
@@ -201,13 +201,13 @@ describe('useSendDetails', () => {
 
     // Set fiat amount
     await act(async () => {
-      result.current.handleInputChange('1')
+      await result.current.handleInputChange('1')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
 
       setValue.mockClear()
 
-      result.current.handleInputChange('0')
+      await result.current.handleInputChange('0')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
@@ -234,7 +234,7 @@ describe('useSendDetails', () => {
 
     // Set crypto amount
     await act(async () => {
-      result.current.handleInputChange('3500')
+      await result.current.handleInputChange('3500')
       jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
       setValue.mockClear()

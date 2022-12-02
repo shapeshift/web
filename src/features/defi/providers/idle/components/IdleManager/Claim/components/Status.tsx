@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -15,10 +15,14 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -33,7 +37,9 @@ export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
+
+  const assets = useAppSelector(selectAssets)
 
   const assetNamespace = 'erc20'
   // Asset info
@@ -46,7 +52,7 @@ export const Status = () => {
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: vaultAddress,
+    assetReference: contractAddress,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
@@ -60,9 +66,9 @@ export const Status = () => {
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress && accountId)) return ''
-    return serializeTxIndex(accountId, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountId])
+    if (!(state?.txid && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, fromAccountId(accountId).account)
+  }, [state.txid, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -77,10 +83,50 @@ export const Status = () => {
     }
   }, [confirmedTransaction, dispatch])
 
-  const claimableAssetsToRender = useMemo(() => {
-    if (!state.claimableTokens) return null
-    return state.claimableTokens.map(token => <ClaimableAsset key={token.assetId} token={token} />)
-  }, [state.claimableTokens])
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const claimableAssets = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+
+    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
+      if (!opportunityData?.rewardAssetIds?.[i]) return null
+
+      const token = {
+        assetId: opportunityData.rewardAssetIds[i],
+        amount: bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision))
+          .toNumber(),
+      }
+      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+    })
+  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -144,7 +190,7 @@ export const Status = () => {
               justifyContent='center'
               as='form'
             >
-              {claimableAssetsToRender}
+              {claimableAssets}
             </Stack>
           </Row>
         </Row>

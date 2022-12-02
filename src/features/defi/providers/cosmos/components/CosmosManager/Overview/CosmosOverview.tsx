@@ -29,13 +29,12 @@ import {
 } from 'state/slices/selectors'
 import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { CosmosEmpty } from './CosmosEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type CosmosOverviewProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
@@ -157,10 +156,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       asset={stakingAsset}
       name={opportunity.moniker}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
+      underlyingAssetsCryptoPrecision={[
         {
           ...stakingAsset,
-          cryptoBalance: cryptoAmountAvailable.toFixed(stakingAsset.precision),
+          cryptoBalancePrecision: cryptoAmountAvailable.toFixed(stakingAsset.precision),
           allocationPercentage: '1',
         },
       ]}

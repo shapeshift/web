@@ -1,11 +1,8 @@
-import { Button, Stack } from '@chakra-ui/react'
-import { Box, Flex, Heading } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
@@ -16,10 +13,8 @@ import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { selectAssets } from 'state/slices/selectors'
+import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
@@ -31,39 +26,18 @@ type MatchParams = {
 
 export const Buy = () => {
   const { chainId, assetSubId } = useParams<MatchParams>()
-  const { assetSearch } = useModal()
-  const assets = useSelector(selectAssets)
-  const { data: ramps } = useGetFiatRampsQuery()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
   const {
     dispatch,
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet },
   } = useWallet()
   const translate = useTranslate()
+
+  useFetchFiatAssetMarketData()
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
-
-  const handleIsSelectingAsset = useCallback(
-    (fiatrampAction: FiatRampAction) => {
-      if (!wallet) return
-      const assetIds =
-        fiatrampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds
-      const listOfAssets = assetIds?.reduce<Asset[]>((acc, assetId) => {
-        const asset = assets[assetId]
-        if (!asset) return acc
-        acc.push(asset)
-        return acc
-      }, [])
-      assetSearch.open({
-        onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        filterBy: () => listOfAssets,
-        disableUnsupported: true,
-      })
-    },
-    [assetSearch, assets, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
-  )
 
   useEffect(() => {
     // Auto select asset when passed in via params
@@ -96,6 +70,7 @@ export const Buy = () => {
                 fontSize={{ base: '4xl', xl: '6xl' }}
                 lineHeight='1em'
                 letterSpacing='-0.05em'
+                color='whiteAlpha.900'
               >
                 {translate('buyPage.title.first')}{' '}
                 <Text
@@ -105,16 +80,12 @@ export const Buy = () => {
                   translation='buyPage.title.second'
                 />
               </Heading>
-              <Text fontSize='lg' translation='buyPage.body' />
+              <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
               <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
               <Card mx={{ base: -4, md: 0 }}>
-                <FiatForm
-                  assetId={selectedAssetId}
-                  handleIsSelectingAsset={handleIsSelectingAsset}
-                  fiatRampAction={FiatRampAction.Buy}
-                />
+                <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>
           </Flex>

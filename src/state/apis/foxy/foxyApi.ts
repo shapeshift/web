@@ -59,7 +59,9 @@ export type FoxyOpportunity = {
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
-  cryptoAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
   fiatAmount: string
 }
 
@@ -119,7 +121,8 @@ const makeMergedOpportunities = (
     const data = {
       ...opportunity,
       tvl,
-      cryptoAmount: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toString(),
+      cryptoAmountPrecision: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toFixed(),
+      cryptoAmountBaseUnit: opportunity.balance,
       fiatAmount: fiatAmount.toString(),
     }
     return data
@@ -176,7 +179,7 @@ async function getFoxyOpportunities(
           })
 
           return {
-            balance: resolvedAcc.balance.plus(balance),
+            balance: resolvedAcc.balance.plus(bnOrZero(balance)),
             withdrawInfo: { ...resolvedAcc.withdrawInfo, [accountId]: withdrawInfo },
           }
         },

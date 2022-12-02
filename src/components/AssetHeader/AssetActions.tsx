@@ -1,15 +1,19 @@
-import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Link, Stack } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Button, Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { useEffect, useState } from 'react'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { tokenOrUndefined } from 'lib/utils'
+import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,19 +24,28 @@ type AssetActionProps = {
 }
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
+  const isOsmosisSendEnabled = useFeatureFlag('OsmosisSend')
+
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
-  const { send, receive } = useModal()
+  const { send, receive, fiatRamps } = useModal()
   const translate = useTranslate()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
   useEffect(() => {
-    setIsValidChainId(chainAdapterManager.has(asset.chainId))
-  }, [chainAdapterManager, asset])
+    const isValid =
+      // feature flag to disable Osmosis Sends
+      asset.chainId === KnownChainIds.OsmosisMainnet && !isOsmosisSendEnabled
+        ? false
+        : chainAdapterManager.has(asset.chainId)
+    setIsValidChainId(isValid)
+  }, [chainAdapterManager, asset, isOsmosisSendEnabled])
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -42,37 +55,44 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
-  const { assetReference } = fromAssetId(asset.assetId)
-  const maybeToken = tokenOrUndefined(assetReference)
-
-  // If token is undefined, redirect to the basic explorer link
-  // else redirect to the token explorer link
-  const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
+  const handleBuySellClick = useCallback(() => {
+    fiatRamps.open({
+      assetId: assetSupportsBuy ? assetId : ethAssetId,
+      fiatRampAction: FiatRampAction.Buy,
+      accountId,
+    })
+  }, [accountId, assetId, assetSupportsBuy, fiatRamps])
 
   return (
     <Stack
       ml={{ base: 0, lg: 'auto' }}
       mt={{ base: 6, lg: 0 }}
       direction={{ base: 'column-reverse', md: 'row' }}
+      justifyContent='flex-end'
       width={{ base: 'full', md: 'auto' }}
+      flex={1}
     >
-      <Button
-        as={Link}
-        leftIcon={<ExternalLinkIcon />}
-        href={href}
-        variant='solid'
-        width={{ base: '100%', md: 'auto' }}
-        isExternal
-      >
-        {translate('defi.viewOnChain')}
-      </Button>
-      <Stack direction='row'>
+      <Flex direction='row' gap={2} flexWrap='wrap'>
+        <Button
+          data-test='asset-action-buy-sell'
+          width={{ base: 'full', md: 'auto' }}
+          flex='auto'
+          onClick={handleBuySellClick}
+          leftIcon={<FaCreditCard />}
+          size='sm-multiline'
+        >
+          {assetSupportsBuy
+            ? translate('common.buySellAsset', { symbol: asset.symbol })
+            : translate('common.buySell')}
+        </Button>
+
         <Button
           onClick={handleSendClick}
           leftIcon={<ArrowUpIcon />}
           width={{ base: '100%', md: 'auto' }}
-          isDisabled={!hasValidBalance}
+          isDisabled={!hasValidBalance || !isValidChainId}
           data-test='asset-action-send'
+          flex={{ base: 1, md: 'auto' }}
         >
           {translate('common.send')}
         </Button>
@@ -82,10 +102,11 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           leftIcon={<ArrowDownIcon />}
           width={{ base: '100%', md: 'auto' }}
           data-test='asset-action-receive'
+          flex={{ base: 1, md: 'auto' }}
         >
           {translate('common.receive')}
         </Button>
-      </Stack>
+      </Flex>
     </Stack>
   )
 }

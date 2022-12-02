@@ -1,7 +1,9 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -9,8 +11,8 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useIdle } from 'features/defi/contexts/IdleProvider/IdleProvider'
-import { useCallback, useContext, useMemo } from 'react'
+import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -20,15 +22,19 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -37,34 +43,68 @@ const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Idle', 'IdleManager', 'Withdraw', 'Confirm'],
 })
 
-type ConfirmProps = { accountId: Nullable<AccountId> } & StepComponentProps
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const idleInvestor = useMemo(() => getIdleInvestor(), [])
+  const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { idleInvestor } = useIdle()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = chainAdapter?.getFeeAssetId()
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  useEffect(() => {
+    if (!opportunityData?.assetId) return
+    ;(async () => {
+      setIdleOpportunity(await idleInvestor.findByOpportunityId(opportunityData.assetId))
+    })()
+  }, [idleInvestor, opportunityData?.assetId, setIdleOpportunity])
+
+  const asset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.assetId ?? ''),
+  )
+
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const { state: walletState } = useWallet()
@@ -78,29 +118,29 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const handleConfirm = useCallback(async () => {
-    if (!dispatch) return
+    if (!dispatch || !bip44Params) return
     try {
       if (
         !(
-          state?.userAddress &&
+          userAddress &&
           walletState?.wallet &&
           assetReference &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData?.assetId &&
+          asset
         )
       )
         return
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor?.findByOpportunityId(
-        opportunity.positionAsset.assetId ?? '',
-      )
       if (!idleOpportunity) throw new Error('No opportunity')
+
+      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
       const tx = await idleOpportunity.prepareWithdrawal({
-        address: state.userAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: userAddress,
+        amount: bn(toBaseUnit(idleAssetWithdrawAmountCryptoHuman, asset.precision)),
       })
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -117,14 +157,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
-    state?.userAddress,
-    state?.withdraw.cryptoAmount,
+    bip44Params,
+    userAddress,
     walletState.wallet,
     assetReference,
     opportunity,
     chainAdapter,
-    idleInvestor,
-    asset.precision,
+    opportunityData?.assetId,
+    asset,
+    idleOpportunity,
+    state?.withdraw.cryptoAmount,
     onNext,
   ])
 
@@ -158,11 +200,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

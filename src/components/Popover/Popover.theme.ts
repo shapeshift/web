@@ -1,4 +1,4 @@
-import { cssVar, mode } from '@chakra-ui/theme-tools'
+import { cssVar } from '@chakra-ui/theme-tools'
 
 const $popperBg = cssVar('popper-bg')
 const $arrowBg = cssVar('popper-arrow-bg')
@@ -6,19 +6,27 @@ const $arrowBg = cssVar('popper-arrow-bg')
 export const PopoverStyle = {
   parts: ['content', 'header'],
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: {
     content: {
-      [$popperBg.variable]: mode('white', 'gray.750')(props),
+      [$popperBg.variable]: 'colors.white',
       [$arrowBg.variable]: $popperBg.reference,
       borderRadius: 'xl',
       bg: $popperBg.reference,
-      borderColor: mode('gray.200', 'gray.700')(props),
-      boxShadow: mode('lg', 'dark-lg')(props),
+      borderColor: 'gray.200',
+      boxShadow: 'lg',
+      _dark: {
+        [$popperBg.variable]: 'colors.gray.750',
+        borderColor: 'gray.700',
+        boxShadow: 'dark-lg',
+      },
     },
     header: {
-      borderColor: mode('gray.200', 'gray.700')(props),
+      borderColor: 'gray.100',
+      _dark: {
+        borderColor: 'gray.700',
+      },
     },
-  }),
+  },
   // Styles for the size variations
   sizes: {},
   // Styles for the visual style variations

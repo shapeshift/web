@@ -52,7 +52,7 @@ export const OpportunityCard = ({
   chainId,
   isLoaded,
   apy,
-  cryptoAmount,
+  cryptoAmountPrecision,
   fiatAmount,
   expired,
   moniker,
@@ -61,10 +61,11 @@ export const OpportunityCard = ({
   opportunityName,
   version,
   highestBalanceAccountAddress,
+  underlyingAssetId,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
   const { assetReference } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)
@@ -156,7 +157,7 @@ export const OpportunityCard = ({
               </RawText>
               <Amount.Crypto
                 color='gray.500'
-                value={cryptoAmount}
+                value={cryptoAmountPrecision}
                 symbol={asset.symbol}
                 lineHeight={1}
               />

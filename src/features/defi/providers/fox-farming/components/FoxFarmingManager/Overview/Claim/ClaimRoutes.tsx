@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -9,11 +10,10 @@ import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectFoxFarmingOpportunityByContractAddress } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { selectAssets, selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import type { Nullable } from 'types/common'
 
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
@@ -29,7 +29,7 @@ export const routes = [
 ]
 
 type ClaimRouteProps = {
-  accountId: Nullable<AccountId>
+  accountId: AccountId | undefined
   onBack: () => void
 }
 
@@ -37,19 +37,32 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
 
-  const { farmingAccountAddress } = useFoxEth()
+  const assets = useAppSelector(selectAssets)
 
-  const filter = useMemo(
-    () => ({ accountAddress: farmingAccountAddress, contractAddress }),
-    [farmingAccountAddress, contractAddress],
-  )
   const opportunity = useAppSelector(state =>
-    selectFoxFarmingOpportunityByContractAddress(state, filter),
+    selectUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
   )
+
+  const rewardAmountCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
+        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
+        .toFixed(),
+    [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
+  )
+
   const location = useLocation()
 
   if (!opportunity) return null
-  const rewardAmount = opportunity.unclaimedRewards
 
   return (
     <SlideTransition>
@@ -63,7 +76,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={rewardAmount!}
+              amount={rewardAmountCryptoPrecision}
             />
           </Route>
           <Route exact path='/status'>

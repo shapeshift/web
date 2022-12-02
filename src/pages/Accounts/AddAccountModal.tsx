@@ -26,19 +26,19 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedFiat,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ChainOptionProps = {
   chainId: ChainId
@@ -65,7 +65,7 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
 export const AddAccountModal = () => {
   const translate = useTranslate()
   const toast = useToast()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const {
     state: { wallet },
@@ -93,7 +93,8 @@ export const AddAccountModal = () => {
     const chainAdapterManager = getChainAdapterManager()
     return chainIds.map(chainId => {
       const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
-      const asset = assets[assetId]
+      const asset = assets?.[assetId]
+      if (!asset) return null
       const { name, icon } = asset
       const key = chainId
       const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
@@ -103,7 +104,7 @@ export const AddAccountModal = () => {
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
-    return assets[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
+    return assets?.[getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()]
   }, [assets, selectedChainId])
 
   const handleAddAccount = useCallback(() => {
@@ -119,7 +120,13 @@ export const AddAccountModal = () => {
         wallet,
       })
 
+      const { getAccount } = portfolioApi.endpoints
+      const opts = { forceRefetch: true }
       dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+      const accountIds = Object.keys(accountMetadataByAccountId)
+      accountIds.forEach(accountId =>
+        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
+      )
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId]
       toast({

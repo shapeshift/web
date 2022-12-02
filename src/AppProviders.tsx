@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
@@ -22,6 +23,7 @@ import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsP
 import { WagmiProvider } from 'context/WagmiProvider/WagmiProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
+import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -50,15 +52,17 @@ export function AppProviders({ children }: ProvidersProps) {
                     <I18nProvider>
                       <WalletProvider>
                         <KeepKeyProvider>
-                          <ModalProvider>
-                            <TransactionsProvider>
-                              <AppProvider>
-                                <FoxEthProvider>
-                                  <DefiManagerProvider>{children}</DefiManagerProvider>
-                                </FoxEthProvider>
-                              </AppProvider>
-                            </TransactionsProvider>
-                          </ModalProvider>
+                          <ErrorBoundary FallbackComponent={ErrorPage}>
+                            <ModalProvider>
+                              <TransactionsProvider>
+                                <AppProvider>
+                                  <FoxEthProvider>
+                                    <DefiManagerProvider>{children}</DefiManagerProvider>
+                                  </FoxEthProvider>
+                                </AppProvider>
+                              </TransactionsProvider>
+                            </ModalProvider>
+                          </ErrorBoundary>
                         </KeepKeyProvider>
                       </WalletProvider>
                     </I18nProvider>

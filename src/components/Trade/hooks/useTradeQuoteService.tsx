@@ -5,9 +5,10 @@ import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapperV2'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -93,6 +94,7 @@ export const useTradeQuoteService = () => {
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
+  const quote = useWatch({ control, name: 'quote' })
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -175,10 +177,24 @@ export const useTradeQuoteService = () => {
     isSendMax,
   ])
 
-  // Set trade quote
+  // Update trade quote
+  useEffect(() => setValue('quote', tradeQuote), [tradeQuote, setValue])
+
+  // Set slippage if the quote contains a recommended value, else use the default
+  useEffect(
+    () =>
+      setValue(
+        'slippage',
+        tradeQuote?.recommendedSlippage ? tradeQuote.recommendedSlippage : DEFAULT_SLIPPAGE,
+      ),
+    [tradeQuote, setValue],
+  )
+
+  // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
-    setValue('quote', tradeQuote)
-  }, [tradeQuote, setValue])
+    // Checking that no quote has been set and tradeQuote exists prevents an infinite render
+    !quote && tradeQuote && setValue('quote', tradeQuote)
+  }, [quote, setValue, tradeQuote])
 
   return { isLoadingTradeQuote }
 }

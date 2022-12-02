@@ -21,7 +21,8 @@ const mockCosmosStakingOpportunities = [
     totalDelegations: '42',
     rewards: '4.2',
     isLoaded: true,
-    cryptoAmount: '0.407785',
+    cryptoAmountBaseUnit: '1337',
+    cryptoAmountPrecision: '0.001337',
     tvl: '21040543.6367982',
     fiatAmount: '4.2',
     chainId: cosmosChainId,
@@ -37,7 +38,8 @@ const mockCosmosStakingOpportunities = [
     totalDelegations: '242424',
     rewards: '2.5',
     isLoaded: true,
-    cryptoAmount: '0.013967',
+    cryptoAmountBaseUnit: '12345',
+    cryptoAmountPrecision: '0.012345',
     tvl: '63799889.014332',
     fiatAmount: '0.24',
     chainId: cosmosChainId,
@@ -65,7 +67,6 @@ function setup({
   return { result }
 }
 
-// TODO(gomes): Unskip me
 describe('useNormalizeOpportunities', () => {
   beforeEach(() => {
     ;(useVaultBalances as jest.Mock<unknown>).mockImplementation(() => ({
@@ -75,19 +76,19 @@ describe('useNormalizeOpportunities', () => {
     }))
   })
 
-  it('returns empty arrays when provided with empty arrays', async () => {
+  it('returns empty arrays when provided with empty arrays', () => {
     const { result } = setup()
     expect(result.current).toEqual([])
   })
 
-  it('returns transformed array of active opportunities sorted by cryptoAmount when there are active staking opportunities', async () => {
+  it('returns transformed array of active opportunities sorted by cryptoAmount when there are active staking opportunities', () => {
     const { result } = setup({
       cosmosStakingOpportunities: mockCosmosStakingOpportunities,
     })
     expect(result.current).toMatchSnapshot()
   })
 
-  it('returns transformed array of staking opportunities when there is no active staking opportunity', async () => {
+  it('returns transformed array of staking opportunities when there is no active staking opportunity', () => {
     const { result } = setup({ cosmosStakingOpportunities: [] })
     expect(result.current).toMatchSnapshot()
   })

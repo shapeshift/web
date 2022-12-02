@@ -2,24 +2,34 @@ import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Dex } from '@shapeshiftoss/unchained-client'
 
-type GetTxLink = {
+type GetBaseUrl = {
   name: SwapSource['name'] | Dex | undefined
   defaultExplorerBaseUrl: string
-  txId: string
+  isOrder?: boolean
 }
 
-export const getTxLink = ({ name, defaultExplorerBaseUrl, txId }: GetTxLink) => {
+type GetTxLink = GetBaseUrl &
+  ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never })
+
+export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseUrl): string => {
   switch (name) {
     case SwapperName.Osmosis:
     case Dex.Osmosis:
-      return `https://www.mintscan.io/osmosis/txs/${txId}`
+      return 'https://www.mintscan.io/osmosis/txs/'
     case SwapperName.CowSwap:
     case Dex.CowSwap:
-      return `https://explorer.cow.fi/orders/${txId}`
+      return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'
     case SwapperName.Thorchain:
     case Dex.Thor:
-      return `https://v2.viewblock.io/thorchain/tx/${txId}`
+      return 'https://v2.viewblock.io/thorchain/tx/'
     default:
-      return `${defaultExplorerBaseUrl}${txId}`
+      return defaultExplorerBaseUrl
   }
+}
+
+export const getTxLink = ({ name, defaultExplorerBaseUrl, txId, tradeId }: GetTxLink): string => {
+  const id = txId || tradeId
+  const isOrder = !!tradeId
+  const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
+  return `${baseUrl}${id}`
 }

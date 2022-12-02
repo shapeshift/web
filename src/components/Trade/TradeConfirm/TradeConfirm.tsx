@@ -58,7 +58,7 @@ export const TradeConfirm = () => {
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const warningColor = useColorModeValue('red.600', 'red.400')
-  const [sellTxid, setSellTxid] = useState('')
+  const [sellTradeId, setSellTradeId] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
   const {
     handleSubmit,
@@ -148,9 +148,10 @@ export const TradeConfirm = () => {
       getTxLink({
         name: trade?.sources[0]?.name,
         defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '',
-        txId: sellTxid,
+        tradeId: sellTradeId,
+        isOrder: true,
       }),
-    [sellTxid, trade],
+    [sellTradeId, trade],
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -171,7 +172,7 @@ export const TradeConfirm = () => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setSellTxid(result.tradeId)
+      setSellTradeId(result.tradeId)
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
@@ -192,17 +193,17 @@ export const TradeConfirm = () => {
     } catch (e) {
       showErrorToast(e)
       reset()
-      setSellTxid('')
+      setSellTradeId('')
       history.push(TradeRoutePaths.Input)
     }
   }
 
   const handleBack = useCallback(() => {
-    if (sellTxid) {
+    if (sellTradeId) {
       reset()
     }
     history.push(TradeRoutePaths.Input)
-  }, [history, reset, sellTxid])
+  }, [history, reset, sellTradeId])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)
@@ -322,7 +323,7 @@ export const TradeConfirm = () => {
   const footer: JSX.Element = useMemo(
     () => (
       <Card.Footer px={0} py={0}>
-        {!sellTxid && !isSubmitting && (
+        {!sellTradeId && !isSubmitting && (
           <Button
             colorScheme='blue'
             size='lg'
@@ -336,7 +337,7 @@ export const TradeConfirm = () => {
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTxid],
+    [isSubmitting, sellTradeId],
   )
 
   return (
@@ -357,12 +358,12 @@ export const TradeConfirm = () => {
                 sellIcon={trade.sellAsset.icon}
                 buyColor={trade.buyAsset.color}
                 sellColor={trade.sellAsset.color}
-                status={sellTxid || isSubmitting ? status : undefined}
+                status={sellTradeId || isSubmitting ? status : undefined}
               />
               {tradeWarning}
               {sendReceiveSummary}
               <Stack spacing={4}>
-                {sellTxid && (
+                {sellTradeId && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>

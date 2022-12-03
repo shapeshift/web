@@ -1,11 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
 import { logger } from 'lib/logger'
 
+import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
@@ -46,8 +46,94 @@ const getGatewayData = async () => {
   }
 }
 
-export const getSupportedOnRamperFiatCurrencies = (): SupportedFiatCurrencies[] => {
-  return ['USD', 'CAD']
+export const getSupportedOnRamperFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'AOA',
+    'AUD',
+    'BBD',
+    'BZD',
+    'BMD',
+    'BRL',
+    'GBP',
+    'BND',
+    'BGN',
+    'CAD',
+    'XAF',
+    'CLP',
+    'CNY',
+    'COP',
+    'KMF',
+    'CRC',
+    'HRK',
+    'CZK',
+    'DKK',
+    'DJF',
+    'DOP',
+    'XCD',
+    'EGP',
+    'EUR',
+    'FKP',
+    'FJD',
+    'GEL',
+    'GHS',
+    'GIP',
+    'GTQ',
+    'HNL',
+    'HKD',
+    'HUF',
+    'ISK',
+    'IDR',
+    'ILS',
+    'JMD',
+    'JPY',
+    'JOD',
+    'KZT',
+    'KES',
+    'KWD',
+    'KGS',
+    'MGA',
+    'MWK',
+    'MYR',
+    'MRU',
+    'MXN',
+    'MDL',
+    'MAD',
+    'MZN',
+    'TWD',
+    'NZD',
+    'NGN',
+    'NOK',
+    'OMR',
+    'PKR',
+    'PGK',
+    'PYG',
+    'PEN',
+    'PHP',
+    'PLN',
+    'RON',
+    'RWF',
+    'STN',
+    'SCR',
+    'SGD',
+    'SBD',
+    'ZAR',
+    'KRW',
+    'LKR',
+    'SRD',
+    'SZL',
+    'SEK',
+    'CHF',
+    'TJS',
+    'TZS',
+    'THB',
+    'TOP',
+    'TRY',
+    'TMT',
+    'UGX',
+    'USD',
+    'UYU',
+    'VND',
+  ]
 }
 
 export const getOnRamperAssets = async (): Promise<AssetId[]> => {

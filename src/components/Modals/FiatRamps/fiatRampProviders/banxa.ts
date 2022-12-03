@@ -1,11 +1,42 @@
 import { adapters } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 
+import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
-export const getSupportedBanxaFiatCurrencies = (): SupportedFiatCurrencies[] => {
-  return ['USD', 'CAD']
+export const getSupportedBanxaFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'AED',
+    'AUD',
+    'BRL',
+    'CAD',
+    'CHF',
+    'CZK',
+    'DKK',
+    'EUR',
+    'GBP',
+    'HKD',
+    'IDR',
+    'INR',
+    'JPY',
+    'KRW',
+    'MXN',
+    'MYR',
+    'NOK',
+    'NZD',
+    'PHP',
+    'PLN',
+    'QAR',
+    'SAR',
+    'SEK',
+    'SGD',
+    'THB',
+    'TRY',
+    'TWD',
+    'USD',
+    'VND',
+    'ZAR',
+  ]
 }
 
 export const createBanxaUrl = ({ assetId, address, action }: CreateUrlProps): string => {

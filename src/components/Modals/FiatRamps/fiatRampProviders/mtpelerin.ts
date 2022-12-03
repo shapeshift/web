@@ -1,11 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 
+import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
@@ -19,8 +19,23 @@ type MtPelerinResponse = {
   }
 }
 
-export const getMtPerlinFiatCurrencies = (): SupportedFiatCurrencies[] => {
-  return ['USD', 'EUR', 'RUB']
+export const getMtPerlinFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'CHF',
+    'EUR',
+    'USD',
+    'GBP',
+    'AUD',
+    'CAD',
+    'DKK',
+    'HKD',
+    'JPY',
+    'NOK',
+    'NZD',
+    'SEK',
+    'SGD',
+    'ZAR',
+  ]
 }
 
 export async function getMtPelerinAssets(): Promise<AssetId[]> {

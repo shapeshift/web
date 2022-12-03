@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import gemLogo from 'assets/gem-mark.png'
@@ -44,6 +43,16 @@ const moduleLogger = logger.child({
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
+export type FiatCurrencyItem = {
+  symbol: string
+  name: string
+  symbol_native?: string
+  decimal_digits?: number
+  rounding?: number
+  code: string
+  name_plural?: string
+}
+
 export type CommonFiatCurrencies = keyof typeof commonFiatCurrencyList
 
 export interface SupportedFiatRampConfig {
@@ -59,7 +68,7 @@ export interface SupportedFiatRampConfig {
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
-  getSupportedFiatList?: () => CommonFiatCurrencies[]
+  getSupportedFiatList: () => CommonFiatCurrencies[]
   onSubmit: (args: CreateUrlProps) => string | undefined
   minimumSellThreshold?: number
 }

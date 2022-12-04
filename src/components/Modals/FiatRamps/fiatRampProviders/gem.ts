@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import axios from 'axios'
 import { getConfig } from 'config'
 import flatten from 'lodash/flatten'
@@ -9,6 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
 import { logger } from 'lib/logger'
 
+import type { CommonFiatCurrencies } from '../config'
 import type { CreateUrlProps } from '../types'
 
 enum TransactionDirection {
@@ -41,8 +41,48 @@ const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'gem'],
 })
 
-export const getSupportedGemFiatCurrencies = (): SupportedFiatCurrencies[] => {
-  return ['USD', 'CAD']
+export const getSupportedGemFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'USD',
+    'AUD',
+    'HKD',
+    'MXN',
+    'BRL',
+    'GBP',
+    'EUR',
+    'CAD',
+    'ARS',
+    'CHF',
+    'CLP',
+    'COP',
+    'CZK',
+    'DKK',
+    'INR',
+    'ISK',
+    'MYR',
+    'NOK',
+    'PHP',
+    'PLN',
+    'SEK',
+    'TRY',
+    'ILS',
+    'SGD',
+    'THB',
+    'VND',
+    'JPY',
+    'KRW',
+    'ZAR',
+    'NZD',
+    'AED',
+    'RON',
+    'HUF',
+    'BGN',
+    'IDR',
+    'HRK',
+    'PEN',
+    'KES',
+    'TWD',
+  ]
 }
 
 export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {

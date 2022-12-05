@@ -106,7 +106,7 @@ export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined
   getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
-  getChainAdapterManager().get(chainId)!.getFeeAssetId()
+  getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
 export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
   chainIdToFeeAssetId(fromAssetId(assetId).chainId)

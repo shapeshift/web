@@ -12,7 +12,7 @@ type ChainCardProps = {
 }
 export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   return (
     <Tooltip label={feeAsset.name} placement='top'>
       <IconButton

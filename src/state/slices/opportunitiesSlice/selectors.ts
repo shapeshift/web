@@ -697,11 +697,11 @@ export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
         .groupBy('underlyingAssetIds')
         .map((values, key) => {
           const netApy = sumBy(values, o => Number(o.apy))
-          const opportunities: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
+          const opportunityIds: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
           return {
             underlyingAssetIds: key.split(','),
             netApy,
-            opportunities,
+            opportunityIds,
           }
         })
         .value()

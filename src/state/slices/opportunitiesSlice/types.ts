@@ -134,6 +134,6 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
 
 export type groupedEligibleOpportunityReturnType = {
   underlyingAssetIds: string[]
-  opportunities: OpportunityId[]
+  opportunityIds: OpportunityId[]
   netApy: number
 }

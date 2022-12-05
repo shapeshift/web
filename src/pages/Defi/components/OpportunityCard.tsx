@@ -112,7 +112,10 @@ export const OpportunityCard = ({
   }
 
   const getOpportunityName = () => {
-    if (opportunityName) return version ? `${opportunityName} (${version})` : opportunityName
+    if (opportunityName) {
+      if (version) return `${opportunityName} (${version})`
+      return opportunityName
+    }
 
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName

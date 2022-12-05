@@ -27,7 +27,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   const history = useHistory()
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
   const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
-  const bgIcons = useMemo(() => {
+  const backgroundIcons = useMemo(() => {
     return underlyingAssetIds.map(assetId => (
       <AssetIcon size='2xl' key={assetId} assetId={assetId} />
     ))
@@ -68,7 +68,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       }}
     >
       <Box filter='blur(30px)' opacity='0.2' position='absolute' left='-10%' top='-10%'>
-        {bgIcons}
+        {backgroundIcons}
       </Box>
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />

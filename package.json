@@ -108,7 +108,7 @@
     "@shapeshiftoss/market-service": "^7.2.2",
     "@shapeshiftoss/swapper": "^14.5.3",
     "@shapeshiftoss/types": "^8.3.2",
-    "@shapeshiftoss/unchained-client": "^10.4.0",
+    "@shapeshiftoss/unchained-client": "^10.4.1",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^8.3.3",
     "@visx/axis": "^2.10.0",

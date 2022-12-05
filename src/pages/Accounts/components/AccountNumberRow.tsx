@@ -132,13 +132,12 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
     [accountIds, chainId, isUtxoAccount],
   )
 
-  const title = useMemo(
-    () =>
-      isUtxoAccount
-        ? assets[accountIdToFeeAssetId(accountId)].name
-        : firstFourLastFour(fromAccountId(accountId).account),
-    [assets, accountId, isUtxoAccount],
-  )
+  const title = useMemo(() => {
+    const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
+    return isUtxoAccount
+      ? assets[feeAssetId]?.name ?? ''
+      : firstFourLastFour(fromAccountId(accountId).account)
+  }, [assets, accountId, isUtxoAccount])
 
   const fontFamily = useMemo(() => (!isUtxoChainId(chainId) ? 'monospace' : ''), [chainId])
 

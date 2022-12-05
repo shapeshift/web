@@ -3,16 +3,16 @@ import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import orderBy from 'lodash/orderBy'
 import type { FC, FormEvent } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
@@ -65,12 +65,26 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
-  const [activeChain, setActiveChain] = useState<ChainId>(ethChainId)
+  const supportedChainIds = Array.from(getChainAdapterManager().keys())
+  const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
+
+  const assetsBySelectedChain = useMemo(
+    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
+    [activeChain, assets],
+  )
 
   const filteredAssets = useMemo(
-    () => (filterBy ? filterBy(assets) : assets) ?? [],
-    [assets, filterBy],
+    () => (filterBy ? filterBy(assetsBySelectedChain) : assetsBySelectedChain) ?? [],
+    [filterBy, assetsBySelectedChain],
   )
+
+  const uniqueChainIdsByAssets: ChainId[] = Array.from(
+    assets.reduce((acc, asset) => {
+      if (supportedChainIds.includes(asset.chainId)) acc.add(asset.chainId)
+      return acc
+    }, new Set<ChainId>()),
+  )
+
   const [isFocused, setIsFocused] = useState(false)
   const debounceBlur = debounce(() => setIsFocused(false), 150)
 
@@ -157,7 +171,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const inputProps: InputProps = {
     ...register('search'),
     type: 'text',
-    placeholder: translate('common.search'),
+    placeholder: translate('common.searchAsset'),
     pl: 10,
     variant: 'filled',
     autoComplete: 'off',
@@ -166,6 +180,14 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         ? { onBlur: debounceBlur, onFocus: () => setIsFocused(true) }
         : { autoFocus: true })(),
   }
+
+  const handleChainClick = useCallback(
+    (e: React.MouseEvent) => (chainId: ChainId | 'All') => {
+      e.stopPropagation()
+      return setActiveChain(chainId)
+    },
+    [],
+  )
 
   const searchElement: JSX.Element = (
     <Box
@@ -188,7 +210,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const assetSearchWithAssetList: JSX.Element = (
     <>
-      <ChainList onClick={chainId => setActiveChain(chainId)} activeChain={activeChain} />
+      <ChainList
+        chainIds={uniqueChainIdsByAssets}
+        onClick={handleChainClick}
+        activeChain={activeChain}
+      />
       {searchElement}
       {listAssets && (
         <Box flex={1}>
@@ -210,6 +236,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         <SlideFade in={isFocused}>
           <Card position='absolute' width='100%' mt={2} zIndex='banner'>
             <Card.Body p={2} px={0}>
+              <ChainList
+                chainIds={uniqueChainIdsByAssets}
+                onClick={handleChainClick}
+                activeChain={activeChain}
+              />
               <Box flex={1} height={300}>
                 <AssetList
                   mb='10'

@@ -12,19 +12,19 @@ import { FeaturedCard } from './FeaturedCards/FeaturedCard'
 
 export const EligibleCarousel = () => {
   const translate = useTranslate()
-  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
-  const filteredOpportunities = useMemo(() => {
-    return stakingOpportunities
+  const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
+  const filteredEligibleOpportunities = useMemo(() => {
+    return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000))
       .sort((a, b) => Number(b.apy) - Number(a.apy))
-  }, [stakingOpportunities])
+  }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
-    return filteredOpportunities.map(opportunity => (
+    return filteredEligibleOpportunities.map(opportunity => (
       <FeaturedCard key={opportunity.assetId} {...opportunity} />
     ))
-  }, [filteredOpportunities])
+  }, [filteredEligibleOpportunities])
 
-  if (!filteredOpportunities.length) return null
+  if (!filteredEligibleOpportunities.length) return null
 
   return (
     <Card variant='outline' flexDir='column' gap={2}>

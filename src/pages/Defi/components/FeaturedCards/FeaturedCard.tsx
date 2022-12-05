@@ -61,7 +61,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       width='full'
       transitionProperty='common'
       transitionDuration='normal'
-      data-test={`eligible-${provider}-${opportunityName?.replace(' ', '-').toLowerCase()}-button`}
+      data-test={`eligible-${provider}-${assetId}-button`}
       borderRadius={{ base: 'xl' }}
       _hover={{
         bg: hoverBgColor,

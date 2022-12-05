@@ -27,7 +27,7 @@ import {
 import {
   createMtPelerinUrl,
   getMtPelerinAssets,
-  getMtPerlinFiatCurrencies,
+  getMtPelerinFiatCurrencies,
 } from './fiatRampProviders/mtpelerin'
 import {
   createOnRamperUrl,
@@ -91,9 +91,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellAssetIds = parseGemSellAssets(currencyList)
       return [buyAssetIds, sellAssetIds]
     },
-    getSupportedFiatList: () => {
-      return getSupportedGemFiatCurrencies()
-    },
+    getSupportedFiatList: () => getSupportedGemFiatCurrencies(),
     onSubmit: props => {
       try {
         const gemPartnerUrl = makeGemPartnerUrl(props)
@@ -186,9 +184,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const buyAndSellAssetIds = await getMtPelerinAssets()
       return [buyAndSellAssetIds, buyAndSellAssetIds]
     },
-    getSupportedFiatList: () => {
-      return getMtPerlinFiatCurrencies()
-    },
+    getSupportedFiatList: () => getMtPelerinFiatCurrencies(),
     onSubmit: props => {
       try {
         const mtPelerinCheckoutUrl = createMtPelerinUrl(props)

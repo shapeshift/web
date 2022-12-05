@@ -19,7 +19,7 @@ type MtPelerinResponse = {
   }
 }
 
-export const getMtPerlinFiatCurrencies = (): CommonFiatCurrencies[] => {
+export const getMtPelerinFiatCurrencies = (): CommonFiatCurrencies[] => {
   return [
     'CHF',
     'EUR',

@@ -4,7 +4,6 @@ const agentCsp: Csp = {
   'connect-src': [
     'https://api.wherever.to',
     'https://backend.epns.io',
-    'https://backend-staging.epns.io',
     'wss://www.walletlink.org/rpc'
   ],
   'img-src': [

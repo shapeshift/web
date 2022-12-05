@@ -14,7 +14,7 @@ export type CarouselProps = {
 
 export type ArrowProps = {
   onClick: () => void
-  left?: boolean
+  direction?: 'left' | 'right'
   children: React.ReactNode
 }
 

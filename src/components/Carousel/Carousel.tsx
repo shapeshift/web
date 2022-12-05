@@ -121,7 +121,7 @@ export const Carousel = ({
             (renderArrowLeft ? (
               renderArrowLeft({ handlePrev, activeIndex: index })
             ) : (
-              <Arrow left onClick={handlePrev}>
+              <Arrow direction='left' onClick={handlePrev}>
                 <ArrowBackIcon />
               </Arrow>
             ))}

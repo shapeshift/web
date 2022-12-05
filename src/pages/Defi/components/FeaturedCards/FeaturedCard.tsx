@@ -74,7 +74,9 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       </Box>
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
-        <Tag mt={2}>{provider}</Tag>
+        <Tag mt={2} textTransform='capitalize'>
+          {provider}
+        </Tag>
       </Card.Header>
       <Card.Body py={0}>
         <RawText fontWeight='bold' textShadow={textShadow}>

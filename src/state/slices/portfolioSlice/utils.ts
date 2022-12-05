@@ -105,6 +105,12 @@ export const accountIdToFeeAssetId = (accountId: AccountId): AssetId =>
   // and we can safely non-null assert that it will exist
   getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId =>
+  getChainAdapterManager().get(chainId)!.getFeeAssetId()
+
+export const assetIdToFeeAssetId = (assetId: AssetId): AssetId =>
+  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
+
 export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh

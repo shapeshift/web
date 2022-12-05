@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.4.0...@shapeshiftoss/investor-idle-v2.4.1) (2022-12-05)
+
+
+### Bug Fixes
+
+* idle APIs Authentication upgrade ([#1117](https://github.com/shapeshift/lib/issues/1117)) ([7e55181](https://github.com/shapeshift/lib/commit/7e551816fd3f13417aae73df048e421a3e6f2e18))
+
 # [@shapeshiftoss/investor-idle-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.3.2...@shapeshiftoss/investor-idle-v2.4.0) (2022-11-30)
 
 

@@ -78,9 +78,11 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
         <RawText fontWeight='bold' textShadow={textShadow}>
           {opportunityName}
         </RawText>
-        <RawText fontSize='sm' color='gray.500'>
-          {version}
-        </RawText>
+        {version && (
+          <RawText fontSize='sm' color='gray.500'>
+            {version}
+          </RawText>
+        )}
       </Card.Body>
       <Card.Footer display='flex' flexDir='column' mt='auto'>
         <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />

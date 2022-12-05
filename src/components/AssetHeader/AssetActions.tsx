@@ -5,7 +5,9 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
+import { IoSwapVertical } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import { generatePath, Link } from 'react-router-dom'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -35,6 +37,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const tradeAssetLink = generatePath('/trade/:assetId', { assetId })
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
@@ -74,9 +77,20 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     >
       <Flex direction='row' gap={2} flexWrap='wrap'>
         <Button
+          data-test='asset-action-trade'
+          display={{ base: 'auto', md: 'none' }}
+          flex={{ base: 1, md: 'auto' }}
+          leftIcon={<IoSwapVertical />}
+          size='sm-multiline'
+          width={{ base: '100%', md: 'auto' }}
+          isDisabled={!isValidChainId}
+        >
+          <Link to={tradeAssetLink}>{translate('assets.assetCards.assetActions.trade')}</Link>
+        </Button>
+        <Button
           data-test='asset-action-buy-sell'
           width={{ base: 'full', md: 'auto' }}
-          flex='auto'
+          flex={{ base: 1, md: 'auto' }}
           onClick={handleBuySellClick}
           leftIcon={<FaCreditCard />}
           size='sm-multiline'
@@ -85,7 +99,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
             ? translate('common.buySellAsset', { symbol: asset.symbol })
             : translate('common.buySell')}
         </Button>
-
+      </Flex>
+      <Flex direction='row' gap={2} flexWrap='wrap'>
         <Button
           onClick={handleSendClick}
           leftIcon={<ArrowUpIcon />}

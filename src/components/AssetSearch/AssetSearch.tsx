@@ -2,7 +2,8 @@ import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import orderBy from 'lodash/orderBy'
 import type { FC, FormEvent } from 'react'
@@ -23,6 +24,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './AssetList'
+import { ChainList } from './Chains/ChainList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 
 const moduleLogger = logger.child({
@@ -63,6 +65,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
+  const [activeChain, setActiveChain] = useState<ChainId>(ethChainId)
+
   const filteredAssets = useMemo(
     () => (filterBy ? filterBy(assets) : assets) ?? [],
     [assets, filterBy],
@@ -184,6 +188,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const assetSearchWithAssetList: JSX.Element = (
     <>
+      <ChainList onClick={chainId => setActiveChain(chainId)} activeChain={activeChain} />
       {searchElement}
       {listAssets && (
         <Box flex={1}>

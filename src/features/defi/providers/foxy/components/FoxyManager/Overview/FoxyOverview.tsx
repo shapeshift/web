@@ -123,10 +123,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={[
+      underlyingAssetsCryptoPrecision={[
         {
           ...stakingAsset,
-          cryptoBalance: cryptoAmountAvailable.toFixed(4),
+          cryptoBalancePrecision: cryptoAmountAvailable.toFixed(4),
           allocationPercentage: '1',
         },
       ]}

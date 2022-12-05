@@ -4035,10 +4035,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.1.5":
-  version "8.1.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.1.5.tgz#acc638d1529b0562452be4deb4169111d5bd785e"
-  integrity sha512-6w1OrQxsZPKPeuIAnlCnJOB5meh7k3L//niBaOZieqPAstgOcKpeQFl1WHodhNOBOdd/1EWxwkP7aoq5xPZLJA==
+"@shapeshiftoss/asset-service@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.2.0.tgz#668b428f360561455be974eafb546fbf7dc7b2ac"
+  integrity sha512-mA11pb0Yt50yntWgSLcbJ2r4GMz20jGYllRQwptGTgSgjJzj5H1W0yG4ora/I2X5EDR5nfBeENVvPWLPiLK5zA==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4078,10 +4078,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.5.0.tgz#f4652b70616122abfeccb70a627cbd05d963490c"
   integrity sha512-xXMjzCFVo6/h2WVGjNlN6TbN8sWfpvMAWpjF/dqi9TCvYX1yUYEZWRqtXXrDvGsrpbMsjXsLynwuAH/SjuwfdQ==
 
-"@shapeshiftoss/chain-adapters@^10.3.0":
-  version "10.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.3.0.tgz#9a9c37a206a753c7f40717e7582e7c4729092b96"
-  integrity sha512-ilvEmOv92nExPJ757VgcGocC5uNrXUDAb4xm3c9B0RpFP5/hdA6iakvvClczh8lnyA+ri2FxcElMu1ceEk/xvQ==
+"@shapeshiftoss/chain-adapters@^10.3.1":
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.3.1.tgz#bdfdad947397664c46721a6c6d6a664e01e4de57"
+  integrity sha512-/oYtKUjfAp1nFMrFxC27pyMm6vYCVvU6+K86lMz8UfhKGGdvaWctY7P5wJyJsHIjZRLYT8fCZ9G0Dr2seD1XSA==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4304,10 +4304,10 @@
     web3-core "1.7.4"
     web3-utils "1.7.4"
 
-"@shapeshiftoss/investor-idle@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.3.2.tgz#2312ec1cace2d276a78d634a9173685626f89f54"
-  integrity sha512-Yn6h3wyr2nzX2ajHi8we5pYyqgekbokfCXCWZ6gSbVEYMcuiHp6tla5AIoBJSHCc7uU10uoDgz5s6LujP9lI3Q==
+"@shapeshiftoss/investor-idle@^2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-idle/-/investor-idle-2.4.1.tgz#da0fe964d82b05d15e2e61ebcb285df4af17a7c0"
+  integrity sha512-E7TuAGbm3rm2Ic0PwKZJEjyJFjkBVewZPqisXxHw8cFg4BwYzni9b2HOKV9ENHo8eV42LmjaxHdPvqdkdqU1lQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     bignumber.js "^9.0.2"
@@ -4360,10 +4360,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^14.5.0":
-  version "14.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.5.0.tgz#7f1e60265be65777b89ea08afc3fc6831a7f9d84"
-  integrity sha512-UnD3XyPwbhZuQ+4Ne52rZnXBIlU/W/XckHjM2UENlGkKoEP+j8aIa88XjIpXkJCYNFR1jl/JVKIBUFrhkdI18Q==
+"@shapeshiftoss/swapper@^14.5.3":
+  version "14.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.6.0.tgz#34a154434b724195de75bf69f7d534fe9824b83e"
+  integrity sha512-SA0IDyqTtF4qr8fO5SPcaoo3zU4JnHcAEfz1wBw2vkPto3kp78abdY8phBLkT3d7Fpm2USzuk3DaEhsZesqoOQ==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -10622,9 +10622,9 @@ decimal.js@^10.2.1:
   integrity sha512-V0pfhfr8suzyPGOx3nmq4aHqabehUZn6Ch9kyFpV79TGDTWFmHqUqXdabR7QHqxzrYolF4+tVmJhUG4OURg5dQ==
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 decompress-response@^3.2.0, decompress-response@^3.3.0:
   version "3.3.0"

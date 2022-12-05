@@ -23,6 +23,7 @@ import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
+import { selectPortfolioCryptoHumanBalanceByFilter } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
@@ -30,7 +31,6 @@ import {
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioFiatBalancesByAccount,
 } from './selectors'

@@ -41,9 +41,9 @@ export type OpportunityMetadata = {
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
-  stakedAmountCryptoPrecision: string
+  stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountsCryptoPrecision:
+  rewardsAmountsCryptoBaseUnit:
     | readonly [string, string, string]
     | readonly [string, string]
     | readonly [string]
@@ -119,17 +119,13 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 export type StakingEarnOpportunityType = OpportunityMetadata & {
-  /**
-   * @deprecated Here for backwards compatibility until https://github.com/shapeshift/web/pull/3218 goes in
-   */
-  unclaimedRewards?: string
-  stakedAmountCryptoPrecision?: string
-  rewardsAmountsCryptoPrecision?:
+  stakedAmountCryptoBaseUnit?: string
+  rewardsAmountsCryptoBaseUnit?:
     | readonly [string, string, string]
     | readonly [string, string]
     | readonly [string]
     | readonly []
-  underlyingToken0Amount?: string
-  underlyingToken1Amount?: string
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property

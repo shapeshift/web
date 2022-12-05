@@ -195,8 +195,8 @@ describe('opportunitiesSlice', () => {
         const payload = {
           byId: {
             [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
-              stakedAmountCryptoPrecision: '42000',
-              rewardsAmountsCryptoPrecision: ['42'] as [string],
+              stakedAmountCryptoBaseUnit: '42000',
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }
@@ -208,8 +208,8 @@ describe('opportunitiesSlice', () => {
         const insertPayloadOne = {
           byId: {
             [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
-              stakedAmountCryptoPrecision: '42000',
-              rewardsAmountsCryptoPrecision: ['42'] as [string],
+              stakedAmountCryptoBaseUnit: '42000',
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }
@@ -222,8 +222,8 @@ describe('opportunitiesSlice', () => {
         const insertPayloadTwo = {
           byId: {
             [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
-              stakedAmountCryptoPrecision: '42000',
-              rewardsAmountsCryptoPrecision: ['42'] as [string],
+              stakedAmountCryptoBaseUnit: '42000',
+              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
           },
         }

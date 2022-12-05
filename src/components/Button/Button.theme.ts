@@ -18,6 +18,17 @@ export const ButtonStyle: ComponentStyleConfig = {
         height: '1rem',
       },
     },
+    'sm-multiline': {
+      svg: {
+        width: '1rem',
+        height: '1rem',
+      },
+      whiteSpace: 'normal',
+      h: 'auto',
+      minH: '10',
+      py: '2',
+      px: '4',
+    },
     lg: (props: StyleFunctionProps) => {
       const { variant: v } = props
       return {

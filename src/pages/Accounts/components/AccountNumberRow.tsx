@@ -135,7 +135,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const title = useMemo(
     () =>
       isUtxoAccount
-        ? assets[accountIdToFeeAssetId(accountId)].name
+        ? assets[accountIdToFeeAssetId(accountId ?? '') ?? '']?.name ?? ''
         : firstFourLastFour(fromAccountId(accountId).account),
     [assets, accountId, isUtxoAccount],
   )

@@ -39,7 +39,7 @@ const DegradedStateBanner = () => {
     // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
     return uniq(
       erroredAccountIds.map(
-        (accountId: AccountId) => assets[accountIdToFeeAssetId(accountId)].name,
+        (accountId: AccountId) => assets[accountIdToFeeAssetId(accountId ?? '') ?? '']?.name ?? '',
       ),
     ).join(', ')
   }, [assets, erroredAccountIds])

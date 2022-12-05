@@ -51,6 +51,11 @@ const routes: BreadcrumbsRoute[] = [
       { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
+  {
+    path: '/trade',
+    breadcrumb: 'Trade',
+    routes: [{ path: '/trade/:assetId', breadcrumb: GetAssetName }],
+  },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]

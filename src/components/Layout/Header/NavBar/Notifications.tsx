@@ -47,7 +47,7 @@ export const Notifications = () => {
   if (!isWhereverEnabled || !currentWallet || !WHEREVER_ENABLED_WALLETS.includes(currentWallet))
     return null
 
-  const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
+  const disableAnalytics = true
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
 
   return (

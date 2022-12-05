@@ -695,7 +695,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
 //         .map((values, key) => {
 //           const netApy = sumBy(values, o => bn(o.apy).toNumber())
 //           const opportunityIds: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
-//           const underlyingAssetIds = values.map(o => o.underlyingAssetIds)
+//           const underlyingAssetIds = values[0].underlyingAssetIds
 //           return {
 //             underlyingAssetIds,
 //             netApy,

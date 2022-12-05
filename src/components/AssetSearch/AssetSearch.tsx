@@ -183,7 +183,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const handleChainClick = useCallback(
     (e: React.MouseEvent) => (chainId: ChainId | 'All') => {
-      e.stopPropagation()
+      e.preventDefault()
       return setActiveChain(chainId)
     },
     [],
@@ -236,11 +236,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         <SlideFade in={isFocused}>
           <Card position='absolute' width='100%' mt={2} zIndex='banner'>
             <Card.Body p={2} px={0}>
-              <ChainList
-                chainIds={uniqueChainIdsByAssets}
-                onClick={handleChainClick}
-                activeChain={activeChain}
-              />
               <Box flex={1} height={300}>
                 <AssetList
                   mb='10'

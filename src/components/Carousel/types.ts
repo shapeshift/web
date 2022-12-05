@@ -2,9 +2,6 @@ import type { MotionValue, PanInfo } from 'framer-motion'
 
 export type CarouselProps = {
   children: React.ReactNode
-  renderArrowLeft?: (args: { handlePrev: () => void; activeIndex: number }) => React.ReactNode
-  renderArrowRight?: (args: { handleNext: () => void; activeIndex: number }) => React.ReactNode
-  renderDots?: (args: Omit<DotProps, 'length'>) => React.ReactNode
   autoPlay?: boolean
   interval?: number
   loop?: boolean

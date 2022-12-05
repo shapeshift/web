@@ -39,9 +39,6 @@ const Container = forwardRef<HTMLDivElement, { children: ReactNode }>((props, re
 
 export const Carousel = ({
   children,
-  renderArrowLeft,
-  renderArrowRight,
-  renderDots,
   autoPlay = false,
   interval = 5000,
   loop = false,
@@ -117,30 +114,19 @@ export const Carousel = ({
       <Container ref={containerRef}>{renderSlides}</Container>
       {(showArrows || showDots) && (
         <Flex alignItems='center' justifyContent='space-between' mt={2}>
-          {showArrows &&
-            (renderArrowLeft ? (
-              renderArrowLeft({ handlePrev, activeIndex: index })
-            ) : (
-              <Arrow direction='left' onClick={handlePrev}>
-                <ArrowBackIcon />
-              </Arrow>
-            ))}
-          {/* dots */}
-          {showDots &&
-            childrens.length > 1 &&
-            (renderDots ? (
-              renderDots({ setActiveIndex: setIndex, activeIndex: index })
-            ) : (
-              <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
-            ))}
-          {showArrows &&
-            (renderArrowRight ? (
-              renderArrowRight({ handleNext, activeIndex: index })
-            ) : (
-              <Arrow onClick={handleNext}>
-                <ArrowForwardIcon />
-              </Arrow>
-            ))}
+          {showArrows && (
+            <Arrow direction='left' onClick={handlePrev}>
+              <ArrowBackIcon />
+            </Arrow>
+          )}
+          {showDots && childrens.length > 1 && (
+            <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
+          )}
+          {showArrows && (
+            <Arrow onClick={handleNext}>
+              <ArrowForwardIcon />
+            </Arrow>
+          )}
         </Flex>
       )}
     </Box>

@@ -43,3 +43,6 @@ REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 
 # thorchain
 REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
+
+# wherever
+REACT_APP_WHEREVER_PARTNER_KEY=00da1f18-3bba-4b71-824c-21e5ed772dfa

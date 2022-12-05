@@ -25,6 +25,7 @@ import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketD
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
+  // TODO(0xdef1cafe): make this return type AssetId | undefined and fix the 600+ type errors
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 

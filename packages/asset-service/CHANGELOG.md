@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.2.0...@shapeshiftoss/asset-service-v8.3.0) (2022-12-05)
+
+
+### Features
+
+* **asset-service:** internal investor-idle bump ([#1118](https://github.com/shapeshift/lib/issues/1118)) ([6f0741b](https://github.com/shapeshift/lib/commit/6f0741b0c34799cb6f146171b0e9286fa7c2ff57)), closes [shapeshift/lib#1117](https://github.com/shapeshift/lib/issues/1117)
+
 # [@shapeshiftoss/asset-service-v8.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.1.5...@shapeshiftoss/asset-service-v8.2.0) (2022-11-30)
 
 

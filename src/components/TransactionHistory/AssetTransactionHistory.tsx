@@ -13,7 +13,7 @@ import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
-  assetId: AssetId
+  assetId?: AssetId
   accountId?: AccountId
   useCompactMode?: boolean
   limit?: number
@@ -36,12 +36,13 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
     state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const chainId = asset.chainId
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
+  if (!assetId) return null
   if (!walletSupportsChain) return null
 
   return (

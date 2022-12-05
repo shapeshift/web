@@ -11,6 +11,7 @@ import {
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
@@ -32,7 +33,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectFiatToUsdRate } from 'state/slices/selectors'
+import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
 
@@ -70,6 +71,9 @@ export const Approval = () => {
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
+  )
 
   const approveContract = useCallback(async () => {
     if (!quote) {
@@ -253,7 +257,7 @@ export const Approval = () => {
                         .toString(),
                     )}
                   </RawText>
-                  <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+                  <RawText color='gray.500'>{toCrypto(Number(fee), sellFeeAsset?.symbol)}</RawText>
                 </Row.Value>
               </Row>
             </Flex>

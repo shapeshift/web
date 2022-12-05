@@ -78,7 +78,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(foxyBalance).div(bn(10).pow(stakingAsset?.precision ?? 0))
+  const cryptoAmountAvailablePrecision = bnOrZero(foxyBalance).div(bn(10).pow(stakingAsset?.precision ?? 0))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(releaseTime))
   const hasClaim = rewardBalance.gt(0)

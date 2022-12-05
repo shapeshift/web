@@ -17,7 +17,7 @@ export const EligibleCarousel = () => {
   const filteredEligibleOpportunities = useMemo(() => {
     return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000))
-      .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())
+      .sort((a, b) => bn(b.apy).minus(a.apy).toNumber()
   }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

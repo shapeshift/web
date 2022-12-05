@@ -3,6 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -23,6 +24,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   rewardAddress,
   version,
 }) => {
+  const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
@@ -91,7 +93,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
           <Amount.Fiat value={tvl} fontWeight='bold' />
         </Flex>
         <Button mt={4} variant='ghost-filled' colorScheme='blue' onClick={handleClick}>
-          Start Earning
+          {translate('defi.startEarning')}
         </Button>
       </Card.Footer>
     </Card>

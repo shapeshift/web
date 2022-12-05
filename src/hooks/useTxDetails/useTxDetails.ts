@@ -4,6 +4,7 @@ import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { getTxBaseUrl } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
@@ -100,11 +101,16 @@ export const useTxDetails = (txId: string): TxDetails => {
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
 
+  const explorerTxLink = getTxBaseUrl({
+    name: tx.trade?.dexName,
+    defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+  })
+
   return {
     tx,
     fee,
     transfers,
     type: getTxType(tx, transfers),
-    explorerTxLink: feeAsset?.explorerTxLink ?? '',
+    explorerTxLink,
   }
 }

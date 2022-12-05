@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -16,7 +17,7 @@ export const EligibleCarousel = () => {
   const filteredEligibleOpportunities = useMemo(() => {
     return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000))
-      .sort((a, b) => Number(b.apy) - Number(a.apy))
+      .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())
   }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

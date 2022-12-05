@@ -22,4 +22,5 @@ export interface IdleVault {
 }
 
 export const baseUrl = 'https://api.idle.finance/'
-export const apiKey = 'bPrtC2bfnAvapyXLgdvzVzW8u8igKv6E'
+export const apiKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcDIiLCJpYXQiOjE2NzAyMzc1Mjd9.pf4YYdBf_Lf6P2_oKZ5r63UMd6R44p9h5ybPprtJmT4'

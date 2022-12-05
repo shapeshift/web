@@ -27,7 +27,7 @@ import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
 import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
 export type AssetWithBalance = {
-  cryptoBalance: string
+  cryptoBalancePrecision: string
   allocationPercentage?: string
   icons?: string[]
 } & Asset
@@ -38,8 +38,8 @@ type OverviewProps = {
   // The LP asset this opportunity represents
   lpAsset?: AssetWithBalance
   // The assets underlying the LP one
-  underlyingAssets: AssetWithBalance[]
-  rewardAssets?: AssetWithBalance[]
+  underlyingAssetsCryptoPrecision: AssetWithBalance[]
+  rewardAssetsCryptoPrecision?: AssetWithBalance[]
   name: string
   description?: AssetDescriptionTeaserProps
   asset: Asset
@@ -56,8 +56,8 @@ export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
   lpAsset,
-  underlyingAssets,
-  rewardAssets,
+  underlyingAssetsCryptoPrecision,
+  rewardAssetsCryptoPrecision,
   asset,
   name,
   opportunityFiatBalance,
@@ -71,14 +71,14 @@ export const Overview: React.FC<OverviewProps> = ({
   expired,
 }) => {
   const renderRewardAssets = useMemo(() => {
-    if (!rewardAssets) return null
-    return rewardAssets.map((asset, index) => (
+    if (!rewardAssetsCryptoPrecision) return null
+    return rewardAssetsCryptoPrecision.map((asset, index) => (
       <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
-        <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
+        <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
       </Tag>
     ))
-  }, [rewardAssets])
+  }, [rewardAssetsCryptoPrecision])
 
   return (
     <Flex
@@ -128,13 +128,19 @@ export const Overview: React.FC<OverviewProps> = ({
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
                 {lpAsset ? (
-                  <UnderlyingAssetsMenu lpAsset={lpAsset} underlyingAssets={underlyingAssets} />
+                  <UnderlyingAssetsMenu
+                    lpAsset={lpAsset}
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                  />
                 ) : (
-                  <UnderlyingAssetsTags underlyingAssets={underlyingAssets} showPercentage />
+                  <UnderlyingAssetsTags
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                    showPercentage
+                  />
                 )}
               </Flex>
             </Stack>
-            {rewardAssets && (
+            {rewardAssetsCryptoPrecision && (
               <Stack flex={1} spacing={4}>
                 <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>

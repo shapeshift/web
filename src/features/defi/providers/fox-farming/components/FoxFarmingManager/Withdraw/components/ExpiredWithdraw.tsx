@@ -18,7 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -38,6 +38,8 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
+  const assets = useAppSelector(selectAssets)
+
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
@@ -49,6 +51,13 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   )
 
   // user info
+  const rewardAmountCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
+        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
+        .toFixed(),
+    [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
+  )
   const amountAvailableCryptoPrecision = useMemo(
     () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset?.precision)),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
@@ -157,10 +166,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
             />
             <Stack direction='row'>
               <AssetIcon assetId={foxAssetId} size='xs' />
-              <Amount.Crypto
-                value={opportunity.rewardsAmountsCryptoPrecision?.[0] ?? '0'}
-                symbol={foxAsset.symbol}
-              />
+              <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={foxAsset.symbol} />
             </Stack>
           </Stack>
         }

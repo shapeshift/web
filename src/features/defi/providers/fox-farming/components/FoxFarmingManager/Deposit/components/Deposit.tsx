@@ -19,8 +19,10 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import {
+  foxEthLpAssetId,
+  isFoxEthStakingContractAddress,
+} from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -61,11 +63,16 @@ export const Deposit: React.FC<DepositProps> = ({
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,
     getApproveGasData,
-  } = useFoxFarming(contractAddress as FoxEthStakingContractAddress)
+  } = useFoxFarming(contractAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))

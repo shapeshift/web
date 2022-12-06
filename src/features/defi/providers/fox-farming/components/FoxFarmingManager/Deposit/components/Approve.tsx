@@ -19,7 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { isFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,9 +40,12 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress } = query
   const opportunity = state?.opportunity
-  const { allowance, approve, getStakeGasData } = useFoxFarming(
-    contractAddress as FoxEthStakingContractAddress,
-  )
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
+  const { allowance, approve, getStakeGasData } = useFoxFarming(contractAddress)
 
   const feeAssetId = toAssetId({
     chainId,

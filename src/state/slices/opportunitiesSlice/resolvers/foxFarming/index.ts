@@ -20,13 +20,13 @@ import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/p
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
-import type { FoxEthStakingContractAddress } from '../../constants'
 import {
   foxEthLpAssetId,
   foxEthLpAssetIds,
   foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
+  isFoxEthStakingContractAddress,
   LP_EARN_OPPORTUNITIES,
   STAKING_ID_TO_NAME,
 } from '../../constants'
@@ -154,7 +154,10 @@ export const foxFarmingStakingMetadataResolver = async ({
   }
 
   const ethersProvider = getEthersProvider()
-  const foxFarmingContract = getOrCreateContract(contractAddress as FoxEthStakingContractAddress)
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+  const foxFarmingContract = getOrCreateContract(contractAddress)
   const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
 
   // tvl
@@ -268,7 +271,11 @@ export const foxFarmingStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  const foxFarmingContract = getOrCreateContract(contractAddress as FoxEthStakingContractAddress)
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
+  const foxFarmingContract = getOrCreateContract(contractAddress)
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)

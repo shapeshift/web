@@ -24,7 +24,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { isFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -53,9 +53,12 @@ export const ClaimConfirm = ({
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
-  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(
-    contractAddress as FoxEthStakingContractAddress,
-  )
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
+  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()
   const { onOngoingFarmingTxIdChange } = useFoxEth()

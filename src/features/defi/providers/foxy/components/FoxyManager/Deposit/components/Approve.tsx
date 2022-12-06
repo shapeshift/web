@@ -118,7 +118,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         contractAddress,
         userAddress: accountAddress,
         wallet: walletState.wallet,
-        amount: bnOrZero(state?.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        amount: bn(
+          bnOrZero(state?.deposit.cryptoAmount).times(bn(10).pow(asset.precision)).integerValue(),
+        ).toString(),
         bip44Params,
       })
       await poll({

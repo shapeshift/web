@@ -15,7 +15,9 @@ export const Account = ({ route }: { route?: Route }) => {
   const { accountId } = useParams<MatchParams>()
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+
+  if (!feeAsset) return null
 
   return (
     feeAsset && (

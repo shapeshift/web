@@ -1,10 +1,15 @@
 import { Box, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import { useParams } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
+
+type MatchParams = {
+  assetId?: string
+}
 
 const TradeHeader = () => {
   const translate = useTranslate()
@@ -17,6 +22,8 @@ const TradeHeader = () => {
 }
 
 export const Trade = () => {
+  const { assetId } = useParams<MatchParams>()
+  const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
   const {
     state: { isDemoWallet },
   } = useWallet()
@@ -62,7 +69,7 @@ export const Trade = () => {
             position='relative'
             zIndex='2'
           >
-            <TradeCard />
+            <TradeCard defaultBuyAssetId={parsedAssetId} />
           </Container>
         </Box>
         <Stack

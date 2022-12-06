@@ -8,6 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import queryString from 'querystring'
 import { logger } from 'lib/logger'
 
+import type { CommonFiatCurrencies } from '../config'
 import type { CreateUrlProps } from '../types'
 
 enum TransactionDirection {
@@ -39,6 +40,50 @@ export type SupportedCurrency = {
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'gem'],
 })
+
+export const getSupportedGemFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'USD',
+    'AUD',
+    'HKD',
+    'MXN',
+    'BRL',
+    'GBP',
+    'EUR',
+    'CAD',
+    'ARS',
+    'CHF',
+    'CLP',
+    'COP',
+    'CZK',
+    'DKK',
+    'INR',
+    'ISK',
+    'MYR',
+    'NOK',
+    'PHP',
+    'PLN',
+    'SEK',
+    'TRY',
+    'ILS',
+    'SGD',
+    'THB',
+    'VND',
+    'JPY',
+    'KRW',
+    'ZAR',
+    'NZD',
+    'AED',
+    'RON',
+    'HUF',
+    'BGN',
+    'IDR',
+    'HRK',
+    'PEN',
+    'KES',
+    'TWD',
+  ]
+}
 
 export const fetchCoinifySupportedCurrencies = memoize(async (): Promise<SupportedCurrency[]> => {
   moduleLogger.trace(

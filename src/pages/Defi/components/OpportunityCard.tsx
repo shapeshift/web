@@ -23,7 +23,7 @@ import {
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -113,7 +113,7 @@ export const OpportunityCard = ({
     [type],
   )
 
-  const getOpportunityName = useMemo(() => {
+  const getOpportunityName = useCallback(() => {
     if (opportunityName) {
       if (version) return `${opportunityName} (${version})`
       return opportunityName
@@ -147,7 +147,7 @@ export const OpportunityCard = ({
           <Box>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {getOpportunityName}
+                {getOpportunityName()}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

@@ -60,6 +60,7 @@ export const mockStore: ReduxState = {
       Yat: false,
       WalletConnectToDapps: false,
       DashboardBreakdown: false,
+      Wherever: false,
       FiatPopup: false,
       EligibleEarn: false,
     },

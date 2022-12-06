@@ -25,6 +25,7 @@ import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetchi
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ChainMenu } from './NavBar/ChainMenu'
+import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -146,12 +147,13 @@ export const Header = () => {
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Notifications />
             </Flex>
           </HStack>
         </HStack>

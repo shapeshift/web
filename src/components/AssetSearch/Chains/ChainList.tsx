@@ -23,6 +23,7 @@ export const ChainList: React.FC<ChainListProps> = ({ chainIds, activeChain, onC
       />
     ))
   }, [activeChain, chainIds, onClick])
+
   return (
     <Grid gridTemplateColumns='repeat(auto-fit, minmax(52px, 1fr))' gap={4} px={4} mb={4}>
       <Button

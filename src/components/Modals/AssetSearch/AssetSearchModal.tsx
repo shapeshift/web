@@ -51,7 +51,7 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody p={2} display='flex' flexDir='column'>
+        <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
           <AssetSearch
             onClick={handleClick}
             filterBy={filterBy}

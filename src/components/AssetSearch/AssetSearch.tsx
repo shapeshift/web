@@ -80,11 +80,15 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     [filterBy, assetsBySelectedChain],
   )
 
-  const uniqueChainIdsByAssets: ChainId[] = Array.from(
-    assets.reduce((acc, asset) => {
-      if (supportedChainIds.includes(asset.chainId)) acc.add(asset.chainId)
-      return acc
-    }, new Set<ChainId>()),
+  const uniqueChainIdsByAssets: ChainId[] = useMemo(
+    () =>
+      Array.from(
+        assets.reduce((acc, asset) => {
+          if (supportedChainIds.includes(asset.chainId)) acc.add(asset.chainId)
+          return acc
+        }, new Set<ChainId>()),
+      ),
+    [assets, supportedChainIds],
   )
 
   const [isFocused, setIsFocused] = useState(false)

@@ -20,8 +20,10 @@ import {
   fromAssetId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useCallback } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -95,23 +97,27 @@ export const OpportunityCard = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
-  if (!asset) return null
-
-  const getVaultName = (asset: Asset, provider: string, version?: string) => {
-    // Add Provider and Vault version if any
-    if (version) {
-      const providerExp = new RegExp('^' + provider, 'i')
-      if (!providerExp.test(version)) {
-        return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
+  const getVaultName = useCallback(
+    (asset: Asset, provider: string, version?: string) => {
+      // Add Provider and Vault version if any
+      if (version) {
+        const providerExp = new RegExp('^' + provider, 'i')
+        if (!providerExp.test(version)) {
+          return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
+        }
+        return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
       }
-      return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
+
+      return `${asset.symbol} ${type?.replace('_', ' ')}`
+    },
+    [type],
+  )
+
+  const getOpportunityName = useCallback(() => {
+    if (opportunityName) {
+      if (version) return `${opportunityName} (${version})`
+      return opportunityName
     }
-
-    return `${asset.symbol} ${type?.replace('_', ' ')}`
-  }
-
-  const getOpportunityName = () => {
-    if (opportunityName) return opportunityName
 
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
@@ -121,36 +127,24 @@ export const OpportunityCard = ({
     if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
     }
-  }
+  }, [asset, assetId, chainId, getVaultName, moniker, opportunityName, provider, version])
+
+  if (!asset) return null
 
   return (
     <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
       <Card.Body>
-        <Flex alignItems='center'>
+        <Flex alignItems='center' gap={4}>
           <Flex>
-            <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
+            <SkeletonCircle width='auto' isLoaded={isLoaded}>
               {icons ? (
-                <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-                  {icons.map((iconSrc, i) => (
-                    <AssetIcon
-                      key={iconSrc}
-                      src={iconSrc}
-                      boxSize='9'
-                      mr={i === icons.length - 1 ? 2 : 0}
-                      ml={i === 0 ? '0' : '-4'}
-                    />
-                  ))}
-                </Flex>
+                <PairIcons icons={icons} iconSize='sm' bg='transparent' />
               ) : (
-                <AssetIcon
-                  src={getOverrideIconFromAssetId(assetId, assets)}
-                  boxSize='10'
-                  zIndex={2}
-                />
+                <AssetIcon src={getOverrideIconFromAssetId(assetId, assets)} size='sm' zIndex={2} />
               )}
             </SkeletonCircle>
           </Flex>
-          <Box ml={icons ? 6 : 4}>
+          <Box>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
                 {getOpportunityName()}

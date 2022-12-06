@@ -28,7 +28,7 @@ import {
   foxEthPair,
   foxEthStakingIds,
   LP_EARN_OPPORTUNITIES,
-  STAKING_ID_TO_NAME,
+  STAKING_ID_TO_VERSION,
 } from '../../constants'
 import type {
   GetOpportunityIdsOutput,
@@ -200,7 +200,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   const timeStamp = await foxFarmingContract.periodFinish()
   const expired =
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
-  const name = STAKING_ID_TO_NAME[opportunityId]
+  const version = STAKING_ID_TO_VERSION[opportunityId]
 
   const data = {
     byId: {
@@ -217,7 +217,8 @@ export const foxFarmingStakingMetadataResolver = async ({
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
         ] as const,
         expired,
-        name,
+        name: 'Fox Farming',
+        version,
       },
     } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
     type: opportunityType,

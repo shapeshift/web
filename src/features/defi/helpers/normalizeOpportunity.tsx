@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { USDC_PRECISION } from 'constants/UsdcPrecision'
+import { USDC_PRECISION } from 'constants/constants'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -24,7 +24,9 @@ export type EarnOpportunityType = {
   underlyingAssetId?: AssetId
   assetId: AssetId
   fiatAmount: string
-  cryptoAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
   expired?: boolean
   chainId: ChainId
   moniker?: string
@@ -43,10 +45,12 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     const chainId = fromAssetId(vault.feeAsset.assetId).chainId
     let fiatAmount = '0'
-    let cryptoAmount = '0'
+    let cryptoAmountBaseUnit = '0'
+    let cryptoAmountPrecision = '0'
     if (vaultsWithBalances[vault.id]) {
       const balances = vaultsWithBalances[vault.id]
-      cryptoAmount = balances.cryptoAmount
+      cryptoAmountBaseUnit = balances.cryptoAmountBaseUnit
+      cryptoAmountPrecision = balances.cryptoAmountPrecision
       fiatAmount = balances.fiatAmount
     }
     const assetId = vault.underlyingAsset.assetId
@@ -62,7 +66,8 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
       chainId,
       assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountBaseUnit,
+      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -77,7 +82,7 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
         bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
         (bnOrZero(vault?.apy).gt(200) && (vault?.isNew || false))
       ) {
-        if (bnOrZero(cryptoAmount).gt(0)) {
+        if (bnOrZero(cryptoAmountBaseUnit).gt(0)) {
           acc.push(data)
         }
       } else {
@@ -101,7 +106,8 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       tokenAssetId: assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountPrecision,
+      cryptoAmountBaseUnit,
     } = foxy
     return {
       type: DefiType.TokenStaking,
@@ -115,7 +121,8 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       assetId,
       fiatAmount,
-      cryptoAmount,
+      cryptoAmountBaseUnit,
+      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -137,17 +144,22 @@ const useTransformCosmosStaking = (
         chainId: staking.chainId,
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
-        cryptoAmount: staking.cryptoAmount ?? '',
+        cryptoAmountBaseUnit: staking.cryptoAmountBaseUnit ?? '0',
+        cryptoAmountPrecision: staking.cryptoAmountPrecision ?? '0',
         moniker: staking.moniker,
         version:
-          !bnOrZero(staking.cryptoAmount).isZero() &&
+          !bnOrZero(staking.cryptoAmountBaseUnit).isZero() &&
           translate('defi.validatorMoniker', { moniker: staking.moniker }),
-        showAssetSymbol: bnOrZero(staking.cryptoAmount).isZero(),
+        showAssetSymbol: bnOrZero(staking.cryptoAmountBaseUnit).isZero(),
         isLoaded: Boolean(staking.isLoaded),
       }
     })
     .sort((opportunityA, opportunityB) => {
-      return bnOrZero(opportunityA.cryptoAmount).gt(bnOrZero(opportunityB.cryptoAmount)) ? -1 : 1
+      return bnOrZero(opportunityA.cryptoAmountPrecision).gt(
+        bnOrZero(opportunityB.cryptoAmountPrecision),
+      )
+        ? -1
+        : 1
     })
 }
 

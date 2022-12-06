@@ -82,6 +82,11 @@
     "enterAmount": "Ввести сумму",
     "pageNotFound": "Страница, которую вы ищете, не найдена"
   },
+  "errorPage": {
+    "title": "Упс!",
+    "body": "Что-то пошло не так",
+    "cta": "Попробуйте еще раз"
+  },
   "buyPage": {
     "title": {
       "first": "Купить криптовалюту",
@@ -554,6 +559,10 @@
     },
     "errors": {
       "title": "Что-то пошло не так",
+      "sellAssetStartSentence": "Продаваемый актив",
+      "buyAssetStartSentence": "Покупаемый актив",
+      "sellAssetMiddleSentence": "продаваемый актив",
+      "buyAssetMiddleSentence": "покупаемый актив",
       "notEnoughEth": "Недостаточно ETH для оплаты комиссии за газ в этой транзакции.",
       "amountTooSmall": "Минимум: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Сумма продажи меньше, чем комиссия",
@@ -601,6 +610,13 @@
     "shapeshiftFee": "Комиссия ShapeShift"
   },
   "modals": {
+    "popup": {
+      "body": "Мы открыли безопасное окно для завершения вашего ордера.",
+      "body2": "Не видите защищенного окна? Мы поможем вам снова запустить окно, чтобы завершить ордер.",
+      "continue": "Нажмите, чтобы продолжить",
+      "showWindow": "Показать окно",
+      "cancel": "Отменить"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

@@ -82,16 +82,21 @@
     "enterAmount": "Insira a quantia",
     "pageNotFound": "A página que você está procurando não pode ser encontrada"
   },
+  "errorPage": {
+    "title": "Opa!",
+    "body": "Algo deu errado",
+    "cta": "Tente novamente"
+  },
   "buyPage": {
     "title": {
       "first": "Compre Cripto",
-      "second": "Em segundos"
+      "second": "Em instantes"
     },
-    "body": "Use cartão de crédito, débito ou conta bancária. Compre Bitcoin, Ethereum, USDT USDC ou outras centenas de criptomoedas. ",
+    "body": "Use cartão de crédito, débito ou PIX. Compre Bitcoin, Ethereum, USDT, USDC ou outras centenas de criptomoedas. ",
     "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
     "cta": {
       "title": {
-        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negocial, ganhar recompensas e",
+        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
         "second": "monitorar suas criptos em 8 redes diferentes."
       }
     },
@@ -179,7 +184,7 @@
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
-    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Detida pela Comunidade. Não custodial. Privada.",
+    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Propriedade da Comunidade. Não custodial. Privada.",
     "betaSunset": "Beta foi descontinuada, leia mais",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
@@ -555,6 +560,10 @@
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
+      "sellAssetStartSentence": "Vender Ativo",
+      "buyAssetStartSentence": "Comprar Ativo",
+      "sellAssetMiddleSentence": "vender ativo",
+      "buyAssetMiddleSentence": "comprar ativo",
       "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
@@ -602,6 +611,13 @@
     "shapeshiftFee": "Taxa ShapeShift"
   },
   "modals": {
+    "popup": {
+      "body": "Abrimos uma janela segura para completar sua ordem. ",
+      "body2": "Não vê a janela segura?\nReabriremos a janela para você completar sua ordem. ",
+      "continue": "Clique para continuar",
+      "showWindow": "Exibir Janela",
+      "cancel": "Cancelar"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -1263,7 +1279,7 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie um"
+      "create": "Crie uma"
     }
   },
   "graph": {

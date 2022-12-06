@@ -32,7 +32,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RateGasRow } from './Components/RateGasRow'
@@ -299,9 +299,6 @@ export const TradeInput = () => {
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
     if (!wallet) return 'common.connectWallet'
-    if (!sellTradeAsset?.asset || !buyTradeAsset?.asset) {
-      return 'common.loadingText'
-    }
     if (!walletSupportsSellAssetChain)
       return [
         'trade.errors.assetNotSupportedByWallet',
@@ -324,8 +321,7 @@ export const TradeInput = () => {
       return [
         'common.insufficientAmountForGas',
         {
-          assetSymbol:
-            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
+          assetSymbol: sellFeeAsset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
         },
       ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
@@ -343,7 +339,7 @@ export const TradeInput = () => {
     return 'trade.previewTrade'
   }, [
     bestTradeSwapper,
-    buyTradeAsset?.asset,
+    buyTradeAsset?.asset?.symbol,
     feeAssetBalance,
     feesExceedsSellAmount,
     hasValidSellAmount,
@@ -357,8 +353,10 @@ export const TradeInput = () => {
     sellAssetBalanceHuman,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
+    sellFeeAsset?.symbol,
     sellTradeAsset?.amount,
-    sellTradeAsset?.asset,
+    sellTradeAsset?.asset?.assetId,
+    sellTradeAsset?.asset?.symbol,
     translate,
     wallet,
     walletSupportsBuyAssetChain,

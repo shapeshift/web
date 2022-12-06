@@ -7,16 +7,10 @@ import {
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
+import { isKeyManagerWithProvider } from 'context/WalletProvider/WalletProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { breakpoints, theme } from 'theme/theme'
-
-const WHEREVER_ENABLED_WALLETS: KeyManager[] = [
-  KeyManager.TallyHo,
-  KeyManager.MetaMask,
-  KeyManager.WalletConnect,
-]
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
@@ -44,10 +38,9 @@ export const Notifications = () => {
     }
   }, [colorMode, mobileBreakpoint])
 
-  if (!isWhereverEnabled || !currentWallet || !WHEREVER_ENABLED_WALLETS.includes(currentWallet))
-    return null
+  if (!isWhereverEnabled || !currentWallet || !isKeyManagerWithProvider(currentWallet)) return null
 
-  const disableAnalytics = window.location.hostname.includes('private.shapeshift.com')
+  const disableAnalytics = true
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
 
   return (

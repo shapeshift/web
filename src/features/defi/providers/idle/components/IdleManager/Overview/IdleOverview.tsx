@@ -24,7 +24,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssetById,
   selectAssets,
-  selectEarnUserStakingOpportunity,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -81,8 +81,14 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailable = useMemo(
+    () => bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision)),
+    [balance, vaultAsset?.precision],
+  )
+  const fiatAmountAvailable = useMemo(
+    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
+    [cryptoAmountAvailable, marketData.price],
+  )
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -111,7 +117,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
 
   const opportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunity(state, opportunityDataFilter),
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
   const underlyingAssetId = useMemo(
@@ -126,7 +132,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     () => [
       {
         ...underlyingAsset,
-        cryptoBalance: cryptoAmountAvailable.toPrecision(),
+        cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
         allocationPercentage: '1',
       },
     ],
@@ -140,16 +146,18 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
 
   const rewardAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoPrecision?.length) return []
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
-    return opportunityData!.rewardsAmountsCryptoPrecision
+    return opportunityData!.rewardsAmountsCryptoBaseUnit
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
         if (bnOrZero(amount).isZero()) return undefined
         return {
           ...assets[opportunityData.rewardAssetIds[i]],
-          cryptoBalance: bnOrZero(amount).toFixed(6),
+          cryptoBalancePrecision: bnOrZero(amount)
+            .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? '0'))
+            .toFixed(6),
         }
       })
       .filter(isSome)
@@ -159,13 +167,13 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     if (!opportunityData?.rewardAssetIds?.length) return false
 
     return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoPrecision?.[i]).gt(0),
+      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
     )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoPrecision])
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!(contractAddress && idleInvestor && opportunityData)) return defaultMenu
-    if (!opportunityData?.rewardsAmountsCryptoPrecision?.length) return defaultMenu
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return defaultMenu
 
     return [
       ...defaultMenu,
@@ -198,17 +206,17 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       asset={vaultAsset}
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssets={underlyingAssets}
+      underlyingAssetsCryptoPrecision={underlyingAssets}
       provider='Idle Finance'
       description={{
         description: underlyingAsset.description,
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: underlyingAsset.isTrustedDescription,
       }}
-      tvl={bnOrZero(opportunityData.tvl).div(bn(10).pow(vaultAsset?.precision)).toFixed(2)}
+      tvl={bnOrZero(opportunityData.tvl).toFixed(2)}
       apy={opportunityData.apy}
       menu={menu}
-      rewardAssets={rewardAssets}
+      rewardAssetsCryptoPrecision={rewardAssets}
     />
   )
 }

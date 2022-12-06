@@ -82,6 +82,11 @@
     "enterAmount": "Betrag eingeben",
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden"
   },
+  "errorPage": {
+    "title": "Hoppala!",
+    "body": "Etwas ist schief gelaufen",
+    "cta": "Versuchen Sie es nochmal"
+  },
   "buyPage": {
     "title": {
       "first": "Krypto kaufen",
@@ -554,6 +559,10 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
+      "sellAssetStartSentence": "Vermögenswerte verkaufen",
+      "buyAssetStartSentence": "Vermögenswerte kaufen",
+      "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
+      "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
@@ -600,6 +609,13 @@
     "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
+    "popup": {
+      "body": "Wir haben ein sicheres Fenster geöffnet, um Ihre Bestellung abzuschließen.",
+      "body2": "Sie sehen das sichere Fenster nicht? Wir helfen Ihnen, das Fenster neu zu starten, um Ihre Bestellung abzuschließen.",
+      "continue": "Klicke um Fortzufahren",
+      "showWindow": "zeige Fenster",
+      "cancel": "Abbrechen"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

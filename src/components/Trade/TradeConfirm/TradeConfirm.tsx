@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -57,6 +57,7 @@ import { ReceiveSummary } from './ReceiveSummary'
 export const TradeConfirm = () => {
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTxid, setSellTxid] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
   const {
@@ -145,10 +146,12 @@ export const TradeConfirm = () => {
 
   const txLink = useMemo(() => {
     switch (trade?.sources[0]?.name) {
-      case 'Osmosis':
+      case SwapperName.Osmosis:
         return `${osmosisAsset?.explorerTxLink}${sellTxid}`
-      case 'CowSwap':
+      case SwapperName.CowSwap:
         return `https://explorer.cow.fi/orders/${sellTxid}`
+      case SwapperName.Thorchain:
+        return `https://v2.viewblock.io/thorchain/tx/${sellTxid}`
       default:
         return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
     }
@@ -405,9 +408,9 @@ export const TradeConfirm = () => {
                 </Row>
                 {isFeeRatioOverThreshold && (
                   <Flex justifyContent='center' gap={4} alignItems='center'>
-                    <WarningTwoIcon w={5} h={5} color='red.400' />
+                    <WarningTwoIcon w={5} h={5} color={warningColor} />
                     <Text
-                      color='red.400'
+                      color={warningColor}
                       translation={[
                         'trade.gasFeeExceedsTradeAmountThreshold',
                         { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },

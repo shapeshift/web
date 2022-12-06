@@ -84,16 +84,16 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          stakedAmountCryptoPrecision: '1337',
-          rewardsAmountsCryptoPrecision: ['420'] as [string],
+          stakedAmountCryptoBaseUnit: '1337',
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          stakedAmountCryptoPrecision: '4',
-          rewardsAmountsCryptoPrecision: ['3'] as [string],
+          stakedAmountCryptoBaseUnit: '4',
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
-          stakedAmountCryptoPrecision: '9000',
-          rewardsAmountsCryptoPrecision: ['1'] as [string],
+          stakedAmountCryptoBaseUnit: '9000',
+          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
       },
     }
@@ -182,12 +182,12 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          stakedAmountCryptoPrecision: '1337',
-          rewardsAmountsCryptoPrecision: ['420'] as [string],
+          stakedAmountCryptoBaseUnit: '1337',
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          stakedAmountCryptoPrecision: '4',
-          rewardsAmountsCryptoPrecision: ['3'] as [string],
+          stakedAmountCryptoBaseUnit: '4',
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
       },
     }
@@ -210,8 +210,8 @@ describe('opportunitiesSlice selectors', () => {
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         provider: 'UNI V2',
-        rewardsAmountsCryptoPrecision: ['420'],
-        stakedAmountCryptoPrecision: '1337',
+        rewardsAmountsCryptoBaseUnit: ['420000000000000000000'],
+        stakedAmountCryptoBaseUnit: '1337',
         tvl: '424242',
         type: 'lp',
         underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -229,8 +229,8 @@ describe('opportunitiesSlice selectors', () => {
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         provider: 'UNI V2',
-        stakedAmountCryptoPrecision: '4',
-        rewardsAmountsCryptoPrecision: ['3'] as [string],
+        stakedAmountCryptoBaseUnit: '4',
+        rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         tvl: '424242',
         type: 'lp',
         underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -268,16 +268,16 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          stakedAmountCryptoPrecision: '1337',
-          rewardsAmountsCryptoPrecision: ['420'] as [string],
+          stakedAmountCryptoBaseUnit: '1337',
+          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
-          stakedAmountCryptoPrecision: '100',
-          rewardsAmountsCryptoPrecision: ['10'] as [string],
+          stakedAmountCryptoBaseUnit: '100',
+          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          stakedAmountCryptoPrecision: '4',
-          rewardsAmountsCryptoPrecision: ['3'] as [string],
+          stakedAmountCryptoBaseUnit: '4',
+          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
       },
     }
@@ -300,8 +300,8 @@ describe('opportunitiesSlice selectors', () => {
             apy: '1000',
             assetId: mockStakingContractTwo,
             provider: DefiProvider.FoxEthLP,
-            rewardsAmountsCryptoPrecision: ['420'] as [string],
-            stakedAmountCryptoPrecision: '1337',
+            rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
+            stakedAmountCryptoBaseUnit: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetId: foxEthLpAssetId,
@@ -316,8 +316,8 @@ describe('opportunitiesSlice selectors', () => {
             apy: '1000',
             assetId: mockStakingContractTwo,
             provider: DefiProvider.FoxEthLP,
-            rewardsAmountsCryptoPrecision: ['10'] as [string],
-            stakedAmountCryptoPrecision: '100',
+            rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
+            stakedAmountCryptoBaseUnit: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetId: foxEthLpAssetId,
@@ -345,8 +345,8 @@ describe('opportunitiesSlice selectors', () => {
           underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
           underlyingAssetRatios: ['5000000000000000', '202200000000000000000'] as [string, string],
-          rewardsAmountsCryptoPrecision: ['430'] as [string],
-          stakedAmountCryptoPrecision: '1437',
+          rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
+          stakedAmountCryptoBaseUnit: '1437',
         })
       })
     })

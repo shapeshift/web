@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
-import { bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 
@@ -136,7 +135,29 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
-    if (!asset || bnOrZero(balance).eq(0)) continue
+    if (!asset) continue
+
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
+    }
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
+    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
+    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
+    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
+    if (bnOrZero(balance).eq(0)) {
+      // Zero out this user staking opportunity including rewards - all rewards are automatically claimed when withdrawing, see
+      // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
+      // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        stakedAmountCryptoBaseUnit: '0',
+        rewardsAmountsCryptoBaseUnit: [],
+      }
+      continue
+    }
 
     const opportunity = await (async () => {
       const maybeOpportunities = await idleInvestor.findAll()
@@ -149,28 +170,21 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
     if (!opportunity) continue
 
-    let rewardsAmountsCryptoPrecision = ['0'] as [string] | [string, string]
+    let rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
       const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
-      rewardsAmountsCryptoPrecision = claimableTokens.map(token => {
+      rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
-        return bnOrZero(token.amount).div(bn(10).pow(asset.precision)).toFixed()
+        return bnOrZero(token.amount).toFixed()
       }) as [string] | [string, string]
     }
 
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-      assetReference: fromAssetId(stakingOpportunityId).assetReference,
-      chainId: fromAssetId(stakingOpportunityId).chainId,
-    }
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const userStakingId = serializeUserStakingId(accountId, opportunityId)
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      stakedAmountCryptoPrecision: bnOrZero(balance).div(bn(10).pow(asset.precision)).toString(),
-      rewardsAmountsCryptoPrecision,
+      stakedAmountCryptoBaseUnit: balance,
+      rewardsAmountsCryptoBaseUnit,
     }
   }
 

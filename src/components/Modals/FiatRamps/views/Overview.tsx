@@ -264,6 +264,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       autoSelectHighestBalance={true}
                       assetId={assetId}
                       onChange={handleAccountIdChange}
+                      defaultAccountId={accountId}
                       buttonProps={{ variant: 'solid', width: 'full' }}
                       boxProps={{ px: 0 }}
                     />

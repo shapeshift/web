@@ -82,6 +82,11 @@
     "enterAmount": "Ingrese la cantidad",
     "pageNotFound": "La página que buscas no se encuentra"
   },
+  "errorPage": {
+    "title": "¡Ups!",
+    "body": "Algo salió mal",
+    "cta": "Intentar otra vez"
+  },
   "buyPage": {
     "title": {
       "first": "Comprar Cripto",
@@ -554,6 +559,10 @@
     },
     "errors": {
       "title": "Algo salió mal",
+      "sellAssetStartSentence": "Vender activo",
+      "buyAssetStartSentence": "Comprar activo",
+      "sellAssetMiddleSentence": "vender activo",
+      "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
@@ -601,6 +610,13 @@
     "shapeshiftFee": "Tarifa de ShapeShift"
   },
   "modals": {
+    "popup": {
+      "body": "Hemos lanzado una ventana segura para completar su pedido.",
+      "body2": "¿No ve la ventana segura? Le ayudaremos a abrirla para completar su pedido.",
+      "continue": "Haz click para continuar",
+      "showWindow": "Mostrar ventana",
+      "cancel": "Cancelar"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {

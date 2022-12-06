@@ -53,7 +53,6 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress])
   return (
     <Card
-      as='a'
       position='relative'
       scrollSnapAlign={{ base: 'center', md: 'start' }}
       overflow='hidden'
@@ -63,7 +62,6 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       width='full'
       transitionProperty='common'
       transitionDuration='normal'
-      data-test={`eligible-${provider}-${assetId}-button`}
       borderRadius={{ base: 'xl' }}
       _hover={{
         bg: hoverBgColor,
@@ -94,7 +92,13 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
           <Text translation='defi.currentTvl' />
           <Amount.Fiat value={tvl} fontWeight='bold' />
         </Flex>
-        <Button mt={4} variant='ghost-filled' colorScheme='blue' onClick={handleClick}>
+        <Button
+          mt={4}
+          variant='ghost-filled'
+          colorScheme='blue'
+          onClick={handleClick}
+          data-test={`eligible-${provider}-${assetId}-button`}
+        >
           {translate('defi.startEarning')}
         </Button>
       </Card.Footer>

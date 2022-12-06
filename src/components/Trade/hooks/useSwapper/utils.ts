@@ -73,7 +73,7 @@ export const getSendMaxAmount = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.networkFee)
+  const feeEstimate = bnOrZero(quote?.feeData?.networkFeeCryptoBaseUnit)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
   return positiveOrZero(
@@ -91,26 +91,31 @@ const getEvmFees = <T extends EvmChainId>(
   feeAsset: Asset,
   tradeFeeSource: string,
 ): DisplayFeeData<EvmChainId> => {
-  const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee ?? 0, feeAsset.precision)
+  const networkFeeCryptoPrecision = bnOrZero(trade?.feeData?.networkFeeCryptoBaseUnit)
+    .div(bn(10).exponentiatedBy(feeAsset.precision))
+    .toFixed()
 
-  const approvalFee = bnOrZero(trade.feeData.chainSpecific.approvalFee)
+  const approvalFeeCryptoPrecision = bnOrZero(trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit)
     .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
     .toString()
-  const totalFee = bnOrZero(networkFeeCryptoHuman).plus(approvalFee).toString()
+  const totalFeeCryptoPrecision = bnOrZero(networkFeeCryptoPrecision)
+    .plus(approvalFeeCryptoPrecision)
+    .toString()
   const gasPrice = bnOrZero(trade.feeData.chainSpecific.gasPrice).toString()
   const estimatedGas = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
 
   return {
     chainSpecific: {
-      approvalFee,
+      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
       gasPrice,
       estimatedGas,
-      totalFee,
+      totalFee: totalFeeCryptoPrecision,
     },
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
-    networkFeeCryptoHuman,
+    networkFeeCryptoHuman: networkFeeCryptoPrecision,
+    networkFeeCryptoBaseUnit: trade?.feeData?.networkFeeCryptoBaseUnit ?? '0',
   }
 }
 
@@ -120,7 +125,10 @@ export const getFormFees = ({
   tradeFeeSource,
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
-  const networkFeeCryptoHuman = fromBaseUnit(trade?.feeData?.networkFee, feeAsset.precision)
+  const networkFeeCryptoHuman = fromBaseUnit(
+    trade?.feeData?.networkFeeCryptoBaseUnit,
+    feeAsset.precision,
+  )
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
@@ -133,6 +141,7 @@ export const getFormFees = ({
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         networkFeeCryptoHuman,
+        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit ?? '0',
         sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
@@ -142,6 +151,7 @@ export const getFormFees = ({
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
         networkFeeCryptoHuman,
+        networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,
         chainSpecific: utxoTrade.feeData.chainSpecific,
         buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,

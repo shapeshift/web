@@ -292,7 +292,9 @@ export const TradeInput = () => {
         ? bnOrZero(sellTradeAsset.amount)
         : bn(0)
     const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-      .minus(fromBaseUnit(bnOrZero(quote?.feeData.networkFee), sellFeeAsset?.precision))
+      .minus(
+        fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision),
+      )
       .minus(tradeDeduction)
       .gte(0)
 
@@ -345,7 +347,7 @@ export const TradeInput = () => {
     hasValidSellAmount,
     isBelowMinSellAmount,
     isTradeQuotePending,
-    quote?.feeData.networkFee,
+    quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,
     quote?.sellAsset.symbol,
     quoteAvailableForCurrentAssetPair,

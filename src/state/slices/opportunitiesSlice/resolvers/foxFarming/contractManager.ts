@@ -21,19 +21,19 @@ import {
   IUniswapV2Router02__factory,
 } from './contracts/factories'
 
-type KnownContract<T extends KNOWN_CONTRACTS_ADDRESSES> = ReturnType<
+type KnownContract<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
 >
 
-type KNOWN_CONTRACTS_ADDRESSES =
+type KnownContractAddress =
   | typeof foxEthLpContractAddress
   | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS
   | typeof uniswapV2Router02ContractAddress
 
 type DefinedContract = {
-  contract: KnownContract<KNOWN_CONTRACTS_ADDRESSES>
-  address: KNOWN_CONTRACTS_ADDRESSES
+  contract: KnownContract<KnownContractAddress>
+  address: KnownContractAddress
 }
 
 const definedContracts: DefinedContract[] = []
@@ -49,7 +49,7 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [uniswapV2Router02ContractAddress]: IUniswapV2Router02__factory,
 } as const
 
-export const getOrCreateContract = <T extends KNOWN_CONTRACTS_ADDRESSES>(
+export const getOrCreateContract = <T extends KnownContractAddress>(
   address: T,
 ): KnownContract<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)

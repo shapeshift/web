@@ -14,6 +14,7 @@ import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -25,10 +26,13 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectLpOpportunitiesById,
   selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { EligibleSlider } from '../components/EligibleSlider'
 
 const DefiHeader = () => {
   const translate = useTranslate()
@@ -125,8 +129,10 @@ const FoxFarmCTA = () => {
 }
 
 export const StakingVaults = () => {
+  const { EligibleEarn } = useSelector(selectFeatureFlags)
   return (
     <Main titleComponent={<DefiHeader />}>
+      {EligibleEarn && <EligibleSlider />}
       <FoxFarmCTA />
       <AllEarnOpportunities />
     </Main>

@@ -36,6 +36,8 @@ export type OpportunityMetadata = {
   rewardAssetIds?: AssetIdsTuple
   expired?: boolean
   name?: string
+  version?: string
+  tags?: string[]
 }
 
 // User-specific values for this opportunity
@@ -129,3 +131,9 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type GroupedEligibleOpportunityReturnType = {
+  underlyingAssetIds: AssetIdsTuple
+  opportunityIds: OpportunityId[]
+  netApy: number
+}

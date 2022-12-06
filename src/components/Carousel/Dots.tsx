@@ -19,14 +19,7 @@ export const Dots = ({ length, activeIndex, setActiveIndex }: DotProps) => {
       ))
   }, [activeIndex, length, setActiveIndex])
   return (
-    <Box
-      position='absolute'
-      bottom='10px'
-      left='50%'
-      transform='translateX(-50%)'
-      display='flex'
-      gap={2}
-    >
+    <Box display='flex' gap={2}>
       {renderDots}
     </Box>
   )

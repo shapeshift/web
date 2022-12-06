@@ -49,6 +49,7 @@ type OverviewProps = {
   apy?: string
   icons?: string[]
   expired?: boolean
+  version?: string
 } & DefiActionButtonProps &
   PropsWithChildren
 
@@ -69,6 +70,7 @@ export const Overview: React.FC<OverviewProps> = ({
   menu,
   children,
   expired,
+  version,
 }) => {
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssetsCryptoPrecision) return null
@@ -183,6 +185,14 @@ export const Overview: React.FC<OverviewProps> = ({
                       <Tag colorScheme='yellow'>
                         <Text translation='defi.ended' />
                       </Tag>
+                    </Stat>
+                  )}
+                  {version && (
+                    <Stat fontWeight='normal'>
+                      <RawText>{version}</RawText>
+                      <StatLabel>
+                        <Text translation='defi.version' />
+                      </StatLabel>
                     </Stat>
                   )}
                 </StatGroup>

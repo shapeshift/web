@@ -1,6 +1,5 @@
 import {
   Box,
-  Flex,
   HStack,
   Popover,
   PopoverTrigger,
@@ -11,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -29,6 +29,7 @@ type AssetCellProps = {
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
+  version?: string
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -55,6 +56,7 @@ export const AssetCell = ({
   postFix,
   icons,
   opportunityName,
+  version,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -79,21 +81,11 @@ export const AssetCell = ({
         </Popover>
       )}
       <HStack flex={1}>
-        <SkeletonCircle isLoaded={!!asset} mr={2}>
+        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
           {icons ? (
-            <Flex flexDirection='row' alignItems='center' width={{ base: 'auto', md: '40%' }}>
-              {icons.map((iconSrc, i) => (
-                <AssetIcon
-                  key={iconSrc}
-                  src={iconSrc}
-                  boxSize='8'
-                  mr={i === icons.length - 1 ? 2 : 0}
-                  ml={i === 0 ? '-3.5' : '-4'}
-                />
-              ))}
-            </Flex>
+            <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} boxSize='8' />
+            <AssetIcon assetId={asset.assetId} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
@@ -132,6 +124,7 @@ export const AssetCell = ({
                 {subText}
               </RawText>
             )}
+            {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>
       </HStack>

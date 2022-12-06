@@ -62,6 +62,7 @@ export const mockStore: ReduxState = {
       DashboardBreakdown: false,
       Wherever: false,
       FiatPopup: false,
+      EligibleEarn: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

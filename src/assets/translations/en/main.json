@@ -175,6 +175,8 @@
     "usOnly": "US-Only",
     "noKYC": "NO KYC",
     "nonUS": "NON-US",
+    "buyWith": "Buy with",
+    "sellFor": "Sell for",
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",

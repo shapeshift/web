@@ -28,6 +28,7 @@ type UseFoxFarmingOptions = {
 /**
  * useFoxFarming hook
  * @param contractAddress farming contract address, since there could be multiple contracts
+ * @param skip
  */
 export const useFoxFarming = (
   contractAddress: FoxEthStakingContractAddress,

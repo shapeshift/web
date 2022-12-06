@@ -29,7 +29,7 @@ import {
 import { selectMarketData } from '../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
-  groupedEligibleOpportunityReturnType,
+  GroupedEligibleOpportunityReturnType,
   LpId,
   OpportunityId,
   OpportunityMetadata,
@@ -676,16 +676,15 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectPortfolioAssetBalances,
   (aggreggatedEarnUserStakingOpportunities, assetBalances): StakingEarnOpportunityType[] => {
-    const eligibleOpportunities = aggreggatedEarnUserStakingOpportunities.reduce<StakingEarnOpportunityType[]>(
-      (acc, opportunity) => {
-        const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
-          bnOrZero(assetBalances[assetId]).gt(0),
-        )
-        if (hasBalance && !opportunity.expired) acc.push(opportunity)
-        return acc
-      },
-      [],
-    )
+    const eligibleOpportunities = aggreggatedEarnUserStakingOpportunities.reduce<
+      StakingEarnOpportunityType[]
+    >((acc, opportunity) => {
+      const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
+        bnOrZero(assetBalances[assetId]).gt(0),
+      )
+      if (hasBalance && !opportunity.expired) acc.push(opportunity)
+      return acc
+    }, [])
     return eligibleOpportunities
   },
 )
@@ -693,7 +692,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
 export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingEligibleOpportunities,
-    (userOpportunities): groupedEligibleOpportunityReturnType[] => {
+    (userOpportunities): GroupedEligibleOpportunityReturnType[] => {
       const eligibleOpportunitiesGroupedByUnderlyingAssetIds = chain(userOpportunities)
         .groupBy('underlyingAssetIds')
         .map(values => {

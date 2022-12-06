@@ -23,6 +23,7 @@ import {
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -96,22 +97,23 @@ export const OpportunityCard = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
-  if (!asset) return null
-
-  const getVaultName = (asset: Asset, provider: string, version?: string) => {
-    // Add Provider and Vault version if any
-    if (version) {
-      const providerExp = new RegExp('^' + provider, 'i')
-      if (!providerExp.test(version)) {
-        return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
+  const getVaultName = useCallback(
+    (asset: Asset, provider: string, version?: string) => {
+      // Add Provider and Vault version if any
+      if (version) {
+        const providerExp = new RegExp('^' + provider, 'i')
+        if (!providerExp.test(version)) {
+          return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
+        }
+        return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
       }
-      return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
-    }
 
-    return `${asset.symbol} ${type?.replace('_', ' ')}`
-  }
+      return `${asset.symbol} ${type?.replace('_', ' ')}`
+    },
+    [type],
+  )
 
-  const getOpportunityName = () => {
+  const getOpportunityName = useMemo(() => {
     if (opportunityName) {
       if (version) return `${opportunityName} (${version})`
       return opportunityName
@@ -125,7 +127,9 @@ export const OpportunityCard = ({
     if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
     }
-  }
+  }, [asset, assetId, chainId, getVaultName, moniker, opportunityName, provider, version])
+
+  if (!asset) return null
 
   return (
     <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
@@ -143,7 +147,7 @@ export const OpportunityCard = ({
           <Box>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {getOpportunityName()}
+                {getOpportunityName}
               </RawText>
               <Amount.Crypto
                 color='gray.500'

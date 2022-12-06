@@ -676,7 +676,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectPortfolioAssetBalances,
   (aggreggatedEarnUserStakingOpportunities, assetBalances): StakingEarnOpportunityType[] => {
-    const eligibleOpportunities = aggreggatedEarnUserStakingOpportunities.reduce(
+    const eligibleOpportunities = aggreggatedEarnUserStakingOpportunities.reduce<StakingEarnOpportunityType[]>(
       (acc, opportunity) => {
         const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
           bnOrZero(assetBalances[assetId]).gt(0),

@@ -61,12 +61,12 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV5,
 ] as const
 
-export const STAKING_ID_TO_NAME = {
-  [foxEthStakingAssetIdV1]: 'Fox Farming V1',
-  [foxEthStakingAssetIdV2]: 'Fox Farming V2',
-  [foxEthStakingAssetIdV3]: 'Fox Farming V3',
-  [foxEthStakingAssetIdV4]: 'Fox Farming V4',
-  [foxEthStakingAssetIdV5]: 'Fox Farming V5',
+export const STAKING_ID_TO_VERSION = {
+  [foxEthStakingAssetIdV1]: 'V1',
+  [foxEthStakingAssetIdV2]: 'V2',
+  [foxEthStakingAssetIdV3]: 'V3',
+  [foxEthStakingAssetIdV4]: 'V4',
+  [foxEthStakingAssetIdV5]: 'V5',
 }
 
 export const STAKING_ID_DELIMITER = '*'
@@ -110,35 +110,35 @@ export const v5EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV5,
   contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV5],
+  opportunityName: 'FOX Farming',
 }
 
 export const v4EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV4],
+  opportunityName: 'FOX Farming',
 }
 
 export const v3EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV3],
+  opportunityName: 'FOX Farming',
 }
 
 export const v2EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV2],
+  opportunityName: 'FOX Farming',
 }
 
 export const v1EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV1],
+  opportunityName: 'FOX Farming',
 }
 
 export const STAKING_EARN_OPPORTUNITIES = {

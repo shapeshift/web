@@ -203,6 +203,17 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Senior Tranche)',
   },
+  'eip155:1/erc20:0xa0154a44c1c45bd007743fa622fd0da4f6d67d57': {
+    assetId: 'eip155:1/erc20:0xa0154a44c1c45bd007743fa622fd0da4f6d67d57',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0xa0154a44c1c45bd007743fa622fd0da4f6d67d57',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Clearpool Senior Tranche)',
+  },
   'eip155:1/erc20:0x1692f6574a6758adfbd12544e209146dd4510bd7': {
     assetId: 'eip155:1/erc20:0x1692f6574a6758adfbd12544e209146dd4510bd7',
     provider: DefiProvider.Idle,
@@ -212,6 +223,39 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Clearpool Senior Tranche)',
+  },
+  'eip155:1/erc20:0xd54e5c263298e60a5030ce2c8aca7981eaaaed4a': {
+    assetId: 'eip155:1/erc20:0xd54e5c263298e60a5030ce2c8aca7981eaaaed4a',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0xd54e5c263298e60a5030ce2c8aca7981eaaaed4a',
+    underlyingAssetIds: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'DAI Vault (Ribbon Senior Tranche)',
+  },
+  'eip155:1/erc20:0x5f45a578491a23ac5aee218e2d405347a0fafa8e': {
+    assetId: 'eip155:1/erc20:0x5f45a578491a23ac5aee218e2d405347a0fafa8e',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x5f45a578491a23ac5aee218e2d405347a0fafa8e',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Ribbon Senior Tranche)',
+  },
+  'eip155:1/erc20:0x3e041c9980bc03011cc30491d0c4ccd53602f89b': {
+    assetId: 'eip155:1/erc20:0x3e041c9980bc03011cc30491d0c4ccd53602f89b',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x3e041c9980bc03011cc30491d0c4ccd53602f89b',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Ribbon Senior Tranche)',
   },
   'eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307': {
     assetId: 'eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307',
@@ -303,6 +347,17 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Junior Tranche)',
   },
+  'eip155:1/erc20:0x7a625a2882c9fc8df1463d5e538a3f39b5dbd073': {
+    assetId: 'eip155:1/erc20:0x7a625a2882c9fc8df1463d5e538a3f39b5dbd073',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x7a625a2882c9fc8df1463d5e538a3f39b5dbd073',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Clearpool Junior Tranche)',
+  },
   'eip155:1/erc20:0xcb980b5a4f5bdb81d0b4b97a9ede64578ba9d48a': {
     assetId: 'eip155:1/erc20:0xcb980b5a4f5bdb81d0b4b97a9ede64578ba9d48a',
     provider: DefiProvider.Idle,
@@ -312,6 +367,39 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Clearpool Junior Tranche)',
+  },
+  'eip155:1/erc20:0xd3e4c5c37ba3185410550b836557b8fa51d5ea3b': {
+    assetId: 'eip155:1/erc20:0xd3e4c5c37ba3185410550b836557b8fa51d5ea3b',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0xd3e4c5c37ba3185410550b836557b8fa51d5ea3b',
+    underlyingAssetIds: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'DAI Vault (Ribbon Junior Tranche)',
+  },
+  'eip155:1/erc20:0x982e46e81e99fbba3fb8af031a7ee8df9041bb0c': {
+    assetId: 'eip155:1/erc20:0x982e46e81e99fbba3fb8af031a7ee8df9041bb0c',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x982e46e81e99fbba3fb8af031a7ee8df9041bb0c',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Ribbon Junior Tranche)',
+  },
+  'eip155:1/erc20:0x65237b6fc6e62b05b62f1ebe53edaadccd1684ad': {
+    assetId: 'eip155:1/erc20:0x65237b6fc6e62b05b62f1ebe53edaadccd1684ad',
+    provider: DefiProvider.Idle,
+
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x65237b6fc6e62b05b62f1ebe53edaadccd1684ad',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
+    underlyingAssetRatios: ['1'],
+    name: 'USDC Vault (Ribbon Junior Tranche)',
   },
   'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877': {
     assetId: 'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877',
@@ -333,16 +421,6 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     underlyingAssetRatios: ['1'],
     name: 'PBTCCRV Vault (Convex Senior Tranche)',
   },
-  'eip155:1/erc20:0xaef4fcc4e5f2dc270760063446d4116d24704ad1': {
-    assetId: 'eip155:1/erc20:0xaef4fcc4e5f2dc270760063446d4116d24704ad1',
-    provider: DefiProvider.Idle,
-    type: DefiType.Staking,
-    underlyingAssetId: 'eip155:1/erc20:0xaef4fcc4e5f2dc270760063446d4116d24704ad1',
-    underlyingAssetIds: ['eip155:1/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0'],
-    rewardAssetIds: ['eip155:1/erc20:0x5a98fcbea516cf06857215779fd812ca3bef1b32'],
-    underlyingAssetRatios: ['1'],
-    name: 'MATIC Vault (PoLido Senior Tranche)',
-  },
   'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978': {
     assetId: 'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978',
     provider: DefiProvider.Idle,
@@ -362,15 +440,5 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'PBTCCRV Vault (Convex Junior Tranche)',
-  },
-  'eip155:1/erc20:0x077212c69a66261cf7bd1fd3b5c5db7cffa948ee': {
-    assetId: 'eip155:1/erc20:0x077212c69a66261cf7bd1fd3b5c5db7cffa948ee',
-    provider: DefiProvider.Idle,
-    type: DefiType.Staking,
-    underlyingAssetId: 'eip155:1/erc20:0x077212c69a66261cf7bd1fd3b5c5db7cffa948ee',
-    underlyingAssetIds: ['eip155:1/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0'],
-    rewardAssetIds: ['eip155:1/erc20:0x5a98fcbea516cf06857215779fd812ca3bef1b32'],
-    underlyingAssetRatios: ['1'],
-    name: 'MATIC Vault (PoLido Junior Tranche)',
   },
 }

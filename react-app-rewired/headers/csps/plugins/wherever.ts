@@ -9,7 +9,8 @@ const agentCsp: Csp = {
   ],
   'img-src': [
     'https://gateway.ipfs.io',
-    'https://ik.imagekit.io'
+    'https://ik.imagekit.io',
+    'https://assets.website-files.com'
   ],
 }
 

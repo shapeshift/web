@@ -16,8 +16,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({
   namespace: ['Layout', 'Header', 'NavBar', 'ChainMenu'],
@@ -68,6 +68,8 @@ export const ChainMenu = (props: ChainMenuProps) => {
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
 
+  const assets = useAppSelector(selectAssets)
+
   const handleChainClick = useCallback(
     async (requestedEthNetwork: string) => {
       try {
@@ -86,7 +88,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         }
 
         const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
-        const requestedChainFeeAsset = selectAssetById(store.getState(), requestedChainFeeAssetId)
+        const requestedChainFeeAsset = assets[requestedChainFeeAssetId]
 
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({
@@ -110,7 +112,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         )
       }
     },
-    [chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
+    [assets, chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
   )
 
   const currentChainNativeAssetId = useMemo(

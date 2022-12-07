@@ -157,8 +157,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     } else {
       moduleLogger.error('sortedAssets not defined')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchString, sortedAssets])
+  }, [searchString, searching, sortedAssets])
 
   const listAssets = searching ? searchTermAssets : sortedAssets
   const inputProps: InputProps = {

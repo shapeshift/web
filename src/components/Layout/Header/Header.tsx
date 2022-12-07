@@ -1,6 +1,7 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
   Drawer,
   DrawerContent,
   DrawerOverlay,
@@ -15,6 +16,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -34,6 +36,7 @@ export const Header = () => {
   const isLoading = useIsAnyApiFetching()
 
   const history = useHistory()
+  const translate = useTranslate()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -144,6 +147,11 @@ export const Header = () => {
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              <Box display={{ base: 'block', md: 'none' }}>
+                <Button size='sm' onClick={() => history.push('/buy-crypto/')}>
+                  {translate('fiatRamps.buy')}
+                </Button>
+              </Box>
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

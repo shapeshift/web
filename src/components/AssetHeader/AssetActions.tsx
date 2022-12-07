@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -27,6 +27,7 @@ type AssetActionProps = {
 
 export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, cryptoBalance }) => {
   const isOsmosisSendEnabled = useFeatureFlag('OsmosisSend')
+  const history = useHistory()
 
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
@@ -37,7 +38,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const tradeAssetLink = generatePath('/trade/:assetId', { assetId })
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
@@ -76,17 +76,19 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
       flex={1}
     >
       <Flex direction='row' gap={2} flexWrap='wrap'>
-        <Button
-          data-test='asset-action-trade'
-          display={{ base: 'auto', md: 'none' }}
-          flex={{ base: 1, md: 'auto' }}
-          leftIcon={<IoSwapVertical />}
-          size='sm-multiline'
-          width={{ base: '100%', md: 'auto' }}
-          isDisabled={!isValidChainId}
-        >
-          <Link to={tradeAssetLink}>{translate('assets.assetCards.assetActions.trade')}</Link>
-        </Button>
+        {isValidChainId && (
+          <Button
+            data-test='asset-action-trade'
+            flex={{ base: 1, md: 'auto' }}
+            leftIcon={<IoSwapVertical />}
+            size='sm-multiline'
+            width={{ base: '100%', md: 'auto' }}
+            onClick={() => history.push(`/trade/${assetId}`)}
+          >
+            {translate('assets.assetCards.assetActions.trade')}
+          </Button>
+        )}
+
         <Button
           data-test='asset-action-buy-sell'
           width={{ base: 'full', md: 'auto' }}

@@ -75,6 +75,15 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     [activeChain, assets],
   )
 
+  /**
+   * the initial list of assets to display in the search results, without search terms
+   * or filters applied
+   */
+  const inputAssets = useMemo(() => filterBy?.(assets) ?? assets, [assets, filterBy])
+
+  /**
+   * assets filtered by selected chain ids
+   */
   const filteredAssets = useMemo(
     () => (filterBy ? filterBy(assetsBySelectedChain) : assetsBySelectedChain) ?? [],
     [filterBy, assetsBySelectedChain],
@@ -163,9 +172,13 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const listAssets = searching ? searchTermAssets : sortedAssets
 
+  /**
+   * display a list of chain icon filters, based on a unique list of chain ids,
+   * derived from the output of the filterBy function, sorted by market cap
+   */
   const filteredChainIdsByMarketCap: ChainId[] = useMemo(
-    () => intersection(chainIdsByMarketCap, uniq(listAssets.map(a => a.chainId))),
-    [chainIdsByMarketCap, listAssets],
+    () => intersection(chainIdsByMarketCap, uniq(inputAssets.map(a => a.chainId))),
+    [chainIdsByMarketCap, inputAssets],
   )
 
   const inputProps: InputProps = {

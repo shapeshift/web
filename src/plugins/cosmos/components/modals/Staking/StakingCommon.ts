@@ -1,11 +1,6 @@
-import {
-  AssetId,
-  ChainId,
-  cosmosAssetId,
-  cosmosChainId,
-  osmosisAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export enum StakingAction {
@@ -21,10 +16,23 @@ export enum StakingAction {
 export const COSMOS_UNBONDING_DAYS = '21'
 export const OSMOSIS_UNBONDING_DAYS = '14'
 
-export const isCosmosChainId = (chainId: ChainId) => chainId === cosmosChainId
-export const isOsmosisChainId = (chainId: ChainId) => chainId === osmosisChainId
-export const isCosmosAssetId = (assetId: AssetId) => assetId === cosmosAssetId
-export const isOsmosisAssetId = (assetId: AssetId) => assetId === osmosisAssetId
+export const supportsStaking = (chainId: ChainId) => {
+  if (chainId === cosmosChainId) return true
+  if (chainId === osmosisChainId) return true
+  return false
+}
+
+export const isStakingChainAdapter = (
+  adapter: unknown,
+): adapter is cosmos.ChainAdapter | osmosis.ChainAdapter => {
+  const a = adapter as cosmos.ChainAdapter | osmosis.ChainAdapter
+
+  return (
+    a.buildClaimRewardsTransaction !== undefined &&
+    a.buildDelegateTransaction !== undefined &&
+    a.buildUndelegateTransaction !== undefined
+  )
+}
 
 export const assetIdToUnbondingDays = (assetId: AssetId): string => {
   const assetIdToUnbondingDaysMap: Record<AssetId, string> = {

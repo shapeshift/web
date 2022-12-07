@@ -271,8 +271,8 @@
     "featureFlags": "功能开关标志"
   },
   "transactionRow": {
-    "send": "已发送%{symbol}",
-    "receive": "已收到%{symbol}",
+    "send": "已发送",
+    "receive": "已收到",
     "moreDetails": "查看详情",
     "date": "日期",
     "txid": "交易 ID",
@@ -340,7 +340,7 @@
     "errors": {
       "title": "出现问题",
       "notEnoughEth": "以太坊余额不足支付此交易的 gas 费用。",
-      "amountToSmall": "金额过小。此交易对交易最低金额为%{minLimit}。",
+      "amountTooSmall": "金额过小。此交易对交易最低金额为%{minLimit}。",
       "negativeMax": "资金余额不足支付此交易的矿工费用。预估矿工费为 %{estimatedMinerFee}",
       "invalidMax": "无效金额。此交易对最大交易金额为%{maxLimit}。",
       "insufficientFunds": "资金余额不足支付矿工费用及交易金额",
@@ -399,12 +399,6 @@
         "infoSecond": "永远不要告诉别人你的恢复短语，这能让拥有者动用你的所有的资金。",
         "awaitingButtonPress": "按照KeepKey上的步骤查看您的恢复短语。写下来！"
       },
-      "wiped": {
-        "header": "KeepKey已成功擦除",
-        "body": "你已成功将KeepKey重置为出厂默认设置。现在，你可以使用现有恢复助记词进行还原，也可以创建一个新的钱包。",
-        "createButton": "创建一个新的钱包",
-        "recoverButton": "找回钱包"
-      },
       "recoverySentenceEntry": {
         "header": "输入您的恢复短语",
         "body": "使用你的KeepKey上的加密键盘图例，输入每个单词的前4个字母。如果单词中少于4个字母，按Enter键，按空格键，或者在输入完成后单击next。",
@@ -431,13 +425,6 @@
           "length": "您的密码至少需要%{length}个字符",
           "maxLength": "昵称最多%{length}个字符"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "低的",
-        "medium": "中等的",
-        "high": "高的"
       }
     },
     "send": {
@@ -645,7 +632,6 @@
           "pin": "PIN是一个多达9个数字的组合，你在初始化你的KeepKey后选择。在你的KeepKey落入坏人之手之时，PIN保护你的设备不被未经授权的使用。",
           "passphrase": "启用多个钱包的功能，可通过为每个钱包使用唯一的密码短语进行访问。",
           "label": "给每个设备贴上标签可以让你很容易地将它们区分开来。",
-          "timeout": "你的设备默认在活动10分钟后进入睡眠状态。但是，你可以更改这一设置。",
           "buttonPrompt": "按住KeepKey上的按钮来改变设备%{setting}。",
           "updateSuccess": "%{setting}更新成功!",
           "updateFailed": "更新%{setting}时发生错误。",

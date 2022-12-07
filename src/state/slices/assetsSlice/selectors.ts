@@ -1,14 +1,16 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  ASSET_REFERENCE,
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type {
   AssetId,
   AssetReference,
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
   ChainId,
   ChainNamespace,
   ChainReference,
+} from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
   fromAssetId,
   fromChainId,
   toAssetId,
@@ -16,13 +18,14 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
-import { ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectCryptoMarketDataIds } from 'state/slices/marketDataSlice/selectors'
+import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
+  // TODO(0xdef1cafe): make this return type AssetId | undefined and fix the 600+ type errors
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
@@ -39,7 +42,7 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,
-  selectCryptoMarketDataIds,
+  selectCryptoMarketDataIdsSortedByMarketCap,
   (assetsByIdOriginal, marketDataIds) => {
     const assetById = cloneDeep(assetsByIdOriginal)
     // we only prefetch market data for some
@@ -64,7 +67,7 @@ const chainIdFeeAssetReferenceMap = (
 ): AssetReference => {
   return (() => {
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Bitcoin:
+      case CHAIN_NAMESPACE.Utxo:
         switch (chainReference) {
           case CHAIN_REFERENCE.BitcoinMainnet:
             return ASSET_REFERENCE.Bitcoin
@@ -77,7 +80,7 @@ const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
-      case CHAIN_NAMESPACE.Ethereum:
+      case CHAIN_NAMESPACE.Evm:
         switch (chainReference) {
           case CHAIN_REFERENCE.AvalancheCChain:
             return ASSET_REFERENCE.AvalancheC
@@ -86,12 +89,14 @@ const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
-      case CHAIN_NAMESPACE.Cosmos:
+      case CHAIN_NAMESPACE.CosmosSdk:
         switch (chainReference) {
           case CHAIN_REFERENCE.CosmosHubMainnet:
             return ASSET_REFERENCE.Cosmos
           case CHAIN_REFERENCE.OsmosisMainnet:
             return ASSET_REFERENCE.Osmosis
+          case CHAIN_REFERENCE.ThorchainMainnet:
+            return ASSET_REFERENCE.Thorchain
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -101,10 +106,11 @@ const chainIdFeeAssetReferenceMap = (
   })()
 }
 
-export const selectFeeAssetByChainId = createSelector(
+export const selectFeeAssetByChainId = createCachedSelector(
   selectAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
-  (assetsById, chainId): Asset => {
+  (assetsById, chainId): Asset | undefined => {
+    if (!chainId) return undefined
     const { chainNamespace, chainReference } = fromChainId(chainId)
     const feeAssetId = toAssetId({
       chainId,
@@ -113,9 +119,9 @@ export const selectFeeAssetByChainId = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_state: ReduxState, chainId) => chainId ?? 'chainId')
 
-export const selectFeeAssetById = createSelector(
+export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset => {
@@ -128,4 +134,4 @@ export const selectFeeAssetById = createSelector(
     })
     return assetsById[feeAssetId]
   },
-)
+)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')

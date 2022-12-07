@@ -13,6 +13,7 @@ export enum WalletConnectedRoutes {
   KeepKeyLabel = '/keepkey/label',
   KeepKeyTimeout = '/keepkey/timeout',
   KeepKeyPassphrase = '/keepkey/passphrase',
+  Native = '/native',
 }
 
 const moduleLogger = logger.child({ namespace: ['useMenuRoutes'] })
@@ -25,21 +26,23 @@ export const useMenuRoutes = () => {
   const translate = useTranslate()
 
   const resetKeepKeyState = useCallback(async () => {
-    moduleLogger.trace({ fn: 'resetKeepKeyState' }, 'Cancelling KeepKey...')
-    await keepKeyWallet?.cancel().catch(e => {
-      moduleLogger.error(e, { fn: 'resetKeepKeyState' }, 'Error on KeepKey Cancel')
-      toast({
-        title: translate('common.error'),
-        description: e?.message ?? translate('common.somethingWentWrong'),
-        status: 'error',
-        isClosable: true,
+    if (keepKeyWallet) {
+      moduleLogger.trace({ fn: 'resetKeepKeyState' }, 'Cancelling KeepKey...')
+      await keepKeyWallet?.cancel().catch(e => {
+        moduleLogger.error(e, { fn: 'resetKeepKeyState' }, 'Error on KeepKey Cancel')
+        toast({
+          title: translate('common.error'),
+          description: e?.message ?? translate('common.somethingWentWrong'),
+          status: 'error',
+          isClosable: true,
+        })
       })
-    })
-    moduleLogger.trace({ fn: 'resetKeepKeyState' }, 'KeepKey is now available')
-    setDeviceState({
-      lastDeviceInteractionStatus: undefined,
-      awaitingDeviceInteraction: false,
-    })
+      moduleLogger.trace({ fn: 'resetKeepKeyState' }, 'KeepKey is now available')
+      setDeviceState({
+        lastDeviceInteractionStatus: undefined,
+        awaitingDeviceInteraction: false,
+      })
+    }
   }, [keepKeyWallet, setDeviceState, toast, translate])
 
   const handleBackClick = useCallback(async () => {

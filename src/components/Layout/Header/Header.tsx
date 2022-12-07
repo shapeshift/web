@@ -7,32 +7,41 @@ import {
   Flex,
   HStack,
   IconButton,
+  Progress,
+  SlideFade,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { AnimatePresence } from 'framer-motion'
+import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
+import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { DemoConfig } from 'context/WalletProvider/DemoWallet/config'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
+import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const isLoading = useIsAnyApiFetching()
+
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
-    state: { walletInfo },
+    state: { isDemoWallet },
     dispatch,
   } = useWallet()
+
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
 
   /**
    * FOR DEVELOPERS:
@@ -53,10 +62,33 @@ export const Header = () => {
   }, [handleKeyPress])
 
   const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const isDemo = walletInfo?.deviceId === DemoConfig.name
 
   return (
     <>
+      {isDemoWallet && (
+        <Box
+          bg='blue.500'
+          width='full'
+          paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
+          paddingBottom={{ base: '0.5rem', md: 0 }}
+          minHeight='2.5rem'
+          fontSize={{ base: 'sm', md: 'md' }}
+          as='button'
+          onClick={handleBannerClick}
+        >
+          <HStack
+            verticalAlign='middle'
+            justifyContent='center'
+            spacing={3}
+            color='white'
+            wrap='wrap'
+          >
+            <InfoIcon boxSize='1.3em' />
+            <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
+            <Text display='inline' translation='navBar.clickToConnect' />
+          </HStack>
+        </Box>
+      )}
       <Flex
         direction='column'
         bg={bg}
@@ -64,70 +96,75 @@ export const Header = () => {
         position='sticky'
         zIndex='banner'
         top={0}
-        paddingTop={{ base: isDemo ? 0 : 'env(safe-area-inset-top)', md: 0 }}
+        paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        {isDemo && (
-          <Box
-            bg='blue.500'
-            width='full'
-            paddingTop={{ base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }}
-            paddingBottom={{ base: '0.5rem', md: 0 }}
-            minHeight='2.5rem'
-            fontSize={{ base: 'sm', md: 'md' }}
-            as='button'
-            onClick={handleBannerClick}
-          >
-            <HStack
-              verticalAlign='middle'
-              justifyContent='center'
-              spacing={3}
-              color='white'
-              wrap='wrap'
-            >
-              <InfoIcon boxSize='1.3em' />
-              <Text display='inline' fontWeight='bold' translation='navBar.demoMode' />
-              <Text display='inline' translation='navBar.clickToConnect' />
-            </HStack>
-          </Box>
-        )}
+        <AnimatePresence exitBeforeEnter initial={true}>
+          {isLoading && (
+            <SlideFade in={true} reverse>
+              <Progress
+                isIndeterminate
+                position='absolute'
+                top={0}
+                left={0}
+                width='100%'
+                size='xs'
+                bg='transparent'
+              />
+            </SlideFade>
+          )}
+        </AnimatePresence>
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
-          <Box flex={1} display={{ base: 'block', md: 'none' }}>
-            <IconButton
-              aria-label='Open menu'
-              variant='ghost'
-              onClick={onToggle}
-              icon={<HamburgerIcon />}
-            />
-          </Box>
-          <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-            <Link to='/'>
-              <FoxIcon boxSize='7' />
-            </Link>
-          </Flex>
           <HStack
-            width='100%'
-            flex={1}
-            justifyContent='center'
-            display={{ base: 'none', md: 'block' }}
+            width='full'
+            margin='0 auto'
+            maxW='container.3xl'
+            px={{ base: 0, md: 4 }}
+            spacing={0}
+            columnGap={4}
           >
-            <AutoCompleteSearch />
+            <Box flex={1} display={{ base: 'block', md: 'none' }}>
+              <IconButton
+                aria-label='Open menu'
+                variant='ghost'
+                onClick={onToggle}
+                icon={<HamburgerIcon />}
+              />
+            </Box>
+            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
+              <Link to='/'>
+                <FoxIcon boxSize='7' />
+              </Link>
+            </Flex>
+            <HStack
+              width='100%'
+              flex={1}
+              justifyContent='center'
+              display={{ base: 'none', md: 'block' }}
+            >
+              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
+            </HStack>
+            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              {isWalletConnectToDappsEnabled && (
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <WalletConnectToDappsHeaderButton />
+                </Box>
+              )}
+              <Notifications />
+            </Flex>
           </HStack>
-          <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={4}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FiatRamps />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <ChainMenu />
-            </Box>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <UserMenu />
-            </Box>
-          </Flex>
         </HStack>
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent
+          paddingTop='env(safe-area-inset-top)'
+          paddingBottom='max(1rem, env(safe-area-inset-top))'
+          overflowY='auto'
+        >
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>

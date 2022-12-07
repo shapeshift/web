@@ -1,7 +1,11 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -10,33 +14,35 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectFirstAccountSpecifierByChainId,
-  selectUnbondingEntriesByAccountSpecifier,
+  selectFirstAccountIdByChainId,
+  selectUnbondingEntriesByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type WithdrawCardProps = {
   asset: Asset
+  accountId?: AccountId | undefined
 }
 
-export const WithdrawCard = ({ asset }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset.chainId))
 
-  const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, {
-      accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: routeAccountId ?? accountId,
       validatorAddress: contractAddress,
       assetId: asset.assetId,
     }),
+    [accountId, asset.assetId, contractAddress, routeAccountId],
   )
+  const undelegationEntries = useAppSelector(s => selectUnbondingEntriesByAccountId(s, filter))
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')
+  const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const undelegationNodes = useMemo(
     () =>
@@ -62,7 +68,7 @@ export const WithdrawCard = ({ asset }: WithdrawCardProps) => {
             <Stack spacing={0}>
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={'yellow.200'}
+                color={pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={'common.pending'}
@@ -87,7 +93,7 @@ export const WithdrawCard = ({ asset }: WithdrawCardProps) => {
           </Button>
         )
       }),
-    [asset.precision, asset.symbol, textColor, undelegationEntries],
+    [asset.precision, asset.symbol, textColor, pendingColor, undelegationEntries],
   )
 
   return (

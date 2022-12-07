@@ -1,0 +1,16 @@
+/* our default color-scheme: dark is applied by chakra to the html element by default
+ * this is inherited by two zendesk iframes - launcher and webWidget
+ * unsetting these causes it to render correctly
+ */
+#launcher, #webWidget {
+  color-scheme: none;
+}
+
+#webWidget {
+  /* the mobile webview doesn't respect the restricted areas, e.g. notches on iphones.
+   * without this the minimize button ends up hiding behind battery/clock/wifi icons.
+   * this 71px matches the app header height so it looks natural.
+   * this also makes the widget shorter vertically on desktop, but no one cares.
+   */
+  padding-top: 71px;
+}

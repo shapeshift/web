@@ -1,13 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import {
-  Circle,
-  CircularProgressLabel,
-  Collapse,
-  Stack,
-  StackProps,
-  useColorModeValue,
-} from '@chakra-ui/react'
-import { ReactNode } from 'react'
+import type { StackProps } from '@chakra-ui/react'
+import { Circle, CircularProgressLabel, Collapse, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
 
@@ -35,7 +29,7 @@ export const StepRow: React.FC<StepRowProps> = ({
   const successColor = useColorModeValue('green.500', 'green.200')
   const bgColor = useColorModeValue('gray.100', 'gray.700')
   return (
-    <Stack spacing={4} py={6} px={8} {...rest}>
+    <Stack spacing={4} py={6} px={{ base: 6, md: 8 }} {...rest}>
       <Stack
         direction='row'
         alignItems='center'

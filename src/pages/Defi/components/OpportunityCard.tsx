@@ -8,23 +8,31 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
-  isCosmosChainId,
-  isOsmosisChainId,
-} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+  cosmosChainId,
+  foxAssetId,
+  foxyAssetId,
+  fromAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useCallback } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
+import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,10 +41,7 @@ type OpportunityCardProps = {
 } & EarnOpportunityType
 
 const getOverrideIconFromAssetId = (assetId: AssetId, assets: AssetsById): string => {
-  const overrideAssetIds: Record<AssetId, AssetId> = {
-    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d':
-      'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-  }
+  const overrideAssetIds: Record<AssetId, AssetId> = { [foxAssetId]: foxyAssetId }
   const overrideAssetId = overrideAssetIds[assetId] ?? assetId
   return assets[overrideAssetId]?.icon ?? ''
 }
@@ -49,15 +54,20 @@ export const OpportunityCard = ({
   chainId,
   isLoaded,
   apy,
-  cryptoAmount,
+  cryptoAmountPrecision,
   fiatAmount,
   expired,
   moniker,
   assetId,
+  icons,
+  opportunityName,
+  version,
+  highestBalanceAccountAddress,
+  underlyingAssetId,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
   const { assetReference } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)
@@ -74,6 +84,7 @@ export const OpportunityCard = ({
         search: qs.stringify({
           provider,
           chainId,
+          highestBalanceAccountAddress,
           contractAddress,
           assetReference,
           rewardId: rewardAddress,
@@ -86,37 +97,73 @@ export const OpportunityCard = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
+  const getVaultName = useCallback(
+    (asset: Asset, provider: string, version?: string) => {
+      // Add Provider and Vault version if any
+      if (version) {
+        const providerExp = new RegExp('^' + provider, 'i')
+        if (!providerExp.test(version)) {
+          return `${asset.symbol} ${type?.replace('_', ' ')} (${provider} ${version})`
+        }
+        return `${asset.symbol} ${type?.replace('_', ' ')} (${version})`
+      }
+
+      return `${asset.symbol} ${type?.replace('_', ' ')}`
+    },
+    [type],
+  )
+
+  const getOpportunityName = useCallback(() => {
+    if (opportunityName) {
+      if (version) return `${opportunityName} (${version})`
+      return opportunityName
+    }
+
+    const overridenName = getOverrideNameFromAssetId(assetId)
+    if (overridenName) return overridenName
+
+    if (chainId === cosmosChainId || chainId === osmosisChainId) return moniker
+
+    if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
+      return getVaultName(asset, provider, version)
+    }
+  }, [asset, assetId, chainId, getVaultName, moniker, opportunityName, provider, version])
+
   if (!asset) return null
 
   return (
     <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
       <Card.Body>
-        <Flex alignItems='center'>
+        <Flex alignItems='center' gap={4}>
           <Flex>
-            <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
-              <AssetIcon
-                src={getOverrideIconFromAssetId(assetId, assets)}
-                boxSize='10'
-                zIndex={2}
-              />
+            <SkeletonCircle width='auto' isLoaded={isLoaded}>
+              {icons ? (
+                <PairIcons icons={icons} iconSize='sm' bg='transparent' />
+              ) : (
+                <AssetIcon src={getOverrideIconFromAssetId(assetId, assets)} size='sm' zIndex={2} />
+              )}
             </SkeletonCircle>
           </Flex>
-          <Box ml={4}>
+          <Box>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {!isCosmosChainId(chainId) &&
-                  !isOsmosisChainId(chainId) &&
-                  `${asset.symbol} ${type?.replace('_', ' ')}`}
-                {(isCosmosChainId(chainId) || isOsmosisChainId(chainId)) && `${moniker}`}
+                {getOpportunityName()}
               </RawText>
               <Amount.Crypto
                 color='gray.500'
-                value={cryptoAmount}
+                value={cryptoAmountPrecision}
                 symbol={asset.symbol}
                 lineHeight={1}
               />
             </SkeletonText>
           </Box>
+          {expired && (
+            <Flex flex={1} justifyContent='flex-end'>
+              <Tag colorScheme='yellow'>
+                <Text translation='defi.ended' />
+              </Tag>
+            </Flex>
+          )}
         </Flex>
       </Card.Body>
       <Card.Footer>
@@ -129,7 +176,7 @@ export const OpportunityCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'yellow.500' : ''} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>
@@ -140,8 +187,8 @@ export const OpportunityCard = ({
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
-              <StatNumber color='green.500'>
-                <Amount.Percent value={String(apy)} />
+              <StatNumber>
+                <Amount.Percent autoColor value={String(apy)} />
               </StatNumber>
             </Skeleton>
           </Stat>

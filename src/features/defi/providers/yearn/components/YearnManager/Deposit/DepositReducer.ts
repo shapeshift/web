@@ -1,10 +1,12 @@
-import { YearnDepositActions, YearnDepositActionType, YearnDepositState } from './DepositCommon'
+import type { YearnDepositActions, YearnDepositState } from './DepositCommon'
+import { YearnDepositActionType } from './DepositCommon'
 
 export const initialState: YearnDepositState = {
   txid: null,
   opportunity: null,
   userAddress: null,
   loading: false,
+  isExactAllowance: false,
   approve: {},
   deposit: {
     fiatAmount: '',
@@ -30,6 +32,8 @@ export const reducer = (
       return { ...state, userAddress: action.payload }
     case YearnDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
+    case YearnDepositActionType.SET_IS_EXACT_ALLOWANCE:
+      return { ...state, isExactAllowance: action.payload }
     case YearnDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:

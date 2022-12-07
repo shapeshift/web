@@ -1,56 +1,52 @@
-import { AssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigNumber } from 'bignumber.js'
+import type { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
+import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
-import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import values from 'lodash/values'
+import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  PortfolioAssets,
-  PortfolioBalancesById,
-} from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
-  selectFiatPriceHistoriesLoadingByTimeframe,
   selectFiatPriceHistoryTimeframe,
-  selectPortfolioAssets,
-  selectPriceHistoriesLoadingByAssetTimeframe,
   selectRebasesByFilter,
-  selectTxHistoryStatus,
   selectTxsByFilter,
+  selectWalletId,
 } from 'state/slices/selectors'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
+import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
-type CryptoBalance = {
+type BalanceByAssetId = {
   [k: AssetId]: BigNumber // map of asset to base units
 }
 
 type BucketBalance = {
-  crypto: CryptoBalance
-  fiat: BigNumber
+  crypto: BalanceByAssetId
+  fiat: BalanceByAssetId
 }
 
 export type Bucket = {
@@ -68,14 +64,14 @@ type BucketMeta = {
 }
 
 type MakeBucketsReturn = {
-  buckets: Array<Bucket>
+  buckets: Bucket[]
   meta: BucketMeta
 }
 
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assetIds: AssetId[]
-  balances: PortfolioBalancesById
+  balances: AssetBalancesById
 }
 
 // adjust this to give charts more or less granularity
@@ -94,21 +90,26 @@ export const makeBuckets: MakeBuckets = args => {
   const { assetIds, balances, timeframe } = args
 
   // current asset balances, we iterate over this later and adjust on each tx
-  const assetBalances = assetIds.reduce<CryptoBalance>((acc, cur) => {
+  const assetBalances = assetIds.reduce<BalanceByAssetId>((acc, cur) => {
     acc[cur] = bnOrZero(balances?.[cur])
+    return acc
+  }, {})
+
+  const zeroAssetBalances = assetIds.reduce<BalanceByAssetId>((acc, cur) => {
+    acc[cur] = bnOrZero(0)
     return acc
   }, {})
 
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
-    return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
+    return (acc: Bucket[], _cur: unknown, idx: number) => {
       const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
       const rebases: RebaseHistory[] = []
       const balance = {
         crypto: assetBalances,
-        fiat: bn(0),
+        fiat: zeroAssetBalances,
       }
       const bucket = { start, end, txs, rebases, balance }
       acc.push(bucket)
@@ -143,7 +144,7 @@ export const bucketEvents = (
     // the number of time units from start of chart to this tx
     const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      console.error(
+      moduleLogger.error(
         `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
       )
       return acc
@@ -159,27 +160,28 @@ export const bucketEvents = (
 
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
-  portfolioAssets: PortfolioAssets
+  assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
 }
 
-type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
+type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BalanceByAssetId
 
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   cryptoPriceHistoryData,
   fiatPriceHistoryData,
-  portfolioAssets,
+  assets,
 }) => {
   const { balance, end } = bucket
   const date = end.valueOf()
   const { crypto } = balance
+  const initial: Record<AssetId, BigNumber> = {}
 
   return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
     const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
     if (!assetPriceHistoryData?.length) return acc
-    const portfolioAsset = portfolioAssets[assetId]
+    const portfolioAsset = assets[assetId]
     if (!portfolioAsset) return acc
     const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
     // fallback to 1 if fiat data is missing, note || required over ?? here
@@ -189,14 +191,15 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
       .div(bn(10).exponentiatedBy(precision))
       .times(price)
       .times(fiatToUsdRate)
-    return acc.plus(assetFiatBalance)
-  }, bn(0))
+    acc[assetId] = assetFiatBalance
+    return acc
+  }, initial)
 }
 
 type CalculateBucketPricesArgs = {
   assetIds: AssetId[]
   buckets: Bucket[]
-  portfolioAssets: PortfolioAssets
+  assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
 }
@@ -205,7 +208,7 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
+  const { assetIds, buckets, assets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
 
   const startingBucket = buckets[buckets.length - 1]
 
@@ -223,7 +226,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     txs.forEach(tx => {
       if (tx.fee && assetIds.includes(tx.fee.assetId)) {
         // don't count fees for UTXO chains
-        if (fromChainId(tx.chain).chainNamespace !== CHAIN_NAMESPACE.Bitcoin) {
+        if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Utxo) {
           // balance history being built in descending order, so fee means we had more before
           bucket.balance.crypto[tx.fee.assetId] = bucket.balance.crypto[tx.fee.assetId].plus(
             bnOrZero(tx.fee.value),
@@ -253,7 +256,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
           default: {
-            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
+            moduleLogger.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
         }
       })
@@ -271,30 +274,59 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       bucket,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets,
     })
     buckets[i] = bucket
   }
   return buckets
 }
 
-type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
+type BucketsToChartData = (buckets: Bucket[]) => BalanceChartData
 
 export const bucketsToChartData: BucketsToChartData = buckets => {
-  return buckets.map(bucket => ({
-    price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
-    date: bucket.end.valueOf(),
-  }))
+  const initial: BalanceChartData = makeBalanceChartData()
+
+  const result = buckets.reduce((acc, bucket) => {
+    const date = bucket.end.valueOf()
+    const initial: Record<'total' | AssetId, number> = { total: 0 }
+    const bucketByAssetIdAndTotal = Object.entries(bucket.balance.fiat).reduce(
+      (acc, [assetId, fiatBalance]) => {
+        const assetFiatBalance = fiatBalance.decimalPlaces(2).toNumber()
+        acc[assetId] = assetFiatBalance
+        acc.total += assetFiatBalance
+        return acc
+      },
+      initial,
+    )
+    const totalData = { date, price: bucketByAssetIdAndTotal.total }
+    const rainbowData = { date, ...bucketByAssetIdAndTotal }
+    acc.total.push(totalData)
+    acc.rainbow.push(rainbowData)
+    return acc
+  }, initial)
+
+  return result
+}
+
+export type RainbowData = {
+  date: number
+  total: number
+  [k: AssetId]: number
+}
+
+export type BalanceChartData = {
+  total: HistoryData[]
+  rainbow: RainbowData[]
 }
 
 type UseBalanceChartDataReturn = {
-  balanceChartData: Array<HistoryData>
+  balanceChartData: BalanceChartData
   balanceChartDataLoading: boolean
 }
 
 type UseBalanceChartDataArgs = {
-  assetIds: AssetId[]
-  accountId?: AccountSpecifier
+  assetId?: AssetId
+  accountId?: AccountId
   timeframe: HistoryTimeframe
 }
 
@@ -305,25 +337,40 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   balances and fiat prices for each time interval (bucket) of the chart
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds, accountId, timeframe } = args
+  const { assetId, accountId, timeframe } = args
   const assets = useAppSelector(selectAssets)
-  const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
+  const walletId = useAppSelector(selectWalletId)
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
-  const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
+  const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
-  const balances = useAppSelector(state =>
-    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(state, accountId),
+  const filter = useMemo(() => ({ accountId }), [accountId])
+  const balances = useAppSelector(s =>
+    selectBalanceChartCryptoBalancesByAccountIdAboveThreshold(s, filter),
   )
 
-  const portfolioAssets = useSelector(selectPortfolioAssets)
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const assetIdsWithBalancesAboveThreshold = useMemo(() => Object.keys(balances), [balances])
 
-  const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
+  /**
+   * for rainbow charts on the dashboard, we want the chart to match the AccountTable below
+   * and respect the balance threshold, i.e. we don't want to render zero balances chart lines
+   * for assets with a current balance that falls below the user's specified balance threshold
+   */
+  const intersectedAssetIds = useMemo(
+    () =>
+      assetId
+        ? intersection(assetIdsWithBalancesAboveThreshold, [assetId])
+        : assetIdsWithBalancesAboveThreshold,
+    [assetIdsWithBalancesAboveThreshold, assetId],
+  )
 
+  // remove blacklisted assets that we can't obtain exhaustive tx data for
+  const assetIds = useMemo(
+    () => without(intersectedAssetIds, ...CHART_ASSET_ID_BLACKLIST),
+    [intersectedAssetIds],
+  )
+
+  const txFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const txs = useAppSelector(state => selectTxsByFilter(state, txFilter))
-  const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
@@ -334,39 +381,26 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, timeframe),
   )
-  const cryptoPriceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
-  )
 
   const fiatPriceHistoryData = useAppSelector(state =>
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
-  const fiatPriceHistoryDataLoading = useAppSelector(state =>
-    selectFiatPriceHistoriesLoadingByTimeframe(state, timeframe),
-  )
-
   // loading state
   useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
 
   // calculation
   useEffect(() => {
-    // data prep
-    const hasNoDeviceId = isNil(walletInfo?.deviceId)
-    const hasNoAssetIds = !assetIds.length
-    const hasNoPriceHistoryData = isEmpty(cryptoPriceHistoryData) || !fiatPriceHistoryData
-    const hasNotFinishedLoadingTxHistory = txHistoryStatus === 'loading'
-    if (
-      hasNoDeviceId ||
-      hasNoAssetIds ||
-      hasNoPriceHistoryData ||
-      cryptoPriceHistoryDataLoading ||
-      hasNotFinishedLoadingTxHistory
-    ) {
+    const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
+    if (!walletId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
       return setBalanceChartDataLoading(true)
     }
 
     // create empty buckets based on the assets, current balances, and timeframe
-    const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
+    const emptyBuckets = makeBuckets({
+      assetIds,
+      balances,
+      timeframe,
+    })
     // put each tx into a bucket for the chart
     const buckets = bucketEvents(txs, rebases, emptyBuckets)
 
@@ -376,7 +410,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       buckets,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets,
     })
 
     debugCharts({ assets, calculatedBuckets, timeframe, txs })
@@ -388,19 +422,15 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   }, [
     assets,
     assetIds,
-    accountIds,
+    accountId,
     cryptoPriceHistoryData,
-    cryptoPriceHistoryDataLoading,
     fiatPriceHistoryData,
-    fiatPriceHistoryDataLoading,
     txs,
     timeframe,
     balances,
     setBalanceChartData,
-    portfolioAssets,
-    walletInfo?.deviceId,
+    walletId,
     rebases,
-    txHistoryStatus,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

@@ -11,7 +11,8 @@ import {
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Radio, RadioOption } from 'components/Radio/Radio'
+import type { RadioOption } from 'components/Radio/Radio'
+import { Radio } from 'components/Radio/Radio'
 import { Text } from 'components/Text'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -53,7 +54,7 @@ export const KeepKeyRecoverySettings = () => {
   const grayTextColor = useColorModeValue('gray.900', 'gray.400')
   const grayBackgroundColor = useColorModeValue('gray.100', 'gray.700')
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setDeviceState({
       recoverWithPassphrase: useRecoveryPassphrase,
       recoveryEntropy: sentenceLengthSelection,

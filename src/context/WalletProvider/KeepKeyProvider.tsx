@@ -1,3 +1,4 @@
+import type { ToastId } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -6,11 +7,11 @@ import {
   CloseButton,
   Link,
   Text,
-  ToastId,
   useToast,
 } from '@chakra-ui/react'
-import { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
+import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import React, {
   createContext,
   useCallback,
@@ -22,7 +23,7 @@ import React, {
 } from 'react'
 import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { RadioOption } from 'components/Radio/Radio'
+import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
@@ -119,7 +120,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const {
     state: { wallet },
   } = useWallet()
-  const { versions, updaterUrl } = useKeepKeyVersions()
+  const { versions, updaterUrl, isLTCSupportedFirmwareVersion } = useKeepKeyVersions()
   const translate = useTranslate()
   const toast = useToast()
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
@@ -160,47 +161,60 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
 
   useEffect(() => {
     if (!keepKeyWallet) return
-    ;(async () => {
-      if (!versions || !updaterUrl) return
+    if (!versions || !updaterUrl) return
 
-      if (
-        (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
-        !toast.isActive(KEEPKEY_TOAST_ID)
-      ) {
-        toastRef.current = toast({
-          render: () => {
-            return (
-              <Alert status='info' variant='solid' colorScheme='blue'>
-                <Box alignSelf='flex-start' me={2}>
-                  <RiFlashlightLine size={24} />
-                </Box>
-                <Box>
-                  <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
-                  <AlertDescription>
-                    <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
-                  </AlertDescription>
-                  <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
-                    {translate('updateToast.keepKey.downloadCta')}
-                  </Link>
-                </Box>
-                <CloseButton
-                  alignSelf='flex-start'
-                  position='relative'
-                  right={-1}
-                  top={-1}
-                  onClick={onClose}
-                />
-              </Alert>
-            )
-          },
-          id: KEEPKEY_TOAST_ID,
-          duration: null,
-          isClosable: true,
-          position: 'bottom-right',
-        })
-      }
-    })()
-  }, [keepKeyWallet, toast, translate, versions, onClose, updaterUrl])
+    if (
+      (versions.bootloader.updateAvailable || versions.firmware.updateAvailable) &&
+      !toast.isActive(KEEPKEY_TOAST_ID)
+    ) {
+      toastRef.current = toast({
+        render: () => {
+          return (
+            <Alert status='info' variant='solid' colorScheme='blue'>
+              <Box alignSelf='flex-start' me={2}>
+                <RiFlashlightLine size={24} />
+              </Box>
+              <Box>
+                <AlertTitle>{translate('updateToast.keepKey.title')}</AlertTitle>
+                <AlertDescription>
+                  <Text>{translate('updateToast.keepKey.newUpdateAvailable')}</Text>
+                  {!isLTCSupportedFirmwareVersion ? (
+                    <Text>
+                      {translate('updateToast.keepKey.updateRequiredForFeature', {
+                        feature: 'Litecoin',
+                      })}
+                    </Text>
+                  ) : null}
+                </AlertDescription>
+                <Link href={updaterUrl} display={'block'} fontWeight={'bold'} mt={2} isExternal>
+                  {translate('updateToast.keepKey.downloadCta')}
+                </Link>
+              </Box>
+              <CloseButton
+                alignSelf='flex-start'
+                position='relative'
+                right={-1}
+                top={-1}
+                onClick={onClose}
+              />
+            </Alert>
+          )
+        },
+        id: KEEPKEY_TOAST_ID,
+        duration: 12000,
+        isClosable: true,
+        position: 'bottom-right',
+      })
+    }
+  }, [
+    isLTCSupportedFirmwareVersion,
+    keepKeyWallet,
+    toast,
+    translate,
+    versions,
+    onClose,
+    updaterUrl,
+  ])
 
   const value: IKeepKeyContext = useMemo(
     () => ({

@@ -8,10 +8,11 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -24,10 +25,15 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
+  accountId: AccountId | undefined
   assetId: AssetId
   amount?: string
   contractAddress: string
@@ -40,6 +46,7 @@ const moduleLogger = logger.child({
 })
 
 export const ClaimConfirm = ({
+  accountId,
   assetId,
   amount,
   contractAddress,
@@ -60,6 +67,7 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -70,8 +78,16 @@ export const ClaimConfirm = ({
 
   const toast = useToast()
 
-  const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !userAddress || !foxy) return
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const cryptoHumanBalance = useMemo(
+    () => bnOrZero(claimAmount).div(`1e+${asset.precision}`),
+    [asset.precision, claimAmount],
+  )
+
+  const handleConfirm = useCallback(async () => {
+    if (!(walletState.wallet && contractAddress && userAddress && foxy && bip44Params)) return
     setLoading(true)
     try {
       const txid = await foxy.claimWithdraw({
@@ -79,6 +95,7 @@ export const ClaimConfirm = ({
         userAddress,
         wallet: walletState.wallet,
         contractAddress,
+        bip44Params,
       })
       history.push('/status', {
         txid,
@@ -99,14 +116,31 @@ export const ClaimConfirm = ({
     } finally {
       setLoading(false)
     }
-  }
+  }, [
+    amount,
+    assetId,
+    bip44Params,
+    chainId,
+    contractAddress,
+    estimatedGas,
+    foxy,
+    history,
+    toast,
+    translate,
+    userAddress,
+    walletState?.wallet,
+  ])
 
   useEffect(() => {
+    if (!bip44Params) return
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
-        const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
+        const userAddress = await chainAdapter.getAddress({
+          wallet: walletState.wallet,
+          bip44Params,
+        })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
           foxy.estimateClaimWithdrawGas({
@@ -114,6 +148,7 @@ export const ClaimConfirm = ({
             userAddress,
             contractAddress,
             wallet: walletState.wallet,
+            bip44Params,
           }),
           foxy.getGasPrice(),
           foxy.canClaimWithdraw({ contractAddress, userAddress }),
@@ -128,6 +163,7 @@ export const ClaimConfirm = ({
       }
     })()
   }, [
+    bip44Params,
     chainAdapterManager,
     contractAddress,
     feeAsset.precision,
@@ -146,10 +182,15 @@ export const ClaimConfirm = ({
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
-              value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
+              value={cryptoHumanBalance.toString()}
               symbol={asset?.symbol}
             />
           </Stack>
+          <Amount.Fiat
+            value={cryptoHumanBalance.times(assetMarketData.price).toString()}
+            color='gray.500'
+            prefix='≈'
+          />
         </Stack>
       </ModalBody>
       <ModalFooter flexDir='column'>
@@ -165,7 +206,7 @@ export const ClaimConfirm = ({
                   color='blue.500'
                   href={`${asset?.explorerAddressLink}${userAddress}`}
                 >
-                  <MiddleEllipsis address={userAddress} />
+                  <MiddleEllipsis value={userAddress} />
                 </Link>
               </Skeleton>
             </Row.Value>

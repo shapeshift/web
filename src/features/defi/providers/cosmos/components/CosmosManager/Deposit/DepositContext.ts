@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { CosmosDepositActions, CosmosDepositState } from './DepositCommon'
+import type { CosmosDepositActions, CosmosDepositState } from './DepositCommon'
 
 export interface IDepositContext {
   state: CosmosDepositState | null

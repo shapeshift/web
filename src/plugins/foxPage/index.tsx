@@ -1,4 +1,5 @@
 import { type Plugins } from 'plugins/types'
+import { RouteCategory } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { FoxPage } from './foxPage'
@@ -17,6 +18,7 @@ export default function register(): Plugins {
             label: 'navBar.foxToken',
             main: () => <FoxPage />,
             icon: <FoxIcon />,
+            category: RouteCategory.Explore,
             routes: [
               {
                 path: '/fox',

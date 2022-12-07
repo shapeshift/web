@@ -14,10 +14,6 @@
 # misc
 .DS_Store
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 npm-debug.log*
 yarn-debug.log*
@@ -30,3 +26,6 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+# typechain codegen contracts
+src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts/**/*

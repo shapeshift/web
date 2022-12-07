@@ -8,8 +8,9 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
 import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -26,6 +27,9 @@ type AssetCellProps = {
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
+  icons?: string[]
+  opportunityName?: string
+  version?: string
 }
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
@@ -50,6 +54,9 @@ export const AssetCell = ({
   showTeaser,
   showAssetSymbol,
   postFix,
+  icons,
+  opportunityName,
+  version,
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -59,7 +66,7 @@ export const AssetCell = ({
 
   if (!asset) return null
 
-  const rowTitle = buildRowTitle(asset, postFix, showAssetSymbol)
+  const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
     <HStack width='full' data-test='defi-earn-asset-row'>
@@ -74,8 +81,12 @@ export const AssetCell = ({
         </Popover>
       )}
       <HStack flex={1}>
-        <SkeletonCircle isLoaded={!!asset}>
-          <AssetIcon src={asset.icon} boxSize='8' />
+        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
+          {icons ? (
+            <PairIcons icons={icons} iconSize='sm' bg='none' />
+          ) : (
+            <AssetIcon assetId={asset.assetId} size='sm' />
+          )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
           <Stack spacing={0} flex={1}>
@@ -113,6 +124,7 @@ export const AssetCell = ({
                 {subText}
               </RawText>
             )}
+            {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>
       </HStack>

@@ -8,6 +8,37 @@ export const TabsStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
+    enclosed: (props: Record<string, any>) => ({
+      tablist: {
+        borerColor: mode('gray.100', 'gray.750')(props),
+        'button:first-of-type': {
+          borderLeftWidth: 0,
+          borderTopRightRadius: 0,
+          borderTopLeftRadius: 'xl',
+        },
+        'button:last-of-type': {
+          borderRightWidth: 0,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 'xl',
+        },
+      },
+      tab: {
+        py: 4,
+        fontWeight: 'bold',
+        borderColor: mode('gray.100', 'gray.750')(props),
+        bg: mode('gray.100', 'gray.850')(props),
+        color: 'gray.500',
+        _hover: {
+          color: mode('black', 'white')(props),
+        },
+        _selected: {
+          bg: 'transparent',
+          borderBottomColor: mode('gray.100', 'gray.785')(props),
+          borderColor: mode('gray.100', 'gray.750')(props),
+          color: mode('black', 'white')(props),
+        },
+      },
+    }),
     'enclosed-colored': (props: Record<string, any>) => ({
       tab: {
         bg: mode('gray.50', 'gray.750')(props),

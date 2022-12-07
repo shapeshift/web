@@ -9,26 +9,37 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { PropsWithChildren, useMemo } from 'react'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { PropsWithChildren } from 'react'
+import { useMemo } from 'react'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
-import {
-  AssetDescriptionTeaser,
-  AssetDescriptionTeaserProps,
-} from 'components/AssetDescriptionTeaser'
+import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
+import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 
-import { DefiActionButtonProps, DefiActionButtons } from '../DefiActionButtons'
+import type { DefiActionButtonProps } from '../DefiActionButtons'
+import { DefiActionButtons } from '../DefiActionButtons'
+import { PairIcons } from '../PairIcons/PairIcons'
+import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
+import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
-type AssetWithBalance = {
-  cryptoBalance: string
+export type AssetWithBalance = {
+  cryptoBalancePrecision: string
   allocationPercentage?: string
+  icons?: string[]
 } & Asset
 
 type OverviewProps = {
-  underlyingAssets: AssetWithBalance[]
-  rewardAssets?: AssetWithBalance[]
+  accountId?: AccountId | undefined
+  onAccountIdChange?: (accountId: AccountId) => void
+  // The LP asset this opportunity represents
+  lpAsset?: AssetWithBalance
+  // The assets underlying the LP one
+  underlyingAssetsCryptoPrecision: AssetWithBalance[]
+  rewardAssetsCryptoPrecision?: AssetWithBalance[]
   name: string
   description?: AssetDescriptionTeaserProps
   asset: Asset
@@ -36,45 +47,40 @@ type OverviewProps = {
   provider: string
   tvl?: string
   apy?: string
+  icons?: string[]
+  expired?: boolean
+  version?: string
 } & DefiActionButtonProps &
   PropsWithChildren
 
 export const Overview: React.FC<OverviewProps> = ({
-  underlyingAssets,
-  rewardAssets,
+  accountId,
+  onAccountIdChange,
+  lpAsset,
+  underlyingAssetsCryptoPrecision,
+  rewardAssetsCryptoPrecision,
   asset,
   name,
   opportunityFiatBalance,
   provider,
   tvl,
   apy,
+  icons,
   description,
   menu,
   children,
+  expired,
+  version,
 }) => {
-  const renderUnderlyingAssets = useMemo(() => {
-    return underlyingAssets.map(asset => {
-      return (
-        <Tag variant='xs-subtle' columnGap={2} size='sm' key={asset.symbol}>
-          <AssetIcon src={asset.icon} size='2xs' />
-          <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
-          {asset.allocationPercentage && (
-            <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-          )}
-        </Tag>
-      )
-    })
-  }, [underlyingAssets])
-
   const renderRewardAssets = useMemo(() => {
-    if (!rewardAssets) return null
-    return rewardAssets.map(asset => (
-      <Tag variant='xs-subtle' columnGap={2} size='sm'>
+    if (!rewardAssetsCryptoPrecision) return null
+    return rewardAssetsCryptoPrecision.map((asset, index) => (
+      <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
         <AssetIcon src={asset.icon} size='2xs' />
-        <Amount.Crypto fontSize='sm' value={asset.cryptoBalance} symbol={asset.symbol} />
+        <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
       </Tag>
     ))
-  }, [rewardAssets])
+  }, [rewardAssetsCryptoPrecision])
 
   return (
     <Flex
@@ -92,14 +98,27 @@ export const Overview: React.FC<OverviewProps> = ({
           <Stack p={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <Stack direction='row' alignItems='center' spacing={2}>
-                <AssetIcon src={asset.icon} size='md' />
+                {icons ? (
+                  <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
+                ) : (
+                  <AssetIcon src={asset.icon} size='md' />
+                )}
                 <Stack spacing={0}>
                   <RawText fontSize='lg' lineHeight='shorter'>
                     {name}
                   </RawText>
-                  <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
-                    {provider}
-                  </RawText>
+                  {onAccountIdChange ? (
+                    <AccountDropdown
+                      {...(accountId ? { defaultAccountId: accountId } : {})}
+                      assetId={asset.assetId}
+                      onChange={onAccountIdChange}
+                      buttonProps={{ height: 5, variant: 'solid' }}
+                    />
+                  ) : (
+                    <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
+                      {provider}
+                    </RawText>
+                  )}
                 </Stack>
               </Stack>
               <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />
@@ -110,10 +129,20 @@ export const Overview: React.FC<OverviewProps> = ({
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
-                {renderUnderlyingAssets}
+                {lpAsset ? (
+                  <UnderlyingAssetsMenu
+                    lpAsset={lpAsset}
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                  />
+                ) : (
+                  <UnderlyingAssetsTags
+                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                    showPercentage
+                  />
+                )}
               </Flex>
             </Stack>
-            {rewardAssets && (
+            {rewardAssetsCryptoPrecision && (
               <Stack flex={1} spacing={4}>
                 <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
@@ -124,26 +153,46 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         </Stack>
         {children}
-        {(description || tvl || apy) && (
+        {(description || tvl || apy || expired) && (
           <>
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
                 <Text fontSize='lg' fontWeight='medium' translation='defi.modals.overview.about' />
                 {description && <AssetDescriptionTeaser {...description} />}
               </Stack>
-              {(tvl || apy) && (
+              {(tvl || apy || expired) && (
                 <StatGroup>
                   {tvl && (
                     <Stat fontWeight='medium'>
                       <Amount.Fiat value={tvl} fontSize='lg' />
-                      <StatLabel>TVL</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.tvl' />
+                      </StatLabel>
                     </Stat>
                   )}
 
                   {apy && (
                     <Stat fontWeight='medium'>
                       <Amount.Percent autoColor value={apy} fontSize='lg' />
-                      <StatLabel>APY</StatLabel>
+                      <StatLabel>
+                        <Text translation='defi.apy' />
+                      </StatLabel>
+                    </Stat>
+                  )}
+
+                  {expired && (
+                    <Stat fontWeight='medium'>
+                      <Tag colorScheme='yellow'>
+                        <Text translation='defi.ended' />
+                      </Tag>
+                    </Stat>
+                  )}
+                  {version && (
+                    <Stat fontWeight='normal'>
+                      <RawText>{version}</RawText>
+                      <StatLabel>
+                        <Text translation='defi.version' />
+                      </StatLabel>
                     </Stat>
                   )}
                 </StatGroup>

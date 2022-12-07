@@ -3,7 +3,10 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -108,7 +111,7 @@ export const Status = () => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis address={state.userAddress || ''} />
+            <MiddleEllipsis value={state.userAddress || ''} />
           </Row.Value>
         </Row>
         {state.txid && (

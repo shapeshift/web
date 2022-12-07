@@ -1,12 +1,20 @@
-import { Box, Flex, Heading, Image, SkeletonCircle } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { AssetIcon } from 'components/AssetIcon'
+import { SEO } from 'components/Layout/Seo'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { tokenOrUndefined } from 'lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,16 +22,25 @@ import { useAppSelector } from 'state/store'
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
-  assetId: AssetId
-  accountId?: AccountSpecifier
+  assetId?: AssetId
+  accountId?: AccountId
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const translate = useTranslate()
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
   const chainId = asset.chainId
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const accountIdsFilter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
+  const accountIds = useAppSelector(
+    state => selectAccountIdsByAssetId(state, accountIdsFilter),
+    isEqual,
+  )
   const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
-  const { name, symbol, icon } = asset || {}
+  const { name, symbol } = asset || {}
 
   const {
     state: { wallet },
@@ -32,21 +49,41 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, filter),
-  )
+  const cryptoBalance =
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
+
+  const formattedPrice = toFiat(marketData.price)
+
+  const { assetReference } = fromAssetId(asset.assetId)
+  const maybeToken = tokenOrUndefined(assetReference)
+
+  // If token is undefined, redirect to the basic explorer link
+  // else redirect to the token explorer link
+  const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
 
   if (!chainId) return null
+  if (!assetId) return null
 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
-      <Flex alignItems='center' mr='auto'>
-        <Image src={icon} boxSize='40px' fallback={<SkeletonCircle boxSize='40px' />} />
-        <Box ml={3} textAlign='left'>
+      <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
+      <Flex alignItems='center' mr='auto' flex={1}>
+        <AssetIcon assetId={asset.assetId} boxSize='40px' />
+        <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
           <Heading fontSize='2xl' lineHeight='shorter'>
             {name} {`(${symbol})`}
           </Heading>
-        </Box>
+
+          <IconButton
+            as={Link}
+            isExternal
+            href={href}
+            colorScheme='blue'
+            aria-label={translate('defi.viewOnChain')}
+            variant='ghost'
+            icon={<ExternalLinkIcon />}
+          />
+        </Flex>
       </Flex>
       {walletSupportsChain ? (
         <AssetActions

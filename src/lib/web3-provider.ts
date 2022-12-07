@@ -1,4 +1,5 @@
-import { avalancheChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import Web3 from 'web3'
 

@@ -25,6 +25,6 @@ export const TransactionLink = ({
     display='flex'
     alignItems='center'
   >
-    <MiddleEllipsis address={txid} />
+    <MiddleEllipsis value={txid} />
   </Button>
 )

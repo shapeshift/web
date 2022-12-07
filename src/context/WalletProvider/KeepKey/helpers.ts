@@ -1,6 +1,10 @@
-import { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
-import { KeyboardEvent } from 'react'
+import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
+import { getConfig } from 'config'
+import type { KeyboardEvent } from 'react'
 import { VALID_ENTROPY_NUMBERS } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
+
+export const RELEASE_PAGE = getConfig().REACT_APP_KEEPKEY_UPDATER_RELEASE_PAGE
+export const UPDATER_BASE_URL = getConfig().REACT_APP_KEEPKEY_UPDATER_BASE_URL
 
 export const isValidInput = (
   e: KeyboardEvent,
@@ -16,6 +20,7 @@ export const isValidInput = (
   // KeepKey sets character index to 4 when word is complete, and we are awaiting a space
   const hasFilledAllInputs = recoveryCharacterIndex === maxInputLength
   const hasEnoughCharactersForWordMatch = recoveryCharacterIndex >= minInputLength
+  const isFirstWord = recoveryWordIndex === 0
   const isLastWord = recoveryWordIndex === wordEntropy - 1
   const noCharactersEntered = recoveryCharacterIndex === 0
 
@@ -25,8 +30,8 @@ export const isValidInput = (
   if (!hasEnoughCharactersForWordMatch && (isSpace || isEnter)) return false
   // We can't do space on last word
   if (isLastWord && isSpace) return false
-  // The UI doesn't currently support returning to a previous word
-  if (noCharactersEntered && isBackspace) return false
+  // We can't get previous word while on first word
+  if (isFirstWord && isBackspace && noCharactersEntered) return false
 
   // If we haven't early exited yet, the input is valid
   return true
@@ -37,7 +42,7 @@ export const isLetter = (str: string) => {
 }
 
 export const inputValuesReducer = (
-  currentValues: Array<string | undefined>,
+  currentValues: (string | undefined)[],
   newValue: string | undefined,
   newValueIndex: number,
 ) => {
@@ -58,4 +63,18 @@ const isValidEntropyNumber = (entropy: number): entropy is RecoverDevice['entrop
 export const parseIntToEntropy = (entropy: string): RecoverDevice['entropy'] => {
   const parsedEntropy = Math.floor(Number(entropy))
   return isValidEntropyNumber(parsedEntropy) ? parsedEntropy : VALID_ENTROPY_NUMBERS[0]
+}
+
+export const getPlatform = () => {
+  const platform = navigator?.platform
+  const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+  const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+
+  if (macosPlatforms.includes(platform)) {
+    return 'Mac OS'
+  } else if (windowsPlatforms.includes(platform)) {
+    return 'Windows'
+  } else if (/Linux/.test(platform)) {
+    return 'Linux'
+  }
 }

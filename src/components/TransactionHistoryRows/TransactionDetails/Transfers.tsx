@@ -1,8 +1,8 @@
 import { Stack, Tag } from '@chakra-ui/react'
-import { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { Text } from 'components/Text'
 
-import { TransferColumn } from './TransferCol'
+import { TransferColumn } from './TransferColumn'
 
 type TransfersProps = {
   compactMode?: boolean

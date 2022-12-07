@@ -2,40 +2,48 @@ import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import {
   useMenuRoutes,
   WalletConnectedRoutes,
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
-import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
-import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
-import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
-import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
-import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
+import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 export const WalletConnectedMenu = ({
   onDisconnect,
   onSwitchProvider,
   walletInfo,
   isConnected,
+  type,
 }: WalletConnectedProps) => {
   const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
-  const { keepKeyWallet } = useKeepKey()
+  const connectedWalletMenuRoutes = useMemo(
+    () => type && SUPPORTED_WALLETS[type].connectedWalletMenuRoutes,
+    [type],
+  )
 
   const ConnectedMenu = () => {
     return (
-      <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
+      <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
         <MenuItem
-          closeOnSelect={!keepKeyWallet}
-          onClick={keepKeyWallet ? () => navigateToRoute(WalletConnectedRoutes.KeepKey) : undefined}
+          closeOnSelect={!connectedWalletMenuRoutes}
+          onClick={
+            connectedWalletMenuRoutes
+              ? () =>
+                  navigateToRoute(
+                    (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
+                      WalletConnectedRoutes.Connected,
+                  )
+              : undefined
+          }
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
@@ -47,10 +55,10 @@ export const WalletConnectedMenu = ({
                 color='yellow.500'
               />
             )}
-            {keepKeyWallet && <ChevronRightIcon />}
+            {connectedWalletMenuRoutes && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
-        <MenuDivider ml={3} />
+        <MenuDivider />
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}
         </MenuItem>
@@ -69,11 +77,17 @@ export const WalletConnectedMenu = ({
             <ConnectedMenu />
           </SubMenuContainer>
         </Route>
-        <Route exact path={WalletConnectedRoutes.KeepKey} component={KeepKeyMenu} />
-        <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
-        <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
-        <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangeTimeout} />
-        <Route exact path={WalletConnectedRoutes.KeepKeyPassphrase} component={ChangePassphrase} />
+        {connectedWalletMenuRoutes?.map(route => {
+          const Component = route.component
+          return !Component ? null : (
+            <Route
+              key='walletConnectedMenuRoute'
+              exact
+              path={route.path}
+              render={routeProps => <Component {...routeProps} />}
+            />
+          )
+        })}
       </Switch>
     </AnimatePresence>
   )

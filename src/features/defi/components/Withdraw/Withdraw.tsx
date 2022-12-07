@@ -11,18 +11,15 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { MarketData } from '@shapeshiftoss/types'
-import React, { PropsWithChildren } from 'react'
-import {
-  ControllerProps,
-  ControllerRenderProps,
-  FieldValues,
-  useController,
-  useFormContext,
-  useWatch,
-} from 'react-hook-form'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
+import type { PropsWithChildren, ReactNode } from 'react'
+import React from 'react'
+import type { ControllerProps, FieldValues } from 'react-hook-form'
+import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { SliderIcon } from 'components/Icons/Slider'
@@ -32,15 +29,13 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-export type FlexFieldProps = {
-  control: any
-  cryptoAmount: ControllerRenderProps<WithdrawValues, 'cryptoAmount'>
-  fiatAmount: ControllerRenderProps<WithdrawValues, 'fiatAmount'>
-  handlePercentClick: (args: number) => void
-  setDisableInput: (args: boolean) => void
+type InputDefaultValue = {
+  cryptoAmount: string
+  fiatAmount: string
 }
 
 type WithdrawProps = {
+  accountId?: AccountId | undefined
   asset: Asset
   // Users available amount
   cryptoAmountAvailable: string
@@ -54,6 +49,7 @@ type WithdrawProps = {
   fiatInputValidation?: ControllerProps['rules']
   // Asset market data
   marketData: MarketData
+  onAccountIdChange?: AccountDropdownProps['onChange']
   // Array of the % options
   percentOptions: number[]
   // Show withdraw types
@@ -64,6 +60,10 @@ type WithdrawProps = {
   handlePercentClick: (arg: number) => void
   onContinue(values: FieldValues): void
   onCancel(): void
+  onInputChange?: (value: string, isFiat?: boolean) => void
+  icons?: string[]
+  inputDefaultValue?: InputDefaultValue
+  inputChildren?: ReactNode
 } & PropsWithChildren
 
 export enum Field {
@@ -82,6 +82,7 @@ export type WithdrawValues = {
 const DEFAULT_SLIPPAGE = '0.5'
 
 export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
   asset,
   marketData,
   cryptoAmountAvailable,
@@ -91,10 +92,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   enableSlippage = false,
   fiatInputValidation,
   handlePercentClick,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
   isLoading,
   percentOptions,
   children,
+  onInputChange,
+  icons,
+  inputDefaultValue,
+  inputChildren,
 }) => {
   const translate = useTranslate()
   const {
@@ -110,13 +116,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     name: 'cryptoAmount',
     control,
     rules: cryptoInputValidation,
-    defaultValue: '',
+    defaultValue: inputDefaultValue?.cryptoAmount ?? '',
   })
   const { field: fiatAmount } = useController({
     name: 'fiatAmount',
     control,
     rules: fiatInputValidation,
-    defaultValue: '',
+    defaultValue: inputDefaultValue?.fiatAmount ?? '',
   })
 
   const {
@@ -142,6 +148,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         shouldValidate: true,
       })
     }
+    if (onInputChange) onInputChange(value, isFiat)
   }
 
   const handleSlippageChange = (value: string | number) => {
@@ -156,22 +163,30 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     onContinue(values)
   }
 
+  if (!asset) return null
+
   return (
     <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
+          accountId={accountId}
           cryptoAmount={cryptoAmount?.value}
+          onAccountIdChange={handleAccountIdChange}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
           fiatAmount={fiatAmount?.value}
           showFiatAmount={true}
+          assetId={asset.assetId}
           assetIcon={asset.icon}
           assetSymbol={asset.symbol}
           balance={cryptoAmountAvailable}
           fiatBalance={fiatAmountAvailable}
-          onMaxClick={value => handlePercentClick(value)}
+          onPercentOptionClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}
           isReadOnly={disableInput}
-        />
+          icons={icons}
+        >
+          {!!inputChildren && inputChildren}
+        </AssetInput>
       </FormField>
       {children}
       {enableSlippage && (

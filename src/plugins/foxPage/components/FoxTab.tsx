@@ -1,5 +1,6 @@
 import { Flex } from '@chakra-ui/layout'
-import { SkeletonText, Tab, TabProps, useColorModeValue } from '@chakra-ui/react'
+import type { TabProps } from '@chakra-ui/react'
+import { SkeletonText, Tab, useColorModeValue } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'

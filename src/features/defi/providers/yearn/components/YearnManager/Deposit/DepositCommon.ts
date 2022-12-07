@@ -1,4 +1,4 @@
-import { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 type EstimatedGas = {
@@ -21,6 +21,7 @@ export type YearnDepositState = {
   opportunity: SerializableOpportunity | null
   userAddress: string | null
   approve: EstimatedGas
+  isExactAllowance?: boolean
   deposit: YearnDepositValues
   loading: boolean
   txid: string | null
@@ -29,6 +30,7 @@ export type YearnDepositState = {
 export enum YearnDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
+  SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
@@ -43,6 +45,11 @@ type SetOpportunityAction = {
 type SetApprove = {
   type: YearnDepositActionType.SET_APPROVE
   payload: EstimatedGas
+}
+
+type SetIsExactAllowance = {
+  type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE
+  payload: boolean
 }
 
 type SetDeposit = {
@@ -72,3 +79,4 @@ export type YearnDepositActions =
   | SetUserAddress
   | SetLoading
   | SetTxid
+  | SetIsExactAllowance

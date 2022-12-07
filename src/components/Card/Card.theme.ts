@@ -16,7 +16,10 @@ export const CardStyle = {
   sizes: {
     md: {
       header: {
-        px: 6,
+        px: {
+          base: 4,
+          md: 6,
+        },
         py: 4,
       },
       heading: {
@@ -25,7 +28,10 @@ export const CardStyle = {
       },
       body: {
         py: 4,
-        px: 6,
+        px: {
+          base: 4,
+          md: 6,
+        },
       },
       footer: {
         py: 4,
@@ -69,7 +75,6 @@ export const CardStyle = {
     }),
     outline: (props: Record<string, any>) => ({
       card: {
-        bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
         shadow: mode('base', 'lg')(props),

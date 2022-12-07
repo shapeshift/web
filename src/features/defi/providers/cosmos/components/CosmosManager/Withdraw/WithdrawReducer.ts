@@ -1,12 +1,9 @@
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 
-import {
-  CosmosWithdrawActions,
-  CosmosWithdrawActionType,
-  CosmosWithdrawState,
-} from './WithdrawCommon'
+import type { CosmosWithdrawActions, CosmosWithdrawState } from './WithdrawCommon'
+import { CosmosWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: CosmosWithdrawState = {
   txid: null,
@@ -18,7 +15,7 @@ export const initialState: CosmosWithdrawState = {
     type: DefiType.TokenStaking,
     expired: false,
     version: '',
-    tvl: bnOrZero(0),
+    tvl: bn(0),
   },
   userAddress: null,
   loading: false,

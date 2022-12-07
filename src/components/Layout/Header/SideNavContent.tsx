@@ -1,12 +1,15 @@
-import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
-import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
+import type { FlexProps } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
+import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useTranslate } from 'react-polyglot'
+import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
 
-import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
+import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
 import { ChainMenu } from './NavBar/ChainMenu'
-import { FiatRamps } from './NavBar/FiatRamps'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
@@ -20,6 +23,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
+  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
 
   const handleClick = (onClick?: () => void) => {
     onClose && onClose()
@@ -29,47 +33,67 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   return (
     <Flex
       width='full'
-      height='full'
+      height='auto'
+      flex={1}
       alignItems='flex-start'
       justifyContent='flex-start'
       data-test='full-width-header'
       flexDir='column'
+      overflowY='auto'
       paddingTop={`calc(1.5rem + env(safe-area-inset-top))`}
       p={4}
     >
       {!isLargerThanMd && (
         <Flex direction='column' rowGap={2} columnGap={2} width='full'>
-          <Flex width='full'>
+          <IconButton
+            ml='auto'
+            aria-label='Close Nav'
+            variant='ghost'
+            icon={<CloseIcon boxSize={3} />}
+            onClick={() => handleClick()}
+          />
+          <Flex gap={2}>
+            <Flex width='full'>
+              <UserMenu onClick={() => handleClick()} />
+            </Flex>
             <ChainMenu />
           </Flex>
-          <Flex width='full'>
-            <UserMenu onClick={() => handleClick()} />
-          </Flex>
-          <Flex width='full'>
-            <FiatRamps />
-          </Flex>
+          {isWalletConnectToDappsEnabled && (
+            <Box width='full'>
+              <WalletConnectToDappsHeaderButton />
+            </Box>
+          )}
           <Box width='full'>
-            <AutoCompleteSearch />
+            <AssetSearch assetListAsDropdown formProps={{ px: 0, mb: 0 }} />
           </Box>
         </Flex>
       )}
 
-      <NavBar isCompact={isCompact} mt={6} />
-      <Stack width='full'>
+      <NavBar isCompact={isCompact} mt={6} onClick={() => handleClick()} />
+      <Stack width='full' mt={6} spacing={0}>
         <MainNavLink
-          variant='ghost'
           isCompact={isCompact}
+          size='sm'
           onClick={() => handleClick(() => settings.open({}))}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
         />
         <MainNavLink
+          isCompact={isCompact}
+          as={Link}
+          isExternal
+          size='sm'
+          href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
+          label={translate('common.joinDiscord')}
+          leftIcon={<DiscordIcon />}
+          data-test='navigation-join-discord-button'
+        />
+        <MainNavLink
           leftIcon={<ChatIcon />}
           isCompact={isCompact}
           as={Link}
-          justifyContent='flex-start'
-          variant='ghost'
+          size='sm'
           onClick={() => handleClick()}
           label={translate('common.submitFeedback')}
           isExternal

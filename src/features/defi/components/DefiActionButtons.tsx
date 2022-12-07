@@ -1,5 +1,6 @@
-import { Box, Button, ButtonGroup, ButtonProps, Tooltip } from '@chakra-ui/react'
-import {
+import type { ButtonProps } from '@chakra-ui/react'
+import { Box, Button, Stack, Tooltip } from '@chakra-ui/react'
+import type {
   DefiAction,
   DefiParams,
   DefiQueryParams,
@@ -9,7 +10,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
-type DefiButtonProps = {
+export type DefiButtonProps = {
   label: string
   icon: JSX.Element
   action: DefiAction
@@ -55,5 +56,9 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
     ))
   }, [handleClick, menu, translate])
 
-  return <ButtonGroup width='full'>{renderMenu}</ButtonGroup>
+  return (
+    <Stack width='full' direction={{ base: 'column', md: 'row' }}>
+      {renderMenu}
+    </Stack>
+  )
 }

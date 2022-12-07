@@ -1,10 +1,12 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
   Circle,
   CircularProgressLabel,
   Collapse,
   Divider,
+  Flex,
   Stack,
   useColorModeValue,
   useDisclosure,
@@ -13,6 +15,8 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText, Text } from 'components/Text'
+
+import { PairIcons } from './PairIcons'
 
 type Status =
   | 'modals.status.header.pending'
@@ -28,6 +32,7 @@ type TxStatusProps = {
   statusBg?: string
   statusBody?: string
   continueText: string
+  pairIcons?: string[]
   children?: React.ReactNode
 }
 
@@ -36,6 +41,7 @@ export const TxStatus = ({
   loading,
   statusText,
   statusIcon,
+  pairIcons,
   statusBody,
   continueText,
   statusBg,
@@ -47,11 +53,37 @@ export const TxStatus = ({
   return (
     <Stack width='full' spacing={0} borderColor={borderColor} divider={<Divider />}>
       <Stack textAlign='center' spacing={6} p={6} alignItems='center'>
-        <Circle bg={statusBg}>
-          <CircularProgress isIndeterminate={loading}>
-            <CircularProgressLabel>{statusIcon}</CircularProgressLabel>
-          </CircularProgress>
-        </Circle>
+        {pairIcons ? (
+          <Flex position='relative' justifyContent='center' alignItems='center'>
+            <Flex
+              pl={2}
+              borderWidth='1px'
+              borderColor={borderColor}
+              borderRadius='3xl'
+              alignItems='center'
+              justifyContent='space-between'
+              w='110px'
+            >
+              {loading ? (
+                <CircularProgress size={6} />
+              ) : (
+                <Circle size={6} bg={statusBg}>
+                  {statusIcon}
+                </Circle>
+              )}
+              <PairIcons icons={pairIcons} />
+            </Flex>
+            <Box position='absolute' transform='scale(1.5)' filter='blur(20px)' opacity='0.5'>
+              <PairIcons icons={pairIcons} />
+            </Box>
+          </Flex>
+        ) : (
+          <Circle bg={statusBg}>
+            <CircularProgress isIndeterminate={loading}>
+              <CircularProgressLabel>{statusIcon}</CircularProgressLabel>
+            </CircularProgress>
+          </Circle>
+        )}
         <Stack>
           <Text translation={statusText} fontSize='xl' />
           {statusBody && <RawText color='gray.500'>{statusBody}</RawText>}

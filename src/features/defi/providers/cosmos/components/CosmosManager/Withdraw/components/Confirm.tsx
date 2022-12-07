@@ -1,33 +1,37 @@
-import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
-import {
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
   assetIdToUnbondingDays,
   StakingAction,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { walletCanEditMemo } from 'lib/utils'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,13 +42,16 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm = ({ onNext }: StepComponentProps) => {
+type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const [gasLimit, setGasLimit] = useState<string | null>(null)
   const [gasPrice, setGasPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const wallet = useWallet().state.wallet
 
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
@@ -85,20 +92,37 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
     })()
   }, [asset, asset.precision, feeMarketData.price])
 
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId: feeAsset?.assetId ?? '' }),
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
+    if (
+      state?.loading ||
+      !(
+        bip44Params &&
+        dispatch &&
+        gasLimit &&
+        gasPrice &&
+        state?.userAddress &&
+        walletState?.wallet
+      )
+    )
+      return
+
     try {
-      if (!state.userAddress || !walletState.wallet || state.loading || !gasLimit || !gasPrice)
-        return
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: true })
 
       const broadcastTxId = await handleStakingAction({
         asset,
+        bip44Params,
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
@@ -126,7 +150,22 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
     }
-  }
+  }, [
+    asset,
+    bip44Params,
+    contractAddress,
+    dispatch,
+    gasLimit,
+    gasPrice,
+    handleStakingAction,
+    onNext,
+    state?.loading,
+    state?.userAddress,
+    state?.withdraw.cryptoAmount,
+    walletState?.wallet,
+  ])
+
+  if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
@@ -188,6 +227,16 @@ export const Confirm = ({ onNext }: StepComponentProps) => {
           </Row.Value>
         </Row>
       </Summary>
+      {wallet && walletCanEditMemo(wallet) && (
+        <Alert status='info' size='sm' gap={2}>
+          <AlertDescription>{translate('defi.memoNote.title')}</AlertDescription>
+          <HelperTooltip
+            label={translate('defi.memoNote.body')}
+            iconProps={{ color: 'currentColor' }}
+          />
+        </Alert>
+      )}
+
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />

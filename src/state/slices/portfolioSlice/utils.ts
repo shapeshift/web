@@ -1,13 +1,10 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  AccountId,
   accountIdToChainId,
-  AssetId,
   avalancheChainId,
   bchChainId,
   btcChainId,
   CHAIN_NAMESPACE,
-  ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
@@ -16,38 +13,36 @@ import {
   fromChainId,
   ltcChainId,
   osmosisChainId,
+  thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
-import { Account, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { HDWallet, supportsBTC, supportsCosmos, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  supportsAvalanche,
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsThorchain,
+} from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
-import toLower from 'lodash/toLower'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 
-import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from '../validatorDataSlice/constants'
-import { PubKey } from '../validatorDataSlice/validatorDataSlice'
-import {
-  initialState,
+import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
+import type {
   Portfolio,
+  PortfolioAccountBalancesById,
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
-
-export const chainIds = [ethChainId, btcChainId, cosmosChainId, osmosisChainId] as const
-export type ChainIdType = typeof chainIds[number]
-
-export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
-  // in the case of account based chains (eth), this is an address
-  // in the case of utxo based chains, this is an x/y/zpub
-  return accountId.split(':')[2] ?? ''
-}
+import { initialState } from './portfolioSliceCommon'
 
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -63,36 +58,18 @@ export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: num
 }
 
 // note - this isn't a selector, just a pure utility function
-export const accountIdToLabel = (accountId: AccountSpecifier): string => {
-  /*
-   * 0xdef1cafe note - this is not purely technically correct as per specs,
-   * i.e. it's entirely possible to use segwit native with an xpub
-   *
-   * however, in our *current* context, this assumption is valid:
-   * the account specifier, e.g. xpub/ypub/zpub/0xaddress we use with unchained
-   * will return legacy/segwit/segwit native addresses and balances respectively
-   *
-   * we absolutely should consider storing more semantically correct account
-   * data in the store - a combination of script type and bip44 params,
-   * with mappings in both directions so information is not lost, e.g.
-   * we can recover script type and bip44 params from an address or xpub,
-   * but this is a bigger discussion to have.
-   *
-   * for now, for all intents and purposes, this is sufficient and works.
-   *
-   */
-  const chainId = fromAccountId(accountId).chainId
-  const specifier = accountIdToSpecifier(accountId)
+export const accountIdToLabel = (accountId: AccountId): string => {
+  const { chainId, account: pubkey } = fromAccountId(accountId)
   switch (chainId) {
     case avalancheChainId:
     case ethChainId:
       // this will be the 0x account
-      return firstFourLastFour(specifier)
+      return firstFourLastFour(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
-      if (specifier.startsWith('xpub')) return 'LEGACY'
-      if (specifier.startsWith('ypub')) return 'SEGWIT'
-      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      if (pubkey.startsWith('xpub')) return 'Legacy'
+      if (pubkey.startsWith('ypub')) return 'Segwit'
+      if (pubkey.startsWith('zpub')) return 'Segwit Native'
       return ''
     case bchChainId:
       return 'Bitcoin Cash'
@@ -100,13 +77,15 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       return 'Cosmos'
     case osmosisChainId:
       return 'Osmosis'
+    case thorchainChainId:
+      return 'Thorchain'
     case dogeChainId:
       return 'Dogecoin'
     case ltcChainId:
       // TODO: translations
-      if (specifier.startsWith('Ltub')) return 'LEGACY'
-      if (specifier.startsWith('Mtub')) return 'SEGWIT'
-      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
+      if (pubkey.startsWith('Ltub')) return 'Legacy'
+      if (pubkey.startsWith('Mtub')) return 'Segwit'
+      if (pubkey.startsWith('zpub')) return 'Segwit Native'
       return ''
     default: {
       return ''
@@ -114,13 +93,25 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   }
 }
 
-export const accountIdToFeeAssetId = (accountId: AccountSpecifier): AssetId =>
+export const isUtxoAccountId = (accountId: AccountId): boolean =>
+  fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+export const isUtxoChainId = (chainId: ChainId): boolean =>
+  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
   // the only way we get an accountId, is from a chainAdapter that supports that chain
   // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
   // and we can safely non-null assert that it will exist
   getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
 
-export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
+  getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
+  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
+
+export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
@@ -131,7 +122,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   return null
 }
 
-export const accountIdToUtxoParams = (accountId: AccountSpecifier, accountIndex: number) => {
+export const accountIdToUtxoParams = (accountId: AccountId, accountIndex: number) => {
   const accountType = accountIdToAccountType(accountId)
   const chainId = fromAccountId(accountId).chainId
   // for eth, we don't return a UtxoAccountType or utxoParams
@@ -142,9 +133,10 @@ export const accountIdToUtxoParams = (accountId: AccountSpecifier, accountIndex:
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],
-  assetId: AssetId,
-): AccountSpecifier[] => {
-  const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
+  assetId?: AssetId,
+): AccountId[] => {
+  if (!assetId) return []
+  const result = Object.entries(portfolioAccounts).reduce<AccountId[]>(
     (acc, [accountId, account]) => {
       if (account.assetIds.includes(assetId)) acc.push(accountId)
       return acc
@@ -154,7 +146,7 @@ export const findAccountsByAssetId = (
 
   // If we don't find an account that has the given asset,
   // return the account(s) for that given assets chain
-  if (result.length === 0) {
+  if (result.length === 0 && assetId) {
     return Object.keys(portfolioAccounts).filter(
       accountId => fromAssetId(assetId).chainId === fromAccountId(accountId).chainId,
     )
@@ -173,10 +165,6 @@ type AccountToPortfolioArgs = {
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
-const sumBalance = (totalBalance: string, currentBalance: string) => {
-  return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toString()
-}
-
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = args => {
@@ -187,31 +175,19 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chainNamespace } = fromChainId(chainId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Ethereum: {
+      case CHAIN_NAMESPACE.Evm: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
-        const accountSpecifier = `${chainId}:${toLower(pubkey)}`
-        const accountId = toAccountId({ chainId, account: _xpubOrAccount })
-        portfolio.accountBalances.ids.push(accountSpecifier)
-        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+        const accountId = toAccountId({ chainId, account: pubkey })
+        portfolio.accountBalances.ids.push(accountId)
 
-        portfolio.accounts.byId[accountSpecifier] = { assetIds: [] }
-        portfolio.accounts.byId[accountSpecifier].assetIds.push(assetId)
-        portfolio.accounts.ids.push(accountSpecifier)
+        portfolio.accounts.byId[accountId] = { assetIds: [] }
+        portfolio.accounts.byId[accountId].assetIds.push(assetId)
+        portfolio.accounts.ids.push(accountId)
 
-        portfolio.assetBalances.byId[assetId] = sumBalance(
-          portfolio.assetBalances.byId[assetId] ?? '0',
-          ethAccount.balance,
-        )
-
-        // add assetId without dupes
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
-
-        portfolio.accountBalances.byId[accountSpecifier] = {
+        portfolio.accountBalances.byId[accountId] = {
           [assetId]: ethAccount.balance,
         }
-
-        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           if (!args.assetIds.includes(token.assetId)) {
@@ -219,88 +195,55 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
-          // add assetId without dupes
-          portfolio.assetBalances.ids = Array.from(
-            new Set([...portfolio.assetBalances.ids, token.assetId]),
-          )
 
-          // if token already exist inside assetBalances, add balance to existing balance
-          portfolio.assetBalances.byId[token.assetId] = sumBalance(
-            portfolio.assetBalances.byId[token.assetId] ?? '0',
-            token.balance,
-          )
-
-          portfolio.accountBalances.byId[accountSpecifier] = {
-            ...portfolio.accountBalances.byId[accountSpecifier],
+          portfolio.accountBalances.byId[accountId] = {
+            ...portfolio.accountBalances.byId[accountId],
             [token.assetId]: token.balance,
           }
         })
         break
       }
-      case CHAIN_NAMESPACE.Bitcoin: {
-        const btcAccount = account as Account<KnownChainIds.BitcoinMainnet>
+      case CHAIN_NAMESPACE.Utxo: {
         const { balance, chainId, assetId, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
-        const accountSpecifier = `${chainId}:${pubkey}`
-        const addresses = btcAccount.chainSpecific.addresses ?? []
+        const accountId = `${chainId}:${pubkey}`
 
-        portfolio.assetBalances.ids.push(assetId)
-        portfolio.accountBalances.ids.push(accountSpecifier)
-        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+        portfolio.accountBalances.ids.push(accountId)
 
         // initialize this
-        portfolio.accountBalances.byId[accountSpecifier] = {}
+        portfolio.accountBalances.byId[accountId] = {}
 
         // add the balance from the top level of the account
-        portfolio.accountBalances.byId[accountSpecifier][assetId] = balance
+        portfolio.accountBalances.byId[accountId][assetId] = balance
 
         // initialize
-        if (!portfolio.accounts.byId[accountSpecifier]?.assetIds.length) {
-          portfolio.accounts.byId[accountSpecifier] = {
+        if (!portfolio.accounts.byId[accountId]?.assetIds.length) {
+          portfolio.accounts.byId[accountId] = {
             assetIds: [],
           }
         }
 
-        portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
+        portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountId]))
 
-        portfolio.accounts.byId[accountSpecifier].assetIds = Array.from(
-          new Set([...portfolio.accounts.byId[accountSpecifier].assetIds, assetId]),
+        portfolio.accounts.byId[accountId].assetIds = Array.from(
+          new Set([...portfolio.accounts.byId[accountId].assetIds, assetId]),
         )
-
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
-
-        portfolio.assetBalances.byId[assetId] = bnOrZero(portfolio.assetBalances.byId[assetId])
-          .plus(bnOrZero(balance))
-          .toString()
-
-        // For tx history, we need to have AccountIds of addresses that may have 0 balances
-        // for accountSpecifier to AccountId mapping
-        addresses.forEach(({ pubkey }) => {
-          const accountId = toAccountId({ chainId, account: pubkey })
-          if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
-            portfolio.accountSpecifiers.byId[accountSpecifier] = []
-          }
-
-          portfolio.accountSpecifiers.byId[accountSpecifier].push(accountId)
-        })
 
         break
       }
-      case CHAIN_NAMESPACE.Cosmos: {
+      case CHAIN_NAMESPACE.CosmosSdk: {
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
-        const accountSpecifier = `${chainId}:${_xpubOrAccount}`
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
-        portfolio.accountBalances.ids.push(accountSpecifier)
-        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+        portfolio.accountBalances.ids.push(accountId)
 
-        portfolio.accounts.byId[accountSpecifier] = {
+        portfolio.accounts.byId[accountId] = {
           assetIds: [],
           validatorIds: [],
           stakingDataByValidatorId: {},
         }
 
-        portfolio.accounts.byId[accountSpecifier].assetIds.push(assetId)
+        portfolio.accounts.byId[accountId].assetIds.push(assetId)
         const uniqueValidatorAddresses: PubKey[] = Array.from(
           new Set(
             [
@@ -311,14 +254,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
                 .map(undelegation => {
                   return undelegation?.validator?.address
                 })
-                .filter(Boolean),
+                .filter(isSome),
               cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
             ].flat(),
           ),
         )
 
-        portfolio.accounts.byId[accountSpecifier].validatorIds = uniqueValidatorAddresses
-        portfolio.accounts.byId[accountSpecifier].stakingDataByValidatorId = {}
+        portfolio.accounts.byId[accountId].validatorIds = uniqueValidatorAddresses
+        portfolio.accounts.byId[accountId].stakingDataByValidatorId = {}
 
         // This block loads staking data at validator into the portfolio state
         // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
@@ -349,7 +292,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
             ]),
           )
 
-          let portfolioAccount = portfolio.accounts.byId[accountSpecifier]
+          let portfolioAccount = portfolio.accounts.byId[accountId]
           if (portfolioAccount.stakingDataByValidatorId) {
             portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
 
@@ -368,21 +311,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
         })
 
-        portfolio.accounts.ids.push(accountSpecifier)
+        portfolio.accounts.ids.push(accountId)
 
-        portfolio.assetBalances.byId[assetId] = sumBalance(
-          portfolio.assetBalances.byId[assetId] ?? '0',
-          account.balance,
-        )
-
-        // add assetId without dupes
-        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, assetId]))
-
-        portfolio.accountBalances.byId[accountSpecifier] = {
+        portfolio.accountBalances.byId[accountId] = {
           [assetId]: account.balance,
         }
-
-        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         break
       }
@@ -394,54 +327,43 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   return portfolio
 }
 
-export const makeSortedAccountBalances = (totalAccountBalances: {
-  [k: AccountSpecifier]: string
-}) =>
-  Object.entries(totalAccountBalances)
-    .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
-      bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1,
-    )
-    .map(([accountId, _]) => accountId)
-
-export const makeBalancesByChainBucketsFlattened = (
-  accountBalances: string[],
-  assets: { [k: AssetId]: Asset },
-) => {
-  const initial = {} as Record<ChainId, AccountId[]>
-  const balancesByChainBuckets = accountBalances.reduce<Record<ChainId, AccountId[]>>(
-    (acc: Record<ChainId, AccountId[]>, accountId) => {
-      const assetId = accountIdToFeeAssetId(accountId)
-      const asset = assets[assetId]
-      acc[asset.chainId] = [...(acc[asset.chainId] ?? []), accountId]
-      return acc
-    },
-    initial,
-  )
-  return Object.values(balancesByChainBuckets).flat()
-}
-
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
   if (!assetId) return false
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
+    case avalancheChainId:
+      return supportsAvalanche(wallet)
     case ethChainId:
       return supportsETH(wallet)
     case btcChainId:
+    case ltcChainId:
+    case dogeChainId:
+    case bchChainId:
       return supportsBTC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
+    case thorchainChainId:
+      return supportsThorchain(wallet)
     default:
       return false
   }
 }
 
-export const getShapeshiftValidatorFromAccountSpecifier = (
-  accountSpecifier: AccountSpecifier,
+export const genericBalanceIncludingStakingByFilter = (
+  accountBalances: PortfolioAccountBalancesById,
+  assetId: AssetId | undefined,
+  accountId: AccountId | undefined,
 ): string => {
-  const { chainId } = fromAccountId(accountSpecifier)
-  const chainIdToValidatorAddress: Record<ChainId, string> = {
-    [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-    [osmosisChainId]: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-  }
-  return chainIdToValidatorAddress[chainId]
+  const totalByAccountId = Object.entries(accountBalances)
+    .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all
+    .reduce<Record<AccountId, BigNumber>>((acc, [accountId, byAssetId]) => {
+      const accountTotal = Object.entries(byAssetId)
+        .filter(([id, _assetBalance]) => (assetId ? id === assetId : true)) // if no assetId filter, return all
+        .reduce((innerAcc, [_id, assetBalance]) => innerAcc.plus(bnOrZero(assetBalance)), bn(0))
+      acc[accountId] = accountTotal
+      return acc
+    }, {})
+  return Object.values(totalByAccountId)
+    .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
+    .toString()
 }

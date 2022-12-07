@@ -1,19 +1,47 @@
 import { adapters } from '@shapeshiftoss/caip'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { CommonFiatCurrencies } from '../config'
+import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
-export const getBanxaAssets = () => {
-  const banxaAssets = adapters.getSupportedBanxaAssets()
-  const assets: FiatRampAsset[] = banxaAssets.map(asset => ({
-    assetId: asset.assetId,
-    symbol: asset.ticker,
-    // name will be set in useFiatRampCurrencyList hook
-    name: '',
-  }))
-  return assets
+export const getSupportedBanxaFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'AED',
+    'AUD',
+    'BRL',
+    'CAD',
+    'CHF',
+    'CZK',
+    'DKK',
+    'EUR',
+    'GBP',
+    'HKD',
+    'IDR',
+    'INR',
+    'JPY',
+    'KRW',
+    'MXN',
+    'MYR',
+    'NOK',
+    'NZD',
+    'PHP',
+    'PLN',
+    'QAR',
+    'SAR',
+    'SEK',
+    'SGD',
+    'THB',
+    'TRY',
+    'TWD',
+    'USD',
+    'VND',
+    'ZAR',
+  ]
 }
 
-export const createBanxaUrl = (action: FiatRampAction, asset: string, address: string): string => {
+export const createBanxaUrl = ({ assetId, address, action }: CreateUrlProps): string => {
+  const asset = adapters.assetIdToBanxaTicker(assetId)
+  if (!asset) throw new Error('Asset not supported by Banxa')
   const BANXA_BASE_URL = new URL('https://shapeshift.banxa.com/')
 
   const params = new URLSearchParams()

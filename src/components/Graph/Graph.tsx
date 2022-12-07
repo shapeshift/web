@@ -1,48 +1,53 @@
-import { Center, Fade, SlideFade } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/types'
+import { Center, Fade } from '@chakra-ui/react'
 import { ParentSize } from '@visx/responsive'
+import { isEmpty } from 'lodash'
 import { useMemo } from 'react'
+import type { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
+import { RainbowChart } from './RainbowChart/RainbowChart'
 
 type GraphProps = {
-  data: HistoryData[] | null
+  data: BalanceChartData
   isLoaded?: boolean
   loading?: boolean
-  color?: string
+  color: string
+  isRainbowChart?: boolean
 }
 
-export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
-  return useMemo(
-    () => (
+export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, isRainbowChart }) => {
+  return useMemo(() => {
+    const { total, rainbow } = data
+    return (
       <ParentSize debounceTime={10}>
-        {parent =>
-          loading || !isLoaded ? (
+        {parent => {
+          const primaryChartProps = {
+            height: parent.height,
+            width: parent.width,
+            color,
+            margin: {
+              top: 16,
+              right: 0,
+              bottom: 32,
+              left: 0,
+            },
+          }
+          return loading || !isLoaded ? (
             <Fade in={loading || !isLoaded}>
               <Center width='full' height={parent.height} overflow='hidden'>
                 <GraphLoading />
               </Center>
             </Fade>
-          ) : data?.length ? (
-            <SlideFade in={!loading}>
-              <PrimaryChart
-                data={data ?? []}
-                height={parent.height}
-                width={parent.width}
-                color={color}
-                margin={{
-                  top: 16,
-                  right: 0,
-                  bottom: 60,
-                  left: 0,
-                }}
-              />
-            </SlideFade>
+          ) : !isEmpty(data) ? (
+            isRainbowChart ? (
+              <RainbowChart {...primaryChartProps} data={rainbow} />
+            ) : (
+              <PrimaryChart {...primaryChartProps} data={total} />
+            )
           ) : null
-        }
+        }}
       </ParentSize>
-    ),
-    [color, data, isLoaded, loading],
-  )
+    )
+  }, [color, data, isLoaded, loading, isRainbowChart])
 }

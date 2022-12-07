@@ -1,18 +1,25 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { ArrowDownIcon, ArrowUpIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Flex, SimpleGrid, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import React, { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
-import { Direction } from 'hooks/useTxDetails/useTxDetails'
+import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
+import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
+
+import { ApproveIcon } from './components/ApproveIcon'
+import { AssetsTransfers } from './components/AssetsTransfers'
+import { AssetTransfer } from './components/AssetTransfer'
+import type { getTxMetadataWithAssetId } from './utils'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -34,58 +41,71 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
 }
 
-const TransactionIcon = ({ type }: { type: string }) => {
+const TransactionIcon = ({
+  type,
+  status,
+  assetId,
+  value,
+  compactMode,
+}: {
+  type: string
+  status: TxStatus
+  assetId: AssetId | undefined
+  value: string | undefined
+  compactMode: boolean
+}) => {
+  const green = useColorModeValue('green.700', 'green.500')
+  const red = useColorModeValue('red.700', 'red.500')
+
+  if (status === TxStatus.Failed) return <WarningTwoIcon color={red} />
+
   switch (type) {
     case TransferType.Send:
-    case Direction.Outbound:
       return <ArrowUpIcon />
     case TransferType.Receive:
-    case Direction.Inbound:
-      return <ArrowDownIcon color='green.500' />
+      return <ArrowDownIcon color={green} />
     case TradeType.Trade:
       return <FaExchangeAlt />
-    case Direction.InPlace:
-      return <FaThumbsUp />
+    case Method.Approve: {
+      return assetId && value ? (
+        <ApproveIcon assetId={assetId} value={value} compactMode={compactMode} />
+      ) : (
+        <FaThumbsUp />
+      )
+    }
     default:
       return <FaStickyNote />
   }
 }
 
-type TransactionRowAsset = {
-  symbol: string
-  amount: string
-  precision: number
-  currentPrice?: string
-  icon?: string
-}
-
 type TransactionGenericRowProps = {
   type: string
-  symbol: string
+  status: TxStatus
   title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
-  assets: TransactionRowAsset[]
-  fee?: TransactionRowAsset
+  transfersByType: Record<TransferType, Transfer[]>
+  fee?: Fee
   txid: TxId
+  txData?: ReturnType<typeof getTxMetadataWithAssetId>
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  isFirstAssetOutgoing?: boolean
   parentWidth: number
 }
 
 export const TransactionGenericRow = ({
   type,
+  status,
   title,
-  assets,
+  transfersByType,
   fee,
   txid,
+  txData,
   blockTime,
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  isFirstAssetOutgoing = false,
   parentWidth,
 }: TransactionGenericRowProps) => {
   const {
@@ -93,13 +113,39 @@ export const TransactionGenericRow = ({
     dateFormat,
     breakPoints: [isLargerThanLg],
   } = GetTxLayoutFormats({ parentWidth })
+
+  const transfers = useMemo(() => {
+    return Object.values(transfersByType).map((transfersOfType, index) => {
+      const hasManyTypeTransfers = transfersOfType.length > 1
+
+      return (
+        <React.Fragment key={index}>
+          {hasManyTypeTransfers ? (
+            <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
+          ) : (
+            <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
+          )}
+        </React.Fragment>
+      )
+    })
+  }, [compactMode, transfersByType])
+
+  const cryptoValue = useMemo(() => {
+    if (!fee) return '0'
+    return fromBaseUnit(fee.value, fee.asset.precision)
+  }, [fee])
+
+  const fiatValue = useMemo(() => {
+    return bnOrZero(fee?.marketData?.price).times(cryptoValue).toString()
+  }, [fee?.marketData?.price, cryptoValue])
+
   return (
     <Button
       height='auto'
       fontWeight='inherit'
       variant='unstyled'
       w='full'
-      p={4}
+      p={{ base: 2, md: 4 }}
       onClick={() => toggleOpen()}
     >
       <SimpleGrid
@@ -107,26 +153,47 @@ export const TransactionGenericRow = ({
         textAlign='left'
         justifyContent='flex-start'
         alignItems='center'
+        columnGap={4}
       >
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
-            <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
-              <TransactionIcon type={type} />
+            <IconCircle
+              mr={2}
+              boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+              bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.200')}
+            >
+              <TransactionIcon
+                type={type}
+                status={status}
+                assetId={txData?.assetId}
+                value={txData?.value}
+                compactMode={compactMode}
+              />
             </IconCircle>
             <Stack
-              direction={{ base: 'row', md: compactMode ? 'row' : 'column' }}
+              direction={{ base: 'row', md: 'column', xl: compactMode ? 'row' : 'column' }}
               flex={1}
               spacing={0}
-              fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
-              alignItems={{ base: 'center', md: compactMode ? 'center' : 'flex-start' }}
+              fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
+              alignItems={{ base: 'flex-start', xl: compactMode ? 'center' : 'flex-start' }}
             >
-              <Text
-                fontWeight='bold'
-                flex={1}
-                translation={
-                  title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
-                }
-              />
+              <Flex alignItems='center' gap={2} flex={1}>
+                <Text
+                  fontWeight='bold'
+                  translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+                />
+                {txData && txData.parser === 'ibc' && (
+                  <Tag
+                    size='sm'
+                    colorScheme='blue'
+                    variant='subtle'
+                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
+                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                  >
+                    IBC
+                  </Tag>
+                )}
+              </Flex>
               <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>
           </Flex>
@@ -136,88 +203,38 @@ export const TransactionGenericRow = ({
             direction='row'
             width='full'
             alignItems='center'
-            spacing={{ base: 0, md: compactMode ? 0 : 4 }}
+            spacing={{ base: 0, md: 4, xl: compactMode ? 0 : 4 }}
             justifyContent={{
               base: 'space-between',
-              md: compactMode ? 'space-between' : 'flex-start',
+              md: 'flex-start',
+              xl: compactMode ? 'space-between' : 'flex-start',
             }}
-            fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
+            fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
             divider={
               <Box border={0} color='gray.500' fontSize='sm'>
                 <FaArrowRight />
               </Box>
             }
           >
-            {assets.map((asset, index) => (
-              <Stack
-                alignItems='center'
-                key={index}
-                mt={{ base: 2, md: compactMode ? 2 : 0 }}
-                direction={{
-                  base: index === 0 ? 'row' : 'row-reverse',
-                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row',
-                }}
-                textAlign={{
-                  base: index === 0 ? 'left' : 'right',
-                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left',
-                }}
-              >
-                <AssetIcon
-                  src={asset.icon}
-                  boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
-                />
-                <Box flex={1}>
-                  <Amount.Crypto
-                    color='inherit'
-                    fontWeight='medium'
-                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                    value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
-                    symbol={asset.symbol}
-                    maximumFractionDigits={4}
-                  />
-                  {asset.currentPrice && (
-                    <Amount.Fiat
-                      color='gray.500'
-                      fontSize='sm'
-                      lineHeight='1'
-                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
-                        .times(asset.currentPrice)
-                        .toString()}
-                    />
-                  )}
-                </Box>
-              </Stack>
-            ))}
+            {transfers}
           </Stack>
         </Flex>
         {isLargerThanLg && (
-          <Flex alignItems='flex-start' flex={1} flexDir='column'>
-            {fee && bnOrZero(fee?.amount).gt(0) ? (
-              <Flex alignItems='center' width='full'>
+          <Flex alignItems='flex-start' flex={1} flexDir='column' textAlign='right'>
+            {fee && bnOrZero(fee.value).gt(0) && (
+              <Flex alignItems='flex-end' width='full'>
                 <Box flex={1}>
                   <Amount.Crypto
                     color='inherit'
                     fontWeight='bold'
-                    value={fromBaseUnit(fee.amount, fee.precision)}
-                    symbol={fee.symbol}
+                    value={cryptoValue}
+                    symbol={fee.asset.symbol}
                     maximumFractionDigits={6}
                   />
-                  <Amount.Fiat
-                    color='gray.500'
-                    fontSize='sm'
-                    lineHeight='1'
-                    value={
-                      fee.amount
-                        ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
-                            .times(fee.currentPrice ?? 0)
-                            .toString()
-                        : '0'
-                    }
-                  />
+                  <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatValue} />
                 </Box>
               </Flex>
-            ) : null}
+            )}
           </Flex>
         )}
         {isLargerThanLg && (

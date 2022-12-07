@@ -1,5 +1,5 @@
 import { merge } from 'lodash'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { excludeTransaction } from './cosmosUtils'
 
@@ -7,7 +7,7 @@ const mockTx = (obj?: { parser?: string; method?: string }) =>
   ({
     data: merge(
       {
-        parser: 'cosmos',
+        parser: 'staking',
         method: 'delegate',
       },
       obj,
@@ -20,7 +20,7 @@ describe('cosmosUtils', () => {
       expect(excludeTransaction(mockTx(args))).toBe(true)
     })
 
-    it.each([[{ parser: 'bitcoin' }], [{ method: 'normal_tx' }]])(
+    it.each([[{ parser: 'bitcoin' }], [{ parser: 'foo', method: 'normal_tx' }]])(
       'should return true for %O',
       args => {
         expect(excludeTransaction(mockTx(args))).toBe(false)

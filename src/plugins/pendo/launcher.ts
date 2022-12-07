@@ -1,10 +1,12 @@
 import { getConfig } from 'config'
+import { isMobile as isMobileApp } from 'lib/globals'
 import { logger } from 'lib/logger'
 
-import { armPendoAgent, PendoConfig, PendoEnv, PendoInitializeParams } from './agent'
+import type { PendoConfig, PendoEnv, PendoInitializeParams } from './agent'
+import { armPendoAgent } from './agent'
 import { makePendoEnv } from './agent/env'
 import { sanitizeUrl } from './sanitizeUrl'
-import { PendoLauncher } from './types'
+import type { PendoLauncher } from './types'
 import { deferred } from './utils'
 import { VisitorDataManager } from './visitorData'
 
@@ -20,6 +22,8 @@ const makeBasePendoInitializeParams = (pendoEnv: PendoEnv) => ({
   events: {
     ready: () => {
       pendoEventsLogger.trace('ready')
+      pendoEnv.pendo.track('visit', { mobile_app: isMobileApp })
+      pendoEventsLogger.trace('trackedVisit')
     },
     deliverablesLoaded: () => {
       pendoEventsLogger.trace('deliverablesLoaded')
@@ -30,16 +34,16 @@ const makeBasePendoInitializeParams = (pendoEnv: PendoEnv) => ({
     guidesLoaded: () => {
       pendoEventsLogger.trace('guidesLoaded')
     },
-    validateGuide: async (signatureString: string) => {
+    validateGuide: (signatureString: string): boolean => {
       pendoEventsLogger.trace({ signatureString }, 'validateGuide')
       // Guide validation is provided by the logic in pendo/filters.ts
       return true
     },
-    validateLauncher: async (signatureString: string) => {
+    validateLauncher: (signatureString: string): boolean => {
       pendoEventsLogger.trace({ signatureString }, 'validateLauncher')
       return !pendoEnv.sealed
     },
-    validateGlobalScript: async (data: unknown) => {
+    validateGlobalScript: (data: unknown): boolean => {
       pendoEventsLogger.trace({ data }, 'validateGlobalScript')
       return !pendoEnv.sealed
     },
@@ -71,7 +75,7 @@ export function makePendoLauncher(
   agentInitializerPromise
     .then(async initialize => {
       const idPrefix = await launchAuthorizationPromise
-      const id = await VisitorDataManager.getId()
+      const id = VisitorDataManager.getId()
       const visitorId = `${idPrefix ? `${idPrefix}_` : ''}${id}`
       moduleLogger.debug({ fn: 'makePendoLauncher' }, 'launching agent')
       initialize(visitorId)

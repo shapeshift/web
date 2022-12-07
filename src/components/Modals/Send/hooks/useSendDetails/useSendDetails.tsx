@@ -1,11 +1,6 @@
-import {
-  CHAIN_NAMESPACE,
-  ChainId,
-  fromAccountId,
-  fromAssetId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
-import {
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type {
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
@@ -16,9 +11,11 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {
@@ -64,7 +61,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const address = useWatch<SendInput, SendFormFields.Address>({
     name: SendFormFields.Address,
   })
-  const accountSpecifier = useWatch<SendInput, SendFormFields.AccountId>({
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
 
@@ -78,26 +75,24 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state =>
       selectPortfolioCryptoHumanBalanceByFilter(state, {
         assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
 
   const fiatBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioFiatBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
-    ),
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: accountSpecifier }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, {
         assetId: feeAsset.assetId,
-        accountId: accountSpecifier,
+        accountId,
       }),
     ),
   )
@@ -110,49 +105,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { assetReference } = fromAssetId(assetId)
   const contractAddress = tokenOrUndefined(assetReference)
 
-  const adapter = chainAdapterManager.get(asset.chainId)
-  if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)
-
-  const estimateFormFees = useCallback(async (): Promise<FeeDataEstimate<ChainId>> => {
-    const values = getValues()
+  const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
+    const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-
-    const { account } = fromAccountId(accountSpecifier)
-
-    const value = bnOrZero(values.cryptoAmount)
-      .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
-      .toFixed(0)
-
-    const adapter = chainAdapterManager.get(values.asset.chainId)
-    if (!adapter) throw new Error(`No adapter available for ${values.asset.chainId}`)
-
-    const { chainNamespace } = fromChainId(values.asset.chainId)
-
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Cosmos:
-        return adapter.getFeeData({})
-      case CHAIN_NAMESPACE.Ethereum:
-        return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: {
-            from: account,
-            contractAddress,
-          },
-          sendMax: values.sendMax,
-        })
-      case CHAIN_NAMESPACE.Bitcoin: {
-        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
-          to: values.address,
-          value,
-          chainSpecific: { pubkey: account },
-          sendMax: values.sendMax,
-        })
-      }
-      default:
-        throw new Error(`${chainNamespace} not supported`)
-    }
-  }, [accountSpecifier, chainAdapterManager, contractAddress, getValues, wallet])
+    return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
+  }, [contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
@@ -220,15 +177,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ])
 
   // Stop calls to debouncedSetEstimatedFormFees on unmount
-  useEffect(() => {
-    return () => {
-      debouncedSetEstimatedFormFees.cancel()
-    }
-  }, [debouncedSetEstimatedFormFees])
+  useEffect(() => () => debouncedSetEstimatedFormFees.cancel(), [debouncedSetEstimatedFormFees])
 
-  const handleNextClick = async () => {
-    history.push(SendRoutes.Confirm)
-  }
+  const handleNextClick = () => history.push(SendRoutes.Confirm)
 
   const handleSendMax = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })
@@ -271,18 +222,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
-        const { chainId, chainNamespace, account } = fromAccountId(accountSpecifier)
+        const { chainId, chainNamespace, account } = fromAccountId(accountId)
         const adapter = chainAdapterManager.get(chainId)
         if (!adapter) throw new Error(`No adapter available for ${chainId}`)
 
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Cosmos: {
+            case CHAIN_NAMESPACE.CosmosSdk: {
               const adapterFees = await adapter.getFeeData({})
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Ethereum: {
+            case CHAIN_NAMESPACE.Evm: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
               const adapterFees = await evmAdapter.getFeeData({
                 to,
@@ -293,7 +244,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
-            case CHAIN_NAMESPACE.Bitcoin: {
+            case CHAIN_NAMESPACE.Utxo: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
               const adapterFees = await utxoAdapter.getFeeData({
                 to,
@@ -405,7 +356,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
+    [accountId, estimateFormFees, feeAsset.symbol, fieldName, getValues, setValue],
   )
 
   const toggleCurrency = () => {

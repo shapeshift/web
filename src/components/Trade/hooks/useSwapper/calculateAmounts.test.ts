@@ -12,10 +12,10 @@ describe('calculateAmounts', () => {
   const sellAssetUsdRate = '2'
   const selectedCurrencyToUsdRate = bn(1)
 
-  it('returns sellAmount, buyAmount, fiatSellAmount for SELL action', async () => {
-    const action = TradeAmountInputField.SELL
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
+    const action = TradeAmountInputField.SELL_CRYPTO
 
-    const result = await calculateAmounts({
+    const result = calculateAmounts({
       amount,
       buyAsset,
       sellAsset,
@@ -23,19 +23,22 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
-      sellAmount: '1000000000000000000',
-      buyAmount: '2000000000000000000',
+      sellAmountSellAssetBaseUnit: '1000000000000000000',
+      buyAmountBuyAssetBaseUnit: '2000000000000000000',
       fiatSellAmount: '2.00',
+      fiatBuyAmount: '2.00',
     })
   })
 
-  it('returns sellAmount, buyAmount, fiatSellAmount for BUY action', async () => {
-    const action = TradeAmountInputField.BUY
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
+    const action = TradeAmountInputField.BUY_CRYPTO
 
-    const result = await calculateAmounts({
+    const result = calculateAmounts({
       amount,
       buyAsset,
       sellAsset,
@@ -43,19 +46,22 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
-      buyAmount: '1000000000000000000',
-      sellAmount: '500000000000000000',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
       fiatSellAmount: '1.00',
+      fiatBuyAmount: '1.00',
     })
   })
 
-  it('returns sellAmount, buyAmount, fiatSellAmount for FIAT action', async () => {
-    const action = TradeAmountInputField.FIAT
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
+    const action = TradeAmountInputField.SELL_FIAT
 
-    const result = await calculateAmounts({
+    const result = calculateAmounts({
       amount,
       buyAsset,
       sellAsset,
@@ -63,12 +69,38 @@ describe('calculateAmounts', () => {
       sellAssetUsdRate,
       action,
       selectedCurrencyToUsdRate,
+      buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
     })
 
     expect(result).toEqual({
-      buyAmount: '1000000000000000000',
-      sellAmount: '500000000000000000',
-      fiatSellAmount: '1',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
+      fiatSellAmount: '1.00',
+      fiatBuyAmount: '1.00',
+    })
+  })
+
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
+    const action = TradeAmountInputField.BUY_FIAT
+
+    const result = calculateAmounts({
+      amount,
+      buyAsset,
+      sellAsset,
+      buyAssetUsdRate,
+      sellAssetUsdRate,
+      action,
+      selectedCurrencyToUsdRate,
+      buyAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+      sellAssetTradeFeeUsd: bn(0), // A temporary shim so we don't propagate new tradeFee logic to V1 Swapper
+    })
+
+    expect(result).toEqual({
+      buyAmountBuyAssetBaseUnit: '1000000000000000000',
+      sellAmountSellAssetBaseUnit: '500000000000000000',
+      fiatSellAmount: '1.00',
+      fiatBuyAmount: '1.00',
     })
   })
 })

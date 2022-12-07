@@ -1,17 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 
-export const calculateAmounts = async ({
-  amount,
-  buyAsset,
-  sellAsset,
-  buyAssetUsdRate,
-  sellAssetUsdRate,
-  action,
-  selectedCurrencyToUsdRate,
-}: {
+export type CalculateAmountsArgs = {
   amount: string
   buyAsset: Asset
   sellAsset: Asset
@@ -19,40 +13,68 @@ export const calculateAmounts = async ({
   sellAssetUsdRate: string
   action: TradeAmountInputField
   selectedCurrencyToUsdRate: BigNumber
-}) => {
-  const assetPriceRatio = bnOrZero(buyAssetUsdRate).dividedBy(sellAssetUsdRate)
+  buyAssetTradeFeeUsd: BigNumber
+  sellAssetTradeFeeUsd: BigNumber
+}
 
+type CalculateAmountsReturn = {
+  sellAmountSellAssetBaseUnit: string
+  buyAmountBuyAssetBaseUnit: string
+  fiatSellAmount: string
+  fiatBuyAmount: string
+}
+
+export const calculateAmounts = (args: CalculateAmountsArgs): CalculateAmountsReturn => {
+  const {
+    buyAmountBeforeFeesFiat,
+    sellAmountBeforeFeesFiat,
+    sellAmountPlusFeesFiat,
+    buyAmountAfterFeesFiat,
+    buyAmountAfterFeesBaseUnit,
+    sellAmountBeforeFeesBaseUnit,
+    sellAmountPlusFeesBaseUnit,
+    buyAmountBeforeFeesBaseUnit,
+  } = getTradeAmountConstants(args)
+  const { action, amount, sellAsset, buyAsset } = args
   switch (action) {
-    case TradeAmountInputField.SELL:
+    case TradeAmountInputField.SELL_CRYPTO: {
       return {
-        sellAmount: toBaseUnit(amount, sellAsset.precision),
-        buyAmount: toBaseUnit(bnOrZero(amount).dividedBy(assetPriceRatio), buyAsset.precision),
-        fiatSellAmount: bnOrZero(amount)
-          .times(selectedCurrencyToUsdRate)
-          .times(bnOrZero(sellAssetUsdRate))
-          .toFixed(2),
+        sellAmountSellAssetBaseUnit: toBaseUnit(amount, sellAsset.precision),
+        buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
+        fiatSellAmount: sellAmountBeforeFeesFiat,
+        fiatBuyAmount: buyAmountAfterFeesFiat,
       }
-    case TradeAmountInputField.BUY:
+    }
+    case TradeAmountInputField.SELL_FIAT: {
       return {
-        sellAmount: toBaseUnit(assetPriceRatio.times(amount), sellAsset.precision),
-        buyAmount: toBaseUnit(amount, buyAsset.precision),
-        fiatSellAmount: bnOrZero(amount)
-          .times(selectedCurrencyToUsdRate)
-          .times(bnOrZero(buyAssetUsdRate))
-          .toFixed(2),
+        sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
+        buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
+        fiatSellAmount: bnOrZero(amount).toFixed(2),
+        fiatBuyAmount: buyAmountAfterFeesFiat,
       }
-    case TradeAmountInputField.FIAT:
-      const usdAmount = bnOrZero(amount).dividedBy(selectedCurrencyToUsdRate)
+    }
+    case TradeAmountInputField.BUY_CRYPTO: {
       return {
-        sellAmount: toBaseUnit(usdAmount.dividedBy(sellAssetUsdRate), sellAsset.precision),
-        buyAmount: toBaseUnit(usdAmount.dividedBy(buyAssetUsdRate), buyAsset.precision),
-        fiatSellAmount: amount,
+        sellAmountSellAssetBaseUnit: sellAmountPlusFeesBaseUnit,
+        buyAmountBuyAssetBaseUnit: toBaseUnit(amount, buyAsset.precision),
+        fiatSellAmount: sellAmountPlusFeesFiat,
+        fiatBuyAmount: buyAmountBeforeFeesFiat,
       }
+    }
+    case TradeAmountInputField.BUY_FIAT: {
+      return {
+        sellAmountSellAssetBaseUnit: sellAmountPlusFeesBaseUnit,
+        buyAmountBuyAssetBaseUnit: buyAmountBeforeFeesBaseUnit,
+        fiatSellAmount: sellAmountPlusFeesFiat,
+        fiatBuyAmount: bnOrZero(amount).toFixed(2),
+      }
+    }
     default:
       return {
-        sellAmount: '0',
-        buyAmount: '0',
+        sellAmountSellAssetBaseUnit: '0',
+        buyAmountBuyAssetBaseUnit: '0',
         fiatSellAmount: '0',
+        fiatBuyAmount: '0',
       }
   }
 }

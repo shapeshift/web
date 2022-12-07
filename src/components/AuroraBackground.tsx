@@ -1,4 +1,5 @@
-import { CSSProperties, useEffect, useRef } from 'react'
+import type { CSSProperties } from 'react'
+import { useEffect, useRef } from 'react'
 import SimplexNoise from 'simplex-noise'
 
 const rayCount = 300
@@ -36,7 +37,7 @@ const canvasStyle: CSSProperties = {
   zIndex: 1,
 }
 
-export const AuroraBackground: React.FC<{}> = props => {
+export const AuroraBackground: React.FC = props => {
   const canvasRefB = useRef(null)
 
   useEffect(() => {

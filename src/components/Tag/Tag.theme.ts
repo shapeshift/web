@@ -5,14 +5,7 @@ export const TagStyle = {
   // Styles for the base style
   baseStyle: {},
   // Styles for the size variations
-  sizes: {
-    sm: {
-      container: {
-        p: 2,
-        minH: '2.25rem',
-      },
-    },
-  },
+  sizes: {},
   // Styles for the visual style variations
   variants: {
     'xs-subtle': (props: Record<string, any>) => {

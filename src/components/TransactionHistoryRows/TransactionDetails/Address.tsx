@@ -26,8 +26,8 @@ export const Address = ({
       _hover={{ bg: 'transparent' }}
       fontSize='inherit'
     >
-      <MiddleEllipsis address={ens || address} />
+      <MiddleEllipsis value={ens || address} />
     </Button>
   ) : (
-    <MiddleEllipsis address={ens || address} />
+    <MiddleEllipsis value={ens || address} />
   )

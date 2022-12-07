@@ -4,7 +4,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
+import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
 type EarnStatProps = {
   label: string
@@ -30,14 +30,14 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  walletBalance,
+  netWorth,
 }: {
   earnBalance: UseEarnBalancesReturn
-  walletBalance: string
+  netWorth: string
 }) => {
   if (earnBalance.loading) return null
 
-  const walletBalanceWithoutEarn = bn(walletBalance)
+  const walletBalanceWithoutEarn = bn(netWorth)
     .minus(bn(earnBalance.totalEarningBalance))
     .toString()
 
@@ -50,7 +50,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={walletBalance} />
+              <Amount.Fiat value={netWorth} />
             </StatNumber>
           </Stat>
         </StatGroup>

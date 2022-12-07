@@ -1,10 +1,13 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
-import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
+import { foxyApi } from './apis/foxy/foxyApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
+import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -17,7 +20,7 @@ export const slices = {
   validatorData,
   portfolio,
   preferences,
-  accountSpecifiers,
+  opportunities,
 }
 
 const preferencesPersistConfig = {
@@ -32,8 +35,9 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  accountSpecifiers: accountSpecifiers.reducer,
   validatorData: validatorData.reducer,
+  swapperApi: swapperApi.reducer,
+  opportunities: opportunities.reducer,
 }
 
 export const apiSlices = {
@@ -42,6 +46,10 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
+  swapperApi,
+  foxyApi,
+  fiatRampApi,
+  opportunitiesApi,
 }
 
 export const apiReducers = {
@@ -50,6 +58,10 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
+  [swapperApi.reducerPath]: swapperApi.reducer,
+  [foxyApi.reducerPath]: foxyApi.reducer,
+  [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

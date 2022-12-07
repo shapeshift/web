@@ -1,10 +1,11 @@
-import { Box, Flex, Skeleton } from '@chakra-ui/react'
-import { Button, Text as CText } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
+import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetById } from 'state/slices/selectors'
@@ -27,15 +28,28 @@ export const MainOpportunity = ({
   onClick,
   isLoaded,
 }: MainOpportunityProps) => {
-  const translate = useTranslate()
-
+  const {
+    state: { wallet, isDemoWallet },
+  } = useWallet()
+  const greenColor = useColorModeValue('green.600', 'green.400')
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const { opportunities: foxyOpportunities, loading: isFoxyBalancesLoading } = useFoxyBalances()
-  const hasActiveStaking = bnOrZero(foxyOpportunities?.[0]?.balance).gt(0)
+  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
+  const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
+
+  const opportunityButtonTranslation = useMemo(() => {
+    if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
+    if (hasActiveStaking) return 'plugins.foxPage.manage'
+    return 'plugins.foxPage.getStarted'
+  }, [isDemoWallet, wallet, hasActiveStaking])
+
+  const isOpportunityButtonReady = useMemo(
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || !isFoxyBalancesLoading),
+    [wallet, isDemoWallet, isFoxyBalancesLoading],
+  )
 
   return (
-    <Card display='block' width='full'>
+    <Card display='block' width='auto'>
       <Card.Header>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />
@@ -53,35 +67,51 @@ export const MainOpportunity = ({
         <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
       </Card.Header>
       <Card.Body>
-        <Flex justifyContent='space-between' flexDirection={{ base: 'column', md: 'row' }}>
-          <Box>
+        <Flex
+          width='full'
+          justifyContent='space-between'
+          gap={4}
+          flexDirection={{ base: 'column', md: 'row' }}
+        >
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
-              <Box color='green.400' fontSize={'xl'}>
+              <Box color={greenColor} fontSize={'xl'}>
                 <Amount.Percent value={apy} />
               </Box>
             </Skeleton>
-          </Box>
-          <Box>
+          </Flex>
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat color='inherit' fontSize={'xl'} fontWeight='semibold' value={tvl} />
             </Skeleton>
-          </Box>
-          <Box>
+          </Flex>
+          <Flex
+            flexDirection={{ base: 'row', md: 'column' }}
+            width='full'
+            justifyContent='space-between'
+            alignItems={{ base: 'center', md: 'flex-start' }}
+          >
             <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />
             <CText color='inherit' fontSize={'xl'}>
               {balance}
             </CText>
-          </Box>
-          <Skeleton isLoaded={!isFoxyBalancesLoading} alignSelf='center'>
-            <Box>
-              <Button onClick={onClick} colorScheme={'blue'}>
-                <CText>
-                  {translate(
-                    hasActiveStaking ? 'plugins.foxPage.manage' : 'plugins.foxPage.getStarted',
-                  )}
-                </CText>
+          </Flex>
+          <Skeleton width='full' isLoaded={isOpportunityButtonReady} alignSelf='center'>
+            <Box width='full'>
+              <Button width='full' onClick={onClick} colorScheme={'blue'}>
+                <Text translation={opportunityButtonTranslation} />
               </Button>
             </Box>
           </Skeleton>

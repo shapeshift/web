@@ -15,12 +15,15 @@
     "noResultsFound": "Nenhum resultado encontrado.",
     "insufficientFunds": "Saldo insuficiente",
     "estimatedGas": "Taxa de gás estimada",
+    "relayerGasFee": "Taxa de gás",
     "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
+    "invalidAddressOrYat": "Endereço ou Yat inválido.",
     "deposit": "Depositar",
     "withdraw": "Sacar",
     "withdrawal": "Sacar",
     "claim": "Resgatar",
+    "withdrawAndClaim": "Sacar & Resgatar",
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
@@ -38,7 +41,12 @@
     "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
+    "accountError": "Erro no carregamento de contas para %{erroredAccountNames}.",
+    "degradedState": "Este aplicativo foi descontinuado.",
+    "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
+    "retry": "Tente novamente",
+    "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
     "submitFeedback": "Deixe um comentário",
@@ -52,6 +60,7 @@
     "copyFailedDescription": "Por favor, copie manualmente",
     "viewAsset": "Visualizar Ativo",
     "settings": "Configurações",
+    "joinDiscord": "Entrar no Discord",
     "legalDated": "Data: janeiro de 2022",
     "approveOnWallet": "Aprovar na Carteira",
     "confirmOnWallet": "Confirmar na Carteira",
@@ -62,7 +71,37 @@
     "generalError": "ocorreu um erro",
     "showDetails": "Mostrar Detalhes",
     "hideDetails": "Esconder Detalhes",
-    "walletSupportsETHOnly": "Somente Ethereum"
+    "walletSupportsETHOnly": "Somente Ethereum",
+    "loadingText": "Carregando...",
+    "txId": "Tx ID",
+    "selectAsset": "Selecione um ativo.",
+    "switchNetwork": "Mudar a rede",
+    "unsupportedNetwork": "Rede não suportada",
+    "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}.",
+    "search": "Procurar",
+    "enterAmount": "Insira a quantia",
+    "pageNotFound": "A página que você está procurando não pode ser encontrada"
+  },
+  "errorPage": {
+    "title": "Opa!",
+    "body": "Algo deu errado",
+    "cta": "Tente novamente"
+  },
+  "buyPage": {
+    "title": {
+      "first": "Compre Cripto",
+      "second": "Em instantes"
+    },
+    "body": "Use cartão de crédito, débito ou PIX. Compre Bitcoin, Ethereum, USDT, USDC ou outras centenas de criptomoedas. ",
+    "disclaimer": "*Você também pode vender suas criptos diretamente por dinheiro e cair na sua conta bancária.",
+    "cta": {
+      "title": {
+        "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
+        "second": "monitorar suas criptos em 8 redes diferentes."
+      }
+    },
+    "availableAssets": "Ativos disponíveis",
+    "topAssets": "Maiores Ativos"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -70,11 +109,20 @@
     "keepKey": {
       "title": "Atualização KeepKey disponível",
       "newUpdateAvailable": "Uma nova atualização da KeepKey está disponível.",
-      "downloadCta": "Baixar atualização"
+      "downloadCta": "Baixar atualização",
+      "updateRequiredForFeature": "Esta atualização é necessária para suportar %{feature}"
+    }
+  },
+  "multiCurrency": {
+    "toast": {
+      "title": "Erro ao carregar informações sobre %{symbol}",
+      "description": "Sua moeda foi redefinida para USD"
     }
   },
   "dashboard": {
     "portfolio": {
+      "rainbowChart": "🌈 Rainbow",
+      "totalChart": "💰 Total",
       "addAsset": "Adicionar Ativo",
       "yourAssets": "Meus Ativos",
       "asset": "Ativos",
@@ -84,6 +132,8 @@
       "value": "Valor",
       "priceChange": "Variação de Preço",
       "allocation": "Alocação",
+      "marketCap": "Capitalização de Mercado",
+      "sparkLine": "Brilho",
       "empty": {
         "title": "Cri.. Cri.. Eu ouvi um grilo?",
         "cta": "Envie cripto para seu endereço"
@@ -92,6 +142,10 @@
     },
     "recentTransactions": {
       "recentTransactions": "Transações Recentes"
+    },
+    "tradeCard": {
+      "trade": "Negocie",
+      "bridge": "Bridge"
     }
   },
   "fiatRamps": {
@@ -102,23 +156,36 @@
     "gem": "GEM",
     "junoPay": "JunoPay",
     "banxa": "Banxa",
+    "mtPelerin": "Mt Pelerin",
+    "onRamper": "OnRamper",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
+    "asset": "Ativo",
     "assetToBuy": "Ativo para comprar",
     "selectAnAssetToBuy": "Selecione um ativo para comprar",
+    "selectBody": "Escolha entre uma crescente lista de criptomoedas.",
     "assetToSell": "Ativo para vender",
     "selectAnAssetToSell": "Selecione um ativo para vender",
     "fundsTo": "Os fundos serão enviados para",
     "fundsFrom": "Os fundos serão enviados de",
     "headerLabel": "Comprar/Vender Criptomoedas",
-    "insufficientCryptoAmountToSell": "Quantidade mínima para venda $%{amount}"
+    "insufficientCryptoAmountToSell": "Quantidade mínima para venda $%{amount}",
+    "usOnly": "Apenas EUA",
+    "noKYC": "Sem KYC",
+    "nonUS": "não residente nos EUA",
+    "availableProviders": "Soluções disponíveis",
+    "noProvidersAvailable": "Nenhuma solução disponível",
+    "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo.",
+    "notSupported": "%{asset} não é suportado pela %{wallet}"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
+    "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Propriedade da Comunidade. Não custodial. Privada.",
+    "betaSunset": "Beta foi descontinuada, leia mais",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
     "viewADemo": "Ver uma demonstração"
@@ -156,13 +223,21 @@
         }
       },
       "getStarted": {
-        "header": "Deposite seu %{assetName} para ganhar %{apr}% APR*",
+        "header": "Deposite seu %{assetName} para ganhar",
         "body": "Staking é o processo de manter fundos em uma carteira de criptomoedas para apoiar as operações de uma rede blockchain e, em troca, os detentores são recompensados por sua contribuição.",
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {
           "startStaking": "Realizar Staking",
           "learnMore": "Saber mais"
         }
+      },
+      "cosmosOverview": {
+        "rewards": "As recompensas que você ganhar serão acumuladas automaticamente.",
+        "cta": "Iniciar Staking",
+        "learnMore": "Saiba Mais",
+        "withdrawals": "Retirar Staking",
+        "emptyWithdraws": "As solicitações de retirada pendentes serão exibidas aqui.",
+        "availableDate": "disponível em %{date}"
       },
       "foxyOverview": {
         "header": "Deposite FOX e obtenha FOXy",
@@ -173,6 +248,16 @@
         "withdrawals": "Saques",
         "emptyWithdraws": "Saques pendentes ou em processo de pagamento serão exibidos aqui.",
         "availableDate": "Disponível %{date}"
+      },
+      "foxFarmingOverview": {
+        "header": "Deposite tokens LP de ETH-FOX em %{opportunity} para ganhar",
+        "body": "Aprove e faça stake de seus tokens de liquidez para ganhar recompensas FOX.",
+        "rewards": "As recompensas que você ganhar serão acumuladas automaticamente.",
+        "cta": "Deposite tokens LP de ETH-FOX LP agora",
+        "foxFarmingBalance": "Saldo ETH-FOX em token LP",
+        "withdrawals": "Saques",
+        "emptyWithdraws": "As retiradas pendentes ou ativas serão exibidas aqui.",
+        "availableDate": "disponível %{date}"
       },
       "overview": {
         "underlyingTokens": "Tokens Subjacentes",
@@ -191,8 +276,13 @@
         "claimAmount": "Valor do resgate",
         "claimToAddress": "Enviar para Endereço",
         "confirmClaim": "Confirmar resgate de recompensas",
-        "claimNow": "Resgatar agora"
+        "claimNow": "Resgatar agora",
+        "claimYour": "Ganhar %{opportunity}"
       }
+    },
+    "memoNote": {
+      "title": "Por favor, não edite o memo da transação",
+      "body": "As transações vindas da ShapeShit ajudam a sustentar a DAO."
     },
     "amountToStake": "Montante para depósito",
     "amountToUnstake": "Valor a retirar",
@@ -228,8 +318,10 @@
     "asset": "Ativo",
     "category": "Categoria",
     "tvl": "TVL",
+    "type": "Tipo",
     "apy": "APY",
     "apr": "APR",
+    "ended": "Finalizado",
     "balance": "Equilíbrio",
     "defi": "DeFi",
     "defiBody": "Explore o crescente universo DeFi.",
@@ -279,7 +371,15 @@
         "info": {
           "title": "Informação do Saque",
           "description": "Insira a quantia do %{asset} que você deseja sacar.",
-          "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque."
+          "yieldyDescription": "Insira a quantia do %{asset} que você deseja sacar.\nOs próximos saques serão combinados e resetarão o tempo de saque.",
+          "farmingExpiredDescription": "As recompensas do contrato acabaram. Você deve sacar seu saldo total depositado. ",
+          "rewardsInfo": "Recompensas que você receberá"
+        }
+      },
+      "claim": {
+        "info": {
+          "title": "Informação para Resgate",
+          "description": "Saque os tokens farmados"
         }
       },
       "approve": {
@@ -287,6 +387,9 @@
       },
       "confirm": {
         "title": "Confirmar"
+      },
+      "status": {
+        "title": "Status"
       }
     }
   },
@@ -297,6 +400,7 @@
     "assetStakingBalance": "Saldo em Staking %{assetName}"
   },
   "navBar": {
+    "home": "Início",
     "dashboard": "Painel de Controle",
     "assets": "Ativos",
     "assetDetails": "Detalhes do recurso",
@@ -310,13 +414,18 @@
     "transactions": "Transações",
     "tradeHistory": "Histórico de Negociações",
     "foxToken": "Oportunidades FOX",
+    "dApps": "dApps",
     "featureFlags": "Recursos",
     "demoMode": "Modo de demonstração",
-    "clickToConnect": "Clique para conectar uma carteira"
+    "clickToConnect": "Clique para conectar uma carteira",
+    "wallet": "Carteira",
+    "explore": "Explorar",
+    "trade": "Negocie",
+    "buyCrypto": "Compre Cripto"
   },
   "transactionRow": {
-    "send": "Enviado %{symbol}",
-    "receive": "Recebido %{symbol}",
+    "send": "Enviado",
+    "receive": "Recebido",
     "moreDetails": "Mais Detalhes",
     "date": "Data",
     "txid": "ID da Transação",
@@ -336,12 +445,15 @@
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "revoke": "Revogar",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
       "yearn": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "revoke": "Revogar",
+        "infinite": "Infinito ∞",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
@@ -361,16 +473,60 @@
         "claimWithdraw": "Reivindicar Retirada"
       },
       "erc20": {
-        "approve": "Aprovar"
+        "approve": "Aprovar",
+        "revoke": "Revogar",
+        "infinite": "Infinito ∞"
+      },
+      "staking": {
+        "delegate": "Delegar",
+        "begin_unbonding": "Retirar delegação",
+        "begin_redelegate": "Redelegar",
+        "withdraw_delegator_reward": "Resgatar Recompensa"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "out": "Swap",
+        "refund": "Reembolso",
+        "outbound": "Retirada"
+      },
+      "ibc": {
+        "transfer": "Enviado",
+        "recv_packet": "Recebido"
+      },
+      "lp": {
+        "deposit": "Adicionar Liquidez"
       }
     },
     "unknown": "Transação"
   },
+  "bridge": {
+    "confirm": "Confirmar Bridge",
+    "selectChain": "Selecionar Blockchain",
+    "selectAsset": "Selecionar Ativo",
+    "startBridge": "Iniciar a Bridge",
+    "confirmBridge": "Confirmar",
+    "preview": "Prévia",
+    "transferring": "Transferindo",
+    "transferComplete": "Transferência efetivada com sucesso",
+    "bridgeAnother": "Importar outro ativo",
+    "feeExceedsSend": "A taxa excede o valor do envio",
+    "receiveAddress": "Endereço de recebimento",
+    "route": "Rota",
+    "waitTimeLabel": "Tempo de espera (Aproximadamente)",
+    "waitTimeValue": "~5-10 minutos",
+    "noSupportedAssets": "Nenhum ativo suportado no portfólio."
+  },
   "trade": {
+    "trade": "Negocie",
+    "allowance": "Quota",
+    "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
+    "noRateAvailable": "Nenhuma taxa disponível.",
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "minerFee": "Taxa de Mineração",
+    "protocolFee": "Taxa do Protocolo",
+    "protocol": "Protocolo",
     "tradeFeeSource": "%{tradeFeeSource} Taxa",
     "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
@@ -380,17 +536,37 @@
     "needPermission": "Precisamos de sua permissão para utilizar %{symbol}",
     "whyNeedThis": "Por que isso é necessário?",
     "estimatedGasFee": "Taxa Estimada da Rede",
+    "receiveInclFee": "Receba (incluindo taxas)",
     "approvingAsset": "Aprovando %{symbol}",
     "viewTransaction": "Ver transação",
+    "unlimited": "Ilimitado",
+    "exact": "Exato",
+    "expectedAmount": "Quantia esperada",
+    "beforeFees": "Antes das taxas ",
+    "minAmountAfterSlippage": "Quantia esperada após o slippage (%{slippage}%)",
+    "free": "De graça",
+    "slowSwapTitle": "%{protocol} negocie",
+    "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
+    "updatingQuote": "Atualizando dados...",
+    "intoRUNETitle": "Negociando com a RUNE",
+    "intoRUNEBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber RUNE está temporariamente indisponível",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
+      "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
       "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
+      "protocol": "Este é o protocolo onde sua negociação está sendo direcionada.",
+      "protocolFee": "Esta é a taxa cobrada pelo protocolo selecionado para processar esta transação, esta não é uma taxa cobrada pela ShapeShift",
       "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
+      "sellAssetStartSentence": "Vender Ativo",
+      "buyAssetStartSentence": "Comprar Ativo",
+      "sellAssetMiddleSentence": "vender ativo",
+      "buyAssetMiddleSentence": "comprar ativo",
       "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
-      "amountToSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
+      "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
+      "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
       "negativeMax": "Não há fundos suficientes para efetivr a taxa de mineração. Taxa de mineração %{estimatedMinerFee}",
       "invalidMax": "Montante inválido. O valor máximo de negociação para este par é %{maxLimit}.",
       "insufficientFunds": "Saldo insuficiente para efetivar as taxas da rede.",
@@ -421,15 +597,27 @@
       "unsupportedPair": "Este par de negociação não é suportado atualmente.",
       "unsupportedChain": "Esta rede não é suportada atualmente.",
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
+      "assetNotSupportedByWallet": "%{assetSymbol} incompatível com a carteira",
+      "noReceiveAddress": "Nenhum endereço recebido para %{assetSymbol}",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
       },
-      "generalError": "Ocorreu um erro durante a troca."
+      "generalError": "Ocorreu um erro durante a troca.",
+      "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
+    "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
+    "recentTrades": "Negociações recentes",
     "shapeshiftFee": "Taxa ShapeShift"
   },
   "modals": {
+    "popup": {
+      "body": "Abrimos uma janela segura para completar sua ordem. ",
+      "body2": "Não vê a janela segura?\nReabriremos a janela para você completar sua ordem. ",
+      "continue": "Clique para continuar",
+      "showWindow": "Exibir Janela",
+      "cancel": "Cancelar"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -463,11 +651,11 @@
         "infoSecond": "Nunca compartilhe sua frase de recuperação, ela concede acesso a todos os seus fundos.",
         "awaitingButtonPress": "Siga as etapas em sua KeepKey para visualizar sua frase de recuperação. Não se esqueça de anotá-la. "
       },
-      "wiped": {
-        "header": "KeepKey apagada com sucesso",
-        "body": "Você redefiniu com sucesso sua KeepKey para os padrões de fábrica. Agora você pode restaurar usando uma frase de recuperação existente ou criar uma nova carteira.",
-        "createButton": "Criar uma nova carteira",
-        "recoverButton": "Recuperar carteira"
+      "factoryState": {
+        "header": "Comece agora com a Keepkey.",
+        "body": "Sua KeepKey foi resetada nos padrões de fábrica. Cria uma nova carteira ou restaure sua wallet usando suas palavras-chave.",
+        "createButton": "Criar uma nova carteira.",
+        "recoverButton": "Recuperar carteira."
       },
       "recoverySentenceEntry": {
         "header": "Digite sua frase de recuperação",
@@ -484,12 +672,18 @@
         "header": "Frase de recuperação inválida",
         "body": "A Frase de Recuperação que você inseriu é inválida.",
         "button": "Tente novamente"
+      },
+      "downloadUpdater": {
+        "header": "Baixar o app para atualizações da KeepKey.",
+        "button": "Baixar %{filename}",
+        "wrongPlatform": "Não está utilizando %{platform}? Clique aqui."
       }
     },
     "shapeShift": {
       "password": {
         "header": "Insira sua Senha",
         "walletName": "Nome da carteira (opcional)",
+        "walletNameRequired": "Nome da Wallet (necessário)",
         "body": "Insira sua senha para descriptografar sua carteira",
         "placeholder": "Sua Senha",
         "show": "Exibir senha",
@@ -497,6 +691,7 @@
         "error": {
           "invalid": "Senha Inválida",
           "required": "É necessário inserir sua senha",
+          "walletNameRequired": "Nome da Wallet é necessária.",
           "length": "Sua senha deve conter ao menos %{length} caracteres",
           "maxLength": "Apelido deve conter no máximo %{length} caracteres"
         }
@@ -514,13 +709,20 @@
           "length": "Sua senha deve ter pelo menos %{length} caracteres",
           "maxLength": "O apelido deve ter no máximo %{length} caracteres"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "Baixo",
-        "medium": "Médio",
-        "high": "Alto"
+      },
+      "backupPassphrase": {
+        "menuItem": "Fazer backup da minha carteira",
+        "enterPassword": "Entre com sua senha para continuar.",
+        "testTitle": "Verificar Sua Frase de Recuperação Secreta. ",
+        "info": {
+          "title": "Sua Frase de Recuperação Secreta",
+          "description": "Anote essas 12 palavras e armazene-as offline com segurança. Esta frase de 12 palavras é usada para recuperar as chaves privadas da sua carteira.",
+          "warning": "Lembre-se: se você perder sua frase secreta de recuperação, a ShapeShift não poderá ajudá-lo a recuperar sua carteira e seus fundos serão perdidos para sempre."
+        },
+        "success": {
+          "title": "Sucesso",
+          "description": "Você fez backup de sua carteira. Lembre-se de armazenar sua Frase de Recuperação Secreta em algum lugar seguro."
+        }
       }
     },
     "send": {
@@ -528,6 +730,7 @@
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
       "tokenAddress": "Endereço do token",
+      "addressInput": "Para o endereço, ENS ou Yat",
       "scanQrCode": "Digitalizar código QR",
       "permissionsButton": "Tente novamente",
       "sent": "enviado %{asset}",
@@ -542,6 +745,7 @@
         "sendAsset": "Enviar %{asset}",
         "send": "Enviar",
         "sendTo": "Enviar para",
+        "sendFrom": "Enviar de",
         "edit": "Editar",
         "total": "Total",
         "amount": "Valor",
@@ -592,9 +796,26 @@
         "failed": "Há um problema com seu depósito."
       }
     },
+    "claim": {
+      "claimFrom": "Resgate da %{opportunity}"
+    },
+    "stake": {
+      "amountToStake": "Montante",
+      "stakeYour": "Staking em %{opportunity}",
+      "estimatedReturns": "Ganhos anuais estimados*",
+      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
+      "footerDisclaimer": "Ao continuar você concorda com nossos",
+      "footerDisclaimerLink": "termos de serviço.",
+      "status": {
+        "pending": "Sua transação foi transmitida e está pendente de confirmação.",
+        "success": "Staking %{opportunity} realizado com sucesso.",
+        "failed": "Ocorreu um problema com sua transação de staking."
+      }
+    },
     "withdraw": {
       "amountToWithdraw": "Valor da Retirada",
       "withdrawFrom": "Saque de %{opportunity}",
+      "unstakeYour": "Retirar %{opportunity}",
       "footerDisclaimer": "Esta transação exigirá uma taxa.",
       "slippageSettings": "Configurações de Slippage",
       "withdrawType": "Tipo de saque",
@@ -604,6 +825,7 @@
       "noFee": "Sem taxa de %{symbol}",
       "requestWithdraw": "Solicitar Retirada",
       "withdrawFee": "Haverá taxa de gás separada para retirar.",
+      "notEnoughGas": "Insuficiente %{assetSymbol} para cobrir as taxas.",
       "disclaimer": "As solicitações subsequentes serão combinadas e redefinião o tempo de retirada.",
       "withdrawalFee": "Taxa de saque",
       "status": {
@@ -620,6 +842,7 @@
     },
     "approve": {
       "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
+      "routerName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
       "depositFee": "Haverá incidência de taxa ao depositar.",
@@ -639,7 +862,9 @@
       },
       "withdrawTo": "Retirar para",
       "amountToDeposit": "Quantia Para Depositar",
+      "amountToStake": "Quantidade para Stake",
       "amountToWithdraw": "Quantia Para Sacar.",
+      "amountToClaim": "Quantia para resgatar",
       "withdrawFrom": "Retirada de",
       "depositTo": "Depositar em",
       "averageApy": "Média APY",
@@ -647,6 +872,7 @@
       "withdrawFee": "Taxa de saque",
       "withdrawInstantTime": "Instantâneo",
       "withdrawDelayedTime": "7 a 14 dias",
+      "xDays": "%{unbondingDays} dias",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
       "estimatedGas": "Taxa Estimada da Rede",
       "notEnoughGas": "Insuficiente %{assetSymbol} para pagar o gas",
@@ -678,6 +904,9 @@
     "settings": {
       "settings": "Configurações",
       "currency": "Moeda",
+      "clearWalletAccountData": "Apagar dados de todas as carteiras & contas. ",
+      "deleteAccountsConfirm": "Tem certeza?\n\nIsso removerá todos os dados pessoais, incluindo carteiras, contas, saldos.\n\nVerifique se você fez backup de suas carteiras antes de continuar.",
+      "currencyFormat": "Formato da moeda",
       "language": "Idioma",
       "balanceThreshold": "Limite de saldo",
       "balanceThresholdTooltip": "Ocultar saldos abaixo deste valor",
@@ -703,6 +932,19 @@
         "ILS": "Shekel israelense",
         "IDR": "rupia indonésia"
       }
+    },
+    "mobileWelcome": {
+      "success": {
+        "header": "Sua carteira foi importada!",
+        "body": "Bem-vindo ao novo app da ShapeShift",
+        "primaryCta": "Continue"
+      },
+      "notice": {
+        "header": "O acesso via e-mail não é mais utilizado. Faça o backup de sua carteira agora!",
+        "body": "Se você perder o acesso de seu dispositivo, você precisará de sua frase de recuperação secreta para recuperar seus fundos.",
+        "primaryCta": "Pegue sua Frase de Recuperação Secreta.",
+        "secondaryCta": "Eu já sei minha fase de recuperação secreta."
+      }
     }
   },
   "walletProvider": {
@@ -712,6 +954,7 @@
     "keepKey": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
+        "updateAlert": "O firmware 6.1.0 ou posterior é necessário para usar a Keepkey. Atualize seu dispositivo.",
         "pinCancelled": "Entrada do PIN foi cancelada",
         "pinInvalid": "O PIN que você digitou não é válido",
         "pinMismatch": "Os PINs que você digitou não correspondem"
@@ -720,7 +963,8 @@
         "header": "Emparelhe sua KeepKey",
         "body": "Conecte sua KeepKey e clique em Emparelhar.",
         "button": "Emparelhar",
-        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo ."
+        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo .",
+        "downloadUpdaterApp": "Baixar o app para atualizações."
       },
       "pin": {
         "header": "Insira seu PIN",
@@ -738,7 +982,6 @@
         "button": "Salvar PIN"
       },
       "settings": {
-        "loadingText": "Carregando...",
         "menuLabels": {
           "bootloader": "Bootloader",
           "firmware": "Firmware",
@@ -766,7 +1009,7 @@
           "pin": "O PIN é uma combinação de até 9 números que você seleciona após inicializar a KeepKey. Um PIN protege seu dispositivo contra uso não autorizado caso sua KeepKey caia em mãos erradas.",
           "passphrase": "Habilite a capacidade de ter várias carteiras acessíveis usando uma senha exclusiva para cada carteira.",
           "label": "Nomear seu dispositivo permite distinguir facilmente um do outro.",
-          "timeout": "Seu dispositivo vai hibernar após 10 minutos de atividade por padrão. No entanto, você pode alterar isso.",
+          "timeout": "Seu dispositivo entra no modo de espera após 10 minutos de inatividade por padrão. No entanto, você pode mudar isso.",
           "buttonPrompt": "Pressione e segure o botão em sua KeepKey para alterar o dispositivo %{setting}.",
           "updateSuccess": "%{setting} atualizado com sucesso!",
           "updateFailed": "Ocorreu um erro durante a atualização do dispositivo %{setting}.",
@@ -1036,7 +1279,7 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie um"
+      "create": "Crie uma"
     }
   },
   "graph": {
@@ -1066,7 +1309,8 @@
         "assetUnavailable": "Os dados de mercado para este ativo ainda não estão disponíveis. Estamos trabalhando nisso, aguente firme!",
         "loading": "Buscando histórico de preços, aguarde...",
         "maxTotalSupply": "Fornecimento total máximo",
-        "availableSupply": "Fornecimento disponível"
+        "availableSupply": "Fornecimento disponível",
+        "marketData": "Dados de mercado"
       },
       "assetDescription": {
         "showMore": "Mostrar mais",
@@ -1110,7 +1354,18 @@
     }
   },
   "accounts": {
-    "accounts": "Contas"
+    "accounts": "Contas",
+    "selectAccount": "Selecione uma conta",
+    "addAccount": "Adicionar uma conta",
+    "accountNumber": "Conta #%{accountNumber}",
+    "accountChain": "Conta na Rede",
+    "selectChain": "Selecione a rede em que você deseja criar uma conta.",
+    "requiresPriorTxHistory": "Você só pode adicionar uma nova conta se as contas existentes tiverem histórico de transações anteriores.",
+    "newAccountAdded": "Nova conta %{name} adicionada",
+    "youCanNowUse": "Agora você pode usar %{name} Conta #%{accountNumber}",
+    "showAssets": "Mostrar ativos",
+    "hideAssets": "Esconder ativos",
+    "viewAccount": "Veja a conta"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1149,9 +1404,10 @@
       "outputAddress": "Endereço de saída"
     },
     "transactionTypes": {
-      "send": "Mandar",
-      "receive": "Receber",
-      "trade": "Troca"
+      "Send": "Enviar",
+      "Receive": "Recebido",
+      "Trade": "Negociar",
+      "Refund": "Reembolso"
     },
     "assets": "Bens",
     "txid": "ID TX",
@@ -1164,6 +1420,7 @@
     "status": "Status",
     "transactionType": "Tipo de transação",
     "minerFee": "Taxa de Minerador",
+    "approvalAmount": "Quantidade aprovada",
     "unknownType": "Transação",
     "from": "A partir de",
     "to": "Para",
@@ -1205,7 +1462,12 @@
       "seeAllProposals": "Ver todas as propostas",
       "availableToTradeOn": "Disponível para negociação",
       "dex": "DEX",
-      "centralized": "Centralizada"
+      "centralized": "Centralizada",
+      "dappBack": {
+        "title": "✨ Receba recompensa em FOX e muito mais! ✨",
+        "body": "Ganhe recompensas em FOX completando tarefas no DappBack.",
+        "cta": "Abrir o DappBack."
+      }
     },
     "analytics": {
       "optInModal": {
@@ -1218,6 +1480,80 @@
         "neverCollectIp": "Nunca coletar seu endereço IP completo",
         "neverSellData": "Nunca vender dados com fins lucrativos"
       }
+    },
+    "walletConnectToDapps": {
+      "modal": {
+        "title": "WalletConnect",
+        "ethereum": "Ethereum",
+        "signMessage": {
+          "signingFrom": "Assinatura de",
+          "requestFrom": "Requisitado por",
+          "message": "Mensagem",
+          "description": "Você precisa confirmar a assinatura da mensagem com a sua wallet conectada.",
+          "confirm": "Confirmar",
+          "reject": "Rejeitar"
+        },
+        "signTransaction": {
+          "advancedParameters": {
+            "title": "Parâmetros Avançados",
+            "alert": "Somente para usuários avançados.\nModificar estas configurações pode resultar em transações não executadas.",
+            "nonce": {
+              "title": "Nonce",
+              "placeholder": "Nonce...",
+              "tooltip": "Nonce explicado aqui"
+            },
+            "gasLimit": {
+              "title": "Limite de Gas",
+              "placeholder": "Limite de Gas...",
+              "tooltip": "Explicação sobre o limite do gas aqui"
+            }
+          }
+        }
+      },
+      "registry": {
+        "availableDapps": "dApps disponíveis.",
+        "getStarted": "Começando",
+        "learnMore": "Aprenda mais",
+        "banner": {
+          "title": "Conecte-se em mais de 300 dApps",
+          "subtitle": "Conecte sua carteira a um dApp via WalletConnect e realize transações"
+        },
+        "emptyStateDescription": "Tente ajustar a sua pesquisa e tente novamente.",
+        "pageInput": {
+          "label": "%{current} de %{total}",
+          "nextPage": "Próxima página",
+          "prevPage": "Página anterior"
+        }
+      }
     }
+  },
+  "features": {
+    "yat": {
+      "banner": {
+        "title": "Pegue um Yat",
+        "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
+      }
+    }
+  },
+  "gasInput": {
+    "duration": {
+      "slow": "~ 10 minutos",
+      "average": "~ 3 minutos",
+      "fast": "~ 3 segundos"
+    },
+    "estGasCost": "Custo Estimado do Gas",
+    "gasPrice": {
+      "label": "Preço do Gas",
+      "tooltip": "TODO: Preço do Gas Tooltip"
+    },
+    "base": {
+      "label": "Taxa base",
+      "tooltip": "A taxa base é definida pela rede e muda a cada 13-14 segundos dependendo da demanda. Coloque o preço máximo (sem incluir a taxa de prioridade) em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "priority": {
+      "label": "Taxa de Prioridade",
+      "tooltip": "A taxa de prioridade é uma gorjeta opcional para incentivar os produtores de blocos a priorizar sua transação. Determine a taxa de prioridade em gwei que você está disposto/a a pagar por cada unidade de gas. "
+    },
+    "custom": "Customizar"
   }
 }

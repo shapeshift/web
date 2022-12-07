@@ -1,34 +1,33 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
-import { Redirect, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
+import { SelectAccount } from 'components/Trade/SelectAccount'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapper'
-import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
+import { AssetClickAction, useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
 import { TradeRoutePaths } from '../types'
 
-export const entries = ['/send/details', '/send/confirm']
-
-type TradeRoutesProps = {
-  defaultBuyAssetId?: AssetId
-}
-
-export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
-  const location = useLocation()
-  const { handleBuyClick, handleSellClick } = useTradeRoutes(defaultBuyAssetId)
+export const TradeRoutes = () => {
   const { getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
+  const location = useLocation()
+  const { handleAssetClick } = useTradeRoutes()
+
+  const handleAssetClickWithAction = (action: AssetClickAction) => (asset: Asset) =>
+    handleAssetClick(asset, action)
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Switch location={location} key={location.key}>
+      <Switch location={location}>
         <Route
           path={TradeRoutePaths.SellSelect}
           render={(props: RouteComponentProps) => (
             <SelectAsset
-              onClick={handleSellClick}
+              onClick={handleAssetClickWithAction(AssetClickAction.Sell)}
               filterBy={getSupportedSellableAssets}
               {...props}
             />
@@ -38,15 +37,24 @@ export const TradeRoutes = ({ defaultBuyAssetId }: TradeRoutesProps) => {
           path={TradeRoutePaths.BuySelect}
           render={(props: RouteComponentProps) => (
             <SelectAsset
-              onClick={handleBuyClick}
+              onClick={handleAssetClickWithAction(AssetClickAction.Buy)}
               filterBy={getSupportedBuyAssetsFromSellAsset}
               {...props}
             />
           )}
         />
-        <Route path={TradeRoutePaths.Input} component={TradeInput} />
-        <Route path={TradeRoutePaths.Confirm} component={TradeConfirm} />
-        <Route path={TradeRoutePaths.Approval} component={Approval} />
+        <Route path={TradeRoutePaths.Input}>
+          <TradeInput />
+        </Route>
+        <Route path={TradeRoutePaths.Confirm}>
+          <TradeConfirm />
+        </Route>
+        <Route path={TradeRoutePaths.Approval}>
+          <Approval />
+        </Route>
+        <Route path={TradeRoutePaths.AccountSelect}>
+          <SelectAccount />
+        </Route>
         <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>
     </AnimatePresence>

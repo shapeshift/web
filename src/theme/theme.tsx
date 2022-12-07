@@ -1,5 +1,6 @@
 import { type ThemeConfig, extendTheme } from '@chakra-ui/react'
-import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools'
+import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
+import { mode } from '@chakra-ui/theme-tools'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
@@ -16,6 +17,7 @@ import { ProgressStyle as Progress } from 'components/Progres/Progress.theme'
 import { RowStyle as Row } from 'components/Row/Row.theme'
 import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
 import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
+import { StackDividerStyle as StackDivider } from 'components/StackDivider/StackDivider.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
 import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
@@ -39,6 +41,7 @@ const styles = {
     body: {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
+      fontFeatureSettings: "'zero'",
     },
     html: {
       scrollBehavior: 'smooth',
@@ -85,6 +88,11 @@ const styles = {
     '.scroll-container > div,.scroll-container:hover,.scroll-container:focus': {
       visibility: 'visible',
     },
+    '.chakra-menu__group': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    },
   }),
 }
 
@@ -122,9 +130,16 @@ export const theme = extendTheme({
     Tooltip,
     Table,
     Tag,
+    StackDivider,
     Skeleton,
     Steps: CustomSteps,
     Popover,
+  },
+  sizes: {
+    container: {
+      '2xl': '1440px',
+      '3xl': '1600px',
+    },
   },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',

@@ -1,5 +1,5 @@
 import { Button, Skeleton, Stack, Text as CText, VStack } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { Amount } from 'components/Amount/Amount'
@@ -23,7 +23,7 @@ export const CosmosEmpty = ({ assets, apy, onStakeClick, onLearnMoreClick }: Cos
             <Button width='full' colorScheme='blue' onClick={onStakeClick}>
               <Text translation={'defi.modals.cosmosOverview.cta'} />
             </Button>
-            <Button width='full' colorScheme='blue' onClick={onLearnMoreClick}>
+            <Button width='full' onClick={onLearnMoreClick}>
               <Text translation={'defi.modals.cosmosOverview.learnMore'} />
             </Button>
           </VStack>

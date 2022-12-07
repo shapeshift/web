@@ -6,7 +6,7 @@
 
 <!-- Before submitting a pull request, please make sure you have answered the following: -->
 
-- [ ] Have you followed the guidelines in our [Contributing]('https://github.com/shapeshift/web/CONTRIBUTING.md) guide?
+- [ ] Have you followed the guidelines in our [Contributing]('https://github.com/shapeshift/web/blob/develop/CONTRIBUTING.md) guide?
 - [ ] Have you checked to ensure there aren't other open [Pull Requests](https://github.com/shapeshift/web/pulls) for the same update/change?
 
 ## Pull Request Type
@@ -21,6 +21,8 @@
 If applicable, please link to the github issue and put `closes #XXXX` in your comment to auto-close the issue that your PR fixes.
 ------------------------------------------------------------------------------>
 
+closes #
+
 ## Risk
 
 <!-----------------------------------------------------------------------------
@@ -32,9 +34,23 @@ E.g. an upgrade to `hdwallet` or core state management would be considered highe
 ## Testing
 
 <!-----------------------------------------------------------------------------
-If your testing steps are technical, outline steps for an engineer to verify.
+We treat every PR to be merged with the same scrutiny as if we were merging directly to production.
 
-If your testing steps are functional, please provide a full guide with any features requiring special attention for operations to test your branch in the preview environment.
+Your PR will not be merged if you do not complete the sections below for our engineering and operations teams to test.
+------------------------------------------------------------------------------>
+
+### Engineering
+
+<!-----------------------------------------------------------------------------
+Include sufficient information here for an engineer to test your PR. This may include how to test locally, in a built environment, changes to infrastructure etc.
+------------------------------------------------------------------------------>
+
+### Operations
+
+<!-----------------------------------------------------------------------------
+If your changes have a user-facing impact, describe how a non-technical QA team can functionally test your changes in a preview environment.
+
+If they are not user-facing please describe how to test for any regressions that may occur.
 ------------------------------------------------------------------------------>
 
 ## Screenshots (if applicable)

@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import ResizeObserver from 'resize-observer-polyfill'
 
 type ResizeObserverReturn = {

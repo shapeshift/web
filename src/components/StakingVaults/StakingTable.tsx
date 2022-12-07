@@ -1,7 +1,8 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
-import { Column, Row } from 'react-table'
+import { useTranslate } from 'react-polyglot'
+import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
@@ -18,48 +19,64 @@ type StakingTableProps = {
 type RowProps = Row<EarnOpportunityType>
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
+  const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
       {
         Header: '#',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         ),
       },
       {
-        Header: 'Asset',
+        Header: translate('defi.asset'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
-              assetId={row.original.assetId}
-              subText={row.original.provider}
+              assetId={row.original.underlyingAssetId ?? row.original.assetId}
+              subText={row.original.version}
+              icons={row.original.icons}
+              opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
-              postFix={row.original.version && `(${row.original.version})`}
             />
           </Skeleton>
         ),
         disableSortBy: true,
       },
       {
-        Header: 'Type',
-        accessor: 'type',
+        Header: translate('defi.provider'),
+        accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize'>{value?.replace('_', ' ')}</Tag>
+            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              {value}
+            </Tag>
           </Skeleton>
         ),
       },
       {
-        Header: 'APY',
+        Header: translate('defi.type'),
+        accessor: 'type',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              {value?.replace('_', ' ')}
+            </Tag>
+          </Skeleton>
+        ),
+      },
+      {
+        Header: translate('defi.apy'),
         accessor: 'apy',
         isNumeric: true,
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+            <Tag size={{ base: 'sm', md: 'md' }} colorScheme='green'>
               <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>
@@ -68,7 +85,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1,
       },
       {
-        Header: 'TVL',
+        Header: translate('defi.tvl'),
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
@@ -78,12 +95,15 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
       {
-        Header: 'Balance',
+        Header: translate('defi.balance'),
         accessor: 'fiatAmount',
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             {bnOrZero(value).gt(0) ? (
-              <Amount.Fiat value={value} color='green.500' />
+              <Amount.Fiat
+                value={value}
+                color={row.original.expired ? 'yellow.500' : 'green.500'}
+              />
             ) : (
               <RawText>-</RawText>
             )}
@@ -91,7 +111,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [showTeaser],
+    [showTeaser, translate],
   )
 
   const handleRowClick = useCallback(

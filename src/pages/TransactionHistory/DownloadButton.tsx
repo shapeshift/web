@@ -5,18 +5,16 @@ import fileDownload from 'js-file-download'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import {
-  getBuyTransfer,
-  getSellTransfer,
-  getStandardTx,
-  isSupportedContract,
-} from 'hooks/useTxDetails/useTxDetails'
+import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectAssets, selectMarketData, selectTxs } from 'state/slices/selectors'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
+
+const moduleLogger = logger.child({ namespace: ['DownloadButton'] })
 
 type ReportRow = {
   txid: TxId
@@ -46,7 +44,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
-  const assets = useAppSelector(selectAssetsByMarketCap)
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketData)
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),
@@ -65,55 +64,52 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
 
   const generateCSV = () => {
     setIsLoading(true)
-    let report: ReportRow[] = []
-    for (let index = 0; index < txIds.length; index++) {
-      const txId = txIds[index]
-      const transaction = allTxs[txId]
-      const standardTx = getStandardTx(transaction)
-      const TxType = isSupportedContract(transaction)
-        ? TransferType.Contract
-        : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
-      const buyTransfer = getBuyTransfer(transaction)
-      const sellTransfer = getSellTransfer(transaction)
-      const feeAsset = assets.find(asset => asset.assetId === transaction.fee?.assetId)
-      const input = standardTx ?? sellTransfer ?? null
-      const inputAssetId = input?.assetId ?? null
-      const output = standardTx ?? buyTransfer ?? null
-      const outputAssetId = output?.assetId ?? null
-      const inputAsset = inputAssetId ? assets.find(asset => asset.assetId === inputAssetId) : null
-      const outputAsset = outputAssetId
-        ? assets.find(asset => asset.assetId === outputAssetId)
-        : null
+
+    const report: ReportRow[] = []
+    for (const txId of txIds) {
+      const tx = allTxs[txId]
+      const transfers = getTransfers(tx.transfers, assets, marketData)
+      const type = getTxType(tx, transfers)
+
+      const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
+
+      const { send, receive } = (() => {
+        if (transfers.length === 1) return { send: transfers[0], receive: transfers[0] }
+        return {
+          send: transfers.find(transfer => transfer.type === TransferType.Send),
+          receive: transfers.find(transfer => transfer.type === TransferType.Receive),
+        }
+      })()
+
+      const typeLabel = (() => {
+        if (type === 'unknown') return 'transactionRow.unknown'
+        if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
+        return `transactionHistory.transactionTypes.${type}`
+      })()
+
       report.push({
-        txid: transaction.txid,
-        type: translate(
-          TxType
-            ? `transactionHistory.transactionTypes.${TxType}`
-            : transaction.data
-            ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
-            : 'transactionRow.unknown',
-        ),
-        status: translate(`transactionRow.${transaction.status}`),
-        timestamp: dayjs(transaction.blockTime * 1000).toISOString(),
+        txid: tx.txid,
+        type: translate(typeLabel),
+        status: translate(`transactionRow.${tx.status.toLowerCase()}`),
+        timestamp: dayjs(tx.blockTime * 1000).toISOString(),
         minerFee:
-          transaction.fee && feeAsset
-            ? bnOrZero(fromBaseUnit(transaction.fee.value, feeAsset.precision)).toString()
+          tx.fee && feeAsset
+            ? bnOrZero(fromBaseUnit(tx.fee.value, feeAsset.precision)).toString()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
-        inputAmount:
-          input && inputAsset
-            ? bnOrZero(fromBaseUnit(input.value, inputAsset.precision)).toString()
-            : '-',
-        inputCurrency: inputAsset?.symbol ?? '-',
-        inputAddress: input?.from ?? '-',
-        outputAmount:
-          output && outputAsset
-            ? bnOrZero(fromBaseUnit(output.value, outputAsset.precision)).toString()
-            : '-',
-        outputCurrency: outputAsset?.symbol ?? '-',
-        outputAddress: output?.to ?? '-',
+        inputAmount: send
+          ? bnOrZero(fromBaseUnit(send.value, send.asset?.precision ?? 18)).toString()
+          : '-',
+        inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
+        inputAddress: send?.from ?? '-',
+        outputAmount: receive
+          ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toString()
+          : '-',
+        outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
+        outputAddress: receive?.to ?? '-',
       })
     }
+
     try {
       const data = jsonToCsv(fields, report)
       const filename = `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
@@ -121,7 +117,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       )}.csv`
       fileDownload(data, filename)
     } catch (error) {
-      console.error(error)
+      moduleLogger.error(error, 'DownloadButton:generateCSV error')
     } finally {
       setIsLoading(false)
     }

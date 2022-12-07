@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { SupportedFiatCurrencies, SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
+import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import { SupportedFiatCurrenciesList } from '@shapeshiftoss/market-service'
 import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'

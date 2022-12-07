@@ -1,14 +1,17 @@
-import { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
-import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { XDEFIHDWallet } from '@shapeshiftoss/hdwallet-xdefi'
+import React, { useCallback, useEffect, useState } from 'react'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import { LocationState } from '../../NativeWallet/types'
+import type { LocationState } from '../../NativeWallet/types'
 import { XDEFIConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface XDEFISetupProps
   extends RouteComponentProps<
@@ -20,23 +23,22 @@ export interface XDEFISetupProps
 }
 
 export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  let provider: any
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  const pairDevice = async () => {
+  useEffect(() => {
+    ;(async () => {
+      await onProviderChange(KeyManager.XDefi)
+    })()
+  }, [onProviderChange])
+
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
-
-    try {
-      provider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
-    } catch (error) {
-      throw new Error('walletProvider.xdefi.errors.connectFailure')
-    }
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
@@ -52,21 +54,8 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
         const deviceId = await wallet.getDeviceID()
 
-        if (provider !== (globalThis as any).xfi.ethereum) {
+        if (state.provider !== (globalThis as any).xfi.ethereum) {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
-        }
-
-        // Hack to handle XDEFI account changes
-        //TODO: handle this properly
-        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        provider?.on?.('accountsChanged', resetState)
-        provider?.on?.('chainChanged', resetState)
-
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          provider?.removeListener?.('accountsChanged', resetState)
-          provider?.removeListener?.('chainChanged', resetState)
-          return oldDisconnect()
         }
 
         await wallet.initialize()
@@ -80,7 +69,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          console.error('XDEFI Connect: There was an error initializing the wallet', e)
+          moduleLogger.error(e, 'XDEFI Connect: There was an error initializing the wallet')
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.xdefi.errors.unknown')
@@ -94,14 +83,14 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [state.provider, state.adapters, dispatch, history])
 
   return (
     <ConnectModal
       headerText={'walletProvider.xdefi.connect.header'}
       bodyText={'walletProvider.xdefi.connect.body'}
       buttonText={'walletProvider.xdefi.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     />

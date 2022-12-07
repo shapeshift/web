@@ -1,3 +1,6 @@
+import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
+
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -6,8 +9,8 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
-import { TransactionRowProps } from './TransactionRow'
-import { AssetTypes, parseRelevantAssetFromTx } from './utils'
+import type { TransactionRowProps } from './TransactionRow'
+import { getTransfersByType } from './utils'
 
 export const TransactionReceive = ({
   txDetails,
@@ -17,20 +20,21 @@ export const TransactionReceive = ({
   isOpen,
   parentWidth,
 }: TransactionRowProps) => {
+  const transfersByType = useMemo(
+    () => getTransfersByType(txDetails.transfers, [TransferType.Receive]),
+    [txDetails.transfers],
+  )
+
   return (
     <>
       <TransactionGenericRow
         type={txDetails.type}
+        status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
-        symbol={txDetails.symbol}
-        assets={[parseRelevantAssetFromTx(txDetails, AssetTypes.Destination)]}
-        fee={
-          txDetails.tx?.fee &&
-          txDetails.feeAsset &&
-          parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)
-        }
+        transfersByType={transfersByType}
+        fee={txDetails.fee}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
@@ -45,9 +49,9 @@ export const TransactionReceive = ({
           </Row>
           <Row title='minerFee'>
             <Amount
-              value={txDetails.tx.fee?.value ?? '0'}
-              precision={txDetails.feeAsset?.precision ?? 0}
-              symbol={txDetails.feeAsset?.symbol ?? ''}
+              value={txDetails.fee?.value ?? '0'}
+              precision={txDetails.fee?.asset?.precision ?? 0}
+              symbol={txDetails.fee?.asset.symbol ?? ''}
             />
           </Row>
         </TxGrid>

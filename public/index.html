@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="referrer" content="no-referrer">
+    <!-- zendesk requires a referrer to be set for the widget to work
+         * no-referrer is used in the private environment without zendesk, the most secure option
+         * origin is the next most restrictive option after no-referrer, used in the app environment,
+           which exposes app.shapeshift.com as the referrer to the widget
+    -->
+    <meta name="referrer" content="%REACT_APP_REFERRER%">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="Content-Security-Policy" content="%REACT_APP_CSP_META%" />
     <!-- WalletConnect uses the first image found in the head metadata for their wallet connect SDKs (web, kotlin, swift) -->
@@ -12,9 +17,8 @@
     <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" integrity="%REACT_APP_SRI_FAVICON_SVG%" crossorigin="anonymous" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no,viewport-fit=cover" />
     <meta property="og:title" content="ShapeShift DAO">
+    <meta property="og:image" content="%PUBLIC_URL%/ss-thumb.jpg">
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="Your Web3 & DeFi Portal">
-    <meta property="og:image" content="https://cloudflare-ipfs.com/ipfs/%REACT_APP_CID_THUMBNAIL_JPG%">
     <meta property="og:image:width" content="1200"/>
     <meta property="og:image:height" content="630"/>
     <meta name="twitter:card" content="summary_large_image">

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
+import type { NativeSetupProps } from '../types'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
@@ -132,8 +132,8 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               revocable(
                 <Button
                   key={index}
-                  flex='1'
-                  minW='30%'
+                  flexGrow={4}
+                  flexBasis='auto'
                   variant='ghost-filled'
                   colorScheme={invalidTries.includes(index) ? 'gray' : 'blue'}
                   isDisabled={invalidTries.includes(index)}
@@ -168,6 +168,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
               width='full'
               size='md'
               isDisabled={!hasAlreadySaved}
+              data-test='wallet-native-login-skip'
               onClick={() => history.push('/native/password', { vault })}
             >
               <Text translation={'common.skip'} />

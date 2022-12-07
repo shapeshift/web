@@ -1,42 +1,27 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Circle,
-  Divider,
-  Flex,
-  FlexProps,
-  Spinner,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react'
-import { Trade } from '@shapeshiftoss/swapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { FlexProps } from '@chakra-ui/react'
+import { Box, Circle, Divider, Flex, Spinner, useColorModeValue } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { FC } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
-type AssetToAssetProps<C extends KnownChainIds> = {
-  tradeFiatAmount: string
+type AssetToAssetProps = {
   buyIcon: string
+  sellIcon: string
   status?: TxStatus
-  trade?: Trade<C>
+  buyColor?: string
+  sellColor?: string
 } & FlexProps
 
-export const AssetToAsset = ({
-  tradeFiatAmount,
+export const AssetToAsset: FC<AssetToAssetProps> = ({
   buyIcon,
-  trade,
-  boxSize = '24px',
+  sellIcon,
+  boxSize = '32px',
+  sellColor = '#2775CA',
+  buyColor = '#2775CA',
   status,
   ...rest
-}: AssetToAssetProps<KnownChainIds>) => {
-  const sellAssetColor = !status ? '#F7931A' : '#2775CA'
-  const buyAssetColor = '#2775CA'
-  const {
-    number: { toCrypto },
-  } = useLocaleFormatter()
+}) => {
   const gray = useColorModeValue('white', 'gray.750')
   const red = useColorModeValue('white', 'red.500')
   const green = useColorModeValue('white', 'green.500')
@@ -78,48 +63,24 @@ export const AssetToAsset = ({
     <Flex width='full' justifyContent='space-between' alignItems='stretch' {...rest}>
       <Box flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center'>
-          <AssetIcon src={trade?.sellAsset.icon} boxSize={boxSize} />
-          <Divider flex={1} bgColor={sellAssetColor} />
+          <AssetIcon src={sellIcon} boxSize={boxSize} />
+          <Divider borderBottomWidth={2} flex={1} bgColor={sellColor} borderColor={sellColor} />
         </Flex>
-        <Box mt={2}>
-          <Text fontWeight='medium'>
-            {toCrypto(
-              Number(fromBaseUnit(bnOrZero(trade?.sellAmount), trade?.sellAsset?.precision ?? 0)),
-              trade?.sellAsset.symbol,
-            )}
-          </Text>
-          <Text color='gray.500'>{tradeFiatAmount}</Text>
-        </Box>
       </Box>
       <Flex>
         <Circle
           size={boxSize}
           bg='blue.500'
-          p='1px'
-          background={`linear-gradient(to right, ${sellAssetColor}, ${buyAssetColor})`}
+          p='2px'
+          background={`linear-gradient(to right, ${sellColor}, ${buyColor})`}
         >
           {renderIcon()}
         </Circle>
       </Flex>
       <Flex flexDirection='column' flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center' flex={1} justify='flex-start'>
-          <Divider flex={1} bgColor={buyAssetColor} />
+          <Divider borderBottomWidth={2} flex={1} bgColor={buyColor} borderColor={buyColor} />
           <AssetIcon src={buyIcon} boxSize={boxSize} />
-        </Flex>
-        <Flex
-          flexDirection='column'
-          justifyContent='space-between'
-          textAlign='right'
-          height='100%'
-          mt={2}
-        >
-          <Text fontWeight='medium'>
-            {toCrypto(
-              Number(fromBaseUnit(bnOrZero(trade?.buyAmount), trade?.buyAsset?.precision ?? 0)),
-              trade?.buyAsset.symbol,
-            )}
-          </Text>
-          <Text color='gray.500'>{tradeFiatAmount}</Text>
         </Flex>
       </Flex>
     </Flex>

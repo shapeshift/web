@@ -6,13 +6,17 @@ import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
+import { logger } from 'lib/logger'
 import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
-import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { AppDispatch, clearState, useAppSelector } from 'state/store'
+import type { AppDispatch } from 'state/store'
+import { clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
+
+const moduleLogger = logger.child({ namespace: ['Flags'] })
 
 const FlagHeader = () => {
   return (
@@ -20,10 +24,12 @@ const FlagHeader = () => {
       <Heading>Flags</Heading>
       <RawText color='red.500' fontStyle='italic'>
         These features are <strong>experimental</strong> and in <strong>active development</strong>.
-        They may be incomplete and/or non-functional. Use at your own risk.
-      </RawText>
-      <RawText color='gray.500'>
-        Turn on and off flags by toggling the switch then press "Apply" to reset the application.
+        <br />
+        They may be incomplete and/or non-functional.
+        <br />
+        <strong>You may irreversibly lose funds - we cannot help you.</strong>
+        <br />
+        Use at your own risk!
       </RawText>
     </Stack>
   )
@@ -35,49 +41,57 @@ export const Flags = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const [error, setError] = useState<string | null>(null)
 
-  const handleApply = async () => {
+  const handleApply = () => {
     try {
       // Delete persisted state
       clearState()
       setError(null)
       history.push('/')
     } catch (e) {
-      console.error('handleReset: ', e)
+      moduleLogger.error(e, 'handleReset: ')
       setError(String((e as Error)?.message))
     }
   }
 
-  const handleResetPrefs = async () => {
+  const handleResetPreferences = () => {
     try {
       dispatch(slices.preferences.actions.clearFeatureFlags())
       setError(null)
     } catch (e) {
-      console.error('handleResetPrefs: ', e)
+      moduleLogger.error(e, 'handleResetPreferences: ')
       setError(String((e as Error)?.message))
     }
   }
 
   return (
     <Main titleComponent={<FlagHeader />}>
-      <Card>
-        <Card.Body>
-          <Stack divider={<StackDivider />}>
-            {Object.keys(featureFlags).map((flag, idx) => (
-              <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
-            ))}
-          </Stack>
-        </Card.Body>
-      </Card>
+      <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
+        <Card flex={1}>
+          <Card.Header>
+            <RawText color='gray.500'>
+              Turn on and off flags by toggling the switch then press "Apply" to reset the
+              application.
+            </RawText>
+          </Card.Header>
+          <Card.Body>
+            <Stack divider={<StackDivider />}>
+              {Object.keys(featureFlags).map((flag, idx) => (
+                <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
+              ))}
+            </Stack>
+          </Card.Body>
+          <Card.Footer>
+            <HStack my={4} width='full'>
+              <Button onClick={handleApply} colorScheme='blue'>
+                Apply
+              </Button>
+              <Button onClick={handleResetPreferences}>Reset Flags to Default</Button>
+            </HStack>
+          </Card.Footer>
+        </Card>
 
-      <HStack my={4} width='full'>
-        <Button onClick={handleApply} colorScheme='blue'>
-          Apply
-        </Button>
-        <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
-      </HStack>
-
-      <Debugging />
-
+        <Debugging />
+      </Stack>
       {error && (
         <Alert status='error'>
           <AlertIcon />

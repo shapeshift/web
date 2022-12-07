@@ -15,7 +15,7 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import type { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -26,8 +26,11 @@ import {
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
+
+const moduleLogger = logger.child({ namespace: ['NativeLoad'] })
 
 type VaultInfo = {
   id: string
@@ -61,7 +64,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
           setWallets(storedWallets)
         } catch (e) {
-          console.error('WalletProvider:NativeWallet:Load - Cannot get vault', e)
+          moduleLogger.error(e, 'WalletProvider:NativeWallet:Load - Cannot get vault')
           setWallets([])
         }
       }
@@ -116,10 +119,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     }
   }
 
-  const handleRename = async (wallet: VaultInfo) => {
-    const vault = wallet
-    history.push('/native/rename', { vault })
-  }
+  const handleRename = (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet })
 
   return (
     <>

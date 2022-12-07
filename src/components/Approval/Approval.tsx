@@ -1,30 +1,41 @@
-import { Button, Divider, Flex, Image, Link, SkeletonCircle, Text as CText } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { useEffect, useRef, useState } from 'react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Icon,
+  Image,
+  Link,
+  SkeletonCircle,
+  Switch,
+  Text as CText,
+  Tooltip,
+} from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { TradeRoutePaths, TradeState } from 'components/Trade/types'
+import type { TS } from 'components/Trade/types'
+import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectFiatToUsdRate } from 'state/slices/selectors'
+import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
-
-type ApprovalParams = {
-  fiatRate: string
-}
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
@@ -32,18 +43,18 @@ const moduleLogger = logger.child({ namespace: ['Approval'] })
 
 export const Approval = () => {
   const history = useHistory()
-  const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { fiatRate } = location.state
   const translate = useTranslate()
 
   const {
     getValues,
+    setValue,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useFormContext<TradeState<KnownChainIds.EthereumMainnet>>()
-  const { approveInfinite, checkApprovalNeeded, updateTrade } = useSwapper()
+    control,
+    formState: { isSubmitting },
+  } = useFormContext<TS<EvmChainId>>()
+  const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -53,11 +64,22 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
   const { quote, fees } = getValues()
+
+  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
+  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
+
   const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
+  )
 
-  const approve = async () => {
+  const approveContract = useCallback(async () => {
+    if (!quote) {
+      moduleLogger.error('No quote available')
+      return
+    }
     try {
       if (!isConnected) {
         /**
@@ -71,7 +93,7 @@ export const Approval = () => {
       const fnLogger = logger.child({ name: 'approve' })
       fnLogger.trace('Attempting Approval...')
 
-      const txId = await approveInfinite()
+      const txId = await approve()
 
       setApprovalTxId(txId)
 
@@ -87,27 +109,24 @@ export const Approval = () => {
         }
         approvalInterval.current && clearInterval(approvalInterval.current)
 
-        await updateTrade({
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: quote?.sellAmount,
-        })
-
-        history.push({ pathname: TradeRoutePaths.Confirm, state: { fiatRate } })
+        const trade = await getTrade()
+        setValue('trade', trade as TS<EvmChainId>['trade'])
+        history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
       showErrorToast(e)
     }
-  }
-
-  useEffect(() => {
-    // TODO: (ryankk) fix errors to reflect correct attribute
-    const error = errors?.quote?.rate ?? null
-    if (error) {
-      moduleLogger.debug({ fn: 'validation', errors }, 'Form Validation Failed')
-      history.push(TradeRoutePaths.Input)
-    }
-  }, [errors, history])
+  }, [
+    approve,
+    checkApprovalNeeded,
+    dispatch,
+    getTrade,
+    history,
+    isConnected,
+    quote,
+    setValue,
+    showErrorToast,
+  ])
 
   return (
     <SlideTransition>
@@ -124,7 +143,7 @@ export const Approval = () => {
             flexDirection='column'
             width='full'
             as='form'
-            onSubmit={handleSubmit(approve)}
+            onSubmit={handleSubmit(approveContract)}
           >
             <CountdownCircleTimer
               isPlaying={!!approvalTxId || isSubmitting}
@@ -152,7 +171,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${quote.sellAsset.explorerAddressLink}${quote.allowanceContract}`}
+                href={`${quote?.sellAsset.explorerAddressLink}${quote?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -177,22 +196,37 @@ export const Approval = () => {
                       color='blue.500'
                       href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
-                      <MiddleEllipsis address={approvalTxId} />
+                      <MiddleEllipsis value={approvalTxId} />
                     </Link>
                   </Row.Value>
                 </Row>
               )}
               <Row>
-                <Row.Label>
-                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                <Row.Label display='flex' alignItems='center'>
+                  <Text color='gray.500' translation='trade.allowance' />
+                  <Tooltip label={translate('trade.allowanceTooltip')}>
+                    <Box ml={1}>
+                      <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                    </Box>
+                  </Tooltip>
                 </Row.Label>
-                <Row.Value textAlign='right'>
-                  <RawText>
-                    {toFiat(
-                      bnOrZero(fee).times(fiatRate).times(selectedCurrencyToUsdRate).toNumber(),
-                    )}
-                  </RawText>
-                  <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+                <Row.Value textAlign='right' display='flex' alignItems='center'>
+                  <Text
+                    color={isExactAllowance ? 'gray.500' : 'white'}
+                    translation='trade.unlimited'
+                    fontWeight='bold'
+                  />
+                  <Switch
+                    size='sm'
+                    mx={2}
+                    isChecked={isExactAllowance}
+                    onChange={() => setValue('isExactAllowance', !isExactAllowance)}
+                  />
+                  <Text
+                    color={isExactAllowance ? 'white' : 'gray.500'}
+                    translation='trade.exact'
+                    fontWeight='bold'
+                  />
                 </Row.Value>
               </Row>
               <Button
@@ -209,6 +243,23 @@ export const Approval = () => {
                   <Text translation='common.reject' />
                 </Button>
               )}
+              <Divider my={4} />
+              <Row>
+                <Row.Label>
+                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                </Row.Label>
+                <Row.Value textAlign='right'>
+                  <RawText>
+                    {toFiat(
+                      bnOrZero(fee)
+                        .times(feeAssetFiatRate ?? 1)
+                        .times(selectedCurrencyToUsdRate)
+                        .toString(),
+                    )}
+                  </RawText>
+                  <RawText color='gray.500'>{toCrypto(Number(fee), sellFeeAsset?.symbol)}</RawText>
+                </Row.Value>
+              </Row>
             </Flex>
           </Flex>
         </Card.Body>

@@ -1,4 +1,5 @@
-import { AssetId, ChainNamespace, ChainReference, toChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
+import { toChainId } from '@shapeshiftoss/caip'
 import { getFoxPageRouteAssetId } from 'plugins/foxPage/utils/getFoxPageRouteAssetId'
 import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
@@ -11,15 +12,12 @@ const getRouteAssetId = (pathname: string) => {
   })
 
   const assetIdAccountsPathMatch = matchPath<{
-    accountSpecifier?: string
+    accountId?: AccountId
     assetId?: AssetId
     chainNamespace?: ChainNamespace
     chainReference?: ChainReference
   }>(pathname, {
-    path: [
-      '/accounts/:accountSpecifier/:assetId',
-      '/accounts/:chainNamespace\\::chainReference\\:(.+)',
-    ],
+    path: ['/accounts/:accountId/:assetId', '/accounts/:chainNamespace\\::chainReference\\:(.+)'],
   })
 
   if (assetIdAssetsPathMatch?.params) {

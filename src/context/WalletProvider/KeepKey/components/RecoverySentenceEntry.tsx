@@ -1,4 +1,4 @@
-import { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
+import type { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
 import {
   Box,
   Button,
@@ -13,7 +13,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { KeyboardEvent, MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { RawText, Text } from 'components/Text'
@@ -21,6 +22,8 @@ import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvid
 import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+const moduleLogger = logger.child({ namespace: ['RecoverySentenceEntry'] })
 
 const minInputLength = 3
 const maxInputLength = 4
@@ -43,6 +46,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
   const [characterInputValues, setCharacterInputValues] = useState(
     Object.seal(new Array<string | undefined>(maxInputLength).fill(undefined)),
   )
+  const [passphrase, setPassphrase] = useState<(string | undefined)[][]>()
   const [awaitingKeepKeyResponse, setAwaitingKeepKeyResponse] = useState(true)
 
   const inputField1 = useRef<HTMLInputElement>(null)
@@ -114,10 +118,21 @@ export const KeepKeyRecoverySentenceEntry = () => {
       await keepKeyWallet?.sendCharacterDone()
       // Else send a Space to let the KeepKey know we're ready to enter the next word
     } else {
+      passphrase
+        ? setPassphrase([...passphrase, characterInputValues])
+        : setPassphrase([characterInputValues])
       await keepKeyWallet?.sendCharacter(' ')
       resetInputs()
     }
-  }, [recoveryWordIndex, history, keepKeyWallet, resetInputs, wordEntropy])
+  }, [
+    recoveryWordIndex,
+    history,
+    keepKeyWallet,
+    resetInputs,
+    wordEntropy,
+    passphrase,
+    characterInputValues,
+  ])
 
   const onCharacterInput = useCallback(
     async (e: KeyboardEvent) => {
@@ -155,18 +170,28 @@ export const KeepKeyRecoverySentenceEntry = () => {
             await keepKeyWallet?.sendCharacter(' ')
             break
           case 'Backspace':
-            setCharacterInputValues(c =>
-              inputValuesReducer(c, undefined, recoveryCharacterIndex - 1),
-            )
-            setAwaitingKeepKeyResponse(true)
-            await keepKeyWallet?.sendCharacterDelete()
-            break
+            if (recoveryCharacterIndex === 0 && passphrase) {
+              const previousWord = passphrase.slice(-1)[0]
+              setPassphrase(passphrase.slice(0, -1))
+              setCharacterInputValues(previousWord)
+              inputFields[previousWord.length - 1].current?.focus()
+              setAwaitingKeepKeyResponse(true)
+              await keepKeyWallet?.sendCharacterDelete()
+              break
+            } else {
+              setCharacterInputValues(c =>
+                inputValuesReducer(c, undefined, recoveryCharacterIndex - 1),
+              )
+              setAwaitingKeepKeyResponse(true)
+              await keepKeyWallet?.sendCharacterDelete()
+              break
+            }
           case 'Enter':
             setAwaitingKeepKeyResponse(true)
             await handleWordSubmit()
             break
           default:
-            console.error('Invalid input', e.key)
+            moduleLogger.error('Invalid input')
         }
       }
     },
@@ -178,6 +203,8 @@ export const KeepKeyRecoverySentenceEntry = () => {
       keepKeyWallet,
       resetInputs,
       wordEntropy,
+      inputFields,
+      passphrase,
     ],
   )
 

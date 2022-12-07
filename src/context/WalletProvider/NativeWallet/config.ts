@@ -1,9 +1,10 @@
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const NativeConfig = {
+export const NativeConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: NativeAdapter,
-  mobileEnabled: true,
+  supportsMobile: 'browser',
   icon: FoxIcon,
   name: 'ShapeShift',
 }

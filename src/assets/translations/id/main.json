@@ -280,8 +280,8 @@
     "featureFlags": "Fitur Bendera"
   },
   "transactionRow": {
-    "send": "Kirim %{symbol}",
-    "receive": "Menerima %{symbol}",
+    "send": "Kirim",
+    "receive": "Menerima",
     "moreDetails": "Lebih Detail",
     "date": "Tanggal",
     "txid": "ID Transaksi",
@@ -349,7 +349,7 @@
     "errors": {
       "title": "Ada yang salah",
       "notEnoughEth": "Tidak cukup ETH untuk biaya gas pada transaksi ini.",
-      "amountToSmall": "Jumlahnya terlalu kecil. Jumlah perdagangan minimum untuk pasangan ini adalah %{minLimit}.",
+      "amountTooSmall": "Jumlahnya terlalu kecil. Jumlah perdagangan minimum untuk pasangan ini adalah %{minLimit}.",
       "negativeMax": "Tidak cukup dana untuk biaya penambang pada transaksi ini. Biaya estimasi penambang %{estimatedMinerFee}",
       "invalidMax": "Jumlah Tidak Valid. Jumlah perdagangan maksimum untuk pasangan ini adalah %{maxLimit}.",
       "insufficientFunds": "Dana tidak cukup untuk biaya dan jumlah penambang",
@@ -408,12 +408,6 @@
         "infoSecond": "Jangan pernah membagikan hukuman pemulihan Anda, itu memberikan akses ke semua dana Anda.",
         "awaitingButtonPress": "Ikuti langkah-langkah di KeepKey Anda untuk melihat Kalimat Pemulihan Anda. Tuliskan!"
       },
-      "wiped": {
-        "header": "KeepKey Berhasil Dihapus",
-        "body": "Anda telah berhasil mengatur ulang KeepKey Anda ke default pabrik. Anda sekarang dapat memulihkan menggunakan benih pemulihan yang ada, atau membuat dompet baru.",
-        "createButton": "Buat Dompet Baru",
-        "recoverButton": "Pulihkan Dompet"
-      },
       "recoverySentenceEntry": {
         "header": "Masukkan Kalimat Pemulihan Anda",
         "body": "Dengan menggunakan legenda keyboard yang diacak di KeepKey Anda, masukkan 4 huruf pertama dari setiap kata. Jika ada kurang dari 4 huruf dalam kata, tekan Enter, tekan spasi, atau klik berikutnya setelah Anda selesai mengetik.",
@@ -440,13 +434,6 @@
           "length": "Kata sandi Anda harus minimal %{length} karakter",
           "maxLength": "Nama panggilan harus maksimal %{length} karakter"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "Rendah",
-        "medium": "Medium",
-        "high": "Tinggi"
       }
     },
     "send": {
@@ -655,7 +642,6 @@
           "pin": "PIN adalah kombinasi hingga 9 nomor yang Anda pilih setelah menginisialisasi KeepKey Anda. PIN melindungi perangkat Anda dari penggunaan yang tidak sah jika KeepKey Anda jatuh ke tangan yang salah.",
           "passphrase": "Aktifkan kemampuan untuk memiliki banyak dompet, dapat diakses dengan menggunakan frasa sandi unik untuk setiap dompet.",
           "label": "Memberi label pada masing-masing perangkat memungkinkan Anda membedakan satu perangkat dengan perangkat lainnya dengan mudah.",
-          "timeout": "Perangkat Anda masuk ke mode tidur setelah 10 menit aktivitas secara default. Namun, Anda dapat mengubah ini.",
           "buttonPrompt": "Tekan dan tahan tombol di KeepKey Anda untuk mengubah perangkat %{setting}.",
           "updateSuccess": "%{setting} berhasil diperbarui!",
           "updateFailed": "Terjadi kesalahan saat memperbarui %{setting}.",

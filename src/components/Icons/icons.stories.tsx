@@ -7,7 +7,6 @@ import { RawText } from 'components/Text'
 import { AssetsIcon } from './Assets'
 import { CircleIcon } from './Circle'
 import { DashboardIcon } from './Dashboard'
-import { DiscordIcon } from './DiscordIcon'
 import { EarnIcon } from './Earn'
 import { FacebookIcon } from './FacebookIcon'
 import { FoxIcon } from './FoxIcon'
@@ -24,7 +23,6 @@ const icons = [
   AssetsIcon,
   CircleIcon,
   DashboardIcon,
-  DiscordIcon,
   EarnIcon,
   FacebookIcon,
   FoxIcon,

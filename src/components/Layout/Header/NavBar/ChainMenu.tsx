@@ -1,11 +1,15 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
+import { WarningIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import { ChainId, fromChainId } from '@shapeshiftoss/caip'
-import { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { ETHWallet, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import type { BoxProps } from '@chakra-ui/react'
+import { Box, Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { utils } from 'ethers'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -13,8 +17,7 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { store } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({
   namespace: ['Layout', 'Header', 'NavBar', 'ChainMenu'],
@@ -50,11 +53,20 @@ const ChainMenuItem: React.FC<{
     </MenuItem>
   )
 }
-export const ChainMenu = () => {
+
+type ChainMenuProps = BoxProps
+
+export const ChainMenu = (props: ChainMenuProps) => {
   const { state, load } = useWallet()
-  const { supportedEvmChainIds, connectedChainId, getChainIdFromEthNetwork, setEthNetwork } =
-    useEvm()
+  const {
+    connectedEvmChainId,
+    getChainIdFromEthNetwork,
+    isLoading,
+    setEthNetwork,
+    supportedEvmChainIds,
+  } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
+  const translate = useTranslate()
 
   const handleChainClick = async (requestedEthNetwork: string) => {
     try {
@@ -99,45 +111,56 @@ export const ChainMenu = () => {
   }
 
   const currentChainNativeAssetId = useMemo(
-    () => chainAdapterManager.get(connectedChainId ?? '')?.getFeeAssetId(),
-    [chainAdapterManager, connectedChainId],
+    () => chainAdapterManager.get(connectedEvmChainId ?? '')?.getFeeAssetId(),
+    [chainAdapterManager, connectedEvmChainId],
   )
   const currentChainNativeAsset = useAppSelector(state =>
     selectAssetById(state, currentChainNativeAssetId ?? ''),
   )
 
-  if (!state.wallet || !connectedChainId || !currentChainNativeAsset) return null
+  const canSwitchChains = useMemo(
+    () => !isLoading && (supportedEvmChainIds.length > 1 || !connectedEvmChainId),
+    [isLoading, connectedEvmChainId, supportedEvmChainIds.length],
+  )
+  if (!state.wallet) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
   // don't show the menu if there is only one chain
-  if (supportedEvmChainIds.length < 2) return null
+  if (!canSwitchChains) return null
 
   return (
-    <Menu autoSelect={false}>
-      <MenuButton
-        as={Button}
-        rightIcon={supportedEvmChainIds.length > 1 ? <ChevronDownIcon /> : null}
-        width={{ base: 'full', md: 'auto' }}
-      >
-        <Flex alignItems='center'>
-          <AssetIcon src={currentChainNativeAsset.icon} size='xs' mr='8px' />
-          {chainAdapterManager
-            .get(supportedEvmChainIds.find(chainId => chainId === connectedChainId) ?? '')
-            ?.getDisplayName() ?? ''}
-        </Flex>
-      </MenuButton>
-      <MenuList p='10px' zIndex={2}>
-        <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
-          {supportedEvmChainIds.map(chainId => (
-            <ChainMenuItem
-              isConnected={chainId === connectedChainId}
-              key={chainId}
-              chainId={chainId}
-              onClick={handleChainClick}
-            />
-          ))}
-        </MenuGroup>
-      </MenuList>
-    </Menu>
+    <Box {...props}>
+      <Menu autoSelect={false}>
+        <Tooltip
+          label={translate(
+            currentChainNativeAsset ? 'common.switchNetwork' : 'common.unsupportedNetwork',
+          )}
+          isDisabled={!canSwitchChains}
+        >
+          <MenuButton as={Button} iconSpacing={2} px={2} width={{ base: 'full', md: 'auto' }}>
+            <Flex alignItems='center' justifyContent='center'>
+              {currentChainNativeAsset ? (
+                <AssetIcon src={currentChainNativeAsset.icon} size='xs' />
+              ) : (
+                <WarningIcon color='yellow.300' boxSize='4' />
+              )}
+            </Flex>
+          </MenuButton>
+        </Tooltip>
+
+        <MenuList p='10px' zIndex={2}>
+          <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
+            {supportedEvmChainIds.map(chainId => (
+              <ChainMenuItem
+                isConnected={chainId === connectedEvmChainId}
+                key={chainId}
+                chainId={chainId}
+                onClick={handleChainClick}
+              />
+            ))}
+          </MenuGroup>
+        </MenuList>
+      </Menu>
+    </Box>
   )
 }

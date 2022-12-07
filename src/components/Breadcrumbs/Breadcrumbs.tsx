@@ -1,9 +1,24 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
-import withBreadcrumbs, { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import { useMemo } from 'react'
+import type { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
+import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
+import { Text } from 'components/Text/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const GetTranslatedPathPart = ({ match }: { match: RouteComponentProps['match'] }) => {
+  // a hack to gain the ability to translate the breadcrumbs
+  // takes out the path part from the url
+  // and uses navbar.[pathPart] for the translation
+  const pathFragments = useMemo(() => match.url.split('/'), [match.url])
+  // getting the last part from the url, since this works recursively
+  const pathPart = pathFragments[pathFragments.length - 1]
+  // translates `/` to home
+  return <Text translation={`navBar.${pathPart ? pathPart : 'home'}`} />
+}
 
 const GetAccountName = (props: any) => {
   const {
@@ -36,11 +51,17 @@ const routes: BreadcrumbsRoute[] = [
       { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
+  {
+    path: '/trade',
+    breadcrumb: 'Trade',
+    routes: [{ path: '/trade/:chainId/:assetSubId', breadcrumb: GetAssetName }],
+  },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
+  { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
 const options = {
-  excludePaths: ['/assets/:chainId'],
+  excludePaths: ['/assets/:chainId', '/trade/:chainId'],
 }
 
 export const Breadcrumbs = withBreadcrumbs(

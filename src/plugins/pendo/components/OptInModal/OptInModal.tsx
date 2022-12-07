@@ -7,6 +7,7 @@ import { VisitorDataManager } from 'plugins/pendo/visitorData'
 import { useEffect } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile } from 'lib/globals'
 import { logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['Plugins', 'Pendo', 'OptInModal'] })
@@ -31,11 +32,15 @@ export const OptInModal: React.FC = () => {
     const CONSENT_TAG = `pendo_${getConfig().REACT_APP_PENDO_CONSENT_VERSION}`
     const consent = VisitorDataManager.checkConsent(CONSENT_TAG)
     moduleLogger.trace({ consent }, 'Consent Check')
-    if (typeof consent === 'undefined' && !isOpen && hasWallet) {
+    if (isMobile || consent) {
+      // Auto launch if mobile or if they have consented
+      if (isMobile && !consent) {
+        VisitorDataManager.recordConsent(CONSENT_TAG, true)
+      }
+      launch()
+    } else if (!consent && !isOpen && hasWallet) {
       moduleLogger.debug({ consent }, 'Showing consent modal')
       onOpen()
-    } else if (consent === true) {
-      launch() // launch is memoized so it'll only run once
     }
   }, [enabled, hasWallet, isOpen, onOpen])
 

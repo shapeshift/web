@@ -1,16 +1,11 @@
 import { getConfig } from 'config'
-import {
-  FaFlag,
-  FaHistory,
-  FaLock,
-  FaRocket,
-  FaTable,
-  FaTractor,
-  FaWallet,
-  FaWater,
-} from 'react-icons/fa'
+import { FaCreditCard, FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { IoSwapVertical } from 'react-icons/io5'
+import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
+import { DefiIcon } from 'components/Icons/DeFi'
+import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -19,33 +14,38 @@ import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
+import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { Route as NestedRoute } from './helpers'
+import type { Route as NestedRoute } from './helpers'
+import { RouteCategory } from './helpers'
 
-export const routes: Array<NestedRoute> = [
+export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
     main: Dashboard,
+    category: RouteCategory.Wallet,
   },
   {
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
-    icon: <AssetsIcon color='inherit' />,
+    icon: <AssetsIcon />,
+    category: RouteCategory.Explore,
     routes: [
       {
         path: '/:chainId/:assetSubId',
         label: 'Overview',
-        icon: <AssetsIcon color='inherit' />,
+        icon: <AssetsIcon />,
         main: null,
         hide: true,
         routes: [
@@ -67,7 +67,8 @@ export const routes: Array<NestedRoute> = [
     path: '/accounts',
     label: 'navBar.accounts',
     main: Accounts,
-    icon: <FaWallet color='inherit' />,
+    icon: <AccountsIcon />,
+    category: RouteCategory.Wallet,
     routes: [
       {
         path: '/:accountId',
@@ -110,8 +111,9 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/defi',
     label: 'navBar.defi',
-    icon: <FaRocket />,
+    icon: <DefiIcon />,
     main: null,
+    category: RouteCategory.Explore,
     routes: [
       {
         path: '/',
@@ -144,8 +146,38 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
-    icon: <FaHistory />,
+    icon: <TxHistoryIcon />,
     main: TransactionHistory,
+    category: RouteCategory.Wallet,
+  },
+  {
+    path: '/trade',
+    label: 'navBar.trade',
+    icon: <IoSwapVertical />,
+    main: Trade,
+    category: RouteCategory.Explore,
+    routes: [
+      {
+        label: 'Trade Asset',
+        path: '/:chainId/:assetSubId',
+        main: Trade,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/buy-crypto',
+    label: 'navBar.buyCrypto',
+    icon: <FaCreditCard />,
+    main: Buy,
+    category: RouteCategory.Wallet,
+    routes: [
+      {
+        label: 'Buy Asset',
+        path: '/:chainId/:assetSubId',
+        main: Buy,
+      },
+    ],
   },
   {
     path: '/flags',

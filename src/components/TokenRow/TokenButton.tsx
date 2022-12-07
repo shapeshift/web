@@ -1,6 +1,6 @@
-import { Button, ButtonProps, Tooltip } from '@chakra-ui/react'
-import { useEffect } from 'react'
-import { useRef, useState } from 'react'
+import type { ButtonProps } from '@chakra-ui/react'
+import { Button, Tooltip } from '@chakra-ui/react'
+import { useEffect, useRef, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 

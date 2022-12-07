@@ -1,13 +1,9 @@
 /* eslint-disable import/no-anonymous-default-export */
 /* eslint-disable import/no-default-export */
 
-import {
-  Center,
-  CircularProgress as CCircularProgress,
-  CircularProgressProps,
-  Container,
-} from '@chakra-ui/react'
-import { Story } from '@storybook/react'
+import type { CircularProgressProps } from '@chakra-ui/react'
+import { Center, CircularProgress as CCircularProgress, Container } from '@chakra-ui/react'
+import type { Story } from '@storybook/react'
 import { TestProviders } from 'test/TestProviders'
 
 import { CircularProgress } from './CircularProgress'

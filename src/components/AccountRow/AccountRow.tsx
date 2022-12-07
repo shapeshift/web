@@ -1,14 +1,15 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Link, LinkProps } from 'react-router-dom'
+import type { LinkProps } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,10 +28,10 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const cryptoValue = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, { assetId }),
-  )
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId }))
+  const cryptoValue =
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, { assetId })) ?? '0'
+  const fiatValue =
+    useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId })) ?? '0'
 
   if (!asset) return null // users may have assets we don't support
 

@@ -1,12 +1,15 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
+import type { Column, Row, TableState } from 'react-table'
+import { useSortBy, useTable } from 'react-table'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
   data: T[]
   displayHeaders?: boolean
+  rowDataTestKey?: keyof T
+  rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
 }
@@ -15,6 +18,8 @@ export const ReactTable = <T extends {}>({
   columns,
   data,
   displayHeaders = true,
+  rowDataTestKey,
+  rowDataTestPrefix,
   onRowClick,
   initialState,
 }: ReactTableProps<T>) => {
@@ -35,6 +40,14 @@ export const ReactTable = <T extends {}>({
           {...row.getRowProps()}
           tabIndex={row.index}
           onClick={() => onRowClick?.(row)}
+          {...(rowDataTestKey
+            ? {
+                'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
+                  .split(' ')
+                  .join('-')
+                  .toLowerCase()}`,
+              }
+            : {})}
           cursor={onRowClick ? 'pointer' : undefined}
         >
           {row.cells.map(cell => (
@@ -45,10 +58,10 @@ export const ReactTable = <T extends {}>({
         </Tr>
       )
     })
-  }, [prepareRow, rows, onRowClick])
+  }, [rows, prepareRow, rowDataTestKey, rowDataTestPrefix, onRowClick])
 
   return (
-    <Table variant='clickable' {...getTableProps()}>
+    <Table variant='clickable' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (

@@ -1,8 +1,10 @@
-import { Features } from '@keepkey/device-protocol/lib/messages_pb'
+import type { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN } from 'constants/Config'
 import { useEffect, useState } from 'react'
+import semverGte from 'semver/functions/gte'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 interface VersionUrl {
@@ -40,6 +42,7 @@ interface Versions {
 export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
   const [updaterUrl, setUpdaterUrl] = useState<string>()
+  const [isLTCSupportedFirmwareVersion, setIsLTCSupportedFirmwareVersion] = useState<boolean>(false)
   const {
     state: { wallet },
   } = useWallet()
@@ -73,6 +76,8 @@ export const useKeepKeyVersions = () => {
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await wallet.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
+      if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
+        setIsLTCSupportedFirmwareVersion(true)
 
       const versions: Versions = {
         bootloader: {
@@ -91,5 +96,5 @@ export const useKeepKeyVersions = () => {
     })()
   }, [wallet])
 
-  return { versions, updaterUrl }
+  return { versions, updaterUrl, isLTCSupportedFirmwareVersion }
 }

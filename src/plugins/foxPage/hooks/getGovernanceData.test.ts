@@ -1,18 +1,19 @@
-import { BoardroomGovernanceResult, parseGovernanceData } from './getGovernanceData'
+import type { BoardroomGovernanceResult } from './getGovernanceData'
+import { parseGovernanceData } from './getGovernanceData'
 
 const EMPTY_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId1',
   title: 'Proposal 1',
   currentState: 'active',
   choices: ['YES', 'NO'],
-  results: [],
+  indexedResult: [],
 }
 const PARTIAL_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   refId: 'refId2',
   title: 'Proposal 2',
   currentState: 'active',
   choices: ['YES', 'NO'],
-  results: [
+  indexedResult: [
     {
       total: 362512.22,
       choice: 0,
@@ -25,7 +26,7 @@ const ALL_RESULTS_PROPOSAL: BoardroomGovernanceResult = {
   title: 'Proposal 3',
   currentState: 'closed',
   choices: ['Yes (For)', 'No (Against)'],
-  results: [
+  indexedResult: [
     {
       total: 4122544.5,
       choice: 0,
@@ -42,7 +43,7 @@ const INACTIVE_PROPOSAL: BoardroomGovernanceResult = {
   title: 'Proposal 4',
   currentState: 'closed',
   choices: ['For', 'Against'],
-  results: [
+  indexedResult: [
     {
       total: 5876468,
       choice: 0,
@@ -55,7 +56,7 @@ const INACTIVE_PROPOSAL_TWO: BoardroomGovernanceResult = {
   title: 'Proposal 5',
   currentState: 'closed',
   choices: ['For', 'Against'],
-  results: [
+  indexedResult: [
     {
       total: 5876468,
       choice: 0,

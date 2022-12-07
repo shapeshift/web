@@ -1,23 +1,26 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button } from '@chakra-ui/react'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useLocation } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import {
-  selectAccountIdsByAssetId,
-  selectAssetById,
-  selectTxIdsByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {
-  assetId: AssetId
-  accountId?: AccountSpecifier
+  assetId?: AssetId
+  accountId?: AccountId
   useCompactMode?: boolean
   limit?: number
+}
+export type MatchParams = {
+  chainId: ChainId
+  assetSubId: string
 }
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
@@ -27,29 +30,24 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   limit,
 }) => {
   const translate = useTranslate()
+  const location = useLocation()
+  const generatedPath = `${location.pathname}/transactions`
   const {
     state: { wallet },
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const chainId = asset.chainId
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
-  const filter = useMemo(
-    // if we are passed an accountId, we're on an asset account page, use that specifically.
-    // otherwise, we're on an asset page, use all accountIds related to this asset
-    () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
-    [assetId, accountId, accountIds],
-  )
-
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
-
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
+  if (!assetId) return null
   if (!walletSupportsChain) return null
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
         <Card.Heading>
           {translate(
             useCompactMode
@@ -57,6 +55,18 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
               : 'transactionHistory.transactionHistory',
           )}
         </Card.Heading>
+        {limit && txIds.length > limit && (
+          <Button
+            variant='link'
+            size='sm'
+            colorScheme='blue'
+            as={NavLink}
+            to={generatedPath}
+            rightIcon={<ArrowForwardIcon />}
+          >
+            {translate('common.seeAll')}
+          </Button>
+        )}
       </Card.Header>
       <TransactionHistoryList
         txIds={limit ? txIds.slice(0, limit) : txIds}

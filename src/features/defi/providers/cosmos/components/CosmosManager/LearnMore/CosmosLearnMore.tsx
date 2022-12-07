@@ -3,7 +3,10 @@ import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { assetIdToUnbondingDays } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useMemo } from 'react'
@@ -96,14 +99,15 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
         size='sm'
         onClick={handlePrevClick}
       />
-      <Box pt='36px' pb='20px' px='24px'>
-        <Flex
-          direction='column'
-          maxWidth='395px'
-          height='520px'
-          alignItems='center'
-          justifyContent='space-between'
-        >
+      <Box
+        pt='36px'
+        pb='20px'
+        px='24px'
+        width='full'
+        minWidth={{ base: '100%', md: '500px' }}
+        maxWidth={{ base: 'full', md: '500px' }}
+      >
+        <Flex direction='column' height='520px' alignItems='center' justifyContent='space-between'>
           <SlideTransition key={activeStep}>
             <Flex direction='column' alignItems='center'>
               <DefiModalHeader

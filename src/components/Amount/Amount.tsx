@@ -1,10 +1,9 @@
-import { TextProps } from '@chakra-ui/react'
+import type { TextProps } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { RawText } from 'components/Text'
-import {
-  NumberFormatOptions,
-  useLocaleFormatter,
-} from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 type AmountProps = {
   value: number | string
@@ -155,17 +154,18 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
     number: { toPercent },
   } = useLocaleFormatter()
   const formattedNumber = toPercent(value, options)
-
+  const red = useColorModeValue('red.800', 'red.500')
+  const green = useColorModeValue('green.500', 'green.200')
   const color = useMemo(() => {
     const roundedValue = parseFloat(formattedNumber)
     if (roundedValue === 0) {
-      return 'gray.500'
+      return green
     }
     if (roundedValue > 0) {
-      return 'green.500'
+      return green
     }
-    return 'red.500'
-  }, [formattedNumber])
+    return red
+  }, [formattedNumber, green, red])
 
   return (
     <RawText color={autoColor ? color : 'inherit'} {...props}>

@@ -1,5 +1,7 @@
-import { ListProps } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { ListProps } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { FC } from 'react'
 import { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
@@ -9,26 +11,28 @@ import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 import { AssetRow } from './AssetRow'
 
-type AssetListProps = {
-  handleClick: (asset: Asset) => void
+export type AssetData = {
   assets: Asset[]
-} & ListProps
-
-type ItemData<T> = {
-  items: Asset[]
-  handleClick: T
+  handleClick: (asset: Asset) => void
+  disableUnsupported?: boolean
+  hideZeroBalanceAmounts?: boolean
 }
 
-export const AssetList = ({ assets, handleClick }: AssetListProps) => {
-  type HandleClick = ReturnType<typeof handleClick>
+type AssetListProps = AssetData & ListProps
 
+export const AssetList: FC<AssetListProps> = ({
+  assets,
+  handleClick,
+  disableUnsupported = false,
+  hideZeroBalanceAmounts = true,
+}) => {
   const assetId = useRouteAssetId()
-  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<ItemData<HandleClick>>>({
+  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<AssetData>>({
     deps: [assetId],
     onInit: node => {
       if (!node) return
       const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
-      const index = node.props.itemData?.items.findIndex(
+      const index = node.props.itemData?.assets.findIndex(
         ({ assetId }: Asset) => assetId === parsedAssetId,
       )
       if (typeof index === 'number' && index >= 0) {
@@ -47,19 +51,23 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     <AutoSizer disableWidth className='auto-sizered'>
       {({ height }) =>
         assets?.length === 0 ? (
-          <Text translation='common.noResultsFound' />
+          <Center>
+            <Text color='gray.500' translation='common.noResultsFound' />
+          </Center>
         ) : (
           <FixedSizeList
             itemSize={60}
             height={height}
             width='100%'
             itemData={{
-              items: assets,
+              assets,
               handleClick,
+              disableUnsupported,
+              hideZeroBalanceAmounts,
             }}
             itemCount={assets.length}
             ref={setTokenListRef}
-            className='token-list scroll-container'
+            className='token-list'
             overscanCount={6}
           >
             {AssetRow}

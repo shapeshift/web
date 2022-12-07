@@ -2,10 +2,11 @@
 /* eslint-disable import/no-default-export */
 
 import { Container, Text as CText } from '@chakra-ui/react'
-import { Story } from '@storybook/react'
+import type { Story } from '@storybook/react'
 import { TestProviders } from 'test/TestProviders'
 
-import { Text, TextPropTypes } from './Text'
+import type { TextPropTypes } from './Text'
+import { Text } from './Text'
 
 export default {
   title: 'Typography/Text',

@@ -1,86 +1,49 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetId } from '@shapeshiftoss/caip'
-import {
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
-  findByFiatSymbol,
-  findPriceHistoryByFiatSymbol,
-  MarketServiceManager,
   SupportedFiatCurrencies,
 } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
+import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import merge from 'lodash/merge'
 import { logger } from 'lib/logger'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
+import type {
+  FindPriceHistoryByAssetIdArgs,
+  MarketDataState,
+} from 'state/slices/marketDataSlice/types'
+
+import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 
 const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
-
-export type PriceHistoryData = {
-  [k: AssetId]: HistoryData[] | undefined
-}
-
-type PriceHistoryByTimeframe = {
-  [k in HistoryTimeframe]: PriceHistoryData
-}
-
-type MarketDataStateVariant<T extends string> = {
-  byId: {
-    [k in T]?: MarketData
-  }
-  priceHistory: PriceHistoryByTimeframe
-  ids: T[]
-}
-
-type FiatMarketDataState = MarketDataStateVariant<SupportedFiatCurrencies>
-type CryptoMarketDataState = MarketDataStateVariant<AssetId>
-
-export type MarketDataState = {
-  crypto: CryptoMarketDataState
-  fiat: FiatMarketDataState
-}
-
-export const INITIAL_PRICE_HISTORY: PriceHistoryByTimeframe = Object.freeze({
-  [HistoryTimeframe.HOUR]: {},
-  [HistoryTimeframe.DAY]: {},
-  [HistoryTimeframe.WEEK]: {},
-  [HistoryTimeframe.MONTH]: {},
-  [HistoryTimeframe.YEAR]: {},
-  [HistoryTimeframe.ALL]: {},
-})
 
 const initialState: MarketDataState = {
   crypto: {
     byId: {},
     ids: [],
-    priceHistory: INITIAL_PRICE_HISTORY,
+    priceHistory: {},
   },
   fiat: {
     byId: {},
     ids: [],
-    priceHistory: INITIAL_PRICE_HISTORY,
+    priceHistory: {},
   },
 }
 
-// do not directly use or export, singleton
-let _marketServiceManager: MarketServiceManager | undefined
+// TODO: remove this once single and multi sided delegation abstraction is implemented
+// since foxEthLpAsset market data is monkey-patched, requesting its price history
+// will return an empty array which overrides the patch.
+const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
 
-type GetMarketServiceManager = () => MarketServiceManager
-
-const getMarketServiceManager: GetMarketServiceManager = () => {
-  const config = getConfig()
-  if (!_marketServiceManager) {
-    _marketServiceManager = new MarketServiceManager({
-      coinGeckoAPIKey: config.REACT_APP_COINGECKO_API_KEY,
-      // TODO(0xdef1cafe): market service manager needs to accept this into each method dynamically at runtime
-      yearnChainReference: 1,
-      providerUrls: {
-        jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
-        unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-        unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
-      },
-    })
-  }
-  return _marketServiceManager
+export const defaultMarketData: MarketData = {
+  price: '0',
+  marketCap: '0',
+  volume: '0',
+  changePercent24Hr: 0,
 }
 
 export const marketData = createSlice({
@@ -99,7 +62,16 @@ export const marketData = createSlice({
     ) => {
       const { args, data } = payload
       const { assetId, timeframe } = args
-      state.crypto.priceHistory[timeframe][assetId] = data
+      const incoming = {
+        crypto: {
+          priceHistory: {
+            [timeframe]: {
+              [assetId]: data,
+            },
+          },
+        },
+      }
+      merge(state, incoming)
     },
     setFiatMarketData: (
       state,
@@ -117,19 +89,23 @@ export const marketData = createSlice({
     ) => {
       const { args, data } = payload
       const { symbol, timeframe } = args
-      state.fiat.priceHistory[timeframe][symbol] = data
+      const incoming = {
+        fiat: {
+          priceHistory: {
+            [timeframe]: {
+              [symbol]: data,
+            },
+          },
+        },
+      }
+      merge(state, incoming)
     },
   },
 })
 
-type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }
-
 export const marketApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'marketApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
@@ -158,9 +134,10 @@ export const marketApi = createApi({
         }
       },
     }),
-    findPriceHistoryByAssetId: build.query<HistoryData[], FindPriceHistoryByAssetIdArgs>({
+    findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
+        if (ignoreAssetIds.includes(assetId)) return { data: [] }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,

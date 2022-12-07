@@ -1,11 +1,10 @@
 import { useCallback, useRef } from 'react'
-
-type Nullable<T> = T | null
+import type { Nullable } from 'types/common'
 
 type RefCallback<T> = {
   onInit: (node: Nullable<T>) => void
   onDestroy?: (node: Nullable<T>) => void
-  deps?: Array<any> // Any dependencies to create a new callback reference
+  deps?: any[] // Any dependencies to create a new callback reference
 }
 
 // Refs do not work as dependencies on useEffects.

@@ -1,8 +1,11 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
+import { ethChainId } from '@shapeshiftoss/caip'
+import type { ControllerProps } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -12,9 +15,11 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const { control } = useFormContext<SendInput>()
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const history = useHistory()
   const translate = useTranslate()
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
+  const isYatSupportedChain = asset.chainId === ethChainId // yat only supports eth mainnet
 
   const handleQrClick = () => {
     history.push(SendRoutes.Scan)
@@ -28,15 +33,20 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             spellCheck={false}
             autoFocus
             fontSize='sm'
-            onChange={e => onChange(e.target.value.trim())}
-            placeholder={translate('modals.send.tokenAddress')}
+            onChange={onChange}
+            placeholder={translate(
+              isYatFeatureEnabled && isYatSupportedChain
+                ? 'modals.send.addressInput'
+                : 'modals.send.tokenAddress',
+            )}
             size='lg'
             value={value}
             variant='filled'
             data-test='send-address-input'
+            // Because the InputRightElement is hover the input, we need to let this space free
+            pe={10}
           />
         )}
-        control={control}
         name={SendFormFields.Input}
         rules={rules}
       />

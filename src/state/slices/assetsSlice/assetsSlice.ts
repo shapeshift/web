@@ -1,23 +1,20 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
+import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  AssetId,
-  avalancheChainId,
-  bchChainId,
-  ltcChainId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
-import { ReduxState } from 'state/reducer'
+import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 let service: AssetService | undefined = undefined
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = async () => {
+const getAssetService = () => {
   if (!service) {
     service = new AssetService()
   }
@@ -37,6 +34,19 @@ const initialState: AssetsState = {
   ids: [],
 }
 
+export const defaultAsset: Asset = {
+  assetId: '',
+  chainId: '',
+  symbol: 'N/A',
+  name: 'Unknown',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: '',
+  explorer: '',
+  explorerTxLink: '',
+  explorerAddressLink: '',
+}
+
 export const assets = createSlice({
   name: 'asset',
   initialState,
@@ -50,26 +60,27 @@ export const assets = createSlice({
 })
 
 export const assetApi = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'assetApi',
-  // not actually used, only used to satisfy createApi, we use a custom queryFn
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-  // refetch if network connection is dropped, useful for mobile
-  refetchOnReconnect: true,
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async (_, { getState }) => {
-        const { Avalanche, BitcoinCash, Osmosis, Litecoin } = selectFeatureFlags(
+      queryFn: (_, { getState }) => {
+        const { OsmosisSend, OsmosisStaking, OsmosisSwap, OsmosisLP } = selectFeatureFlags(
           getState() as ReduxState,
         )
 
-        const service = await getAssetService()
+        const service = getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
-            if (!Avalanche && asset.chainId === avalancheChainId) return prev
-            if (!BitcoinCash && asset.chainId === bchChainId) return prev
-            if (!Osmosis && asset.chainId === osmosisChainId) return prev
-            if (!Litecoin && asset.chainId === ltcChainId) return prev
+            if (
+              !OsmosisSend &&
+              !OsmosisStaking &&
+              !OsmosisSwap &&
+              !OsmosisLP &&
+              asset.chainId === osmosisChainId
+            )
+              return prev
             prev[assetId] = asset
             return prev
           },
@@ -87,9 +98,15 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       },
     }),
-    getAssetDescription: build.query<AssetsState, { assetId: AssetId; selectedLocale: string }>({
+    getAssetDescription: build.query<
+      AssetsState,
+      { assetId: AssetId | undefined; selectedLocale: string }
+    >({
       queryFn: async ({ assetId, selectedLocale }, { getState }) => {
-        const service = await getAssetService()
+        if (!assetId) {
+          throw new Error('assetId not provided')
+        }
+        const service = getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)

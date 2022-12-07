@@ -1,7 +1,9 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import { SerializableOpportunity } from 'features/defi/providers/yearn/components/YearnManager/Deposit/DepositCommon'
-import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
+import type {
+  MergedEarnVault,
+  MergedSerializableOpportunity,
+} from 'pages/Defi/hooks/useVaultBalances'
 
 export const mockVault = (obj: {
   id: string
@@ -11,7 +13,7 @@ export const mockVault = (obj: {
     assetId: string
   }
   apy?: number
-}): SerializableOpportunity & { fiatAmount: string } => ({
+}): MergedSerializableOpportunity & { fiatAmount: string } => ({
   version: '',
   expired: false,
   isNew: false,
@@ -54,6 +56,7 @@ export const mockVault = (obj: {
     balanceUsdc: new BigNumber(obj.tvl.balanceUsdc),
     assetId: '',
   },
+  provider: '',
   apy: new BigNumber(obj.apy || 0),
   fiatAmount: '0',
 })
@@ -90,10 +93,12 @@ export const mockVaultWithBalance = (obj: { id: string; fiatAmount: string }): M
     balance: new BigNumber(0),
     underlyingPerPosition: new BigNumber(1),
   },
+  provider: '',
   vaultAssetId: '',
   tokenAssetId: '',
   pricePerShare: new BigNumber(0),
-  cryptoAmount: '0',
+  cryptoAmountBaseUnit: '0',
+  cryptoAmountPrecision: '0',
   version: '',
   expired: false,
   isNew: false,

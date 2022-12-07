@@ -1,10 +1,13 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useCallback } from 'react'
-import { ControllerProps, useController, useForm, useWatch } from 'react-hook-form'
+import type { ControllerProps, UseFormSetValue } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -14,7 +17,9 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
+  accountId?: AccountId | undefined
   asset: Asset
+  rewardAsset?: Asset
   // Estimated apy (Deposit Only)
   apy: string
   // Users available amount
@@ -29,12 +34,15 @@ type DepositProps = {
   enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
+  onAccountIdChange?: AccountDropdownProps['onChange']
+  onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
+  inputIcons?: string[]
 }
 
 export enum Field {
@@ -56,6 +64,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 export const Deposit = ({
+  accountId,
   apy,
   asset,
   marketData,
@@ -64,8 +73,12 @@ export const Deposit = ({
   cryptoInputValidation,
   fiatInputValidation,
   isLoading,
+  onAccountIdChange: handleAccountIdChange,
   onContinue,
+  onMaxClick,
   percentOptions,
+  inputIcons,
+  rewardAsset,
 }: DepositProps) => {
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
@@ -83,6 +96,8 @@ export const Deposit = ({
       [Field.Slippage]: DEFAULT_SLIPPAGE,
     },
   })
+
+  const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
   const { field: cryptoAmount } = useController({
@@ -117,15 +132,18 @@ export const Deposit = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount =
-        percent === 1
-          ? cryptoAmountAvailable
-          : bnOrZero(cryptoAmountAvailable).times(percent).precision(asset.precision)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), {
+      // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
+      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
+      const percentageCryptoAmountHuman = percentageCryptoAmount
+        .decimalPlaces(asset.precision)
+        .toString()
+      setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
+      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
+      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
         shouldValidate: true,
       })
     },
@@ -144,16 +162,21 @@ export const Deposit = ({
       <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
+            accountId={accountId}
             cryptoAmount={cryptoAmount?.value}
+            assetId={asset.assetId}
+            onAccountIdChange={handleAccountIdChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
+            {...(onMaxClick ? { onMaxClick: handleMaxClick } : {})}
             fiatAmount={fiatAmount?.value}
             showFiatAmount={true}
             assetIcon={asset.icon}
             assetSymbol={asset.symbol}
             balance={cryptoAmountAvailable}
             fiatBalance={fiatAmountAvailable}
-            onMaxClick={value => handlePercentClick(value)}
+            onPercentOptionClick={handlePercentClick}
             percentOptions={percentOptions}
+            icons={inputIcons}
           />
           <Row>
             <Stack flex={1} spacing={0}>
@@ -164,7 +187,7 @@ export const Deposit = ({
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
                 <Stack alignItems='flex-end'>
-                  <AssetIcon size='xs' src={asset.icon} />
+                  <AssetIcon size='xs' src={(rewardAsset ?? asset).icon} />
                 </Stack>
               </Stack>
             </Row.Value>
@@ -177,6 +200,7 @@ export const Deposit = ({
           isDisabled={!isValid}
           isLoading={isLoading}
           type='submit'
+          data-test='defi-modal-continue-button'
         >
           {translate(fieldError || 'common.continue')}
         </Button>

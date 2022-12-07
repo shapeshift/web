@@ -1,7 +1,9 @@
-import { Box, Container, ContainerProps, HStack, Stack } from '@chakra-ui/layout'
+import type { ContainerProps } from '@chakra-ui/layout'
+import { Box, Container, HStack, Stack } from '@chakra-ui/layout'
 import { useColorModeValue } from '@chakra-ui/react'
-import { useViewportScroll } from 'framer-motion'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { useScroll } from 'framer-motion'
+import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Breadcrumbs } from 'components/Breadcrumbs/Breadcrumbs'
 import { NestedMenu } from 'components/NestedMenu/NestedMenu'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -19,7 +21,7 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest })
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [y, setY] = useState(0)
   const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
-  const { scrollY } = useViewportScroll()
+  const { scrollY } = useScroll()
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])

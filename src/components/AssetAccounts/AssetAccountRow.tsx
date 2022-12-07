@@ -1,28 +1,27 @@
+import type { SimpleGridProps } from '@chakra-ui/react'
 import {
   Box,
   Flex,
   SimpleGrid,
-  SimpleGridProps,
   Stack,
   Tag,
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
+  selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectFiatBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
-  selectTotalCryptoBalanceWithDelegations,
-  selectTotalFiatBalanceWithDelegations,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -32,7 +31,7 @@ import { breakpoints } from 'theme/theme'
 // Link url should be the account page /Accounts/[account] or whatever the route is
 
 type AssetAccountRowProps = {
-  accountId: AccountSpecifier
+  accountId: AccountId
   assetId?: AssetId
   showAllocation?: boolean
   isCompact?: boolean
@@ -49,24 +48,20 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
-  const filter = useMemo(
-    () => ({ assetId: rowAssetId, accountId, accountSpecifier }),
-    [rowAssetId, accountId, accountSpecifier],
+  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+
+  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
-  const fiatBalance = useAppSelector(state => selectTotalFiatBalanceWithDelegations(state, filter))
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectTotalCryptoBalanceWithDelegations(state, filter),
-  )
-  const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
-  )
+  const allocation =
+    useAppSelector(state =>
+      selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
+    ) ?? 0
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
     filter,
@@ -96,19 +91,7 @@ export const AssetAccountRow = ({
     >
       <Flex alignItems='center'>
         <Box position='relative'>
-          {/** don't show "exponentiated" asset icons for fee assets */}
-          {assetNamespace !== 'slip44' && (
-            <AssetIcon
-              src={feeAsset.icon}
-              right={0}
-              top={-1}
-              boxSize='20px'
-              position='absolute'
-              zIndex={2}
-              boxShadow='lg'
-            />
-          )}
-          <AssetIcon src={asset?.icon} boxSize='30px' mr={2} />
+          <AssetIcon assetId={asset.assetId} boxSize='30px' mr={2} />
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (
@@ -116,7 +99,12 @@ export const AssetAccountRow = ({
               {feeAsset.name}
             </RawText>
           )}
-          <Stack direction='row' alignContent='center' alignItems='center' gridGap={1}>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            alignContent='center'
+            alignItems='flex-start'
+            spacing={{ base: 2, md: 4 }}
+          >
             <RawText
               fontWeight='medium'
               lineHeight='short'
@@ -153,7 +141,7 @@ export const AssetAccountRow = ({
         </Flex>
       )}
 
-      <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
+      <Flex justifyContent='flex-end'>
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={fiatBalance} />
           {(isCompact || !isLargerThanMd) && (

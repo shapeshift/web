@@ -1,4 +1,4 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
@@ -16,7 +16,17 @@ export const CosmosAccount = () => {
   const accountId = `cosmos:${accountSubId}`
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
-  return feeAsset && <CosmosAssetAccountDetails assetId={feeAsset.assetId} accountId={accountId} />
+  if (!feeAsset) return null
+
+  return (
+    feeAsset && (
+      <CosmosAssetAccountDetails
+        chainId={feeAsset.chainId}
+        assetId={feeAsset.assetId}
+        accountId={accountId}
+      />
+    )
+  )
 }

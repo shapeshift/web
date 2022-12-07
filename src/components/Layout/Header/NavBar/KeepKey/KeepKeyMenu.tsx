@@ -33,12 +33,10 @@ export const KeepKeyMenu = () => {
 
   // Reset ephemeral device state properties when opening the KeepKey menu
   useEffect(() => {
-    ;(async () => {
-      setDeviceState({
-        lastDeviceInteractionStatus: undefined,
-        awaitingDeviceInteraction: false,
-      })
-    })()
+    setDeviceState({
+      lastDeviceInteractionStatus: undefined,
+      awaitingDeviceInteraction: false,
+    })
   }, [setDeviceState])
 
   const getBooleanLabel = (value: boolean | undefined) => {
@@ -67,14 +65,14 @@ export const KeepKeyMenu = () => {
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
-          <Flex ml={3}>
+          <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>
               <Text
                 ml={3}
                 mr={3}
-                translation='walletProvider.keepKey.settings.loadingText'
+                translation='common.loadingText'
                 fontSize='sm'
                 color='yellow.500'
               />
@@ -88,7 +86,7 @@ export const KeepKeyMenu = () => {
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
-          <Flex ml={3}>
+          <Flex px={4} py={2}>
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>

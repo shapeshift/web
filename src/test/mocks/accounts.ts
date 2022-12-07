@@ -1,12 +1,18 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { Account, cosmos } from '@shapeshiftoss/chain-adapters'
+import {
+  type AssetId,
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+} from '@shapeshiftoss/caip'
+import { type Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
 
-export const ethChainId: ChainId = 'eip155:1'
-export const ethAssetId: AssetId = 'eip155:1/slip44:60'
-export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const yvusdcAssetId: AssetId = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 export const zeroAssetId: AssetId = 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574'
@@ -14,25 +20,14 @@ export const unknown1AssetId: AssetId = 'eip155:1/erc20:0x85c2ea30a20e5e96e1de33
 export const unknown2AssetId: AssetId = 'eip155:1/erc20:0x9cda935e34bcdfd1add4d2e8161d0f28fc354795'
 export const unknown3AssetId: AssetId = 'eip155:1/erc20:0xecd18dbba2987608c094ed552fef3924edb91e'
 
-export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
-export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-
-export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
-export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
-
-export const assetIds = [ethAssetId, foxAssetId, usdcAssetId, yvusdcAssetId, zeroAssetId]
-
-export const btcAccountIds = Object.freeze([
-  'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
-  'bip122:000000000019d6689c085ae165831e93:bc1qx0aaya6e0e8rfukvma9adhncjd77yhas70qukt',
-  'bip122:000000000019d6689c085ae165831e93:bc1qtjxklypn7zhp05ja29c5z8ycscmq0vhhzslm99',
-])
-
-export const ethAccountIds = Object.freeze([
-  'eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1',
-  'eip155:1:0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8',
-  'eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9',
-])
+export const assetIds = [
+  ethAssetId,
+  foxAssetId,
+  usdcAssetId,
+  yvusdcAssetId,
+  zeroAssetId,
+  btcAssetId,
+]
 
 export const ethPubKeys = Object.freeze([
   '0x9a2d593725045d1727d525dd07a396f9ff079bb1',
@@ -181,41 +176,8 @@ export const mockCosmosAccountWithStakingData = Object.freeze({
   },
 })
 
-export const mockCosmosAccountWithOnlyUndelegations = Object.freeze({
-  chainSpecific: {
-    delegations: [],
-    redelegations: [],
-    rewards: [],
-    undelegations: [
-      {
-        entries: [
-          {
-            amount: '100',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650472940,
-          },
-          {
-            amount: '250',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650472941,
-          },
-        ],
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-      {},
-    ] as cosmos.Undelegation[],
-    sequence: '422',
-    accountNumber: '424242',
-  },
-})
-
 export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
+export const osmoPubKeys = Object.freeze(['osmo1n89secc5fgu4cje3jw6c3pu264vy2yavzm8khe'])
 
 export const mockEthToken = (obj?: { balance?: string; assetId?: string }) => ({
   balance: '100',
@@ -288,7 +250,7 @@ export const mockBtcAccount = (
     obj,
   )
 
-export const mockETHandBTCAccounts = ({
+export const mockEthAndBtcAccounts = ({
   ethAccountObj,
   ethAccount2Obj,
   btcAccountObj,
@@ -326,7 +288,7 @@ export const mockETHandBTCAccounts = ({
 
   const btcAccount = merge(
     mockBtcAccount({
-      balance: '10',
+      balance: '20000',
       chainSpecific: {
         addresses: [mockBtcAddress({ balance: '3' })],
       },
@@ -336,10 +298,21 @@ export const mockETHandBTCAccounts = ({
 
   const btcAccount2 = merge(
     mockBtcAccount({
-      balance: '10',
+      balance: '400000',
       pubkey: btcPubKeys[1],
       chainSpecific: {
         addresses: [mockBtcAddress({ balance: '3', pubkey: btcAddresses[1] })],
+      },
+    }),
+    btcAccount2Obj,
+  )
+
+  const btcAccount3 = merge(
+    mockBtcAccount({
+      balance: '500000',
+      pubkey: btcPubKeys[2],
+      chainSpecific: {
+        addresses: [mockBtcAddress({ balance: '500000', pubkey: btcAddresses[2] })],
       },
     }),
     btcAccount2Obj,
@@ -349,6 +322,7 @@ export const mockETHandBTCAccounts = ({
   const ethAccount2Id = `${ethAccount2.chainId}:${toLower(ethAccount2.pubkey)}`
   const btcAccountId = `${btcAccount.chainId}:${btcAccount.pubkey}`
   const btcAccount2Id = `${btcAccount2.chainId}:${btcAccount2.pubkey}`
+  const btcAccount3Id = `${btcAccount3.chainId}:${btcAccount3.pubkey}`
 
   return {
     ethAccount,
@@ -359,5 +333,7 @@ export const mockETHandBTCAccounts = ({
     ethAccount2Id,
     btcAccountId,
     btcAccount2Id,
+    btcAccount3,
+    btcAccount3Id,
   }
 }

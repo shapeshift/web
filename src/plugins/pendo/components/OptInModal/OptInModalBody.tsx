@@ -11,10 +11,12 @@ import {
 import { getConfig } from 'config'
 import { launch } from 'plugins/pendo'
 import { VisitorDataManager } from 'plugins/pendo/visitorData'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { IoMdCheckmark, IoMdClose } from 'react-icons/io'
+import { LoadingBody } from 'components/LoadingBody'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { isMobile } from 'lib/globals'
 import { logger } from 'lib/logger'
 
 import { OptInIcon } from './OptInIcon'
@@ -33,31 +35,36 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const CONSENT_TAG = `pendo_${getConfig().REACT_APP_PENDO_CONSENT_VERSION}`
-  const consent = VisitorDataManager.checkConsent(CONSENT_TAG)
+  const consent = useMemo(() => VisitorDataManager.checkConsent(CONSENT_TAG), [CONSENT_TAG])
 
   useEffect(() => {
     if (!enabled) onContinue()
-    if (typeof consent === 'boolean') {
+    // Auto launch if mobile or if they have consented
+    if (consent || isMobile) {
+      if (isMobile && !consent) {
+        VisitorDataManager.recordConsent(CONSENT_TAG, true)
+      }
       moduleLogger.trace({ consent }, 'User has selected their consent')
-      if (consent) launch()
+      launch()
       onContinue()
     }
-  }, [consent, enabled, onContinue])
+  }, [CONSENT_TAG, consent, enabled, onContinue])
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
     moduleLogger.trace({ fn: 'handleConfirm' }, 'Confirmed')
     VisitorDataManager.recordConsent(CONSENT_TAG, true)
+    // Duplicate logic as in the useEffect above but DON'T remove it
+    // consent is not reactive and it won't update and do what you'd expect by moving the following lines in a useEffect()
     launch()
     onContinue()
   }
 
-  // If the user has already consented, we don't need to ask them again
-  if (typeof consent === 'boolean') {
-    return null
-  }
-
   return enabled ? (
-    <>
+    // If we haven't recorded user consent, <LoadingBody /> will render children
+    // This looks wrong, but this route actually gets rendered once
+    // If we have a consent, we push another route
+    // Else, we also push another route, recording consent in case of mobile users
+    <LoadingBody isLoaded={!consent}>
       <ModalBody py={8}>
         <OptInIcon mb={4} />
         <Text
@@ -161,6 +168,6 @@ export const OptInModalBody: React.FC<OptInModalProps> = ({ onContinue }) => {
           <Text translation='plugins.analytics.optInModal.noThanks' />
         </Button>
       </ModalFooter>
-    </>
+    </LoadingBody>
   ) : null
 }

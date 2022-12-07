@@ -3,6 +3,7 @@ import { Box, Stack } from '@chakra-ui/layout'
 import {
   Button,
   Link,
+  Skeleton,
   SkeletonText,
   Tab,
   TabList,
@@ -11,10 +12,14 @@ import {
   Tabs,
   Text as CText,
 } from '@chakra-ui/react'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEqual from 'lodash/isEqual'
 import qs from 'qs'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -25,11 +30,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById } from 'state/slices/selectors'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FOX_ASSET_ID, TrimmedDescriptionLength } from '../FoxCommon'
+import { TrimmedDescriptionLength } from '../FoxCommon'
 
 type FoxTabProps = {
   assetId: AssetId
@@ -45,22 +49,46 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
-  const isFoxAsset = assetId === FOX_ASSET_ID
+  const isFoxAsset = assetId === foxAssetId
 
-  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const accountId = accountIds?.[0]
 
   const {
-    state: { isConnected },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const { receive } = useModal()
-  const handleWalletModalOpen = () =>
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleReceiveClick = () =>
-    isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
 
-  const onGetAssetClick = () => {
+  const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
+
+  const handleWalletModalOpen = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
+  const handleReceiveClick = useCallback(
+    () =>
+      !isDemoWallet && isConnected && walletSupportsETH
+        ? receive.open({ asset, accountId })
+        : handleWalletModalOpen(),
+    [
+      accountId,
+      asset,
+      handleWalletModalOpen,
+      isConnected,
+      isDemoWallet,
+      receive,
+      walletSupportsETH,
+    ],
+  )
+
+  const receiveButtonTranslation = useMemo(
+    () => (!isDemoWallet && walletSupportsETH ? 'plugins.foxPage.receive' : 'common.connectWallet'),
+    [isDemoWallet, walletSupportsETH],
+  )
+
+  const onGetAssetClick = useCallback(() => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -73,7 +101,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       }),
       state: { background: location },
     })
-  }
+  }, [asset.chainId, history, location])
 
   return (
     <Card display='block' borderRadius={8}>
@@ -126,9 +154,11 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     </CText>
                   </Button>
                 )}
-                <Button onClick={handleReceiveClick} size='lg' colorScheme='gray'>
-                  <Text translation={'plugins.foxPage.receive'} />
-                </Button>
+                <Skeleton width='full' isLoaded={Boolean(wallet)}>
+                  <Button onClick={handleReceiveClick} width='full' size='lg' colorScheme='gray'>
+                    <Text translation={receiveButtonTranslation} />
+                  </Button>
+                </Skeleton>
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>

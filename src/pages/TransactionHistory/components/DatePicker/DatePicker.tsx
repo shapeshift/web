@@ -3,7 +3,8 @@ import './DatePicker.css'
 
 import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
 import ReactDatePicker from 'react-datepicker'
-import { Control, useController } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 import { FaCalendarAlt } from 'react-icons/fa'
 
 export const DatePicker = ({ control, name }: { control: Control; name: string }) => {

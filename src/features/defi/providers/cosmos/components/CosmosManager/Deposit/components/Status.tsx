@@ -3,7 +3,10 @@ import { Button, Link, Stack } from '@chakra-ui/react'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -43,7 +46,7 @@ export const Status = () => {
         return {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='white' />,
-          statusBody: translate('modals.deposit.status.success', {
+          statusBody: translate('modals.stake.status.success', {
             opportunity: asset.name,
           }),
           statusBg: 'green.500',
@@ -52,14 +55,14 @@ export const Status = () => {
         return {
           statusText: StatusTextEnum.failed,
           statusIcon: <CloseIcon color='white' />,
-          statusBody: translate('modals.deposit.status.failed'),
+          statusBody: translate('modals.stake.status.failed'),
           statusBg: 'red.500',
         }
       default:
         return {
           statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
           statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
+          statusBody: translate('modals.stake.status.pending'),
           statusBg: 'transparent',
         }
     }

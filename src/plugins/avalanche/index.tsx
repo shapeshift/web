@@ -1,5 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { avalanche, ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { avalanche } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -12,7 +13,6 @@ export default function register(): Plugins {
       'avalancheChainAdapter',
       {
         name: 'avalancheChainAdapter',
-        featureFlag: 'Avalanche',
         providers: {
           chainAdapters: [
             [

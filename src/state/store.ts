@@ -1,12 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistReducer, persistStore } from 'redux-persist'
+import type { TypedUseSelectorHook } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { createMigrate, PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
-import { apiSlices, reducer, ReduxState, slices } from './reducer'
+import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
+import { foxyApi } from './apis/foxy/foxyApi'
+import { migrations } from './migrations'
+import type { ReduxState } from './reducer'
+import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -14,8 +21,11 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: [''],
+  version: 1,
+  whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
+  // @ts-ignore createMigrate typings are wrong
+  migrate: createMigrate(migrations, { debug: false }),
 }
 
 const apiMiddleware = [
@@ -24,6 +34,10 @@ const apiMiddleware = [
   assetApi.middleware,
   txHistoryApi.middleware,
   validatorDataApi.middleware,
+  foxyApi.middleware,
+  swapperApi.middleware,
+  fiatRampApi.middleware,
+  opportunitiesApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -34,13 +48,14 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
-  store.dispatch(slices.accountSpecifiers.actions.clear())
+  store.dispatch(slices.opportunities.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.validatorDataApi.util.resetApiState())
+  store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
 }
 
 /**
@@ -48,7 +63,7 @@ export const clearState = () => {
  * remove the blacklist for local debugging, but don't commit it
  */
 const actionSanitizer = (action: any) => {
-  const marketDataBlackList = Object.keys(marketData.actions).reduce<Array<string>>((acc, k) => {
+  const marketDataBlackList = Object.keys(marketData.actions).reduce<string[]>((acc, k) => {
     if (k.startsWith('set')) acc.push(`marketData/${k}`)
     return acc
   }, [])

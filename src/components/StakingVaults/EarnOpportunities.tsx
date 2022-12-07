@@ -1,20 +1,25 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import {
-  EarnOpportunityType,
-  useNormalizeOpportunities,
-} from 'features/defi/helpers/normalizeOpportunity'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectAssetById } from 'state/slices/selectors'
+import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import {
+  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserStakingOpportunities,
+  selectAssetById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -22,11 +27,11 @@ import { StakingTable } from './StakingTable'
 type EarnOpportunitiesProps = {
   tokenId?: string
   assetId: AssetId
-  accountId?: AccountSpecifier
+  accountId?: AccountId
   isLoaded?: boolean
 }
 
-export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
+export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
   const history = useHistory()
   const location = useLocation()
   const {
@@ -34,15 +39,45 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const vaults = useYearnVaults()
-  const { opportunities: foxyRows } = useFoxyBalances()
-  //@TODO: This needs to be updated to account for accountId -- show only vaults that are on that account
+  const { vaults } = useVaultBalances()
+  const { data: foxyBalancesData } = useFoxyBalances()
+
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+    }),
+    [],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
+
+  const { setLpAccountId, setFarmingAccountId } = useFoxEth()
+
+  useEffect(() => {
+    if (accountId) {
+      setFarmingAccountId(accountId)
+      setLpAccountId(accountId)
+    }
+  }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
-    vaultArray: vaults,
-    foxyArray: foxyRows,
+    vaultArray: Object.values(vaults),
+    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-  }).filter(row => row.assetId.toLowerCase() === asset.assetId.toLowerCase())
+    foxEthLpOpportunity,
+    stakingOpportunities,
+  }).filter(
+    row =>
+      row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+      // show FOX_ETH LP token on FOX and ETH pages
+      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)) ||
+      // show foxy opportunity in the foxy asset page
+      (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+  )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
     const { provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
@@ -58,6 +93,7 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
         chainId,
         contractAddress,
         assetReference,
+        highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
         rewardId: rewardAddress,
         provider,
         modal: 'overview',
@@ -86,8 +122,9 @@ export const EarnOpportunities = ({ assetId }: EarnOpportunitiesProps) => {
               ml='auto'
               as={NavLink}
               to='/defi/earn'
+              rightIcon={<ArrowForwardIcon />}
             >
-              <Text translation='common.seeAll' /> <ArrowForwardIcon />
+              <Text translation='common.seeAll' />
             </Button>
           </Box>
         </HStack>

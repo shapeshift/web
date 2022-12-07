@@ -1,28 +1,26 @@
 import { useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import {
-  Field,
-  Withdraw as ReusableWithdraw,
-  WithdrawValues,
-} from 'features/defi/components/Withdraw/Withdraw'
-import {
+import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { StepComponentProps } from 'components/DeFi/components/Steps'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,
   selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,7 +34,15 @@ export type CosmosWithdrawValues = {
 
 const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
-export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
+type WithdrawProps = StepComponentProps & {
+  accountId: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+export const Withdraw: React.FC<WithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+  onNext,
+}) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -66,16 +72,16 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
-  )
-
-  const cryptoStakeBalance = useAppSelector(state =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(state, {
-      accountSpecifier,
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
       validatorAddress: contractAddress,
       assetId,
     }),
+    [accountId, assetId, contractAddress],
+  )
+  const cryptoStakeBalance = useAppSelector(s =>
+    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
   )
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
@@ -173,7 +179,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(bn(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -181,7 +187,7 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(bn(cryptoStakeBalance).div(`1e+${asset.precision}`))
+    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -192,6 +198,8 @@ export const Withdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
         cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
         cryptoInputValidation={{

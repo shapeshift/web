@@ -1,13 +1,16 @@
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import type { HistoryData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 
+import type { Bucket } from './useBalanceChartData'
 import {
-  Bucket,
   bucketEvents,
   calculateBucketPrices,
   makeBuckets,
@@ -16,9 +19,6 @@ import {
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-const ethAssetId = 'eip155:1/slip44:60'
-const foxAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-
 describe('makeBuckets', () => {
   it('can make buckets', () => {
     const assetIds = [ethAssetId]
@@ -26,12 +26,12 @@ describe('makeBuckets', () => {
     const balances = {
       [ethAssetId]: ethBalance,
     }
-    ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
+    ;(Object.values(HistoryTimeframe) as HistoryTimeframe[]).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {
         const { balance } = bucket
-        expect(balance.fiat.toNumber()).toEqual(0)
+        expect(Object.values(balance.fiat).every(v => v.toNumber() === 0)).toBeTruthy()
         expect(Object.keys(balance.crypto)).toEqual(assetIds)
         expect(balance.crypto[ethAssetId]).toEqual(bn(ethBalance))
       })
@@ -100,7 +100,7 @@ describe('calculateBucketPrices', () => {
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
 
-    const portfolioAssets: PortfolioAssets = {
+    const portfolioAssets: Record<AssetId, Asset> = {
       [foxAssetId]: fox,
     }
 
@@ -112,7 +112,7 @@ describe('calculateBucketPrices', () => {
       buckets,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets: portfolioAssets,
     })
 
     expect(calculatedBuckets[0].balance.crypto[foxAssetId].toFixed(0)).toEqual(value)
@@ -132,7 +132,7 @@ describe('calculateBucketPrices', () => {
       [ethAssetId]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
-    const portfolioAssets: PortfolioAssets = {
+    const portfolioAssets: Record<AssetId, Asset> = {
       [ethAssetId]: ethereum,
     }
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
@@ -144,7 +144,7 @@ describe('calculateBucketPrices', () => {
       buckets,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
-      portfolioAssets,
+      assets: portfolioAssets,
     })
     expect(calculatedBuckets[0].balance.crypto[ethAssetId].toNumber()).toEqual(0)
   })

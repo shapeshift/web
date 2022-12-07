@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { PortisConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface PortisSetupProps
   extends RouteComponentProps<
@@ -46,7 +49,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Portis, 'test')
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        console.error('Portis Connect: There was an error initializing the wallet', e)
+        moduleLogger.error(e, 'Portis Connect: There was an error initializing the wallet')
         setErrorLoading('walletProvider.portis.errors.unknown')
         history.push('/portis/failure')
       }
@@ -59,7 +62,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
       headerText={'walletProvider.portis.connect.header'}
       bodyText={'walletProvider.portis.connect.body'}
       buttonText={'walletProvider.portis.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

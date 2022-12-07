@@ -1,36 +1,46 @@
 import { useToast } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ssRouterContractAddress } from '@shapeshiftoss/investor-yearn'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
+import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
+import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useContext } from 'react'
+import { canCoverTxFees } from 'features/defi/helpers/utils'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApproveProps = {
+  accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
 
-export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
+export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
+  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -54,40 +64,61 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
   // notify
   const toast = useToast()
 
-  if (!state || !dispatch) return null
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-    if (!(state.userAddress && state.opportunity && assetReference && yearnInvestor)) return
-    try {
-      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedTx = await yearnOpportunity.prepareDeposit({
-        amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-        address: state.userAddress,
-      })
-      // TODO(theobold): Figure out a better way for the safety factor
-      return bnOrZero(preparedTx.gasPrice).times(preparedTx.estimatedGas).integerValue().toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
-        'Error getting deposit gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }
+  const getDepositGasEstimate = useCallback(
+    async (deposit: DepositValues): Promise<string | undefined> => {
+      if (!(accountAddress && state?.opportunity && assetReference && yearnInvestor)) return
+      try {
+        const yearnOpportunity = await yearnInvestor.findByOpportunityId(
+          state.opportunity?.positionAsset.assetId ?? '',
+        )
+        if (!yearnOpportunity) throw new Error('No opportunity')
+        const preparedTx = await yearnOpportunity.prepareDeposit({
+          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          address: accountAddress,
+        })
+        // TODO(theobold): Figure out a better way for the safety factor
+        return bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
+      } catch (error) {
+        moduleLogger.error(
+          { fn: 'getDepositGasEstimate', error },
+          'Error getting deposit gas estimate',
+        )
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+      }
+    },
+    [
+      accountAddress,
+      asset?.precision,
+      assetReference,
+      state?.opportunity,
+      toast,
+      translate,
+      yearnInvestor,
+    ],
+  )
 
-  const handleApprove = async () => {
+  const handleApprove = useCallback(async () => {
     if (
       !(
         assetReference &&
-        state.userAddress &&
+        dispatch &&
+        bip44Params &&
+        accountAddress &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
         opportunity
@@ -101,19 +132,25 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
         state.opportunity?.positionAsset.assetId ?? '',
       )
       if (!yearnOpportunity) throw new Error('No opportunity')
-      const tx = await yearnOpportunity.prepareApprove(state.userAddress)
+      const tx = await yearnOpportunity.prepareApprove(
+        accountAddress,
+        state.isExactAllowance
+          ? bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString()
+          : undefined,
+      )
       await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
         // TODO: allow user to choose fee priority
         feePriority: undefined,
+        bip44Params,
       })
-      const address = state.userAddress
+      const address = accountAddress
       await poll({
         fn: () => yearnOpportunity.allowance(address),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,
@@ -138,25 +175,80 @@ export const Approve: React.FC<YearnApproveProps> = ({ onNext }) => {
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    getDepositGasEstimate,
+    state?.opportunity?.positionAsset.assetId,
+    asset?.precision,
+    assetReference,
+    bip44Params,
+    dispatch,
+    onNext,
+    opportunity,
+    state?.deposit,
+    state?.isExactAllowance,
+    accountAddress,
+    toast,
+    translate,
+    walletState?.wallet,
+    yearnInvestor,
+  ])
+
+  const handleToggle = useCallback(() => {
+    if (!(dispatch && state)) return
+
+    dispatch({
+      type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE,
+      payload: !state.isExactAllowance,
+    })
+  }, [dispatch, state])
+
+  const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
+
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
+      isSome(accountId) &&
+      isSome(estimatedGasCrypto) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [accountId, feeAsset, estimatedGasCrypto],
+  )
+
+  const preFooter = useMemo(
+    () => (
+      <ApprovePreFooter
+        accountId={accountId}
+        action={DefiAction.Deposit}
+        feeAsset={feeAsset}
+        estimatedGasCrypto={estimatedGasCrypto}
+      />
+    ),
+    [accountId, feeAsset, estimatedGasCrypto],
+  )
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+        .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
-      disableAction
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
-        .div(`1e+${feeAsset.precision}`)
+      disabled={!hasEnoughBalanceForGas}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+        .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
+      isExactAllowance={state.isExactAllowance}
+      onToggle={handleToggle}
+      preFooter={preFooter}
       loadingText={translate('common.approveOnWallet')}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-      onCancel={() => onNext(DefiStep.Info)}
+      onCancel={handleCancel}
       onConfirm={handleApprove}
       contractAddress={ssRouterContractAddress}
     />

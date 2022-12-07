@@ -1,8 +1,18 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import {
+  btcAssetId,
+  btcChainId,
+  cosmosAssetId,
+  cosmosChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+  foxyAssetId,
+} from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 
 export const rune: Asset = {
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   assetId: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
   name: 'THORChain  ERC20 ',
   precision: 18,
@@ -15,8 +25,8 @@ export const rune: Asset = {
 }
 
 export const ethereum: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/slip44:60',
+  chainId: ethChainId,
+  assetId: ethAssetId,
   symbol: 'ETH',
   name: 'Ethereum',
   precision: 18,
@@ -28,7 +38,7 @@ export const ethereum: Asset = {
 }
 
 export const usdc: Asset = {
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   symbol: 'ETH',
   name: 'USD Coin',
@@ -40,21 +50,8 @@ export const usdc: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-export const aapl: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/erc20:0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
-  color: '#FFFFFF',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  icon: 'https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463',
-  name: ' AAPL',
-  precision: 18,
-  symbol: 'AAPL',
-}
-
 export const zero: Asset = {
-  chainId: 'eip155:1',
+  chainId: ethChainId,
   assetId: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
   color: '#FFFFFF',
   explorer: 'https://etherscan.io',
@@ -67,8 +64,8 @@ export const zero: Asset = {
 }
 
 export const fox: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  chainId: ethChainId,
+  assetId: foxAssetId,
   color: '#FFFFFF',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
@@ -80,8 +77,8 @@ export const fox: Asset = {
 }
 
 export const foxy: Asset = {
-  chainId: 'eip155:1',
-  assetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+  chainId: ethChainId,
+  assetId: foxyAssetId,
   color: '#CE3885',
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
@@ -93,8 +90,8 @@ export const foxy: Asset = {
 }
 
 export const cosmos: Asset = {
-  chainId: 'cosmos:cosmoshub-4',
-  assetId: 'cosmos:cosmoshub-4/slip44:118',
+  chainId: cosmosChainId,
+  assetId: cosmosAssetId,
   color: '#FFFFFF',
   explorer: 'https://www.mintscan.io/cosmos',
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
@@ -105,6 +102,19 @@ export const cosmos: Asset = {
   symbol: 'ATOM',
 }
 
+export const bitcoin: Asset = {
+  chainId: btcChainId,
+  assetId: btcAssetId,
+  name: 'bitcoin',
+  precision: 8,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+  explorer: 'https://live.blockcypher.com',
+  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  symbol: 'BTC',
+}
+
 export const mockAssetState = (obj?: Record<string, any>) =>
   merge(
     {
@@ -113,8 +123,9 @@ export const mockAssetState = (obj?: Record<string, any>) =>
         [fox.assetId]: fox,
         [usdc.assetId]: usdc,
         [zero.assetId]: zero,
+        [bitcoin.assetId]: bitcoin,
       },
-      ids: [ethereum.assetId, fox.assetId, usdc.assetId],
+      ids: [ethereum.assetId, fox.assetId, usdc.assetId, bitcoin.assetId],
     },
     obj,
   )

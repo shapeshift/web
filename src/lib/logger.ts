@@ -1,6 +1,8 @@
 // eslint-disable no-console
-import { Logger, LoggerFunction, LoggerOptions, LogLevel } from '@shapeshiftoss/logger'
+import type { LoggerFunction, LoggerOptions } from '@shapeshiftoss/logger'
+import { Logger, LogLevel } from '@shapeshiftoss/logger'
 import { getConfig } from 'config'
+import { isMobile } from 'lib/globals'
 
 type LogStyle = {
   title: string
@@ -56,6 +58,24 @@ const browserLoggerFn: LoggerFunction = (level, data) => {
 }
 
 /**
+ * For use in the mobile app where colorized logging isn't supported
+ */
+const simpleLoggerFn: LoggerFunction = (level, data) => {
+  const consoleFn = level === LogLevel.TRACE ? LogLevel.DEBUG : level
+
+  const msg = data.error
+    ? `Error [Kind: ${data.error.kind}] ${data.error.message} `
+    : data._messages?.join(' ') || data.message
+
+  // eslint-disable-next-line no-console
+  console[consoleFn](
+    `${logStyles[level].icon} ${level}: [${data.namespace}] ${msg}\n`,
+    // In the webview, objects are rendered as "[object Object]" so we'll format it
+    require('util').inspect(data),
+  )
+}
+
+/**
  * Get the current log level configuration from local storage or from the environment
  *
  * We can't get the log level from the logger instance because it's stored in a private
@@ -75,7 +95,7 @@ export const getLogLevel = () => {
 export const createLogger = (opts?: LoggerOptions) => {
   const options = {
     name: 'App',
-    logFn: browserLoggerFn,
+    logFn: isMobile ? simpleLoggerFn : browserLoggerFn,
     level: getLogLevel(),
     ...opts,
   }

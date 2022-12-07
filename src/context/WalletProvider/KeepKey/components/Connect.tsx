@@ -6,17 +6,20 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
-import { Event } from '@shapeshiftoss/hdwallet-core'
-import { useState } from 'react'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
+import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
   let t: string
@@ -43,6 +46,10 @@ export const KeepKeyConnect = () => {
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
+  const handleDownloadButtonClick = useCallback(() => {
+    dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
+  }, [dispatch])
+
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
@@ -60,7 +67,7 @@ export const KeepKeyConnect = () => {
             setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
             return
           }
-          console.error('KeepKey Connect: There was an error initializing the wallet', err)
+          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
           setErrorLoading('walletProvider.errors.walletNotFound')
           return
         })
@@ -91,13 +98,13 @@ export const KeepKeyConnect = () => {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         /**
          * The real deviceId of KeepKey wallet could be different from the
-         * deviceId recieved from the wallet, so we need to keep
+         * deviceId received from the wallet, so we need to keep
          * aliases[deviceId] in the local wallet storage.
          */
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        console.error('KeepKey Connect: There was an error initializing the wallet', e)
+        moduleLogger.error(e, 'KeepKey Connect: There was an error initializing the wallet')
         setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
     }
@@ -125,6 +132,19 @@ export const KeepKeyConnect = () => {
               <Text translation={error} />
             </AlertDescription>
           </Alert>
+        )}
+        {error === 'walletProvider.errors.walletNotFound' && (
+          <>
+            <Alert status='error' mt={4}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text translation={'walletProvider.keepKey.errors.updateAlert'} />
+              </AlertDescription>
+            </Alert>
+            <Button width='full' onClick={handleDownloadButtonClick} colorScheme='blue' mt={4}>
+              <Text translation={'walletProvider.keepKey.connect.downloadUpdaterApp'} />
+            </Button>
+          </>
         )}
       </ModalBody>
     </>

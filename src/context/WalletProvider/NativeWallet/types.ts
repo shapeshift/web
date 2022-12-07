@@ -1,7 +1,7 @@
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import React from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes } from 'context/WalletProvider/actions'
+import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import type React from 'react'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
 
 export type NativeWalletValues = {
   name: string
@@ -29,43 +29,4 @@ export interface NativeSetupProps
   > {
   vault: Vault
   dispatch: React.Dispatch<ActionTypes>
-}
-
-export interface LoginResponseError extends Error {
-  response: {
-    status: number
-    data: {
-      success: boolean
-      error: {
-        code: number
-        msg: string
-      }
-    }
-  }
-}
-
-export interface RateLimitError extends Error {
-  response: {
-    status: 429
-    data: string
-  }
-}
-
-export const loginErrors = {
-  twoFactorRequired: {
-    httpCode: 428,
-    msg: '2fa required',
-  },
-  twoFactorInvalid: {
-    httpCode: 412,
-    msg: '2fa invalid',
-  },
-  noWallet: {
-    httpCode: 404,
-    msg: 'no native wallet located for',
-  },
-  invalidCaptcha: {
-    httpCode: 400,
-    msg: 'invalid captcha',
-  },
 }

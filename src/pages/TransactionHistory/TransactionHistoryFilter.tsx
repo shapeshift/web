@@ -16,7 +16,8 @@ import {
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import { useRef, useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import type { FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
@@ -116,7 +117,6 @@ export const TransactionHistoryFilter = ({
               <Text translation='transactionHistory.filter' />
             </Button>
             <IconButton
-              isDisabled={!hasAppliedFilter}
               variant='ghost-filled'
               colorScheme='blue'
               aria-label={translate('transactionHistory.filters.resetFilters')}

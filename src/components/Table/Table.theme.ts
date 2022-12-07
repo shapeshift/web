@@ -2,33 +2,57 @@ import { mode } from '@chakra-ui/theme-tools'
 export const TableStyle = {
   parts: ['table', 'tr', 'tbody', 'td', 'thead', 'th'],
   // Styles for the base style
-  baseStyle: {
-    thead: {
-      tr: {
-        th: {
-          paddingLeft: 4,
-          paddingRight: 4,
+  baseStyle: {},
+  // Styles for the size variations
+  sizes: {
+    md: {
+      thead: {
+        tr: {
+          th: {
+            paddingLeft: 4,
+            paddingRight: 4,
+          },
+        },
+      },
+      tbody: {
+        tr: {
+          td: {
+            paddingLeft: 4,
+            paddingRight: 4,
+          },
         },
       },
     },
-    tbody: {
-      tr: {
-        td: {
-          paddingLeft: 4,
-          paddingRight: 4,
+    sm: {
+      thead: {
+        tr: {
+          th: {
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingTop: 4,
+            paddingBottom: 4,
+          },
+        },
+      },
+      tbody: {
+        tr: {
+          td: {
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingTop: 4,
+            paddingBottom: 4,
+          },
         },
       },
     },
   },
-  // Styles for the size variations
-  sizes: {},
   // Styles for the visual style variations
   variants: {
     clickable: (props: Record<string, any>) => {
       return {
         tbody: {
           tr: {
-            borderRadius: 'lg',
+            borderRadius: 'xl',
             _focus: {
               boxShadow: 'outline-inset',
             },
@@ -55,10 +79,10 @@ export const TableStyle = {
               bg: mode('gray.200', 'gray.700')(props),
             },
             'td:first-of-type': {
-              borderLeftRadius: 'lg',
+              borderLeftRadius: 'xl',
             },
             'td:last-of-type': {
-              borderRightRadius: 'lg',
+              borderRightRadius: 'xl',
             },
           },
         },
@@ -66,5 +90,7 @@ export const TableStyle = {
     },
   },
   // The default `size` or `variant` values
-  defaultProps: {},
+  defaultProps: {
+    size: 'md',
+  },
 }

@@ -276,8 +276,8 @@
     "clickToConnect": "여기를 눌러 지갑 연결하기"
   },
   "transactionRow": {
-    "send": "%{symbol} 송신",
-    "receive": "%{symbol} 수신",
+    "send": "송신",
+    "receive": "수신",
     "moreDetails": "자세한 정보",
     "date": "날짜",
     "txid": "거래 아이디",
@@ -351,7 +351,7 @@
     "errors": {
       "title": "문제가 발생했습니다.",
       "notEnoughEth": "거래하기 위해 내야 하는 가스 비용으로 변환할 ETH가 충분하지 않습니다.",
-      "amountToSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
+      "amountTooSmall": "거래 금액이 너무 적습니다. 이 페어에 예치하기 위한 최소 거래 금액은 %{minLimit}입니다.",
       "negativeMax": "채굴 수수료로 지불할 자금이 부족합니다. 추정 채굴 수수료는 %{estimatedMinerFee} 입니다.",
       "invalidMax": "잘못된 값입니다. 이 페어에 예치할 수 있는 최대 거래 금액은 %{maxLimit} 입니다.",
       "insufficientFunds": "채굴 수수료 및 금액에 대한 자금이 부족합니다.",
@@ -421,12 +421,6 @@
         "infoSecond": "이 복구 문장을 통해서 당신이 KeepKey에 보유한 모든 자산에 접근할 수 있습니다. 이 복구 문장은 '절대' 다른 어디에도 공유하지 마세요.",
         "awaitingButtonPress": "KeepKey의 단계에 따라 복구 문장을 확인하시고, 반드시 따로 적어두세요."
       },
-      "wiped": {
-        "header": "KeepKey 초기화 성공",
-        "body": "KeepKey의 공장 초기화가 완료되었습니다. 이제, KeepKey에 기존의 복구 시드를 사용하여 복원하거나, 새 지갑을 만들 수 있습니다.",
-        "createButton": "새 지갑 만들기",
-        "recoverButton": "지갑 복구"
-      },
       "recoverySentenceEntry": {
         "header": "복구 문장을 입력해주세요",
         "body": "KeepKey에 있는 스크램블 키보드를 사용해, 각 단어의 앞 4글자를 입력해주세요. 단어가 4글자보다 적다면, 엔터를 입력하고 스페이스 바를 눌러주세요. 입력이 완료되었으면 '다음'을 클릭해주세요.",
@@ -467,13 +461,6 @@
           "length": "비밀번호는 최소 %{length}자 이상이어야 합니다.",
           "maxLength": "닉네임은 최대 %{length}자까지 입력할 수 있습니다"
         }
-      }
-    },
-    "stake": {
-      "txFees": {
-        "low": "낮음",
-        "medium": "중간",
-        "high": "높음"
       }
     },
     "send": {
@@ -706,7 +693,6 @@
           "pin": "KeepKey 초기화 이후 9개 숫자의 조합으로 PIN을 구성합니다. PIN을 통해 보유하신 KeepKey를 부정한 접근으로부터 보호하실 수 있습니다.",
           "passphrase": "각 지갑마다 고유한 암호키를 작성하면 여러 지갑에 접근할 수 있습니다.",
           "label": "기기마다 별도의 명칭을 작성해두면 보유한 기기를 쉽게 구분하실 수 있습니다. ",
-          "timeout": "기본적으로 KeepKey는 10분 이내에 절전 모드에 들어가도록 설정되어 있습니다. (이 설정은 별도의 변경이 가능합니다.)",
           "buttonPrompt": "KeepKey %{setting} 내용을 변경하기 위해 KeepKey에 있는 버튼을 꾹 눌러주세요.",
           "updateSuccess": "%{setting} 내용이 성공적으로 업데이트되었습니다.",
           "updateFailed": "%{setting} 내용을 업데이트하는 도중 에러가 발생하였습니다.",

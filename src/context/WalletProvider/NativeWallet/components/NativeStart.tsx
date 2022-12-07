@@ -3,9 +3,12 @@ import { Button, Divider, Flex, ModalBody, ModalHeader, Stack } from '@chakra-ui
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router'
+import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({ namespace: ['NativeStart'] })
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -17,7 +20,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {
-        console.error('WalletProvider:NativeWallet:Start - Cannnot enumerate Vault', e)
+        moduleLogger.error(e, 'WalletProvider:NativeWallet:Start - Cannot enumerate Vault')
         setHasLocalWallet(false)
       }
     })()

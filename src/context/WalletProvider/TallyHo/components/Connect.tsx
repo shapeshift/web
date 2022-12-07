@@ -1,10 +1,10 @@
-import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
+import type { TallyHoHDWallet } from '@shapeshiftoss/hdwallet-tallyho'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -13,7 +13,7 @@ import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
-import { LocationState } from '../../NativeWallet/types'
+import type { LocationState } from '../../NativeWallet/types'
 import { TallyHoConfig } from '../config'
 
 export interface TallyHoSetupProps
@@ -28,34 +28,29 @@ export interface TallyHoSetupProps
 const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
 
 export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, onProviderChange } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [provider, setProvider] = useState<any>()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
   useEffect(() => {
     ;(async () => {
-      try {
-        setProvider(await detectEthereumProvider())
-      } catch (e) {
-        if (!isMobile) moduleLogger.error({ e }, 'could not detect ethereum provider')
-      }
+      await onProviderChange(KeyManager.TallyHo)
     })()
-  }, [setProvider])
+  }, [onProviderChange])
 
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
 
-    if (!provider) {
+    if (!state.provider) {
       throw new Error('walletProvider.tally.errors.connectFailure')
     }
 
     //Handles UX issues caused by MM and Tally Ho both being injected.
-    if (!provider.isTally) {
+    if (!state.provider.isTally) {
       setErrorLoading('walletProvider.tallyHo.errors.tallyNotInstalledOrSetToDefault')
       throw new Error('Tally Ho either not installed or not set to default')
     }
@@ -75,19 +70,6 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
         const chainId = await wallet.ethGetChainId?.()
         if (bnOrZero(chainId).toString() !== CHAIN_REFERENCE.EthereumMainnet) {
           throw new Error('walletProvider.tallyHo.errors.network')
-        }
-
-        // Hack to handle Tally account changes
-        //TODO: handle this properly
-        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        provider?.on?.('accountsChanged', resetState)
-        provider?.on?.('chainChanged', resetState)
-
-        const oldDisconnect = wallet.disconnect.bind(wallet)
-        wallet.disconnect = () => {
-          provider?.removeListener?.('accountsChanged', resetState)
-          provider?.removeListener?.('chainChanged', resetState)
-          return oldDisconnect()
         }
 
         await wallet.initialize()
@@ -121,7 +103,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
 
   // The MM mobile app itself injects a provider, so we'll use pairDevice once
   // we've reopened ourselves in that environment.
-  return !provider && isMobile ? (
+  return !state.provider && isMobile ? (
     <RedirectModal
       headerText={'walletProvider.tallyHo.redirect.header'}
       bodyText={'walletProvider.tallyHo.redirect.body'}
@@ -138,7 +120,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
       headerText={'walletProvider.tallyHo.connect.header'}
       bodyText={'walletProvider.tallyHo.connect.body'}
       buttonText={'walletProvider.tallyHo.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

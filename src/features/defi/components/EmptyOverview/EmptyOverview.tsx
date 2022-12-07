@@ -1,11 +1,23 @@
 import { Flex, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
+import { Fragment } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 
+import { PairIcons } from '../PairIcons/PairIcons'
+
+export type EmptyOverviewAsset =
+  | {
+      icon: string
+      icons?: never
+    }
+  | {
+      icon?: never
+      icons: string[]
+    }
+
 type EmptyOverviewProps = {
-  assets: Asset[]
+  assets: EmptyOverviewAsset[]
   footer?: React.ReactNode
 } & PropsWithChildren
 
@@ -30,11 +42,17 @@ export const EmptyOverview: React.FC<EmptyOverviewProps> = ({ children, footer, 
               </Flex>
             }
           >
-            {assets.map(asset => (
-              <AssetIcon src={asset?.icon} />
+            {assets.map((asset, index) => (
+              <Fragment key={index}>
+                {asset.icons ? (
+                  <PairIcons icons={asset.icons} bg='transparent' />
+                ) : (
+                  <AssetIcon src={asset.icon} />
+                )}
+              </Fragment>
             ))}
           </Stack>
-          <Stack justifyContent='center' fontWeight='medium'>
+          <Stack justifyContent='center' fontWeight='medium' mb={4}>
             {children}
           </Stack>
         </Stack>

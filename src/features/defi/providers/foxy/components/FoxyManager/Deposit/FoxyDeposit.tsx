@@ -1,28 +1,31 @@
 import { Center } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
-import {
-  DefiAction,
+import type {
   DefiParams,
   DefiQueryParams,
-  DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useFoxyApr } from 'plugins/foxPage/hooks/useFoxyApr'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { DefiStepProps, Steps } from 'components/DeFi/components/Steps'
+import type { DefiStepProps } from 'components/DeFi/components/Steps'
+import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -40,7 +43,10 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyDeposit'],
 })
 
-export const FoxyDeposit = () => {
+export const FoxyDeposit: React.FC<{
+  onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: AccountId | undefined
+}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
   const { foxy: api } = useFoxy()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -51,34 +57,53 @@ export const FoxyDeposit = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   // user info
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
-  const { foxyApr, loaded: isFoxyAprLoaded } = useFoxyApr()
+  const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
   const loading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && isFoxyAprLoaded && chainAdapter && api))
+        if (
+          !(
+            walletState.wallet &&
+            contractAddress &&
+            !isFoxyAprLoading &&
+            chainAdapter &&
+            api &&
+            bip44Params
+          )
+        )
           return
         const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: FoxyDepositActionType.SET_OPPORTUNITY,
-          payload: { ...foxyOpportunity, apy: foxyApr ?? '' },
+          payload: { ...foxyOpportunity, apy: foxyAprData?.foxyApr ?? '' },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxyDeposit error')
       }
     })()
-  }, [api, chainAdapterManager, contractAddress, walletState.wallet, foxyApr, isFoxyAprLoaded])
+  }, [
+    api,
+    bip44Params,
+    chainAdapterManager,
+    contractAddress,
+    walletState.wallet,
+    foxyAprData?.foxyApr,
+    isFoxyAprLoading,
+  ])
 
   const handleBack = () => {
     history.push({
@@ -95,25 +120,27 @@ export const FoxyDeposit = () => {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
-        component: Deposit,
+        component: ownProps => (
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+        ),
       },
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
-        component: Approve,
+        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
         props: {
           contractAddress,
         },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
-        component: Confirm,
+        component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
         label: 'Status',
         component: Status,
       },
     }
-  }, [contractAddress, translate, asset.symbol])
+  }, [accountId, handleAccountIdChange, contractAddress, translate, asset.symbol])
 
   if (loading || !asset || !marketData) {
     return (

@@ -1,41 +1,20 @@
 import { useToast } from '@chakra-ui/react'
-import {
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
-  cosmosChainId,
-  ethChainId,
-  fromChainId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams,
-  UtxoBaseAdapter,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import {
-  bip32ToAddressNList,
-  supportsBTC,
-  supportsCosmos,
-  supportsETH,
-  supportsEthSwitchChain,
-  supportsOsmosis,
-} from '@shapeshiftoss/hdwallet-core'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import isEmpty from 'lodash/isEmpty'
+import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch, useSelector } from 'react-redux'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-import {
-  AccountSpecifierMap,
-  accountSpecifiers,
-} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import type { BN } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -43,29 +22,34 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  fetchAllOpportunitiesIds,
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectAccountSpecifiers,
   selectAssetIds,
-  selectAssets,
-  selectIsPortfolioLoaded,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
+  selectPortfolioLoadingStatus,
   selectSelectedCurrency,
-  selectTxHistoryStatus,
+  selectSelectedLocale,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  EMPTY_COSMOS_ADDRESS,
+  EMPTY_OSMOSIS_ADDRESS,
+} from 'state/slices/validatorDataSlice/constants'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
-import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['AppContext'] })
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
  * market data, and portfolio fetching, and we don't want to over or under fetch data,
- * from unchained, market apis, or otherwise. it's optimized such that it won't unnecessarily
- * render, and is closely related to src/hooks/useAccountSpecifiers/useAccountSpecifiers.ts
+ * from unchained, market apis, or otherwise. it's optimized such that it won't unnecessarily render
  *
  * e.g. unintentionally clearing the portfolio can create obscure bugs that don't manifest
  * for some time as reselect does a really good job of memoizing things
@@ -74,23 +58,18 @@ const moduleLogger = logger.child({ namespace: ['AppContext'] })
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const chainAdapterManager = getChainAdapterManager()
-  const {
-    state: {
-      wallet,
-      deviceState: { disposition },
-    },
-  } = useWallet()
-  const assetsById = useSelector(selectAssets)
+  const wallet = useWallet().state.wallet
   const assetIds = useSelector(selectAssetIds)
-  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
-  const isPortfolioLoaded = useSelector(selectIsPortfolioLoaded)
+  const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
+
+  // load fiat ramps
+  useGetFiatRampsQuery()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -101,154 +80,116 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // and covers most assets users will have
   useFindAllQuery()
 
-  /**
-   * handle wallet disconnect/switch logic
-   */
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   useEffect(() => {
-    // if we have a wallet and changed account specifiers, we have switched wallets
-    // NOTE! - the wallet will change before the account specifiers does, so clearing here is valid
-    // check the console logs in the browser for the ordering of actions to verify this logic
-    const switched = Boolean(wallet && !isEmpty(accountSpecifiersList))
-    const disconnected = !wallet
-    switched && moduleLogger.info('Wallet switched')
-    disconnected && moduleLogger.info('Wallet disconnected')
-    if (switched || disconnected) {
-      dispatch(accountSpecifiers.actions.clear())
-      dispatch(portfolio.actions.clear())
-      dispatch(txHistory.actions.clear())
-    }
-    // this effect changes accountSpecifiersList, don't create infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, wallet])
+    require(`dayjs/locale/${selectedLocale}.js`)
+  }, [selectedLocale])
 
-  /**
-   * this was previously known as the useAccountSpecifiers hook
-   * this has recently been moved into redux state, as hooks are not singletons,
-   * and we needed to call useAccountSpecifiers in multiple places, namely here
-   * in the portfolio context, and in the transactions provider
-   *
-   * this effect now sets this globally in state, and it can be consumed via
-   * the selectAccountSpecifiers selector
-   *
-   * break this at your peril
-   */
   useEffect(() => {
-    if (isEmpty(assetsById)) return
     if (!wallet) return
     ;(async () => {
-      try {
-        const acc: AccountSpecifierMap[] = []
+      const chainIds = Array.from(supportedChains).filter(chainId =>
+        walletSupportsChain({ chainId, wallet }),
+      )
+      const isMultiAccountWallet = wallet.supportsBip44Accounts()
+      for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+        // only some wallets support multi account
+        if (accountNumber > 0 && !isMultiAccountWallet) break
+        const input = { accountNumber, chainIds, wallet }
+        const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
+        const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
+        const { getAccount } = portfolioApi.endpoints
+        const opts = { forceRefetch: true }
+        // do *not* upsertOnFetch here - we need to check if the fetched account is empty
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, opts)),
+        )
+        const accountResults = await Promise.allSettled(accountPromises)
+        /**
+         * because UTXO chains can have multiple accounts per number, we need to aggregate
+         * balance by chain id to see if we fetch the next by accountNumber
+         */
+        const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
+          if (res.status === 'rejected') return acc
+          const { data: account } = res.value
+          if (!account) return acc
+          const accountId = accountIds[idx]
+          const { chainId } = fromAccountId(accountId)
+          const accountBalance = Object.values(account.accountBalances.byId).reduce<BN>(
+            (acc, byAssetId) => {
+              Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
+              return acc
+            },
+            bnOrZero(0),
+          )
+          acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
+          // don't upsert empty accounts past account 0
+          if (accountNumber > 0 && accountBalance.eq(0)) return acc
+          const accountMetadata = accountMetadataByAccountId[accountId]
+          const payload = { [accountId]: accountMetadata }
+          dispatch(portfolio.actions.upsertAccountMetadata(payload))
+          dispatch(portfolio.actions.upsertPortfolio(account))
+          return acc
+        }, {})
 
-        for (const chainId of supportedChains) {
-          const adapter = chainAdapterManager.get(chainId)
-          if (!adapter) continue
-
-          const { chainNamespace, chainReference } = fromChainId(chainId)
-
-          switch (chainNamespace) {
-            case CHAIN_NAMESPACE.Bitcoin: {
-              if (!supportsBTC(wallet)) continue
-
-              const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-
-              for (const accountType of utxoAdapter.getSupportedAccountTypes()) {
-                const { bip44Params, scriptType } = utxoAccountParams(chainId, accountType, 0)
-                const pubkeys = await wallet.getPublicKeys([
-                  {
-                    coin: utxoAdapter.getCoinName(),
-                    addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
-                    curve: 'secp256k1',
-                    scriptType,
-                  },
-                ])
-
-                if (!pubkeys?.[0]?.xpub) throw new Error('failed to get public key')
-
-                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-                if (!pubkey) continue
-
-                acc.push({ [chainId]: pubkey })
-              }
-              break
-            }
-
-            case CHAIN_NAMESPACE.Ethereum: {
-              if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
-                if (!supportsETH(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
-                if (!supportsEthSwitchChain(wallet)) continue
-              }
-
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey.toLowerCase() })
-              break
-            }
-            case CHAIN_NAMESPACE.Cosmos: {
-              if (chainReference === CHAIN_REFERENCE.CosmosHubMainnet) {
-                if (!supportsCosmos(wallet)) continue
-              }
-              if (chainReference === CHAIN_REFERENCE.OsmosisMainnet) {
-                if (!supportsOsmosis(wallet)) continue
-              }
-
-              const pubkey = await adapter.getAddress({ wallet })
-              if (!pubkey) continue
-              acc.push({ [chainId]: pubkey })
-              break
-            }
-            default:
-              break
-          }
-        }
-
-        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
-      } catch (e) {
-        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+        /**
+         * if the balance for all accounts for the current chainId and accountNumber
+         * is zero, we've exhausted that chain, don't fetch more of them
+         */
+        Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
+          if (balance.eq(0)) pull(chainIds, chainId) // pull mutates chainIds, but we want to
+        })
       }
     })()
-  }, [assetsById, chainAdapterManager, dispatch, wallet, supportedChains, disposition])
-
-  // once account specifiers are set after wallet connect, fetch all account data to build out portfolio
-  useEffect(() => {
-    const { getAccount } = portfolioApi.endpoints
-
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      dispatch(getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true }))
-    })
-  }, [dispatch, accountSpecifiersList])
+  }, [dispatch, wallet, supportedChains])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (!isPortfolioLoaded) return
+    if (portfolioLoadingStatus === 'loading') return
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    dispatch(getAllTxHistory.initiate({ accountSpecifiersList }, { forceRefetch: true }))
-  }, [dispatch, accountSpecifiersList, isPortfolioLoaded])
+    dispatch(getAllTxHistory.initiate(requestedAccountIds))
+  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
-  // once portfolio and transaction history are done loading, fetch remaining chain specific data
+  // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
+    ;(async () => {
+      if (portfolioLoadingStatus === 'loading') return
 
-    const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-    const { getValidatorData } = validatorDataApi.endpoints
+      const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+      const { getValidatorData } = validatorDataApi.endpoints
 
-    // forceRefetch is enabled here to make sure that we always have the latest state from chain
-    // and ensure the queryFn runs resulting in dispatches occuring to update client state
-    const options = { forceRefetch: true }
+      // forceRefetch is enabled here to make sure that we always have the latest state from chain
+      // and ensure the queryFn runs resulting in dispatches occuring to update client state
+      const options = { forceRefetch: true }
 
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      Object.entries(accountSpecifierMap).forEach(([chainId, account]) => {
+      // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
+      // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountId].stakingDataByValidatorId
+      // Since the accountId is an empty address (generated and private keys burned) and isn't actually in state
+      if (wallet && !supportsCosmos(wallet)) {
+        const accountId = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+        dispatch(getValidatorData.initiate(accountId, options))
+      }
+      if (wallet && !supportsOsmosis(wallet)) {
+        const accountId = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
+        dispatch(getValidatorData.initiate(accountId, options))
+      }
+
+      await fetchAllOpportunitiesIds()
+      await fetchAllOpportunitiesMetadata()
+
+      requestedAccountIds.forEach(accountId => {
+        const { chainId } = fromAccountId(accountId)
         switch (chainId) {
           case cosmosChainId:
           case osmosisChainId:
-            const accountSpecifier = `${chainId}:${account}`
-            dispatch(getValidatorData.initiate({ accountSpecifier, chainId }, options))
+            dispatch(getValidatorData.initiate(accountId, options))
             break
           case ethChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
+
             /**
              * fetch all rebase history for foxy
              *
@@ -261,25 +202,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
              * an accountId and assetId[] in the txHistoryApi
              */
             dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate(
-                { accountSpecifierMap, portfolioAssetIds },
-                options,
-              ),
+              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
             )
             break
           default:
         }
       })
-    })
-    // this effect cares specifically about changes to portfolio accounts or assets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isPortfolioLoaded, portfolioAccounts, portfolioAssetIds, txHistoryStatus])
+    })()
+  }, [
+    dispatch,
+    portfolioLoadingStatus,
+    portfolioAccounts,
+    portfolioAssetIds,
+    wallet,
+    requestedAccountIds,
+  ])
 
-  // once the portfolio and transaction history are done loading, fetch market data for all portfolio assets
+  // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
-    if (!isPortfolioLoaded) return
-    if (txHistoryStatus !== 'loaded') return
+    if (portfolioLoadingStatus === 'loading') return
 
     const fetchMarketData = () =>
       portfolioAssetIds.forEach(assetId => {
@@ -292,7 +234,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, isPortfolioLoaded, portfolioAssetIds, txHistoryStatus])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
 
   /**
    * fetch forex spot and history for user's selected currency

@@ -1,9 +1,10 @@
 import { WalletConnectAdapter } from '@shapeshiftoss/hdwallet-walletconnect'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
+import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
-export const WalletConnectConfig = {
+export const WalletConnectConfig: Omit<SupportedWalletInfo, 'routes'> = {
   adapter: WalletConnectAdapter,
-  mobileEnabled: true,
+  supportsMobile: 'both',
   icon: WalletConnectIcon,
   name: 'WalletConnect',
 }

@@ -1,7 +1,9 @@
-import { BoxProps, SimpleGrid, TextProps } from '@chakra-ui/layout'
+import type { BoxProps, TextProps } from '@chakra-ui/layout'
+import { SimpleGrid } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/skeleton'
 import { Stat, StatArrow } from '@chakra-ui/stat'
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
@@ -47,6 +49,7 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 )
 
 export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => {
+  const translate = useTranslate()
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
@@ -54,7 +57,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
   return (
     <Card>
       <Card.Header>
-        <Card.Heading>Market Data</Card.Heading>
+        <Card.Heading>{translate('assets.assetDetails.assetHeader.marketData')}</Card.Heading>
       </Card.Header>
       <Card.Body>
         <SimpleGrid gridTemplateColumns={{ base: '1fr', md: '1fr' }} gridGap={6} width='full'>

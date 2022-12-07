@@ -1,6 +1,6 @@
 import './tooltip.css'
 
-import { TextProps } from '@chakra-ui/react'
+import type { TextProps } from '@chakra-ui/react'
 import DOMPurify, { sanitize } from 'dompurify'
 import { RawText } from 'components/Text'
 

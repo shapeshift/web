@@ -1,5 +1,4 @@
-import { ReduxState } from 'state/reducer'
-import { INITIAL_PRICE_HISTORY } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { ReduxState } from 'state/reducer'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -25,12 +24,12 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   validatorDataApi: mockApiFactory('validatorDataApi' as const),
+  swapperApi: mockApiFactory('swapperApi' as const),
+  foxyApi: mockApiFactory('foxyApi' as const),
+  fiatRampApi: mockApiFactory('fiatRampApi' as const),
+  opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   portfolio: {
     accounts: {
-      byId: {},
-      ids: [],
-    },
-    assetBalances: {
       byId: {},
       ids: [],
     },
@@ -38,32 +37,38 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
-    accountSpecifiers: {
+    accountMetadata: {
+      byId: {},
+      ids: [],
+    },
+    wallet: {
       byId: {},
       ids: [],
     },
   },
-  accountSpecifiers: {
-    accountSpecifiers: [],
-  },
   preferences: {
     featureFlags: {
-      Osmosis: false,
-      MultiCurrency: false,
-      FoxLP: false,
-      FoxFarming: false,
-      Avalanche: false,
-      Thor: false,
-      CowSwap: false,
-      JunoPay: false,
+      OsmosisSend: false,
+      OsmosisStaking: false,
+      OsmosisLP: false,
+      OsmosisSwap: false,
+      ThorSwap: false,
       Pendo: false,
-      Litecoin: false,
-      BitcoinCash: false,
+      IdleFinance: false,
+      Axelar: false,
+      Zendesk: false,
+      Yat: false,
+      WalletConnectToDapps: false,
+      DashboardBreakdown: false,
+      Wherever: false,
+      FiatPopup: false,
+      EligibleEarn: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    showWelcomeModal: false,
     // the following object is required by redux-persist
     _persist: {
       version: 0,
@@ -78,25 +83,22 @@ export const mockStore: ReduxState = {
     crypto: {
       byId: {},
       ids: [],
-      priceHistory: INITIAL_PRICE_HISTORY,
+      priceHistory: {},
     },
     fiat: {
       byId: {},
       ids: [],
-      priceHistory: INITIAL_PRICE_HISTORY,
+      priceHistory: {},
     },
   },
   txHistory: {
     txs: {
       byId: {},
-      byAssetId: {},
-      byAccountId: {},
+      byAccountIdAssetId: {},
       ids: [],
-      status: 'loading',
     },
     rebases: {
-      byAssetId: {},
-      byAccountId: {},
+      byAccountIdAssetId: {},
       ids: [],
       byId: {},
     },
@@ -104,5 +106,21 @@ export const mockStore: ReduxState = {
   validatorData: {
     byValidator: {},
     validatorIds: [],
+  },
+  opportunities: {
+    lp: {
+      byAccountId: {},
+      byId: {},
+      ids: [],
+    },
+    staking: {
+      byAccountId: {},
+      byId: {},
+      ids: [],
+    },
+    userStaking: {
+      byId: {},
+      ids: [],
+    },
   },
 }

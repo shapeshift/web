@@ -1,17 +1,17 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmos } from '@shapeshiftoss/unchained-client'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ActiveStakingOpportunity } from 'state/slices/selectors'
 import {
-  ActiveStakingOpportunity,
   selectAssetById,
-  selectFirstAccountSpecifierByChainId,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFull,
+  selectStakingOpportunitiesDataFullByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseCosmosStakingBalancesProps = {
+  accountId?: AccountId | undefined
   assetId: AssetId
 }
 
@@ -28,28 +28,26 @@ export type MergedActiveStakingOpportunity = ActiveStakingOpportunity & {
   isLoaded?: boolean
 }
 
-export type MergedStakingOpportunity = cosmos.Validator & {
-  tokenAddress: string
-  assetId: AssetId
-  chainId: ChainId
-  tvl: string
-}
-
 export function useCosmosSdkStakingBalances({
   assetId,
+  accountId,
 }: UseCosmosStakingBalancesProps): UseCosmosStakingBalancesReturn {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const accountSpecifier = useAppSelector(state =>
-    selectFirstAccountSpecifierByChainId(state, asset?.chainId),
+  const filter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
+      assetId,
+    }),
+    [accountId, assetId],
+  )
+  const stakingOpportunities = useAppSelector(s =>
+    selectStakingOpportunitiesDataFullByFilter(s, filter),
   )
 
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunitiesDataFull(state, { accountSpecifier, assetId }),
-  )
-
-  const mergedActiveStakingOpportunities = useMemo(() => {
+  const mergedActiveStakingOpportunities: MergedActiveStakingOpportunity[] = useMemo(() => {
+    if (!asset) return []
     if (!marketData?.price) return []
 
     return Object.values(stakingOpportunities).map(opportunity => {
@@ -64,10 +62,11 @@ export function useCosmosSdkStakingBalances({
         .toString()
       const data = {
         ...opportunity,
-        cryptoAmount: bnOrZero(opportunity.totalDelegations)
+        cryptoAmountBaseUnit: bnOrZero(opportunity.totalDelegations).toFixed(),
+        cryptoAmountPrecision: bnOrZero(opportunity.totalDelegations)
           .div(`1e+${asset?.precision}`)
           .decimalPlaces(asset.precision)
-          .toString(),
+          .toFixed(),
         tvl,
         fiatAmount,
         chainId: asset.chainId,

@@ -1,170 +1,122 @@
 import { CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertIcon,
   Box,
   Button,
+  Center,
   Flex,
   IconButton,
   Input,
   InputGroup,
+  InputLeftElement,
   InputRightElement,
+  Select,
+  Spinner,
+  Stack,
   Text as RawText,
+  useColorMode,
   useToast,
 } from '@chakra-ui/react'
-import {
-  bchChainId,
-  btcChainId,
-  cosmosChainId,
-  dogeChainId,
-  ethChainId,
-  fromAssetId,
-  ltcChainId,
-} from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router'
+import { useSelector } from 'react-redux'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
-import { SlideTransition } from 'components/SlideTransition'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ChainIdType } from 'state/slices/portfolioSlice/utils'
+import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAssets,
+  selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioFiatBalanceByFilter,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRamp, supportedFiatRamps } from '../config'
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import { FiatRampButton } from '../components/FiatRampButton'
+import type { CommonFiatCurrencies, FiatCurrencyItem, FiatRamp } from '../config'
+import { supportedFiatRamps } from '../config'
+import commonFiatCurrencyList from '../FiatCurrencyList.json'
+import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
-type GenerateAddressProps = {
-  selectedAsset: FiatRampAsset | null
-  btcAddress: string
-  bchAddress: string
-  dogeAddress: string
-  ltcAddress: string
-  ethAddress: string
-  cosmosAddress: string
-  ensName: string
-}
-
-type OverviewProps = GenerateAddressProps & {
-  fiatRampProvider: FiatRamp
-  supportsAddressVerifying: boolean
-  setSupportsAddressVerifying: Dispatch<SetStateAction<boolean>>
-  onFiatRampActionClick: (fiatRampAction: FiatRampAction) => void
-  onIsSelectingAsset: (asset: FiatRampAsset | null, selectAssetTranslation: string) => void
-  chainId: ChainIdType
-  setChainId: Dispatch<SetStateAction<ChainIdType>>
-  chainAdapterManager: ChainAdapterManager
-}
-
-type AddressOrNameFull = string
-type AddressFull = string
-type AddressOrNameEllipsed = string
-type GenerateAddressesReturn = [AddressOrNameFull, AddressFull, AddressOrNameEllipsed]
-type GenerateAddresses = (props: GenerateAddressProps) => GenerateAddressesReturn
-
-const generateAddresses: GenerateAddresses = props => {
-  const {
-    selectedAsset,
-    btcAddress,
-    bchAddress,
-    dogeAddress,
-    ltcAddress,
-    ethAddress,
-    ensName,
-    cosmosAddress,
-  } = props
-  const assetId = selectedAsset?.assetId
-  const empty: GenerateAddressesReturn = ['', '', '']
-  if (!assetId) return empty
-  const chainId = fromAssetId(assetId).chainId
-  switch (chainId) {
-    case ethChainId:
-      return [ensName || ethAddress, ethAddress, ensName || middleEllipsis(ethAddress, 11)]
-    case btcChainId:
-      return [btcAddress, btcAddress, middleEllipsis(btcAddress, 11)]
-    case bchChainId:
-      return [bchAddress, bchAddress, middleEllipsis(bchAddress, 11)]
-    case dogeChainId:
-      return [dogeAddress, dogeAddress, middleEllipsis(dogeAddress, 11)]
-    case ltcChainId:
-      return [ltcAddress, ltcAddress, middleEllipsis(ltcAddress, 11)]
-    case cosmosChainId:
-      return [cosmosAddress, cosmosAddress, middleEllipsis(cosmosAddress, 11)]
-    default:
-      return empty
-  }
+type OverviewProps = {
+  accountId: AccountId | undefined
+  address: string
+  vanityAddress: string
+  assetId: AssetId
+  defaultAction: FiatRampAction
+  handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
+  handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
-  fiatRampProvider,
-  onIsSelectingAsset,
-  onFiatRampActionClick,
-  supportsAddressVerifying,
-  setSupportsAddressVerifying,
-  btcAddress,
-  bchAddress,
-  dogeAddress,
-  ltcAddress,
-  ethAddress,
-  cosmosAddress,
-  ensName,
-  selectedAsset,
-  chainId,
-  setChainId,
-  chainAdapterManager,
+  handleIsSelectingAsset,
+  defaultAction = FiatRampAction.Buy,
+  assetId,
+  handleAccountIdChange,
+  accountId,
+  address,
+  vanityAddress,
 }) => {
+  const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
+  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
+  const assetsById = useSelector(selectAssets)
+  const { popup } = useModal()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const isPopupEnabled = useFeatureFlag('FiatPopup')
+  const { colorMode } = useColorMode()
   const translate = useTranslate()
-  const { fiatRampAction } = useParams<{ fiatRampAction: FiatRampAction }>()
   const toast = useToast()
-  const { fiatRamps } = useModal()
-
-  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
-
   const {
-    state: { wallet },
+    state: { wallet, isConnected, isDemoWallet },
+    dispatch,
   } = useWallet()
 
-  const [addressOrNameFull, addressFull, addressOrNameEllipsed] = generateAddresses({
-    selectedAsset,
-    btcAddress,
-    bchAddress,
-    ltcAddress,
-    dogeAddress,
-    ethAddress,
-    cosmosAddress,
-    ensName,
-  })
+  const [shownOnDisplay, setShownOnDisplay] = useState<Boolean | null>(null)
+  useEffect(() => setShownOnDisplay(null), [accountId])
 
-  useEffect(() => {
-    if (!wallet) return
-    supportsAddressVerifying && setSupportsAddressVerifying(true)
-    const maybeAssetId = selectedAsset?.assetId
-    const chainId = maybeAssetId ? fromAssetId(maybeAssetId).chainId : ethChainId
-    setChainId(chainId)
-    // supportsAddressVerifying will cause infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAsset, setChainId, setSupportsAddressVerifying, wallet])
+  const filter = useMemo(
+    () => ({ assetId: assetId ?? '', accountId: accountId ?? '' }),
+    [assetId, accountId],
+  )
+  const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
+  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
+  const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
+
+  const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
       fiatRampAction === FiatRampAction.Buy
-        ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.assetToBuy', 'fiatRamps.fundsTo']
-        : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.assetToSell', 'fiatRamps.fundsFrom'],
+        ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.asset', 'fiatRamps.fundsTo']
+        : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.asset', 'fiatRamps.fundsFrom'],
     [fiatRampAction],
   )
 
-  const handleCopyClick = async () => {
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+
+  const handleCopyClick = useCallback(async () => {
     const duration = 2500
     const isClosable = true
     const toastPayload = { duration, isClosable }
     try {
-      await navigator.clipboard.writeText(addressOrNameFull)
+      await navigator.clipboard.writeText(address)
       const title = translate('common.copied')
       const status = 'success'
-      const description = addressOrNameFull
+      const description = address
       toast({ description, title, status, ...toastPayload })
     } catch (e) {
       const title = translate('common.copyFailed')
@@ -172,128 +124,251 @@ export const Overview: React.FC<OverviewProps> = ({
       const description = translate('common.copyFailedDescription')
       toast({ description, title, status })
     }
-  }
+  }, [address, toast, translate])
 
-  const handleVerify = async () => {
-    const chainAdapter = chainAdapterManager.get(chainId)
-    if (!(wallet && chainAdapter)) return
-    const deviceAddress = await chainAdapter.getAddress({
-      wallet,
-      showOnDevice: true,
-    })
-    const shownOnDisplay =
-      Boolean(deviceAddress) && (deviceAddress === ethAddress || deviceAddress === btcAddress)
+  const supportsAddressVerification = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
+
+  const handleVerify = useCallback(async () => {
+    if (!accountId) return
+    if (!wallet) return
+    if (!address) return
+    if (!accountMetadata) return
+    const { accountType, bip44Params } = accountMetadata
+    const showOnDevice = true
+    const payload = { accountType, bip44Params, wallet, showOnDevice }
+    const verifiedAddress = await getChainAdapterManager()
+      .get(fromAccountId(accountId).chainId)!
+      .getAddress(payload)
+    const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
-  }
+  }, [accountId, accountMetadata, address, wallet])
+
+  const handlePopupClick = useCallback(
+    ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
+      const ramp = supportedFiatRamps[rampId]
+      const url = ramp.onSubmit({
+        action: fiatRampAction,
+        assetId,
+        address,
+        options: {
+          language: selectedLocale,
+          mode: colorMode,
+          currentUrl: window.location.href,
+        },
+      })
+      if (url) {
+        isPopupEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
+      }
+    },
+    [assetId, colorMode, fiatRampAction, isPopupEnabled, popup, selectedLocale],
+  )
+
+  const renderProviders = useMemo(() => {
+    if (!assetId) return null
+    if (isRampsLoading) return null
+    if (!ramps) return null
+    const rampIdsForAssetIdAndAction = ramps.byAssetId?.[assetId]?.[fiatRampAction] ?? []
+    if (!rampIdsForAssetIdAndAction.length)
+      return (
+        <Center display='flex' flexDir='column' minHeight='150px'>
+          <IconCircle mb={4}>
+            <FaCreditCard />
+          </IconCircle>
+          <Text fontWeight='medium' translation='fiatRamps.noProvidersAvailable' fontSize='lg' />
+          <Text translation='fiatRamps.noProvidersBody' color='gray.500' />
+        </Center>
+      )
+    const listOfRamps = [...rampIdsForAssetIdAndAction]
+    return listOfRamps
+      .filter(rampId => {
+        const list = supportedFiatRamps[rampId].getSupportedFiatList()
+        return list.includes(fiatCurrency)
+      })
+      .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
+      .map(rampId => {
+        const ramp = supportedFiatRamps[rampId]
+        const passedAddress = isDemoWallet ? '' : address
+        return (
+          <FiatRampButton
+            key={rampId}
+            onClick={() => handlePopupClick({ rampId, address: passedAddress })}
+            accountFiatBalance={accountFiatBalance}
+            action={fiatRampAction}
+            {...ramp}
+          />
+        )
+      })
+  }, [
+    accountFiatBalance,
+    address,
+    assetId,
+    fiatCurrency,
+    fiatRampAction,
+    handlePopupClick,
+    isDemoWallet,
+    isRampsLoading,
+    ramps,
+  ])
+
+  const inputValue = useMemo(() => {
+    if (vanityAddress) return vanityAddress
+    return address ? middleEllipsis(address, 11) : ''
+  }, [address, vanityAddress])
+
+  const renderFiatOptions = useMemo(() => {
+    const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
+    return options.map(option => (
+      <option value={option.code}>{`${option.code} - ${option.name}`}</option>
+    ))
+  }, [])
 
   return (
-    <SlideTransition>
-      <Flex direction='column'>
-        <FiatRampActionButtons
-          action={fiatRampAction}
-          setAction={onFiatRampActionClick}
-          supportsBuy={supportedFiatRamps[fiatRampProvider].supportsBuy}
-          supportsSell={supportedFiatRamps[fiatRampProvider].supportsSell}
-        />
-        <Text
-          translation={assetTranslation}
-          color='gray.500'
-          fontWeight='semibold'
-          mt='15px'
-          mb='8px'
-        />
-        <Button
-          width='full'
-          colorScheme='gray'
-          justifyContent='space-between'
-          height='70px'
-          onClick={() => onIsSelectingAsset(selectedAsset, selectAssetTranslation)}
-          rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
-        >
-          {selectedAsset ? (
-            <Flex alignItems='center'>
-              <AssetIcon
-                src={selectedAsset.imageUrl}
-                symbol={selectedAsset.symbol.toLowerCase()}
-                mr={4}
-              />
-              <Box textAlign='left'>
-                <RawText lineHeight={1}>{selectedAsset.name}</RawText>
-                <RawText fontWeight='normal' fontSize='sm' color='gray.500'>
-                  {selectedAsset?.symbol}
-                </RawText>
-              </Box>
-            </Flex>
-          ) : (
-            <Text translation={selectAssetTranslation} color='gray.500' />
-          )}
-        </Button>
-        {selectedAsset && (
+    <>
+      <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
+      <Flex display='flex' flexDir='column' gap={6} p={6}>
+        <Stack spacing={4}>
+          <Text
+            fontWeight='bold'
+            translation={
+              fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
+            }
+          />
+          <Select onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}>
+            {renderFiatOptions}
+          </Select>
+        </Stack>
+        <Stack spacing={4}>
+          <Box>
+            <Text fontWeight='medium' translation={assetTranslation} />
+            <Text color='gray.500' translation='fiatRamps.selectBody' />
+          </Box>
+          <Button
+            width='full'
+            variant='outline'
+            height='48px'
+            justifyContent='space-between'
+            onClick={() => handleIsSelectingAsset(fiatRampAction)}
+            rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
+          >
+            {assetId ? (
+              <Flex alignItems='center'>
+                <AssetIcon size='sm' assetId={assetId} mr={4} />
+                <Box textAlign='left'>
+                  <RawText lineHeight={1}>{assetsById[assetId].name}</RawText>
+                </Box>
+              </Flex>
+            ) : (
+              <Text translation={selectAssetTranslation} color='gray.500' />
+            )}
+          </Button>
           <Flex flexDirection='column' mb='10px'>
-            <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px'></Text>
-            <InputGroup size='md'>
-              <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-              <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
-                <IconButton
-                  icon={<CopyIcon />}
-                  aria-label='copy-icon'
-                  size='sm'
-                  isRound
-                  variant='ghost'
-                  onClick={handleCopyClick}
-                />
-                {supportsAddressVerifying && (
-                  <IconButton
-                    icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                    onClick={handleVerify}
-                    aria-label='check-icon'
-                    size='sm'
-                    color={
-                      shownOnDisplay
-                        ? 'green.500'
-                        : shownOnDisplay === false
-                        ? 'red.500'
-                        : 'gray.500'
-                    }
-                    isRound
-                    variant='ghost'
-                  />
-                )}
-              </InputRightElement>
-            </InputGroup>
-          </Flex>
-        )}
-        {selectedAsset?.isBelowSellThreshold && (
-          <Alert status='error' variant={'solid'}>
-            <AlertIcon />
             <Text
-              translation={[
-                'fiatRamps.insufficientCryptoAmountToSell',
-                { amount: supportedFiatRamps[fiatRampProvider].minimumSellThreshold },
-              ]}
+              translation={
+                isUnsupportedAsset
+                  ? [
+                      'fiatRamps.notSupported',
+                      { asset: assetsById[assetId].symbol, wallet: wallet?.getVendor() },
+                    ]
+                  : fundsTranslation
+              }
+              color='gray.500'
+              mt='15px'
+              mb='8px'
             />
-          </Alert>
-        )}
-        <Button
-          width='full'
-          size='lg'
-          colorScheme='blue'
-          disabled={!selectedAsset || selectedAsset?.isBelowSellThreshold}
-          mt='25px'
-          onClick={() =>
-            supportedFiatRamps[fiatRampProvider].onSubmit(
-              fiatRampAction,
-              selectedAsset?.assetId || '',
-              addressFull || '',
-            )
-          }
-        >
-          <Text translation='common.continue' />
-        </Button>
-        <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
-          <Text translation='common.cancel' />
-        </Button>
+            {isConnected && !isDemoWallet ? (
+              <>
+                {isUnsupportedAsset ? (
+                  <Button
+                    data-test='fiatramp-connect-wallet-button'
+                    onClick={handleWalletModalOpen}
+                  >
+                    {translate('connectWallet.menu.switchWallet')}
+                  </Button>
+                ) : (
+                  <>
+                    <AccountDropdown
+                      autoSelectHighestBalance={true}
+                      assetId={assetId}
+                      onChange={handleAccountIdChange}
+                      defaultAccountId={accountId}
+                      buttonProps={{ variant: 'solid', width: 'full' }}
+                      boxProps={{ px: 0 }}
+                    />
+                    <InputGroup size='md'>
+                      <Input
+                        pr='4.5rem'
+                        value={inputValue}
+                        readOnly
+                        placeholder={!address ? translate('common.loadingText') : ''}
+                      />
+                      {!address && <InputLeftElement children={<Spinner size='sm' />} />}
+                      {address && (
+                        <InputRightElement
+                          width={supportsAddressVerification ? '4.5rem' : undefined}
+                        >
+                          <IconButton
+                            icon={<CopyIcon />}
+                            aria-label='copy-icon'
+                            size='sm'
+                            isRound
+                            variant='ghost'
+                            onClick={handleCopyClick}
+                          />
+                          {supportsAddressVerification && address && (
+                            <IconButton
+                              icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                              onClick={handleVerify}
+                              aria-label='check-icon'
+                              size='sm'
+                              color={
+                                shownOnDisplay
+                                  ? 'green.500'
+                                  : shownOnDisplay === false
+                                  ? 'red.500'
+                                  : 'gray.500'
+                              }
+                              isRound
+                              variant='ghost'
+                            />
+                          )}
+                        </InputRightElement>
+                      )}
+                    </InputGroup>
+                  </>
+                )}
+              </>
+            ) : (
+              <Button data-test='fiatramp-connect-wallet-button' onClick={handleWalletModalOpen}>
+                {translate('common.connectWallet')}
+              </Button>
+            )}
+          </Flex>
+        </Stack>
+        <Stack spacing={4}>
+          {ramps && (
+            <Box>
+              <Text fontWeight='medium' translation='fiatRamps.availableProviders' />
+              <Text
+                color='gray.500'
+                translation={[
+                  'fiatRamps.titleMessage',
+                  {
+                    action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
+                    asset: assetsById[assetId].symbol,
+                  },
+                ]}
+              />
+            </Box>
+          )}
+          {isRampsLoading ? (
+            <Center minHeight='150px'>
+              <CircularProgress />
+            </Center>
+          ) : (
+            <Stack>{renderProviders}</Stack>
+          )}
+        </Stack>
       </Flex>
-    </SlideTransition>
+    </>
   )
 }

@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import type { RouteComponentProps } from 'react-router-dom'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { KeplrConfig } from '../config'
+const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface KeplrSetupProps
   extends RouteComponentProps<
@@ -61,7 +64,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         window.addEventListener('keplr_keystorechange', resetState)
       } catch (e: any) {
-        console.error('Keplr: There was an error initializing the wallet', e)
+        moduleLogger.error(e, 'Keplr: There was an error initializing the wallet')
         setErrorLoading(e?.message || 'walletProvider.keplr.errors.unknown')
         history.push('/keplr/failure')
       }
@@ -74,7 +77,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       headerText={'walletProvider.keplr.connect.header'}
       bodyText={'walletProvider.keplr.connect.body'}
       buttonText={'walletProvider.keplr.connect.button'}
-      pairDevice={pairDevice}
+      onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
     ></ConnectModal>

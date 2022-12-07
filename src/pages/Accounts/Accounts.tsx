@@ -1,28 +1,65 @@
-import { Heading, Stack } from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
+import { Button, Heading, List, Stack } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
-import { AccountRowWithTokens } from './AccountRowWithTokens'
+import { ChainRow } from './components/ChainRow'
 
 const AccountHeader = () => {
+  const translate = useTranslate()
+  const {
+    state: { wallet },
+  } = useWallet()
+  const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (!wallet) return
+    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
+  }, [wallet])
+
+  const { addAccount } = useModal()
+  const { open } = addAccount
+
   return (
-    <Heading pb={6}>
-      <Text translation='accounts.accounts' />
-    </Heading>
+    <Stack direction='row' justifyContent='space-between' alignItems='center' pb={6}>
+      <SEO title={translate('accounts.accounts')} />
+      <Heading>
+        <Text translation='accounts.accounts' />
+      </Heading>
+      {isMultiAccountWallet && (
+        <Button
+          loadingText={translate('accounts.addAccount')}
+          leftIcon={<AddIcon />}
+          colorScheme='blue'
+          onClick={open}
+          data-test='add-account-button'
+        >
+          <Text translation='accounts.addAccount' />
+        </Button>
+      )}
+    </Stack>
   )
 }
 
 export const Accounts = () => {
-  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
+  const portfolioChainIdsSortedFiat = useSelector(selectPortfolioChainIdsSortedFiat)
+  const chainRows = useMemo(
+    () => portfolioChainIdsSortedFiat.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
+    [portfolioChainIdsSortedFiat],
+  )
+
   return (
     <Main titleComponent={<AccountHeader />}>
-      <Stack>
-        {sortedAccountIds.map(accountId => (
-          <AccountRowWithTokens accountId={accountId} key={accountId} />
-        ))}
-      </Stack>
+      <List ml={0} mt={0} spacing={4}>
+        {chainRows}
+      </List>
     </Main>
   )
 }

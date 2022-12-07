@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 
 /*
  * Article for context -- https://sneas.github.io/blog/react-nested-navigation/
@@ -12,6 +12,11 @@ import React from 'react'
  * @returns {string}
  */
 
+export enum RouteCategory {
+  Wallet = 'wallet',
+  Explore = 'explore',
+}
+
 export type Route = {
   path: string
   label: string
@@ -22,6 +27,7 @@ export type Route = {
   disable?: boolean
   hide?: boolean
   breadcrumb?: string | React.ReactNode
+  category?: RouteCategory
 }
 
 const combinePaths = (parent: string, child: string): string =>

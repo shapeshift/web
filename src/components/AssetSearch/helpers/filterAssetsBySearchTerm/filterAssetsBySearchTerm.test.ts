@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'

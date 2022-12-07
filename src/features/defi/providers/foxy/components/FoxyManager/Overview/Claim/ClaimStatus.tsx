@@ -1,12 +1,13 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, AssetId, ChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
-import { TransactionReceipt } from 'web3-core/types'
+import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -19,7 +20,12 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
@@ -65,7 +71,11 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
 })
 
-export const ClaimStatus = () => {
+type ClaimStatusProps = {
+  accountId: AccountId | undefined
+}
+
+export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()
   const { foxy } = useFoxy()
   const translate = useTranslate()
@@ -86,6 +96,12 @@ export const ClaimStatus = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const { refetch: refetchFoxyBalances } = useFoxyBalances({
+    accountNumber: bip44Params?.accountNumber ?? 0,
+  })
   useEffect(() => {
     ;(async () => {
       if (!foxy || !txid) return
@@ -97,6 +113,11 @@ export const ClaimStatus = () => {
           maxAttempts: 30,
         })
         const gasPrice = await foxy.getGasPrice()
+
+        if (transactionReceipt.status) {
+          refetchFoxyBalances()
+        }
+
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
@@ -111,7 +132,7 @@ export const ClaimStatus = () => {
         })
       }
     })()
-  }, [estimatedGas, foxy, state, txid])
+  }, [refetchFoxyBalances, estimatedGas, foxy, state, txid])
 
   return (
     <SlideTransition>
@@ -148,7 +169,7 @@ export const ClaimStatus = () => {
             <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
             <Row.Value>
               <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
-                <MiddleEllipsis address={txid} />
+                <MiddleEllipsis value={txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -169,7 +190,7 @@ export const ClaimStatus = () => {
                 color='blue.500'
                 href={`${asset?.explorerAddressLink}${userAddress}`}
               >
-                <MiddleEllipsis address={userAddress} />
+                <MiddleEllipsis value={userAddress} />
               </Link>
             </Row.Value>
           </Row>

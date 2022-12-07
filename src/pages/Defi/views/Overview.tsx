@@ -1,8 +1,9 @@
 import { Box, Divider, Heading, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { OpportunityCardList } from '../components/OpportunityCardList'
 import { OverviewHeader } from '../components/OverviewHeader'
@@ -12,6 +13,7 @@ const DefiHeader = () => {
   const translate = useTranslate()
   return (
     <Box>
+      <SEO title={translate('defi.defi')} />
       <Heading>{translate('defi.defi')}</Heading>
     </Box>
   )
@@ -19,10 +21,10 @@ const DefiHeader = () => {
 
 export const Overview = () => {
   const balances = useEarnBalances()
-  const walletBalance = useSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
   return (
     <Main titleComponent={<DefiHeader />}>
-      <OverviewHeader earnBalance={balances} walletBalance={walletBalance} />
+      <OverviewHeader earnBalance={balances} netWorth={netWorth} />
       <Stack spacing={4} divider={<Divider marginTop={0} />}>
         <OpportunityCardList balances={balances} />
       </Stack>

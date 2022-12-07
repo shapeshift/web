@@ -1,9 +1,12 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 
-import { FiatRampAction, FiatRampAsset } from '../FiatRampsCommon'
+import type { CommonFiatCurrencies } from '../config'
+import { FiatRampAction } from '../FiatRampsCommon'
+import type { CreateUrlProps } from '../types'
 
 const moduleLogger = logger.child({
   namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],
@@ -29,7 +32,11 @@ type JunoPayResponse = {
   }
 }
 
-export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
+export const getSupportedJunoPayFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return ['USD']
+}
+
+export async function getJunoPayAssets(): Promise<AssetId[]> {
   const data = await (async () => {
     try {
       const baseUrl = getConfig().REACT_APP_JUNOPAY_BASE_API_URL
@@ -48,30 +55,22 @@ export async function getJunoPayAssets(): Promise<FiatRampAsset[]> {
   const junoPayToCurrencyList = data.settings.buy.to_currency
   const allCurrencyList = data.settings.metadata
 
-  const junoPayAssets = allCurrencyList.filter(({ short_name }) =>
-    junoPayToCurrencyList.includes(short_name.toUpperCase()),
-  )
-
-  const assets = junoPayAssets.reduce<FiatRampAsset[]>((acc, asset) => {
-    const { short_name, long_name: name, logo_url: imageUrl } = asset
-    const assetId = adapters.junoPayTickerToAssetId(short_name)
-    if (!assetId) return acc
-    const symbol = short_name.toUpperCase()
-    const mapped = { assetId, symbol, name, imageUrl }
-    acc.push(mapped)
-    return acc
-  }, [])
-
-  return assets
+  return allCurrencyList
+    .filter(({ short_name }) => junoPayToCurrencyList.includes(short_name.toUpperCase()))
+    .reduce<AssetId[]>((acc, asset) => {
+      const { short_name } = asset
+      const assetId = adapters.junoPayTickerToAssetId(short_name)
+      if (!assetId) return acc
+      acc.push(assetId)
+      return acc
+    }, [])
 }
 
-export const createJunoPayUrl = (
-  action: FiatRampAction,
-  asset: string,
-  address: string,
-): string => {
+export const createJunoPayUrl = ({ action, address, assetId }: CreateUrlProps): string => {
   const baseUrl = new URL(getConfig().REACT_APP_JUNOPAY_BASE_APP_URL)
   const params = new URLSearchParams()
+  const asset = adapters.assetIdToJunoPayTicker(assetId)
+  if (!asset) throw new Error('Asset not supported by JunoPay')
 
   // currently, only buy is supported by JunoPay
   params.set('action', action === FiatRampAction.Sell ? 'sell' : 'buy')

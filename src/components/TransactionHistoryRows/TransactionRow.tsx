@@ -1,15 +1,16 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useState } from 'react'
-import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
+import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
 import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
-import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)
 
@@ -24,7 +25,6 @@ export type TransactionRowProps = {
 
 export const TransactionRow = ({
   txId,
-  activeAsset,
   showDateAndGuide = false,
   useCompactMode = false,
   parentWidth,
@@ -39,7 +39,7 @@ export const TransactionRow = ({
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const txDetails = useTxDetails(txId, activeAsset)
+  const txDetails = useTxDetails(txId)
 
   const renderTransactionType = (
     txDetails: TxDetails,
@@ -55,15 +55,16 @@ export const TransactionRow = ({
       parentWidth,
     }
 
-    switch (txDetails.type || txDetails.direction) {
+    switch (txDetails.type) {
       case TransferType.Send:
         return <TransactionSend {...props} />
       case TransferType.Receive:
         return <TransactionReceive {...props} />
       case TradeType.Trade:
+      case TradeType.Refund:
         return <TransactionTrade {...props} />
-      case TransferType.Contract:
-        return <TransactionContract {...props} />
+      case 'method':
+        return <TransactionMethod {...props} />
       default:
         return <UnknownTransaction {...props} />
     }

@@ -1,11 +1,13 @@
 import 'lib/polyfills'
 
-import { renderHook, RenderHookResult } from '@testing-library/react'
+import type { RenderHookResult } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 
-import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
+import type { FiatParts, NumberFormatter, NumberValue } from './useLocaleFormatter'
+import { useLocaleFormatter } from './useLocaleFormatter'
 
 type Scenario = [string, FiatTypeEnum, string[]]
 
@@ -186,7 +188,7 @@ describe('useLocaleFormatter', () => {
     ],
   ]
 
-  it.each(scenarios)('formats the number in %s format', async (locale, fiat, expected) => {
+  it.each(scenarios)('formats the number in %s format', (locale, fiat, expected) => {
     const { result } = setup({ locale, fiat })
 
     expect(result.current.deviceLocale).toBe(locale)
@@ -248,13 +250,13 @@ describe('useLocaleFormatter', () => {
           secondaryGroupSize: 3,
         },
       ],
-    ])('should get locale parts for %s (%s)', async (locale, fiat, expected) => {
+    ])('should get locale parts for %s (%s)', (locale, fiat, expected) => {
       const { result } = setup({ locale, fiat })
 
       expect(result.current.number.localeParts).toMatchObject(expected)
     })
 
-    it('should default to en/USD', async () => {
+    it('should default to en/USD', () => {
       const { result } = setup({ fiat: FiatTypeEnum.USD })
 
       expect(result.current.number.localeParts).toMatchObject({
@@ -268,7 +270,7 @@ describe('useLocaleFormatter', () => {
       })
     })
 
-    it('should return the default en-US if the currency is invalid/undefined', async () => {
+    it('should return the default en-US if the currency is invalid/undefined', () => {
       // @ts-ignore
       const { result } = setup({})
       expect(result.current.deviceLocale).toBe('en-US')
@@ -287,7 +289,7 @@ describe('useLocaleFormatter', () => {
       ['42.3 1INCH', { number: '42.3', prefix: '', postfix: '1INCH' }],
       ['5 1INCH', { number: '5', prefix: '', postfix: '1INCH' }],
     ]
-    it.each(scenarios)('correctly parses %s parts', async (input, expected) => {
+    it.each(scenarios)('correctly parses %s parts', (input, expected) => {
       const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
       expect(result.current.number.toParts(input)).toStrictEqual(expected)
     })
@@ -301,7 +303,7 @@ describe('useLocaleFormatter', () => {
       [{ number: '.01', symbol: '' }, '0.01 '],
     ]
 
-    it.each(scenarios)('parses %p and returns %s', async ({ number, symbol }, expected) => {
+    it.each(scenarios)('parses %p and returns %s', ({ number, symbol }, expected) => {
       const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
 
       expect(result.current.number.toCryptoInput(number, symbol)).toEqual(expected)
@@ -323,13 +325,10 @@ describe('useLocaleFormatter', () => {
       [{ number: '.01', symbol: '' }, '0.01 '],
     ]
 
-    it.each(scenarios)(
-      'parses %p and returns %s',
-      async ({ number, symbol, options }, expected) => {
-        const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
+    it.each(scenarios)('parses %p and returns %s', ({ number, symbol, options }, expected) => {
+      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
 
-        expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
-      },
-    )
+      expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
+    })
   })
 })

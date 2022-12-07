@@ -8,20 +8,25 @@ type ExpandedMenuItemProps = {
   title?: string
   description?: string
   alert?: string
+  onBackClick?: () => void
 }
 
-export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
-  const { handleBackClick } = useMenuRoutes()
+export const SubmenuHeader = ({
+  title,
+  description,
+  onBackClick: handleBackClick,
+}: ExpandedMenuItemProps) => {
+  const { handleBackClick: handleBackClickDefault } = useMenuRoutes()
   const headerColor = useColorModeValue('black', 'white')
   const descriptionTextColor = useColorModeValue('black', 'whiteAlpha.600')
 
   return (
-    <Stack flexDir='column' mb={3} px={2}>
+    <Stack flexDir='column' px={2}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
         <IconButton
           isRound
           size='sm'
-          onClick={handleBackClick}
+          onClick={handleBackClick ?? handleBackClickDefault}
           aria-label='Go Back'
           icon={<ArrowBackIcon />}
         />

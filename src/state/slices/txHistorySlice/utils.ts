@@ -1,9 +1,6 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import intersection from 'lodash/intersection'
-import union from 'lodash/union'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 
-import { AccountSpecifier } from '../portfolioSlice/portfolioSliceCommon'
-import { Tx } from './txHistorySlice'
+import type { Tx } from './txHistorySlice'
 
 type TxIndex = string
 
@@ -16,16 +13,6 @@ export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   tx.transfers.forEach(transfer => relatedAssets.add(transfer.assetId))
   return Array.from(relatedAssets)
 }
-
-/**
- * Add a new item into an index
- *
- * @param parentIndex - The parent index holds ALL indexed values
- * @param childIndex - The child index holds SOME of the values in the parent index
- * @param newItem - The new item to add to the CHILD index
- */
-export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[] =>
-  intersection(parentIndex, union(childIndex, [newItem]))
 
 /**
  * now we support accounts, we have a new problem
@@ -48,7 +35,15 @@ export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
 export const serializeTxIndex = (
-  accountId: AccountSpecifier,
-  txId: Tx['txid'],
-  txAddress: Tx['address'],
-): TxIndex => [accountId, txId, txAddress.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+  accountId: AccountId,
+  txid: Tx['txid'],
+  address: Tx['address'],
+  data?: Tx['data'],
+): TxIndex => {
+  // special case for thorchain transactions sent back in multiple parts
+  if (data && data.parser === 'swap') {
+    return [accountId, txid, address.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
+  }
+
+  return [accountId, txid, address.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+}

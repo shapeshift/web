@@ -12,9 +12,9 @@ export interface PendoInitializeParams {
     deliverablesLoaded?(): void
     guidesFailed?(): void
     guidesLoaded?(): void
-    validateGuide?(signatureString: string): Promise<boolean>
-    validateLauncher?(signatureString: string): Promise<boolean>
-    validateGlobalScript?(data: string): Promise<boolean>
+    validateGuide?(signatureString: string): boolean
+    validateLauncher?(signatureString: string): boolean
+    validateGlobalScript?(data: string): boolean
   }
 }
 
@@ -67,12 +67,13 @@ export type AgentParseResult = {
 
 export interface Pendo {
   VERSION?: string
-  _q: Array<unknown>
+  _q: unknown[]
   initialize(params: PendoInitializeParams): void
   identify(): void
   updateOptions(): void
   pageLoad(): void
-  track(): void
+  // https://developers.pendo.io/docs/?bash#track-events
+  track(trackType: string, metadata?: Record<string, unknown>): void
 }
 
 export interface Window {

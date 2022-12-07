@@ -1,6 +1,8 @@
-import { Box, Button, ButtonProps, forwardRef, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
+import { Box, Button, forwardRef, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { memo } from 'react'
-import { NavLinkProps, useLocation } from 'react-router-dom'
+import type { NavLinkProps } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { breakpoints } from 'theme/theme'
 
 type SidebarLinkProps = {
@@ -21,8 +23,8 @@ export const MainNavLink = memo(
       <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
         <Button
           width='full'
-          justifyContent='flex-start'
-          variant='ghost'
+          justifyContent={{ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }}
+          variant='nav-link'
           isActive={href ? active : false}
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}

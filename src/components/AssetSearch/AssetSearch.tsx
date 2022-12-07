@@ -12,11 +12,11 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetsByMarketCap,
+  selectChainIdsByMarketCap,
   selectMarketData,
   selectPortfolioFiatBalances,
   selectPortfolioFiatBalancesByAccount,
@@ -65,9 +65,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
-  const supportedChainIds = useMemo(() => {
-    return Array.from(getChainAdapterManager().keys())
-  }, [])
+  const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
 
   const assetsBySelectedChain = useMemo(
@@ -78,17 +76,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const filteredAssets = useMemo(
     () => (filterBy ? filterBy(assetsBySelectedChain) : assetsBySelectedChain) ?? [],
     [filterBy, assetsBySelectedChain],
-  )
-
-  const uniqueChainIdsByAssets: ChainId[] = useMemo(
-    () =>
-      Array.from(
-        assets.reduce((acc, asset) => {
-          if (supportedChainIds.includes(asset.chainId)) acc.add(asset.chainId)
-          return acc
-        }, new Set<ChainId>()),
-      ),
-    [assets, supportedChainIds],
   )
 
   const [isFocused, setIsFocused] = useState(false)
@@ -217,7 +204,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assetSearchWithAssetList: JSX.Element = (
     <>
       <ChainList
-        chainIds={uniqueChainIdsByAssets}
+        chainIds={chainIdsByMarketCap}
         onClick={handleChainClick}
         activeChain={activeChain}
       />

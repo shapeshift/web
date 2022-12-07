@@ -1,11 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData,
-} from '@shapeshiftoss/types'
+import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -27,18 +22,27 @@ export const selectMarketData = createDeepEqualOutputSelector(
   selectSelectedCurrency,
   (cryptoMarketData, fiatMarketData, selectedCurrency): MarketDataById<AssetId> => {
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
-    if (fiatPrice.eq(1)) return cryptoMarketData // don't unnecessarily compute price history for USD
-    return Object.entries(cryptoMarketData).reduce<MarketCapResult>(
-      (acc, [caip19, assetMarketData]) => {
-        if (!assetMarketData) return acc
-        acc[caip19] = {
-          ...assetMarketData,
-          price: bnOrZero(assetMarketData.price).times(fiatPrice).toString(),
-          marketCap: bnOrZero(assetMarketData.marketCap).times(fiatPrice).toString(),
-        }
-        return acc
-      },
-      {},
+    return (
+      Object.entries(cryptoMarketData)
+        // apply fiat conversion
+        .map<[AssetId, MarketData]>(([assetId, assetMarketData]) => {
+          return [
+            assetId,
+            {
+              ...assetMarketData,
+              price: bnOrZero(assetMarketData?.price).times(fiatPrice).toString(),
+              marketCap: bnOrZero(assetMarketData?.marketCap).times(fiatPrice).toString(),
+              volume: bnOrZero(assetMarketData?.volume).times(fiatPrice).toString(),
+              changePercent24Hr: assetMarketData?.changePercent24Hr ?? 0,
+            },
+          ]
+        })
+        // sort by market cap
+        .sort(([, a], [, b]) => (bnOrZero(a.marketCap).lt(bnOrZero(b.marketCap)) ? 1 : -1))
+        .reduce<MarketDataById<AssetId>>((acc, [assetId, assetMarketData]) => {
+          acc[assetId] = assetMarketData
+          return acc
+        }, {})
     )
   },
 )
@@ -60,8 +64,10 @@ export const selectMarketDataById = createCachedSelector(
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 // assets we have loaded market data for
-export const selectCryptoMarketDataIdsSortedByMarketCap = (state: ReduxState) =>
-  state.marketData.crypto.ids
+export const selectCryptoMarketDataIdsSortedByMarketCap = createDeepEqualOutputSelector(
+  selectMarketData,
+  (marketData): AssetId[] => Object.keys(marketData),
+)
 
 // if we don't have it, it's loading
 export const selectMarketDataLoadingById = createSelector(

@@ -148,7 +148,7 @@ export const Header = () => {
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               <Box display={{ base: 'block', md: 'none' }}>
-                <Button size='sm' onClick={() => history.push('/buy-crypto/')}>
+                <Button size='sm' onClick={() => history.push('/buy-crypto')}>
                   {translate('fiatRamps.buy')}
                 </Button>
               </Box>

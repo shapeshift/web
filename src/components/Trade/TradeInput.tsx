@@ -387,6 +387,7 @@ export const TradeInput = () => {
     (action: AssetClickAction) => {
       assetSearch.open({
         onClick: (asset: Asset) => handleAssetClick(asset, action),
+        title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
         filterBy:
           action === AssetClickAction.Sell
             ? getSupportedSellableAssets

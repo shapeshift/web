@@ -37,7 +37,7 @@ export type OpportunityMetadata = {
   expired?: boolean
   name?: string
   version?: string
-  tags?: string[]
+  tags: readonly string[]
 }
 
 // User-specific values for this opportunity
@@ -136,4 +136,10 @@ export type GroupedEligibleOpportunityReturnType = {
   underlyingAssetIds: AssetIdsTuple
   opportunityIds: OpportunityId[]
   netApy: number
+}
+
+export type TagDescription = {
+  title: string
+  description: string
+  icon?: string
 }

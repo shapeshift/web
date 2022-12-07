@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Center } from '@chakra-ui/react'
+import { Box, Center, Flex, Tag } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
@@ -16,10 +16,13 @@ import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import type { BASE_OPPORTUNITIES_BY_ID } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
+import type { OpportunityMetadata, TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -45,6 +48,17 @@ const defaultMenu: DefiButtonProps[] = [
     action: DefiAction.Withdraw,
   },
 ]
+
+type BaseOpportunityKeys = keyof typeof BASE_OPPORTUNITIES_BY_ID
+type Tags = typeof BASE_OPPORTUNITIES_BY_ID[BaseOpportunityKeys]
+
+const IdleTagDescriptions: Record<Tags, TagDescription> = {
+  'Best Yield': {
+    title: 'What is Best Yield?',
+    description:
+      'Earn yield automatically across multiple defi protocols. The Best-Yield allocation strategy maximizes returns by automatically shifting capital as opportunities arise.',
+  },
+}
 
 type IdleOverviewProps = {
   accountId: AccountId | undefined
@@ -189,6 +203,21 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     ]
   }, [contractAddress, idleInvestor, opportunityData, hasClaimBalance, translate])
 
+  const renderTags = useMemo(() => {
+    return opportunityData?.tags?.map(tag => {
+      if (IdleTagDescriptions[tag]) {
+        const tagDetails = IdleTagDescriptions[tag]
+        return (
+          <Flex flexDir='column' px={8} py={4}>
+            <RawText>{tagDetails.title}</RawText>
+            <RawText>{tagDetails.description}</RawText>
+          </Flex>
+        )
+      }
+      return <Tag>{tag}</Tag>
+    })
+  }, [opportunityData?.tags])
+
   if (!opportunityData) {
     return (
       <Center minW='500px' minH='350px'>
@@ -217,6 +246,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       apy={opportunityData.apy}
       menu={menu}
       rewardAssetsCryptoPrecision={rewardAssets}
-    />
+    >
+      <Box>{renderTags}</Box>
+    </Overview>
   )
 }

@@ -4,7 +4,7 @@ import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +39,7 @@ export const useEvm = () => {
     ;(async () => {
       setIsLoading(true)
       const ethNetwork = await (wallet as ETHWallet)?.ethGetChainId?.()
-      ethNetwork ? setEthNetwork(bnOrZero(ethNetwork).toString()) : setEthNetwork(null)
+      ethNetwork && setEthNetwork(bn(ethNetwork).toString())
     })()
   }, [wallet])
 

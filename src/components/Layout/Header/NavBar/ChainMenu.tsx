@@ -8,7 +8,7 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { utils } from 'ethers'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
@@ -68,47 +68,50 @@ export const ChainMenu = (props: ChainMenuProps) => {
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
 
-  const handleChainClick = async (requestedEthNetwork: string) => {
-    try {
-      const requestedChainId = getChainIdFromEthNetwork(requestedEthNetwork)
+  const handleChainClick = useCallback(
+    async (requestedEthNetwork: string) => {
+      try {
+        const requestedChainId = getChainIdFromEthNetwork(requestedEthNetwork)
 
-      if (!requestedChainId) {
-        throw new Error(`Unsupported EVM network: ${requestedEthNetwork}`)
+        if (!requestedChainId) {
+          throw new Error(`Unsupported EVM network: ${requestedEthNetwork}`)
+        }
+
+        const requestedChainChainAdapter = chainAdapterManager.get(requestedChainId) as unknown as
+          | EvmBaseAdapter<EvmChainId>
+          | undefined
+
+        if (!requestedChainChainAdapter) {
+          throw new Error(`No chain adapter found for: ${requestedChainId}`)
+        }
+
+        const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
+        const requestedChainFeeAsset = selectAssetById(store.getState(), requestedChainFeeAssetId)
+
+        const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
+        await (state.wallet as ETHWallet).ethSwitchChain?.({
+          chainId: utils.hexValue(Number(requestedEthNetwork)),
+          chainName: requestedChainChainAdapter.getDisplayName(),
+          nativeCurrency: {
+            name: requestedChainFeeAsset.name,
+            symbol: requestedChainFeeAsset.symbol,
+            decimals: 18,
+          },
+          rpcUrls: [requestedChainRpcUrl],
+          blockExplorerUrls: [requestedChainFeeAsset.explorer],
+        })
+        setEthNetwork(requestedEthNetwork)
+        load()
+      } catch (e) {
+        moduleLogger.error(
+          e,
+          { fn: 'handleChainClick' },
+          `Error switching to chain: ${requestedEthNetwork}`,
+        )
       }
-
-      const requestedChainChainAdapter = chainAdapterManager.get(requestedChainId) as unknown as
-        | EvmBaseAdapter<EvmChainId>
-        | undefined
-
-      if (!requestedChainChainAdapter) {
-        throw new Error(`No chain adapter found for: ${requestedChainId}`)
-      }
-
-      const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
-      const requestedChainFeeAsset = selectAssetById(store.getState(), requestedChainFeeAssetId)
-
-      const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
-      await (state.wallet as ETHWallet).ethSwitchChain?.({
-        chainId: utils.hexValue(Number(requestedEthNetwork)),
-        chainName: requestedChainChainAdapter.getDisplayName(),
-        nativeCurrency: {
-          name: requestedChainFeeAsset.name,
-          symbol: requestedChainFeeAsset.symbol,
-          decimals: 18,
-        },
-        rpcUrls: [requestedChainRpcUrl],
-        blockExplorerUrls: [requestedChainFeeAsset.explorer],
-      })
-      setEthNetwork(requestedEthNetwork)
-      load()
-    } catch (e) {
-      moduleLogger.error(
-        e,
-        { fn: 'handleChainClick' },
-        `Error switching to chain: ${requestedEthNetwork}`,
-      )
-    }
-  }
+    },
+    [chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
+  )
 
   const currentChainNativeAssetId = useMemo(
     () => chainAdapterManager.get(connectedEvmChainId ?? '')?.getFeeAssetId(),

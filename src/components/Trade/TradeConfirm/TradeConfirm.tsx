@@ -149,7 +149,6 @@ export const TradeConfirm = () => {
         name: trade?.sources[0]?.name,
         defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '',
         tradeId: sellTradeId,
-        isOrder: true,
       }),
     [sellTradeId, trade],
   )

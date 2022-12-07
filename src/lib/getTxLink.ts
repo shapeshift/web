@@ -19,16 +19,16 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseU
     case SwapperName.CowSwap:
     case Dex.CowSwap:
       return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'
-    case SwapperName.Thorchain:
     case Dex.Thor:
-      return 'https://v2.viewblock.io/thorchain/tx/'
+    case SwapperName.Thorchain:
+      return isOrder ? defaultExplorerBaseUrl : 'https://v2.viewblock.io/thorchain/tx/'
     default:
       return defaultExplorerBaseUrl
   }
 }
 
 export const getTxLink = ({ name, defaultExplorerBaseUrl, txId, tradeId }: GetTxLink): string => {
-  const id = txId || tradeId
+  const id = txId ?? tradeId
   const isOrder = !!tradeId
   const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
   return `${baseUrl}${id}`

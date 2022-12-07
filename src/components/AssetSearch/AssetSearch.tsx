@@ -19,7 +19,7 @@ import { logger } from 'lib/logger'
 import {
   selectAssetsByMarketCap,
   selectChainIdsByMarketCap,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioFiatBalances,
   selectPortfolioFiatBalancesByAccount,
 } from 'state/slices/selectors'
@@ -94,7 +94,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const handleClick = onClick ?? defaultClickHandler
 
-  const marketData = useAppSelector(selectMarketData)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const sortedAssets = useMemo(() => {
     const selectAssetFiatBalance = (asset: Asset) =>
       bnOrZero(

@@ -16,7 +16,7 @@ import type { MarketDataById } from './types'
 const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
-export const selectMarketData = createDeepEqualOutputSelector(
+export const selectMarketDataSortedByMarketCap = createDeepEqualOutputSelector(
   selectCryptoMarketData,
   selectFiatMarketData,
   selectSelectedCurrency,
@@ -56,7 +56,7 @@ export const selectFiatToUsdRate = createSelector(
 const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
 export const selectMarketDataById = createCachedSelector(
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssetId,
   (cryptoMarketData, assetId): MarketData => {
     return cryptoMarketData[assetId] ?? defaultMarketData
@@ -65,7 +65,7 @@ export const selectMarketDataById = createCachedSelector(
 
 // assets we have loaded market data for
 export const selectCryptoMarketDataIdsSortedByMarketCap = createDeepEqualOutputSelector(
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (marketData): AssetId[] => Object.keys(marketData),
 )
 

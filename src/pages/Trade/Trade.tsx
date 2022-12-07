@@ -1,4 +1,7 @@
 import { Box, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import { Main } from 'components/Layout/Main'
@@ -8,7 +11,8 @@ import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 
 type MatchParams = {
-  assetId?: string
+  chainId?: string
+  assetSubId?: string
 }
 
 const TradeHeader = () => {
@@ -22,13 +26,20 @@ const TradeHeader = () => {
 }
 
 export const Trade = () => {
-  const { assetId } = useParams<MatchParams>()
-  const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
+  const { chainId, assetSubId } = useParams<MatchParams>()
+  const [passedAssetId, setPassedAssetId] = useState<AssetId>(ethAssetId)
   const {
     state: { isDemoWallet },
   } = useWallet()
   const top = isDemoWallet ? '7rem' : '4.5rem'
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  useEffect(() => {
+    // Auto select asset when passed in via params
+    if (chainId && assetSubId) {
+      const assetId = `${chainId}/${assetSubId}`
+      setPassedAssetId(assetId)
+    }
+  }, [assetSubId, chainId])
   return (
     <Main py={0} px={0} display='flex' flex={1} width='full' titleComponent={<TradeHeader />}>
       <Stack
@@ -69,7 +80,7 @@ export const Trade = () => {
             position='relative'
             zIndex='2'
           >
-            <TradeCard defaultBuyAssetId={parsedAssetId} />
+            <TradeCard defaultBuyAssetId={passedAssetId} />
           </Container>
         </Box>
         <Stack

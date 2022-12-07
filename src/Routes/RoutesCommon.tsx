@@ -159,7 +159,7 @@ export const routes: NestedRoute[] = [
     routes: [
       {
         label: 'Trade Asset',
-        path: '/:assetId',
+        path: '/:chainId/:assetSubId',
         main: Trade,
         hide: true,
       },

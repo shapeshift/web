@@ -38,7 +38,7 @@ export const selectMarketData = createDeepEqualOutputSelector(
           ]
         })
         // sort by market cap
-        .sort(([, a], [, b]) => (bnOrZero(a.marketCap).lt(bnOrZero(b.marketCap)) ? 1 : -1))
+        .sort(([, a], [, b]) => (bnOrZero(a.marketCap).lt(b.marketCap) ? 1 : -1))
         .reduce<MarketDataById<AssetId>>((acc, [assetId, assetMarketData]) => {
           acc[assetId] = assetMarketData
           return acc

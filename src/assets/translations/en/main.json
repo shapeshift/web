@@ -82,8 +82,7 @@
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
-    "viewAll": "View All",
-    "buySellAsset": "Buy/Sell %{symbol}"
+    "viewAll": "View All"
   },
   "errorPage": {
     "title": "Oops!",

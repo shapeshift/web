@@ -89,18 +89,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           </Button>
         )}
 
-        <Button
-          data-test='asset-action-buy-sell'
-          width={{ base: 'full', md: 'auto' }}
-          flex={{ base: 1, md: 'auto' }}
-          onClick={handleBuySellClick}
-          leftIcon={<FaCreditCard />}
-          size='sm-multiline'
-        >
-          {assetSupportsBuy
-            ? translate('common.buySellAsset', { symbol: asset.symbol })
-            : translate('common.buySell')}
-        </Button>
+        {assetSupportsBuy && (
+          <Button
+            data-test='asset-action-buy-sell'
+            width={{ base: 'full', md: 'auto' }}
+            flex={{ base: 1, md: 'auto' }}
+            onClick={handleBuySellClick}
+            leftIcon={<FaCreditCard />}
+            size='sm-multiline'
+          >
+            {translate('common.buySell')}
+          </Button>
+        )}
       </Flex>
       <Flex direction='row' gap={2} flexWrap='wrap'>
         <Button

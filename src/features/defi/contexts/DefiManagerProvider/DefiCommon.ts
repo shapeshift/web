@@ -13,7 +13,7 @@ export enum DefiProvider {
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
   FoxEthLP = 'UNI V2',
-  FoxFarming = 'ShapeShift',
+  FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
 }

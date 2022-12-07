@@ -45,7 +45,7 @@ export const assertIsFoxEthStakingContractAddress: (
   value: FoxEthStakingContractAddress | string,
 ) => asserts value is FoxEthStakingContractAddress = getTypeGuardAssertion(
   isFoxEthStakingContractAddress,
-  "assertIsFoxEthStakingContractAddress: Contract address isn't a known ETH/FOX staking address",
+  "Contract address isn't a known ETH/FOX staking address",
 )
 
 // Staking contracts as flavored StakingIds

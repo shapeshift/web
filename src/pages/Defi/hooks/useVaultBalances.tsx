@@ -14,7 +14,7 @@ import { logger } from 'lib/logger'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioAssetBalances,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -80,7 +80,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
-  const marketData = useSelector(selectMarketData)
+  const marketData = useSelector(selectMarketDataSortedByMarketCap)
   const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 

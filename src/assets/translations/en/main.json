@@ -79,10 +79,12 @@
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
+    "searchAsset": "Search for asset",
     "enterAmount": "Enter Amount",
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
-    "viewAll": "View All"
+    "all": "All",
+    "viewAll": "View All",
   },
   "errorPage": {
     "title": "Oops!",
@@ -533,6 +535,8 @@
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
+    "tradeFrom": "Trade from",
+    "tradeTo": "Trade to",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",

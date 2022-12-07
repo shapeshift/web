@@ -2,10 +2,8 @@ import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshifto
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import farmingAbi from 'features/defi/providers/fox-farming/abis/farmingAbi.json'
 import { FOX_TOKEN_CONTRACT_ADDRESS, WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import {
   calculateAPRFromToken0,
@@ -25,8 +23,10 @@ import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slic
 import {
   foxEthLpAssetId,
   foxEthLpAssetIds,
+  foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
+  isFoxEthStakingContractAddress,
   LP_EARN_OPPORTUNITIES,
   STAKING_ID_TO_VERSION,
 } from '../../constants'
@@ -59,7 +59,7 @@ export const foxFarmingLpMetadataResolver = async ({
   const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
   const ethPrice = ethMarketData.price
   const ethersProvider = getEthersProvider()
-  const uniV2LPContract = getOrCreateContract(contractAddress, IUniswapV2Pair.abi)
+  const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
   const pair = await fetchPairData(
     new Token(0, WETH_TOKEN_CONTRACT_ADDRESS, 18),
     new Token(0, FOX_TOKEN_CONTRACT_ADDRESS, 18),
@@ -154,11 +154,11 @@ export const foxFarmingStakingMetadataResolver = async ({
   }
 
   const ethersProvider = getEthersProvider()
-  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
-  const uniV2LPContract = getOrCreateContract(
-    fromAssetId(foxEthLpAssetId).assetReference,
-    IUniswapV2Pair.abi,
-  )
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+  const foxFarmingContract = getOrCreateContract(contractAddress)
+  const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -272,7 +272,11 @@ export const foxFarmingStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  const foxFarmingContract = getOrCreateContract(contractAddress, farmingAbi)
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
+  const foxFarmingContract = getOrCreateContract(contractAddress)
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)

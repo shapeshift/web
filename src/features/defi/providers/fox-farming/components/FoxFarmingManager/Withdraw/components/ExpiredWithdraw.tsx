@@ -18,6 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { isFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,6 +34,11 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress } = query
   const opportunity = state?.opportunity
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
   const { setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
 

@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { isFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -43,6 +44,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, assetReference } = query
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
+
   const { stake } = useFoxFarming(contractAddress)
   const opportunity = state?.opportunity
   const { onOngoingFarmingTxIdChange } = useFoxEth()

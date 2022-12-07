@@ -1,21 +1,13 @@
-import { Contract } from '@ethersproject/contracts'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { getEthersProvider } from 'plugins/foxPage/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
 
 export const getLpTokenPrice = async (
   ethPrecision: number,
   ethPrice: string,
   lpAssetPrecision: number,
 ) => {
-  const ethersProvider = getEthersProvider()
-  const uniV2LPContract = new Contract(
-    fromAssetId(foxEthLpAssetId).assetReference,
-    IUniswapV2Pair.abi,
-    ethersProvider,
-  )
+  const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
   const reserves = await uniV2LPContract.getReserves()
   // Amount of Eth in liquidity pool
   const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${ethPrecision}`)

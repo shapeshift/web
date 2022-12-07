@@ -1,10 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import { Contract } from '@ethersproject/contracts'
-import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
-import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -13,19 +10,17 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isValidAccountNumber } from 'lib/utils'
+import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   foxEthLpAssetId,
-  uniswapV2Router02AssetId,
+  foxEthLpContractAddress,
+  uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import IUniswapV2Router02ABI from '../../fox-eth-lp/abis/IUniswapV2Router02.json'
-import farmAbi from '../abis/farmingAbi.json'
 const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
-
-// TODO: use wagmi provider
-const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
 type UseFoxFarmingOptions = {
   skip?: boolean
@@ -33,8 +28,12 @@ type UseFoxFarmingOptions = {
 /**
  * useFoxFarming hook
  * @param contractAddress farming contract address, since there could be multiple contracts
+ * @param skip
  */
-export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOptions = {}) => {
+export const useFoxFarming = (
+  contractAddress: FoxEthStakingContractAddress,
+  { skip }: UseFoxFarmingOptions = {},
+) => {
   const { farmingAccountId } = useFoxEth()
   const { supportedEvmChainIds } = useEvm()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -52,29 +51,17 @@ export const useFoxFarming = (contractAddress: string, { skip }: UseFoxFarmingOp
   const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as ethereum.ChainAdapter
 
   const uniswapRouterContract = useMemo(
-    () =>
-      skip
-        ? null
-        : new Contract(
-            uniswapV2Router02AssetId,
-            IUniswapV2Router02ABI.abi,
-            maybeEthersProvider(skip)!,
-          ),
+    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
     [skip],
   )
 
   const foxFarmingContract = useMemo(
-    () => (skip ? null : new Contract(contractAddress, farmAbi, maybeEthersProvider(skip)!)),
+    () => (skip ? null : getOrCreateContract(contractAddress)),
     [contractAddress, skip],
   )
 
   const uniV2LPContract = useMemo(
-    () =>
-      new Contract(
-        fromAssetId(foxEthLpAssetId).assetReference,
-        IUniswapV2Pair.abi,
-        maybeEthersProvider(skip)!,
-      ),
+    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
     [skip],
   )
 

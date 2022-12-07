@@ -15,6 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { isFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -55,6 +56,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       ),
     }),
   )
+
+  if (!isFoxEthStakingContractAddress(contractAddress)) {
+    throw new Error("Contract address isn't a known ETH/FOX staking address")
+  }
 
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 

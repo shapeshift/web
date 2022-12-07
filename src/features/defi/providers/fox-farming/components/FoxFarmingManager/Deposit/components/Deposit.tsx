@@ -20,8 +20,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
+  assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
-  isFoxEthStakingContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -64,9 +64,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
 
-  if (!isFoxEthStakingContractAddress(contractAddress)) {
-    throw new Error("Contract address isn't a known ETH/FOX staking address")
-  }
+  assertIsFoxEthStakingContractAddress(contractAddress)
 
   const {
     allowance: foxFarmingAllowance,

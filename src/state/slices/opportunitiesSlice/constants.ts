@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { LpId, StakingId } from './types'
 
@@ -35,10 +36,17 @@ export const foxEthStakingContractAddresses = [
 
 export type FoxEthStakingContractAddress = typeof foxEthStakingContractAddresses[number]
 
-export const isFoxEthStakingContractAddress = (
-  address: string,
+const isFoxEthStakingContractAddress = (
+  address: FoxEthStakingContractAddress | string,
 ): address is FoxEthStakingContractAddress =>
   foxEthStakingContractAddresses.includes(address as FoxEthStakingContractAddress)
+
+export const assertIsFoxEthStakingContractAddress: (
+  value: FoxEthStakingContractAddress | string,
+) => asserts value is FoxEthStakingContractAddress = getTypeGuardAssertion(
+  isFoxEthStakingContractAddress,
+  "Contract address isn't a known ETH/FOX staking address",
+)
 
 // Staking contracts as flavored StakingIds
 export const foxEthStakingAssetIdV1: StakingId =

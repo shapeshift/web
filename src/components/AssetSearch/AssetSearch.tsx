@@ -4,7 +4,9 @@ import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
+import intersection from 'lodash/intersection'
 import orderBy from 'lodash/orderBy'
+import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -160,6 +162,12 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   }, [searchString, searching, sortedAssets])
 
   const listAssets = searching ? searchTermAssets : sortedAssets
+
+  const filteredChainIdsByMarketCap: ChainId[] = useMemo(
+    () => intersection(chainIdsByMarketCap, uniq(listAssets.map(a => a.chainId))),
+    [chainIdsByMarketCap, listAssets],
+  )
+
   const inputProps: InputProps = {
     ...register('search'),
     type: 'text',
@@ -203,7 +211,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assetSearchWithAssetList: JSX.Element = (
     <>
       <ChainList
-        chainIds={chainIdsByMarketCap}
+        chainIds={filteredChainIdsByMarketCap}
         onClick={handleChainClick}
         activeChain={activeChain}
       />

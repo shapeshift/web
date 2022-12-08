@@ -86,7 +86,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
-          amountDesired: bnOrZero(state?.deposit.cryptoAmount)
+          amountDesiredCryptoBaseUnit: bnOrZero(state?.deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           tokenContractAddress: assetReference,

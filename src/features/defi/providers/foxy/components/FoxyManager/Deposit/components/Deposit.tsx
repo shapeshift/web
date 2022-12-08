@@ -101,7 +101,7 @@ export const Deposit: React.FC<DepositProps> = ({
             api.estimateDepositGas({
               tokenContractAddress: assetReference,
               contractAddress,
-              amountDesired: bnOrZero(deposit.cryptoAmount)
+              amountDesiredCryptoBaseUnit: bnOrZero(deposit.cryptoAmount)
                 .times(`1e+${asset.precision}`)
                 .decimalPlaces(0),
               userAddress: accountAddress,

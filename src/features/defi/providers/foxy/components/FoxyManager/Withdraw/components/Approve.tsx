@@ -75,7 +75,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           api.estimateWithdrawGas({
             tokenContractAddress: rewardId,
             contractAddress,
-            amountDesired: bnOrZero(
+            amountDesiredCryptoBaseUnit: bnOrZero(
               bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
             ).decimalPlaces(0),
             userAddress: state.userAddress,

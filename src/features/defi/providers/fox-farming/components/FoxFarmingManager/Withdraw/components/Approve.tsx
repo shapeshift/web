@@ -54,12 +54,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
@@ -76,7 +78,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
+          const allowance = bnOrZero(result).div(bn(10).pow(asset?.precision ?? 1))
           return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
@@ -86,7 +88,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
-        .div(bn(10).pow(feeAsset.precision))
+        .div(bn(10).pow(feeAsset?.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
@@ -108,7 +110,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   }, [
     allowance,
     approve,
-    asset.precision,
+    asset?.precision,
     dispatch,
     feeAsset.precision,
     getUnstakeGasData,

@@ -168,7 +168,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   )
 
   const menuOptions = useMemo(() => {
-    const makeTitle = (accountId: AccountId) => {
+    const makeTitle = (accountId: AccountId): string => {
       /**
        * for UTXO chains, we want the title to be the account type
        * for account-based chains, we want the title to be the asset name
@@ -179,7 +179,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           return accountIdToLabel(accountId)
         }
         default: {
-          return asset.name
+          return asset?.name ?? ''
         }
       }
     }
@@ -222,9 +222,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
               title={makeTitle(iterAccountId)}
               cryptoBalance={fromBaseUnit(
                 accountBalances?.[iterAccountId]?.[assetId] ?? 0,
-                asset.precision,
+                asset?.precision ?? 0,
               )}
-              symbol={asset.symbol}
+              symbol={asset?.symbol ?? ''}
               isChecked={selectedAccountId === iterAccountId}
               onClick={() => handleClick(iterAccountId)}
               isDisabled={disabled}
@@ -237,9 +237,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   }, [
     accountIds,
     chainId,
-    asset.name,
-    asset.precision,
-    asset.symbol,
+    asset?.name,
+    asset?.precision,
+    asset?.symbol,
     accountMetadata,
     autoSelectHighestBalance,
     getAccountIdsSortedByBalance,

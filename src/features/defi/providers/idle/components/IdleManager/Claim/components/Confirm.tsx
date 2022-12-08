@@ -64,6 +64,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
@@ -148,7 +150,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
         amount: bnOrZero(amount)
-          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision))
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
           .toNumber(),
       }
       return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />

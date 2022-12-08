@@ -86,7 +86,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           ...baseOpportunity,
           apy: opportunity.apy.toFixed(),
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
-          name: `${underlyingAsset.symbol} Vault`,
+          name: `${underlyingAsset?.symbol} Vault`,
           version: opportunity.version,
         }
       : {
@@ -107,7 +107,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
           underlyingAssetRatios: ['1'],
-          name: `${underlyingAsset.symbol} Vault`,
+          name: `${underlyingAsset?.symbol} Vault`,
           version: opportunity.version,
         }
   }

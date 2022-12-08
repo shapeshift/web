@@ -7,6 +7,7 @@ import { ErrorHandler } from '../../error/ErrorHandler'
 import {
   BuildDepositTxInput,
   BuildSendTxInput,
+  ChainAdapterDisplayName,
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
@@ -15,7 +16,7 @@ import {
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import { ChainAdapterName, Message } from '../types'
+import { Message } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
@@ -52,7 +53,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   getDisplayName() {
-    return ChainAdapterName.Thorchain
+    return ChainAdapterDisplayName.Thorchain
   }
 
   getType(): KnownChainIds.ThorchainMainnet {

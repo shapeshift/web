@@ -19,6 +19,7 @@ import { numberToHex } from 'web3-utils'
 
 import {
   BuildSendTxInput,
+  ChainAdapterDisplayName,
   SignMessageInput,
   SignTxInput,
   ValidAddressResultType,
@@ -406,7 +407,7 @@ describe('AvalancheChainAdapter', () => {
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'AvalancheChainAdapter: to is required',
+        `${ChainAdapterDisplayName.Avalanche} ChainAdapter: to is required`,
       )
     })
 
@@ -420,7 +421,7 @@ describe('AvalancheChainAdapter', () => {
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'AvalancheChainAdapter: value is required',
+        `${ChainAdapterDisplayName.Avalanche} ChainAdapter: value is required`,
       )
     })
 

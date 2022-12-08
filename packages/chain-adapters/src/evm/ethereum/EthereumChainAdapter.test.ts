@@ -14,6 +14,7 @@ import { numberToHex } from 'web3-utils'
 
 import {
   BuildSendTxInput,
+  ChainAdapterDisplayName,
   SignMessageInput,
   SignTxInput,
   ValidAddressResultType,
@@ -466,7 +467,7 @@ describe('EthereumChainAdapter', () => {
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'EthereumChainAdapter: to is required',
+        `${ChainAdapterDisplayName.Ethereum} ChainAdapter: to is required`,
       )
     })
 
@@ -504,7 +505,7 @@ describe('EthereumChainAdapter', () => {
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        'EthereumChainAdapter: value is required',
+        `${ChainAdapterDisplayName.Ethereum} ChainAdapter: value is required`,
       )
     })
 

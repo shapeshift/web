@@ -4,18 +4,6 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import * as types from '../types'
 import { CosmosSdkChainId } from './CosmosSdkBaseAdapter'
 
-export enum ChainAdapterName {
-  Thorchain = 'THORChain',
-  Osmosis = 'Osmosis',
-  Ethereum = 'Ethereum',
-  Avalanche = 'Avalanche',
-  Cosmos = 'Cosmos',
-  Bitcoin = 'Bitcoin',
-  BitcoinCash = 'Bitcoin Cash',
-  Dogecoin = 'Dogecoin',
-  Litecoin = 'Litecoin',
-}
-
 export type Account = {
   sequence: string
   accountNumber: string

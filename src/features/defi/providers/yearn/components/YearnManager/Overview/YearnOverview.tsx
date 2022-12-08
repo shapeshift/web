@@ -51,6 +51,9 @@ export const YearnOverview: React.FC<{
   })
   const asset = useAppSelector(state => selectAssetById(state, vaultTokenId))
   const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+  if (!underlyingToken) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const filter = useMemo(

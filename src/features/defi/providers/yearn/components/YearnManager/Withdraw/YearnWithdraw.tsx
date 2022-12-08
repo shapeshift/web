@@ -66,6 +66,9 @@ export const YearnWithdraw: React.FC<{
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))

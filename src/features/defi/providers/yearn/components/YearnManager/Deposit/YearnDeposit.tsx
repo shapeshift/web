@@ -108,7 +108,7 @@ export const YearnDeposit: React.FC<{
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        description: translate('defi.steps.deposit.info.description', { asset: asset?.symbol }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -129,7 +129,7 @@ export const YearnDeposit: React.FC<{
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, vaultAddress, asset.symbol, translate])
+  }, [accountId, handleAccountIdChange, vaultAddress, asset?.symbol, translate])
 
   if (loading || !asset || !marketData || !api) {
     return (

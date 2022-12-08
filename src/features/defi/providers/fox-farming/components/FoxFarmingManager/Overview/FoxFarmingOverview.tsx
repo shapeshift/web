@@ -46,6 +46,8 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, highestBalanceAccountAddress, contractAddress } = query
@@ -79,8 +81,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const underlyingAssetsIcons = useMemo(
-    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId]?.icon).filter(isSome),
+  const underlyingAssetsIcons: string[] = useMemo(
+    () =>
+      opportunityData?.underlyingAssetIds.map(assetId => assets[assetId]?.icon).filter(isSome) ??
+      [],
     [assets, opportunityData?.underlyingAssetIds],
   )
 

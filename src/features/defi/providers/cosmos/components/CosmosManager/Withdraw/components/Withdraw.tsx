@@ -62,6 +62,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     assetReference, // TODO: different denom asset reference
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Staking Asset Info

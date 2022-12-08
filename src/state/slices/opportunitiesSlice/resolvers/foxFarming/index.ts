@@ -55,8 +55,8 @@ export const foxFarmingLpMetadataResolver = async ({
     throw new Error(`Market data not ready for ${ethAssetId}`)
   }
 
-  const ethPrecision = assets.byId[ethAssetId].precision
-  const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
+  const ethPrecision = assets.byId[ethAssetId]?.precision
+  const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision
   const ethPrice = ethMarketData.price
   const ethersProvider = getEthersProvider()
   const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
@@ -121,8 +121,8 @@ export const foxFarmingLpMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
-          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
-          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
         name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
@@ -141,9 +141,9 @@ export const foxFarmingStakingMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
-  const lpAssetPrecision = assets.byId[foxEthLpAssetId].precision
-  const foxPrecision = assets.byId[foxAssetId].precision
-  const ethPrecision = assets.byId[ethAssetId].precision
+  const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
+  const foxPrecision = assets.byId[foxAssetId]?.precision ?? 18
+  const ethPrecision = assets.byId[ethAssetId]?.precision ?? 18
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
@@ -211,8 +211,8 @@ export const foxFarmingStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
-          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]].precision),
-          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]].precision),
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
         expired,
         name: 'Fox Farming',

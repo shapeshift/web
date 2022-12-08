@@ -17,6 +17,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -79,7 +80,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   )
 
   const underlyingAssetsIcons = useMemo(
-    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId].icon),
+    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId]?.icon).filter(isSome),
     [assets, opportunityData?.underlyingAssetIds],
   )
 
@@ -91,6 +92,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, opportunityData?.underlyingAssetId ?? ''),
   )
+
+  if (!stakingAsset)
+    throw new Error(`Asset not found for AssetId ${opportunityData?.underlyingAssetId}`)
 
   const underlyingAssetsFiatBalance = useMemo(() => {
     if (!stakingAsset) return '0'
@@ -138,6 +142,8 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   }, [highestBalanceAccountId])
 
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  if (!rewardAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(
     bn(10).pow(stakingAsset.precision),
   )

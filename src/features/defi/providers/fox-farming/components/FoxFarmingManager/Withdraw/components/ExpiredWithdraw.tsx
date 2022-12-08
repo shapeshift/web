@@ -50,6 +50,10 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const lpMarketData = useAppSelector(state =>
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
   )
@@ -58,7 +62,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const rewardAmountCryptoPrecision = useMemo(
     () =>
       bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
+        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 1))
         .toFixed(),
     [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )

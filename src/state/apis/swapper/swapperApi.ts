@@ -2,6 +2,9 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
+import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useTradeQuoteService'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -10,6 +13,7 @@ export type GetUsdRateArgs = {
   rateAssetId: AssetId
   buyAssetId: AssetId
   sellAssetId: AssetId
+  tradeQuoteInputArgs: GetTradeQuoteInputArgs
 }
 
 type GetUsdRateReturn = {
@@ -20,6 +24,7 @@ export type GetUsdRatesArgs = {
   feeAssetId: AssetId
   buyAssetId: AssetId
   sellAssetId: AssetId
+  tradeQuoteInputArgs: GetTradeQuoteInputArgs
 }
 
 type GetUsdRatesReturn = {
@@ -40,14 +45,24 @@ export const swapperApi = createApi({
   reducerPath: 'swapperApi',
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
-      queryFn: async ({ rateAssetId, buyAssetId, sellAssetId }, { getState }) => {
+      queryFn: async ({ rateAssetId, tradeQuoteInputArgs }, { getState }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           assets,
           preferences: { featureFlags },
         } = state
         try {
-          const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
+          const tradeQuoteArgs = await getTradeQuoteArgs(tradeQuoteInputArgs)
+          if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
+          const feeAssetId = getChainAdapterManager()
+            .get(tradeQuoteInputArgs.buyAsset.chainId)!
+            .getFeeAssetId()
+          const feeAsset = assets.byId[feeAssetId]
+          const swapper = await getBestSwapperFromArgs({
+            featureFlags,
+            tradeQuoteArgs,
+            feeAsset,
+          })
           const rateAsset = assets.byId[rateAssetId]
           const usdRate = await swapper.getUsdRate(rateAsset)
           const data = { usdRate }
@@ -63,17 +78,26 @@ export const swapperApi = createApi({
       },
     }),
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
-      queryFn: async ({ feeAssetId, buyAssetId, sellAssetId }, { getState }) => {
+      queryFn: async (
+        { feeAssetId, buyAssetId, sellAssetId, tradeQuoteInputArgs },
+        { getState },
+      ) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           assets,
           preferences: { featureFlags },
         } = state
         try {
-          const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
+          const tradeQuoteArgs = await getTradeQuoteArgs(tradeQuoteInputArgs)
+          if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
           const feeAsset = assets.byId[feeAssetId]
           const buyAsset = assets.byId[buyAssetId]
           const sellAsset = assets.byId[sellAssetId]
+          const swapper = await getBestSwapperFromArgs({
+            featureFlags,
+            tradeQuoteArgs,
+            feeAsset,
+          })
           const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = await Promise.all([
             swapper.getUsdRate(feeAsset),
             swapper.getUsdRate(buyAsset),
@@ -93,17 +117,19 @@ export const swapperApi = createApi({
     }),
     getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState }) => {
-        const { sellAsset, buyAsset } = args
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           preferences: { featureFlags },
+          assets,
         } = state
         try {
-          const swapper = await getBestSwapperFromArgs(
-            buyAsset.assetId,
-            sellAsset.assetId,
+          const feeAssetId = getChainAdapterManager().get(args.buyAsset.chainId)!.getFeeAssetId()
+          const feeAsset = assets.byId[feeAssetId]
+          const swapper = await getBestSwapperFromArgs({
             featureFlags,
-          )
+            tradeQuoteArgs: args,
+            feeAsset,
+          })
           const tradeQuote = await swapper.getTradeQuote(args)
           return { data: tradeQuote }
         } catch (e) {
@@ -119,4 +145,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetUsdRateQuery, useGetTradeQuoteQuery, useGetUsdRatesQuery } = swapperApi
+export const { useGetTradeQuoteQuery, useGetUsdRatesQuery } = swapperApi

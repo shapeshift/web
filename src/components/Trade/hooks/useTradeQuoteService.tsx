@@ -26,7 +26,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type GetTradeQuoteInputArgs = {
+export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined

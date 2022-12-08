@@ -129,6 +129,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   abstract getType(): T
   abstract getFeeAssetId(): AssetId
+  abstract getName(): string
   abstract getDisplayName(): string
   abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }>
   abstract getAddress(input: GetAddressInput): Promise<string>

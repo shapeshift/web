@@ -37,6 +37,13 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
     return ChainAdapterDisplayName.Dogecoin
   }
 
+  getName() {
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
+      ChainAdapterDisplayName.Dogecoin,
+    )
+    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+  }
+
   getType(): KnownChainIds.DogecoinMainnet {
     return KnownChainIds.DogecoinMainnet
   }

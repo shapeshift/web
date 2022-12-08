@@ -108,6 +108,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   abstract getType(): T
   abstract getFeeAssetId(): AssetId
+  abstract getName(): string
   abstract getDisplayName(): string
 
   private assertIsAccountTypeSupported(accountType: UtxoAccountType) {

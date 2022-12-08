@@ -94,6 +94,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   abstract getType(): T
   abstract getFeeAssetId(): AssetId
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
+  abstract getName(): string
   abstract getDisplayName(): string
   abstract getGasFeeData(): Promise<GasFeeDataEstimate>
 
@@ -133,8 +134,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const { erc20ContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
         tx.chainSpecific
 
-      if (!tx.to) throw new Error(`${this.getDisplayName()} ChainAdapter: to is required`)
-      if (!tx.value) throw new Error(`${this.getDisplayName()} ChainAdapter: value is required`)
+      if (!tx.to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
+      if (!tx.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
       const destAddress = erc20ContractAddress ?? to
 

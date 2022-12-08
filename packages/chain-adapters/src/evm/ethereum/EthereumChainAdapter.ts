@@ -46,6 +46,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     return ChainAdapterDisplayName.Ethereum
   }
 
+  getName() {
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
+      ChainAdapterDisplayName.Ethereum,
+    )
+    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+  }
+
   getType(): KnownChainIds.EthereumMainnet {
     return KnownChainIds.EthereumMainnet
   }

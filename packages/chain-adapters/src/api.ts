@@ -25,6 +25,10 @@ export type ChainAdapterManager = Map<ChainId, ChainAdapter<ChainId>>
 
 export type ChainAdapter<T extends ChainId> = {
   /**
+   * Internal use only. The chain-adapter name for e.g logging purposes
+   */
+  getName(): string
+  /**
    * A user-friendly name for the chain.
    */
   getDisplayName(): string

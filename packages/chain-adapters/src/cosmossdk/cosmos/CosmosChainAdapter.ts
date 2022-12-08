@@ -51,6 +51,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     return ChainAdapterDisplayName.Cosmos
   }
 
+  getName() {
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(ChainAdapterDisplayName.Cosmos)
+    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+  }
+
   getType(): KnownChainIds.CosmosMainnet {
     return KnownChainIds.CosmosMainnet
   }

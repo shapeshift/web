@@ -38,6 +38,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     return ChainAdapterDisplayName.Avalanche
   }
 
+  getName() {
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
+      ChainAdapterDisplayName.Avalanche,
+    )
+    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+  }
+
   getType(): KnownChainIds.AvalancheMainnet {
     return KnownChainIds.AvalancheMainnet
   }

@@ -41,6 +41,13 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.LitecoinMainnet>
     return ChainAdapterDisplayName.Litecoin
   }
 
+  getName() {
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
+      ChainAdapterDisplayName.Litecoin,
+    )
+    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+  }
+
   getType(): KnownChainIds.LitecoinMainnet {
     return KnownChainIds.LitecoinMainnet
   }

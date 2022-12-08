@@ -98,9 +98,5 @@ export const PromoCard = () => {
       },
     )
   }, [handleClick])
-  return renderPromos.length ? (
-    <Carousel autoPlay interval={10000} loop showArrows={false}>
-      {renderPromos}
-    </Carousel>
-  ) : null
+  return renderPromos.length ? <Carousel>{renderPromos}</Carousel> : null
 }

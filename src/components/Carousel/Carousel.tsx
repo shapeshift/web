@@ -1,129 +1,72 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/react'
-import type { AnimationOptions, PanInfo } from 'framer-motion'
-import { animate, useMotionValue } from 'framer-motion'
-import type { ReactNode } from 'react'
-import React, {
-  Children,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
+import { Children, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Arrow } from './Arrow'
-import { Dots } from './Dots'
-import { Slider } from './Slider'
+import { DotButton } from './DotButton'
 import type { CarouselProps } from './types'
 
-const containerStyle: React.CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  height: '100%',
-  overflowX: 'hidden',
-  display: 'flex',
-}
+export const Carousel = ({ children, showArrows, showDots }: CarouselProps) => {
+  const [viewportRef, embla] = useEmblaCarousel()
+  const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
+  const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
 
-const transition: AnimationOptions<any> = {
-  type: 'spring',
-  bounce: 0,
-}
+  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla])
+  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla])
+  const scrollTo = useCallback((index: number) => embla && embla.scrollTo(index), [embla])
 
-const Container = forwardRef<HTMLDivElement, { children: ReactNode }>((props, ref) => (
-  <div ref={ref} style={containerStyle}>
-    {props.children}
-  </div>
-))
-
-export const Carousel = ({
-  children,
-  autoPlay = false,
-  interval = 5000,
-  loop = false,
-  showArrows,
-  showDots,
-}: CarouselProps) => {
-  const x = useMotionValue(0)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [index, setIndex] = useState(0)
-
-  const calculateNewX = useCallback(
-    () => -index * (containerRef.current?.clientWidth || 0),
-    [index],
-  )
   const childrens = Children.toArray(children)
 
-  const handleNext = useCallback(() => {
-    const idx = loop ? 0 : index
-    setIndex(index + 1 === childrens.length ? idx : index + 1)
-  }, [childrens.length, index, loop])
-
-  const handlePrev = useCallback(() => {
-    const idx = loop ? childrens.length - 1 : 0
-    setIndex(index - 1 < 0 ? idx : index - 1)
-  }, [childrens.length, index, loop])
-
-  const handleEndDrag = useCallback(
-    (_e: Event, dragProps: PanInfo) => {
-      const clientWidth = containerRef.current?.clientWidth || 0
-
-      const { offset } = dragProps
-
-      if (offset.x > clientWidth / 4) {
-        handlePrev()
-      } else if (offset.x < -clientWidth / 4) {
-        handleNext()
-      } else {
-        animate(x, calculateNewX(), transition)
-      }
-    },
-    [calculateNewX, handleNext, handlePrev, x],
-  )
+  const onSelect = useCallback(() => {
+    if (!embla) return
+    setSelectedIndex(embla.selectedScrollSnap())
+    setPrevBtnEnabled(embla.canScrollPrev())
+    setNextBtnEnabled(embla.canScrollNext())
+  }, [embla, setSelectedIndex])
 
   useEffect(() => {
-    const controls = animate(x, calculateNewX(), transition)
-    return controls.stop
-  }, [calculateNewX, index, x])
-
-  useEffect(() => {
-    if (!autoPlay) {
-      return
-    }
-    const timer = setInterval(() => handleNext(), interval)
-    return () => clearInterval(timer)
-  }, [autoPlay, handleNext, interval])
+    if (!embla) return
+    onSelect()
+    setScrollSnaps(embla.scrollSnapList())
+    embla.on('select', onSelect)
+  }, [embla, setScrollSnaps, onSelect])
 
   const renderSlides = useMemo(() => {
     return childrens.map((child, i) => (
-      <Slider
-        onDragEnd={handleEndDrag}
-        x={x}
-        i={i}
-        key={i}
-        enableDrag={childrens.length > 1 ? true : false}
-      >
+      <Box className='embla__slide' key={i} flex='0 0 100%' marginLeft={4}>
         {child}
-      </Slider>
+      </Box>
     ))
-  }, [childrens, handleEndDrag, x])
+  }, [childrens])
 
   return (
-    <Box>
-      <Container ref={containerRef}>{renderSlides}</Container>
-      {(showArrows || showDots) && (
-        <Flex alignItems='center' justifyContent='space-between' mt={2}>
+    <Box ref={viewportRef} className='embla' overflow='hidden'>
+      <Box className='embla__container' display='flex'>
+        {renderSlides}
+      </Box>
+      {(showDots || showArrows) && (
+        <Flex justifyContent='space-between' alignItems='center' mt={4}>
           {showArrows && (
-            <Arrow direction='left' onClick={handlePrev}>
+            <Arrow aria-label='left' isDisabled={!prevBtnEnabled} onClick={scrollPrev}>
               <ArrowBackIcon />
             </Arrow>
           )}
-          {showDots && childrens.length > 1 && (
-            <Dots length={childrens.length} setActiveIndex={setIndex} activeIndex={index} />
+          {showDots && (
+            <Flex className='embla__dots' gap={2} justifyContent='center'>
+              {scrollSnaps.map((_, index) => (
+                <DotButton
+                  key={index}
+                  selected={index === selectedIndex}
+                  onClick={() => scrollTo(index)}
+                />
+              ))}
+            </Flex>
           )}
           {showArrows && (
-            <Arrow onClick={handleNext}>
+            <Arrow aria-label='right' isDisabled={!nextBtnEnabled} onClick={scrollNext}>
               <ArrowForwardIcon />
             </Arrow>
           )}

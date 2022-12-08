@@ -156,6 +156,14 @@ export const routes: NestedRoute[] = [
     icon: <IoSwapVertical />,
     main: Trade,
     category: RouteCategory.Explore,
+    routes: [
+      {
+        label: 'Trade Asset',
+        path: '/:chainId/:assetSubId',
+        main: Trade,
+        hide: true,
+      },
+    ],
   },
   {
     path: '/buy-crypto',

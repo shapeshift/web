@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -43,6 +44,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
   const opportunity = state?.opportunity
+
+  assertIsFoxEthStakingContractAddress(contractAddress)
+
   const { unstake } = useFoxFarming(contractAddress)
   const { onOngoingFarmingTxIdChange } = useFoxEth()
   // Asset info

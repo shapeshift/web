@@ -32,7 +32,7 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <Card flex={1} variant='outline' {...rest}>
+      <Card flex={1} {...rest}>
         <Tabs isFitted variant='enclosed'>
           {Axelar && (
             <TabList>

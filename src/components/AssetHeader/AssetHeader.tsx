@@ -22,14 +22,14 @@ import { useAppSelector } from 'state/store'
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {
-  assetId: AssetId
+  assetId?: AssetId
   accountId?: AccountId
 }
 
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
   const {
     number: { toFiat },
   } = useLocaleFormatter()
@@ -62,6 +62,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
 
   if (!chainId) return null
+  if (!assetId) return null
 
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>

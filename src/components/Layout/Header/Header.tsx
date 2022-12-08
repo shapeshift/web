@@ -1,6 +1,7 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
   Drawer,
   DrawerContent,
   DrawerOverlay,
@@ -15,6 +16,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -25,6 +27,7 @@ import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetchi
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ChainMenu } from './NavBar/ChainMenu'
+import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -33,6 +36,7 @@ export const Header = () => {
   const isLoading = useIsAnyApiFetching()
 
   const history = useHistory()
+  const translate = useTranslate()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
@@ -143,15 +147,21 @@ export const Header = () => {
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              <Box display={{ base: 'block', md: 'none' }}>
+                <Button onClick={() => history.push('/buy-crypto')}>
+                  {translate('fiatRamps.buy')}
+                </Button>
+              </Box>
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Notifications />
             </Flex>
           </HStack>
         </HStack>

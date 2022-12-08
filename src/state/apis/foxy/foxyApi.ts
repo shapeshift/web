@@ -15,7 +15,7 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -241,7 +241,7 @@ export const foxyApi = createApi({
 
         const foxy = getFoxyApi()
 
-        const marketData = selectMarketData(state)
+        const marketData = selectMarketDataSortedByMarketCap(state)
         const assets = selectAssets(state)
 
         try {

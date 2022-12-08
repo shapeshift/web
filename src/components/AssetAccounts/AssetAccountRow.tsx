@@ -48,8 +48,8 @@ export const AssetAccountRow = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
-  const asset = useAppSelector(state => selectAssetById(state, rowAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.6.1...@shapeshiftoss/swapper-v14.7.0) (2022-12-08)
+
+
+### Features
+
+* **swapper:** bump @shapeshiftoss/chain-adapters to latest ([#1129](https://github.com/shapeshift/lib/issues/1129)) ([70364e6](https://github.com/shapeshift/lib/commit/70364e6f2d1c926aa616d70a9aece52c2908184b))
+
 # [@shapeshiftoss/swapper-v14.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.6.0...@shapeshiftoss/swapper-v14.6.1) (2022-12-07)
 
 # [@shapeshiftoss/swapper-v14.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.5.3...@shapeshiftoss/swapper-v14.6.0) (2022-12-01)

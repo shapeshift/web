@@ -60,6 +60,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   // user info
   const { state: walletState } = useWallet()
 

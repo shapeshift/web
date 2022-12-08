@@ -47,6 +47,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const location = useLocation()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId

@@ -38,6 +38,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 

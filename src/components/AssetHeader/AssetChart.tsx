@@ -139,7 +139,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoHumanBalance} ${asset?.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoHumanBalance} ${asset?.symbol ?? ''}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}

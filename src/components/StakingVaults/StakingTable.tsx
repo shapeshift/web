@@ -119,5 +119,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     [onClick],
   )
 
-  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
+  return (
+    <ReactTable
+      data={data}
+      columns={columns}
+      onRowClick={handleRowClick}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+    />
+  )
 }

@@ -3,6 +3,7 @@ import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
+import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
 import { bn } from 'lib/bignumber/bignumber'
@@ -11,7 +12,9 @@ import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from './FeaturedCards/FeaturedCard'
 
-export const EligibleCarousel = () => {
+type EligibleCarouselProps = CardProps
+
+export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const translate = useTranslate()
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
@@ -28,7 +31,7 @@ export const EligibleCarousel = () => {
   if (!filteredEligibleOpportunities.length) return null
 
   return (
-    <Card variant='outline' flexDir='column' gap={2}>
+    <Card variant='outline' flexDir='column' {...props}>
       <Card.Header
         display='flex'
         borderBottom={0}

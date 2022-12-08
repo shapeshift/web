@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
@@ -132,7 +133,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const underlyingAssets: Asset[] = useMemo(
+  const underlyingAssets: AssetWithBalance[] = useMemo(
     () => [
       {
         ...underlyingAsset,
@@ -149,7 +150,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectedLocale,
   })
 
-  const rewardAssets = useMemo(() => {
+  const rewardAssets: AssetWithBalance[] = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
     return opportunityData!.rewardsAmountsCryptoBaseUnit

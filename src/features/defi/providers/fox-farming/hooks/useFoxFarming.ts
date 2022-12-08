@@ -39,6 +39,9 @@ export const useFoxFarming = (
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+
   const filter = useMemo(() => ({ accountId: farmingAccountId }), [farmingAccountId])
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))

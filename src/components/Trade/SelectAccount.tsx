@@ -22,6 +22,7 @@ export const SelectAccount = () => {
   const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const handleBack = () => {
     history.push(TradeRoutePaths.Input)

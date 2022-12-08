@@ -222,7 +222,9 @@ export const Overview: React.FC<OverviewProps> = ({
     ))
   }, [])
 
-  return (
+  const asset = useMemo(() => assetsById[assetId], [assetId, assetsById])
+
+  return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
       <Flex display='flex' flexDir='column' gap={6} p={6}>
@@ -254,7 +256,7 @@ export const Overview: React.FC<OverviewProps> = ({
               <Flex alignItems='center'>
                 <AssetIcon size='sm' assetId={assetId} mr={4} />
                 <Box textAlign='left'>
-                  <RawText lineHeight={1}>{assetsById[assetId].name}</RawText>
+                  <RawText lineHeight={1}>{asset.name}</RawText>
                 </Box>
               </Flex>
             ) : (
@@ -265,10 +267,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Text
               translation={
                 isUnsupportedAsset
-                  ? [
-                      'fiatRamps.notSupported',
-                      { asset: assetsById[assetId].symbol, wallet: wallet?.getVendor() },
-                    ]
+                  ? ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
                   : fundsTranslation
               }
               color='gray.500'
@@ -354,7 +353,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   'fiatRamps.titleMessage',
                   {
                     action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-                    asset: assetsById[assetId].symbol,
+                    asset: asset.symbol,
                   },
                 ]}
               />
@@ -370,5 +369,5 @@ export const Overview: React.FC<OverviewProps> = ({
         </Stack>
       </Flex>
     </>
-  )
+  ) : null
 }

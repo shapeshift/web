@@ -21,7 +21,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
     return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000))
       .sort((a, b) => bn(b.apy).minus(a.apy).toNumber())
-      .slice(0, 4)
+      .slice(0, 5)
   }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

@@ -80,7 +80,9 @@
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}.",
     "search": "Procurar",
     "enterAmount": "Insira a quantia",
-    "pageNotFound": "A página que você está procurando não pode ser encontrada"
+    "pageNotFound": "A página que você está procurando não pode ser encontrada",
+    "buySell": "Compre/Venda",
+    "buySellAsset": "Compre/Venda %{symbol}"
   },
   "errorPage": {
     "title": "Opa!",

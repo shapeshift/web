@@ -84,8 +84,7 @@
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All",
-    "buySellAsset": "Buy/Sell %{symbol}"
+    "viewAll": "View All"
   },
   "errorPage": {
     "title": "Oops!",

@@ -6,6 +6,7 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import type { PartialRecord } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -22,7 +23,7 @@ const getAssetService = () => {
   return service
 }
 
-export type AssetsById = Record<AssetId, Asset>
+export type AssetsById = PartialRecord<AssetId, Asset>
 
 export type AssetsState = {
   byId: AssetsById

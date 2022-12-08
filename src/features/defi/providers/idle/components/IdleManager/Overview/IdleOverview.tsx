@@ -158,8 +158,10 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
         if (bnOrZero(amount).isZero()) return undefined
+        const rewardAsset = assets[opportunityData.rewardAssetIds[i]]
+        if (!rewardAsset) return undefined
         return {
-          ...assets[opportunityData.rewardAssetIds[i]],
+          ...rewardAsset,
           cryptoBalancePrecision: bnOrZero(amount)
             .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? '0'))
             .toFixed(6),

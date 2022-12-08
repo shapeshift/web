@@ -73,6 +73,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     assetReference,
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   const filter = useMemo(
     () => ({

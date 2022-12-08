@@ -466,7 +466,7 @@ const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs })
      */
     const asset = assets[assetId]
     const baseUnitBalance = balance.toString()
-    const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset.precision)).toString()
+    const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset?.precision ?? 1)).toString()
     moduleLogger.error(
       { asset, assetId, baseUnitBalance, baseUnitHuman, balance },
       'NON-ZERO BALANCE AT START OF CHART',

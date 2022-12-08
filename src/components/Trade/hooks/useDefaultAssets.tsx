@@ -123,13 +123,13 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
 
     if (assetPair && wallet) {
       const accountIds = walletAccountIds.filter(
-        accountId => fromAccountId(accountId).chainId === assetPair.buyAsset.chainId,
+        accountId => fromAccountId(accountId).chainId === assetPair.buyAsset?.chainId,
       )
       // As long as we have at least one account id for the buy asset, we can do a trade
       const firstAccountId = accountIds[0]
       if (!firstAccountId) return
       const accountMetadata = portfolioAccountMetaData[firstAccountId]
-      if (!accountMetadata) return
+      if (!accountMetadata || !assetPair.buyAsset) return
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,

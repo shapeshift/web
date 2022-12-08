@@ -19,7 +19,7 @@ export const makeBalanceChartData = (total: HistoryData[] = []): BalanceChartDat
 export const useUnavailableBalanceChartDataAssetNames = (assetIds: AssetId[]): string => {
   const assets = useSelector(selectAssets)
   return intersection(assetIds, CHART_ASSET_ID_BLACKLIST)
-    .map(assetId => assets[assetId].name)
+    .map(assetId => assets[assetId]?.name)
     .join(', ')
 }
 

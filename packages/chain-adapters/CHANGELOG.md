@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.3.1...@shapeshiftoss/chain-adapters-v10.4.0) (2022-12-08)
+
+
+### Features
+
+* rename Avalanche displayName -> Avalanche C-Chain ([#1126](https://github.com/shapeshift/lib/issues/1126)) ([e0bf9d1](https://github.com/shapeshift/lib/commit/e0bf9d19e0b0c675d5e17d029a8f0436514fec20))
+
 # [@shapeshiftoss/chain-adapters-v10.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.3.0...@shapeshiftoss/chain-adapters-v10.3.1) (2022-11-29)
 
 # [@shapeshiftoss/chain-adapters-v10.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.2.1...@shapeshiftoss/chain-adapters-v10.3.0) (2022-11-25)

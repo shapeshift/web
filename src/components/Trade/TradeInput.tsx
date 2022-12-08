@@ -321,8 +321,7 @@ export const TradeInput = () => {
       return [
         'common.insufficientAmountForGas',
         {
-          assetSymbol:
-            sellTradeAsset?.asset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
+          assetSymbol: sellFeeAsset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
         },
       ]
     if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
@@ -340,7 +339,7 @@ export const TradeInput = () => {
     return 'trade.previewTrade'
   }, [
     bestTradeSwapper,
-    buyTradeAsset?.asset,
+    buyTradeAsset?.asset?.symbol,
     feeAssetBalance,
     feesExceedsSellAmount,
     hasValidSellAmount,
@@ -354,8 +353,10 @@ export const TradeInput = () => {
     sellAssetBalanceHuman,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
+    sellFeeAsset?.symbol,
     sellTradeAsset?.amount,
-    sellTradeAsset?.asset,
+    sellTradeAsset?.asset?.assetId,
+    sellTradeAsset?.asset?.symbol,
     translate,
     wallet,
     walletSupportsBuyAssetChain,
@@ -386,6 +387,7 @@ export const TradeInput = () => {
     (action: AssetClickAction) => {
       assetSearch.open({
         onClick: (asset: Asset) => handleAssetClick(asset, action),
+        title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
         filterBy:
           action === AssetClickAction.Sell
             ? getSupportedSellableAssets

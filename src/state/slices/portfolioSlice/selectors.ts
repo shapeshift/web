@@ -42,7 +42,7 @@ import {
   selectValidatorAddressParamFromFilter,
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 import { selectAggregatedEarnUserStakingOpportunities } from 'state/slices/opportunitiesSlice/selectors'
 import {
   accountIdToFeeAssetId,
@@ -161,7 +161,7 @@ export const selectPortfolioLoadingStatus = createSelector(
 
 export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioAssetBalances,
   selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
@@ -179,7 +179,7 @@ export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
 export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalances,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
@@ -263,7 +263,7 @@ export const selectAllStakingUndelegationCrypto = createDeepEqualOutputSelector(
 
 export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
   selectAllStakingDelegationCrypto,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (state: ReduxState) => state.assets.byId,
   (allStaked: { [k: string]: string }, marketData, assetsById) => {
     const allStakingData = Object.entries(allStaked)
@@ -272,6 +272,7 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
       allStakingData,
       (acc, [accountId, baseUnitAmount]) => {
         const assetId = accountIdToFeeAssetId(accountId)
+        if (!assetId) return acc
         const price = marketData[assetId]?.price ?? 0
         const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
         return bnOrZero(amount).times(price).plus(acc)
@@ -285,7 +286,7 @@ export const selectTotalStakingDelegationFiat = createDeepEqualOutputSelector(
 
 export const selectTotalStakingUndelegationFiat = createDeepEqualOutputSelector(
   selectAllStakingUndelegationCrypto,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (state: ReduxState) => state.assets.byId,
   (allStaked: { [k: string]: string }, marketData, assetsById) => {
     const allStakingData = Object.entries(allStaked)
@@ -294,6 +295,7 @@ export const selectTotalStakingUndelegationFiat = createDeepEqualOutputSelector(
       allStakingData,
       (acc, [accountId, baseUnitAmount]) => {
         const assetId = accountIdToFeeAssetId(accountId)
+        if (!assetId) return acc
         const price = marketData[assetId]?.price ?? 0
         const amount = fromBaseUnit(baseUnitAmount, assetsById[assetId].precision ?? 0)
         return bnOrZero(amount).times(price).plus(acc)
@@ -418,7 +420,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectAssets,
     selectPortfolioAccountBalances,
     selectPortfolioAssetBalances,
-    selectMarketData,
+    selectMarketDataSortedByMarketCap,
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAggregatedEarnUserStakingOpportunities,
@@ -487,7 +489,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
 
 export const selectPortfolioMixedHumanBalancesBySymbol = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioAssetBalances,
   (assets, marketData, balances) =>
     Object.entries(balances).reduce<{ [k: AssetId]: { crypto: string; fiat: string } }>(
@@ -688,7 +690,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
  */
 export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioAccountsCryptoBalancesIncludingStaking,
   (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
     const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
@@ -881,7 +883,7 @@ export type AccountRowData = {
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioAssetBalances,
   selectPortfolioTotalFiatBalance,
   selectBalanceThreshold,

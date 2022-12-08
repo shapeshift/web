@@ -1,13 +1,10 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import { Contract } from '@ethersproject/contracts'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import IUniswapV2Pair from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import isNumber from 'lodash/isNumber'
 import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { getEthersProvider } from 'plugins/foxPage/utils'
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
@@ -16,8 +13,11 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   foxEthLpAssetId,
+  foxEthLpContractAddress,
   uniswapV2Router02AssetId,
+  uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -25,13 +25,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import erc20abi from '../abis/erc20abi.json'
-import IUniswapV2Router02ABI from '../abis/IUniswapV2Router02.json'
-
 const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
-
-// TODO: use wagmi provider
-const maybeEthersProvider = (skip?: boolean) => (skip ? null : getEthersProvider())
 
 function calculateSlippageMargin(amount: string | null, precision: number) {
   if (!amount) throw new Error('Amount not given for slippage')
@@ -69,32 +63,17 @@ export const useFoxEthLiquidityPool = (
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
   const uniswapRouterContract = useMemo(
-    () =>
-      skip
-        ? null
-        : new Contract(
-            fromAssetId(uniswapV2Router02AssetId).assetReference,
-            IUniswapV2Router02ABI.abi,
-            maybeEthersProvider(skip)!,
-          ),
+    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
     [skip],
   )
 
   const foxContract = useMemo(
-    () =>
-      skip ? null : new Contract(FOX_TOKEN_CONTRACT_ADDRESS, erc20abi, maybeEthersProvider(skip)!),
+    () => (skip ? null : getOrCreateContract(FOX_TOKEN_CONTRACT_ADDRESS)),
     [skip],
   )
 
   const uniV2LPContract = useMemo(
-    () =>
-      skip
-        ? null
-        : new Contract(
-            fromAssetId(foxEthLpAssetId).assetReference,
-            IUniswapV2Pair.abi,
-            maybeEthersProvider(skip)!,
-          ),
+    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
     [skip],
   )
 

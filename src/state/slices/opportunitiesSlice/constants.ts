@@ -2,18 +2,53 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { LpId, StakingId } from './types'
 
+// Exported as a string literal for contract address discrimination purposes
+export const uniswapV2Router02ContractAddress =
+  '0x7a250d5630b4cf539739df2c5dacb4c659f2488d' as const
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
 export const uniswapV2Router02AssetId: AssetId =
   'eip155:1/erc20:0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
 // LP contracts
 export const foxEthPair = [ethAssetId, foxAssetId] as const
+// Exported as a string literal for contract address discrimination purposes
+export const foxEthLpContractAddress = '0x470e8de2ebaef52014a47cb5e6af86884947f08c' as const
 export const foxEthLpAssetId: LpId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 export const foxEthLpAssetIds = [foxEthLpAssetId] as const
 
-// Staking contracts
+// Staking contract addresses as string literals
+export const foxEthStakingContractAddressV1 = '0xdd80e21669a664bce83e3ad9a0d74f8dad5d9e72' as const
+export const foxEthStakingContractAddressV2 = '0xc54b9f82c1c54e9d4d274d633c7523f2299c42a0' as const
+export const foxEthStakingContractAddressV3 = '0x212ebf9fd3c10f371557b08e993eaab385c3932b' as const
+export const foxEthStakingContractAddressV4 = '0x24fd7fb95dc742e23dc3829d3e656feeb5f67fa0' as const
+export const foxEthStakingContractAddressV5 = '0xc14eaa8284feff79edc118e06cadbf3813a7e555' as const
+
+export const foxEthStakingContractAddresses = [
+  foxEthStakingContractAddressV5,
+  foxEthStakingContractAddressV4,
+  foxEthStakingContractAddressV3,
+  foxEthStakingContractAddressV2,
+  foxEthStakingContractAddressV1,
+] as const
+
+export type FoxEthStakingContractAddress = typeof foxEthStakingContractAddresses[number]
+
+const isFoxEthStakingContractAddress = (
+  address: FoxEthStakingContractAddress | string,
+): address is FoxEthStakingContractAddress =>
+  foxEthStakingContractAddresses.includes(address as FoxEthStakingContractAddress)
+
+export const assertIsFoxEthStakingContractAddress: (
+  value: FoxEthStakingContractAddress | string,
+) => asserts value is FoxEthStakingContractAddress = getTypeGuardAssertion(
+  isFoxEthStakingContractAddress,
+  "Contract address isn't a known ETH/FOX staking address",
+)
+
+// Staking contracts as flavored StakingIds
 export const foxEthStakingAssetIdV1: StakingId =
   'eip155:1/erc20:0xdd80e21669a664bce83e3ad9a0d74f8dad5d9e72'
 export const foxEthStakingAssetIdV2: StakingId =
@@ -34,12 +69,12 @@ export const foxEthStakingIds = [
   foxEthStakingAssetIdV5,
 ] as const
 
-export const STAKING_ID_TO_NAME = {
-  [foxEthStakingAssetIdV1]: 'Fox Farming V1',
-  [foxEthStakingAssetIdV2]: 'Fox Farming V2',
-  [foxEthStakingAssetIdV3]: 'Fox Farming V3',
-  [foxEthStakingAssetIdV4]: 'Fox Farming V4',
-  [foxEthStakingAssetIdV5]: 'Fox Farming V5',
+export const STAKING_ID_TO_VERSION = {
+  [foxEthStakingAssetIdV1]: 'V1',
+  [foxEthStakingAssetIdV2]: 'V2',
+  [foxEthStakingAssetIdV3]: 'V3',
+  [foxEthStakingAssetIdV4]: 'V4',
+  [foxEthStakingAssetIdV5]: 'V5',
 }
 
 export const STAKING_ID_DELIMITER = '*'
@@ -83,35 +118,35 @@ export const v5EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV5,
   contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV5],
+  opportunityName: 'FOX Farming',
 }
 
 export const v4EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV4],
+  opportunityName: 'FOX Farming',
 }
 
 export const v3EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV3],
+  opportunityName: 'FOX Farming',
 }
 
 export const v2EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV2],
+  opportunityName: 'FOX Farming',
 }
 
 export const v1EarnFarmingOpportunity: EarnOpportunityType = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
-  opportunityName: STAKING_ID_TO_NAME[foxEthStakingAssetIdV1],
+  opportunityName: 'FOX Farming',
 }
 
 export const STAKING_EARN_OPPORTUNITIES = {

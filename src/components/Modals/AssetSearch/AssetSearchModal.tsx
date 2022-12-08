@@ -19,12 +19,14 @@ import { breakpoints } from 'theme/theme'
 
 interface AssetSearchModalProps extends AssetSearchProps {
   onClick: Required<AssetSearchProps>['onClick']
+  title?: string
 }
 
 export const AssetSearchModal: FC<AssetSearchModalProps> = ({
   onClick,
   filterBy,
   disableUnsupported,
+  title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -47,9 +49,9 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
     <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} trapFocus={false}>
       <ModalOverlay />
       <ModalContent height={`${modalHeight}vh`}>
-        <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
+        <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody p={2} display='flex' flexDir='column'>
+        <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
           <AssetSearch
             onClick={handleClick}
             filterBy={filterBy}

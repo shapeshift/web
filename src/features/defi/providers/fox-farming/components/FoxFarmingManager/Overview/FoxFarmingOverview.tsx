@@ -23,7 +23,7 @@ import {
   selectAssetById,
   selectAssets,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
@@ -45,7 +45,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const assets = useAppSelector(selectAssets)
   const lpAsset = assets[foxEthLpAssetId]
-  const marketData = useAppSelector(selectMarketData)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, highestBalanceAccountAddress, contractAddress } = query
 

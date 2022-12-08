@@ -111,8 +111,8 @@ export const AllEarnOpportunities = () => {
   )
 
   return (
-    <Card variant='outline' my={6}>
-      <Card.Header flexDir='row' display='flex'>
+    <Card variant='unstyled' my={6}>
+      <Card.Header flexDir='row' display='flex' px={4}>
         <Box>
           <Card.Heading>
             <Text translation='defi.earn' />
@@ -120,7 +120,7 @@ export const AllEarnOpportunities = () => {
           <Text color='gray.500' translation='defi.earnBody' />
         </Box>
       </Card.Header>
-      <Card.Body pt={0} px={2}>
+      <Card.Body pt={0} px={0}>
         <StakingTable data={filteredRows} onClick={handleClick} />
       </Card.Body>
     </Card>

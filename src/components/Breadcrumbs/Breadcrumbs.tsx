@@ -51,12 +51,17 @@ const routes: BreadcrumbsRoute[] = [
       { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
+  {
+    path: '/trade',
+    breadcrumb: 'Trade',
+    routes: [{ path: '/trade/:chainId/:assetSubId', breadcrumb: GetAssetName }],
+  },
   { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
 const options = {
-  excludePaths: ['/assets/:chainId'],
+  excludePaths: ['/assets/:chainId', '/trade/:chainId'],
 }
 
 export const Breadcrumbs = withBreadcrumbs(

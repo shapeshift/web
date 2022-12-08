@@ -20,7 +20,9 @@ export type FeatureFlags = {
   Yat: boolean
   WalletConnectToDapps: boolean
   DashboardBreakdown: boolean
+  Wherever: boolean
   FiatPopup: boolean
+  EligibleEarn: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -53,7 +55,9 @@ const initialState: Preferences = {
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
+    Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
+    EligibleEarn: getConfig().REACT_APP_FEATURE_ELIGIBLE_EARN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

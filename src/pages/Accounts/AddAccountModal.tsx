@@ -92,8 +92,8 @@ export const AddAccountModal = () => {
   const menuOptions = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
     return chainIds.map(chainId => {
-      const assetId = chainAdapterManager.get(chainId)!.getFeeAssetId()
-      const asset = assets?.[assetId]
+      const assetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+      const asset = assetId ? assets[assetId] : undefined
       if (!asset) return null
       const { name, icon } = asset
       const key = chainId

@@ -1,23 +1,14 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import {
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
-} from 'components/Trade/hooks/useSwapper/utils'
 import type { TS } from 'components/Trade/types'
-import { type TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import {
   selectFiatToUsdRate,
@@ -25,61 +16,6 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-export type GetTradeQuoteInputArgs = {
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAccountType: UtxoAccountType | undefined
-  sellAccountBip44Params: BIP44Params
-  wallet: HDWallet
-  receiveAddress: NonNullable<TS['receiveAddress']>
-  sellAmount: string
-  isSendMax: boolean
-}
-
-export const getTradeQuoteArgs = async ({
-  sellAsset,
-  buyAsset,
-  sellAccountBip44Params,
-  sellAccountType,
-  wallet,
-  receiveAddress,
-  sellAmount,
-  isSendMax,
-}: GetTradeQuoteInputArgs) => {
-  if (!sellAsset || !buyAsset) return undefined
-  const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmountCryptoPrecision: toBaseUnit(sellAmount, sellAsset?.precision || 0),
-    sellAsset,
-    buyAsset,
-    sendMax: isSendMax,
-    receiveAddress,
-  }
-  if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
-    return {
-      ...tradeQuoteInputCommonArgs,
-      chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
-    }
-  } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
-    if (!sellAccountType) return
-    const sellAssetChainAdapter = getChainAdapterManager().get(
-      sellAsset.chainId,
-    ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
-    const { xpub } = await sellAssetChainAdapter.getPublicKey(
-      wallet,
-      sellAccountBip44Params,
-      sellAccountType,
-    )
-    return {
-      ...tradeQuoteInputCommonArgs,
-      chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
-      accountType: sellAccountType,
-      xpub,
-    }
-  }
-}
 
 /*
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.

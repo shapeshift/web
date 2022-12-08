@@ -10,7 +10,6 @@ import {
   ethAssetId,
   foxAssetId,
   fromAssetId,
-  fromChainId,
   ltcAssetId,
   osmosisAssetId,
   thorchainAssetId,
@@ -24,15 +23,14 @@ import {
   type UtxoSupportedChainIds,
 } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useTradeQuoteService'
-import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
   type GetFormFeesArgs,
-  type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -42,26 +40,6 @@ import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
-
-// Type guards
-export const isSupportedUtxoSwappingChain = (
-  chainId: ChainId,
-): chainId is UtxoSupportedChainIds => {
-  const { chainNamespace } = fromChainId(chainId)
-  return chainNamespace === CHAIN_NAMESPACE.Utxo
-}
-
-export const isSupportedNonUtxoSwappingChain = (
-  chainId: ChainId,
-): chainId is SupportedSwappingChain => {
-  return (
-    chainId === KnownChainIds.EthereumMainnet ||
-    chainId === KnownChainIds.AvalancheMainnet ||
-    chainId === KnownChainIds.OsmosisMainnet ||
-    chainId === KnownChainIds.CosmosMainnet ||
-    chainId === KnownChainIds.ThorchainMainnet
-  )
-}
 
 // Pure functions
 export const getUtxoParams = (sellAssetAccountId: string) => {

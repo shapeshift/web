@@ -12,11 +12,13 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
+  isSupportedNonUtxoSwappingChain,
+  isSupportedUtxoSwappingChain,
+} from 'components/Trade/hooks/useSwapper/typeGuards'
+import {
   filterAssetsByIds,
   getReceiveAddress,
   getUtxoParams,
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
 import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'

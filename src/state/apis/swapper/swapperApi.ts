@@ -1,24 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
-import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useTradeQuoteService'
-import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-
-export type GetUsdRateArgs = {
-  rateAssetId: AssetId
-  buyAssetId: AssetId
-  sellAssetId: AssetId
-  tradeQuoteInputArgs: GetTradeQuoteInputArgs
-}
-
-type GetUsdRateReturn = {
-  usdRate: string
-}
 
 export type GetUsdRatesArgs = {
   feeAssetId: AssetId

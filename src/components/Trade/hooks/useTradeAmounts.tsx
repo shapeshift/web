@@ -5,9 +5,9 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { getTradeQuoteArgs } from 'components/Trade/hooks/useTradeQuoteService'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -212,6 +212,7 @@ export const useTradeAmounts = () => {
           buyAssetId: buyAssetIdToUse,
           sellAssetId: sellAssetIdToUse,
           feeAssetId,
+          tradeQuoteInputArgs: tradeQuoteArgs,
         }),
       )
 

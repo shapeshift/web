@@ -12,7 +12,7 @@ export const Carousel = ({
   children,
   showArrows,
   showDots,
-  options = { loop: true, skipSnaps: true },
+  options = { loop: true, skipSnaps: false },
   autoPlay,
 }: CarouselProps) => {
   const autoplayRef = useRef(

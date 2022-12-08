@@ -109,8 +109,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+          txStatus: transactionReceipt.status ? 'success' : 'failed',
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed.toString()).toFixed(0),
         },
       })
     } catch (error) {

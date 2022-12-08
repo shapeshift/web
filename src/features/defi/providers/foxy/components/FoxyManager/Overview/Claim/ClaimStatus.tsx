@@ -121,7 +121,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed.toString()).toFixed(0),
         })
       } catch (error) {
         moduleLogger.error(error, 'ClaimStatus error')

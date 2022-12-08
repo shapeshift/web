@@ -70,6 +70,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
   const assets = useAppSelector(selectAssets)
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  if (!vaultAsset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balanceFilter = useMemo(
@@ -128,7 +130,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-  const underlyingAssets = useMemo(
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
+  const underlyingAssets: Asset[] = useMemo(
     () => [
       {
         ...underlyingAsset,

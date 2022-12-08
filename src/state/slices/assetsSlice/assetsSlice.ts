@@ -113,8 +113,8 @@ export const assetApi = createApi({
         const byId = cloneDeep(byIdOriginal)
         try {
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
-          byId[assetId].description = description
-          byId[assetId].isTrustedDescription = isTrusted
+          const originalAsset = byId[assetId]
+          byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }
           return { data }
         } catch (e) {

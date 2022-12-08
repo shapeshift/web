@@ -147,7 +147,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto value={amount} symbol={asset?.symbol} />
+              <Amount.Crypto value={amount} symbol={asset?.symbol ?? ''} />
             </Row.Value>
           </Row>
           <Row>

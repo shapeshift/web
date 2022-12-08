@@ -8,7 +8,10 @@ import { bn } from 'lib/bignumber/bignumber'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-const chainIdFromEthNetwork = (ethNetwork: string | null, supportedEvmChainIds: ChainId[]) => {
+const chainIdFromEthNetwork = (
+  ethNetwork: string | undefined,
+  supportedEvmChainIds: ChainId[],
+): ChainId | undefined => {
   if (!ethNetwork) return
 
   return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
@@ -48,7 +51,7 @@ export const useEvm = () => {
       setIsLoading(false)
     }
 
-    return chainIdFromEthNetwork(ethNetwork ?? '', supportedEvmChainIds)
+    return chainIdFromEthNetwork(ethNetwork, supportedEvmChainIds)
   }, [isLoading, ethNetwork, supportedEvmChainIds])
 
   return {

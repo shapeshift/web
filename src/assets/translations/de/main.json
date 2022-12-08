@@ -80,7 +80,9 @@
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
     "enterAmount": "Betrag eingeben",
-    "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden"
+    "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
+    "buySell": "Kaufen/Verkaufen",
+    "buySellAsset": "Kaufen/Verkaufen %{symbol}"
   },
   "errorPage": {
     "title": "Hoppala!",

@@ -16,7 +16,7 @@ export const Carousel = ({
   autoPlay,
 }: CarouselProps) => {
   const autoplayRef = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
   )
   const [viewportRef, embla] = useEmblaCarousel(options, [autoplayRef.current])
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)

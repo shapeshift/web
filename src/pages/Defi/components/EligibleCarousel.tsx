@@ -41,7 +41,7 @@ export const EligibleCarousel = () => {
         </Button>
       </Card.Header>
       <Card.Body>
-        <Carousel showDots showArrows>
+        <Carousel showDots showArrows autoPlay>
           {renderEligibleCards}
         </Carousel>
       </Card.Body>

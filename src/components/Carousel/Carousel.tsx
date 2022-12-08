@@ -1,21 +1,41 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/react'
+import Autoplay from 'embla-carousel-autoplay'
 import useEmblaCarousel from 'embla-carousel-react'
-import { Children, useCallback, useEffect, useMemo, useState } from 'react'
+import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Arrow } from './Arrow'
 import { DotButton } from './DotButton'
 import type { CarouselProps } from './types'
 
-export const Carousel = ({ children, showArrows, showDots }: CarouselProps) => {
-  const [viewportRef, embla] = useEmblaCarousel()
+export const Carousel = ({
+  children,
+  showArrows,
+  showDots,
+  options = { loop: true, skipSnaps: true },
+  autoPlay,
+}: CarouselProps) => {
+  const autoplayRef = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true, playOnInit: false }),
+  )
+  const [viewportRef, embla] = useEmblaCarousel(options, [autoplayRef.current])
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
 
-  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla])
-  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla])
+  const scrollNext = useCallback(() => {
+    if (!embla) return
+    embla.scrollNext()
+    autoplayRef.current.reset()
+  }, [embla])
+
+  const scrollPrev = useCallback(() => {
+    if (!embla) return
+    embla.scrollPrev()
+    autoplayRef.current.reset()
+  }, [embla])
+
   const scrollTo = useCallback((index: number) => embla && embla.scrollTo(index), [embla])
 
   const childrens = Children.toArray(children)
@@ -33,6 +53,13 @@ export const Carousel = ({ children, showArrows, showDots }: CarouselProps) => {
     setScrollSnaps(embla.scrollSnapList())
     embla.on('select', onSelect)
   }, [embla, setScrollSnaps, onSelect])
+
+  useEffect(() => {
+    if (!embla) return
+    if (autoPlay) {
+      autoplayRef.current && autoplayRef.current.play()
+    }
+  }, [autoPlay, embla])
 
   const renderSlides = useMemo(() => {
     return childrens.map((child, i) => (

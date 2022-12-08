@@ -28,7 +28,8 @@ export const KeepKeyLabel = () => {
     setLoading(true)
     const resetMessage: ResetDevice = { label: label ?? '', pin: true }
     setDeviceState({ awaitingDeviceInteraction: true })
-    await wallet?.reset(resetMessage).catch(e => {
+    await wallet?.reset(resetMessage).catch(async e => {
+      await wallet?.cancel()
       moduleLogger.error(e)
       toast({
         title: translate('common.error'),

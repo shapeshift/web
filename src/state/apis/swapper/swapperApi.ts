@@ -44,39 +44,6 @@ export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
   endpoints: build => ({
-    getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
-      queryFn: async ({ rateAssetId, tradeQuoteInputArgs }, { getState }) => {
-        const state: State = getState() as unknown as State // ReduxState causes circular dependency
-        const {
-          assets,
-          preferences: { featureFlags },
-        } = state
-        try {
-          const tradeQuoteArgs = await getTradeQuoteArgs(tradeQuoteInputArgs)
-          if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
-          const feeAssetId = getChainAdapterManager()
-            .get(tradeQuoteInputArgs.buyAsset.chainId)!
-            .getFeeAssetId()
-          const feeAsset = assets.byId[feeAssetId]
-          const swapper = await getBestSwapperFromArgs({
-            featureFlags,
-            tradeQuoteArgs,
-            feeAsset,
-          })
-          const rateAsset = assets.byId[rateAssetId]
-          const usdRate = await swapper.getUsdRate(rateAsset)
-          const data = { usdRate }
-          return { data }
-        } catch (e) {
-          return {
-            error: {
-              error: 'getUsdRate: error fetching usd rate',
-              status: 'CUSTOM_ERROR',
-            },
-          }
-        }
-      },
-    }),
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
       queryFn: async (
         { feeAssetId, buyAssetId, sellAssetId, tradeQuoteInputArgs },

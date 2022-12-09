@@ -37,7 +37,7 @@ export type OpportunityMetadata = {
   expired?: boolean
   name?: string
   version?: string
-  tags: readonly string[]
+  tags?: string[]
 }
 
 // User-specific values for this opportunity

@@ -481,4 +481,4 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     name: 'PBTCCRV Vault (Convex Junior Tranche)',
     tags: ['Junior Tranche'],
   },
-} as const
+}

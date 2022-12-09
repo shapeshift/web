@@ -49,8 +49,10 @@ const defaultMenu: DefiButtonProps[] = [
   },
 ]
 
+export type OpportunityById = typeof BASE_OPPORTUNITIES_BY_ID
+
 type BaseOpportunityKeys = keyof typeof BASE_OPPORTUNITIES_BY_ID
-type Tags = typeof BASE_OPPORTUNITIES_BY_ID[BaseOpportunityKeys]
+type Tags = typeof BASE_OPPORTUNITIES_BY_ID[BaseOpportunityKeys]['']
 
 const IdleTagDescriptions: Record<Tags, TagDescription> = {
   'Best Yield': {

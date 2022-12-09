@@ -14,7 +14,6 @@ import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
 import type { MergedEarnVault } from './useVaultBalances'
-import { useVaultBalances } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]
@@ -26,7 +25,6 @@ export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
-  const { totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosSdkStakingBalances({
       assetId: cosmosAssetId,
@@ -80,17 +78,16 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   })
 
   // When staking, farming, lp, etc are added sum up the balances here
-  const totalEarningBalance = bnOrZero(vaultsTotalBalance)
+  const totalEarningBalance = bnOrZero(farmContractsFiatBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')
     .plus(totalCosmosStakingBalance)
     .plus(totalOsmosisStakingBalance)
-    .plus(farmContractsFiatBalance)
     .plus(foxEthLpFiatBalance ?? 0)
     .toString()
 
   return {
     opportunities,
     totalEarningBalance,
-    loading: vaultsLoading || isFoxyBalancesLoading,
+    loading: isFoxyBalancesLoading,
   }
 }

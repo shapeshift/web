@@ -16,6 +16,7 @@ import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
 } from 'components/Trade/hooks/useSwapper/utils'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -44,6 +45,9 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
 
   const { getUsdRates } = swapperApi.endpoints
+
+  // Hooks
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains
@@ -140,18 +144,19 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       return { sellAsset, buyAsset }
     }
   }, [
-    assets,
-    buyAssetId,
     buyChainId,
-    dispatch,
-    featureFlags,
-    getUsdRates,
-    maybeWalletChainId,
-    walletAccountIds,
-    portfolioAccountMetaData,
     previousBuyChainId,
     routeBuyAssetId,
+    maybeWalletChainId,
+    featureFlags,
+    dispatch,
+    getUsdRates,
+    tradeQuoteArgs,
     wallet,
+    buyAssetId,
+    assets,
+    walletAccountIds,
+    portfolioAccountMetaData,
   ])
 
   return { getDefaultAssets, defaultAssetIdPair }

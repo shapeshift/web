@@ -67,7 +67,7 @@ export const useTradeQuoteService = () => {
   )
 
   // Effects
-  // Trigger trade quote query
+  // Set trade quote args and trigger trade quote query
   useEffect(() => {
     const sellTradeAssetAmount = sellTradeAsset?.amount
     if (
@@ -132,5 +132,5 @@ export const useTradeQuoteService = () => {
     !quote && tradeQuote && setValue('quote', tradeQuote)
   }, [quote, setValue, tradeQuote])
 
-  return { isLoadingTradeQuote }
+  return { isLoadingTradeQuote, tradeQuoteArgs }
 }

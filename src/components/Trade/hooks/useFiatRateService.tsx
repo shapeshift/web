@@ -7,6 +7,8 @@ import { useGetUsdRatesQuery } from 'state/apis/swapper/swapperApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useTradeQuoteService } from './useTradeQuoteService'
+
 /*
 The Fiat Rate Service is responsible for fetching and setting fiat rates.
 It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of TradeState.
@@ -16,6 +18,9 @@ export const useFiatRateService = () => {
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
   type UsdRatesInputArgs = UsdRatesQueryInput[0]
+
+  // Hooks
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
@@ -43,14 +48,13 @@ export const useFiatRateService = () => {
 
   // Trigger fiat rate query
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId) {
+    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteArgs) {
       setUsdRatesArgs({
-        buyAssetId: buyTradeAssetId,
-        sellAssetId: sellTradeAssetId,
+        tradeQuoteArgs,
         feeAssetId: sellAssetFeeAssetId,
       })
     }
-  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId])
+  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
 
   // Set fiat rates
   useEffect(() => {

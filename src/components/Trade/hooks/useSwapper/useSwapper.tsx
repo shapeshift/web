@@ -14,7 +14,6 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import {
   filterAssetsByIds,
   getReceiveAddress,
-  getUtxoParams,
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/utils'
@@ -84,6 +83,11 @@ export const useSwapper = () => {
     () => ({ accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }),
     [sellAssetAccountId, sellAssetAccountIds],
   )
+
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
+  )
+
   const sellAccountBip44Params = useAppSelector(state =>
     selectBIP44ParamsByAccountId(state, sellAccountFilter),
   )
@@ -169,6 +173,7 @@ export const useSwapper = () => {
     if (!receiveAddress) throw new Error('Missing receiveAddress')
     if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
     if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
+    if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
@@ -187,20 +192,17 @@ export const useSwapper = () => {
         bip44Params: sellAccountBip44Params,
       })
     } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
-      const { accountType, utxoParams } = getUtxoParams(sellAssetAccountId)
-      if (!utxoParams?.bip44Params) throw new Error('no bip44Params')
+      const { accountType, bip44Params } = sellAccountMetadata
+      if (!bip44Params) throw new Error('no bip44Params')
+      if (!accountType) throw new Error('no accountType')
       const sellAssetChainAdapter = getChainAdapterManager().get(
         sellAssetChainId,
       ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
-      const { xpub } = await sellAssetChainAdapter.getPublicKey(
-        wallet,
-        utxoParams.bip44Params,
-        accountType,
-      )
+      const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, bip44Params, accountType)
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
-        bip44Params: utxoParams.bip44Params,
+        bip44Params,
         accountType,
         xpub,
       })
@@ -213,6 +215,7 @@ export const useSwapper = () => {
     sellAccountBip44Params,
     sellAsset,
     sellAssetAccountId,
+    sellAccountMetadata,
     sellTradeAsset?.amount,
     sellTradeAsset?.asset,
     slippage,

@@ -11,10 +11,10 @@ import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice
 
 export type GetUsdRatesArgs = {
   feeAssetId: AssetId
-  buyAssetId: AssetId
-  sellAssetId: AssetId
-  tradeQuoteInputArgs: GetTradeQuoteInputArgs
-}
+} & (
+  | { tradeQuoteInputArgs?: never; tradeQuoteArgs: GetTradeQuoteInput }
+  | { tradeQuoteInputArgs: GetTradeQuoteInputArgs; tradeQuoteArgs?: never }
+)
 
 type GetUsdRatesReturn = {
   buyAssetUsdRate: string
@@ -34,17 +34,23 @@ export const swapperApi = createApi({
   reducerPath: 'swapperApi',
   endpoints: build => ({
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
-      queryFn: async (
-        { feeAssetId, buyAssetId, sellAssetId, tradeQuoteInputArgs },
-        { getState },
-      ) => {
+      queryFn: async (args, { getState }) => {
+        const { feeAssetId } = args
+        const buyAssetId = args.tradeQuoteInputArgs
+          ? args.tradeQuoteInputArgs.buyAsset.assetId
+          : args.tradeQuoteArgs.buyAsset.assetId
+        const sellAssetId = args.tradeQuoteInputArgs
+          ? args.tradeQuoteInputArgs.sellAsset.assetId
+          : args.tradeQuoteArgs.sellAsset.assetId
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           assets,
           preferences: { featureFlags },
         } = state
         try {
-          const tradeQuoteArgs = await getTradeQuoteArgs(tradeQuoteInputArgs)
+          const tradeQuoteArgs = args.tradeQuoteInputArgs
+            ? await getTradeQuoteArgs(args.tradeQuoteInputArgs)
+            : args.tradeQuoteArgs
           if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
           const feeAsset = assets.byId[feeAssetId]
           const buyAsset = assets.byId[buyAssetId]

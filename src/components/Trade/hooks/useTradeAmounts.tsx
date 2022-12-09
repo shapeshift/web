@@ -160,16 +160,6 @@ export const useTradeAmounts = () => {
       const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
       if (!receiveAddress) return
 
-      const bestTradeSwapper = await swapperManager.getBestSwapper({
-        buyAssetId: buyAssetIdToUse,
-        sellAssetId: sellAssetIdToUse,
-      })
-
-      if (!bestTradeSwapper) {
-        setValue('quote', undefined)
-        setValue('fees', undefined)
-        return
-      }
       const state = store.getState()
       const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(state, {
         assetId: sellAsset.assetId,
@@ -193,6 +183,19 @@ export const useTradeAmounts = () => {
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
+      const bestTradeSwapper = tradeQuoteArgs
+        ? await swapperManager.getBestSwapper({
+            ...tradeQuoteArgs,
+            feeAsset,
+          })
+        : undefined
+
+      if (!bestTradeSwapper) {
+        setValue('quote', undefined)
+        setValue('fees', undefined)
+        return
+      }
+
       const quoteResponse = tradeQuoteArgs
         ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
         : undefined
@@ -207,14 +210,14 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      const { data: usdRates } = await dispatch(
-        getUsdRates.initiate({
-          buyAssetId: buyAssetIdToUse,
-          sellAssetId: sellAssetIdToUse,
-          feeAssetId,
-          tradeQuoteInputArgs: tradeQuoteArgs,
-        }),
-      )
+      const { data: usdRates = undefined } = tradeQuoteArgs
+        ? await dispatch(
+            getUsdRates.initiate({
+              feeAssetId,
+              tradeQuoteArgs,
+            }),
+          )
+        : {}
 
       if (usdRates) {
         setValue('quote', quoteResponse?.data)

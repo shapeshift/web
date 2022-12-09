@@ -91,9 +91,8 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
 
     const { data: buyAssetFiatRateData } = await dispatch(
       getUsdRates.initiate({
-        buyAssetId: defaultAssetIdPair.buyAssetId,
-        sellAssetId: defaultAssetIdPair.sellAssetId,
         feeAssetId: defaultAssetIdPair.buyAssetId,
+        tradeQuoteInputArgs: tradeQuoteArgs,
       }),
     )
 

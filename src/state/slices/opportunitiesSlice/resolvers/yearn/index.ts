@@ -47,9 +47,6 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
     const asset = selectAssetById(state, assetId)
     const underlyingAsset = selectAssetById(state, opportunity.underlyingAsset.assetId)
 
-    // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
-    // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
-    // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
     if (!asset) continue
 
     stakingOpportunitiesById[opportunityId] = {
@@ -60,7 +57,6 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: opportunity.underlyingAsset.assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-      // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,

@@ -58,7 +58,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       provider: DefiProvider.Yearn,
       tvl: bnOrZero(opportunity.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       type: DefiType.Staking,
-      underlyingAssetId: assetId,
+      underlyingAssetId: opportunity.underlyingAsset.assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
       // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
       underlyingAssetRatios: ['1'],

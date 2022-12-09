@@ -32,6 +32,7 @@ import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { isValidAccountNumber } from 'lib/utils'
 import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -276,7 +277,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
    * we are sending funds, we need to be paranoid.
    */
   if (!accountIds.length) return null
-  if (!accountNumber) return null
+  if (!isValidAccountNumber(accountNumber)) return null
   if (!menuOptions.length) return null
   if (!accountLabel) return null
 

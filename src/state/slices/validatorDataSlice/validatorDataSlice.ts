@@ -7,6 +7,7 @@ import type {
   CosmosSdkBaseAdapter,
   CosmosSdkChainId,
 } from '@shapeshiftoss/chain-adapters'
+import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -54,6 +55,11 @@ export const validatorData = createSlice({
       if (!payload.validators) return
       updateOrInsertValidatorData(validatorDataState, payload.validators)
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 

@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
+import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
@@ -78,6 +79,11 @@ export const opportunities = createSlice({
       draftState.userStaking.byId = merge(draftState.userStaking.byId, payload.byId)
       draftState.userStaking.ids = uniq([...draftState.userStaking.ids, ...payloadIds])
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 

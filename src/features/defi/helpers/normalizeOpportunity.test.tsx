@@ -60,7 +60,6 @@ function setup({
       useNormalizeOpportunities({
         cosmosSdkStakingOpportunities: cosmosStakingOpportunities ?? [],
         foxyArray: [],
-        vaultArray: [],
       }),
     { wrapper },
   )

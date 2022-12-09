@@ -26,8 +26,7 @@ export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
-  const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
-  const vaultArray: SerializableOpportunity[] = useMemo(() => Object.values(vaults), [vaults])
+  const { totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
   const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
     useCosmosSdkStakingBalances({
       assetId: cosmosAssetId,
@@ -72,7 +71,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   )
 
   const opportunities = useNormalizeOpportunities({
-    vaultArray,
     foxyArray: foxyBalancesData?.opportunities || [],
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,

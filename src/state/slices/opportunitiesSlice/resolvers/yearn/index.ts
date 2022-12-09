@@ -1,0 +1,166 @@
+import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { USDC_PRECISION } from 'constants/constants'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
+import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+
+import type {
+  GetOpportunityIdsOutput,
+  GetOpportunityMetadataOutput,
+  GetOpportunityUserStakingDataOutput,
+  OpportunitiesState,
+} from '../../types'
+import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunitiesUserDataResolverInput,
+} from '../types'
+
+export const yearnStakingOpportunitiesMetadataResolver = async ({
+  opportunityType,
+  reduxApi,
+}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getYearnInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getYearnInvestor().initialize()
+    return await getYearnInvestor().findAll()
+  })()
+
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+
+  for (const opportunity of opportunities) {
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: 'erc20',
+      assetReference: opportunity.id,
+      chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
+    }
+    const assetId = toAssetId(toAssetIdParts)
+    const opportunityId = toOpportunityId(toAssetIdParts)
+
+    const asset = selectAssetById(state, assetId)
+    const underlyingAsset = selectAssetById(state, opportunity.underlyingAsset.assetId)
+
+    // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
+    // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
+    // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
+    if (!asset) continue
+
+    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
+    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
+    stakingOpportunitiesById[opportunityId] = {
+      apy: opportunity.apy.toFixed(),
+      assetId,
+      provider: DefiProvider.Yearn,
+      tvl: bnOrZero(opportunity.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
+      type: DefiType.Staking,
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [opportunity.underlyingAsset.assetId],
+      // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
+      underlyingAssetRatios: ['1'],
+      name: `${underlyingAsset.symbol} Vault`,
+      version: opportunity.version,
+    }
+  }
+  const data = {
+    byId: stakingOpportunitiesById,
+    type: opportunityType,
+  }
+
+  return { data }
+}
+
+export const yearnStakingOpportunitiesUserDataResolver = async ({
+  opportunityType,
+  accountId,
+  reduxApi,
+  opportunityIds,
+}: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
+
+  const yearnInvestor = getYearnInvestor()
+
+  for (const stakingOpportunityId of opportunityIds) {
+    const balanceFilter = { accountId, assetId: stakingOpportunityId }
+    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+
+    const asset = selectAssetById(state, stakingOpportunityId)
+    if (!asset) continue
+
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
+    }
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
+    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
+    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
+    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
+    if (bnOrZero(balance).eq(0)) {
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        stakedAmountCryptoBaseUnit: '0',
+        rewardsAmountsCryptoBaseUnit: [],
+      }
+      continue
+    }
+
+    const opportunity = await (async () => {
+      const maybeOpportunities = await yearnInvestor.findAll()
+      if (maybeOpportunities.length)
+        return await yearnInvestor.findByOpportunityId(stakingOpportunityId)
+
+      await yearnInvestor.findAll()
+      return await yearnInvestor.findByOpportunityId(stakingOpportunityId)
+    })()
+
+    if (!opportunity) continue
+
+    let rewardsAmountsCryptoBaseUnit = [] as []
+
+    stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      stakedAmountCryptoBaseUnit: balance,
+      rewardsAmountsCryptoBaseUnit,
+    }
+  }
+
+  const data = {
+    byId: stakingOpportunitiesUserDataByUserStakingId,
+    type: opportunityType,
+  }
+
+  return Promise.resolve({ data })
+}
+
+export const yearnStakingOpportunityIdsResolver = async (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => {
+  const opportunities = await (async () => {
+    const maybeOpportunities = await getYearnInvestor().findAll()
+    if (maybeOpportunities.length) return maybeOpportunities
+
+    await getYearnInvestor().initialize()
+    return await getYearnInvestor().findAll()
+  })()
+
+  return {
+    data: opportunities.map(opportunity => {
+      const assetId = toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: opportunity.id,
+        chainId: fromAssetId(opportunity.feeAsset.assetId).chainId,
+      })
+      return assetId
+    }),
+  }
+}

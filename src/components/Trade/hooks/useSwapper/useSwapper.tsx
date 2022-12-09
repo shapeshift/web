@@ -24,6 +24,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectBIP44ParamsByAccountId,
@@ -115,11 +116,14 @@ export const useSwapper = () => {
 
   const getReceiveAddressFromBuyAsset = useCallback(
     (buyAsset: Asset) => {
+      if (!buyAssetAccountId) return
       if (!buyAccountMetadata) return
       const { accountType, bip44Params } = buyAccountMetadata
+      if (isUtxoAccountId(buyAssetAccountId) && !accountType)
+        throw new Error(`Missing accountType for UTXO account ${buyAssetAccountId}`)
       return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
     },
-    [buyAccountMetadata, wallet],
+    [buyAssetAccountId, buyAccountMetadata, wallet],
   )
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(

@@ -38,7 +38,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Best Yield)',
-    tags: ['Best Yield', 'Single Sided Staking'],
+    tags: ['Best Yield'],
   },
   'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8': {
     assetId: 'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8',

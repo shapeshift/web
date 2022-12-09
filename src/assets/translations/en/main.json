@@ -1563,5 +1563,19 @@
       "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
     },
     "custom": "Custom"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "What is Best Yield?",
+      "body": "Earn yield automatically across multiple defi protocols. The Best-Yield allocation strategy maximizes returns by automatically shifting capital as opportunities arise."
+    },
+    "seniorTranche": {
+      "title": "What is a Senior Tranche?",
+      "body": "Earn yield automatically across multiple defi protocols. Senior Tranches provide great opportunities with lower risk than junior tranches."
+    }, 
+    "juniorTranche": {
+      "title": "What is a Junior Tranche?",
+      "body": "Earn yield automatically across multiple defi protocols. Junior Tranches provide amplified optimized DeFi yields and carry more risk than the Senior Tranches."
+    }
   }
 }

@@ -16,7 +16,7 @@ import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
@@ -56,9 +56,16 @@ type Tags = typeof BASE_OPPORTUNITIES_BY_ID[BaseOpportunityKeys]['']
 
 const IdleTagDescriptions: Record<Tags, TagDescription> = {
   'Best Yield': {
-    title: 'What is Best Yield?',
-    description:
-      'Earn yield automatically across multiple defi protocols. The Best-Yield allocation strategy maximizes returns by automatically shifting capital as opportunities arise.',
+    title: 'idle.bestYield.title',
+    description: 'idle.bestYield.body',
+  },
+  'Junior Tranche': {
+    title: 'idle.juniorTranche.title',
+    description: 'idle.juniorTranche.body',
+  },
+  'Senior Tranche': {
+    title: 'idle.seniorTranche.title',
+    description: 'idle.seniorTranche.body',
   },
 }
 
@@ -211,8 +218,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         const tagDetails = IdleTagDescriptions[tag]
         return (
           <Flex flexDir='column' px={8} py={4}>
-            <RawText>{tagDetails.title}</RawText>
-            <RawText>{tagDetails.description}</RawText>
+            <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
+            <Text color='gray.500' translation={tagDetails.description} />
           </Flex>
         )
       }

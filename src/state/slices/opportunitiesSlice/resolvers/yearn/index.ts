@@ -52,8 +52,6 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
     // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
     if (!asset) continue
 
-    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
-    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
     stakingOpportunitiesById[opportunityId] = {
       apy: opportunity.apy.toFixed(),
       assetId,
@@ -104,9 +102,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-    // This works because of Idle assets being both a portfolio-owned asset and a yield-bearing "staking asset"
-    // If you use me as a reference and copy me into a resolver for another opportunity, that might or might not be the case
-    // Don't do what monkey see, and adapt the business logic to the opportunity you're implementing
+    //Yearn doesn't have rewards so we set this to 0 and an empty array
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         stakedAmountCryptoBaseUnit: '0',

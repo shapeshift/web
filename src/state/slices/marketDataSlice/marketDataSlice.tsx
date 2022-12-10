@@ -9,7 +9,6 @@ import type {
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
-import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
@@ -101,11 +100,6 @@ export const marketData = createSlice({
       }
       merge(state, incoming)
     },
-  },
-  extraReducers: builder => {
-    builder.addCase(PURGE, () => {
-      return initialState
-    })
   },
 })
 

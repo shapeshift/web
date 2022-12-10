@@ -6,7 +6,6 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
-import { PURGE } from 'redux-persist'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -57,11 +56,6 @@ export const assets = createSlice({
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
     },
-  },
-  extraReducers: builder => {
-    builder.addCase(PURGE, () => {
-      return initialState
-    })
   },
 })
 

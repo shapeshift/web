@@ -2,17 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  createMigrate,
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  persistReducer,
-  persistStore,
-  PURGE,
-  REGISTER,
-  REHYDRATE,
-} from 'redux-persist'
+import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
@@ -118,11 +108,11 @@ export const createStore = () =>
       getDefaultMiddleware({
         immutableCheck: {
           warnAfter: 128,
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+          ignoredActions: [PERSIST, PURGE],
         },
         serializableCheck: {
           warnAfter: 128,
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+          ignoredActions: [PERSIST, PURGE],
         },
       }).concat(apiMiddleware),
     devTools: {

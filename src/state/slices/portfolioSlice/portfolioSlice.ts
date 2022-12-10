@@ -3,6 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -63,6 +64,7 @@ export const portfolio = createSlice({
       state.accountBalances.ids = accountBalanceIds
     },
   },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
 type GetAccountArgs = {

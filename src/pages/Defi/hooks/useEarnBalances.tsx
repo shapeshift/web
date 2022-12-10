@@ -13,15 +13,12 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { useFoxyBalances } from './useFoxyBalances'
-import type { MergedEarnVault } from './useVaultBalances'
 
 export type UseEarnBalancesReturn = {
   opportunities: EarnOpportunityType[]
   totalEarningBalance: string
   loading: boolean
 }
-
-export type SerializableOpportunity = MergedEarnVault
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()

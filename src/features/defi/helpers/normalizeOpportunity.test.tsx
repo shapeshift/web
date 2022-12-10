@@ -6,7 +6,6 @@ import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosS
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'
 
-jest.mock('pages/Defi/hooks/useVaultBalances')
 jest.mock('@shapeshiftoss/investor-yearn')
 jest.mock('pages/Defi/hooks/useFoxyBalances')
 

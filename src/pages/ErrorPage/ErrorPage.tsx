@@ -12,7 +12,7 @@ import { persistor } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['ErrorBoundary'] })
 
-export const ErrorPage: React.FC<FallbackProps> = ({ resetErrorBoundary }) => {
+export const ErrorPage: React.FC<FallbackProps> = () => {
   const translate = useTranslate()
 
   const handleReset = useCallback(async () => {
@@ -25,8 +25,13 @@ export const ErrorPage: React.FC<FallbackProps> = ({ resetErrorBoundary }) => {
     } catch (e) {
       moduleLogger.error(e, 'Error purging redux persistence')
     }
-    resetErrorBoundary()
-  }, [resetErrorBoundary])
+    /**
+     * we have pretty complex state management (account and tx fetching) that we don't
+     * want to try and recreate here to recover from an error.
+     * just reload the page and let the user start over.
+     */
+    window.location.reload()
+  }, [])
 
   return (
     <Layout display='flex'>

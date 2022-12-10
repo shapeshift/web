@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
@@ -31,15 +31,9 @@ import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
-const Bang = () => {
-  throw new Error('bang')
-}
-
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isLoading = useIsAnyApiFetching()
-
-  const [bang, setBang] = useState(false)
 
   const history = useHistory()
   const translate = useTranslate()
@@ -167,8 +161,6 @@ export const Header = () => {
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <Button onClick={() => setBang(true)}>bang</Button>
-              {bang && <Bang />}
               <Notifications />
             </Flex>
           </HStack>

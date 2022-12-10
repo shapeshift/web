@@ -80,11 +80,7 @@ export const opportunities = createSlice({
       draftState.userStaking.ids = uniq([...draftState.userStaking.ids, ...payloadIds])
     },
   },
-  extraReducers: builder => {
-    builder.addCase(PURGE, () => {
-      return initialState
-    })
-  },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
 export const opportunitiesApi = createApi({

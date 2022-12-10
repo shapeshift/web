@@ -64,11 +64,7 @@ export const portfolio = createSlice({
       state.accountBalances.ids = accountBalanceIds
     },
   },
-  extraReducers: builder => {
-    builder.addCase(PURGE, () => {
-      return initialState
-    })
-  },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
 type GetAccountArgs = {

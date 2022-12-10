@@ -183,11 +183,7 @@ export const txHistory = createSlice({
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
       updateOrInsertRebase(txState, payload),
   },
-  extraReducers: builder => {
-    builder.addCase(PURGE, () => {
-      return initialState
-    })
-  },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
 type RebaseTxHistoryArgs = {

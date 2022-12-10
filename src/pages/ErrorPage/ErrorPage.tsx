@@ -19,7 +19,7 @@ export const ErrorPage: React.FC<FallbackProps> = () => {
     try {
       /**
        * we've hit the error boundary - not good. it's possibly related to stale data
-       * in the redux store. purge the store and reset the error boundary.
+       * in the redux store. purge the persisted data in the store.
        */
       await persistor.purge()
     } catch (e) {

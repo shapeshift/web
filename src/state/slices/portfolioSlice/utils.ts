@@ -17,7 +17,6 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
@@ -117,15 +116,6 @@ export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | 
   if (pubkeyVariant?.startsWith('Ltub')) return UtxoAccountType.P2pkh // ltc
   if (pubkeyVariant?.startsWith('Mtub')) return UtxoAccountType.SegwitP2sh // ltc
   return null
-}
-
-export const accountIdToUtxoParams = (accountId: AccountId, accountIndex: number) => {
-  const accountType = accountIdToAccountType(accountId)
-  const chainId = fromAccountId(accountId).chainId
-  // for eth, we don't return a UtxoAccountType or utxoParams
-  if (!accountType) return {}
-  const utxoParams = utxoAccountParams(chainId, accountType, accountIndex)
-  return { utxoParams, accountType }
 }
 
 export const findAccountsByAssetId = (

@@ -84,8 +84,7 @@
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All",
-    "buySellAsset": "Buy/Sell %{symbol}"
+    "viewAll": "View All"
   },
   "errorPage": {
     "title": "Oops!",
@@ -690,6 +689,10 @@
         "header": "Download KeepKey Updater",
         "button": "Download %{filename}",
         "wrongPlatform": "Not using %{platform}? Click here"
+      },
+      "disconnect": {
+        "header": "Disconnect KeepKey device",
+        "body": "Unfortunately, an error occured while recovering/setting up your KeepKey device. Please disconnect and reconnect your device and try setting up your KeepKey device again. If problem persists, please contact KeepKey support."
       }
     },
     "shapeShift": {

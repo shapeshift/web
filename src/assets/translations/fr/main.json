@@ -79,10 +79,12 @@
     "unsupportedNetwork": "Réseau non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",
+    "searchAsset": "Rechercher un actif",
     "enterAmount": "Entrer le montant",
     "pageNotFound": "La page que vous recherchez est introuvable",
     "buySell": "Acheter/Vendre",
-    "buySellAsset": "Acheter/Vendre des %{symbol}"
+    "all": "Tout",
+    "viewAll": "Tout voir"
   },
   "errorPage": {
     "title": "Oups !",
@@ -146,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Échanger",
-      "bridge": "Pont"
+      "bridge": "Pont",
+      "earn": "Gagner"
     }
   },
   "fiatRamps": {
@@ -175,6 +178,8 @@
     "usOnly": "Uniquement aux USA",
     "noKYC": "Sans KYC",
     "nonUS": "Hors USA",
+    "buyWith": "Acheter avec des",
+    "sellFor": "Vendre contre des",
     "availableProviders": "Fournisseurs disponibles",
     "noProvidersAvailable": "Aucun fournisseur disponible",
     "noProvidersBody": "Il semble que nous n'ayons pas encore de fournisseur pour cet actif.",
@@ -297,6 +302,8 @@
     "stakedAmount": "Montant misé",
     "unstakeFrom": "Démiser de",
     "gasFee": "Frais de carburant",
+    "provider": "Fournisseur",
+    "currentTvl": "TVL actuelle",
     "unbondInfoItWillTake": "Tant que vos jetons sont misés, vous ne pourrez pas les transférer ou les dépenser. Il faudra %{unbondingDays} jours pour les débloquer après les avoir démisés.",
     "unbondInfoItWillTakeShort": "Il faudra %{unbondingDays} jours pour démiser vos jetons",
     "confirmAndBroadcast": "Confirmer & diffuser",
@@ -307,6 +314,7 @@
     "amountStaked": "Montant misé",
     "assetStaking": "Mises en %{assetName}",
     "stake": "Miser",
+    "version": "Version",
     "unstake": "Démiser",
     "stakeAsset": "Miser %{assetSymbol}",
     "unstakeAsset": "Démiser des %{assetSymbol}",
@@ -325,6 +333,8 @@
     "ended": "Terminé",
     "balance": "Solde",
     "defi": "DeFi",
+    "startEarning": "Commencer a gagner",
+    "eligibleOpportunities": "Opportunités éligibles",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
     "netWorth": "Patrimoine net",
     "walletBalance": "Solde du porte-monnaie",
@@ -525,6 +535,8 @@
     "noRateAvailable": "Aucun taux disponible.",
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
+    "tradeFrom": "Échanger de",
+    "tradeTo": "Échanger en",
     "minerFee": "Frais de minage",
     "protocolFee": "Frais de protocole",
     "protocol": "Protocole",
@@ -677,6 +689,10 @@
         "header": "Télécharger le programme de mise à jour KeepKey",
         "button": "Télécharger %{filename}",
         "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
+      },
+      "disconnect": {
+        "header": "Déconnecter l'appareil KeepKey",
+        "body": "Malheureusement, une erreur s'est produite lors de la récupération/configuration de votre appareil KeepKey. Veuillez déconnecter et reconnecter votre appareil et réessayez de configurer votre appareil KeepKey. Si le problème persiste, veuillez contacter l'assistance KeepKey."
       }
     },
     "shapeShift": {

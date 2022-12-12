@@ -5,6 +5,7 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 
+import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
@@ -16,6 +17,25 @@ type MtPelerinResponse = {
   [identifier: string]: {
     symbol: string
   }
+}
+
+export const getMtPelerinFiatCurrencies = (): CommonFiatCurrencies[] => {
+  return [
+    'CHF',
+    'EUR',
+    'USD',
+    'GBP',
+    'AUD',
+    'CAD',
+    'DKK',
+    'HKD',
+    'JPY',
+    'NOK',
+    'NZD',
+    'SEK',
+    'SGD',
+    'ZAR',
+  ]
 }
 
 export async function getMtPelerinAssets(): Promise<AssetId[]> {

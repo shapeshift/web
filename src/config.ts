@@ -63,6 +63,7 @@ const validators = {
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_FIAT_POPUP: bool({ default: false }),
+  REACT_APP_FEATURE_ELIGIBLE_EARN: bool({ default: false }),
   REACT_APP_DASHBOARD_BREAKDOWN: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
@@ -103,6 +104,8 @@ const validators = {
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
   REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
+  REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
+  REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

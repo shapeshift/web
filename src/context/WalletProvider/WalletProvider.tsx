@@ -314,6 +314,14 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         type: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.DownloadUpdater,
       }
+    case WalletActions.OPEN_KEEPKEY_DISCONNECT:
+      return {
+        ...state,
+        modal: true,
+        showBackButton: false,
+        type: KeyManager.KeepKey,
+        initialRoute: KeepKeyRoutes.Disconnect,
+      }
     default:
       return state
   }

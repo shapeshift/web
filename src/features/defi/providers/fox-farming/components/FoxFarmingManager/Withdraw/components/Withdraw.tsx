@@ -15,6 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -55,6 +56,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       ),
     }),
   )
+
+  assertIsFoxEthStakingContractAddress(contractAddress)
 
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 

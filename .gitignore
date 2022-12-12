@@ -26,3 +26,6 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+# typechain codegen contracts
+src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts/**/*

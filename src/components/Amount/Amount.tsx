@@ -155,7 +155,7 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   } = useLocaleFormatter()
   const formattedNumber = toPercent(value, options)
   const red = useColorModeValue('red.800', 'red.500')
-  const green = useColorModeValue('green.800', 'green.500')
+  const green = useColorModeValue('green.500', 'green.200')
   const color = useMemo(() => {
     const roundedValue = parseFloat(formattedNumber)
     if (roundedValue === 0) {

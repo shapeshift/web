@@ -2,11 +2,13 @@ import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
+import intersection from 'lodash/intersection'
 import orderBy from 'lodash/orderBy'
+import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -16,13 +18,15 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   selectAssetsByMarketCap,
-  selectMarketData,
+  selectChainIdsByMarketCap,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioFiatBalances,
   selectPortfolioFiatBalancesByAccount,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './AssetList'
+import { ChainList } from './Chains/ChainList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 
 const moduleLogger = logger.child({
@@ -63,10 +67,28 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
-  const filteredAssets = useMemo(
-    () => (filterBy ? filterBy(assets) : assets) ?? [],
-    [assets, filterBy],
+  const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
+  const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
+
+  const assetsBySelectedChain = useMemo(
+    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
+    [activeChain, assets],
   )
+
+  /**
+   * the initial list of assets to display in the search results, without search terms
+   * or filters applied
+   */
+  const inputAssets = useMemo(() => filterBy?.(assets) ?? assets, [assets, filterBy])
+
+  /**
+   * assets filtered by selected chain ids
+   */
+  const filteredAssets = useMemo(
+    () => (filterBy ? filterBy(assetsBySelectedChain) : assetsBySelectedChain) ?? [],
+    [filterBy, assetsBySelectedChain],
+  )
+
   const [isFocused, setIsFocused] = useState(false)
   const debounceBlur = debounce(() => setIsFocused(false), 150)
 
@@ -81,7 +103,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const handleClick = onClick ?? defaultClickHandler
 
-  const marketData = useAppSelector(selectMarketData)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const sortedAssets = useMemo(() => {
     const selectAssetFiatBalance = (asset: Asset) =>
       bnOrZero(
@@ -146,14 +168,23 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     } else {
       moduleLogger.error('sortedAssets not defined')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchString])
+  }, [searchString, searching, sortedAssets])
 
   const listAssets = searching ? searchTermAssets : sortedAssets
+
+  /**
+   * display a list of chain icon filters, based on a unique list of chain ids,
+   * derived from the output of the filterBy function, sorted by market cap
+   */
+  const filteredChainIdsByMarketCap: ChainId[] = useMemo(
+    () => intersection(chainIdsByMarketCap, uniq(inputAssets.map(a => a.chainId))),
+    [chainIdsByMarketCap, inputAssets],
+  )
+
   const inputProps: InputProps = {
     ...register('search'),
     type: 'text',
-    placeholder: translate('common.search'),
+    placeholder: translate('common.searchAsset'),
     pl: 10,
     variant: 'filled',
     autoComplete: 'off',
@@ -162,6 +193,14 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         ? { onBlur: debounceBlur, onFocus: () => setIsFocused(true) }
         : { autoFocus: true })(),
   }
+
+  const handleChainClick = useCallback(
+    (e: React.MouseEvent) => (chainId: ChainId | 'All') => {
+      e.preventDefault()
+      return setActiveChain(chainId)
+    },
+    [],
+  )
 
   const searchElement: JSX.Element = (
     <Box
@@ -184,6 +223,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const assetSearchWithAssetList: JSX.Element = (
     <>
+      <ChainList
+        chainIds={filteredChainIdsByMarketCap}
+        onClick={handleChainClick}
+        activeChain={activeChain}
+      />
       {searchElement}
       {listAssets && (
         <Box flex={1}>

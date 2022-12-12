@@ -36,7 +36,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
@@ -59,12 +58,6 @@ export const isSupportedNonUtxoSwappingChain = (
     chainId === KnownChainIds.CosmosMainnet ||
     chainId === KnownChainIds.ThorchainMainnet
   )
-}
-
-// Pure functions
-export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account id')
-  return accountIdToUtxoParams(sellAssetAccountId, 0)
 }
 
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {

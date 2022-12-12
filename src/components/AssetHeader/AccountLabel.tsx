@@ -9,7 +9,8 @@ type AccountLabelProps = { accountId: AccountId }
 export const AccountLabel: React.FC<AccountLabelProps> = ({ accountId }) => {
   const label = accountId ? accountIdToLabel(accountId) : null
   const feeAssetId = accountIdToFeeAssetId(accountId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  if (!feeAsset) return null
   return (
     <HStack fontSize='small' spacing={1}>
       <RawText>{feeAsset.name}</RawText>

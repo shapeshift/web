@@ -24,6 +24,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -52,6 +53,9 @@ export const ClaimConfirm = ({
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
+
+  assertIsFoxEthStakingContractAddress(contractAddress)
+
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const history = useHistory()

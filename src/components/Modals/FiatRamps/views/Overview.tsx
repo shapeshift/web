@@ -36,6 +36,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAssetById,
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
@@ -222,7 +223,7 @@ export const Overview: React.FC<OverviewProps> = ({
     ))
   }, [])
 
-  const asset = useMemo(() => assetsById[assetId], [assetId, assetsById])
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   return asset ? (
     <>

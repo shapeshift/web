@@ -25,8 +25,8 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...r
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showFeeAsset = asset?.assetId !== feeAsset?.assetId
   const boxShadow = useColorModeValue(
-    `0 0 0 0.2em ${feeAsset?.color}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
-    `0 0 0 0.2em ${feeAsset?.color}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
+    `0 0 0 0.2em ${feeAsset?.color ?? 'black'}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
+    `0 0 0 0.2em ${feeAsset?.color ?? 'white'}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
   )
   return (
     <Avatar src={asset?.icon} icon={icon} border={0} bg='none' {...rest}>

@@ -34,7 +34,6 @@ export const YearnOverview: React.FC<{
 }> = ({ accountId, onAccountIdChange: handleAccountIdChange }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
-  console.info(chainId, contractAddress, assetReference)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })

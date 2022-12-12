@@ -1,4 +1,4 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -8,7 +8,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -17,13 +16,12 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -37,62 +35,63 @@ import { YearnDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnDeposit'],
-})
-
-export const YearnDeposit: React.FC<{
-  onAccountIdChange: AccountDropdownProps['onChange']
+type YearnDepositProps = {
   accountId: AccountId | undefined
-}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { yearn: api } = useYearn()
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const YearnDeposit: React.FC<YearnDepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = getChainAdapterManager()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   // user info
-  const chainAdapter = chainAdapterManager.get(chainId)
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && api && bip44Params)) return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          api.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
 
-        dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnDepositActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'YearnDeposit error')
-      }
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  useEffect(() => {
+    ;(() => {
+      if (!opportunityData) return
+      dispatch({ type: YearnDepositActionType.SET_OPPORTUNITY, payload: opportunityData })
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
+  }, [opportunityData])
 
   const handleBack = useCallback(() => {
     history.push({
@@ -116,22 +115,21 @@ export const YearnDeposit: React.FC<{
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: ownProps => <Approve {...ownProps} accountId={accountId} />,
-        props: {
-          contractAddress: vaultAddress,
-        },
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
-        label: 'Status',
-        component: ownProps => <Status {...ownProps} accountId={accountId} />,
+        label: translate('defi.steps.status.title'),
+        component: Status,
       },
     }
-  }, [accountId, handleAccountIdChange, vaultAddress, asset.symbol, translate])
+  }, [translate, asset.symbol, accountId, handleAccountIdChange])
 
-  if (loading || !asset || !marketData || !api) {
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
+  if (loading || !asset || !marketData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -140,7 +138,7 @@ export const YearnDeposit: React.FC<{
   }
 
   return (
-    <DepositContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}

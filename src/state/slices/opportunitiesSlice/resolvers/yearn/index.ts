@@ -55,7 +55,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       provider: DefiProvider.Yearn,
       tvl: bnOrZero(opportunity.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       type: DefiType.Staking,
-      underlyingAssetId: opportunity.underlyingAsset.assetId,
+      underlyingAssetId: assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,

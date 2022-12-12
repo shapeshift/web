@@ -79,7 +79,7 @@ export const ETHCHAIN_QUOTE = {
   feeData: {
     fee: '153244500000000000',
     chainSpecific: {
-      estimatedGas: '424500',
+      estimatedGasCryptoBaseUnit: '424500',
       gasPrice: '361000000000',
     },
     tradeFee: '0',
@@ -97,8 +97,8 @@ export const ETHCHAIN_QUOTE = {
 export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
   chainSpecific: {
     approvalFeeCryptoBaseUnit: '0',
-    estimatedGas: '424500',
-    gasPrice: '361000000000',
+    estimatedGasCryptoBaseUnit: '424500',
+    gasPriceCryptoBaseUnit: '361000000000',
     totalFee: '0.1532445',
   },
   tradeFeeSource: '0x',

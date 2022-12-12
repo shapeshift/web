@@ -132,7 +132,7 @@ export const TradeInput = () => {
     .times(bnOrZero(feeAssetFiatRate))
     .toString()
 
-  const hasValidSellAmount = bnOrZero(sellTradeAsset?.amount).gt(0)
+  const hasValidSellAmount = bnOrZero(sellTradeAsset?.amountCryptoPrecision).gt(0)
 
   const handleInputChange = useCallback(
     async (action: TradeAmountInputField, amount: string) => {
@@ -163,8 +163,8 @@ export const TradeInput = () => {
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset, amount: '0' })
-      setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amount: '0' })
+      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' })
+      setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' })
       setValue('fiatSellAmount', '0')
       setValue('fiatBuyAmount', '0')
       setValue('buyAssetFiatRate', currentValues.sellAssetFiatRate)
@@ -189,7 +189,7 @@ export const TradeInput = () => {
       sellAssetBalanceCrypto,
     )
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
-    setValue('sellTradeAsset.amount', maxSendAmount)
+    setValue('sellTradeAsset.amountCryptoPrecision', maxSendAmount)
     setValue('amount', maxSendAmount)
     setValue('isSendMax', true)
 
@@ -260,7 +260,10 @@ export const TradeInput = () => {
 
     return (
       bnOrZero(
-        toBaseUnit(bnOrZero(sellTradeAsset?.amount), sellTradeAsset?.asset?.precision || 0),
+        toBaseUnit(
+          bnOrZero(sellTradeAsset?.amountCryptoPrecision),
+          sellTradeAsset?.asset?.precision || 0,
+        ),
       ).lt(minSellAmount) &&
       hasValidSellAmount &&
       !isTradeQuotePending
@@ -270,26 +273,30 @@ export const TradeInput = () => {
     isTradeQuotePending,
     quote?.minimum,
     quote?.sellAsset.precision,
-    sellTradeAsset?.amount,
+    sellTradeAsset?.amountCryptoPrecision,
     sellTradeAsset?.asset?.precision,
   ])
 
   const feesExceedsSellAmount = useMemo(
     () =>
-      bnOrZero(sellTradeAsset?.amount).isGreaterThan(0) &&
-      bnOrZero(buyTradeAsset?.amount).isLessThanOrEqualTo(0) &&
+      bnOrZero(sellTradeAsset?.amountCryptoPrecision).isGreaterThan(0) &&
+      bnOrZero(buyTradeAsset?.amountCryptoPrecision).isLessThanOrEqualTo(0) &&
       !isTradeQuotePending,
-    [sellTradeAsset?.amount, buyTradeAsset?.amount, isTradeQuotePending],
+    [
+      sellTradeAsset?.amountCryptoPrecision,
+      buyTradeAsset?.amountCryptoPrecision,
+      isTradeQuotePending,
+    ],
   )
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
-      bnOrZero(sellTradeAsset?.amount),
+      bnOrZero(sellTradeAsset?.amountCryptoPrecision),
     )
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
       sellFeeAsset?.assetId === sellTradeAsset?.asset?.assetId
-        ? bnOrZero(sellTradeAsset.amount)
+        ? bnOrZero(sellTradeAsset.amountCryptoPrecision)
         : bn(0)
     const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
       .minus(
@@ -356,7 +363,7 @@ export const TradeInput = () => {
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
-    sellTradeAsset?.amount,
+    sellTradeAsset?.amountCryptoPrecision,
     sellTradeAsset?.asset?.assetId,
     sellTradeAsset?.asset?.symbol,
     translate,
@@ -409,7 +416,7 @@ export const TradeInput = () => {
             assetId={sellTradeAsset?.asset?.assetId}
             assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
             assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(sellTradeAsset?.amount).toString()}
+            cryptoAmount={positiveOrZero(sellTradeAsset?.amountCryptoPrecision).toString()}
             fiatAmount={positiveOrZero(fiatSellAmount).toString()}
             isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
             onChange={onSellAssetInputChange}
@@ -443,7 +450,7 @@ export const TradeInput = () => {
             assetId={buyTradeAsset?.asset?.assetId}
             assetSymbol={buyTradeAsset?.asset?.symbol ?? ''}
             assetIcon={buyTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(buyTradeAsset?.amount).toString()}
+            cryptoAmount={positiveOrZero(buyTradeAsset?.amountCryptoPrecision).toString()}
             fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
@@ -467,7 +474,7 @@ export const TradeInput = () => {
             <ReceiveSummary
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyTradeAsset?.asset?.symbol ?? ''}
-              amount={buyTradeAsset?.amount ?? ''}
+              amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
               beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
               protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'

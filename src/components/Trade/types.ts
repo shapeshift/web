@@ -21,7 +21,7 @@ export enum TradeAmountInputField {
 
 export type TradeAsset = {
   asset?: Asset
-  amount?: string
+  amountCryptoPrecision?: string
   fiatAmount?: string
 }
 
@@ -81,12 +81,12 @@ export type GetReceiveAddressArgs = {
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
+  'sellAmountBeforeFeesCryptoBaseUnit' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  | 'sellAmountCryptoPrecision'
+  | 'sellAmountBeforeFeesCryptoBaseUnit'
   | 'sellAsset'
   | 'buyAsset'
   | 'sendMax'

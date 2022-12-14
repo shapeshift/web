@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorTypes } from '../../../../../api'
 import type { ThorchainSwapperDeps } from '../../../types'
@@ -37,7 +37,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   try {
     const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
-    const inboundAddress = await getInboundAddressDataForChain(deps.daemonUrl, ethAssetId)
+    const inboundAddress = await getInboundAddressDataForChain(deps.daemonUrl, sellAsset.assetId)
     const router = inboundAddress?.router
     const vault = inboundAddress?.address
     if (!inboundAddress || !router || !vault)

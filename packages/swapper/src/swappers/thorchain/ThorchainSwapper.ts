@@ -60,7 +60,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
-    [KnownChainIds.AvalancheMainnet]: true,
+    [KnownChainIds.AvalancheMainnet]: false,
   }
 
   private buySupportedChainIds: Record<ChainId, boolean> = {
@@ -71,7 +71,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
-    [KnownChainIds.AvalancheMainnet]: true,
+    [KnownChainIds.AvalancheMainnet]: false,
   }
 
   private supportedSellAssetIds: AssetId[] = [thorchainAssetId]

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.7.0...@shapeshiftoss/swapper-v14.7.1) (2022-12-14)
+
+
+### Bug Fixes
+
+* **swapper:** use sell AssetId in getInboundAddressDataForChain ([#1134](https://github.com/shapeshift/lib/issues/1134)) ([4932e9f](https://github.com/shapeshift/lib/commit/4932e9f99f50187af6ce620738812fcf95489bff))
+
 # [@shapeshiftoss/swapper-v14.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.6.1...@shapeshiftoss/swapper-v14.7.0) (2022-12-08)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v14.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.7.1...@shapeshiftoss/swapper-v14.7.2) (2022-12-14)
+
+
+### Bug Fixes
+
+* disable avax in THORSwapper ([#1135](https://github.com/shapeshift/lib/issues/1135)) ([aba049f](https://github.com/shapeshift/lib/commit/aba049f0be22cbce699c73a3a23012e619bdea2a))
+
 # [@shapeshiftoss/swapper-v14.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.7.0...@shapeshiftoss/swapper-v14.7.1) (2022-12-14)
 
 

@@ -65,7 +65,8 @@ export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
   return assets.filter(asset => assetIdMap[asset.assetId])
 }
 
-export const getSendMaxAmount = (
+// TODO(gomes): actually return base units
+export const getSendMaxAmountCryptoBaseUnit = (
   sellAsset: Asset,
   feeAsset: Asset,
   quote: TradeQuote<KnownChainIds>,

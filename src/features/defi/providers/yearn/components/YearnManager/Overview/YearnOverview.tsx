@@ -3,13 +3,17 @@ import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { useMemo } from 'react'
+import { FaGift } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -28,10 +32,30 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const YearnOverview: React.FC<{
-  accountId?: AccountId | undefined
+const defaultMenu: DefiButtonProps[] = [
+  {
+    label: 'common.deposit',
+    icon: <ArrowUpIcon />,
+    action: DefiAction.Deposit,
+  },
+  {
+    label: 'common.withdraw',
+    icon: <ArrowDownIcon />,
+    action: DefiAction.Withdraw,
+  },
+]
+
+type YearnOverviewProps = {
+  accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
-}> = ({ accountId, onAccountIdChange: handleAccountIdChange }) => {
+}
+
+export const YearnOverview: React.FC<YearnOverviewProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
+  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
+  const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
 
@@ -47,11 +71,14 @@ export const YearnOverview: React.FC<{
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
-  const filter = useMemo(
-    () => ({ assetId: vaultTokenId, accountId: accountId ?? '' }),
-    [vaultTokenId, accountId],
+  const balanceFilter = useMemo(
+    () => ({ accountId, assetId: vaultTokenId }),
+    [accountId, vaultTokenId],
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  // user info
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  )
 
   const cryptoAmountAvailable = useMemo(
     () => bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision)),
@@ -61,9 +88,6 @@ export const YearnOverview: React.FC<{
     () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
     [cryptoAmountAvailable, marketData.price],
   )
-
-  const selectedLocale = useAppSelector(selectSelectedLocale)
-  const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -103,7 +127,6 @@ export const YearnOverview: React.FC<{
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-
   const underlyingAssets = useMemo(
     () => [
       {
@@ -115,21 +138,37 @@ export const YearnOverview: React.FC<{
     [cryptoAmountAvailable, underlyingAsset],
   )
 
-  const menu = useMemo(
-    () => [
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const descriptionQuery = useGetAssetDescriptionQuery({
+    assetId: underlyingAssetId,
+    selectedLocale,
+  })
+
+  const hasClaimBalance = useMemo(() => {
+    if (!opportunityData?.rewardAssetIds?.length) return false
+
+    return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
+      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+    )
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+
+  const menu: DefiButtonProps[] = useMemo(() => {
+    if (!(contractAddress && yearnInvestor && opportunityData)) return defaultMenu
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return defaultMenu
+
+    return [
+      ...defaultMenu,
       {
-        label: 'common.deposit',
-        icon: <ArrowUpIcon />,
-        action: DefiAction.Deposit,
+        icon: <FaGift />,
+        colorScheme: 'green',
+        label: 'common.claim',
+        variant: 'ghost-filled',
+        action: DefiAction.Claim,
+        isDisabled: !hasClaimBalance,
+        toolTip: translate('defi.modals.overview.noWithdrawals'),
       },
-      {
-        label: 'common.withdraw',
-        icon: <ArrowDownIcon />,
-        action: DefiAction.Withdraw,
-      },
-    ],
-    [],
-  )
+    ]
+  }, [contractAddress, yearnInvestor, opportunityData, hasClaimBalance, translate])
 
   if (!opportunityData) {
     return (
@@ -138,6 +177,8 @@ export const YearnOverview: React.FC<{
       </Center>
     )
   }
+
+  if (!underlyingAssets || !opportunityData) return null
 
   return (
     <Overview

@@ -58,6 +58,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
+
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(

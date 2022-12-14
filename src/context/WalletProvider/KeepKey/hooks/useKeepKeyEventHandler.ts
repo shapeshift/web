@@ -256,9 +256,7 @@ export const useKeepKeyEventHandler = (
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
         if (modal) {
-          // Little trick to send the user back to the wallet select route
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+          dispatch({ type: WalletActions.RESET_STATE })
         }
       } catch (e) {
         moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Device Disconnected Error')

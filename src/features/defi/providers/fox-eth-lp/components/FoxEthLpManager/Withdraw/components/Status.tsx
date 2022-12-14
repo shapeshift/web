@@ -131,7 +131,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.lpAmount} symbol={lpAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.lpAmountCryptoBaseUnit}
+                symbol={lpAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>
@@ -145,7 +148,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.foxAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.foxAmountCryptoBaseUnit}
+                symbol={foxAsset.symbol}
+              />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
@@ -154,7 +160,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <RawText>{ethAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.ethAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.ethAmountCryptoBaseUnit}
+                symbol={ethAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

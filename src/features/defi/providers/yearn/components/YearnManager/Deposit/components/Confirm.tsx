@@ -102,7 +102,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareDeposit({
         address: accountAddress,
-        amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        amount: bnOrZero(state.deposit.cryptoAmountBaseUnit).integerValue(),
       })
       const txid = await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
@@ -126,13 +126,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
-    asset.precision,
     assetReference,
     bip44Params,
     dispatch,
     onNext,
     opportunity,
-    state?.deposit.cryptoAmount,
+    state?.deposit.cryptoAmountBaseUnit,
     state?.opportunity,
     toast,
     translate,
@@ -178,7 +177,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

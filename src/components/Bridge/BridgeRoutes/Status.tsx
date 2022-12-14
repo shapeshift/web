@@ -34,10 +34,18 @@ export const Status = () => {
   const { isOpen, onToggle } = useDisclosure()
   const { control } = useFormContext<BridgeState>()
 
-  const [bridgeAsset, cryptoAmount, fromChain, toChain, relayerFeeUsdc, receiveAddress] = useWatch({
-    control,
-    name: ['asset', 'cryptoAmount', 'fromChain', 'toChain', 'relayerFeeUsdc', 'receiveAddress'],
-  })
+  const [bridgeAsset, cryptoAmountBaseUnit, fromChain, toChain, relayerFeeUsdc, receiveAddress] =
+    useWatch({
+      control,
+      name: [
+        'asset',
+        'cryptoAmountBaseUnit',
+        'fromChain',
+        'toChain',
+        'relayerFeeUsdc',
+        'receiveAddress',
+      ],
+    })
 
   const { price: bridgeTokenPrice } = useAppSelector(state =>
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
@@ -100,7 +108,7 @@ export const Status = () => {
             <Stack justifyContent='center' alignItems='center' spacing={0}>
               <Amount.Crypto
                 fontSize='xl'
-                value={cryptoAmount ?? '0'}
+                value={cryptoAmountBaseUnit ?? '0'}
                 symbol={bridgeAsset?.symbol ?? ''}
               />
               <Stack direction='row' justifyContent='center' alignItems='center' color='gray.500'>
@@ -154,7 +162,7 @@ export const Status = () => {
                       <Row.Value color='red.400'>
                         <Amount.Crypto
                           prefix='-'
-                          value={cryptoAmount ?? '0'}
+                          value={cryptoAmountBaseUnit ?? '0'}
                           symbol={bridgeAsset.symbol}
                         />
                       </Row.Value>
@@ -184,7 +192,7 @@ export const Status = () => {
                       <Row.Value color='green.200'>
                         <Amount.Crypto
                           prefix='+'
-                          value={cryptoAmount ?? '0'}
+                          value={cryptoAmountBaseUnit ?? '0'}
                           symbol={bridgeAsset.symbol}
                         />
                       </Row.Value>

@@ -24,7 +24,7 @@ type AssetRowProps = {
 } & BridgeAsset
 
 const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
-  const { icon, cryptoAmount, implementations, assetId } = rest
+  const { icon, cryptoAmountBaseUnit, implementations, assetId } = rest
   const { chainId } = fromAssetId(assetId)
   const chains = Object.keys(implementations ?? {})
   const chainName = chainIdToChainName(chainId)
@@ -42,7 +42,7 @@ const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
         <AssetIcon src={icon} size='sm' />
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
           <RawText>{`${symbol} on ${chainName}`}</RawText>
-          <RawText color='gray.500'>{`${cryptoAmount} available`}</RawText>
+          <RawText color='gray.500'>{`${cryptoAmountBaseUnit} available`}</RawText>
         </Stack>
         {chains.length > 1 && (
           <Circle size={8} ml='auto' borderWidth={2} borderColor='gray.700'>
@@ -74,14 +74,14 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         ? {
             avalanche: {
               name: AxelarChainNames.Avalanche,
-              balance: filteredAsset.cryptoAmount,
+              balance: filteredAsset.cryptoAmountBaseUnit,
               fiatBalance: filteredAsset.fiatAmount,
               symbol: filteredAsset.symbol,
               color: '#E84142',
             },
             ethereum: {
               name: AxelarChainNames.Ethereum,
-              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
+              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmountBaseUnit : '0',
               fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
               color: '#627EEA',
@@ -90,14 +90,14 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
         : {
             avalanche: {
               name: AxelarChainNames.Avalanche,
-              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmount : '0',
+              balance: destinationBridgeAsset ? destinationBridgeAsset.cryptoAmountBaseUnit : '0',
               fiatBalance: destinationBridgeAsset ? destinationBridgeAsset.fiatAmount : '0',
               symbol: destinationAsset?.symbol ?? '',
               color: '#E84142',
             },
             ethereum: {
               name: AxelarChainNames.Ethereum,
-              balance: filteredAsset.cryptoAmount,
+              balance: filteredAsset.cryptoAmountBaseUnit,
               fiatBalance: filteredAsset.fiatAmount,
               symbol: filteredAsset.symbol,
               color: '#627EEA',

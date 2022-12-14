@@ -59,7 +59,7 @@ export const Confirm: React.FC = () => {
 
   const [
     bridgeAsset,
-    cryptoAmount,
+    cryptoAmountBaseUnit,
     fromChain,
     toChain,
     receiveAddress,
@@ -69,7 +69,7 @@ export const Confirm: React.FC = () => {
     control,
     name: [
       'asset',
-      'cryptoAmount',
+      'cryptoAmountBaseUnit',
       'fromChain',
       'toChain',
       'receiveAddress',
@@ -95,7 +95,7 @@ export const Confirm: React.FC = () => {
       try {
         // We can't use axelarQuerySdk.getTransferFee() because of a CORS issue with the SDK
         const baseUrl = 'https://lcd-axelar.imperator.co/axelar/nexus/v1beta1/transfer_fee'
-        const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmount}${assetDenom}`
+        const requestUrl = `${baseUrl}?source_chain=${sourceChainName}&destination_chain=${destinationChainName}&amount=${cryptoAmountBaseUnit}${assetDenom}`
         const {
           data: {
             fee: { amount },
@@ -111,7 +111,7 @@ export const Confirm: React.FC = () => {
   }, [
     assetDenom,
     axelarQuerySdk,
-    cryptoAmount,
+    cryptoAmountBaseUnit,
     destinationChainName,
     fromChain?.name,
     setValue,
@@ -134,7 +134,7 @@ export const Confirm: React.FC = () => {
       setValue('depositAddress', depositAddress)
 
       const estimateFeesArgs: EstimateFeesInput = {
-        cryptoAmount,
+        cryptoAmountBaseUnit,
         asset,
         address: depositAddress,
         sendMax: false,
@@ -142,17 +142,17 @@ export const Confirm: React.FC = () => {
         contractAddress: assetReference,
       }
 
-      const estimatedFees = await estimateFees(estimateFeesArgs)
+      const estimatedFeesCryptoBaseUnit = await estimateFees(estimateFeesArgs)
 
       const handleSendArgs: SendInput = {
-        cryptoAmount,
+        cryptoAmountBaseUnit,
         asset,
         address: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',
         cryptoSymbol: bridgeAsset?.symbol ?? '',
-        estimatedFees,
+        estimatedFeesCryptoBaseUnit,
         feeType: FeeDataKey.Average,
         fiatAmount: '',
         fiatSymbol: selectedCurrency,
@@ -177,7 +177,7 @@ export const Confirm: React.FC = () => {
   const transferFeeNativeToken = bnOrZero(relayerFeeUsdc)
     .dividedBy(bnOrZero(bridgeTokenPrice))
     .valueOf()
-  const receiveAmount = bnOrZero(cryptoAmount)
+  const receiveAmount = bnOrZero(cryptoAmountBaseUnit)
     .minus(bnOrZero(transferFeeNativeToken))
     .decimalPlaces(4)
     .valueOf()
@@ -212,7 +212,7 @@ export const Confirm: React.FC = () => {
                   <Row.Value color='red.400'>
                     <Amount.Crypto
                       prefix='-'
-                      value={cryptoAmount ?? '0'}
+                      value={cryptoAmountBaseUnit ?? '0'}
                       symbol={fromChain?.symbol}
                     />
                   </Row.Value>

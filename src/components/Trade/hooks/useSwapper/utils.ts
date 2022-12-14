@@ -33,7 +33,7 @@ import {
   type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -73,13 +73,13 @@ export const getSendMaxAmount = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.networkFeeCryptoBaseUnit)
+  const feeEstimateCryptoBaseUnit = bnOrZero(quote?.feeData?.networkFeeCryptoBaseUnit)
   // sell asset balance minus expected fee = maxTradeAmount
   // only subtract if sell asset is fee asset
   return positiveOrZero(
     fromBaseUnit(
       bnOrZero(sellAssetBalance)
-        .minus(isFeeAsset ? feeEstimate : 0)
+        .minus(isFeeAsset ? feeEstimateCryptoBaseUnit : 0)
         .toString(),
       sellAsset.precision,
     ),
@@ -88,19 +88,15 @@ export const getSendMaxAmount = (
 
 const getEvmFees = <T extends EvmChainId>(
   trade: Trade<T> | TradeQuote<T>,
-  feeAsset: Asset,
+  _feeAsset: Asset, // TODO(gomes): rm me
   tradeFeeSource: string,
 ): DisplayFeeData<EvmChainId> => {
-  const networkFeeCryptoPrecision = bnOrZero(trade?.feeData?.networkFeeCryptoBaseUnit)
-    .div(bn(10).exponentiatedBy(feeAsset.precision))
-    .toFixed()
+  const networkFeeCryptoBaseUnit = bnOrZero(trade?.feeData?.networkFeeCryptoBaseUnit).toString()
 
-  const approvalFeeCryptoPrecision = bnOrZero(trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit)
-    .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
-    .toString()
-  const totalFeeCryptoPrecision = bnOrZero(networkFeeCryptoPrecision)
-    .plus(approvalFeeCryptoPrecision)
-    .toString()
+  const approvalFeeCryptoBaseUnit = bnOrZero(
+    trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
+  ).toString()
+  const totalFee = bnOrZero(networkFeeCryptoBaseUnit).plus(approvalFeeCryptoBaseUnit).toString()
   const gasPriceCryptoBaseUnit = bnOrZero(
     trade.feeData.chainSpecific.gasPriceCryptoBaseUnit,
   ).toString()
@@ -110,16 +106,15 @@ const getEvmFees = <T extends EvmChainId>(
 
   return {
     chainSpecific: {
-      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
+      approvalFeeCryptoBaseUnit,
       gasPriceCryptoBaseUnit,
       estimatedGasCryptoBaseUnit,
-      totalFee: totalFeeCryptoPrecision,
+      totalFee,
     },
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
-    networkFeeCryptoHuman: networkFeeCryptoPrecision,
-    networkFeeCryptoBaseUnit: trade?.feeData?.networkFeeCryptoBaseUnit ?? '0',
+    networkFeeCryptoBaseUnit,
   }
 }
 
@@ -129,10 +124,7 @@ export const getFormFees = ({
   tradeFeeSource,
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
-  const networkFeeCryptoHuman = fromBaseUnit(
-    trade?.feeData?.networkFeeCryptoBaseUnit,
-    feeAsset.precision,
-  )
+  const networkFeeCryptoBaseUnit = trade?.feeData?.networkFeeCryptoBaseUnit
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
@@ -144,8 +136,7 @@ export const getFormFees = ({
       )
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
-        networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit ?? '0',
+        networkFeeCryptoBaseUnit,
         sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
         buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
@@ -154,8 +145,7 @@ export const getFormFees = ({
     case CHAIN_NAMESPACE.Utxo: {
       const utxoTrade = trade as Trade<UtxoSupportedChainIds>
       return {
-        networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,
+        networkFeeCryptoBaseUnit,
         chainSpecific: utxoTrade.feeData.chainSpecific,
         buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,

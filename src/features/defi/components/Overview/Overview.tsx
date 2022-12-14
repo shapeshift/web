@@ -27,7 +27,7 @@ import { UnderlyingAssetsMenu } from './UnderlyingAssetsMenu'
 import { UnderlyingAssetsTags } from './UnderlyingAssetsTags'
 
 export type AssetWithBalance = {
-  cryptoBalancePrecision: string
+  cryptoBalanceBaseUnit: string
   allocationPercentage?: string
   icons?: string[]
 } & Asset
@@ -38,8 +38,8 @@ type OverviewProps = {
   // The LP asset this opportunity represents
   lpAsset?: AssetWithBalance
   // The assets underlying the LP one
-  underlyingAssetsCryptoPrecision: AssetWithBalance[]
-  rewardAssetsCryptoPrecision?: AssetWithBalance[]
+  underlyingAssetsCryptoBaseUnit: AssetWithBalance[]
+  rewardAssetsCryptoBaseUnit?: AssetWithBalance[]
   name: string
   description?: AssetDescriptionTeaserProps
   asset: Asset
@@ -57,8 +57,8 @@ export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
   lpAsset,
-  underlyingAssetsCryptoPrecision,
-  rewardAssetsCryptoPrecision,
+  underlyingAssetsCryptoBaseUnit,
+  rewardAssetsCryptoBaseUnit,
   asset,
   name,
   opportunityFiatBalance,
@@ -73,14 +73,21 @@ export const Overview: React.FC<OverviewProps> = ({
   version,
 }) => {
   const renderRewardAssets = useMemo(() => {
-    if (!rewardAssetsCryptoPrecision) return null
-    return rewardAssetsCryptoPrecision.map((asset, index) => (
-      <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
-        <AssetIcon src={asset.icon} size='2xs' />
-        <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
-      </Tag>
-    ))
-  }, [rewardAssetsCryptoPrecision])
+    if (!rewardAssetsCryptoBaseUnit) return null
+    return rewardAssetsCryptoBaseUnit.map((asset, index) => {
+      return (
+        <Tag variant='xs-subtle' columnGap={2} key={`${asset.assetId}_${index}`}>
+          <AssetIcon src={asset.icon} size='2xs' />
+          <Amount.FromBaseUnit
+            assetId={asset.assetId}
+            fontSize='sm'
+            value={asset.cryptoBalanceBaseUnit}
+            symbol={asset.symbol}
+          />
+        </Tag>
+      )
+    })
+  }, [rewardAssetsCryptoBaseUnit])
 
   return (
     <Flex
@@ -132,17 +139,17 @@ export const Overview: React.FC<OverviewProps> = ({
                 {lpAsset ? (
                   <UnderlyingAssetsMenu
                     lpAsset={lpAsset}
-                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                    underlyingAssets={underlyingAssetsCryptoBaseUnit}
                   />
                 ) : (
                   <UnderlyingAssetsTags
-                    underlyingAssets={underlyingAssetsCryptoPrecision}
+                    underlyingAssets={underlyingAssetsCryptoBaseUnit}
                     showPercentage
                   />
                 )}
               </Flex>
             </Stack>
-            {rewardAssetsCryptoPrecision && (
+            {rewardAssetsCryptoBaseUnit && (
               <Stack flex={1} spacing={4}>
                 <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>

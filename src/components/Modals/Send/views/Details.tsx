@@ -50,7 +50,7 @@ export const Details = () => {
     accountId,
     amountFieldError,
     asset,
-    cryptoAmount,
+    cryptoAmountBaseUnit,
     cryptoSymbol,
     fiatAmount,
     fiatSymbol,
@@ -62,7 +62,7 @@ export const Details = () => {
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
-      setValue(SendFormFields.CryptoAmount, '')
+      setValue(SendFormFields.CryptoAmountBaseUnit, '')
       setValue(SendFormFields.FiatAmount, '')
     },
     [setValue],
@@ -72,7 +72,7 @@ export const Details = () => {
   const {
     balancesLoading,
     fieldName,
-    cryptoHumanBalance,
+    cryptoBalanceBaseUnit,
     fiatBalance,
     handleNextClick,
     handleSendMax,
@@ -95,7 +95,9 @@ export const Details = () => {
   )
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
-  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
+  if (
+    !(asset && !isNil(cryptoAmountBaseUnit) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)
+  ) {
     return null
   }
 
@@ -127,9 +129,9 @@ export const Details = () => {
         <AccountCard
           asset={asset}
           isLoaded={!balancesLoading}
-          cryptoAmountAvailable={cryptoHumanBalance.toString()}
+          cryptoAmountAvailableBaseUnit={cryptoBalanceBaseUnit}
           fiatAmountAvailable={fiatBalance.toString()}
-          showCrypto={fieldName === SendFormFields.CryptoAmount}
+          showCrypto={fieldName === SendFormFields.CryptoAmountBaseUnit}
           onClick={() => history.push('/send/select')}
           mb={2}
         />
@@ -148,7 +150,7 @@ export const Details = () => {
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto value={cryptoAmount} symbol={cryptoSymbol} prefix='≈' />
+                <Amount.Crypto value={cryptoAmountBaseUnit} symbol={cryptoSymbol} prefix='≈' />
               ) : (
                 <Flex>
                   <Amount.Fiat value={fiatAmount} mr={1} prefix='≈' /> {fiatSymbol}
@@ -156,10 +158,10 @@ export const Details = () => {
               )}
             </FormHelperText>
           </Box>
-          {fieldName === SendFormFields.CryptoAmount && (
+          {fieldName === SendFormFields.CryptoAmountBaseUnit && (
             <TokenRow
               control={control}
-              fieldName={SendFormFields.CryptoAmount}
+              fieldName={SendFormFields.CryptoAmountBaseUnit}
               onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
@@ -270,7 +272,7 @@ export const Details = () => {
           <Button
             width='full'
             isDisabled={
-              !(cryptoAmount ?? fiatAmount) ||
+              !(cryptoAmountBaseUnit ?? fiatAmount) ||
               !!amountFieldError ||
               loading ||
               Boolean(memoFieldError)

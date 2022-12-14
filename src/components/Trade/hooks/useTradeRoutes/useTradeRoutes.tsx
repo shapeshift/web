@@ -45,8 +45,8 @@ export const useTradeRoutes = (): {
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
       setValue('amount', '0')
-      setValue('sellTradeAsset.amountCryptoPrecision', '0')
-      setValue('buyTradeAsset.amountCryptoPrecision', '0')
+      setValue('sellTradeAsset.amountCryptoBaseUnit', '0')
+      setValue('buyTradeAsset.amountCryptoBaseUnit', '0')
       setValue('fiatBuyAmount', '0')
       setValue('fiatSellAmount', '0')
       setValue('quote', undefined)

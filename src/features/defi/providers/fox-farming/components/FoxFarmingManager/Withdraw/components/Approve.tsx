@@ -35,7 +35,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCrypto = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
@@ -77,20 +77,23 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmountCryptoBaseUnit))
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
+      const gasData = await getUnstakeGasData(
+        state.withdraw.lpAmountCryptoBaseUnit,
+        state.withdraw.isExiting,
+      )
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)
@@ -114,7 +117,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     getUnstakeGasData,
     onNext,
     opportunity,
-    state?.withdraw.lpAmount,
+    state?.withdraw.lpAmountCryptoBaseUnit,
     state?.withdraw.isExiting,
     toast,
     translate,

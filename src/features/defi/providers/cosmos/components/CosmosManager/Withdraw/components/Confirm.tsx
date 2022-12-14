@@ -128,7 +128,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
         },
-        value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        value: bnOrZero(state.withdraw.cryptoAmountBaseUnit)
+          .times(`1e+${asset.precision}`)
+          .toString(),
         action: StakingAction.Unstake,
       })
 
@@ -161,7 +163,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     onNext,
     state?.loading,
     state?.userAddress,
-    state?.withdraw.cryptoAmount,
+    state?.withdraw.cryptoAmountBaseUnit,
     walletState?.wallet,
   ])
 
@@ -191,7 +193,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmountBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

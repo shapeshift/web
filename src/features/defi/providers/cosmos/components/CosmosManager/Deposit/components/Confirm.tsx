@@ -97,7 +97,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
         },
-        value: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        value: bnOrZero(state.deposit.cryptoAmountBaseUnit)
+          .times(`1e+${asset.precision}`)
+          .toString(),
         action: StakingAction.Stake,
       })
 
@@ -132,19 +134,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     contractAddress,
     dispatch,
     handleStakingAction,
-    marketData,
+    marketData.price,
     onNext,
-    state?.deposit.cryptoAmount,
+    state?.deposit.cryptoAmountBaseUnit,
     state?.userAddress,
     toast,
     translate,
-    walletState?.wallet,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance).gte(
-    bnOrZero(state.deposit.cryptoAmount).plus(
+    bnOrZero(state.deposit.cryptoAmountBaseUnit).plus(
       bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`),
     ),
   )
@@ -169,7 +171,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

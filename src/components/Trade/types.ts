@@ -21,13 +21,13 @@ export enum TradeAmountInputField {
 
 export type TradeAsset = {
   asset?: Asset
-  amountCryptoPrecision?: string
+  amountCryptoBaseUnit?: string
   fiatAmount?: string
 }
 
 export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFee'> & {
   tradeFeeSource: string
-  networkFeeCryptoHuman: string
+  networkFeeCryptoBaseUnit: string
 }
 
 export type TradeState<C extends ChainId> = {

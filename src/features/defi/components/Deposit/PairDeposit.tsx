@@ -26,6 +26,7 @@ type DepositProps = {
   // Estimated apy (Deposit Only)
   apy: string
   // Users available amount
+  // TODO(gomes): this should be base unit
   cryptoAmountAvailable1: string
   cryptoAmountAvailable2: string
   // Validation rules for the crypto input
@@ -216,14 +217,14 @@ export const PairDeposit = ({
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={cryptoAmount1?.value}
+            cryptoAmountBaseUnit={cryptoAmount1?.value}
             onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
             assetId={asset1.assetId}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
-            balance={cryptoAmountAvailable1}
+            cryptoBalanceBaseUnit={cryptoAmountAvailable1}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, true)}
@@ -232,14 +233,14 @@ export const PairDeposit = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={cryptoAmount2?.value}
+            cryptoAmountBaseUnit={cryptoAmount2?.value}
             onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
             fiatAmount={fiatAmount2?.value}
             showFiatAmount={true}
             assetId={asset2.assetId}
             assetIcon={asset2.icon}
             assetSymbol={asset2.symbol}
-            balance={cryptoAmountAvailable2}
+            cryptoBalanceBaseUnit={cryptoAmountAvailable2}
             fiatBalance={fiatAmountAvailable2}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, false)}

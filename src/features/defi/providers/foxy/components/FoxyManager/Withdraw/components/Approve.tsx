@@ -76,7 +76,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             tokenContractAddress: rewardId,
             contractAddress,
             amountDesired: bnOrZero(
-              bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+              bn(withdraw.cryptoAmountBaseUnit).times(`1e+${asset.precision}`),
             ).decimalPlaces(0),
             userAddress: state.userAddress,
             type: state.withdraw.withdrawType,
@@ -135,7 +135,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(bn(result).div(bn(10).pow(asset.precision)))
-          return bnOrZero(allowance).gte(state.withdraw.cryptoAmount)
+          return bnOrZero(allowance).gte(state.withdraw.cryptoAmountBaseUnit)
         },
         interval: 15000,
         maxAttempts: 60,

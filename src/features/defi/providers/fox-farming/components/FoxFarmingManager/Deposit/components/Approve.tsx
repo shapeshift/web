@@ -75,13 +75,13 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.deposit.cryptoAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state.deposit.cryptoAmountBaseUnit))
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getStakeGasData(state.deposit.cryptoAmount)
+      const gasData = await getStakeGasData(state.deposit.cryptoAmountBaseUnit)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
@@ -112,7 +112,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     getStakeGasData,
     onNext,
     opportunity,
-    state?.deposit.cryptoAmount,
+    state?.deposit.cryptoAmountBaseUnit,
     toast,
     translate,
     wallet,

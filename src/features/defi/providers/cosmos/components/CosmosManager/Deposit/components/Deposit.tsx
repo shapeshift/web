@@ -19,7 +19,6 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { toBaseUnit } from 'lib/math'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -62,40 +61,37 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
-    [asset.precision, balance],
-  )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
-    [cryptoAmountAvailable, marketData.price],
+    () => bnOrZero(balance).div(bn(10).pow(asset.precision)).times(marketData.price),
+    [asset.precision, balance, marketData.price],
   )
 
   const handleMaxClick = useCallback(
     async (setValue: UseFormSetValue<DepositValues>) => {
       if (!accountId) return
       const estimatedFees = await estimateFees({
-        cryptoAmount: cryptoAmountAvailable.toString(),
+        cryptoAmountBaseUnit: balance,
         asset,
         address: '',
         sendMax: true,
         accountId,
         contractAddress: '',
       })
-      const amountAvailableCryptoPrecision = toBaseUnit(cryptoAmountAvailable, asset.precision)
-      const cryptoAmountHuman = bnOrZero(amountAvailableCryptoPrecision)
+      const cryptoAmountMinusFeesBaseUnit = bnOrZero(balance)
         .minus(estimatedFees.average.txFee)
-        .div(bn(10).pow(asset.precision))
         .toString()
-      const fiatAmount = bnOrZero(cryptoAmountHuman).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmountMinusFeesBaseUnit)
+        .div(bn(10).pow(asset.precision))
+        .times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmountHuman.toString(), {
+      // TODO(gomes): fees
+      setValue(Field.CryptoAmountBaseUnit, balance, {
         shouldValidate: true,
       })
     },
-    [accountId, asset, cryptoAmountAvailable, marketData.price],
+    [accountId, asset, balance, marketData.price],
   )
 
   const handleContinue = useCallback(
@@ -177,7 +173,7 @@ export const Deposit: React.FC<DepositProps> = ({
       asset={asset}
       isLoading={state.loading}
       apy={String(opportunity?.apr)}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailableBaseUnit={balance}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

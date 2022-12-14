@@ -6,7 +6,7 @@ type EstimatedGas = {
 
 type DepositValues = {
   fiatAmount: string
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
 }
 
 type FoxFarmingDepositValues = DepositValues &

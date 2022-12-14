@@ -75,16 +75,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  const cryptoAmountAvailableBaseUnit = balance
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
+      const cryptoAmount = bnOrZero(cryptoAmountAvailableBaseUnit).times(percent)
       const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmountBaseUnit, cryptoAmount.toString(), { shouldValidate: true })
     },
-    [cryptoAmountAvailable, marketData.price, setValue],
+    [cryptoAmountAvailableBaseUnit, marketData.price, setValue],
   )
 
   const handleContinue = useCallback(
@@ -99,7 +99,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           )
           if (!yearnOpportunity) throw new Error('No opportunity')
           const preparedTx = await yearnOpportunity.prepareWithdrawal({
-            amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+            amount: bnOrZero(withdraw.cryptoAmountBaseUnit)
+              .times(`1e+${asset.precision}`)
+              .integerValue(),
             address: accountAddress,
           })
           return bnOrZero(preparedTx.gasPrice)
@@ -162,7 +164,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () => pricePerShare.times(marketData.price),
     [pricePerShare, marketData],
   )
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailableBaseUnit).times(vaultTokenPrice)
 
   const cryptoInputValidation = useMemo(
     () => ({
@@ -202,7 +204,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={underlyingAsset}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailableBaseUnit={cryptoAmountAvailableBaseUnit}
         cryptoInputValidation={cryptoInputValidation}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={fiatInputValidation}

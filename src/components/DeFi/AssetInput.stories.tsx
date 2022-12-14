@@ -28,7 +28,7 @@ export const Basic = Template.bind({})
 Basic.args = {
   assetIcon: 'https://assets.coincap.io/assets/icons/256/fox.png',
   assetSymbol: 'FOX',
-  balance: '1000',
+  cryptoBalanceBaseUnit: '1000000000000000000000',
   fiatAmount: '0',
 }
 
@@ -53,6 +53,6 @@ WithChildren.args = {
 export const ReadOnly = Template.bind({})
 ReadOnly.args = {
   ...Basic.args,
-  balance: undefined,
+  cryptoBalanceBaseUnit: undefined,
   isReadOnly: true,
 }

@@ -1,14 +1,17 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
 type AssetBalanceProps = {
+  assetId: AssetId
   symbol: string
-  cryptoBalance: string
+  cryptoBalanceBaseUnit: string
   fiatBalance: string
   isFiat?: boolean
   label: string
 }
 export const Balance: React.FC<AssetBalanceProps> = ({
+  assetId,
   symbol,
-  cryptoBalance,
+  cryptoBalanceBaseUnit,
   fiatBalance,
   label,
   isFiat,
@@ -24,7 +27,8 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       value={fiatBalance}
     />
   ) : (
-    <Amount.Crypto
+    <Amount.FromBaseUnit
+      assetId={assetId}
       lineHeight={1}
       color='gray.500'
       fontWeight='medium'
@@ -32,7 +36,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       flex={1}
       symbol={symbol}
       prefix={label}
-      value={cryptoBalance}
+      value={cryptoBalanceBaseUnit}
     />
   )
 }

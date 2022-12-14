@@ -8,9 +8,9 @@ export const initialState: FoxEthLpWithdrawState = {
   loading: false,
   approve: {},
   withdraw: {
-    lpAmount: '',
-    foxAmount: '',
-    ethAmount: '',
+    lpAmountCryptoBaseUnit: '',
+    foxAmountCryptoBaseUnit: '',
+    ethAmountCryptoBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
   },

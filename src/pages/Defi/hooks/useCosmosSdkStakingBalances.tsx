@@ -63,10 +63,6 @@ export function useCosmosSdkStakingBalances({
       const data = {
         ...opportunity,
         cryptoAmountBaseUnit: bnOrZero(opportunity.totalDelegations).toFixed(),
-        cryptoAmountPrecision: bnOrZero(opportunity.totalDelegations)
-          .div(`1e+${asset?.precision}`)
-          .decimalPlaces(asset.precision)
-          .toFixed(),
         tvl,
         fiatAmount,
         chainId: asset.chainId,

@@ -93,7 +93,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
         if (!(state.userAddress && state.opportunity && assetReference)) return
         try {
-          const gasData = await getStakeGasData(deposit.cryptoAmount)
+          const gasData = await getStakeGasData(deposit.cryptoAmountBaseUnit)
           if (!gasData) return
           return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
         } catch (error) {
@@ -120,7 +120,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
-        if (allowance.gte(formValues.cryptoAmount)) {
+        if (allowance.gte(formValues.cryptoAmountBaseUnit)) {
           const estimatedGasCrypto = await getDepositGasEstimate(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
@@ -225,7 +225,7 @@ export const Deposit: React.FC<DepositProps> = ({
       rewardAsset={rewardAsset}
       inputIcons={opportunity?.icons}
       apy={String(opportunity?.apy)}
-      cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
+      cryptoAmountAvailableBaseUnit={balance}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

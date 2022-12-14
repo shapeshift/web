@@ -21,7 +21,7 @@ export const initialState: CosmosWithdrawState = {
   loading: false,
   withdraw: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
     withdrawType: WithdrawType.DELAYED,

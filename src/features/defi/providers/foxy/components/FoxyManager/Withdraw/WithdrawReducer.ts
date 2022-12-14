@@ -24,7 +24,7 @@ export const initialState: FoxyWithdrawState = {
   approve: {},
   withdraw: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

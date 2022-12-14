@@ -8,7 +8,7 @@ export const initialState: IdleDepositState = {
   approve: {},
   deposit: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

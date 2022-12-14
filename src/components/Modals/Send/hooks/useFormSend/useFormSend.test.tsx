@@ -56,7 +56,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: FeeDataKey.Average,
-  [SendFormFields.EstimatedFees]: {
+  [SendFormFields.EstimatedFeesCryptoBaseUnit]: {
     [FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
@@ -85,7 +85,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
       },
     },
   },
-  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.CryptoAmountBaseUnit]: '1',
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',

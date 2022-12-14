@@ -24,8 +24,6 @@ export type EarnOpportunityType = {
   underlyingAssetId?: AssetId
   assetId: AssetId
   fiatAmount: string
-  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
-  cryptoAmountPrecision: string
   cryptoAmountBaseUnit: string
   expired?: boolean
   chainId: ChainId
@@ -46,11 +44,9 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
     const chainId = fromAssetId(vault.feeAsset.assetId).chainId
     let fiatAmount = '0'
     let cryptoAmountBaseUnit = '0'
-    let cryptoAmountPrecision = '0'
     if (vaultsWithBalances[vault.id]) {
       const balances = vaultsWithBalances[vault.id]
       cryptoAmountBaseUnit = balances.cryptoAmountBaseUnit
-      cryptoAmountPrecision = balances.cryptoAmountPrecision
       fiatAmount = balances.fiatAmount
     }
     const assetId = vault.underlyingAsset.assetId
@@ -67,7 +63,6 @@ const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportu
       assetId,
       fiatAmount,
       cryptoAmountBaseUnit,
-      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -106,7 +101,6 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       chainId,
       tokenAssetId: assetId,
       fiatAmount,
-      cryptoAmountPrecision,
       cryptoAmountBaseUnit,
     } = foxy
     return {
@@ -122,7 +116,6 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       assetId,
       fiatAmount,
       cryptoAmountBaseUnit,
-      cryptoAmountPrecision,
       // DeFi foxy and yearn vaults are already loaded by the time they are transformed
       isLoaded: true,
     }
@@ -145,7 +138,6 @@ const useTransformCosmosStaking = (
         assetId: staking.assetId,
         fiatAmount: staking.fiatAmount ?? '',
         cryptoAmountBaseUnit: staking.cryptoAmountBaseUnit ?? '0',
-        cryptoAmountPrecision: staking.cryptoAmountPrecision ?? '0',
         moniker: staking.moniker,
         version:
           !bnOrZero(staking.cryptoAmountBaseUnit).isZero() &&
@@ -155,8 +147,8 @@ const useTransformCosmosStaking = (
       }
     })
     .sort((opportunityA, opportunityB) => {
-      return bnOrZero(opportunityA.cryptoAmountPrecision).gt(
-        bnOrZero(opportunityB.cryptoAmountPrecision),
+      return bnOrZero(opportunityA.cryptoAmountBaseUnit).gt(
+        bnOrZero(opportunityB.cryptoAmountBaseUnit),
       )
         ? -1
         : 1

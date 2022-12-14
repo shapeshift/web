@@ -10,7 +10,7 @@ export const initialState: YearnDepositState = {
   approve: {},
   deposit: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

@@ -8,7 +8,7 @@ export const initialState: IdleWithdrawState = {
   approve: {},
   withdraw: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

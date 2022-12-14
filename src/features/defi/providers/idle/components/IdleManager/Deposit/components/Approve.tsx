@@ -75,7 +75,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount)
+          amount: bnOrZero(deposit.cryptoAmountBaseUnit)
             .times(bn(10).pow(underlyingAsset?.precision))
             .integerValue(),
           address: userAddress,
@@ -134,7 +134,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         fn: () => idleOpportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
-          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmountBaseUnit)
         },
         interval: 15000,
         maxAttempts: 30,

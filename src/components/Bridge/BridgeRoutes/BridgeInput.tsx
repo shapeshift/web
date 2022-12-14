@@ -1,14 +1,16 @@
 import { ArrowDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Divider, IconButton, List, Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useController, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from '../components/ChainRow'
@@ -75,7 +77,7 @@ export const BridgeInput = () => {
     formState: { isValid, errors },
   } = useFormContext<BridgeState>()
 
-  const fieldError = errors.cryptoAmount?.message ?? null
+  const fieldError = errors.cryptoAmountBaseUnit?.message ?? null
 
   const { field: asset } = useController({
     name: 'asset',
@@ -101,7 +103,7 @@ export const BridgeInput = () => {
   }
 
   const { field: cryptoAmount } = useController({
-    name: 'cryptoAmount',
+    name: 'cryptoAmountBaseUnit',
     control,
     rules: {
       required: true,
@@ -120,28 +122,42 @@ export const BridgeInput = () => {
   })
 
   const { price } = useAppSelector(state => selectMarketDataById(state, asset.value?.assetId ?? ''))
+  const assets = useAppSelector(selectAssets)
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
       setValue('fiatAmount', value, { shouldValidate: true })
-      setValue('cryptoAmount', bnOrZero(value).div(price).toString(), {
-        shouldValidate: true,
-      })
+      setValue(
+        'cryptoAmountBaseUnit',
+        bnOrZero(value)
+          .div(price)
+          .times(bn(10).exponentiatedBy(assets[asset.value?.assetId]?.precision))
+          .toString(),
+        {
+          shouldValidate: true,
+        },
+      )
     } else {
       setValue('fiatAmount', bnOrZero(value).times(price).toString(), {
         shouldValidate: true,
       })
-      setValue('cryptoAmount', value, {
+      setValue('cryptoAmountBaseUnit', value, {
         shouldValidate: true,
       })
     }
   }
 
   const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(fromChain.value?.balance).times(percent)
-    const fiatAmount = bnOrZero(cryptoAmount).times(price)
-    setValue('fiatAmount', fiatAmount.toString(), { shouldValidate: true })
-    setValue('cryptoAmount', cryptoAmount.toString(), { shouldValidate: true })
+    const cryptoAmountPercentageBaseUnit = bnOrZero(fromChain.value?.balance).times(percent)
+    const cryptoAmountPercentagePrecision = fromBaseUnit(
+      cryptoAmountPercentageBaseUnit,
+      assets[asset.value?.assetId]?.precision ?? '0',
+    )
+    const fiatAmountPercentage = bnOrZero(cryptoAmountPercentagePrecision).times(price)
+    setValue('fiatAmount', fiatAmountPercentage.toString(), { shouldValidate: true })
+    setValue('cryptoAmountBaseUnit', bn(cryptoAmountPercentageBaseUnit).toFixed(), {
+      shouldValidate: true,
+    })
   }
 
   const onSubmit = () => history.push(BridgeRoutePaths.Confirm)
@@ -151,7 +167,7 @@ export const BridgeInput = () => {
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <AssetInput
           assetSymbol={asset.value?.symbol ?? 'Select Asset'}
-          cryptoAmount={cryptoAmount.value}
+          cryptoAmountBaseUnit={cryptoAmount.value}
           isReadOnly={!asset.value}
           fiatAmount={fiatAmount.value}
           assetIcon={asset.value?.icon ?? ''}
@@ -188,7 +204,7 @@ export const BridgeInput = () => {
           size='lg'
           isDisabled={!isValid || !fromChain.value || !toChain.value || !cryptoAmount.value}
           type='submit'
-          colorScheme={errors.cryptoAmount ? 'red' : 'blue'}
+          colorScheme={errors.cryptoAmountBaseUnit ? 'red' : 'blue'}
         >
           {translate(fieldError || 'bridge.preview')}
         </Button>

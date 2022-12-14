@@ -52,7 +52,7 @@ export const Confirm = () => {
     accountId,
     address,
     asset,
-    cryptoAmount,
+    cryptoAmountBaseUnit,
     cryptoSymbol,
     feeType,
     fiatAmount,
@@ -84,7 +84,7 @@ export const Confirm = () => {
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
-  if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
+  if (!(address && asset?.name && cryptoSymbol && cryptoAmountBaseUnit && fiatAmount && feeType))
     return null
 
   return (
@@ -112,7 +112,7 @@ export const Confirm = () => {
             lineHeight='shorter'
             textTransform='uppercase'
             symbol={cryptoSymbol}
-            value={cryptoAmount}
+            value={cryptoAmountBaseUnit}
           />
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
@@ -189,7 +189,7 @@ export const Confirm = () => {
                 textTransform='uppercase'
                 maximumFractionDigits={6}
                 symbol={cryptoSymbol}
-                value={cryptoAmount}
+                value={cryptoAmountBaseUnit}
               />
               <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset.symbol} />
             </Row.Label>

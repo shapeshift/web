@@ -130,7 +130,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

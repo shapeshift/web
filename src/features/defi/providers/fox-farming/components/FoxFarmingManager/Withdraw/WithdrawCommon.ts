@@ -1,11 +1,11 @@
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type WithdrawValues = {
-  lpAmount: string
+  lpAmountCryptoBaseUnit: string
 }
 
 type FoxFarmingWithdrawValues = WithdrawValues &

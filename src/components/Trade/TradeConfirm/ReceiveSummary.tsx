@@ -7,6 +7,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,9 +17,10 @@ import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 type ReceiveSummaryProps = {
+  assetId: AssetId | undefined
   isLoading?: boolean
   symbol: string
-  amount: string
+  amountCryptoBaseUnit: string
   fiatAmount?: string
   beforeFees?: string
   protocolFee?: string
@@ -28,8 +30,9 @@ type ReceiveSummaryProps = {
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
+  assetId,
   symbol,
-  amount,
+  amountCryptoBaseUnit,
   fiatAmount,
   beforeFees,
   protocolFee,
@@ -49,8 +52,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
-  const amountAfterSlippage = bnOrZero(amount).times(bn(1).minus(slippage)).toString()
-  const isAmountPositive = bnOrZero(amountAfterSlippage).gt(0)
+  const amountAfterSlippageCryptoBaseUnit = bnOrZero(amountCryptoBaseUnit)
+    .times(bn(1).minus(slippage))
+    .toString()
+  const isAmountPositive = bnOrZero(amountAfterSlippageCryptoBaseUnit).gt(0)
 
   return (
     <>
@@ -64,7 +69,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+              <Amount.FromBaseUnit
+                assetId={assetId ?? ''}
+                value={isAmountPositive ? amountCryptoBaseUnit : '0'}
+                symbol={symbol}
+              />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -152,8 +161,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Label>
               <Row.Value whiteSpace='nowrap'>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto
-                    value={isAmountPositive ? amountAfterSlippage : '0'}
+                  <Amount.FromBaseUnit
+                    assetId={assetId ?? ''}
+                    value={isAmountPositive ? amountAfterSlippageCryptoBaseUnit : '0'}
                     symbol={symbol}
                   />
                 </Skeleton>

@@ -8,7 +8,7 @@ export const initialState: FoxFarmingWithdrawState = {
   loading: false,
   approve: {},
   withdraw: {
-    lpAmount: '',
+    lpAmountCryptoBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
     isExiting: false,

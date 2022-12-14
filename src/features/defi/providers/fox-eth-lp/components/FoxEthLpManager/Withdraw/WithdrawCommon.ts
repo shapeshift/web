@@ -5,9 +5,9 @@ type EstimatedGas = {
 }
 
 type WithdrawValues = {
-  lpAmount: string
-  foxAmount: string
-  ethAmount: string
+  lpAmountCryptoBaseUnit: string
+  foxAmountCryptoBaseUnit: string
+  ethAmountCryptoBaseUnit: string
 }
 
 type FoxEthLpWithdrawValues = WithdrawValues &

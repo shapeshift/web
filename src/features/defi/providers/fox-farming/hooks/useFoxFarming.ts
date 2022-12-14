@@ -326,13 +326,11 @@ export const useFoxFarming = (
   )
 
   const getUnstakeGasData = useCallback(
-    async (lpAmount: string, isExiting: boolean) => {
+    async (lpAmountCryptoBaseUnit: string, isExiting: boolean) => {
       if (skip || !farmingAccountId || !uniswapRouterContract) return
       const data = isExiting
         ? foxFarmingContract!.interface.encodeFunctionData('exit')
-        : foxFarmingContract!.interface.encodeFunctionData('withdraw', [
-            bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-          ])
+        : foxFarmingContract!.interface.encodeFunctionData('withdraw', [lpAmountCryptoBaseUnit])
       const farmingAccountAddress = fromAccountId(farmingAccountId).account
       const estimatedFees = await adapter.getFeeData({
         to: contractAddress,
@@ -344,15 +342,7 @@ export const useFoxFarming = (
       })
       return estimatedFees
     },
-    [
-      adapter,
-      farmingAccountId,
-      contractAddress,
-      foxFarmingContract,
-      lpAsset.precision,
-      uniswapRouterContract,
-      skip,
-    ],
+    [adapter, farmingAccountId, contractAddress, foxFarmingContract, uniswapRouterContract, skip],
   )
 
   const approve = useCallback(async () => {

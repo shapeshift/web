@@ -125,13 +125,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
-      if (!state?.deposit.cryptoAmount) return
+      if (!state?.deposit.cryptoAmountBaseUnit) return
 
       const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
       const tx = await idleOpportunity.prepareDeposit({
         address: userAddress,
-        amount: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        amount: bnOrZero(state.deposit.cryptoAmountBaseUnit)
+          .times(`1e+${asset.precision}`)
+          .integerValue(),
       })
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
@@ -203,7 +205,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

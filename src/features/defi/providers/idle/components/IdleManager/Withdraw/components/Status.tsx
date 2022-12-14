@@ -135,7 +135,7 @@ export const Status = () => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

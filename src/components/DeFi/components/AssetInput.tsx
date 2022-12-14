@@ -24,7 +24,9 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -61,10 +63,10 @@ export type AssetInputProps = {
   onPercentOptionClick?: (args: number) => void
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
-  cryptoAmount?: string
+  cryptoAmountBaseUnit?: string
   fiatAmount?: string
   showFiatAmount?: boolean
-  balance?: string
+  cryptoBalanceBaseUnit?: string
   fiatBalance?: string
   errors?: FieldError
   percentOptions: number[]
@@ -84,12 +86,12 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   onAssetClick,
   onMaxClick,
   onPercentOptionClick,
-  cryptoAmount,
+  cryptoAmountBaseUnit,
   isReadOnly,
   isSendMaxDisabled,
   fiatAmount,
   showFiatAmount = '0',
-  balance,
+  cryptoBalanceBaseUnit,
   fiatBalance,
   errors,
   percentOptions = [0.25, 0.5, 0.75, 1],
@@ -113,12 +115,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
-  // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-  const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
-  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
-    ? cryptoAmount
-    : bnOrZero(cryptoAmount).toFixed(3)
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
+  const formattedCryptoAmount = bnOrZero(cryptoAmountBaseUnit)
+    .div(bn(10).pow(asset.precision))
+    .toFixed()
   return (
     <FormControl
       borderWidth={1}
@@ -190,7 +191,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           >
             <Skeleton isLoaded={!showFiatSkeleton}>
               {isFiat ? (
-                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+                <Amount.Crypto value={formattedCryptoAmount ?? ''} symbol={assetSymbol} />
               ) : (
                 <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
               )}
@@ -198,11 +199,12 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           </Button>
         </Stack>
       )}
-      {(onPercentOptionClick || balance) && (
+      {(onPercentOptionClick || cryptoBalanceBaseUnit) && (
         <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          {balance && (
+          {cryptoBalanceBaseUnit && asset && (
             <Balance
-              cryptoBalance={balance}
+              assetId={assetId ?? ''}
+              cryptoBalanceBaseUnit={cryptoBalanceBaseUnit}
               fiatBalance={fiatBalance ?? ''}
               symbol={assetSymbol}
               isFiat={isFiat}

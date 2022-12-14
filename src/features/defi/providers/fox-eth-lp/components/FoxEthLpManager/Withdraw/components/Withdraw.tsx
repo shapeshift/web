@@ -21,7 +21,6 @@ import { fromBaseUnit } from 'lib/math'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectMarketDataSortedByMarketCap,
@@ -47,8 +46,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-
-  const assets = useAppSelector(selectAssets)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -77,11 +74,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   const foxAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(foxAmountCryptoBaseUnit, foxAsset.precision),
+    () => bnOrZero(foxAmountCryptoBaseUnit).div(bn(10).pow(foxAsset.precision)).toFixed(),
     [foxAmountCryptoBaseUnit, foxAsset.precision],
   )
   const ethAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(ethAmountCryptoBaseUnit, ethAsset.precision),
+    () => bnOrZero(ethAmountCryptoBaseUnit).div(bn(10).pow(ethAsset.precision)).toFixed(),
+
     [ethAmountCryptoBaseUnit, ethAsset.precision],
   )
 
@@ -95,18 +93,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () => ({ assetId: foxEthLpOpportunity?.assetId ?? '', accountId: accountId ?? '' }),
     [foxEthLpOpportunity?.assetId, accountId],
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
-
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
+  const cryptoAmountAvailableBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, filter),
+  )
 
   if (!state || !dispatch || !foxEthLpOpportunity?.icons) return null
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     try {
       const fee = await getWithdrawGasData(
-        withdraw.cryptoAmount,
-        foxAmountCryptoPrecision,
-        ethAmountCryptoPrecision,
+        withdraw.cryptoAmountBaseUnit,
+        foxAmountCryptoBaseUnit,
+        ethAmountCryptoBaseUnit,
       )
       if (!fee) return
       return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
@@ -123,16 +121,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     dispatch({
       type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
       payload: {
-        lpAmount: formValues.cryptoAmount,
-        foxAmount: foxAmountCryptoPrecision,
-        ethAmount: ethAmountCryptoPrecision,
+        lpAmountCryptoBaseUnit: formValues.cryptoAmountBaseUnit,
+        foxAmountCryptoBaseUnit,
+        ethAmountCryptoBaseUnit,
       },
     })
     const lpAllowance = await allowance(true)
     const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
-    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
+    if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmountBaseUnit))) {
       const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
       if (!estimatedGasCrypto) {
         dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
@@ -165,11 +163,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toString()
-    const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
+    const cryptoAmountBaseUnit = bnOrZero(cryptoAmountAvailableBaseUnit).times(percent).toString()
+    const fiatAmount = bnOrZero(fiatAmountAvailable)
+      .div(bn(10).pow(asset.precision))
+      .times(percent)
+      .toString()
 
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
-    setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
+    setValue(Field.CryptoAmountBaseUnit, cryptoAmountBaseUnit, { shouldValidate: true })
     if (
       foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
       foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit
@@ -185,7 +186,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     const percentage = bnOrZero(value).div(
-      bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailable),
+      bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailableBaseUnit),
     )
     if (
       foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
@@ -201,9 +202,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const cryptoAmountAvailablePrecision = bnOrZero(cryptoAmountAvailableBaseUnit).div(
+      `1e+${asset.precision}`,
+    )
     const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    const hasValidBalance =
+      cryptoAmountAvailablePrecision.gt(0) &&
+      _value.gt(0) &&
+      cryptoAmountAvailablePrecision.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -222,7 +228,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={asset}
         icons={foxEthLpOpportunity.icons}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailableBaseUnit={cryptoAmountAvailableBaseUnit}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },
@@ -246,18 +252,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           <Text translation='common.receive' />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={foxAmountCryptoPrecision}
+            cryptoAmountBaseUnit={foxAmountCryptoBaseUnit}
             fiatAmount={bnOrZero(foxAmountCryptoPrecision).times(foxMarketData.price).toFixed(2)}
             showFiatAmount={true}
             assetIcon={foxAsset.icon}
             assetSymbol={foxAsset.symbol}
-            balance={bnOrZero(foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit)
-              .div(
-                bn(10).pow(
-                  assets[foxEthLpOpportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
-                ),
-              )
-              .toFixed()}
+            cryptoBalanceBaseUnit={foxEthLpOpportunity.underlyingToken1AmountCryptoBaseUnit}
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
@@ -271,18 +271,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={ethAmountCryptoPrecision}
+            cryptoAmountBaseUnit={ethAmountCryptoBaseUnit}
             fiatAmount={bnOrZero(ethAmountCryptoPrecision).times(ethMarketData.price).toFixed(2)}
             showFiatAmount={true}
             assetIcon={ethAsset.icon}
             assetSymbol={ethAsset.symbol}
-            balance={bnOrZero(foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit)
-              .div(
-                bn(10).pow(
-                  assets[foxEthLpOpportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
-                ),
-              )
-              .toFixed()}
+            cryptoBalanceBaseUnit={foxEthLpOpportunity.underlyingToken0AmountCryptoBaseUnit}
             fiatBalance={bnOrZero(
               fromBaseUnit(
                 foxEthLpOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',

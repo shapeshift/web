@@ -874,7 +874,7 @@ export type AccountRowData = {
   icon: string
   symbol: string
   fiatAmount: string
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
   assetId: AssetId
   allocation: number
   price: string
@@ -895,14 +895,14 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
     balanceThreshold,
   ): AccountRowData[] => {
     const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
-      (acc, [assetId, baseUnitBalance]) => {
+      (acc, [assetId, cryptoAmountBaseUnit]) => {
         const name = assetsById[assetId]?.name
         const icon = assetsById[assetId]?.icon
         const symbol = assetsById[assetId]?.symbol
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price ?? '0'
-        const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
-        const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
+        const cryptoAmountPrecision = fromBaseUnit(cryptoAmountBaseUnit, precision)
+        const fiatAmount = bnOrZero(cryptoAmountPrecision).times(bnOrZero(price))
         /**
          * if fiatAmount is less than the selected threshold,
          * continue to the next asset balance by returning acc
@@ -919,7 +919,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           icon,
           symbol,
           fiatAmount: fiatAmount.toFixed(2),
-          cryptoAmount,
+          cryptoAmountBaseUnit,
           allocation,
           price,
           priceChange,
@@ -943,7 +943,7 @@ export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
         symbol: v.symbol,
         icon: v.icon,
         name: v.name,
-        cryptoAmount: v.cryptoAmount,
+        cryptoAmountBaseUnit: v.cryptoAmountBaseUnit,
         fiatAmount: v.fiatAmount,
         implementations,
       }
@@ -956,8 +956,6 @@ export type ActiveStakingOpportunity = {
   moniker: string
   apr: string
   tokens?: string
-  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
-  cryptoAmountPrecision?: string
   cryptoAmountBaseUnit?: string
   rewards?: string
 }

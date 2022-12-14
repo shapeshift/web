@@ -1,9 +1,13 @@
 import type { TextProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type AmountProps = {
   value: number | string
@@ -98,6 +102,16 @@ const Crypto = ({
   )
 }
 
+const FromBaseUnit = (props: CryptoAmountProps & { assetId: AssetId }) => {
+  const assets = useAppSelector(selectAssets)
+  const precisionValue = useMemo(
+    () => fromBaseUnit(props.value, assets[props.assetId]?.precision ?? '0'),
+    [assets, props.assetId, props.value],
+  )
+
+  return <Crypto {...props} value={precisionValue} />
+}
+
 const Fiat = ({
   value,
   fiatSymbolStyle,
@@ -177,5 +191,6 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
 }
 
 Amount.Crypto = Crypto
+Amount.FromBaseUnit = FromBaseUnit
 Amount.Fiat = Fiat
 Amount.Percent = Percent

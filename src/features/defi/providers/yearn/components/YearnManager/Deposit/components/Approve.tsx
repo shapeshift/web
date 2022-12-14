@@ -80,7 +80,9 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
         )
         if (!yearnOpportunity) throw new Error('No opportunity')
         const preparedTx = await yearnOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          amount: bnOrZero(deposit.cryptoAmountBaseUnit)
+            .times(`1e+${asset.precision}`)
+            .integerValue(),
           address: accountAddress,
         })
         // TODO(theobold): Figure out a better way for the safety factor
@@ -135,7 +137,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
       const tx = await yearnOpportunity.prepareApprove(
         accountAddress,
         state.isExactAllowance
-          ? bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString()
+          ? bnOrZero(state.deposit.cryptoAmountBaseUnit).times(`1e+${asset.precision}`).toString()
           : undefined,
       )
       await yearnOpportunity.signAndBroadcast({
@@ -150,7 +152,7 @@ export const Approve: React.FC<YearnApproveProps> = ({ accountId, onNext }) => {
         fn: () => yearnOpportunity.allowance(address),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state.deposit.cryptoAmountBaseUnit)
         },
         interval: 15000,
         maxAttempts: 30,

@@ -22,7 +22,6 @@ import {
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,7 +29,7 @@ import { useAppSelector } from 'state/store'
 import type { SendInput } from '../../Form'
 import { SendFormFields, SendRoutes } from '../../SendCommon'
 
-type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
+type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmountBaseUnit
 
 type UseSendDetailsReturnType = {
   balancesLoading: boolean
@@ -40,7 +39,7 @@ type UseSendDetailsReturnType = {
   handleSendMax(): Promise<void>
   loading: boolean
   toggleCurrency(): void
-  cryptoHumanBalance: BigNumber
+  cryptoBalanceBaseUnit: string
   fiatBalance: BigNumber
 }
 
@@ -51,7 +50,7 @@ const moduleLogger = logger.child({
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmountBaseUnit)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
@@ -71,14 +70,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
   const balancesLoading = false
 
-  const cryptoHumanBalance = bnOrZero(
+  const cryptoBalanceBaseUnit =
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByFilter(state, {
+      selectPortfolioCryptoBalanceByFilter(state, {
         assetId,
         accountId,
       }),
-    ),
-  )
+    ) ?? '0'
 
   const fiatBalance = bnOrZero(
     useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
@@ -88,7 +86,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
-  const nativeAssetBalance = bnOrZero(
+  const nativeAssetBalanceBaseUnit = bnOrZero(
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, {
         assetId: feeAsset.assetId,
@@ -106,44 +104,51 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const contractAddress = tokenOrUndefined(assetReference)
 
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
-    const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
+    const { cryptoAmountBaseUnit, asset, address, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-    return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
+    return estimateFees({
+      cryptoAmountBaseUnit,
+      asset,
+      address,
+      sendMax,
+      accountId,
+      contractAddress,
+    })
   }, [contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
-        const estimatedFees = await estimateFormFees()
+        const estimatedFeesCryptoBaseUnit = await estimateFormFees()
 
-        const { cryptoAmount } = getValues()
-        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
+        const { cryptoAmountBaseUnit } = getValues()
+        const hasValidBalance = bn(cryptoBalanceBaseUnit).gte(cryptoAmountBaseUnit)
 
         if (!hasValidBalance) {
           throw new Error('common.insufficientFunds')
         }
 
-        if (estimatedFees === undefined) {
+        if (estimatedFeesCryptoBaseUnit === undefined) {
           throw new Error('common.generalError')
         }
 
-        if (estimatedFees instanceof Error) {
-          throw estimatedFees.message
+        if (estimatedFeesCryptoBaseUnit instanceof Error) {
+          throw estimatedFeesCryptoBaseUnit.message
         }
 
         // If sending native fee asset, ensure amount entered plus fees is less than balance.
         if (feeAsset.assetId === asset.assetId) {
-          const canCoverFees = nativeAssetBalance
-            .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
-            .minus(estimatedFees.fast.txFee)
+          const canCoverFees = nativeAssetBalanceBaseUnit
+            .minus(cryptoAmountBaseUnit)
+            .minus(estimatedFeesCryptoBaseUnit.fast.txFee)
             .isPositive()
           if (!canCoverFees) {
             throw new Error('common.insufficientFunds')
           }
         }
 
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
-          .minus(estimatedFees.fast.txFee)
+        const hasEnoughNativeTokenForGas = nativeAssetBalanceBaseUnit
+          .minus(estimatedFeesCryptoBaseUnit.fast.txFee)
           .isPositive()
 
         if (!hasEnoughNativeTokenForGas) {
@@ -156,9 +161,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
 
         // Remove existing error messages because the send amount is valid
-        if (estimatedFees !== undefined) {
+        if (estimatedFeesCryptoBaseUnit !== undefined) {
           setValue(SendFormFields.AmountFieldError, '')
-          setValue(SendFormFields.EstimatedFees, estimatedFees)
+          setValue(SendFormFields.EstimatedFeesCryptoBaseUnit, estimatedFeesCryptoBaseUnit)
         }
       },
       1000,
@@ -166,13 +171,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     )
   }, [
     asset.assetId,
-    asset.precision,
-    cryptoHumanBalance,
+    cryptoBalanceBaseUnit,
     estimateFormFees,
     feeAsset.assetId,
     feeAsset.symbol,
     getValues,
-    nativeAssetBalance,
+    nativeAssetBalanceBaseUnit,
     setValue,
   ])
 
@@ -184,31 +188,36 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })
     fnLogger.trace(
-      { asset: asset.assetId, feeAsset: feeAsset.assetId, cryptoHumanBalance, fiatBalance },
+      {
+        asset: asset.assetId,
+        feeAsset: feeAsset.assetId,
+        cryptoBalanceBaseUnit,
+        fiatBalance,
+      },
       'Send Max',
     )
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
 
     if (feeAsset.assetId !== asset.assetId) {
-      setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
+      setValue(SendFormFields.CryptoAmountBaseUnit, cryptoBalanceBaseUnit)
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
       setLoading(true)
 
       try {
         fnLogger.trace('Estimating Fees...')
-        const estimatedFees = await estimateFormFees()
+        const estimatedFeesCryptoBaseUnit = await estimateFormFees()
 
-        if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+        if (nativeAssetBalanceBaseUnit.minus(estimatedFeesCryptoBaseUnit.fast.txFee).isNegative()) {
           setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
         } else {
-          setValue(SendFormFields.EstimatedFees, estimatedFees)
+          setValue(SendFormFields.EstimatedFeesCryptoBaseUnit, estimatedFeesCryptoBaseUnit)
         }
 
-        fnLogger.trace({ estimatedFees }, 'Estimated Fees')
+        fnLogger.trace({ estimatedFees: estimatedFeesCryptoBaseUnit }, 'Estimated Fees')
         setLoading(false)
         return
       } catch (e) {
@@ -264,14 +273,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })()
         fnLogger.trace({ fastFee, adapterFees }, 'Adapter Fees')
 
-        setValue(SendFormFields.EstimatedFees, adapterFees)
+        setValue(SendFormFields.EstimatedFeesCryptoBaseUnit, adapterFees)
 
-        const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+        const networkFeeCryptoBaseUnit = fastFee
 
-        const maxCrypto = cryptoHumanBalance.minus(networkFee)
-        const maxFiat = maxCrypto.times(price)
+        const maxCryptoBaseUnit = bn(cryptoBalanceBaseUnit).minus(networkFeeCryptoBaseUnit)
+        const maxFiat = maxCryptoBaseUnit.div(bn(10).pow(asset.precision)).times(price)
 
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
+        const hasEnoughNativeTokenForGas = nativeAssetBalanceBaseUnit
           .minus(adapterFees.fast.txFee)
           .isPositive()
 
@@ -282,11 +291,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           ])
         }
 
-        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+        setValue(SendFormFields.CryptoAmountBaseUnit, maxCryptoBaseUnit.toString())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
 
         fnLogger.trace(
-          { networkFee, maxCrypto, maxFiat, hasEnoughNativeTokenForGas, nativeAssetBalance },
+          {
+            networkFeeCryptoBaseUnit,
+            maxCryptoBaseUnit,
+            maxFiat,
+            hasEnoughNativeTokenForGas,
+            nativeAssetBalanceBaseUnit,
+          },
           'Getting Fees Completed',
         )
         setLoading(false)
@@ -314,7 +329,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const key =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
-          : SendFormFields.CryptoAmount
+          : SendFormFields.CryptoAmountBaseUnit
 
       try {
         if (inputValue === '') {
@@ -362,7 +377,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const toggleCurrency = () => {
     setFieldName(
       fieldName === SendFormFields.FiatAmount
-        ? SendFormFields.CryptoAmount
+        ? SendFormFields.CryptoAmountBaseUnit
         : SendFormFields.FiatAmount,
     )
   }
@@ -370,7 +385,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   return {
     balancesLoading,
     fieldName,
-    cryptoHumanBalance,
+    cryptoBalanceBaseUnit,
     fiatBalance,
     handleNextClick,
     handleSendMax,

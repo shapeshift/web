@@ -103,7 +103,6 @@ export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> 
   },
   tradeFeeSource: '0x',
   networkFeeCryptoBaseUnit: '153244500000000000',
-  networkFeeCryptoHuman: '0.1532445',
   buyAssetTradeFeeUsd: '0',
   sellAssetTradeFeeUsd: '0',
 }

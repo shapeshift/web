@@ -104,7 +104,9 @@ export const Deposit: React.FC<DepositProps> = ({
         const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData.assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+          amount: bnOrZero(deposit.cryptoAmountBaseUnit)
+            .times(`1e+${asset.precision}`)
+            .integerValue(),
           address: fromAccountId(accountId).account,
         })
         // TODO(theobold): Figure out a better way for the safety factor
@@ -173,11 +175,10 @@ export const Deposit: React.FC<DepositProps> = ({
           opportunityData.assetId ?? '',
         )
         if (!idleOpportunity) throw new Error('No opportunity')
-        const _allowance = await idleOpportunity.allowance(userAddress)
-        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+        const allowanceBaseUnit = await idleOpportunity.allowance(userAddress)
 
         // Skip approval step if user allowance is greater than requested deposit amount
-        if (allowance.gte(formValues.cryptoAmount)) {
+        if (allowanceBaseUnit.gte(formValues.cryptoAmountBaseUnit)) {
           const estimatedGasCrypto = await getDepositGasEstimate(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
@@ -212,7 +213,6 @@ export const Deposit: React.FC<DepositProps> = ({
       opportunityData,
       dispatch,
       idleInvestor,
-      asset.precision,
       getDepositGasEstimate,
       onNext,
       getApproveGasEstimate,
@@ -248,13 +248,13 @@ export const Deposit: React.FC<DepositProps> = ({
     [balance, asset?.precision, marketData?.price],
   )
 
-  const cryptoAmountAvailable = useMemo(
+  const cryptoAmountAvailablePrecision = useMemo(
     () => bnOrZero(balance).div(`1e${asset.precision}`),
     [balance, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
-    [cryptoAmountAvailable, marketData?.price],
+    () => bnOrZero(cryptoAmountAvailablePrecision).times(marketData.price),
+    [cryptoAmountAvailablePrecision, marketData?.price],
   )
 
   const handleBack = useCallback(() => {
@@ -275,7 +275,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       apy={bnOrZero(opportunityData?.apy).toString()}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailableBaseUnit={balance}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

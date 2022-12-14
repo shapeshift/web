@@ -73,9 +73,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
 
       const txid = await removeLiquidity(
-        state.withdraw.lpAmount,
-        state.withdraw.foxAmount,
-        state.withdraw.ethAmount,
+        state.withdraw.lpAmountCryptoBaseUnit,
+        state.withdraw.foxAmountCryptoBaseUnit,
+        state.withdraw.ethAmountCryptoBaseUnit,
       )
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
@@ -92,9 +92,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     onOngoingLpTxIdChange,
     opportunity,
     removeLiquidity,
-    state?.withdraw.ethAmount,
-    state?.withdraw.foxAmount,
-    state?.withdraw.lpAmount,
+    state?.withdraw.ethAmountCryptoBaseUnit,
+    state?.withdraw.foxAmountCryptoBaseUnit,
+    state?.withdraw.lpAmountCryptoBaseUnit,
     walletState.wallet,
   ])
 
@@ -126,7 +126,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
               <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.lpAmount} symbol={lpAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.lpAmountCryptoBaseUnit}
+                symbol={lpAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>
@@ -140,7 +143,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
               <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.foxAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.foxAmountCryptoBaseUnit}
+                symbol={foxAsset.symbol}
+              />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
@@ -149,7 +155,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
               <RawText>{ethAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.ethAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.ethAmountCryptoBaseUnit}
+                symbol={ethAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

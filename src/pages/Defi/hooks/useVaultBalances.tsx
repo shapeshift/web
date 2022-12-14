@@ -61,8 +61,6 @@ export type EarnVault = YearnEarnVault
 
 export type MergedEarnVault = EarnVault & {
   cryptoAmountBaseUnit: string
-  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
-  cryptoAmountPrecision: string
   fiatAmount: string
   underlyingTokenBalanceUsdc?: string
 }
@@ -131,12 +129,10 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
-        const asset = assets[vault.vaultAssetId]
         const fiatAmount = makeVaultFiatAmount(vault)
         acc[vaultAddress] = {
           ...vault,
           cryptoAmountBaseUnit: vault.balance ?? '0',
-          cryptoAmountPrecision: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
           apy: vault.apy,
           underlyingTokenBalanceUsdc: bnOrZero(vault.tvl.balanceUsdc)
@@ -147,7 +143,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       },
       {},
     )
-  }, [assets, makeVaultFiatAmount, vaults])
+  }, [makeVaultFiatAmount, vaults])
 
   return {
     vaults: mergedVaults,

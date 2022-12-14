@@ -50,7 +50,7 @@ export type FoxyOpportunity = {
   tvl?: string
   expired?: boolean
   apy?: string
-  balance: string
+  cryptoBalanceBaseUnit: string
   contractAssetId: AssetId
   tokenAssetId: AssetId
   rewardTokenAssetId: AssetId
@@ -59,8 +59,6 @@ export type FoxyOpportunity = {
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
-  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
-  cryptoAmountPrecision: string
   cryptoAmountBaseUnit: string
   fiatAmount: string
 }
@@ -89,7 +87,7 @@ const makeFiatAmount = (
   const asset = assets[opportunity.tokenAssetId]
   const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
   const marketPrice = marketData[opportunity.tokenAssetId]?.price
-  return bnOrZero(opportunity.balance)
+  return bnOrZero(opportunity.cryptoBalanceBaseUnit)
     .div(`1e+${asset?.precision}`)
     .times(pricePerShare)
     .times(bnOrZero(marketPrice))
@@ -121,8 +119,7 @@ const makeMergedOpportunities = (
     const data = {
       ...opportunity,
       tvl,
-      cryptoAmountPrecision: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toFixed(),
-      cryptoAmountBaseUnit: opportunity.balance,
+      cryptoAmountBaseUnit: opportunity.cryptoBalanceBaseUnit,
       fiatAmount: fiatAmount.toString(),
     }
     return data
@@ -194,7 +191,7 @@ async function getFoxyOpportunities(
         tvl: opportunity.tvl.toString(),
         apy: foxyApr,
         chainId: opportunity.chain,
-        balance: accountOpportunities.balance.toString(),
+        cryptoBalanceBaseUnit: accountOpportunities.balance.toString(),
         contractAssetId,
         tokenAssetId,
         rewardTokenAssetId,

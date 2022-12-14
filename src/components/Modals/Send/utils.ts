@@ -9,10 +9,9 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 export type EstimateFeesInput = {
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
   asset: Asset
   address: string
   sendMax: boolean
@@ -21,7 +20,7 @@ export type EstimateFeesInput = {
 }
 
 export const estimateFees = ({
-  cryptoAmount,
+  cryptoAmountBaseUnit,
   asset,
   address,
   sendMax,
@@ -30,7 +29,7 @@ export const estimateFees = ({
 }: EstimateFeesInput): Promise<FeeDataEstimate<ChainId>> => {
   const chainAdapterManager = getChainAdapterManager()
   const { account } = fromAccountId(accountId)
-  const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
+  const value = cryptoAmountBaseUnit
 
   const adapter = chainAdapterManager.get(asset.chainId)
   if (!adapter) throw new Error(`No adapter available for ${asset.chainId}`)

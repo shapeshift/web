@@ -95,7 +95,6 @@ export const earnLpOpportunity: EarnOpportunityType = {
   tvl: '',
   fiatAmount: '',
   cryptoAmountBaseUnit: '',
-  cryptoAmountPrecision: '',
   isLoaded: false,
   type: DefiType.LiquidityPool,
 }
@@ -109,7 +108,6 @@ export const baseEarnFarmingOpportunity = {
   assetId: foxEthLpAssetId,
   fiatAmount: '',
   cryptoAmountBaseUnit: '',
-  cryptoAmountPrecision: '',
   isLoaded: false,
   type: DefiType.Farming,
 }

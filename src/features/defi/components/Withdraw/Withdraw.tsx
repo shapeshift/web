@@ -38,7 +38,7 @@ type WithdrawProps = {
   accountId?: AccountId | undefined
   asset: Asset
   // Users available amount
-  cryptoAmountAvailable: string
+  cryptoAmountAvailableBaseUnit: string
   // Validation rules for the crypto input
   cryptoInputValidation?: ControllerProps['rules']
   // enables slippage UI (defaults to true)
@@ -68,14 +68,14 @@ type WithdrawProps = {
 
 export enum Field {
   FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount',
+  CryptoAmountBaseUnit = 'cryptoAmountBaseUnit',
   Slippage = 'slippage',
   WithdrawType = 'withdrawType',
 }
 
 export type WithdrawValues = {
   [Field.FiatAmount]: string
-  [Field.CryptoAmount]: string
+  [Field.CryptoAmountBaseUnit]: string
   [Field.Slippage]: string
 }
 
@@ -85,7 +85,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   accountId,
   asset,
   marketData,
-  cryptoAmountAvailable,
+  cryptoAmountAvailableBaseUnit,
   fiatAmountAvailable,
   cryptoInputValidation,
   disableInput,
@@ -137,14 +137,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
       setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+      setValue(Field.CryptoAmountBaseUnit, bnOrZero(value).div(marketData.price).toString(), {
         shouldValidate: true,
       })
     } else {
       setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, value, {
+      setValue(Field.CryptoAmountBaseUnit, value, {
         shouldValidate: true,
       })
     }
@@ -170,7 +170,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>
         <AssetInput
           accountId={accountId}
-          cryptoAmount={cryptoAmount?.value}
+          cryptoAmountBaseUnit={cryptoAmount?.value}
           onAccountIdChange={handleAccountIdChange}
           onChange={(value, isFiat) => handleInputChange(value, isFiat)}
           fiatAmount={fiatAmount?.value}
@@ -178,7 +178,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assetId={asset.assetId}
           assetIcon={asset.icon}
           assetSymbol={asset.symbol}
-          balance={cryptoAmountAvailable}
+          cryptoBalanceBaseUnit={cryptoAmountAvailableBaseUnit}
           fiatBalance={fiatAmountAvailable}
           onPercentOptionClick={value => handlePercentClick(value)}
           percentOptions={percentOptions}

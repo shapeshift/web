@@ -30,9 +30,10 @@ export const UnderlyingAssetsMenu = ({ lpAsset, underlyingAssets }: UnderlyingAs
               ) : (
                 <AssetIcon src={asset.icon} size='2xs' />
               )}
-              <Amount.Crypto
+              <Amount.FromBaseUnit
                 fontSize='sm'
-                value={asset.cryptoBalancePrecision}
+                value={asset.cryptoBalanceBaseUnit}
+                assetId={asset.assetId}
                 symbol={asset.symbol}
               />
               {asset.allocationPercentage && (

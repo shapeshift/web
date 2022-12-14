@@ -74,7 +74,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           api.estimateDepositGas({
             tokenContractAddress: assetReference,
             contractAddress,
-            amountDesired: bnOrZero(deposit.cryptoAmount)
+            amountDesired: bnOrZero(deposit.cryptoAmountBaseUnit)
               .times(`1e+${asset.precision}`)
               .decimalPlaces(0),
             userAddress: accountAddress,
@@ -118,9 +118,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         contractAddress,
         userAddress: accountAddress,
         wallet: walletState.wallet,
-        amount: bn(
-          bnOrZero(state?.deposit.cryptoAmount).times(bn(10).pow(asset.precision)).integerValue(),
-        ).toString(),
+        amount: bnOrZero(state?.deposit.cryptoAmountBaseUnit)
+          .times(`1e+${asset.precision}`)
+          .toString(),
         bip44Params,
       })
       await poll({
@@ -132,7 +132,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(state?.deposit.cryptoAmount)
+          return bnOrZero(allowance).gte(state?.deposit.cryptoAmountBaseUnit)
         },
         interval: 15000,
         maxAttempts: 60,

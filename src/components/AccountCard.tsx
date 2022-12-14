@@ -13,7 +13,7 @@ type AccountCardProps = {
   asset: Asset
   isLoaded?: boolean
   fiatAmountAvailable: string
-  cryptoAmountAvailable: string
+  cryptoAmountAvailableBaseUnit: string
   showCrypto?: boolean
   onClick?: () => void
 } & ButtonProps
@@ -22,7 +22,7 @@ export const AccountCard = ({
   asset,
   isLoaded,
   fiatAmountAvailable,
-  cryptoAmountAvailable,
+  cryptoAmountAvailableBaseUnit,
   showCrypto,
   onClick,
   ...rest
@@ -55,7 +55,7 @@ export const AccountCard = ({
             lineHeight='1'
             maximumFractionDigits={6}
             symbol={asset.symbol}
-            value={cryptoAmountAvailable}
+            value={cryptoAmountAvailableBaseUnit}
             suffix={translate('common.available')}
             data-test='account-card-crypto-label'
           />

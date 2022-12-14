@@ -98,7 +98,6 @@ export const mockVaultWithBalance = (obj: { id: string; fiatAmount: string }): M
   tokenAssetId: '',
   pricePerShare: new BigNumber(0),
   cryptoAmountBaseUnit: '0',
-  cryptoAmountPrecision: '0',
   version: '',
   expired: false,
   isNew: false,

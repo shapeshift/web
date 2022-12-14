@@ -34,7 +34,7 @@ export type BridgeAsset = {
   symbol: string
   icon: string
   name: string
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
   fiatAmount: string
   implementations?: {
     [key: string]: BridgeChain
@@ -44,7 +44,7 @@ export type BridgeAsset = {
 export type BridgeState = {
   asset: BridgeAsset
   fiatAmount: string
-  cryptoAmount: string
+  cryptoAmountBaseUnit: string
   fromChain: BridgeChain | undefined
   toChain: BridgeChain | undefined
   receiveAddress: string

@@ -84,7 +84,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     if (!dispatch || !state || !accountAddress || !assetReference || !walletState.wallet) return
     try {
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
-      const txid = await stake(state.deposit.cryptoAmount)
+      const txid = await stake(state.deposit.cryptoAmountBaseUnit)
       if (!txid) throw new Error('Transaction failed')
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
@@ -142,7 +142,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

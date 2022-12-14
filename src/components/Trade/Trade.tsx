@@ -24,8 +24,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
       amount: '0',
-      sellTradeAsset: { amountCryptoPrecision: '0' },
-      buyTradeAsset: { amountCryptoPrecision: '0' },
+      sellTradeAsset: { amountCryptoBaseUnit: '0' },
+      buyTradeAsset: { amountCryptoBaseUnit: '0' },
       isExactAllowance: false,
       slippage: DEFAULT_SLIPPAGE,
       action: TradeAmountInputField.SELL_CRYPTO,
@@ -54,8 +54,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       }
       methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('sellTradeAsset.amountCryptoPrecision', '0')
-      methods.setValue('buyTradeAsset.amountCryptoPrecision', '0')
+      methods.setValue('sellTradeAsset.amountCryptoBaseUnit', '0')
+      methods.setValue('buyTradeAsset.amountCryptoBaseUnit', '0')
       methods.setValue('fiatBuyAmount', '0')
       methods.setValue('fiatSellAmount', '0')
       methods.setValue('quote', undefined)

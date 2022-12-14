@@ -21,7 +21,6 @@ import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
 import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -170,7 +169,8 @@ export const useSwapper = () => {
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
-    if (!sellTradeAsset?.amountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
+    if (!sellTradeAsset?.amountCryptoBaseUnit)
+      throw new Error('Missing sellTradeAsset.amountCryptoBaseUnit')
     if (!sellTradeAsset?.asset) throw new Error('Missing sellTradeAsset.asset')
     if (!buyTradeAsset?.asset) throw new Error('Missing buyTradeAsset.asset')
     if (!wallet) throw new Error('Missing wallet')
@@ -180,7 +180,7 @@ export const useSwapper = () => {
     if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(sellTradeAsset.amountCryptoPrecision, sellAsset.precision),
+      sellAmountBeforeFeesCryptoBaseUnit: sellTradeAsset.amountCryptoBaseUnit,
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,
@@ -219,8 +219,8 @@ export const useSwapper = () => {
     sellAccountBip44Params,
     sellAsset,
     sellAssetAccountId,
+    sellTradeAsset?.amountCryptoBaseUnit,
     sellAccountMetadata,
-    sellTradeAsset?.amountCryptoPrecision,
     sellTradeAsset?.asset,
     slippage,
     wallet,

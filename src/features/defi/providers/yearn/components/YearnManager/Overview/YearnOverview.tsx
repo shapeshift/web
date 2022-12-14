@@ -3,6 +3,7 @@ import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { bn } from '@shapeshiftoss/investor-yearn'
 import { USDC_PRECISION } from 'constants/constants'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -59,8 +60,10 @@ export const YearnOverview: React.FC<{
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const amountAvailableCryptoPrecision = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(amountAvailableCryptoPrecision).times(marketData.price)
+  const amountAvailableCryptoBaseUnit = bnOrZero(balance)
+  const fiatAmountAvailable = bnOrZero(amountAvailableCryptoBaseUnit)
+    .div(bn(10).pow(asset.precision))
+    .times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
@@ -94,11 +97,11 @@ export const YearnOverview: React.FC<{
     () => [
       {
         ...underlyingToken,
-        cryptoBalancePrecision: amountAvailableCryptoPrecision.toPrecision(),
+        cryptoBalanceBaseUnit: amountAvailableCryptoBaseUnit.toPrecision(),
         allocationPercentage: '1',
       },
     ],
-    [amountAvailableCryptoPrecision, underlyingToken],
+    [amountAvailableCryptoBaseUnit, underlyingToken],
   )
 
   const description = useMemo(
@@ -141,7 +144,7 @@ export const YearnOverview: React.FC<{
       asset={asset}
       name={`${underlyingToken.name} Vault (${opportunity.version})`}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={underlyingAssets}
+      underlyingAssetsCryptoBaseUnit={underlyingAssets}
       provider='Yearn Finance'
       description={description}
       tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toString()}

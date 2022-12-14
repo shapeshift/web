@@ -197,8 +197,8 @@ export const useGetTradeAmounts = () => {
   const sellAssetTradeFeeUsd = bnOrZero(fees?.sellAssetTradeFeeUsd)
   const buyAssetTradeFeeUsd = bnOrZero(fees?.buyAssetTradeFeeUsd)
   if (
-    !bnOrZero(buyTradeAsset?.amountCryptoPrecision).gt(0) ||
-    !bnOrZero(sellTradeAsset?.amountCryptoPrecision).gt(0)
+    !bnOrZero(buyTradeAsset?.amountCryptoBaseUnit).gt(0) ||
+    !bnOrZero(sellTradeAsset?.amountCryptoBaseUnit).gt(0)
   )
     return
   if (!amount) return

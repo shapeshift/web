@@ -35,7 +35,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
@@ -94,8 +94,8 @@ export const TradeConfirm = () => {
   )
 
   const reset = useCallback(() => {
-    setValue('buyTradeAsset.amountCryptoPrecision', '')
-    setValue('sellTradeAsset.amountCryptoPrecision', '')
+    setValue('buyTradeAsset.amountCryptoBaseUnit', '')
+    setValue('sellTradeAsset.amountCryptoBaseUnit', '')
     setValue('fiatSellAmount', '')
   }, [setValue])
 
@@ -204,7 +204,8 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [history, reset, sellTradeId])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
+  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoBaseUnit)
+    .div(bn(10).pow(defaultFeeAsset?.precision ?? '0'))
     .times(feeAssetFiatRate ?? 1)
     .times(selectedCurrencyToUsdRate)
 
@@ -293,7 +294,8 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
+          assetId={buyTradeAsset?.asset?.assetId}
+          amountCryptoBaseUnit={buyTradeAsset?.amountCryptoBaseUnit ?? ''}
           beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
@@ -304,7 +306,8 @@ export const TradeConfirm = () => {
       </Stack>
     ),
     [
-      buyTradeAsset?.amountCryptoPrecision,
+      buyTradeAsset?.amountCryptoBaseUnit,
+      buyTradeAsset?.asset?.assetId,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,
@@ -397,9 +400,14 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     {defaultFeeAsset &&
-                      `${bnOrZero(fees?.networkFeeCryptoHuman).toNumber()} ${
-                        defaultFeeAsset.symbol
-                      } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
+                      `${bn(
+                        fromBaseUnit(
+                          fees?.networkFeeCryptoBaseUnit ?? '0',
+                          defaultFeeAsset.precision,
+                        ),
+                      ).toNumber()} ${defaultFeeAsset.symbol} ≃ ${toFiat(
+                        networkFeeFiat.toNumber(),
+                      )}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

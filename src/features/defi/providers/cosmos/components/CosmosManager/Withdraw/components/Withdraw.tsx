@@ -100,7 +100,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      setValue(Field.CryptoAmountBaseUnit, cryptoAmount.toString(), {
         shouldValidate: true,
       })
     },
@@ -201,7 +201,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={stakingAsset}
-        cryptoAmountAvailable={cryptoStakeBalanceHuman.toString()}
+        cryptoAmountAvailableBaseUnit={cryptoStakeBalanceHuman.toString()}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

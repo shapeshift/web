@@ -109,7 +109,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       try {
         if (!idleOpportunity) throw new Error('No opportunity')
         const preparedTx = await idleOpportunity.prepareWithdrawal({
-          amount: bnOrZero(withdraw.cryptoAmount)
+          amount: bnOrZero(withdraw.cryptoAmountBaseUnit)
             .times(bn(10).pow(asset?.precision))
             .integerValue(),
           address: userAddress,
@@ -150,19 +150,28 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+      const amountCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision).times(percent)
+      const fiatAmount = bnOrZero(amountCryptoPrecision).times(assetMarketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toFixed(), { shouldValidate: true })
+      setValue(Field.CryptoAmountBaseUnit, opportunityData?.stakedAmountCryptoBaseUnit ?? '0', {
+        shouldValidate: true,
+      })
     },
-    [amountAvailableCryptoPrecision, assetMarketData, setValue],
+    [
+      amountAvailableCryptoPrecision,
+      assetMarketData.price,
+      opportunityData?.stakedAmountCryptoBaseUnit,
+      setValue,
+    ],
   )
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      const hasValidBalance =
+        amountAvailableCryptoPrecision.gt(0) &&
+        _value.gt(0) &&
+        amountAvailableCryptoPrecision.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
@@ -187,7 +196,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     <FormProvider {...methods}>
       <ReusableWithdraw
         asset={asset}
-        cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
+        cryptoAmountAvailableBaseUnit={opportunityData?.stakedAmountCryptoBaseUnit ?? ''}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

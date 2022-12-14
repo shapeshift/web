@@ -35,7 +35,9 @@ export const MainOpportunity = ({
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
 
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
-  const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
+  const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.cryptoBalanceBaseUnit).gt(
+    0,
+  )
 
   const opportunityButtonTranslation = useMemo(() => {
     if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'

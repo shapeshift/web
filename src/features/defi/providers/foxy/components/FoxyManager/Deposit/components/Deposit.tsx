@@ -101,7 +101,7 @@ export const Deposit: React.FC<DepositProps> = ({
             api.estimateDepositGas({
               tokenContractAddress: assetReference,
               contractAddress,
-              amountDesired: bnOrZero(deposit.cryptoAmount)
+              amountDesired: bnOrZero(deposit.cryptoAmountBaseUnit)
                 .times(`1e+${asset.precision}`)
                 .decimalPlaces(0),
               userAddress: accountAddress,
@@ -136,7 +136,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
-        if (allowance.gte(formValues.cryptoAmount)) {
+        if (allowance.gte(formValues.cryptoAmountBaseUnit)) {
           const estimatedGasCrypto = await getDepositGasEstimate(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
@@ -201,8 +201,8 @@ export const Deposit: React.FC<DepositProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset.precision))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailablePrecisino = bnOrZero(balance).div(bn(10).pow(asset.precision))
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecisino).times(marketData.price)
 
   return (
     <ReusableDeposit
@@ -211,7 +211,7 @@ export const Deposit: React.FC<DepositProps> = ({
       asset={asset}
       isLoading={state.loading}
       apy={String(opportunity?.apy)}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailableBaseUnit={balance}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

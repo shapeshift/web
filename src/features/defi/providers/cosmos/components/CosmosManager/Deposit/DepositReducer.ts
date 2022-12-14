@@ -22,7 +22,7 @@ export const initialState: CosmosDepositState = {
   pricePerShare: '',
   deposit: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
   },

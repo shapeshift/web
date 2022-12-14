@@ -43,7 +43,7 @@ export const AccountTable = () => {
               fontWeight='normal'
               fontSize='sm'
               data-test={`account-row-asset-crypto-${row.original.symbol}`}
-              value={row.original.cryptoAmount}
+              value={row.original.cryptoAmountBaseUnit}
               symbol={row.original.symbol}
             />
           </Stack>

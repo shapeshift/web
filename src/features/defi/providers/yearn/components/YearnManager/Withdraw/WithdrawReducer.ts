@@ -9,7 +9,7 @@ export const initialState: YearnWithdrawState = {
   approve: {},
   withdraw: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

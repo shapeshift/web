@@ -56,13 +56,13 @@ export const useFormSend = () => {
         if (!accountMetadata?.[data.accountId])
           throw new Error(`useFormSend: no accountMetadata for ${data.accountId}`)
 
-        const value = bnOrZero(data.cryptoAmount)
+        const value = bnOrZero(data.cryptoAmountBaseUnit)
           .times(bn(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
         const chainId = adapter.getChainId()
 
-        const { estimatedFees, feeType, address: to } = data
+        const { estimatedFeesCryptoBaseUnit, feeType, address: to } = data
 
         const { bip44Params, accountType } = accountMetadata[data.accountId]
         if (!bip44Params) {
@@ -73,7 +73,7 @@ export const useFormSend = () => {
           if (supportedEvmChainIds.includes(chainId)) {
             if (!supportsETH(wallet))
               throw new Error(`useFormSend: wallet does not support ethereum`)
-            const fees = estimatedFees[feeType] as FeeData<EvmChainId>
+            const fees = estimatedFeesCryptoBaseUnit[feeType] as FeeData<EvmChainId>
             const {
               chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
             } = fees
@@ -102,7 +102,7 @@ export const useFormSend = () => {
           }
 
           if (utxoChainIds.some(utxoChainId => utxoChainId === chainId)) {
-            const fees = estimatedFees[feeType] as FeeData<UtxoChainId>
+            const fees = estimatedFeesCryptoBaseUnit[feeType] as FeeData<UtxoChainId>
 
             if (!accountType) {
               throw new Error(
@@ -123,7 +123,7 @@ export const useFormSend = () => {
           }
 
           if (fromChainId(data.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
-            const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
+            const fees = estimatedFeesCryptoBaseUnit[feeType] as FeeData<CosmosSdkChainId>
             return adapter.buildSendTransaction({
               to,
               memo: (data as SendInput<CosmosSdkChainId>).memo,
@@ -172,7 +172,7 @@ export const useFormSend = () => {
               <Text>
                 <Text>
                   {translate('modals.send.youHaveSent', {
-                    amount: data.cryptoAmount,
+                    amount: data.cryptoAmountBaseUnit,
                     symbol: data.cryptoSymbol,
                   })}
                 </Text>

@@ -10,13 +10,11 @@ import { TestProviders } from 'test/TestProviders'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
-import { fromBaseUnit } from 'lib/math'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 
@@ -40,7 +38,6 @@ jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectFeeAssetById: jest.fn(),
-  selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(),
@@ -58,10 +55,7 @@ const runeFiatAmount = '14490.00'
 
 const estimatedFees = {
   [FeeDataKey.Fast]: {
-    networkFee: '6000000000000000',
-    chainSpecific: {
-      feePerTx: '6000000000000000',
-    },
+    txFee: '6000000000000000',
   },
 }
 
@@ -101,9 +95,6 @@ const setup = ({
     return fakeMarketData[assetId]
   })
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  mocked(selectPortfolioCryptoHumanBalanceByFilter).mockReturnValue(
-    fromBaseUnit(assetBalance, asset.precision),
-  )
   mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(assetBalance)
   mocked(selectPortfolioFiatBalanceByFilter).mockReturnValue(runeFiatAmount)
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
@@ -112,7 +103,7 @@ const setup = ({
     setValue,
     formState: { errors: formErrors },
     getValues: () => ({
-      cryptoAmount: '1',
+      cryptoAmountBaseUnit: '1',
       asset,
     }),
   }))
@@ -157,7 +148,7 @@ describe('useSendDetails', () => {
       assetBalance: balances[ethAssetId],
     })
     expect(result.current.balancesLoading).toBe(false)
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('cryptoAmountBaseUnit')
     expect(result.current.loading).toBe(false)
   })
 
@@ -165,14 +156,14 @@ describe('useSendDetails', () => {
     const { result } = setup({
       assetBalance: balances[ethAssetId],
     })
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('cryptoAmountBaseUnit')
     act(() => {
       result.current.toggleCurrency()
     })
     await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
   })
 
-  it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
+  it('toggles the amount input error to the fiatAmount/cryptoAmountBaseUnit field', async () => {
     let setError = jest.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
@@ -197,7 +188,7 @@ describe('useSendDetails', () => {
       setValue,
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('cryptoAmountBaseUnit')
 
     // Set fiat amount
     await act(async () => {
@@ -215,7 +206,7 @@ describe('useSendDetails', () => {
     jest.useRealTimers()
   })
 
-  it('handles input change on cryptoAmount', async () => {
+  it('handles input change on cryptoAmountBaseUnit', async () => {
     jest.useFakeTimers()
     const setValue = jest.fn()
     const { result } = setup({
@@ -223,9 +214,9 @@ describe('useSendDetails', () => {
       setValue,
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('cryptoAmountBaseUnit')
 
-    // toggle field to cryptoAmount
+    // toggle field to cryptoAmountBaseUnit
     act(() => {
       result.current.toggleCurrency()
     })
@@ -236,7 +227,7 @@ describe('useSendDetails', () => {
     await act(async () => {
       await result.current.handleInputChange('3500')
       jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      expect(setValue).toHaveBeenCalledWith('cryptoAmountBaseUnit', '1')
       setValue.mockClear()
     })
     jest.useRealTimers()
@@ -252,14 +243,11 @@ describe('useSendDetails', () => {
       await result.current.handleSendMax()
       expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
       expect(setValue).toHaveBeenNthCalledWith(2, 'sendMax', true)
-      expect(setValue).toHaveBeenNthCalledWith(3, 'estimatedFees', {
-        fast: {
-          chainSpecific: { feePerTx: '6000000000000000' },
-          networkFee: '6000000000000000',
-        },
+      expect(setValue).toHaveBeenNthCalledWith(3, 'estimatedFeesCryptoBaseUnit', {
+        fast: { txFee: '6000000000000000' },
       })
-      expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '17500.00')
-      expect(setValue).toHaveBeenNthCalledWith(5, 'cryptoAmount', '5')
+      expect(setValue).toHaveBeenNthCalledWith(4, 'cryptoAmountBaseUnit', '4994000000000000000')
+      expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '17479.00')
     })
   })
 
@@ -273,7 +261,7 @@ describe('useSendDetails', () => {
     await act(async () => {
       await result.current.handleSendMax()
       expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
-      expect(setValue).toHaveBeenNthCalledWith(2, 'cryptoAmount', '21')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'cryptoAmountBaseUnit', '21000000000000000000')
       expect(setValue).toHaveBeenNthCalledWith(3, 'fiatAmount', runeFiatAmount)
     })
   })

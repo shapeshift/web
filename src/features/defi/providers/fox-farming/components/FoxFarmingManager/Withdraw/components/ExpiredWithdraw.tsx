@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -19,7 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -42,12 +42,9 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
-  const assets = useAppSelector(selectAssets)
-
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   const lpMarketData = useAppSelector(state =>
@@ -55,13 +52,6 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   )
 
   // user info
-  const rewardAmountCryptoPrecision = useMemo(
-    () =>
-      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
-        .toFixed(),
-    [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
-  )
   const amountAvailableCryptoPrecision = useMemo(
     () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset?.precision)),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
@@ -71,10 +61,12 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   if (!state || !dispatch || !opportunity || !totalFiatBalance) return null
 
   const getWithdrawGasEstimate = async () => {
+    if (!opportunity?.cryptoAmountBaseUnit) return
+
     try {
-      const fee = await getUnstakeGasData(amountAvailableCryptoPrecision.toFixed(), true)
+      const fee = await getUnstakeGasData(opportunity.cryptoAmountBaseUnit, true)
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
+      return fee.average.txFee
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       moduleLogger.error(
@@ -88,38 +80,38 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const handleContinue = async () => {
-    if (!opportunity) return
+    if (!opportunity?.cryptoAmountBaseUnit) return
     // set withdraw state for future use
     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
       type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      payload: { lpAmount: amountAvailableCryptoPrecision.toString(), isExiting: true },
+      payload: {
+        lpAmountCryptoBaseUnit: opportunity.cryptoAmountBaseUnit,
+        isExiting: true,
+      },
     })
-    const lpAllowance = await allowance()
-    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
+    const lpAllowanceAmountCryptoBaseUnit = await allowance()
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
-    if (allowanceAmount.gte(amountAvailableCryptoPrecision)) {
-      const estimatedGasCrypto = await getWithdrawGasEstimate()
-      if (!estimatedGasCrypto) {
+    if (bnOrZero(lpAllowanceAmountCryptoBaseUnit).gte(opportunity?.cryptoAmountBaseUnit)) {
+      const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimate()
+      if (!estimatedGasCryptoBaseUnit) {
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
         return
       }
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit },
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     } else {
-      const estimatedGasCrypto = await getApproveGasData()
-      if (!estimatedGasCrypto) return
+      const estimatedGasCryptoBaseUnit = await getApproveGasData()
+      if (!estimatedGasCryptoBaseUnit) return
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(bn(10).pow(ethAsset.precision))
-            .toPrecision(),
+          estimatedGasCryptoBaseUnit: estimatedGasCryptoBaseUnit.average.txFee,
         },
       })
       onNext(DefiStep.Approve)
@@ -128,7 +120,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(amountAvailableCryptoPrecision)
+    const crypto = amountAvailableCryptoPrecision
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -143,7 +135,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         asset={asset}
         disableInput
         icons={opportunity?.icons}
-        cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
+        cryptoAmountAvailableBaseUnit={opportunity?.cryptoAmountBaseUnit ?? '0'}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },
@@ -158,7 +150,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
         enableSlippage={false}
         handlePercentClick={() => {}}
         inputDefaultValue={{
-          cryptoAmount: amountAvailableCryptoPrecision.toString(),
+          cryptoAmount: amountAvailableCryptoPrecision.toFixed(),
           fiatAmount: totalFiatBalance,
         }}
         inputChildren={
@@ -170,7 +162,11 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
             />
             <Stack direction='row'>
               <AssetIcon assetId={foxAssetId} size='xs' />
-              <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={foxAsset.symbol} />
+              <Amount.FromBaseUnit
+                assetId={opportunity?.underlyingAssetId ?? ''}
+                value={opportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0'}
+                symbol={foxAsset.symbol}
+              />
             </Stack>
           </Stack>
         }

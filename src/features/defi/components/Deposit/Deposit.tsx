@@ -14,7 +14,8 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 
 type DepositProps = {
   accountId?: AccountId | undefined
@@ -23,7 +24,7 @@ type DepositProps = {
   // Estimated apy (Deposit Only)
   apy: string
   // Users available amount
-  cryptoAmountAvailable: string
+  cryptoAmountAvailableBaseUnit: string
   // Validation rules for the crypto input
   cryptoInputValidation?: ControllerProps['rules']
   // Users available amount
@@ -47,20 +48,20 @@ type DepositProps = {
 
 export enum Field {
   FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount',
+  CryptoAmountBaseUnit = 'cryptoAmountBaseUnit',
   Slippage = 'slippage',
 }
 
 export type DepositValues = {
   [Field.FiatAmount]: string
-  [Field.CryptoAmount]: string
+  [Field.CryptoAmountBaseUnit]: string
   [Field.Slippage]: string
 }
 
 const DEFAULT_SLIPPAGE = '0.5'
 
 function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).toString()
+  return bnOrZero(amount).times(apy).toFixed()
 }
 
 export const Deposit = ({
@@ -68,7 +69,7 @@ export const Deposit = ({
   apy,
   asset,
   marketData,
-  cryptoAmountAvailable,
+  cryptoAmountAvailableBaseUnit,
   fiatAmountAvailable,
   cryptoInputValidation,
   fiatInputValidation,
@@ -92,7 +93,7 @@ export const Deposit = ({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',
-      [Field.CryptoAmount]: '',
+      [Field.CryptoAmountBaseUnit]: '',
       [Field.Slippage]: DEFAULT_SLIPPAGE,
     },
   })
@@ -100,8 +101,8 @@ export const Deposit = ({
   const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
-  const { field: cryptoAmount } = useController({
-    name: 'cryptoAmount',
+  const { field: cryptoAmountBaseUnit } = useController({
+    name: 'cryptoAmountBaseUnit',
     control,
     rules: cryptoInputValidation,
   })
@@ -114,48 +115,62 @@ export const Deposit = ({
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
 
+  console.log({ fieldError })
+
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
       setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
-        shouldValidate: true,
-      })
+      setValue(
+        Field.CryptoAmountBaseUnit,
+        bnOrZero(value).times(bn(10).pow(asset.precision)).div(marketData.price).toString(),
+        {
+          shouldValidate: true,
+        },
+      )
     } else {
-      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
-        shouldValidate: true,
-      })
-      setValue(Field.CryptoAmount, value, {
-        shouldValidate: true,
-      })
+      setValue(
+        Field.FiatAmount,
+        bnOrZero(value).div(bn(10).pow(asset.precision)).times(marketData.price).toString(),
+        {
+          shouldValidate: true,
+        },
+      )
+      setValue(
+        Field.CryptoAmountBaseUnit,
+        bnOrZero(value).times(bn(10).pow(asset.precision)).toString(),
+        {
+          shouldValidate: true,
+        },
+      )
     }
   }
 
   const handlePercentClick = useCallback(
     (percent: number) => {
       // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
-      const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
-      const percentageCryptoAmountHuman = percentageCryptoAmount
-        .decimalPlaces(asset.precision)
-        .toString()
+      const percentageAmountBaseUnit = bnOrZero(cryptoAmountAvailableBaseUnit).times(percent)
+      const percentageAmountCryptoPrecision = percentageAmountBaseUnit.div(
+        bn(10).pow(asset.precision),
+      )
+      const percentageFiatAmount = percentageAmountCryptoPrecision.times(marketData.price)
       setValue(Field.FiatAmount, percentageFiatAmount.toString(), {
         shouldValidate: true,
       })
-      // TODO(gomes): DeFi UI abstraction should use base precision amount everywhere, and the explicit crypto/human vernacular
-      // Passing human amounts around is a bug waiting to happen, like the one this commit fixes
-      setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
+      setValue(Field.CryptoAmountBaseUnit, percentageAmountBaseUnit.toString(), {
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+    [asset.precision, cryptoAmountAvailableBaseUnit, marketData.price, setValue],
   )
 
   const onSubmit = (values: DepositValues) => {
     onContinue(values)
   }
 
-  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+  const cryptoYieldBaseUnit = calculateYearlyYield(apy, values.cryptoAmountBaseUnit)
+  const fiatYield = bnOrZero(fromBaseUnit(cryptoYieldBaseUnit, asset.precision))
+    .times(marketData.price)
+    .toFixed(2)
 
   return (
     <>
@@ -163,7 +178,7 @@ export const Deposit = ({
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             accountId={accountId}
-            cryptoAmount={cryptoAmount?.value}
+            cryptoAmountBaseUnit={cryptoAmountBaseUnit?.value}
             assetId={asset.assetId}
             onAccountIdChange={handleAccountIdChange}
             onChange={(value, isFiat) => handleInputChange(value, isFiat)}
@@ -172,7 +187,7 @@ export const Deposit = ({
             showFiatAmount={true}
             assetIcon={asset.icon}
             assetSymbol={asset.symbol}
-            balance={cryptoAmountAvailable}
+            cryptoBalanceBaseUnit={cryptoAmountAvailableBaseUnit}
             fiatBalance={fiatAmountAvailable}
             onPercentOptionClick={handlePercentClick}
             percentOptions={percentOptions}

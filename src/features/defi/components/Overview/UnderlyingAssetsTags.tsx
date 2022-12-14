@@ -2,6 +2,7 @@ import { Tag } from '@chakra-ui/react'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { fromBaseUnit } from 'lib/math'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 import type { AssetWithBalance } from './Overview'
@@ -29,7 +30,11 @@ export const UnderlyingAssetTag = ({
     ) : (
       <AssetIcon src={asset.icon} size='2xs' />
     )}
-    <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
+    <Amount.Crypto
+      fontSize='sm'
+      value={fromBaseUnit(asset.cryptoBalanceBaseUnit, asset.precision)}
+      symbol={asset.symbol}
+    />
     {showPercentage && asset.allocationPercentage && (
       <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
     )}

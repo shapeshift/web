@@ -73,8 +73,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+    () =>
+      bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCryptoBaseUnit],
   )
 
   const handleConfirm = useCallback(async () => {
@@ -82,7 +83,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!dispatch || !state?.userAddress || !rewardId || !walletState.wallet || state.loading)
         return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
-      const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
+      const txid = await unstake(state.withdraw.lpAmountCryptoBaseUnit, state.withdraw.isExiting)
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
@@ -100,7 +101,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.loading,
     state?.userAddress,
     state?.withdraw.isExiting,
-    state?.withdraw.lpAmount,
+    state?.withdraw.lpAmountCryptoBaseUnit,
     unstake,
     walletState.wallet,
   ])
@@ -133,7 +134,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.lpAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.lpAmountCryptoBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>
@@ -145,13 +149,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

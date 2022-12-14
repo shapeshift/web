@@ -77,10 +77,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
       ? bnOrZero(
-          bn(state?.withdraw.cryptoAmount ?? '0').times(state?.foxyFeePercentage ?? '0'),
+          bn(state?.withdraw.cryptoAmountBaseUnit ?? '0').times(state?.foxyFeePercentage ?? '0'),
         ).toString()
       : '0'
-  }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
+  }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmountBaseUnit, state?.foxyFeePercentage])
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
@@ -119,7 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+          amountDesired: bnOrZero(state.withdraw.cryptoAmountBaseUnit)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           type: state.withdraw.withdrawType,
@@ -186,7 +186,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmountBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

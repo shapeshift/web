@@ -77,23 +77,25 @@ export const Withdraw: React.FC<
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
-  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
+  const cryptoAmountAvailablePrecision = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
+  const fiatAmountAvailable = bnOrZero(
+    bn(cryptoAmountAvailablePrecision).times(bnOrZero(marketData?.price)),
+  )
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+      const cryptoAmountPrecision = bnOrZero(cryptoAmountAvailablePrecision)
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
+      const fiatAmount = bnOrZero(cryptoAmountPrecision).times(marketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      setValue(Field.CryptoAmountBaseUnit, bn(balance).times(percent).toFixed(), {
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+    [asset.precision, balance, cryptoAmountAvailablePrecision, marketData.price, setValue],
   )
 
   const accountAddress = useMemo(
@@ -139,9 +141,7 @@ export const Withdraw: React.FC<
             api.estimateWithdrawGas({
               tokenContractAddress: rewardId,
               contractAddress,
-              amountDesired: bnOrZero(
-                bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-              ).decimalPlaces(0),
+              amountDesired: bnOrZero(bn(withdraw.cryptoAmountBaseUnit)).decimalPlaces(0),
               userAddress: accountAddress,
               type: withdraw.withdrawType,
               bip44Params,
@@ -187,7 +187,7 @@ export const Withdraw: React.FC<
         const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
-        if (allowance.gte(formValues.cryptoAmount)) {
+        if (allowance.gte(formValues.cryptoAmountBaseUnit)) {
           const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
@@ -269,7 +269,7 @@ export const Withdraw: React.FC<
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
         asset={asset}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailableBaseUnit={balance}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

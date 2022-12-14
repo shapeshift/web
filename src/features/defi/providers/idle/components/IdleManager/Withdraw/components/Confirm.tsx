@@ -136,7 +136,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
       if (!idleOpportunity) throw new Error('No opportunity')
 
-      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
+      const idleAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmountBaseUnit)
       const tx = await idleOpportunity.prepareWithdrawal({
         address: userAddress,
         amount: bn(toBaseUnit(idleAssetWithdrawAmountCryptoHuman, asset.precision)),
@@ -166,7 +166,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.assetId,
     asset,
     idleOpportunity,
-    state?.withdraw.cryptoAmount,
+    state?.withdraw.cryptoAmountBaseUnit,
     onNext,
   ])
 
@@ -204,7 +204,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

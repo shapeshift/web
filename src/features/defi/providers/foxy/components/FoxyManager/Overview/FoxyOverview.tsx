@@ -63,7 +63,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       opportunity?.withdrawInfo[firstAccountId ?? '']
   const rewardBalance = bnOrZero(withdrawInfo?.amount)
   const releaseTime = withdrawInfo?.releaseTime
-  const foxyBalance = bnOrZero(opportunity?.balance)
+  const foxyBalanceBaseunit = bnOrZero(opportunity?.cryptoBalanceBaseUnit)
   const assetNamespace = 'erc20'
   const stakingAssetId = toAssetId({
     chainId,
@@ -78,10 +78,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailablePrecision = bnOrZero(foxyBalance).div(
-    bn(10).pow(stakingAsset?.precision ?? 0),
-  )
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(marketData.price)
+  const cryptoAmountAvailableBaseUnit = bnOrZero(foxyBalanceBaseunit)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailableBaseUnit)
+    .div(bn(10).pow(stakingAsset?.precision))
+    .times(marketData.price)
   const claimAvailable = dayjs().isAfter(dayjs(releaseTime))
   const hasClaim = rewardBalance.gt(0)
   const claimDisabled = !claimAvailable || !hasClaim
@@ -100,7 +100,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     )
   }
 
-  if (foxyBalance.eq(0) && rewardBalance.eq(0)) {
+  if (foxyBalanceBaseunit.eq(0) && rewardBalance.eq(0)) {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}
@@ -125,10 +125,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={[
+      underlyingAssetsCryptoBaseUnit={[
         {
           ...stakingAsset,
-          cryptoBalancePrecision: cryptoAmountAvailablePrecision.toFixed(4),
+          cryptoBalanceBaseUnit: cryptoAmountAvailableBaseUnit.toFixed(4),
           allocationPercentage: '1',
         },
       ]}

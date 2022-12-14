@@ -134,7 +134,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.lpAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.withdraw.lpAmountCryptoBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -154,7 +154,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 )
                   .times(feeMarketData.price)
@@ -164,7 +164,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 ).toFixed(5)}
                 symbol='ETH'

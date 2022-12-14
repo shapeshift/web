@@ -27,12 +27,11 @@ import { useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['useFoxEthLiquidityPool'] })
 
-function calculateSlippageMargin(amount: string | null, precision: number) {
-  if (!amount) throw new Error('Amount not given for slippage')
+function calculateSlippageMargin(amountCryptoBaseUnit: string | null) {
+  if (!amountCryptoBaseUnit) throw new Error('Amount not given for slippage')
   const percentage = 3
   const remainingPercentage = (100 - percentage) / 100
-  return bnOrZero(amount)
-    .times(bn(10).exponentiatedBy(precision))
+  return bnOrZero(amountCryptoBaseUnit)
     .times(bnOrZero(remainingPercentage))
     .decimalPlaces(0)
     .toFixed()
@@ -78,20 +77,18 @@ export const useFoxEthLiquidityPool = (
   )
 
   const addLiquidity = useCallback(
-    async (foxAmount: string, ethAmount: string) => {
+    async (foxAmountCryptoBaseUnit: string, ethAmountCryptoBaseUnit: string) => {
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
-        const value = bnOrZero(ethAmount)
-          .times(bn(10).exponentiatedBy(ethAsset.precision))
-          .toFixed(0)
+        const value = ethAmountCryptoBaseUnit
         const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-          calculateSlippageMargin(foxAmount, foxAsset.precision),
-          calculateSlippageMargin(ethAmount, ethAsset.precision),
+          foxAmountCryptoBaseUnit,
+          calculateSlippageMargin(foxAmountCryptoBaseUnit),
+          calculateSlippageMargin(ethAmountCryptoBaseUnit),
           fromAccountId(accountId).account,
           Date.now() + 1200000,
         ])
@@ -173,8 +170,6 @@ export const useFoxEthLiquidityPool = (
       accountNumber,
       adapter,
       ethAsset.chainId,
-      ethAsset.precision,
-      foxAsset.precision,
       skip,
       supportedEvmChainIds,
       uniswapRouterContract,
@@ -183,7 +178,11 @@ export const useFoxEthLiquidityPool = (
   )
 
   const removeLiquidity = useCallback(
-    async (lpAmount: string, foxAmount: string, ethAmount: string) => {
+    async (
+      lpAmountCryptoBaseUnit: string,
+      foxAmountCryptoBaseUnit: string,
+      ethAmountCryptoBaseUnit: string,
+    ) => {
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
@@ -195,9 +194,9 @@ export const useFoxEthLiquidityPool = (
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
         const data = uniswapRouterContract?.interface.encodeFunctionData('removeLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-          calculateSlippageMargin(foxAmount, foxAsset.precision),
-          calculateSlippageMargin(ethAmount, ethAsset.precision),
+          lpAmountCryptoBaseUnit,
+          calculateSlippageMargin(foxAmountCryptoBaseUnit),
+          calculateSlippageMargin(ethAmountCryptoBaseUnit),
           fromAccountId(accountId).account,
           Date.now() + 1200000,
         ])
@@ -280,9 +279,6 @@ export const useFoxEthLiquidityPool = (
       uniswapRouterContract,
       wallet,
       ethAsset.chainId,
-      ethAsset.precision,
-      lpAsset.precision,
-      foxAsset.precision,
       supportedEvmChainIds,
     ],
   )
@@ -294,19 +290,19 @@ export const useFoxEthLiquidityPool = (
     const reserves = await uniV2LPContract.getReserves()
 
     const userOwnershipOfPool = bnOrZero(balance.toString()).div(bnOrZero(totalSupply.toString()))
-    const ethBalance = userOwnershipOfPool
-      .times(bnOrZero(reserves[0].toString()))
-      .div(`1e${ethAsset.precision}`)
-    const foxBalance = userOwnershipOfPool
-      .times(bnOrZero(reserves[1].toString()))
-      .div(`1e${foxAsset.precision}`)
+    const userUnderlyingEthBalanceCryptoBaseUnit = userOwnershipOfPool.times(
+      bnOrZero(reserves[0].toString()),
+    )
+    const userUnderlyingFoxBalanceCryptoBaseUnit = userOwnershipOfPool.times(
+      bnOrZero(reserves[1].toString()),
+    )
 
     return {
-      ethBalance,
-      foxBalance,
+      ethBalance: userUnderlyingEthBalanceCryptoBaseUnit,
+      foxBalance: userUnderlyingFoxBalanceCryptoBaseUnit,
       lpBalance: bnOrZero(balance.toString()).toString(),
     }
-  }, [skip, uniV2LPContract, accountId, ethAsset.precision, foxAsset.precision])
+  }, [skip, uniV2LPContract, accountId])
 
   const getLpTVL = useCallback(async () => {
     if (uniV2LPContract) {
@@ -375,8 +371,8 @@ export const useFoxEthLiquidityPool = (
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         fromAssetId(foxAssetId).assetReference,
         bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-        calculateSlippageMargin(foxAmount, foxAsset.precision),
-        calculateSlippageMargin(ethAmount, ethAsset.precision),
+        calculateSlippageMargin(foxAmount),
+        calculateSlippageMargin(ethAmount),
         accountAddress,
         Date.now() + 1200000,
       ])
@@ -394,13 +390,17 @@ export const useFoxEthLiquidityPool = (
   )
 
   const getWithdrawGasData = useCallback(
-    async (lpAmount: string, foxAmount: string, ethAmount: string) => {
+    async (
+      lpAmountCryptoBaseUnit: string,
+      foxAmountCryptoBaseUnit: string,
+      ethAmountCryptoBaseUnit: string,
+    ) => {
       if (skip || !accountId || !uniswapRouterContract) return
       const data = uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
         FOX_TOKEN_CONTRACT_ADDRESS,
-        bnOrZero(lpAmount).times(bn(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
-        calculateSlippageMargin(foxAmount, foxAsset.precision),
-        calculateSlippageMargin(ethAmount, ethAsset.precision),
+        lpAmountCryptoBaseUnit,
+        calculateSlippageMargin(foxAmountCryptoBaseUnit),
+        calculateSlippageMargin(ethAmountCryptoBaseUnit),
         fromAccountId(accountId).account,
         Date.now() + 1200000,
       ])
@@ -415,15 +415,7 @@ export const useFoxEthLiquidityPool = (
       })
       return estimatedFees
     },
-    [
-      skip,
-      uniswapRouterContract,
-      lpAsset.precision,
-      foxAsset.precision,
-      ethAsset.precision,
-      accountId,
-      adapter,
-    ],
+    [skip, uniswapRouterContract, accountId, adapter],
   )
 
   const approve = useCallback(

@@ -102,7 +102,10 @@ export const Status = () => {
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmountBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

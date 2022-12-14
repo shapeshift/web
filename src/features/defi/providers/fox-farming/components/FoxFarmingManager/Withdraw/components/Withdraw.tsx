@@ -72,7 +72,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
   )
 
-  const amountAvailableCryptoPrecision = useMemo(
+  const amountAvailableCryptoBaseUnit = useMemo(
     () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset.precision)).toFixed(),
     [asset.precision, opportunity?.cryptoAmountBaseUnit],
   )
@@ -80,7 +80,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
       try {
-        const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
+        const fee = await getUnstakeGasData(withdraw.cryptoAmountBaseUnit, isExiting)
         if (!fee) return
         return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
       } catch (error) {
@@ -98,13 +98,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { lpAmount: formValues.cryptoAmount, isExiting },
+        payload: { lpAmountCryptoBaseUnit: formValues.cryptoAmountBaseUnit, isExiting },
       })
       const lpAllowance = await allowance()
       const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
 
       // Skip approval step if user allowance is greater than or equal requested deposit amount
-      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
+      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmountBaseUnit))) {
         const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
         if (!estimatedGasCrypto) {
           dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
@@ -112,7 +112,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         }
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
@@ -122,7 +122,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_APPROVE,
           payload: {
-            estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+            estimatedGasCryptoBaseUnit: bnOrZero(estimatedGasCrypto.average.txFee)
               .div(bn(10).pow(ethAsset.precision))
               .toPrecision(),
           },
@@ -148,36 +148,36 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
+      const cryptoAmount = bnOrZero(amountAvailableCryptoBaseUnit).times(percent)
       const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmountBaseUnit, cryptoAmount.toString(), { shouldValidate: true })
       // exit if max button was clicked
       setIsExiting(percent === 1)
     },
-    [amountAvailableCryptoPrecision, opportunity?.fiatAmount, setValue],
+    [amountAvailableCryptoBaseUnit, opportunity?.fiatAmount, setValue],
   )
 
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       const percentage = bnOrZero(value).div(
-        bnOrZero(isFiat ? opportunity?.fiatAmount : amountAvailableCryptoPrecision),
+        bnOrZero(isFiat ? opportunity?.fiatAmount : amountAvailableCryptoBaseUnit),
       )
       // exit if withdrawing total balance
       setIsExiting(percentage.eq(1))
     },
-    [amountAvailableCryptoPrecision, opportunity?.fiatAmount],
+    [amountAvailableCryptoBaseUnit, opportunity?.fiatAmount],
   )
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bn(amountAvailableCryptoPrecision)
+      const crypto = bnOrZero(opportunity?.cryptoAmountBaseUnit)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(_value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [amountAvailableCryptoPrecision],
+    [opportunity?.cryptoAmountBaseUnit],
   )
 
   const validateFiatAmount = useCallback(
@@ -199,7 +199,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={asset}
         icons={opportunity?.icons}
-        cryptoAmountAvailable={amountAvailableCryptoPrecision}
+        cryptoAmountAvailableBaseUnit={opportunity?.cryptoAmountBaseUnit}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

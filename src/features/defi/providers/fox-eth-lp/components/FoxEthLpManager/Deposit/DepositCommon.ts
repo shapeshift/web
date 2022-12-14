@@ -6,9 +6,9 @@ type EstimatedGas = {
 
 type DepositValues = {
   foxFiatAmount: string
-  foxCryptoAmount: string
+  foxCryptoAmountBaseUnit: string
   ethFiatAmount: string
-  ethCryptoAmount: string
+  ethCryptoAmountBaseUnit: string
 }
 
 type FoxEthLpDepositValues = DepositValues &

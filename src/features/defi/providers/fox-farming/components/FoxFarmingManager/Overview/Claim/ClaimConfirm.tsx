@@ -22,7 +22,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -148,9 +148,10 @@ export const ClaimConfirm = ({
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
             <Skeleton minWidth='100px' isLoaded={!!amount}>
-              <Amount.Crypto
+              <Amount.FromBaseUnit
                 fontSize='3xl'
                 fontWeight='medium'
+                assetId={assetId}
                 value={amount}
                 symbol={asset?.symbol}
               />
@@ -158,7 +159,10 @@ export const ClaimConfirm = ({
           </Stack>
           <Skeleton minWidth='100px' isLoaded={!!amount} textAlign='center'>
             <Amount.Fiat
-              value={bnOrZero(amount).times(assetMarketData.price).toString()}
+              value={bnOrZero(amount)
+                .div(bn(10).pow(asset.precision))
+                .times(assetMarketData.price)
+                .toString()}
               color='gray.500'
               prefix='≈'
             />

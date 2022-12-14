@@ -95,11 +95,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetsFiatBalance = useMemo(() => {
     if (!stakingAsset) return '0'
 
-    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+    const amountCryptoPrecision = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
       .div(bn(10).pow(stakingAsset.precision))
-      .toString()
+      .toFixed()
     const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
-    return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
+    return bnOrZero(amountCryptoPrecision).times(foxEthLpFiatPrice).toString()
   }, [
     marketData,
     opportunityData?.stakedAmountCryptoBaseUnit,
@@ -114,18 +114,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
-      cryptoBalancePrecision: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-        .div(bn(10).pow(stakingAsset.precision))
-        .toFixed(6),
+      cryptoBalanceBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
       allocationPercentage: '1',
       icons: underlyingAssetsIcons,
     }),
-    [
-      lpAsset,
-      opportunityData?.stakedAmountCryptoBaseUnit,
-      stakingAsset.precision,
-      underlyingAssetsIcons,
-    ],
+    [lpAsset, opportunityData?.stakedAmountCryptoBaseUnit, underlyingAssetsIcons],
   )
 
   // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
@@ -184,7 +177,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       icons={underlyingAssetsIcons}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       lpAsset={lpAssetWithBalancesAndIcons}
-      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
+      underlyingAssetsCryptoBaseUnit={underlyingAssetsWithBalancesAndIcons}
       provider='ShapeShift'
       menu={
         opportunityData.expired

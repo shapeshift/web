@@ -77,7 +77,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(state.deposit.foxCryptoAmount, state.deposit.ethCryptoAmount)
+      const txid = await addLiquidity(
+        state.deposit.foxCryptoAmountBaseUnit,
+        state.deposit.ethCryptoAmountBaseUnit,
+      )
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
@@ -101,7 +104,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(state.deposit.estimatedGasCrypto))
-    .minus(bnOrZero(state.deposit.ethCryptoAmount))
+    .minus(bnOrZero(state.deposit.ethCryptoAmountBaseUnit))
     .gte(0)
 
   return (
@@ -124,7 +127,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{foxAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.foxCryptoAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto
+                value={state.deposit.foxCryptoAmountBaseUnit}
+                symbol={foxAsset.symbol}
+              />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
@@ -133,7 +139,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{ethAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.ethCryptoAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto
+                value={state.deposit.ethCryptoAmountBaseUnit}
+                symbol={ethAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

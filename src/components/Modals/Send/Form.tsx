@@ -22,9 +22,9 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.Address]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
-  [SendFormFields.CryptoAmount]: string
+  [SendFormFields.CryptoAmountBaseUnit]: string
   [SendFormFields.CryptoSymbol]: string
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
+  [SendFormFields.EstimatedFeesCryptoBaseUnit]: FeeDataEstimate<T>
   [SendFormFields.FeeType]: FeeDataKey
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
@@ -54,7 +54,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
       vanityAddress: '',
       asset: initialAsset,
       feeType: FeeDataKey.Average,
-      cryptoAmount: '',
+      cryptoAmountBaseUnit: '',
       cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
@@ -66,7 +66,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
       methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
       methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')
-      methods.setValue(SendFormFields.CryptoAmount, '')
+      methods.setValue(SendFormFields.CryptoAmountBaseUnit, '')
       methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
       methods.setValue(SendFormFields.FiatAmount, '')
       methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)

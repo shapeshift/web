@@ -110,7 +110,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareWithdrawal({
         address: accountAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        amount: bnOrZero(state.withdraw.cryptoAmountBaseUnit)
+          .times(`1e+${asset.precision}`)
+          .integerValue(),
       })
       const txid = await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
@@ -135,7 +137,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     opportunity,
     state?.opportunity,
     accountAddress,
-    state?.withdraw.cryptoAmount,
+    state?.withdraw.cryptoAmountBaseUnit,
     walletState.wallet,
     yearnInvestor,
   ])
@@ -179,7 +181,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmountBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

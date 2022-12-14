@@ -60,16 +60,16 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         fn: () => allowance(true),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(foxAsset.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmountCryptoBaseUnit))
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get deposit gas estimate
       const gasData = await getWithdrawGasData(
-        state.withdraw.lpAmount,
-        state.withdraw.foxAmount,
-        state.withdraw.ethAmount,
+        state.withdraw.lpAmountCryptoBaseUnit,
+        state.withdraw.foxAmountCryptoBaseUnit,
+        state.withdraw.ethAmountCryptoBaseUnit,
       )
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
@@ -99,9 +99,9 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     getWithdrawGasData,
     foxAsset.precision,
     feeAsset.precision,
-    state?.withdraw.lpAmount,
-    state?.withdraw.ethAmount,
-    state?.withdraw.foxAmount,
+    state?.withdraw.lpAmountCryptoBaseUnit,
+    state?.withdraw.ethAmountCryptoBaseUnit,
+    state?.withdraw.foxAmountCryptoBaseUnit,
     onNext,
     opportunity,
     toast,

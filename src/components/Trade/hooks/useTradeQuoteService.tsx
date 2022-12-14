@@ -136,7 +136,8 @@ export const useTradeQuoteService = () => {
   // Effects
   // Trigger trade quote query
   useEffect(() => {
-    const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoPrecision
+    // TODO(gomes): to precision
+    const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoBaseUnit
     if (
       sellAsset &&
       buyAsset &&

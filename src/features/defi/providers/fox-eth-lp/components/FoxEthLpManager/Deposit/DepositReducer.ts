@@ -9,9 +9,9 @@ export const initialState: FoxEthLpDepositState = {
   approve: {},
   deposit: {
     foxFiatAmount: '',
-    foxCryptoAmount: '',
+    foxCryptoAmountBaseUnit: '',
     ethFiatAmount: '',
-    ethCryptoAmount: '',
+    ethCryptoAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
   },

@@ -1,18 +1,16 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
-import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssets, selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
+import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -37,8 +35,6 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, chainId } = query
 
-  const assets = useAppSelector(selectAssets)
-
   const opportunity = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, {
       userStakingId: serializeUserStakingId(
@@ -50,14 +46,6 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
         }),
       ),
     }),
-  )
-
-  const rewardAmountCryptoPrecision = useMemo(
-    () =>
-      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
-        .toFixed(),
-    [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 
   const location = useLocation()
@@ -76,7 +64,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={rewardAmountCryptoPrecision}
+              amount={opportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? ''}
             />
           </Route>
           <Route exact path='/status'>

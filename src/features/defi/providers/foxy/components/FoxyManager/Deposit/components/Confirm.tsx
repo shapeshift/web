@@ -86,7 +86,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
-          amountDesired: bnOrZero(state?.deposit.cryptoAmount)
+          amountDesired: bnOrZero(state?.deposit.cryptoAmountBaseUnit)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           tokenContractAddress: assetReference,
@@ -125,18 +125,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    api,
-    asset.precision,
-    assetReference,
-    bip44Params,
-    contractAddress,
-    dispatch,
-    onNext,
-    state?.deposit.cryptoAmount,
     accountAddress,
+    assetReference,
+    walletState.wallet,
+    api,
+    bip44Params,
+    dispatch,
+    state?.deposit.cryptoAmountBaseUnit,
+    asset.precision,
+    contractAddress,
+    onNext,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null
@@ -165,7 +165,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Amount.Crypto value={state.deposit.cryptoAmountBaseUnit} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

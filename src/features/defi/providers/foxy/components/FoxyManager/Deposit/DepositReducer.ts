@@ -25,7 +25,7 @@ export const initialState: FoxyDepositState = {
   pricePerShare: '',
   deposit: {
     fiatAmount: '',
-    cryptoAmount: '',
+    cryptoAmountBaseUnit: '',
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',

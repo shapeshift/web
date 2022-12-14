@@ -53,9 +53,9 @@ export const Status = () => {
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
+      ? bnOrZero(bn(state.withdraw.cryptoAmountBaseUnit).times(state.foxyFeePercentage)).toString()
       : '0'
-  }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
+  }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmountBaseUnit, state?.foxyFeePercentage])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -117,7 +117,10 @@ export const Status = () => {
               <RawText>{underlyingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmountBaseUnit}
+                symbol={underlyingAsset.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>

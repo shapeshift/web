@@ -9,6 +9,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  Select,
   Spinner,
   Stack,
   Text as RawText,
@@ -44,8 +45,9 @@ import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampButton } from '../components/FiatRampButton'
-import type { FiatRamp } from '../config'
+import type { CommonFiatCurrencies, FiatCurrencyItem, FiatRamp } from '../config'
 import { supportedFiatRamps } from '../config'
+import commonFiatCurrencyList from '../FiatCurrencyList.json'
 import { FiatRampAction } from '../FiatRampsCommon'
 import { middleEllipsis } from '../utils'
 
@@ -69,6 +71,7 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
+  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
   const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -177,6 +180,10 @@ export const Overview: React.FC<OverviewProps> = ({
       )
     const listOfRamps = [...rampIdsForAssetIdAndAction]
     return listOfRamps
+      .filter(rampId => {
+        const list = supportedFiatRamps[rampId].getSupportedFiatList()
+        return list.includes(fiatCurrency)
+      })
       .sort((a, b) => supportedFiatRamps[a].order - supportedFiatRamps[b].order)
       .map(rampId => {
         const ramp = supportedFiatRamps[rampId]
@@ -195,6 +202,7 @@ export const Overview: React.FC<OverviewProps> = ({
     accountFiatBalance,
     address,
     assetId,
+    fiatCurrency,
     fiatRampAction,
     handlePopupClick,
     isDemoWallet,
@@ -207,10 +215,28 @@ export const Overview: React.FC<OverviewProps> = ({
     return address ? middleEllipsis(address, 11) : ''
   }, [address, vanityAddress])
 
+  const renderFiatOptions = useMemo(() => {
+    const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
+    return options.map(option => (
+      <option value={option.code}>{`${option.code} - ${option.name}`}</option>
+    ))
+  }, [])
+
   return (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
       <Flex display='flex' flexDir='column' gap={6} p={6}>
+        <Stack spacing={4}>
+          <Text
+            fontWeight='bold'
+            translation={
+              fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
+            }
+          />
+          <Select onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}>
+            {renderFiatOptions}
+          </Select>
+        </Stack>
         <Stack spacing={4}>
           <Box>
             <Text fontWeight='medium' translation={assetTranslation} />

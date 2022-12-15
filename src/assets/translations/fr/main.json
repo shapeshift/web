@@ -80,7 +80,9 @@
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",
     "enterAmount": "Entrer le montant",
-    "pageNotFound": "La page que vous recherchez est introuvable"
+    "pageNotFound": "La page que vous recherchez est introuvable",
+    "buySell": "Acheter/Vendre",
+    "buySellAsset": "Acheter/Vendre des %{symbol}"
   },
   "errorPage": {
     "title": "Oups !",

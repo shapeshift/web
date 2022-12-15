@@ -22,6 +22,7 @@ export type FeatureFlags = {
   DashboardBreakdown: boolean
   Wherever: boolean
   FiatPopup: boolean
+  EligibleEarn: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -56,6 +57,7 @@ const initialState: Preferences = {
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
+    EligibleEarn: getConfig().REACT_APP_FEATURE_ELIGIBLE_EARN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

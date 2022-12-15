@@ -18,6 +18,7 @@ import {
   type AccountId,
   type AssetId,
   CHAIN_NAMESPACE,
+  fromAccountId,
   fromAssetId,
   fromChainId,
 } from '@shapeshiftoss/caip'
@@ -29,7 +30,9 @@ import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { isValidAccountNumber } from 'lib/utils'
 import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -44,6 +47,8 @@ import { useAppSelector } from 'state/store'
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
+
+const moduleLogger = logger.child({ module: 'AccountDropdown' })
 
 export type AccountDropdownProps = {
   assetId: AssetId
@@ -94,6 +99,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   const translate = useTranslate()
   const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
+
+  if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
+
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const highestFiatBalanceAccountId = useAppSelector(state =>
@@ -102,6 +110,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
     defaultAccountId,
   )
+
+  // very suspicious of this
   // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
   const previousSelectedAccountId = usePrevious(selectedAccountId)
   const isDropdownDisabled = disabled || accountIds.length <= 1
@@ -127,10 +137,17 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
       validatedAccountIdFromArgs ??
       (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
       firstAccountId
+    /**
+     * assert asset the chainId of the accountId and assetId match
+     */
+    const accountIdChainId = fromAccountId(preSelectedAccountId).chainId
+    const assetIdChainId = fromAssetId(assetId).chainId
+    if (accountIdChainId !== assetIdChainId) {
+      moduleLogger.error({ accountIdChainId, assetIdChainId }, 'chainId mismatch!')
+      throw new Error('AccountDropdown: chainId mismatch!')
+    }
     setSelectedAccountId(preSelectedAccountId)
-    // this effect sets selectedAccountId on first render when we receive accountIds and when defaultAccountId changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds, defaultAccountId])
+  }, [assetId, accountIds, defaultAccountId, highestFiatBalanceAccountId, autoSelectHighestBalance])
 
   const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 
@@ -142,7 +159,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     [selectedAccountId],
   )
 
-  const accountNumber = useMemo(
+  const accountNumber: number | undefined = useMemo(
     () => selectedAccountId && accountMetadata[selectedAccountId]?.bip44Params?.accountNumber,
     [accountMetadata, selectedAccountId],
   )
@@ -253,7 +270,16 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     handleClick,
   ])
 
+  /**
+   * do NOT remove these checks, this is not a visual thing, this is a safety check!
+   *
+   * this component is responsible for selecting the correct account for operations where
+   * we are sending funds, we need to be paranoid.
+   */
   if (!accountIds.length) return null
+  if (!isValidAccountNumber(accountNumber)) return null
+  if (!menuOptions.length) return null
+  if (!accountLabel) return null
 
   return (
     <Box px={2} my={2} {...boxProps}>

@@ -80,7 +80,9 @@
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
     "enterAmount": "Ingrese la cantidad",
-    "pageNotFound": "La página que buscas no se encuentra"
+    "pageNotFound": "La página que buscas no se encuentra",
+    "buySell": "Comprar/Vender",
+    "buySellAsset": "Comprar/Vender %{symbol}"
   },
   "errorPage": {
     "title": "¡Ups!",

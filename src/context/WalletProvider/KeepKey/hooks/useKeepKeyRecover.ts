@@ -26,7 +26,8 @@ export const useKeepKeyRecover = () => {
       pin: true,
       autoLockDelayMs: 600000, // Ten minutes
     }
-    await wallet?.recover(recoverParams).catch(e => {
+    await wallet?.recover(recoverParams).catch(async e => {
+      await wallet?.cancel()
       moduleLogger.error(e)
       toast({
         title: translate('common.error'),

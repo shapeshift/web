@@ -50,7 +50,7 @@ export const Notifications = () => {
         theme={themeObj}
         disableAnalytics={disableAnalytics}
       >
-        <NotificationFeed>
+        <NotificationFeed gapFromBell={10}>
           <IconButton aria-label='Open notifications'>
             <NotificationBell size={20} />
           </IconButton>

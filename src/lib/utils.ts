@@ -105,3 +105,9 @@ export const deepUpsertArray = <T>(
   if (!level1) level1 = data[level1Key] = {}
   level1[level2Key] = union(level1[level2Key] ?? [], [value])
 }
+
+export const getTypeGuardAssertion =
+  <T, U>(typeGuard: (maybeT: T | U) => maybeT is T, message: string) =>
+  (value: T | U): asserts value is T => {
+    if (!typeGuard(value)) throw new Error(`${message}: ${value}`)
+  }

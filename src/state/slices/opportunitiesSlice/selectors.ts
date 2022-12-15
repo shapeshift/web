@@ -2,7 +2,9 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import chain from 'lodash/chain'
 import pickBy from 'lodash/pickBy'
+import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -19,14 +21,17 @@ import {
 import { selectAssets } from '../assetsSlice/selectors'
 import {
   selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectWalletAccountIds,
 } from '../common-selectors'
-import { selectMarketData } from '../marketDataSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from '../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
+  GroupedEligibleOpportunityReturnType,
   LpId,
+  OpportunityId,
   OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
@@ -255,7 +260,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 
 export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunityByStakingId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (opportunity, marketData, assets): StakingEarnOpportunityType | undefined =>
     opportunity &&
@@ -285,7 +290,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => {
@@ -399,7 +404,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceByFilter,
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
@@ -461,7 +466,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 // TODO: testme
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
@@ -494,7 +499,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
@@ -666,3 +671,42 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
     }))
   },
 )
+
+export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectPortfolioAssetBalances,
+  (aggreggatedEarnUserStakingOpportunities, assetBalances): StakingEarnOpportunityType[] => {
+    const eligibleOpportunities = aggreggatedEarnUserStakingOpportunities.reduce<
+      StakingEarnOpportunityType[]
+    >((acc, opportunity) => {
+      const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
+        bnOrZero(assetBalances[assetId]).gt(0),
+      )
+      const hasOpportunityBalance = bnOrZero(opportunity.fiatAmount).gt(0)
+      if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
+      return acc
+    }, [])
+    return eligibleOpportunities
+  },
+)
+
+export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingEligibleOpportunities,
+    (userOpportunities): GroupedEligibleOpportunityReturnType[] => {
+      const eligibleOpportunitiesGroupedByUnderlyingAssetIds = chain(userOpportunities)
+        .groupBy('underlyingAssetIds')
+        .map(values => {
+          const netApy = sumBy(values, o => bn(o.apy).toNumber())
+          const opportunityIds: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
+          const underlyingAssetIds = values[0].underlyingAssetIds
+          return {
+            underlyingAssetIds,
+            netApy,
+            opportunityIds,
+          }
+        })
+        .value()
+      return eligibleOpportunitiesGroupedByUnderlyingAssetIds
+    },
+  )

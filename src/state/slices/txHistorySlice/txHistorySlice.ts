@@ -8,6 +8,7 @@ import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
+import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
@@ -182,6 +183,7 @@ export const txHistory = createSlice({
     upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
       updateOrInsertRebase(txState, payload),
   },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
 type RebaseTxHistoryArgs = {

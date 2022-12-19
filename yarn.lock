@@ -7313,10 +7313,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@^0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.25.tgz#660e8f75ed1c0075904dd5b5cf6cc2947f721ed1"
-  integrity sha512-Rg0Tuar/pbeUfWGdjoJfFJtaVwSRLOenJjsgYQwlZE0Z40MxJL2pYCFPbmLMsbyDaDRjfScICgSSb92wBeHOHg==
+"@wherever/react-notification-feed@^0.0.26":
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.26.tgz#a5447b3d7697d6d5bd1a42cf2db4b39126aa28e5"
+  integrity sha512-G+aEK/PiQS00iimcZCfNFZTNbP7B+1uoaZ53lOce3T8flGnTmgJMRkyBKrWjvYVzg47xQs43M2dnF9vGKAzLDw==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@emotion-icons/octicons" "^3.27.0"

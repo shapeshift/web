@@ -1,3 +1,18 @@
+# [@shapeshiftoss/swapper-v15.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.7.2...@shapeshiftoss/swapper-v15.0.0) (2022-12-20)
+
+
+### Features
+
+* **swapper:** base unit vernacular ([#1122](https://github.com/shapeshift/lib/issues/1122)) ([4cc15cf](https://github.com/shapeshift/lib/commit/4cc15cffb0eb686762b552135bc5a507ecbaf676))
+
+
+### BREAKING CHANGES
+
+* **swapper:** new property names will need to be handled in web.
+BREAKING CHANGES: new property names will need to be handled in web.
+
+Co-authored-by: Apotheosis <97164662+0xApotheosis@users.noreply.github.com>
+
 # [@shapeshiftoss/swapper-v14.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v14.7.1...@shapeshiftoss/swapper-v14.7.2) (2022-12-14)
 
 

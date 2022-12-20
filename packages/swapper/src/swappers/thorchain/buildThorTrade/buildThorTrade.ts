@@ -29,7 +29,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
     const {
       buyAsset,
       receiveAddress: destinationAddress,
-      sellAmountCryptoPrecision,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       sellAsset,
       bip44Params,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
@@ -57,11 +57,12 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         sellAsset,
         buyAsset,
         adapter: sellAdapter as unknown as EvmSupportedChainAdapter,
-        sellAmountCryptoPrecision,
+        sellAmountCryptoBaseUnit,
         destinationAddress,
         deps,
-        gasPrice:
-          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific?.gasPrice ?? '0',
+        gasPriceCryptoBaseUnit:
+          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific
+            ?.gasPriceCryptoBaseUnit ?? '0',
         gasLimit:
           (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific?.estimatedGas ?? '0',
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
@@ -78,7 +79,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         deps,
         sellAsset,
         buyAsset,
-        sellAmountCryptoPrecision,
+        sellAmountCryptoBaseUnit,
         slippageTolerance,
         destinationAddress,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
@@ -88,7 +89,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       const buildTxResponse = await (
         sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
       ).buildSendTransaction({
-        value: sellAmountCryptoPrecision,
+        value: sellAmountCryptoBaseUnit,
         wallet,
         to: vault,
         bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
@@ -116,7 +117,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         bip44Params,
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,
-        sellAmountCryptoPrecision,
+        sellAmountCryptoBaseUnit,
         sellAsset,
         slippageTolerance,
         chainId: input.chainId,

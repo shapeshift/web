@@ -22,7 +22,12 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
   input: GetEvmTradeQuoteInput,
 ): Promise<TradeQuote<T>> {
   try {
-    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params } = input
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      bip44Params,
+    } = input
     if (buyAsset.chainId !== input.chainId || sellAsset.chainId !== input.chainId) {
       throw new SwapError(
         '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
@@ -39,18 +44,18 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       buyAsset.assetId,
     )
 
-    const useSellAmount = !!sellAmountCryptoPrecision
+    const useSellAmount = !!sellAmountCryptoBaseUnit
     const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
     const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
     const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
-    const minQuotesellAmountCryptoPrecision = bnOrZero(minimum).times(
+    const minQuotesellAmountCryptoBaseUnit = bnOrZero(minimum).times(
       bn(10).exponentiatedBy(sellAsset.precision),
     )
 
     const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmountCryptoPrecision).eq(0)
-        ? minQuotesellAmountCryptoPrecision
-        : sellAmountCryptoPrecision,
+      bnOrZero(sellAmountCryptoBaseUnit).eq(0)
+        ? minQuotesellAmountCryptoBaseUnit
+        : sellAmountCryptoBaseUnit,
     )
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
     const zrxService = zrxServiceFactory(baseUrl)
@@ -78,7 +83,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
     const {
       data: {
         estimatedGas: estimatedGasResponse,
-        gasPrice,
+        gasPrice: gasPriceCryptoBaseUnit,
         price,
         sellAmount: sellAmountResponse,
         buyAmount,
@@ -90,12 +95,12 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
     const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
     const rate = useSellAmount ? price : bn(1).div(price).toString()
 
-    const fee = bnOrZero(estimatedGas).multipliedBy(bnOrZero(gasPrice)).toString()
+    const fee = estimatedGas.multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const approvalFee =
+    const approvalFeeCryptoBaseUnit =
       sellAssetErc20Address &&
-      bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPrice)).toString()
+      bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
 
     const tradeQuote: TradeQuote<EvmSupportedChainIds> = {
       rate,
@@ -104,15 +109,15 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       feeData: {
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),
-          gasPrice,
-          approvalFee,
+          gasPriceCryptoBaseUnit,
+          approvalFeeCryptoBaseUnit,
         },
-        networkFee: fee,
+        networkFeeCryptoBaseUnit: fee,
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },
-      sellAmountCryptoPrecision: sellAmountResponse,
-      buyAmountCryptoPrecision: buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountResponse,
+      buyAmountCryptoBaseUnit: buyAmount,
       sources: sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
       allowanceContract: allowanceTarget,
       buyAsset,

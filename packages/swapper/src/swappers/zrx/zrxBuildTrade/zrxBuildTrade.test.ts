@@ -3,12 +3,12 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { AxiosStatic } from 'axios'
-import { ZrxTrade } from 'packages/swapper/src/swappers/zrx/types'
 import Web3 from 'web3'
 
 import { BuildTradeInput, EvmSupportedChainIds, QuoteFeeData } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
+import { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
@@ -72,7 +72,7 @@ describe('zrxBuildTrade', () => {
     sendMax: false,
     sellAsset,
     buyAsset,
-    sellAmountCryptoPrecision: '1000000000000000000',
+    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
     wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -81,16 +81,22 @@ describe('zrxBuildTrade', () => {
   const buildTradeResponse: ZrxTrade<EvmSupportedChainIds> = {
     sellAsset,
     buyAsset,
-    sellAmountCryptoPrecision: quoteResponse.sellAmount,
-    buyAmountCryptoPrecision: '',
+    sellAmountBeforeFeesCryptoBaseUnit: quoteResponse.sellAmount,
+    buyAmountCryptoBaseUnit: '',
     depositAddress: quoteResponse.to,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
     txData: quoteResponse.data,
     rate: quoteResponse.price,
     feeData: {
-      chainSpecific: { approvalFee: '123600000', estimatedGas: '1235', gasPrice: '1236' },
-      networkFee: (Number(quoteResponse.gas) * Number(quoteResponse.gasPrice)).toString(),
+      chainSpecific: {
+        approvalFeeCryptoBaseUnit: '123600000',
+        estimatedGas: '1235',
+        gasPriceCryptoBaseUnit: '1236',
+      },
+      networkFeeCryptoBaseUnit: (
+        Number(quoteResponse.gas) * Number(quoteResponse.gasPrice)
+      ).toString(),
       sellAssetTradeFeeUsd: '0',
       buyAssetTradeFeeUsd: '0',
     },
@@ -141,25 +147,29 @@ describe('zrxBuildTrade', () => {
   })
 
   it('should return a quote response with gasPrice multiplied by estimatedGas', async () => {
-    const gasPrice = '10000'
+    const gasPriceCryptoBaseUnit = '10000'
     const estimatedGas = '100'
     const data = {
       ...quoteResponse,
       allowanceTarget: 'allowanceTargetAddress',
       gas: estimatedGas,
-      gasPrice,
+      gasPrice: gasPriceCryptoBaseUnit,
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     const expectedFeeData: QuoteFeeData<EvmSupportedChainIds> = {
       chainSpecific: {
-        approvalFee: bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(gasPrice).toString(),
-        gasPrice,
+        approvalFeeCryptoBaseUnit: bnOrZero(APPROVAL_GAS_LIMIT)
+          .multipliedBy(gasPriceCryptoBaseUnit)
+          .toString(),
+        gasPriceCryptoBaseUnit,
         estimatedGas,
       },
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
-      networkFee: bnOrZero(gasPrice).multipliedBy(estimatedGas).toString(),
+      networkFeeCryptoBaseUnit: bnOrZero(gasPriceCryptoBaseUnit)
+        .multipliedBy(estimatedGas)
+        .toString(),
     }
 
     expect(await zrxBuildTrade(deps, { ...buildTradeInput, wallet })).toEqual({

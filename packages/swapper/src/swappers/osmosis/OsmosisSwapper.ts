@@ -152,23 +152,29 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Trade<ChainId>> {
-    const { sellAsset, buyAsset, sellAmountCryptoPrecision, receiveAddress, bip44Params } = args
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      receiveAddress,
+      bip44Params,
+    } = args
 
-    if (!sellAmountCryptoPrecision) {
+    if (!sellAmountCryptoBaseUnit) {
       throw new SwapError('sellAmountCryptoPrecision is required', {
         code: SwapErrorTypes.BUILD_TRADE_FAILED,
       })
     }
 
-    const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoPrecision !== '0' ? sellAmountCryptoPrecision : '1',
+      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
 
     //convert amount to base
-    const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoPrecision).dp(0))
+    const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter
@@ -183,16 +189,16 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return {
-      buyAmountCryptoPrecision: buyAmount,
+      buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
-        networkFee: fee,
+        networkFeeCryptoBaseUnit: fee,
         sellAssetTradeFeeUsd: '0',
         buyAssetTradeFeeUsd,
       },
       rate,
       receiveAddress,
-      sellAmountCryptoPrecision: sellAmountCryptoBase, // TODO(gomes): wat?
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBase, // TODO(gomes): wat?
       sellAsset,
       bip44Params,
       sources: [{ name: SwapperName.Osmosis, proportion: '100' }],
@@ -200,16 +206,21 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
-    const { bip44Params, sellAsset, buyAsset, sellAmountCryptoPrecision } = input
-    if (!sellAmountCryptoPrecision) {
+    const {
+      bip44Params,
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    } = input
+    if (!sellAmountCryptoBaseUnit) {
       throw new SwapError('sellAmount is required', {
         code: SwapErrorTypes.RESPONSE_ERROR,
       })
     }
-    const { buyAssetTradeFeeUsd, rate, buyAmount } = await getRateInfo(
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoPrecision !== '0' ? sellAmountCryptoPrecision : '1',
+      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
 
@@ -230,7 +241,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     return {
       buyAsset,
       feeData: {
-        networkFee: fee,
+        networkFeeCryptoBaseUnit: fee,
         sellAssetTradeFeeUsd: '0',
         buyAssetTradeFeeUsd,
       },
@@ -239,15 +250,21 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       bip44Params,
       rate,
       sellAsset,
-      sellAmountCryptoPrecision,
-      buyAmountCryptoPrecision: buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: '',
     }
   }
 
   async executeTrade({ trade, wallet }: ExecuteTradeInput<ChainId>): Promise<OsmosisTradeResult> {
-    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, receiveAddress } = trade
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      bip44Params,
+      receiveAddress,
+    } = trade
 
     const isFromOsmo = sellAsset.assetId === osmosisAssetId
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
@@ -285,7 +302,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        amount: sellAmountCryptoPrecision,
+        amount: sellAmountCryptoBaseUnit,
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
@@ -336,7 +353,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
-      sellAmount: ibcSellAmount ?? sellAmountCryptoPrecision,
+      sellAmount: ibcSellAmount ?? sellAmountCryptoBaseUnit,
       gas,
       wallet,
     })

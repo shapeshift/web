@@ -20,7 +20,7 @@ export type IsApprovalRequiredArgs = {
   receiveAddress: string
   allowanceContract: string
   sellAsset: Asset
-  sellAmount: string
+  sellAmountExcludeFeeCryptoBaseUnit: string
   web3: Web3
   erc20AllowanceAbi: AbiItem[]
 }
@@ -63,7 +63,7 @@ export const isApprovalRequired = async ({
   receiveAddress,
   allowanceContract,
   sellAsset,
-  sellAmount,
+  sellAmountExcludeFeeCryptoBaseUnit,
   web3,
   erc20AllowanceAbi,
 }: IsApprovalRequiredArgs): Promise<boolean> => {
@@ -93,7 +93,7 @@ export const isApprovalRequired = async ({
 
     if (bn(allowanceOnChain).isZero()) return true
 
-    const allowanceRequired = bnOrZero(sellAmount).minus(allowanceOnChain)
+    const allowanceRequired = bnOrZero(sellAmountExcludeFeeCryptoBaseUnit).minus(allowanceOnChain)
     return allowanceRequired.gt(0)
   } catch (e) {
     if (e instanceof SwapError) throw e
@@ -116,7 +116,7 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
 
     const erc20Contract = new web3.eth.Contract(erc20Abi, sellAssetErc20Address)
     const approveTx = erc20Contract.methods
-      .approve(quote.allowanceContract, quote.sellAmountCryptoPrecision)
+      .approve(quote.allowanceContract, quote.sellAmountBeforeFeesCryptoBaseUnit)
       .encodeABI()
 
     const { bip44Params } = quote
@@ -128,7 +128,7 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
       value: '0',
       chainSpecific: {
         erc20ContractAddress: sellAssetErc20Address,
-        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
+        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
         gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0),
       },
     })

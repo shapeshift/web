@@ -10,7 +10,7 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
   const feeData = {
     fast: {
       txFee: '1',
-      chainSpecific: { approvalFee: '1', gasLimit: '1', gasPrice: '1' },
+      chainSpecific: { approvalFeeCryptoBaseUnit: '1', gasLimit: '1', gasPrice: '1' },
       tradeFee: '2',
     },
   }

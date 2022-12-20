@@ -58,13 +58,13 @@ export const thorTradeApprovalNeeded = async ({
     })
     const allowanceOnChain = bnOrZero(allowanceResult)
 
-    if (!quote.feeData.chainSpecific?.gasPrice)
+    if (!quote.feeData.chainSpecific?.gasPriceCryptoBaseUnit)
       throw new SwapError('[thorTradeApprovalNeeded] - no gas price with quote', {
         code: SwapErrorTypes.RESPONSE_ERROR,
         details: { feeData: quote.feeData },
       })
     return {
-      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmountCryptoPrecision)),
+      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmountBeforeFeesCryptoBaseUnit)),
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

@@ -22,13 +22,13 @@ import {
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,
 } from '../utils/helpers/helpers'
-
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
 ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, receiveAddress } = input
+    const { sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, bip44Params, receiveAddress } =
+      input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -62,9 +62,9 @@ export async function getCowSwapTradeQuote(
 
     // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
     const normalizedSellAmount = normalizeIntegerAmount(
-      bnOrZero(sellAmountCryptoPrecision).lt(minQuoteSellAmount)
+      bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).lt(minQuoteSellAmount)
         ? minQuoteSellAmount
-        : sellAmountCryptoPrecision,
+        : sellAmountBeforeFeesCryptoBaseUnit,
     )
 
     const apiInput: CowSwapSellQuoteApiInput = {
@@ -97,12 +97,16 @@ export async function getCowSwapTradeQuote(
       await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, apiInput)
 
     const {
-      data: { quote },
+      data: {
+        quote: {
+          buyAmount: buyAmountCryptoBaseUnit,
+          sellAmount: sellAmountCryptoBaseUnit,
+          feeAmount: feeAmountInSellTokenCryptoBaseUnit,
+        },
+      },
     } = quoteResponse
 
-    const buyCryptoAmount = bn(quote.buyAmount).div(bn(10).exponentiatedBy(buyAsset.precision))
-    const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(sellAsset.precision))
-    const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
+    const rate = bn(buyAmountCryptoBaseUnit).div(sellAmountCryptoBaseUnit).toString()
 
     const data = getApproveContractData({
       web3,
@@ -119,7 +123,7 @@ export async function getCowSwapTradeQuote(
       getUsdRate(deps, sellAsset),
     ])
 
-    const sellAssetTradeFeeUsd = bnOrZero(quote.feeAmount)
+    const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
       .toString()
@@ -128,8 +132,8 @@ export async function getCowSwapTradeQuote(
 
     // If original sellAmount is < minQuoteSellAmount, we don't want to replace it with normalizedSellAmount
     // The purpose of this was to get a quote from CowSwap even with small amounts
-    const quoteSellAmount = bnOrZero(sellAmountCryptoPrecision).lt(minQuoteSellAmount)
-      ? sellAmountCryptoPrecision
+    const quoteSellAmount = bnOrZero(sellAmountCryptoBaseUnit).lt(minQuoteSellAmount)
+      ? sellAmountBeforeFeesCryptoBaseUnit
       : normalizedSellAmount
 
     return {
@@ -137,19 +141,19 @@ export async function getCowSwapTradeQuote(
       minimumCryptoHuman: minimum,
       maximum,
       feeData: {
-        networkFee: '0', // no miner fee for CowSwap
+        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
-          gasPrice: feeData.chainSpecific.gasPrice,
-          approvalFee: bnOrZero(feeData.chainSpecific.gasLimit)
+          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
+          approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
             .toString(),
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,
       },
-      sellAmountCryptoPrecision: quoteSellAmount,
-      buyAmountCryptoPrecision: quote.buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmount,
+      buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
       buyAsset,

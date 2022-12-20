@@ -44,11 +44,11 @@ export const getEvmTxFees = async ({
     const feeData = feeDataOptions['fast']
 
     return {
-      networkFee: feeData.txFee,
+      networkFeeCryptoBaseUnit: feeData.txFee,
       chainSpecific: {
         estimatedGas: feeData.chainSpecific.gasLimit,
-        gasPrice: feeData.chainSpecific.gasPrice,
-        approvalFee:
+        gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
+        approvalFeeCryptoBaseUnit:
           sellAssetReference &&
           bnOrZero(APPROVAL_GAS_LIMIT)
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))

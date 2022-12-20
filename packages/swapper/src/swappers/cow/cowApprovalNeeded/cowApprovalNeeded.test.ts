@@ -53,7 +53,7 @@ describe('cowApprovalNeeded', () => {
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
-        sellAmountCryptoPrecision: '10',
+        sellAmountBeforeFeesCryptoBaseUnit: '10',
       },
       wallet: <HDWallet>{},
     }

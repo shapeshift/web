@@ -5,11 +5,7 @@ import { AxiosResponse } from 'axios'
 import { BuildTradeInput, SwapError, SwapErrorTypes } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import {
-  getApproveContractData,
-  isApprovalRequired,
-  normalizeAmount,
-} from '../../utils/helpers/helpers'
+import { getApproveContractData, isApprovalRequired } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowSwapQuoteResponse, CowTrade } from '../types'
 import {
@@ -27,7 +23,13 @@ export async function cowBuildTrade(
   input: BuildTradeInput,
 ): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
   try {
-    const { sellAsset, buyAsset, sellAmountCryptoPrecision, bip44Params, wallet } = input
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountExcludeFeeCryptoBaseUnit,
+      bip44Params,
+      wallet,
+    } = input
     const { adapter, web3 } = deps
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
@@ -53,7 +55,6 @@ export async function cowBuildTrade(
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
     const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
-    const normalizedSellAmount = normalizeAmount(sellAmountCryptoPrecision)
 
     /**
      * /v1/quote
@@ -79,22 +80,32 @@ export async function cowBuildTrade(
         partiallyFillable: false,
         from: receiveAddress,
         kind: ORDER_KIND_SELL,
-        sellAmountBeforeFee: normalizedSellAmount,
+        sellAmountBeforeFee: sellAmountExcludeFeeCryptoBaseUnit,
       })
 
     const {
-      data: { quote },
+      data: {
+        quote: {
+          buyAmount: buyAmountCryptoBaseUnit,
+          sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
+          feeAmount: feeAmountInSellTokenCryptoBaseUnit,
+        },
+      },
     } = quoteResponse
 
     const sellAssetUsdRate = await getUsdRate(deps, sellAsset)
-    const sellAssetTradeFeeUsd = bnOrZero(quote.feeAmount)
+    const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
       .toString()
 
-    const buyCryptoAmount = bn(quote.buyAmount).div(bn(10).exponentiatedBy(buyAsset.precision))
-    const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(sellAsset.precision))
-    const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
+    const buyAmountCryptoPrecision = bn(buyAmountCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(buyAsset.precision),
+    )
+    const quoteSellAmountCryptoPrecision = bn(quoteSellAmountExcludeFeeCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(sellAsset.precision),
+    )
+    const rate = buyAmountCryptoPrecision.div(quoteSellAmountCryptoPrecision).toString()
 
     const data = getApproveContractData({
       web3,
@@ -113,23 +124,23 @@ export async function cowBuildTrade(
     const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
       rate,
       feeData: {
-        networkFee: '0', // no miner fee for CowSwap
+        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGas: feeData.chainSpecific.gasLimit,
-          gasPrice: feeData.chainSpecific.gasPrice,
+          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,
       },
-      sellAmountCryptoPrecision: normalizedSellAmount,
-      buyAmountCryptoPrecision: quote.buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountExcludeFeeCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       buyAsset,
       sellAsset,
       bip44Params,
       receiveAddress,
-      feeAmountInSellToken: quote.feeAmount,
-      sellAmountWithoutFee: quote.sellAmount,
+      feeAmountInSellTokenCryptoBaseUnit,
+      sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
     }
 
     const approvalRequired = await isApprovalRequired({
@@ -137,13 +148,15 @@ export async function cowBuildTrade(
       sellAsset,
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
       receiveAddress,
-      sellAmount: quote.sellAmount,
+      sellAmountExcludeFeeCryptoBaseUnit,
       web3: deps.web3,
       erc20AllowanceAbi,
     })
 
     if (approvalRequired) {
-      trade.feeData.chainSpecific.approvalFee = bnOrZero(feeData.chainSpecific.gasLimit)
+      trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit = bnOrZero(
+        feeData.chainSpecific.gasLimit,
+      )
         .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
         .toString()
     }

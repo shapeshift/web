@@ -29,7 +29,12 @@ export async function cowExecuteTrade(
   { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
 ): Promise<TradeResult> {
   const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
-  const { sellAsset, buyAsset, feeAmountInSellToken, sellAmountWithoutFee } = cowTrade
+  const {
+    sellAsset,
+    buyAsset,
+    feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
+    sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
+  } = cowTrade
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
     sellAsset.assetId,
@@ -60,7 +65,7 @@ export async function cowExecuteTrade(
       sellToken: sellAssetErc20Address,
       buyToken,
       sellAmount: sellAmountWithoutFee,
-      buyAmount: trade.buyAmountCryptoPrecision,
+      buyAmount: trade.buyAmountCryptoBaseUnit,
       validTo: getNowPlusThirtyMinutesTimestamp(),
       appData: DEFAULT_APP_DATA,
       feeAmount: feeAmountInSellToken,

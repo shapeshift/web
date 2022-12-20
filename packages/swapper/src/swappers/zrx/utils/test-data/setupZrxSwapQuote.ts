@@ -24,13 +24,13 @@ export const setupExecuteTrade = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
   const executeTradeInput = {
-    sellAmountCryptoPrecision: '1000000000000000000',
+    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     allowanceTarget: 'allowanceTargetAddress',
     price: '1',
     to: '0x123',
     gas: '1235',
     gasPrice: '1236',
-    buyAmountCryptoPrecision: '',
+    buyAmountCryptoBaseUnit: '',
     buyAsset,
     sellAsset,
     sendMax: false,
@@ -42,7 +42,7 @@ export const setupExecuteTrade = () => {
       chainSpecific: {},
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
-      networkFee: '0',
+      networkFeeCryptoBaseUnit: '0',
     },
     rate: '0',
     sources: [],

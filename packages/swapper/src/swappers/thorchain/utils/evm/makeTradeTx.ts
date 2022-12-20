@@ -11,7 +11,7 @@ import { getThorTxInfo } from './utils/getThorTxData'
 type MakeTradeTxArgs = {
   wallet: HDWallet
   bip44Params: BIP44Params
-  sellAmountCryptoPrecision: string
+  sellAmountCryptoBaseUnit: string
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
@@ -22,12 +22,12 @@ type MakeTradeTxArgs = {
   buyAssetTradeFeeUsd: string
 } & (
   | {
-      gasPrice: string
+      gasPriceCryptoBaseUnit: string
       maxFeePerGas?: never
       maxPriorityFeePerGas?: never
     }
   | {
-      gasPrice?: never
+      gasPriceCryptoBaseUnit?: never
       maxFeePerGas: string
       maxPriorityFeePerGas: string
     }
@@ -36,14 +36,14 @@ type MakeTradeTxArgs = {
 export const makeTradeTx = async ({
   wallet,
   bip44Params,
-  sellAmountCryptoPrecision,
+  sellAmountCryptoBaseUnit,
   buyAsset,
   sellAsset,
   destinationAddress,
   adapter,
   maxFeePerGas,
   maxPriorityFeePerGas,
-  gasPrice,
+  gasPriceCryptoBaseUnit,
   slippageTolerance,
   deps,
   gasLimit,
@@ -59,7 +59,7 @@ export const makeTradeTx = async ({
       deps,
       sellAsset,
       buyAsset,
-      sellAmountCryptoPrecision,
+      sellAmountCryptoBaseUnit,
       slippageTolerance,
       destinationAddress,
       buyAssetTradeFeeUsd,
@@ -70,8 +70,10 @@ export const makeTradeTx = async ({
       bip44Params,
       to: router,
       gasLimit,
-      ...(gasPrice !== undefined ? { gasPrice } : { maxFeePerGas, maxPriorityFeePerGas }),
-      value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoPrecision),
+      ...(gasPriceCryptoBaseUnit !== undefined
+        ? { gasPrice: gasPriceCryptoBaseUnit }
+        : { maxFeePerGas, maxPriorityFeePerGas }),
+      value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoBaseUnit),
       data,
     })
   } catch (e) {

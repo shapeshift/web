@@ -32,10 +32,10 @@ describe('thorTradeApprovalNeeded', () => {
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
-        sellAmountCryptoPrecision: '10',
+        sellAmountBeforeFeesCryptoBaseUnit: '10',
         feeData: {
-          chainSpecific: { gasPrice: '1000' },
-          networkFee: '0',
+          chainSpecific: { gasPriceCryptoBaseUnit: '1000' },
+          networkFeeCryptoBaseUnit: '0',
           sellAssetTradeFeeUsd: '0',
           buyAssetTradeFeeUsd: '0',
         },
@@ -56,8 +56,8 @@ describe('thorTradeApprovalNeeded', () => {
         ...tradeQuote,
         sellAmount: '10',
         feeData: {
-          chainSpecific: { gasPrice: '1000' },
-          networkFee: '0',
+          chainSpecific: { gasPriceCryptoBaseUnit: '1000' },
+          networkFeeCryptoBaseUnit: '0',
           sellAssetTradeFeeUsd: '0',
           buyAssetTradeFeeUsd: '0',
         },

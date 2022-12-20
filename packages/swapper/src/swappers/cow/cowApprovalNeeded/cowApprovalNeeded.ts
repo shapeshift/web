@@ -37,7 +37,7 @@ export async function cowApprovalNeeded(
     const allowanceOnChain = bnOrZero(allowanceResult)
 
     return {
-      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmountCryptoPrecision)),
+      approvalNeeded: allowanceOnChain.lt(bnOrZero(quote.sellAmountBeforeFeesCryptoBaseUnit)),
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

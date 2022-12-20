@@ -12,6 +12,7 @@ import { UtxoSupportedChainIds } from '.'
 import { getAdapterManager } from './adapters'
 import { SwapperManager } from './manager'
 import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper } from './swappers'
+import { fromBaseUnit } from './swappers/utils/bignumber'
 
 dotenv.config()
 
@@ -26,10 +27,6 @@ const toBaseUnit = (amount: BigNumber | string, precision: number): string => {
   return new BigNumber(amount)
     .multipliedBy(new BigNumber(10).exponentiatedBy(new BigNumber(precision)))
     .toString()
-}
-
-const fromBaseUnit = (amount: BigNumber | string, precision: number): string => {
-  return new BigNumber(amount).times(new BigNumber(10).exponentiatedBy(precision * -1)).toString()
 }
 
 const getWallet = async (): Promise<NativeHDWallet> => {
@@ -48,11 +45,11 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 
 const main = async (): Promise<void> => {
   const [, , ...args] = process.argv
-  const [sellSymbol, buySymbol, sellAmount] = args
+  const [sellSymbol, buySymbol, sellAmountBeforeFeesCryptoPrecision] = args
 
-  console.info(`sell ${sellAmount} of ${sellSymbol} to ${buySymbol}`)
+  console.info(`sell ${sellAmountBeforeFeesCryptoPrecision} of ${sellSymbol} to ${buySymbol}`)
 
-  if (!sellAmount || !sellSymbol || !buySymbol) {
+  if (!sellAmountBeforeFeesCryptoPrecision || !sellSymbol || !buySymbol) {
     console.error(`
       Usage:
       swapcli [sellSymbol] [buySymbol] [sellAmount](denominated in sell asset, not wei)
@@ -160,7 +157,10 @@ const main = async (): Promise<void> => {
       utxoAccountType,
     )
   }
-  const sellAmountBase = toBaseUnit(sellAmount, sellAsset.precision)
+  const sellAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
+    sellAmountBeforeFeesCryptoPrecision,
+    sellAsset.precision,
+  )
   const buyAssetReceiveAddr = await buyAdapter.getAddress({
     wallet,
     accountType: utxoAccountType,
@@ -173,7 +173,7 @@ const main = async (): Promise<void> => {
       chainId: sellAsset.chainId as UtxoSupportedChainIds,
       sellAsset,
       buyAsset,
-      sellAmountCryptoPrecision: sellAmountBase,
+      sellAmountBeforeFeesCryptoBaseUnit,
       sendMax: false,
       accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
       bip44Params,
@@ -190,12 +190,14 @@ const main = async (): Promise<void> => {
     return
   }
 
-  const buyAmount = fromBaseUnit(quote.buyAmountCryptoPrecision || '0', buyAsset.precision)
-
+  const buyAmountCryptoPrecision = fromBaseUnit(
+    quote.buyAmountCryptoBaseUnit || '0',
+    buyAsset.precision,
+  )
   const answer = readline.question(
-    `Swap ${sellAmount} ${sellAsset.symbol} for ${buyAmount} ${
-      buyAsset.symbol
-    } on ${swapper.getType()}? (y/n): `,
+    `Swap ${sellAmountBeforeFeesCryptoPrecision} ${
+      sellAsset.symbol
+    } for ${buyAmountCryptoPrecision} ${buyAsset.symbol} on ${swapper.getType()}? (y/n): `,
   )
   if (answer === 'y') {
     const trade = await swapper.buildTrade({
@@ -203,7 +205,7 @@ const main = async (): Promise<void> => {
       wallet,
       buyAsset,
       sendMax: false,
-      sellAmountCryptoPrecision: sellAmountBase,
+      sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
       receiveAddress: buyAssetReceiveAddr,
       accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,

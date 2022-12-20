@@ -40,7 +40,7 @@ describe('utils', () => {
       web3,
       erc20AllowanceAbi,
       allowanceContract: '0x0',
-      sellAmount: '100',
+      sellAmountExcludeFeeCryptoBaseUnit: '100',
       sellAsset,
     }
 

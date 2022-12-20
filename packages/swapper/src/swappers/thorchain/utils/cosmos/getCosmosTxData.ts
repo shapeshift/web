@@ -14,7 +14,7 @@ type GetCosmosTxDataInput = {
   bip44Params: BIP44Params
   destinationAddress: string
   deps: ThorchainSwapperDeps
-  sellAmountCryptoPrecision: string
+  sellAmountCryptoBaseUnit: string
   sellAsset: Asset
   buyAsset: Asset
   slippageTolerance: string
@@ -29,7 +29,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     bip44Params,
     deps,
     destinationAddress,
-    sellAmountCryptoPrecision,
+    sellAmountCryptoBaseUnit,
     sellAsset,
     buyAsset,
     slippageTolerance,
@@ -50,7 +50,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
 
   const limit = await getLimit({
     buyAssetId: buyAsset.assetId,
-    sellAmountCryptoPrecision,
+    sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
     deps,
@@ -68,12 +68,12 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
       case fromThorAsset:
         return await (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
           bip44Params,
-          value: sellAmountCryptoPrecision,
+          value: sellAmountCryptoBaseUnit,
           wallet,
           memo,
           chainSpecific: {
             gas: quote.feeData.chainSpecific.estimatedGas,
-            fee: quote.feeData.networkFee,
+            fee: quote.feeData.networkFeeCryptoBaseUnit,
           },
         })
       default:
@@ -85,14 +85,14 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
           })
         return await (sellAdapter as unknown as cosmos.ChainAdapter).buildSendTransaction({
           bip44Params,
-          value: sellAmountCryptoPrecision,
+          value: sellAmountCryptoBaseUnit,
           wallet,
           to: vault,
           memo,
           chainSpecific: {
             gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific
               .estimatedGas,
-            fee: quote.feeData.networkFee,
+            fee: quote.feeData.networkFeeCryptoBaseUnit,
           },
         })
     }

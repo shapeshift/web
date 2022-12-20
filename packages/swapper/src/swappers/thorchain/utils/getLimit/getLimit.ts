@@ -16,7 +16,7 @@ import { isRune } from '../isRune/isRune'
 export type GetLimitArgs = {
   buyAssetId: string
   sellAsset: Asset
-  sellAmountCryptoPrecision: string
+  sellAmountCryptoBaseUnit: string
   deps: ThorchainSwapperDeps
   slippageTolerance: string
   buyAssetTradeFeeUsd: string
@@ -25,12 +25,12 @@ export type GetLimitArgs = {
 export const getLimit = async ({
   sellAsset,
   buyAssetId,
-  sellAmountCryptoPrecision,
+  sellAmountCryptoBaseUnit,
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
 }: GetLimitArgs): Promise<string> => {
-  const tradeRate = await getTradeRate(sellAsset, buyAssetId, sellAmountCryptoPrecision, deps)
+  const tradeRate = await getTradeRate(sellAsset, buyAssetId, sellAmountCryptoBaseUnit, deps)
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
     .get(fromAssetId(buyAssetId).chainId)
@@ -45,7 +45,7 @@ export const getLimit = async ({
   const sellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
   const buyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
-    fromBaseUnit(bnOrZero(sellAmountCryptoPrecision).times(tradeRate), sellAsset.precision),
+    fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate), sellAsset.precision),
     THORCHAIN_FIXED_PRECISION,
   )
 

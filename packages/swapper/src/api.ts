@@ -12,14 +12,14 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: {
       estimatedGas?: string
-      gasPrice?: string
-      approvalFee?: string
+      gasPriceCryptoBaseUnit?: string
+      approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.AvalancheMainnet]: {
       estimatedGas?: string
-      gasPrice?: string
-      approvalFee?: string
+      gasPriceCryptoBaseUnit?: string
+      approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.BitcoinMainnet]: {
@@ -45,7 +45,7 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
 >
 
 export type QuoteFeeData<T extends ChainId> = {
-  networkFee: string // fee paid to the network from the fee asset
+  networkFeeCryptoBaseUnit: string // fee paid to the network from the fee asset
   buyAssetTradeFeeUsd: string // fee taken out of the trade from the buyAsset
   sellAssetTradeFeeUsd?: string // fee taken out of the trade from the sellAsset
 } & ChainSpecificQuoteFeeData<T>
@@ -67,7 +67,7 @@ export type SupportedSellAssetsInput = {
 type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountCryptoPrecision: string
+  sellAmountBeforeFeesCryptoBaseUnit: string
   sendMax: boolean
   receiveAddress: string
   bip44Params: BIP44Params
@@ -116,8 +116,8 @@ export type BuildTradeInput = GetTradeQuoteInput & {
 }
 
 interface TradeBase<C extends ChainId> {
-  buyAmountCryptoPrecision: string
-  sellAmountCryptoPrecision: string
+  buyAmountCryptoBaseUnit: string
+  sellAmountBeforeFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string
   sources: SwapSource[]

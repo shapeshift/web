@@ -127,18 +127,22 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
       await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, apiInput)
 
     const {
-      data: { quote },
+      data: {
+        quote: { sellAmount: sellAmountCryptoBaseUnit },
+      },
     } = quoteResponse
 
-    const sellCryptoAmount = bn(quote.sellAmount).div(bn(10).exponentiatedBy(asset.precision))
+    const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(asset.precision),
+    )
 
-    if (!sellCryptoAmount.gt(0))
+    if (!sellAmountCryptoPrecision.gt(0))
       throw new SwapError('[getUsdRate] - Failed to get sell token amount', {
         code: SwapErrorTypes.RESPONSE_ERROR,
       })
 
     // dividing $1000 by amount of sell token received
-    return bn(buyAmountInDollars).div(sellCryptoAmount).toString()
+    return bn(buyAmountInDollars).div(sellAmountCryptoPrecision).toString()
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {

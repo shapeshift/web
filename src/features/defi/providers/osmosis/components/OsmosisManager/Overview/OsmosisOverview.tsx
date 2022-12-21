@@ -1,0 +1,152 @@
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Center, useToast } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
+import type { OsmosisOpportunity } from '@shapeshiftoss/investor-osmosis'
+import { USDC_PRECISION } from 'constants/constants'
+import { Overview } from 'features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useOsmosis } from 'features/defi/contexts/OsmosisProvider/OsmosisProvider'
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByFilter,
+  selectSelectedLocale,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Osmosis', 'OsmosisOverview'],
+})
+
+export const OsmosisOverview: React.FC<{
+  accountId?: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+}> = ({ accountId, onAccountIdChange: handleAccountIdChange }) => {
+  const { osmosis: api } = useOsmosis()
+  const translate = useTranslate()
+  const toast = useToast()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const [opportunity, setOpportunity] = useState<OsmosisOpportunity | null>(null)
+  const { chainId, contractAddress: vaultAddress, assetReference } = query
+
+  const assetNamespace = 'slip44'
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const vaultTokenId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference: vaultAddress,
+  })
+  const asset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  const underlyingToken = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  // user info
+  const filter = useMemo(
+    () => ({ assetId: vaultTokenId, accountId: accountId ?? '' }),
+    [vaultTokenId, accountId],
+  )
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+
+  const amountAvailableCryptoPrecision = bnOrZero(balance).div(`1e${asset.precision}`)
+  const fiatAmountAvailable = bnOrZero(amountAvailableCryptoPrecision).times(marketData.price)
+
+  const selectedLocale = useAppSelector(selectSelectedLocale)
+  const descriptionQuery = useGetAssetDescriptionQuery({ assetId, selectedLocale })
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!(vaultAddress && api)) return
+        const [opportunity] = await Promise.all([
+          api.findByOpportunityId(
+            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
+          ),
+        ])
+        if (!opportunity) {
+          return toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+        setOpportunity(opportunity)
+      } catch (error) {
+        // TODO: handle client side errors
+        moduleLogger.error(error, 'OsmosisDeposit error')
+      }
+    })()
+  }, [api, vaultAddress, chainId, toast, translate])
+
+  const underlyingAssets = useMemo(
+    () => [
+      {
+        ...underlyingToken,
+        cryptoBalancePrecision: amountAvailableCryptoPrecision.toPrecision(),
+        allocationPercentage: '1',
+      },
+    ],
+    [amountAvailableCryptoPrecision, underlyingToken],
+  )
+
+  const description = useMemo(
+    () => ({
+      description: underlyingToken.description,
+      isLoaded: !descriptionQuery.isLoading,
+      isTrustedDescription: underlyingToken.isTrustedDescription,
+    }),
+    [descriptionQuery.isLoading, underlyingToken.description, underlyingToken.isTrustedDescription],
+  )
+
+  const menu = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+    ],
+    [],
+  )
+
+  if (!opportunity) {
+    return (
+      <Center minW='500px' minH='350px'>
+        <CircularProgress />
+      </Center>
+    )
+  }
+
+  return (
+    <Overview
+      accountId={accountId}
+      onAccountIdChange={handleAccountIdChange}
+      asset={asset}
+      name={`${underlyingToken.name} Vault (${opportunity.version})`}
+      opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
+      underlyingAssetsCryptoPrecision={underlyingAssets}
+      provider='Osmosis Finance'
+      description={description}
+      tvl={opportunity.tvl.balanceUsdc.div(`1e+${USDC_PRECISION}`).toString()}
+      apy={opportunity.apy.toString()}
+      menu={menu}
+    />
+  )
+}

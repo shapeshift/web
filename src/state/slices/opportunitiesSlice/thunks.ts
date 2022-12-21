@@ -116,6 +116,18 @@ export const fetchAllStakingOpportunitiesUserData = async (
         { forceRefetch: false, ...options },
       ),
     ),
+    ...store.dispatch(
+      getOpportunitiesUserData.initiate(
+        {
+          accountId,
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Osmosis,
+          opportunityType: DefiType.LiquidityPool,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
     ...foxEthStakingIds.map(opportunityId =>
       store.dispatch(
         getOpportunityUserData.initiate(

@@ -235,13 +235,13 @@ export const opportunitiesApi = createApi({
         try {
           const state: any = getState() // ReduxState causes circular dependency
           const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
-            defiType: DefiType.Staking,
-            defiProvider: DefiProvider.Idle,
+            defiType,
+            defiProvider,
           })
           const { data: opportunityIds } = selectOpportunityIds(state)
 
           if (!opportunityIds) {
-            throw new Error("Can't select idle staking OpportunityIds")
+            throw new Error(`Can't select ${defiProvider}::${defiType} staking OpportunityIds`)
           }
 
           const resolver = getOpportunitiesUserDataResolversByDefiProviderAndDefiType(

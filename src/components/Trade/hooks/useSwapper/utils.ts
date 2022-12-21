@@ -104,15 +104,13 @@ const getEvmFees = <T extends EvmChainId>(
   const gasPriceCryptoBaseUnit = bnOrZero(
     trade.feeData.chainSpecific.gasPriceCryptoBaseUnit,
   ).toString()
-  const estimatedGasCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific.estimatedGasCryptoBaseUnit,
-  ).toString()
+  const estimatedGasCryptoBaseUnit = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
 
   return {
     chainSpecific: {
       approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
       gasPriceCryptoBaseUnit,
-      estimatedGasCryptoBaseUnit,
+      estimatedGas: estimatedGasCryptoBaseUnit,
       totalFee: totalFeeCryptoPrecision,
     },
     tradeFeeSource,

@@ -159,7 +159,7 @@ export const useSwapper = () => {
     if (!quote) throw new Error('no quote available')
     const txid = isExactAllowance
       ? await bestTradeSwapper.approveAmount({
-          amountCryptoBaseUnit: quote.sellAmountBeforeFeesCryptoBaseUnit,
+          amount: quote.sellAmountBeforeFeesCryptoBaseUnit,
           quote,
           wallet,
         })
@@ -180,7 +180,10 @@ export const useSwapper = () => {
     if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(sellTradeAsset.amountCryptoPrecision, sellAsset.precision),
+      sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+        sellTradeAsset.amountCryptoPrecision,
+        sellAsset.precision,
+      ),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,

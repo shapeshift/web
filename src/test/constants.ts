@@ -97,7 +97,7 @@ export const ETHCHAIN_QUOTE = {
 export const ETHCHAIN_QUOTE_FEES: DisplayFeeData<KnownChainIds.EthereumMainnet> = {
   chainSpecific: {
     approvalFeeCryptoBaseUnit: '0',
-    estimatedGasCryptoBaseUnit: '424500',
+    estimatedGas: '424500',
     gasPriceCryptoBaseUnit: '361000000000',
     totalFee: '0.1532445',
   },

@@ -7,6 +7,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { utils } from 'ethers'
 import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
@@ -39,7 +40,7 @@ import {
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { BuildCustomTxInput, Fees } from './types'
-import { getErc20Data } from './utils'
+import { getErc20Data, getGeneratedAssetData } from './utils'
 
 export const evmChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet] as const
 
@@ -125,10 +126,24 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
       // Switch the chain on wallet before building/sending the Tx
       if (supportsEthSwitchChain(wallet)) {
-        const walletEvmChainId = await (wallet as ETHWallet).ethGetChainId?.()
-        const adapterEvmChainId = fromChainId(this.chainId).chainReference
-        if (!bnOrZero(walletEvmChainId).isEqualTo(adapterEvmChainId)) {
-          await (wallet as ETHWallet).ethSwitchChain?.(bnOrZero(adapterEvmChainId).toNumber())
+        const assets = await getGeneratedAssetData()
+        const feeAsset = assets[this.getFeeAssetId()]
+
+        const walletEthNetwork = await wallet.ethGetChainId?.()
+        const adapterEthNetwork = Number(fromChainId(this.chainId).chainReference)
+
+        if (!bnOrZero(walletEthNetwork).isEqualTo(adapterEthNetwork)) {
+          await wallet.ethSwitchChain?.({
+            chainId: utils.hexValue(adapterEthNetwork),
+            chainName: this.getDisplayName(),
+            nativeCurrency: {
+              name: feeAsset.name,
+              symbol: feeAsset.symbol,
+              decimals: 18,
+            },
+            rpcUrls: [this.getRpcUrl()],
+            blockExplorerUrls: [feeAsset.explorer],
+          })
         }
       }
       const { erc20ContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
@@ -276,6 +291,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
+      const assets = await getGeneratedAssetData()
+      const feeAsset = assets[this.getFeeAssetId()]
+      // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
+      // Switch the chain on wallet before building/sending the Tx
+      if (supportsEthSwitchChain(wallet)) {
+        const walletEthNetwork = await wallet.ethGetChainId?.()
+        const adapterEthNetwork = Number(fromChainId(this.chainId).chainReference)
+
+        if (typeof walletEthNetwork !== 'number') {
+          throw new Error('Error getting wallet ethNetwork')
+        }
+
+        if (!(walletEthNetwork === adapterEthNetwork)) {
+          await (wallet as ETHWallet).ethSwitchChain?.({
+            chainId: utils.hexValue(adapterEthNetwork),
+            chainName: this.getDisplayName(),
+            nativeCurrency: {
+              name: feeAsset.name,
+              symbol: feeAsset.symbol,
+              decimals: 18,
+            },
+            rpcUrls: [this.getRpcUrl()],
+            blockExplorerUrls: [feeAsset.explorer],
+          })
+        }
+      }
       const txHash = await (wallet as ETHWallet)?.ethSendTx?.(txToSign)
 
       if (!txHash) throw new Error('Error signing & broadcasting tx')

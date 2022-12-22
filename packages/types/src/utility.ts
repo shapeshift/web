@@ -26,3 +26,6 @@ type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMapping<T>>
 export type ChainSpecific<T, M> = UnionMerge<
   T extends unknown ? (T extends keyof M ? { chainSpecific: M[T] } : undefined) : never
 >
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>

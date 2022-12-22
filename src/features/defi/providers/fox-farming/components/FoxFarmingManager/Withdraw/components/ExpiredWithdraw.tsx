@@ -62,7 +62,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const rewardAmountCryptoPrecision = useMemo(
     () =>
       bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 1))
+        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0))
         .toFixed(),
     [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )

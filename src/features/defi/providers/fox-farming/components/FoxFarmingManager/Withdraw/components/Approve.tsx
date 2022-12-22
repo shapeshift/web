@@ -78,7 +78,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset?.precision ?? 1))
+          const allowance = bnOrZero(result).div(bn(10).pow(asset?.precision ?? 0))
           return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,

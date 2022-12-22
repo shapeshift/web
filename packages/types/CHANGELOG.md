@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v8.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.3.2...@shapeshiftoss/types-v8.3.3) (2022-12-22)
+
+
+### Bug Fixes
+
+* **chain-adapters:** switch chain on contract calls ([#1132](https://github.com/shapeshift/lib/issues/1132)) ([81d8857](https://github.com/shapeshift/lib/commit/81d8857dd6b148c4559e391526d4a28cc0cfc49f))
+
 # [@shapeshiftoss/types-v8.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.3.1...@shapeshiftoss/types-v8.3.2) (2022-10-19)
 
 # [@shapeshiftoss/types-v8.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.3.0...@shapeshiftoss/types-v8.3.1) (2022-09-16)

@@ -270,7 +270,9 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
         .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
         .toString(),
       isLoaded: true,
-      icons: opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).filter(isSome),
+      icons: opportunity.underlyingAssetIds
+        .map(assetId => assets[assetId]?.icon)
+        .map(icon => icon ?? ''),
       opportunityName: opportunity.name,
     }),
 )
@@ -320,7 +322,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
           isLoaded: true,
           icons: opportunity.underlyingAssetIds
             .map(assetId => assets[assetId]?.icon)
-            .filter(isSome),
+            .map(icon => icon ?? ''),
           opportunityName: opportunity.name,
         },
       )
@@ -357,7 +359,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               isLoaded: true,
               icons: opportunity.underlyingAssetIds
                 .map(assetId => assets[assetId]?.icon)
-                .filter(isSome),
+                .map(icon => icon ?? ''),
               opportunityName: opportunity.name,
             },
           )
@@ -461,7 +463,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
         .toString(),
       icons: opportunityMetadata.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
-        .filter(isSome),
+        .map(icon => icon ?? ''),
     }
 
     return opportunity
@@ -495,7 +497,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
       opportunityName: userStakingOpportunity.name,
       icons: userStakingOpportunity.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
-        .filter(isSome),
+        .map(icon => icon ?? ''),
     }
   },
 )
@@ -562,7 +564,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
         .toString(),
       icons: opportunityMetadata.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
-        .filter(isSome),
+        .map(icon => icon ?? ''),
       opportunityName: opportunityMetadata.name,
     }
 

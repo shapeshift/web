@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -83,8 +82,9 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const underlyingAssetsIcons: string[] = useMemo(
     () =>
-      opportunityData?.underlyingAssetIds.map(assetId => assets[assetId]?.icon).filter(isSome) ??
-      [],
+      opportunityData?.underlyingAssetIds
+        .map(assetId => assets[assetId]?.icon)
+        .map(icon => icon ?? '') ?? [],
     [assets, opportunityData?.underlyingAssetIds],
   )
 

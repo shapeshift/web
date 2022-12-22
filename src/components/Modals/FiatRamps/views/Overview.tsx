@@ -22,7 +22,6 @@ import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -37,7 +36,6 @@ import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
@@ -73,7 +71,6 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
-  const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const isPopupEnabled = useFeatureFlag('FiatPopup')

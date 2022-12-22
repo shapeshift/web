@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.5.0...@shapeshiftoss/chain-adapters-v10.5.1) (2022-12-22)
+
+
+### Bug Fixes
+
+* **chain-adapters:** switch chain on contract calls ([#1132](https://github.com/shapeshift/lib/issues/1132)) ([81d8857](https://github.com/shapeshift/lib/commit/81d8857dd6b148c4559e391526d4a28cc0cfc49f))
+
 # [@shapeshiftoss/chain-adapters-v10.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.4.0...@shapeshiftoss/chain-adapters-v10.5.0) (2022-12-08)
 
 

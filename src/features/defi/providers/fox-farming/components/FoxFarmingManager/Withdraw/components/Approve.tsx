@@ -88,7 +88,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
-        .div(bn(10).pow(feeAsset?.precision))
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,

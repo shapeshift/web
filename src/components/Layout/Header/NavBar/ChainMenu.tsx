@@ -89,6 +89,8 @@ export const ChainMenu = (props: ChainMenuProps) => {
 
         const requestedChainFeeAssetId = requestedChainChainAdapter.getFeeAssetId()
         const requestedChainFeeAsset = assets[requestedChainFeeAssetId]
+        if (!requestedChainFeeAsset)
+          throw new Error(`Asset not found for AssetId ${requestedChainFeeAssetId}`)
 
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({

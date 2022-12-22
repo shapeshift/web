@@ -70,7 +70,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     // Asset doesn't exist in portfolio, meaning this asset is bogus, e.g these two
     // https://etherscan.io/address/0xa0154a44c1c45bd007743fa622fd0da4f6d67d57
     // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
-    if (!asset) continue
+    if (!asset || !underlyingAsset) continue
 
     const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
     if (!baseOpportunity) {
@@ -86,7 +86,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           ...baseOpportunity,
           apy: opportunity.apy.toFixed(),
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
-          name: `${underlyingAsset?.symbol} Vault`,
+          name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
         }
       : {
@@ -107,7 +107,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
           underlyingAssetRatios: ['1'],
-          name: `${underlyingAsset?.symbol} Vault`,
+          name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
         }
   }

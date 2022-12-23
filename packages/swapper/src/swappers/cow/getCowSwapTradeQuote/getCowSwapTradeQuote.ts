@@ -22,6 +22,7 @@ import {
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,
 } from '../utils/helpers/helpers'
+
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
@@ -106,7 +107,13 @@ export async function getCowSwapTradeQuote(
       },
     } = quoteResponse
 
-    const rate = bn(buyAmountCryptoBaseUnit).div(sellAmountCryptoBaseUnit).toString()
+    const buyCryptoAmount = bn(buyAmountCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(buyAsset.precision),
+    )
+    const sellCryptoAmount = bn(sellAmountCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(sellAsset.precision),
+    )
+    const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
 
     const data = getApproveContractData({
       web3,

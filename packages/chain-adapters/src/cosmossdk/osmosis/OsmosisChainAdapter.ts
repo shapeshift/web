@@ -7,6 +7,8 @@ import { ErrorHandler } from '../../error/ErrorHandler'
 import {
   BuildClaimRewardsTxInput,
   BuildDelegateTxInput,
+  BuildLPAddTxInput,
+  BuildLPRemoveTxInput,
   BuildRedelegateTxInput,
   BuildSendTxInput,
   BuildUndelegateTxInput,
@@ -260,6 +262,56 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         value: {
           delegator_address: from,
           validator_address: validator,
+        },
+      }
+
+      return this.buildTransaction({ ...tx, account, msg })
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async buildLPAddTransaction(
+    tx: BuildLPAddTxInput<KnownChainIds.OsmosisMainnet>,
+  ): Promise<{ txToSign: OsmosisSignTx }> {
+    try {
+      const { wallet, bip44Params, poolId, shareOutAmount, tokenInMaxs } = tx
+
+      const from = await this.getAddress({ bip44Params, wallet })
+      const account = await this.getAccount(from)
+
+      const msg: Message = {
+        type: 'osmosis/gamm/join-pool',
+        value: {
+          sender: from,
+          poolId,
+          shareOutAmount,
+          tokenInMaxs,
+        },
+      }
+
+      return this.buildTransaction({ ...tx, account, msg })
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async buildLPRemoveTransaction(
+    tx: BuildLPRemoveTxInput<KnownChainIds.OsmosisMainnet>,
+  ): Promise<{ txToSign: OsmosisSignTx }> {
+    try {
+      const { wallet, bip44Params, poolId, shareOutAmount, tokenOutMins } = tx
+
+      const from = await this.getAddress({ bip44Params, wallet })
+      const account = await this.getAccount(from)
+
+      const msg: Message = {
+        type: 'osmosis/gamm/exit-pool',
+        value: {
+          sender: from,
+          poolId,
+          shareOutAmount,
+          tokenOutMins,
         },
       }
 

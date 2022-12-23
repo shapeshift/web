@@ -173,6 +173,19 @@ export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, '
   memo: string
 }
 
+type BuildLPTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to' | 'value'> & {
+  poolId: string
+  shareOutAmount: string
+}
+
+export type BuildLPAddTxInput<T extends ChainId> = BuildLPTxInput<T> & {
+  tokenInMaxs: [cosmossdk.CosmosSDKToken, cosmossdk.CosmosSDKToken]
+}
+
+export type BuildLPRemoveTxInput<T extends ChainId> = BuildLPTxInput<T> & {
+  tokenOutMins: [cosmossdk.CosmosSDKToken, cosmossdk.CosmosSDKToken]
+}
+
 export type SignTxInput<TxType> = {
   txToSign: TxType
   wallet: HDWallet

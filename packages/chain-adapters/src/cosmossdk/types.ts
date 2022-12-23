@@ -88,4 +88,9 @@ export type FeeData = {
   gasLimit: string
 }
 
+export type CosmosSDKToken = {
+  denom: string
+  amount: string
+}
+
 export type TransactionMetadata = unchained.cosmossdk.TxMetadata

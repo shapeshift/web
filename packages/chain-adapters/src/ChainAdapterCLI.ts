@@ -80,7 +80,7 @@ const adapters = {
   doge: dogeChainAdapter,
   eth: ethChainAdapter,
   cosmos: cosmosChainAdapter,
-  osmo: osmosisChainAdapter,
+  osmosis: osmosisChainAdapter,
   thorchain: thorchainChainAdapter,
 } as const
 
@@ -344,6 +344,133 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
   }
 }
 
+// @ts-ignore:nextLine
+const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
+  const chainAdapter = adapters.osmosis
+  const bip44Params: BIP44Params = { purpose: 44, coinType: 118, accountNumber: 0 }
+
+  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  console.log('osmosis: address:', address)
+
+  const account = await chainAdapter.getAccount(address)
+  console.log('osmosis: account:', account)
+
+  const txHistory = await chainAdapter.getTxHistory({ pubkey: address })
+  console.log('osmosis: txHistory:', txHistory)
+
+  const shapeshiftValidator = await chainAdapter.getValidator(
+    'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5',
+  )
+  console.log('osmosis: shapeshiftValidator:', shapeshiftValidator)
+
+  await chainAdapter.subscribeTxs(
+    { wallet, bip44Params },
+    (msg) => console.log('osmosis: tx:', msg),
+    (err) => console.log(err),
+  )
+
+  // send osmosis example
+  try {
+    const feeData = await chainAdapter.getFeeData({ sendMax: false })
+    const fee = '10' // increase if taking too long
+    const gas = feeData.slow.chainSpecific.gasLimit
+
+    const unsignedTx = await chainAdapter.buildSendTransaction({
+      to: 'osmo1thd6u0ezp96fn5fm8zeg6ef26gz4edu34800ev',
+      value: '99000',
+      wallet,
+      bip44Params,
+      chainSpecific: { gas, fee },
+    })
+
+    // delegate osmosis example
+    // const unsignedTx = await chainAdapter.buildDelegateTransaction({
+    //   validator: 'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5', // ShapeShift DAO validator
+    //   value: '100000000000',
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    // undelegate osmosis example
+    // const unsignedTx = await chainAdapter.buildUndelegateTransaction({
+    //   validator: 'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5', // ShapeShift DAO validator
+    //   value: '100000000000',
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    // redelegate osmosis example
+    // const unsignedTx = await chainAdapter.buildRedelegateTransaction({
+    //   fromValidator: 'osmovaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpf6t4agt', // Figment validator
+    //   toValidator: 'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5', // ShapeShift DAO validator
+    //   value: '100000000000',
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    // claim osmosis rewards example
+    // const unsignedTx = await chainAdapter.buildClaimRewardsTransaction({
+    //   validator: 'osmovaloper1xf9zpq5kpxks49cg606tzd8qstaykxgt2vs0d5', // ShapeShift DAO validator
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    // add osmosis liquidity example
+    // const unsignedTx = await chainAdapter.buildLPAddTransaction({
+    //   poolId: '1',
+    //   shareOutAmount: '8362622348614042193',
+    //   tokenInMaxs: [
+    //     {
+    //       amount: '100346',
+    //       denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    //     },
+    //     {
+    //       amount: '1032378',
+    //       denom: 'uosmo',
+    //     },
+    //   ],
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    // remove osmosis liquidity example
+    // const unsignedTx = await chainAdapter.buildLPRemoveTransaction({
+    //   poolId: '1',
+    //   shareOutAmount: '8362622348614042193',
+    //   tokenOutMins: [
+    //     {
+    //       amount: '143697',
+    //       denom: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    //     },
+    //     {
+    //       amount: '1478380',
+    //       denom: 'uosmo',
+    //     },
+    //   ],
+    //   wallet,
+    //   bip44Params,
+    //   chainSpecific: { gas, fee },
+    // })
+
+    console.log('cosmos: unsignedTx:', JSON.stringify(unsignedTx, null, 2))
+
+    if (broadcast) {
+      const txid = await chainAdapter.signAndBroadcastTransaction({
+        wallet,
+        txToSign: unsignedTx.txToSign,
+      })
+      console.log('cosmos: txid:', txid)
+    }
+  } catch (err) {
+    console.log('cosmos: tx error:', err.message)
+  }
+}
+
 const main = async () => {
   try {
     const wallet = await getWallet()
@@ -352,6 +479,7 @@ const main = async () => {
     await testEthereum(wallet)
     await testCosmos(wallet)
     await testThorchain(wallet)
+    await testOsmosis(wallet)
   } catch (err) {
     console.error(err)
   }

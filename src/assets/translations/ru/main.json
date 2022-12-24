@@ -79,8 +79,12 @@
     "unsupportedNetwork": "Неподдерживаемая сеть",
     "chartUnavailable": "Данные графика баланса временно недоступны для %{unavailableAssetNames}.",
     "search": "Поиск",
+    "searchAsset": "Поиск актива",
     "enterAmount": "Ввести сумму",
-    "pageNotFound": "Страница, которую вы ищете, не найдена"
+    "pageNotFound": "Страница, которую вы ищете, не найдена",
+    "buySell": "Купить/Продать",
+    "all": "Все",
+    "viewAll": "Посмотреть все"
   },
   "errorPage": {
     "title": "Упс!",
@@ -144,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Торговля",
-      "bridge": "Мост"
+      "bridge": "Мост",
+      "earn": "Заработать"
     }
   },
   "fiatRamps": {
@@ -173,6 +178,8 @@
     "usOnly": "Только для США",
     "noKYC": "НЕТ KYC",
     "nonUS": "НЕ США",
+    "buyWith": "Купить за",
+    "sellFor": "Продать за",
     "availableProviders": "Доступные провайдеры",
     "noProvidersAvailable": "Провайдеры отсутствуют",
     "noProvidersBody": "Похоже, у нас пока нет провайдеров для этого актива.",
@@ -295,6 +302,8 @@
     "stakedAmount": "Сумма стейкинга",
     "unstakeFrom": "Снять со стейкинга от",
     "gasFee": "Комиссия за газ",
+    "provider": "Провайдер",
+    "currentTvl": "Текущее TVL",
     "unbondInfoItWillTake": "Пока ваши токены находятся в стейкинге, вы не сможете перевести или потратить их. Чтобы разблокировать их после снятия стейкинга, потребуется %{unbondingDays} дней.",
     "unbondInfoItWillTakeShort": "Для отмены стейкинга токенов потребуется %{unbondingDays} дней.",
     "confirmAndBroadcast": "Подтвердить и отправить",
@@ -305,6 +314,7 @@
     "amountStaked": "Сума стейка",
     "assetStaking": "%{assetName} Стейкинг",
     "stake": "Стейкинг",
+    "version": "Версия",
     "unstake": "Снять со стейкинга",
     "stakeAsset": "Стейкать %{assetSymbol}",
     "unstakeAsset": "Снять со стейка %{assetSymbol}",
@@ -323,6 +333,8 @@
     "ended": "Завершено",
     "balance": "Баланс",
     "defi": "DeFi",
+    "startEarning": "Начать зарабатывать",
+    "eligibleOpportunities": "Подходящие возможности",
     "defiBody": "Исследуйте растущую вселенную возможностей DeFi.",
     "netWorth": "Чистая стоимость",
     "walletBalance": "Баланс кошелька",
@@ -523,6 +535,8 @@
     "noRateAvailable": "Тариф не предусмотрен.",
     "previewTrade": "Предварительный просмотр торгов",
     "rate": "Курс",
+    "tradeFrom": "Обменять от",
+    "tradeTo": "Обменять на",
     "minerFee": "Комиссия майнеров",
     "protocolFee": "Комиссия за протокол",
     "protocol": "Протокол",
@@ -676,6 +690,10 @@
         "header": "Скачать KeepKey Updater",
         "button": "Скачать %{filename}",
         "wrongPlatform": "Не используете %{platform}? Нажмите здесь"
+      },
+      "disconnect": {
+        "header": "Отключить устройство KeepKey",
+        "body": "К сожалению, при восстановлении/настройке вашего устройства KeepKey произошла ошибка. Пожалуйста, отключите и снова подключите устройство и попробуйте настроить устройство KeepKey еще раз. Если проблема сохраняется, обратитесь в службу поддержки KeepKey."
       }
     },
     "shapeShift": {

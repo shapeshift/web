@@ -31,7 +31,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -68,11 +68,14 @@ export const Approval = () => {
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
 
-  const fee = fees?.chainSpecific.approvalFee
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
+  )
+
+  const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
+    bn(10).pow(sellFeeAsset.precision),
   )
 
   const approveContract = useCallback(async () => {
@@ -251,13 +254,15 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <RawText>
                     {toFiat(
-                      bnOrZero(fee)
+                      approvalFeeCryptoPrecision
                         .times(feeAssetFiatRate ?? 1)
                         .times(selectedCurrencyToUsdRate)
                         .toString(),
                     )}
                   </RawText>
-                  <RawText color='gray.500'>{toCrypto(Number(fee), sellFeeAsset?.symbol)}</RawText>
+                  <RawText color='gray.500'>
+                    {toCrypto(approvalFeeCryptoPrecision.toNumber(), sellFeeAsset?.symbol)}
+                  </RawText>
                 </Row.Value>
               </Row>
             </Flex>

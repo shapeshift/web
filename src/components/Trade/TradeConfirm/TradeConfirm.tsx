@@ -94,8 +94,8 @@ export const TradeConfirm = () => {
   )
 
   const reset = useCallback(() => {
-    setValue('buyTradeAsset.amount', '')
-    setValue('sellTradeAsset.amount', '')
+    setValue('buyTradeAsset.amountCryptoPrecision', '')
+    setValue('sellTradeAsset.amountCryptoPrecision', '')
     setValue('fiatSellAmount', '')
   }, [setValue])
 
@@ -293,7 +293,7 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyTradeAsset?.amount ?? ''}
+          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
           beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
@@ -304,7 +304,7 @@ export const TradeConfirm = () => {
       </Stack>
     ),
     [
-      buyTradeAsset?.amount,
+      buyTradeAsset?.amountCryptoPrecision,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,

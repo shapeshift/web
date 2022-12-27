@@ -6,6 +6,7 @@ import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
+import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -26,8 +27,6 @@ import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
-
-const assetIdPaths = ['/:chainId/:assetSubId', '/:chainId/:assetSubId/pool/:poolId']
 
 export const routes: NestedRoute[] = [
   {

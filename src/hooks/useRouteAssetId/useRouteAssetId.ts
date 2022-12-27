@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
+export const assetIdPaths = ['/:chainId/:assetSubId', '/:chainId/:assetSubId/pool/:poolId']
+
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
   const assetIdAssetsPathMatch = matchPath<{
@@ -12,7 +14,7 @@ const getRouteAssetId = (pathname: string) => {
     assetSubId: string
     poolId?: string
   }>(pathname, {
-    path: ['/assets/:chainId/:assetSubId/pool/:poolId', '/assets/:chainId/:assetSubId'],
+    path: assetIdPaths.map(path => `/assets${path}`),
   })
 
   const assetIdAccountsPathMatch = matchPath<{

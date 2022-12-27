@@ -1,4 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import {
   type Swapper,
@@ -119,13 +120,26 @@ export const useSwapper = () => {
   }, [bestTradeSwapper])
 
   const getReceiveAddressFromBuyAsset = useCallback(
-    (buyAsset: Asset) => {
+    async (buyAsset: Asset) => {
       if (!buyAssetAccountId) return
       if (!buyAccountMetadata) return
       const { accountType, bip44Params } = buyAccountMetadata
       if (isUtxoAccountId(buyAssetAccountId) && !accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAssetAccountId}`)
-      return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
+      const buyAssetChainId = buyAsset.chainId
+      const buyAssetAccountChainId = fromAccountId(buyAssetAccountId).chainId
+      /**
+       * do NOT remove
+       * super dangerous - don't use the wrong bip44 params to generate receive addresses
+       */
+      if (buyAssetChainId !== buyAssetAccountChainId) return
+      const receiveAddress = await getReceiveAddress({
+        asset: buyAsset,
+        wallet,
+        bip44Params,
+        accountType,
+      })
+      return receiveAddress
     },
     [buyAssetAccountId, buyAccountMetadata, wallet],
   )

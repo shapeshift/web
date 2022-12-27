@@ -27,6 +27,8 @@ import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
 
+const assetIdPaths = ['/:chainId/:assetSubId', '/:chainId/:assetSubId/pool/:poolId']
+
 export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
@@ -41,27 +43,25 @@ export const routes: NestedRoute[] = [
     main: Assets,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
-    routes: [
-      {
-        path: '/:chainId/:assetSubId',
-        label: 'Overview',
-        icon: <AssetsIcon />,
-        main: null,
-        hide: true,
-        routes: [
-          {
-            path: '/',
-            label: 'navBar.overview',
-            main: Asset,
-          },
-          {
-            path: '/transactions',
-            label: 'navBar.transactions',
-            main: AssetTxHistory,
-          },
-        ],
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: assetIdPath,
+      label: 'Overview',
+      icon: <AssetsIcon />,
+      main: null,
+      hide: true,
+      routes: [
+        {
+          path: '/',
+          label: 'navBar.overview',
+          main: Asset,
+        },
+        {
+          path: '/transactions',
+          label: 'navBar.transactions',
+          main: AssetTxHistory,
+        },
+      ],
+    })),
   },
   {
     path: '/accounts',

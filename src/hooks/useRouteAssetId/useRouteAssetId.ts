@@ -7,8 +7,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
-  const assetIdAssetsPathMatch = matchPath<{ chainId: string; assetSubId: string }>(pathname, {
-    path: '/assets/:chainId/:assetSubId',
+  const assetIdAssetsPathMatch = matchPath<{
+    chainId: string
+    assetSubId: string
+    poolId?: string
+  }>(pathname, {
+    path: ['/assets/:chainId/:assetSubId/pool/:poolId', '/assets/:chainId/:assetSubId'],
   })
 
   const assetIdAccountsPathMatch = matchPath<{
@@ -21,10 +25,10 @@ const getRouteAssetId = (pathname: string) => {
   })
 
   if (assetIdAssetsPathMatch?.params) {
-    const { chainId, assetSubId } = assetIdAssetsPathMatch.params
+    const { chainId, assetSubId, poolId = undefined } = assetIdAssetsPathMatch.params
 
     // Reconstitutes the assetId from valid matched params
-    const assetId = `${chainId}/${assetSubId}`
+    const assetId = `${chainId}/${assetSubId}${poolId && `/pool/${poolId}`}`
     return assetId
   }
 

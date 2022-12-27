@@ -4,7 +4,7 @@ export enum LanguageTypeEnum {
   /** Español */
   es = 'es',
   /** український */
-  ua = 'ua',
+  uk = 'uk',
   /** हिंदी */
   hi = 'hi',
   /** 日本語 */

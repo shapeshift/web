@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
-export const assetIdPaths = ['/:chainId/:assetSubId', '/:chainId/:assetSubId/pool/:poolId']
+// From most to least specific
+export const assetIdPaths = ['/:chainId/:assetSubId/pool/:poolId', '/:chainId/:assetSubId']
 
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx

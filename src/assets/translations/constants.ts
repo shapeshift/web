@@ -29,6 +29,6 @@ export const locales = [
   },
   {
     key: 'uk',
-    label: 'український',
+    label: 'українська',
   },
 ]

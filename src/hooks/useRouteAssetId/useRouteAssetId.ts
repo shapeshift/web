@@ -31,6 +31,7 @@ const getRouteAssetId = (pathname: string) => {
     const { chainId, assetSubId, poolId = undefined } = assetIdAssetsPathMatch.params
 
     // Reconstitutes the assetId from valid matched params
+    // If it's an Osmosis pool asset we need to add the pool segment and poolId attribute
     const assetId = `${chainId}/${assetSubId}${poolId ? `/pool/${poolId}` : ''}`
     return assetId
   }

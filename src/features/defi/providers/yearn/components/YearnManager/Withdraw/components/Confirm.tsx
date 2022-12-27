@@ -1,7 +1,9 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -9,22 +11,26 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useContext, useMemo } from 'react'
+import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -34,41 +40,71 @@ import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
+  namespace: ['Defi', 'Providers', 'Yearn', 'YearnManager', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
-  onNext,
-  accountId,
-}) => {
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
+  const [yearnOpportunity, setYearnOpportunity] = useState<YearnOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
+  const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeAssetId = chainAdapter?.getFeeAssetId()
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  useEffect(() => {
+    if (!opportunityData?.assetId) return
+    ;(async () => {
+      setYearnOpportunity(await yearnInvestor.findByOpportunityId(opportunityData.assetId))
+    })()
+  }, [yearnInvestor, opportunityData?.assetId, setYearnOpportunity])
+
+  const asset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.assetId ?? ''),
+  )
+
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const { state: walletState } = useWallet()
@@ -81,36 +117,29 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   const handleConfirm = useCallback(async () => {
-    if (
-      !(
-        dispatch &&
-        bip44Params &&
-        accountAddress &&
-        assetReference &&
-        walletState.wallet &&
-        supportsETH(walletState.wallet) &&
-        opportunity
-      )
-    )
-      return
-
+    if (!dispatch || !bip44Params) return
     try {
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-      const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
+      if (
+        !(
+          userAddress &&
+          walletState?.wallet &&
+          assetReference &&
+          supportsETH(walletState.wallet) &&
+          opportunity &&
+          chainAdapter &&
+          opportunityData?.assetId &&
+          asset
+        )
       )
+        return
+      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
       if (!yearnOpportunity) throw new Error('No opportunity')
+
+      const yearnAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
       const tx = await yearnOpportunity.prepareWithdrawal({
-        address: accountAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
+        address: userAddress,
+        amount: bn(toBaseUnit(yearnAssetWithdrawAmountCryptoHuman, asset.precision)),
       })
       const txid = await yearnOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
@@ -127,34 +156,30 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    asset.precision,
-    assetReference,
-    bip44Params,
     dispatch,
-    onNext,
-    opportunity,
-    state?.opportunity,
-    accountAddress,
-    state?.withdraw.cryptoAmount,
+    bip44Params,
+    userAddress,
     walletState.wallet,
-    yearnInvestor,
+    assetReference,
+    opportunity,
+    chainAdapter,
+    opportunityData?.assetId,
+    asset,
+    yearnOpportunity,
+    state?.withdraw.cryptoAmount,
+    onNext,
   ])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
   }, [onNext])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
-
-  const notEnoughGasTranslation = useMemo(
+  const hasEnoughBalanceForGas = useMemo(
     () =>
-      ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }] as [
-        string,
-        InterpolationOptions,
-      ],
-    [feeAsset.symbol],
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
   )
 
   if (!state || !dispatch) return null
@@ -175,11 +200,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset.icon} />
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -209,7 +234,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={notEnoughGasTranslation} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
           </Alert>
         )}
       </Summary>

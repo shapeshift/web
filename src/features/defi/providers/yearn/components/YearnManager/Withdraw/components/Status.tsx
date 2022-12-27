@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -17,26 +16,27 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type StatusProps = {
-  accountId?: AccountId | undefined
-}
-
-export const Status: React.FC<StatusProps> = ({ accountId }) => {
+export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
-
-  const externalLinkIcon = useMemo(() => <ExternalLinkIcon />, [])
+  const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
+
+  const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -44,11 +44,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -58,15 +53,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountId && accountAddress?.length)) return ''
-    return serializeTxIndex(accountId, state.txid, accountAddress)
-  }, [state?.txid, accountAddress, accountId])
+    if (!(state?.txid && userAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -138,10 +132,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -189,7 +183,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={externalLinkIcon}
+            rightIcon={<ExternalLinkIcon />}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

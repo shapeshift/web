@@ -28,7 +28,7 @@ const getRouteAssetId = (pathname: string) => {
     const { chainId, assetSubId, poolId = undefined } = assetIdAssetsPathMatch.params
 
     // Reconstitutes the assetId from valid matched params
-    const assetId = `${chainId}/${assetSubId}${poolId && `/pool/${poolId}`}`
+    const assetId = `${chainId}/${assetSubId}${poolId ? `/pool/${poolId}` : ''}`
     return assetId
   }
 

@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -17,24 +16,25 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type StatusProps = {
-  accountId: AccountId | undefined
-}
-
-export const Status: React.FC<StatusProps> = ({ accountId }) => {
+export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
-  const assetId = state?.opportunity?.underlyingAsset.assetId || 'undefined'
+  const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
 
   // TODO: We need to get the fee asset from the Opportunity
   const feeAssetId = toAssetId({
@@ -47,15 +47,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountId && accountAddress?.length)) return ''
-    return serializeTxIndex(accountId, state.txid, accountAddress)
-  }, [state?.txid, accountAddress, accountId])
+    if (!(state?.txid && userAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -78,8 +76,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  const { statusIcon, statusText, statusBg, statusBody } = useMemo(() => {
-    switch (state?.deposit.txStatus) {
+  if (!state) return null
+
+  const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    switch (state.deposit.txStatus) {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
@@ -104,11 +104,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusBg: 'transparent',
         }
     }
-  }, [asset?.icon, asset.name, state?.deposit.txStatus, translate])
-
-  const externalLinkIcon = useMemo(() => <ExternalLinkIcon />, [])
-
-  if (!state) return null
+  })()
 
   return (
     <TxStatus
@@ -180,7 +176,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             isExternal
             variant='ghost-filled'
             colorScheme='green'
-            rightIcon={externalLinkIcon}
+            rightIcon={<ExternalLinkIcon />}
             href={`${asset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}

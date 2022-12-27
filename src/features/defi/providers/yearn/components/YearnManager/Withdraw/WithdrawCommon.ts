@@ -1,5 +1,5 @@
-import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -11,14 +11,8 @@ type YearnWithdrawValues = WithdrawValues &
     usedGasFee: string
   }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-type SerializableOpportunity = Omit<
-  YearnOpportunity,
-  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
->
-
 export type YearnWithdrawState = {
-  opportunity: SerializableOpportunity | null
+  opportunity: StakingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   withdraw: YearnWithdrawValues
@@ -37,7 +31,7 @@ export enum YearnWithdrawActionType {
 
 type SetOpportunityAction = {
   type: YearnWithdrawActionType.SET_OPPORTUNITY
-  payload: YearnOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetWithdraw = {

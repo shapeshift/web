@@ -1,11 +1,10 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import type { PropsWithChildren } from 'react'
 import React, { useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
-import { getYearnInvestor } from 'lib/yearnInvestorSingleton'
 const moduleLogger = logger.child({ namespace: ['YearnProvider'] })
 
 type YearnContextProps = {
@@ -31,10 +30,7 @@ export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
       try {
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
-        const chainAdapter = chainAdapterManager.get(
-          KnownChainIds.EthereumMainnet,
-        ) as ChainAdapter<KnownChainIds.EthereumMainnet>
-        const yearnInvestor = getYearnInvestor(chainAdapter)
+        const yearnInvestor = getYearnInvestor()
         await yearnInvestor.initialize()
         setYearn(yearnInvestor)
       } catch (error) {

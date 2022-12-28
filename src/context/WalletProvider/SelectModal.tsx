@@ -5,6 +5,7 @@ import {
   Flex,
   Grid,
   ModalBody,
+  ModalFooter,
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -22,12 +23,14 @@ export const SelectModal = () => {
     state: { adapters, walletInfo },
     connect,
     create,
+    importWallet,
   } = useWallet()
   const translate = useTranslate()
 
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
   const greenColor = useColorModeValue('green.500', 'green.200')
   const activeBg = useColorModeValue('gray.200', 'gray.900')
+  const borderColor = useColorModeValue('gray.200', 'gray.750')
 
   return (
     <>
@@ -94,25 +97,43 @@ export const SelectModal = () => {
               )
             })}
         </Grid>
-        <Flex direction={['column', 'row']} mt={2} justifyContent='center' alignItems='center'>
-          <Text
-            mb={[3]}
-            color='gray.500'
-            translation={walletInfo?.name ? 'common.or' : 'walletProvider.selectModal.footer'}
-          />
-          <Button
-            variant='link'
-            mb={[3]}
-            ml={[0, 1.5]}
-            borderTopRadius='none'
-            colorScheme='blue'
-            onClick={() => create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)}
-            data-test='connect-wallet-create-one-button'
-          >
-            {translate('walletProvider.selectModal.create')}
-          </Button>
-        </Flex>
       </ModalBody>
+      <ModalFooter
+        borderTopWidth={1}
+        pt={4}
+        justifyContent='center'
+        mx={-3}
+        mb={-6}
+        borderColor={borderColor}
+      >
+        <Flex direction={['column', 'row']} justifyContent='center' alignItems='center' gap={2}>
+          {!walletInfo?.name && (
+            <Text color='gray.500' translation={'walletProvider.selectModal.footer'} />
+          )}
+
+          <Flex gap={1} alignItems='center'>
+            <Button
+              variant='link'
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={() => create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)}
+              data-test='connect-wallet-create-one-button'
+            >
+              {translate('walletProvider.selectModal.create')}
+            </Button>
+            <Text translation='common.or' color='gray.500' />
+            <Button
+              variant='link'
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={() => importWallet(isMobileApp ? KeyManager.Mobile : KeyManager.Native)}
+              data-test='connect-wallet-import-one-button'
+            >
+              {translate('walletProvider.selectModal.import')}
+            </Button>
+          </Flex>
+        </Flex>
+      </ModalFooter>
     </>
   )
 }

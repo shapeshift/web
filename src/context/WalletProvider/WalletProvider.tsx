@@ -839,6 +839,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
+  const importWallet = useCallback((type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('import'),
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string,
+      })
+    }
+  }, [])
+
   const setDeviceState = useCallback((deviceState: Partial<DeviceState>) => {
     dispatch({
       type: WalletActions.SET_DEVICE_STATE,
@@ -858,13 +871,24 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch,
       connect,
       create,
+      importWallet,
       disconnect,
       load,
       setDeviceState,
       onProviderChange,
       connectDemo,
     }),
-    [state, connect, create, disconnect, load, setDeviceState, connectDemo, onProviderChange],
+    [
+      state,
+      connect,
+      create,
+      importWallet,
+      disconnect,
+      load,
+      setDeviceState,
+      connectDemo,
+      onProviderChange,
+    ],
   )
 
   return (

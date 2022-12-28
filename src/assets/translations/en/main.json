@@ -1294,7 +1294,8 @@
       "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
-      "create": "Create one"
+      "create": "Create",
+      "import": "Import a wallet"
     }
   },
   "graph": {

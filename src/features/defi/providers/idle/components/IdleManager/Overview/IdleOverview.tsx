@@ -16,13 +16,13 @@ import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { BASE_OPPORTUNITIES_BY_ID } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
-import type { OpportunityMetadata, TagDescription } from 'state/slices/opportunitiesSlice/types'
+import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -51,8 +51,9 @@ const defaultMenu: DefiButtonProps[] = [
 
 export type OpportunityById = typeof BASE_OPPORTUNITIES_BY_ID
 
-type BaseOpportunityKeys = keyof typeof BASE_OPPORTUNITIES_BY_ID
-type Tags = typeof BASE_OPPORTUNITIES_BY_ID[BaseOpportunityKeys]['']
+// Tried to get this using TS to be dynamic but can't seem to get it to work
+// Manually setting this to the tags we know of here.
+type Tags = 'Best Yield' | 'Junior Tranche' | 'Senior Tranche'
 
 const IdleTagDescriptions: Record<Tags, TagDescription> = {
   'Best Yield': {
@@ -214,16 +215,16 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
 
   const renderTags = useMemo(() => {
     return opportunityData?.tags?.map(tag => {
-      if (IdleTagDescriptions[tag]) {
-        const tagDetails = IdleTagDescriptions[tag]
+      if (IdleTagDescriptions[tag as Tags]) {
+        const tagDetails = IdleTagDescriptions[tag as Tags]
         return (
-          <Flex flexDir='column' px={8} py={4}>
+          <Flex flexDir='column' px={8} py={4} key={tag}>
             <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
             <Text color='gray.500' translation={tagDetails.description} />
           </Flex>
         )
       }
-      return <Tag>{tag}</Tag>
+      return <Tag key={tag}>{tag}</Tag>
     })
   }, [opportunityData?.tags])
 

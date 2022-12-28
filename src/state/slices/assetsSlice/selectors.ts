@@ -22,6 +22,8 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
+import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
+
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
@@ -40,15 +42,15 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
-export const selectAssetsByMarketCap = createSelector(
+export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
   selectCryptoMarketDataIdsSortedByMarketCap,
-  (assetsByIdOriginal, marketDataIds) => {
+  (assetsByIdOriginal, sortedMarketDataIds) => {
     const assetById = cloneDeep(assetsByIdOriginal)
     // we only prefetch market data for some
     // and want this to be fairly performant so do some mutatey things
     // market data ids are already sorted by market cap
-    const sortedWithMarketCap = marketDataIds.reduce<Asset[]>((acc, cur) => {
+    const sortedWithMarketCap = sortedMarketDataIds.reduce<Asset[]>((acc, cur) => {
       const asset = assetById[cur]
       if (!asset) return acc
       acc.push(asset)
@@ -58,6 +60,18 @@ export const selectAssetsByMarketCap = createSelector(
     const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
     return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
   },
+)
+
+export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  (sortedAssets: Asset[]): ChainId[] =>
+    sortedAssets.reduce<ChainId[]>((acc, { assetId }) => {
+      const feeAssetId = assetIdToFeeAssetId(assetId)
+      if (feeAssetId !== assetId) return acc
+      const { chainId } = fromAssetId(feeAssetId)
+      if (!acc.includes(chainId)) acc.push(chainId)
+      return acc
+    }, []),
 )
 
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById

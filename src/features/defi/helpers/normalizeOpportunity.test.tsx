@@ -3,11 +3,9 @@ import { renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'
 
-jest.mock('pages/Defi/hooks/useVaultBalances')
 jest.mock('@shapeshiftoss/investor-yearn')
 jest.mock('pages/Defi/hooks/useFoxyBalances')
 
@@ -60,7 +58,6 @@ function setup({
       useNormalizeOpportunities({
         cosmosSdkStakingOpportunities: cosmosStakingOpportunities ?? [],
         foxyArray: [],
-        vaultArray: [],
       }),
     { wrapper },
   )
@@ -68,14 +65,6 @@ function setup({
 }
 
 describe('useNormalizeOpportunities', () => {
-  beforeEach(() => {
-    ;(useVaultBalances as jest.Mock<unknown>).mockImplementation(() => ({
-      vaults: [],
-      totalBalance: '0',
-      loading: false,
-    }))
-  })
-
   it('returns empty arrays when provided with empty arrays', () => {
     const { result } = setup()
     expect(result.current).toEqual([])

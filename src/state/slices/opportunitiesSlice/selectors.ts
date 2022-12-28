@@ -26,7 +26,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectWalletAccountIds,
 } from '../common-selectors'
-import { selectMarketData } from '../marketDataSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from '../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
 import type {
   GroupedEligibleOpportunityReturnType,
@@ -260,7 +260,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 
 export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunityByStakingId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (opportunity, marketData, assets): StakingEarnOpportunityType | undefined =>
     opportunity &&
@@ -290,7 +290,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => {
@@ -404,7 +404,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceByFilter,
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
@@ -466,7 +466,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 // TODO: testme
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectAssets,
   (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
@@ -499,7 +499,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectAssets,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
@@ -682,7 +682,8 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
       const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
         bnOrZero(assetBalances[assetId]).gt(0),
       )
-      if (hasBalance && !opportunity.expired) acc.push(opportunity)
+      const hasOpportunityBalance = bnOrZero(opportunity.fiatAmount).gt(0)
+      if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
       return acc
     }, [])
     return eligibleOpportunities

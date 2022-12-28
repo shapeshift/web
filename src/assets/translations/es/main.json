@@ -79,8 +79,12 @@
     "unsupportedNetwork": "Red No Soportada",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
+    "searchAsset": "Buscar activo",
     "enterAmount": "Ingrese la cantidad",
-    "pageNotFound": "La página que buscas no se encuentra"
+    "pageNotFound": "La página que buscas no se encuentra",
+    "buySell": "Comprar/Vender",
+    "all": "Todo",
+    "viewAll": "Ver todo"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -144,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Intercambiar",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Gane"
     }
   },
   "fiatRamps": {
@@ -173,6 +178,8 @@
     "usOnly": "Solamente - EEUU",
     "noKYC": "SIN KYC",
     "nonUS": "NO-USA",
+    "buyWith": "Compra con",
+    "sellFor": "Vender por",
     "availableProviders": "Proveedores Disponibles",
     "noProvidersAvailable": "No hay Proveedores Disponibles",
     "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso.",
@@ -295,6 +302,8 @@
     "stakedAmount": "Monto en Stake",
     "unstakeFrom": "Unstake desde",
     "gasFee": "Tarifa de Gas",
+    "provider": "Proveedor",
+    "currentTvl": "TVL actual",
     "unbondInfoItWillTake": "Mientras sus tokens estén en Staking, no podrá transferirlos ni gastarlos. Tomará %{unbondingDays} días desbloquearlos después de Unstaking.",
     "unbondInfoItWillTakeShort": "Tardará %{unbondingDays} días en unstake sus tokens",
     "confirmAndBroadcast": "Confirmar y transmitir",
@@ -305,6 +314,7 @@
     "amountStaked": "Cantidad Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
+    "version": "Versión",
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
@@ -323,6 +333,8 @@
     "ended": "Finalizado",
     "balance": "Balance",
     "defi": "DeFi",
+    "startEarning": "Empezar a ganar",
+    "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
     "walletBalance": "Saldo de la Billetera",
@@ -523,6 +535,8 @@
     "noRateAvailable": "No hay tarifa disponible.",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
+    "tradeFrom": "Intercambia desde",
+    "tradeTo": "Intercambia a",
     "minerFee": "Tarifa de minero",
     "protocolFee": "Tarifa de protocolo",
     "protocol": "Protocolo",
@@ -677,6 +691,10 @@
         "header": "Descargar KeepKey Updater",
         "button": "Descargar %{filename}",
         "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
+      },
+      "disconnect": {
+        "header": "Desconectar dispositivo KeepKey",
+        "body": "Desafortunadamente, ocurrió un error al recuperar/configurar su dispositivo KeepKey. Desconecte y vuelva a conectar su dispositivo e intente configurar su dispositivo KeepKey nuevamente. Si el problema persiste, comuníquese con el soporte KeepKey."
       }
     },
     "shapeShift": {

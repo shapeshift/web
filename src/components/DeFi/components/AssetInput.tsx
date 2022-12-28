@@ -80,7 +80,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   accountId,
   assetId,
   assetSymbol,
-  assetIcon,
   onChange = () => {},
   onAssetClick,
   onMaxClick,
@@ -142,7 +141,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             icons ? (
               <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
             ) : (
-              <AssetIcon src={assetIcon} size='xs' />
+              <AssetIcon assetId={assetId} size='xs' />
             )
           }
           rightIcon={onAssetClick && <ChevronDownIcon />}

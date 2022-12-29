@@ -1,6 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import type { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import type { BreadcrumbsRoute, Options } from 'react-router-breadcrumbs-hoc'
 import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -30,7 +31,11 @@ const GetAccountName = (props: any) => {
   return <AccountLabel accountId={accountId} />
 }
 
-const GetAssetName = (props: any) => {
+const GetAssetName = (props: {
+  match: {
+    params: Record<string, string>
+  }
+}) => {
   const {
     match: {
       params: { chainId, assetSubId, assetId: assetIdParam },
@@ -60,25 +65,27 @@ const routes: BreadcrumbsRoute[] = [
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
-const options = {
+const options: Options = {
   excludePaths: ['/assets/:chainId', '/trade/:chainId'],
 }
 
 export const Breadcrumbs = withBreadcrumbs(
   routes,
   options,
-)(({ breadcrumbs }: { breadcrumbs: any }) => {
+)(({ breadcrumbs }: { breadcrumbs: any[] }) => {
   return (
     <Breadcrumb fontWeight='medium' fontSize='sm' color='gray.500'>
-      {breadcrumbs.map(({ breadcrumb, match }: { breadcrumb: any; match: any }) => {
-        return (
-          <BreadcrumbItem key={match.url}>
-            <BreadcrumbLink as={Link} to={match.url}>
-              {breadcrumb}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-        )
-      })}
+      {breadcrumbs.map(
+        ({ breadcrumb, match }: { breadcrumb: ReactNode; match: { url: string } }) => {
+          return (
+            <BreadcrumbItem key={match.url}>
+              <BreadcrumbLink as={Link} to={match.url}>
+                {breadcrumb}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )
+        },
+      )}
     </Breadcrumb>
   )
 })

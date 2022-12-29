@@ -5,8 +5,11 @@ import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
-// From most to least specific
-export const assetIdPaths = ['/:chainId/:assetSubId/pool/:poolId', '/:chainId/:assetSubId']
+// Make sure this array remains ordered from most to least specific to avoid early matching
+export const assetIdPaths = [
+  '/:chainId/:assetSubId/pool/:poolId', // Osmosis LP token path template
+  '/:chainId/:assetSubId', // Standard asset path template
+]
 
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx

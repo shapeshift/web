@@ -8,7 +8,6 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useSortedVaults } from 'hooks/useSortedVaults/useSortedVaults'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
@@ -30,8 +29,6 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-
-  const sortedVaults = useSortedVaults()
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
@@ -59,7 +56,6 @@ export const AllEarnOpportunities = () => {
       assetId: osmosisAssetId,
     })
   const allRows = useNormalizeOpportunities({
-    vaultArray: sortedVaults,
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),

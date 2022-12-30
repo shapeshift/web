@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
@@ -235,13 +235,13 @@ export const opportunitiesApi = createApi({
         try {
           const state: any = getState() // ReduxState causes circular dependency
           const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
-            defiType: DefiType.Staking,
-            defiProvider: DefiProvider.Idle,
+            defiType,
+            defiProvider,
           })
           const { data: opportunityIds } = selectOpportunityIds(state)
 
           if (!opportunityIds) {
-            throw new Error("Can't select idle staking OpportunityIds")
+            throw new Error("Can't select staking OpportunityIds")
           }
 
           const resolver = getOpportunitiesUserDataResolversByDefiProviderAndDefiType(

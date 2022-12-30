@@ -21,7 +21,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import type { BASE_OPPORTUNITIES_BY_ID } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
 import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -48,8 +47,6 @@ const defaultMenu: DefiButtonProps[] = [
     action: DefiAction.Withdraw,
   },
 ]
-
-export type OpportunityById = typeof BASE_OPPORTUNITIES_BY_ID
 
 // Tried to get this using TS to be dynamic but can't seem to get it to work
 // Manually setting this to the tags we know of here.

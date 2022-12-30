@@ -29,6 +29,7 @@ describe('assetId', () => {
         ['cosmos:osmosis-1/slip44:118'],
         ['cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'],
         ['cosmos:osmo-testnet-1/slip44:118'],
+        ['cosmos:osmosis-1/ibc:gamm/pool/877'],
       ])('returns an AssetId from the result of fromAssetId for %s', (assetId) => {
         const result = fromAssetId(assetId)
         expect(toAssetId(omit(result, 'chainId'))).toBe(assetId)
@@ -148,6 +149,23 @@ describe('assetId', () => {
       }
       const expected =
         'cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
+      expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
+      expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
+        expected,
+      )
+    })
+
+    it('can return ibc AssetId for the OSMO/ATOM LP token', () => {
+      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
+      const chainReference = CHAIN_REFERENCE.OsmosisMainnet
+      const assetIdArgSuperset = {
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'ibc' as AssetNamespace,
+        assetReference: 'gamm/pool/1',
+        chainId: toChainId({ chainNamespace, chainReference }),
+      }
+      const expected = 'cosmos:osmosis-1/ibc:gamm/pool/1'
       expect(toAssetId(omit(assetIdArgSuperset, 'chainId'))).toEqual(expected)
       expect(toAssetId(omit(assetIdArgSuperset, ['chainNamespace', 'chainReference']))).toEqual(
         expected,
@@ -625,6 +643,17 @@ describe('assetId', () => {
       expect(assetReference).toEqual(
         '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593',
       )
+    })
+
+    it('can parse an osmosis lp token', () => {
+      const AssetId = 'cosmos:osmosis-1/ibc:gamm/pool/877'
+      const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } =
+        fromAssetId(AssetId)
+      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.CosmosSdk)
+      expect(chainReference).toEqual(CHAIN_REFERENCE.OsmosisMainnet)
+      expect(chainId).toEqual(toChainId({ chainNamespace, chainReference }))
+      expect(assetNamespace).toEqual('ibc')
+      expect(assetReference).toEqual('gamm/pool/877')
     })
 
     it('can parse an osmosis cw20 token', () => {

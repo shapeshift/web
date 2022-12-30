@@ -17,6 +17,21 @@ export type OsmosisCoin = {
   price_24h_change: number
 }
 
+export type OsmosisPool = {
+  symbol: string
+  amount: number
+  denom: string
+  coingecko_id: string
+  liquidity: number
+  liquidity_24h_change: number
+  volume_24h: number
+  volume_24h_change: number
+  volume_7d: number
+  price: number
+  fees: string
+  main: boolean
+}
+
 export const writeFiles = async (data: Record<string, Record<string, string>>) => {
   const path = './src/adapters/osmosis/generated/'
   const file = '/adapter.json'
@@ -26,12 +41,44 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
   console.info('Generated Osmosis AssetId adapter data.')
 }
 
-export const fetchData = async (URL: string) => (await axios.get<OsmosisCoin[]>(URL)).data
+export const fetchData = async ({
+  tokensUrl,
+  lpTokensUrl,
+}: {
+  tokensUrl: string
+  lpTokensUrl: string
+}): Promise<OsmosisCoin[]> => {
+  const tokens = (await axios.get<OsmosisCoin[]>(tokensUrl)).data
+  const lpTokenData = (await axios.get<{ [key: string]: OsmosisPool[] }>(lpTokensUrl)).data
+
+  const lpTokens = Object.entries(lpTokenData).reduce<OsmosisCoin[]>((acc, current) => {
+    if (!current) return acc
+
+    const [poolId, tokenPair] = current
+
+    const coin: OsmosisCoin = {
+      price: 0,
+      denom: `gamm/pool/${poolId}`,
+      symbol: `gamm/pool/${poolId}`,
+      liquidity: tokenPair[0].liquidity,
+      liquidity_24h_change: tokenPair[0].liquidity_24h_change,
+      volume_24h: tokenPair[0].volume_24h,
+      volume_24h_change: tokenPair[0].volume_24h_change,
+      name: `Osmosis ${tokenPair[0].symbol}/${tokenPair[1].symbol} LP Token`,
+      price_24h_change: 0,
+    }
+    acc.push(coin)
+    return acc
+  }, [])
+
+  return [...lpTokens, ...tokens]
+}
 
 export const parseOsmosisData = (data: OsmosisCoin[]) => {
   const results = data.reduce((acc, { denom, symbol }) => {
     // denoms for non native assets are formatted like so: 'ibc/27394...'
     const isNativeAsset = !denom.split('/')[1]
+    const isLpToken = denom.startsWith('gamm/pool/')
     const isOsmo = denom === 'uosmo'
 
     let assetNamespace: AssetNamespace
@@ -41,7 +88,7 @@ export const parseOsmosisData = (data: OsmosisCoin[]) => {
       assetReference = isOsmo ? ASSET_REFERENCE.Osmosis : denom
       assetNamespace = isOsmo ? 'slip44' : 'native'
     } else {
-      assetReference = denom.split('/')[1]
+      assetReference = isLpToken ? denom : denom.split('/')[1]
       assetNamespace = 'ibc'
     }
 

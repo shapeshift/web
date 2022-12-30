@@ -2,9 +2,9 @@ import { AccountId, fromAccountId } from './accountId/accountId'
 import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 
-// https://regex101.com/r/URAeoi/1
+// https://regex101.com/r/xqVzV2/1
 export const parseAssetIdRegExp =
-  /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z\d]+)/
+  /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z/\d]+)/
 
 export const accountIdToChainId = (accountId: AccountId): ChainId =>
   fromAccountId(accountId).chainId

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.5.0...@shapeshiftoss/caip-v8.6.0) (2022-12-30)
+
+
+### Features
+
+* **caip:** add osmosis lp tokens to adapter ([#1142](https://github.com/shapeshift/lib/issues/1142)) ([4b91464](https://github.com/shapeshift/lib/commit/4b914640cd320230727e38207b7f0262e2db5673))
+
 # [@shapeshiftoss/caip-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.4.5...@shapeshiftoss/caip-v8.5.0) (2022-11-25)
 
 

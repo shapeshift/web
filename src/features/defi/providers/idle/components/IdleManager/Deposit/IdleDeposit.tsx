@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -93,6 +94,14 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     })()
   }, [opportunityData])
 
+  const underlyingAssetId = useMemo(
+    () => opportunityData?.underlyingAssetIds[0] ?? '',
+    [opportunityData?.underlyingAssetIds],
+  )
+  const underlyingAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAssetId),
+  )
+
   const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
@@ -107,7 +116,9 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        description: translate('defi.steps.deposit.info.description', {
+          asset: underlyingAsset.symbol,
+        }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -125,7 +136,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
         component: Status,
       },
     }
-  }, [translate, asset.symbol, accountId, handleAccountIdChange])
+  }, [translate, underlyingAsset.symbol, accountId, handleAccountIdChange])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

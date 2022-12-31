@@ -219,8 +219,6 @@
     "walletBalance": "보유 자산",
     "earnBalance": "평가손익",
     "earnBody": "자산 예치(스테이킹)을 통하여 패시브 인컴(Passive income, 수동적 수입)을 얻을 수도 있고, 또한 DeFi 전략을 활용해 추가적인 보상을 얻을 수 있습니다.",
-    "clickHereToEarn": "여기를 눌러 이윤 얻기",
-    "byFarming": "ETH-FOX 유동성 풀 토큰을 파밍해서 얻을 수 있는 연 수익(APR*)",
     "overview": "개요",
     "liquidityPools": "유동성 자금 풀",
     "stakingVaults": "스테이킹 및 금고",

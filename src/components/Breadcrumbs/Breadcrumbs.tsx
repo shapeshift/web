@@ -60,7 +60,7 @@ const routes: BreadcrumbsRoute[] = [
   {
     path: '/trade',
     breadcrumb: 'Trade',
-    routes: [{ path: '/trade/:chainId/:assetSubId', breadcrumb: GetAssetName }],
+    routes: [{ path: '/trade/:chainId/:assetSubId(.+)', breadcrumb: GetAssetName }],
   },
   { path: '/assets/:chainId/:assetSubId(.+)', breadcrumb: GetAssetName },
   { path: '*', breadcrumb: GetTranslatedPathPart },
@@ -70,6 +70,7 @@ const options: Options = {
   excludePaths: [
     '/assets/:chainId',
     '/trade/:chainId',
+    // If it's an Osmosis pool asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
     '/assets/:chainId/ibc:gamm',
     '/assets/:chainId/ibc:gamm/pool',
   ],

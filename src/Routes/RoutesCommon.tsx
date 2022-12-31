@@ -155,14 +155,12 @@ export const routes: NestedRoute[] = [
     icon: <IoSwapVertical />,
     main: Trade,
     category: RouteCategory.Explore,
-    routes: [
-      {
-        label: 'Trade Asset',
-        path: '/:chainId/:assetSubId',
-        main: Trade,
-        hide: true,
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Trade Asset',
+      path: assetIdPath,
+      main: Trade,
+      hide: true,
+    })),
   },
   {
     path: '/buy-crypto',
@@ -170,13 +168,11 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
-    routes: [
-      {
-        label: 'Buy Asset',
-        path: '/:chainId/:assetSubId',
-        main: Buy,
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Buy Asset',
+      path: assetIdPath,
+      main: Buy,
+    })),
   },
   {
     path: '/flags',

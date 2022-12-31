@@ -7,6 +7,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
+import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { PartialRecord } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,11 +40,18 @@ const GetAssetName = (props: {
 }) => {
   const {
     match: {
-      params: { chainId, assetSubId, assetId: assetIdParam },
+      params: { chainId, assetSubId, assetId: assetIdParam, poolId },
     },
   } = props
 
-  const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
+  const assetId: string = (() => {
+    if (assetIdParam) return decodeURIComponent(assetIdParam)
+    // If we have a poolId it's an Osmosis pool asset
+    if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
+    return `${chainId}/${assetSubId}`
+  })()
+
+  // const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   return <>{asset?.name}</>
 }
@@ -60,9 +68,12 @@ const routes: BreadcrumbsRoute[] = [
   {
     path: '/trade',
     breadcrumb: 'Trade',
-    routes: [{ path: '/trade/:chainId/:assetSubId(.+)', breadcrumb: GetAssetName }],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: `/trade${assetIdPath}`,
+      breadcrumb: GetAssetName,
+    })),
   },
-  { path: '/assets/:chainId/:assetSubId(.+)', breadcrumb: GetAssetName },
+  ...assetIdPaths.map(assetIdPath => ({ path: `/assets${assetIdPath}`, breadcrumb: GetAssetName })),
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
@@ -73,6 +84,8 @@ const options: Options = {
     // If it's an Osmosis pool asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
     '/assets/:chainId/ibc:gamm',
     '/assets/:chainId/ibc:gamm/pool',
+    '/trade/:chainId/ibc:gamm',
+    '/trade/:chainId/ibc:gamm/pool',
   ],
 }
 

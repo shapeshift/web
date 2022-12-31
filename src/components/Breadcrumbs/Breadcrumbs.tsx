@@ -51,7 +51,6 @@ const GetAssetName = (props: {
     return `${chainId}/${assetSubId}`
   })()
 
-  // const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   return <>{asset?.name}</>
 }

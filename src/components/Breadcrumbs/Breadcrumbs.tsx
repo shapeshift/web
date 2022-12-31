@@ -7,6 +7,7 @@ import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
+import type { PartialRecord } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +34,7 @@ const GetAccountName = (props: any) => {
 
 const GetAssetName = (props: {
   match: {
-    params: Record<string, string>
+    params: PartialRecord<string, string>
   }
 }) => {
   const {
@@ -61,12 +62,17 @@ const routes: BreadcrumbsRoute[] = [
     breadcrumb: 'Trade',
     routes: [{ path: '/trade/:chainId/:assetSubId', breadcrumb: GetAssetName }],
   },
-  { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
+  { path: '/assets/:chainId/:assetSubId(.+)', breadcrumb: GetAssetName },
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
 const options: Options = {
-  excludePaths: ['/assets/:chainId', '/trade/:chainId'],
+  excludePaths: [
+    '/assets/:chainId',
+    '/trade/:chainId',
+    '/assets/:chainId/ibc:gamm',
+    '/assets/:chainId/ibc:gamm/pool',
+  ],
 }
 
 export const Breadcrumbs = withBreadcrumbs(

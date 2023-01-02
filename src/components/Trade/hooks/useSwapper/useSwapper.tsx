@@ -1,4 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import {
   type Swapper,
@@ -119,13 +120,26 @@ export const useSwapper = () => {
   }, [bestTradeSwapper])
 
   const getReceiveAddressFromBuyAsset = useCallback(
-    (buyAsset: Asset) => {
+    async (buyAsset: Asset) => {
       if (!buyAssetAccountId) return
       if (!buyAccountMetadata) return
       const { accountType, bip44Params } = buyAccountMetadata
       if (isUtxoAccountId(buyAssetAccountId) && !accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAssetAccountId}`)
-      return getReceiveAddress({ asset: buyAsset, wallet, bip44Params, accountType })
+      const buyAssetChainId = buyAsset.chainId
+      const buyAssetAccountChainId = fromAccountId(buyAssetAccountId).chainId
+      /**
+       * do NOT remove
+       * super dangerous - don't use the wrong bip44 params to generate receive addresses
+       */
+      if (buyAssetChainId !== buyAssetAccountChainId) return
+      const receiveAddress = await getReceiveAddress({
+        asset: buyAsset,
+        wallet,
+        bip44Params,
+        accountType,
+      })
+      return receiveAddress
     },
     [buyAssetAccountId, buyAccountMetadata, wallet],
   )
@@ -159,7 +173,7 @@ export const useSwapper = () => {
     if (!quote) throw new Error('no quote available')
     const txid = isExactAllowance
       ? await bestTradeSwapper.approveAmount({
-          amount: quote.sellAmountCryptoPrecision,
+          amount: quote.sellAmountBeforeFeesCryptoBaseUnit,
           quote,
           wallet,
         })
@@ -170,7 +184,7 @@ export const useSwapper = () => {
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
-    if (!sellTradeAsset?.amount) throw new Error('Missing sellTradeAsset.amount')
+    if (!sellTradeAsset?.amountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
     if (!sellTradeAsset?.asset) throw new Error('Missing sellTradeAsset.asset')
     if (!buyTradeAsset?.asset) throw new Error('Missing buyTradeAsset.asset')
     if (!wallet) throw new Error('Missing wallet')
@@ -180,7 +194,10 @@ export const useSwapper = () => {
     if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmountCryptoPrecision: toBaseUnit(sellTradeAsset.amount, sellAsset.precision),
+      sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+        sellTradeAsset.amountCryptoPrecision,
+        sellAsset.precision,
+      ),
       sellAsset: sellTradeAsset?.asset,
       buyAsset: buyTradeAsset?.asset,
       wallet,
@@ -220,7 +237,7 @@ export const useSwapper = () => {
     sellAsset,
     sellAssetAccountId,
     sellAccountMetadata,
-    sellTradeAsset?.amount,
+    sellTradeAsset?.amountCryptoPrecision,
     sellTradeAsset?.asset,
     slippage,
     wallet,

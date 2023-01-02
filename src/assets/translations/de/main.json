@@ -79,10 +79,12 @@
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
+    "searchAsset": "Vermögenswert suchen",
     "enterAmount": "Betrag eingeben",
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
     "buySell": "Kaufen/Verkaufen",
-    "buySellAsset": "Kaufen/Verkaufen %{symbol}"
+    "all": "Alle",
+    "viewAll": "Alle ansehen"
   },
   "errorPage": {
     "title": "Hoppala!",
@@ -146,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Handeln",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Verdiene"
     }
   },
   "fiatRamps": {
@@ -175,6 +178,8 @@
     "usOnly": "nur US Bürger(innen)",
     "noKYC": "kein KYC",
     "nonUS": "Nicht-US Bürger",
+    "buyWith": "Kaufen Sie mit",
+    "sellFor": "Verkaufen für",
     "availableProviders": "Verfügbare Anbieter",
     "noProvidersAvailable": "Keine Anbieter verfügbar",
     "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert.",
@@ -297,6 +302,8 @@
     "stakedAmount": "Staking Betrag",
     "unstakeFrom": "Staking beenden von",
     "gasFee": "Gasgebühr",
+    "provider": "Anbieter",
+    "currentTvl": "Aktuelle TVL",
     "unbondInfoItWillTake": "Während Sie Ihre Token Staken, können Sie sie nicht übertragen oder ausgeben. Es dauert %{unbondingDays} Tage, um sie freizuschalten, nachdem Sie Staken beendet haben.",
     "unbondInfoItWillTakeShort": "Es dauert %{unbondingDays} Tage, um Staken Ihrer Tokens zu beenden",
     "confirmAndBroadcast": "Bestätigen & Übertragen",
@@ -307,6 +314,7 @@
     "amountStaked": "Staking Betrag",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
+    "version": "Version",
     "unstake": "Staking beenden",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "%{assetSymbol} Staking beenden",
@@ -325,13 +333,13 @@
     "ended": "Beendet",
     "balance": "Kontostand",
     "defi": "DeFi",
+    "startEarning": "Anfangen zu verdienen",
+    "eligibleOpportunities": "Berechtigte Gelegenheiten",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
     "netWorth": "Nettovermögen",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
-    "clickHereToEarn": "Klicken und verdienen Sie",
-    "byFarming": " APR*, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -525,6 +533,8 @@
     "noRateAvailable": "Kein Wechselkurs verfügbar.",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
+    "tradeFrom": "Handel ab",
+    "tradeTo": "Handel bis",
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
     "protocol": "Protokoll",
@@ -677,6 +687,10 @@
         "header": "Lade den KeepKey-Updater",
         "button": "Lade %{filename}",
         "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
+      },
+      "disconnect": {
+        "header": "Trennen Sie das KeepKey-Gerät",
+        "body": "Leider ist beim Wiederherstellen/Einrichten Ihres KeepKey-Geräts ein Fehler aufgetreten. Bitte trennen Sie Ihr Gerät, schließen Sie es wieder an und versuchen Sie erneut, Ihr KeepKey-Gerät einzurichten. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den KeepKey-Support."
       }
     },
     "shapeShift": {

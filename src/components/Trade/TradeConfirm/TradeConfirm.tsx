@@ -30,6 +30,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -68,6 +69,8 @@ export const TradeConfirm = () => {
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
   const flags = useSelector(selectFeatureFlags)
+
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   const {
     number: { toFiat },
@@ -133,10 +136,16 @@ export const TradeConfirm = () => {
       const sellAssetId = trade?.sellAsset.assetId
       if (!buyAssetId || !sellAssetId) return ''
       const swapperManager = await getSwapperManager(flags)
-      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+      const bestSwapper =
+        defaultFeeAsset && tradeQuoteArgs
+          ? await swapperManager.getBestSwapper({
+              ...tradeQuoteArgs,
+              feeAsset: defaultFeeAsset,
+            })
+          : undefined
       setSwapper(bestSwapper)
     })()
-  }, [flags, trade])
+  }, [defaultFeeAsset, flags, trade, tradeQuoteArgs])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending

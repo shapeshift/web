@@ -16,17 +16,14 @@ import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
-import {
-  filterAssetsByIds,
-  getReceiveAddress,
-  getUtxoParams,
-} from 'components/Trade/hooks/useSwapper/utils'
+import { filterAssetsByIds, getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
-import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
+import { selectAssetIds, selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -57,6 +54,7 @@ export const useSwapper = () => {
   const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
+  const sellAssetChainId = sellAsset?.chainId
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
@@ -65,10 +63,14 @@ export const useSwapper = () => {
     state: { wallet },
   } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | null>()
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
+  const defaultFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, sellAssetChainId ?? ''),
+  )
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -251,14 +253,17 @@ export const useSwapper = () => {
   useEffect(() => {
     if (buyAssetId && sellAssetId) {
       ;(async () => {
-        const swapper = await swapperManager.getBestSwapper({
-          buyAssetId,
-          sellAssetId,
-        })
+        const swapper =
+          tradeQuoteArgs && defaultFeeAsset
+            ? await swapperManager.getBestSwapper({
+                ...tradeQuoteArgs,
+                feeAsset: defaultFeeAsset,
+              })
+            : undefined
         setBestTradeSwapper(swapper)
       })()
     }
-  }, [buyAssetId, sellAssetId, swapperManager])
+  }, [buyAssetId, defaultFeeAsset, sellAssetId, swapperManager, tradeQuoteArgs])
 
   useEffect(() => {
     ;(async () => {

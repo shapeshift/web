@@ -41,11 +41,6 @@ import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Pure functions
-export const getUtxoParams = (sellAssetAccountId: string) => {
-  if (!sellAssetAccountId) throw new Error('No UTXO account id')
-  return accountIdToUtxoParams(sellAssetAccountId, 0)
-}
-
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
   const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
   return assets.filter(asset => assetIdMap[asset.assetId])

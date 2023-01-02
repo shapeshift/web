@@ -23,6 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -125,14 +126,21 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     })()
 
     if (assetPair && wallet) {
-      const accountIds = walletAccountIds.filter(
+      const buyAccountIds = walletAccountIds.filter(
         accountId => fromAccountId(accountId).chainId === assetPair.buyAsset.chainId,
       )
       // As long as we have at least one account id for the buy asset, we can do a trade
-      const firstAccountId = accountIds[0]
-      if (!firstAccountId) return
-      const accountMetadata = portfolioAccountMetaData[firstAccountId]
+      const firstBuyAccountId = buyAccountIds[0]
+      if (!firstBuyAccountId) return
+      const accountMetadata = portfolioAccountMetaData[firstBuyAccountId]
       if (!accountMetadata) return
+      if (isUtxoAccountId(firstBuyAccountId) && !accountMetadata.accountType) return
+
+      // guard against erroneous state
+      const buyAssetChainId = assetPair.buyAsset.chainId
+      const buyAssetAccountChainId = fromAccountId(firstBuyAccountId).chainId
+      if (buyAssetChainId !== buyAssetAccountChainId) return
+
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,

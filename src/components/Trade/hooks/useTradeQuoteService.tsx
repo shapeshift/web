@@ -69,12 +69,12 @@ export const useTradeQuoteService = () => {
   // Effects
   // Set trade quote args and trigger trade quote query
   useEffect(() => {
-    const sellTradeAssetAmount = sellTradeAsset?.amount
+    const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoPrecision
     if (
       sellAsset &&
       buyAsset &&
       wallet &&
-      sellTradeAssetAmount &&
+      sellTradeAssetAmountCryptoPrecision &&
       receiveAddress &&
       sellAccountMetadata
     ) {
@@ -92,7 +92,7 @@ export const useTradeQuoteService = () => {
           buyAsset,
           wallet,
           receiveAddress,
-          sellAmount: sellTradeAssetAmount,
+          sellAmountBeforeFeesCryptoPrecision: sellTradeAssetAmountCryptoPrecision,
           isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)

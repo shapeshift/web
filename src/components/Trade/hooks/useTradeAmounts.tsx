@@ -80,8 +80,8 @@ export const useTradeAmounts = () => {
       )
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
-      setValue('buyTradeAsset.amount', buyTradeAssetAmount)
-      setValue('sellTradeAsset.amount', sellTradeAssetAmount)
+      setValue('buyTradeAsset.amountCryptoPrecision', buyTradeAssetAmount)
+      setValue('sellTradeAsset.amountCryptoPrecision', sellTradeAssetAmount)
     },
     [setValue],
   )
@@ -137,11 +137,11 @@ export const useTradeAmounts = () => {
       switch (action) {
         case TradeAmountInputField.SELL_FIAT:
         case TradeAmountInputField.SELL_CRYPTO:
-          setValue('sellTradeAsset.amount', amount)
+          setValue('sellTradeAsset.amountCryptoPrecision', amount)
           break
         case TradeAmountInputField.BUY_FIAT:
         case TradeAmountInputField.BUY_CRYPTO:
-          setValue('buyTradeAsset.amount', amount)
+          setValue('buyTradeAsset.amountCryptoPrecision', amount)
           break
         default:
           break
@@ -179,7 +179,8 @@ export const useTradeAmounts = () => {
         sellAccountBip44Params: sellAccountMetadata.bip44Params,
         wallet,
         receiveAddress,
-        sellAmount: sellTradeAsset?.amount || amountToUse || '0',
+        sellAmountBeforeFeesCryptoPrecision:
+          sellTradeAsset?.amountCryptoPrecision || amountToUse || '0',
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
@@ -252,7 +253,7 @@ export const useTradeAmounts = () => {
       isSendMaxFormState,
       selectedCurrencyToUsdRate,
       sellAssetFormState?.assetId,
-      sellTradeAsset?.amount,
+      sellTradeAsset?.amountCryptoPrecision,
       setTradeAmounts,
       setValue,
       swapperManager,

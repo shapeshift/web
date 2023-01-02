@@ -4085,10 +4085,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.5.0.tgz#f4652b70616122abfeccb70a627cbd05d963490c"
   integrity sha512-xXMjzCFVo6/h2WVGjNlN6TbN8sWfpvMAWpjF/dqi9TCvYX1yUYEZWRqtXXrDvGsrpbMsjXsLynwuAH/SjuwfdQ==
 
-"@shapeshiftoss/chain-adapters@^10.5.0":
-  version "10.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.5.0.tgz#b1074e1832296329bac943cbaf8f86efcab72e0e"
-  integrity sha512-U7FXih1G6nwY0ZTdpF1COMGXm82Owdj/f8UrtYfOkEbPeAd9Ot9z9h9EwbyKVW9+LaJVikpw8/LiJKKURJcbOA==
+"@shapeshiftoss/chain-adapters@10.5.1":
+  version "10.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.5.1.tgz#c39ce19245c3ee8e981c7228c4c31a8b33616574"
+  integrity sha512-lNchE0ge9UdLdCyJhVa9EIgY8Z2OJOpwBNW8l8AuHDqDaCgbVHYFI4hXnvsnO6j+5rkjtF7q98iBx/WZywpHpQ==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4370,10 +4370,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^14.5.3":
-  version "14.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.6.0.tgz#34a154434b724195de75bf69f7d534fe9824b83e"
-  integrity sha512-SA0IDyqTtF4qr8fO5SPcaoo3zU4JnHcAEfz1wBw2vkPto3kp78abdY8phBLkT3d7Fpm2USzuk3DaEhsZesqoOQ==
+"@shapeshiftoss/swapper@^15.0.2":
+  version "15.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.0.2.tgz#72402f06d2e2d37ca0c13d9cbdb6b502fc01e183"
+  integrity sha512-fZ7E1ict/vyvnpX2sdITuGBXsYdpUx3tGuaXTvSW82RBxAajkwVXy+Hjbn3OmkbEjyFcvrAD100PdTZUso4mXA==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4386,10 +4386,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
   integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
-"@shapeshiftoss/types@^8.3.2":
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.2.tgz#282125c027e8cf07a892229e54b7f7177d2cb941"
-  integrity sha512-1gaYbU6pg5VSLXwKuDneerSxv3g2VyKIghvcIxuOiONDvhsjdDRgwuQyWLKfwkNKU/y2q2TZVn5FzYy1+YMroQ==
+"@shapeshiftoss/types@8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.3.tgz#5f66542a5d1d70837020d50c362aabb21e67031d"
+  integrity sha512-WD6SpW/YYwDiyxc+yeWb/F2WkCq5kHw6gzxvYfsLFlrOIXl8x4Kov5oJBrYfJO3r+UZrcgHH8UcQmyhihJlclA==
 
 "@shapeshiftoss/unchained-client@^10.4.1":
   version "10.4.1"
@@ -7313,10 +7313,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@^0.0.23":
-  version "0.0.23"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.23.tgz#9b56c2dc59a3a64d0d40567716197afb7c2f5926"
-  integrity sha512-kmEnrXdO9shh691MzU086B8pkv41+wGAy3rw/ODZk3dy6MVrJJAudHYBg/cINmPZmmRq7Sti5ASFhYAPcWus7A==
+"@wherever/react-notification-feed@^0.0.26":
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.0.26.tgz#a5447b3d7697d6d5bd1a42cf2db4b39126aa28e5"
+  integrity sha512-G+aEK/PiQS00iimcZCfNFZTNbP7B+1uoaZ53lOce3T8flGnTmgJMRkyBKrWjvYVzg47xQs43M2dnF9vGKAzLDw==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@emotion-icons/octicons" "^3.27.0"
@@ -11218,6 +11218,23 @@ elliptic@6.5.4, elliptic@^6.0.0, elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+embla-carousel-autoplay@^7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/embla-carousel-autoplay/-/embla-carousel-autoplay-7.0.5.tgz#d411cd7d3ea8edd907ef26330ad8524c5ebf174b"
+  integrity sha512-3tvlhJuBvyj99k/SBIHTZ1dNdAVjK0LOH1NFXbV5GCaaeyENHt1Uv/h5C2+fHdMGLovUs5PeuwCQL1LFnjz/xw==
+
+embla-carousel-react@^7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/embla-carousel-react/-/embla-carousel-react-7.0.5.tgz#c6a079e382432335e34adb16bb11558df047760c"
+  integrity sha512-qhw980gKj7G+O5d3WSwj0TyhcbpGP3DqJPiAatt1t3wEEcZqn7csaIfLh4e1N/0kna9sZfZZRzz+//NSrUodSg==
+  dependencies:
+    embla-carousel "7.0.5"
+
+embla-carousel@7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-7.0.5.tgz#b43e590c072d06a5b11d4ce19d024f5f07a62862"
+  integrity sha512-loRcu0La0F7bhEMwbvgpi14iaaIEdwacH1xoplnaYfwN4KMgECkiuLgu4lx+v6MYd6lSpg/bw7ZxEuLUwYjavg==
 
 emittery@0.8.1, emittery@^0.8.1:
   version "0.8.1"
@@ -15882,9 +15899,9 @@ loader-runner@^4.2.0:
   integrity sha512-92+huvxMvYlMzMt0iIOukcwYBFpkYJdpl2xsZ7LrlayO7E8SOv+JJUEK17B/dJIHAOLMfh2dZZ/Y18WgmGtYNw==
 
 loader-utils@^1.2.3:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.4.0.tgz#c579b5e34cb34b1a74edc6c1fb36bfa371d5a613"
-  integrity sha512-qH0WSMBtn/oHuwjy/NucEgbx5dbxxnxup9s4PVXJUDHZBQY+s0NWA9rJf53RBnQZxfch7euUui7hpoAPvALZdA==
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.4.2.tgz#29a957f3a63973883eb684f10ffd3d151fec01a3"
+  integrity sha512-I5d00Pd/jwMD2QCduo657+YM/6L3KZu++pmX9VFncxaxvHcru9jx1lBaFft+r4Mt2jK0Yhp41XlRAihzPxHNCg==
   dependencies:
     big.js "^5.2.2"
     emojis-list "^3.0.0"
@@ -16565,9 +16582,9 @@ minimist-options@4.1.0:
     kind-of "^6.0.3"
 
 minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
-  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
+  integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
 
 minipass-collect@^1.0.2:
   version "1.0.2"

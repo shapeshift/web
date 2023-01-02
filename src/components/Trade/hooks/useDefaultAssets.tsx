@@ -94,12 +94,16 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       : maybeWalletChainId
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
 
-    const { data: buyAssetFiatRateData } = await dispatch(
-      getUsdRates.initiate({
-        feeAssetId: defaultAssetIdPair.buyAssetId,
-        tradeQuoteInputArgs: tradeQuoteArgs,
-      }),
-    )
+    const buyAssetFiatRateData =
+      tradeQuoteArgs &&
+      (
+        await dispatch(
+          getUsdRates.initiate({
+            feeAssetId: defaultAssetIdPair.buyAssetId,
+            tradeQuoteArgs,
+          }),
+        )
+      ).data
 
     // TODO: update Swapper to have an proper way to validate a pair is supported.
     const assetPair = (() => {

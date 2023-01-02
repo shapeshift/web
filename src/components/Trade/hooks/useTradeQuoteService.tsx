@@ -132,5 +132,8 @@ export const useTradeQuoteService = () => {
     !quote && tradeQuote && setValue('quote', tradeQuote)
   }, [quote, setValue, tradeQuote])
 
-  return { isLoadingTradeQuote, tradeQuoteArgs }
+  return {
+    isLoadingTradeQuote,
+    tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,
+  }
 }

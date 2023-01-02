@@ -48,20 +48,22 @@ const defaultMenu: DefiButtonProps[] = [
   },
 ]
 
-// Tried to get this using TS to be dynamic but can't seem to get it to work
-// Manually setting this to the tags we know of here.
-type Tags = 'Best Yield' | 'Junior Tranche' | 'Senior Tranche'
+export enum IdleTag {
+  BestYield = 'Best Yield',
+  JuniorTranche = 'Junior Tranche',
+  SeniorTranche = 'Senior Tranche',
+}
 
-const IdleTagDescriptions: Record<Tags, TagDescription> = {
-  'Best Yield': {
+const idleTagDescriptions: Record<IdleTag, TagDescription> = {
+  [IdleTag.BestYield]: {
     title: 'idle.bestYield.title',
     description: 'idle.bestYield.body',
   },
-  'Junior Tranche': {
+  [IdleTag.JuniorTranche]: {
     title: 'idle.juniorTranche.title',
     description: 'idle.juniorTranche.body',
   },
-  'Senior Tranche': {
+  [IdleTag.SeniorTranche]: {
     title: 'idle.seniorTranche.title',
     description: 'idle.seniorTranche.body',
   },

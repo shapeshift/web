@@ -13,6 +13,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
+import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
@@ -56,8 +57,8 @@ export const TradeInput = () => {
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
-    receiveAddress,
   } = useSwapper()
+  const { receiveAddress } = useReceiveAddress()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')

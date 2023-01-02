@@ -4,8 +4,8 @@ import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import type { TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -41,7 +41,7 @@ export const useTradeQuoteService = () => {
     state: { wallet },
   } = useWallet()
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-  const { receiveAddress } = useSwapper()
+  const { receiveAddress } = useReceiveAddress()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

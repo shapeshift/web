@@ -3,6 +3,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
@@ -35,11 +36,11 @@ export const useTradeAmounts = () => {
   const actionFormState = useWatch({ control, name: 'action' })
   const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
 
+  // Hooks
   const dispatch = useAppDispatch()
-  const { swapperManager, getReceiveAddressFromBuyAsset } = useSwapper()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const { swapperManager } = useSwapper()
+  const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
+  const wallet = useWallet().state.wallet
 
   // Types
   type SetTradeAmountsAsynchronousArgs = Omit<Partial<CalculateAmountsArgs>, 'tradeFee'> & {

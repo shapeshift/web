@@ -214,16 +214,15 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
 
   const renderTags = useMemo(() => {
     return opportunityData?.tags?.map(tag => {
-      if (IdleTagDescriptions[tag as Tags]) {
-        const tagDetails = IdleTagDescriptions[tag as Tags]
+      if (idleTagDescriptions[tag as IdleTag]) {
+        const tagDetails = idleTagDescriptions[tag as IdleTag]
         return (
           <Flex flexDir='column' px={8} py={4} key={tag}>
             <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
             <Text color='gray.500' translation={tagDetails.description} />
           </Flex>
         )
-      }
-      return <Tag key={tag}>{tag}</Tag>
+      } else return <Tag key={tag}>{tag}</Tag>
     })
   }, [opportunityData?.tags])
 

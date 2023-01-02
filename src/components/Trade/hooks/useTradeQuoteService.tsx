@@ -33,7 +33,7 @@ type GetTradeQuoteInputArgs = {
   sellAccountBip44Params: BIP44Params
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
-  sellAmount: string
+  sellAmountBeforeFeesCryptoPrecision: string
   isSendMax: boolean
 }
 
@@ -44,12 +44,15 @@ export const getTradeQuoteArgs = async ({
   sellAccountType,
   wallet,
   receiveAddress,
-  sellAmount,
+  sellAmountBeforeFeesCryptoPrecision,
   isSendMax,
 }: GetTradeQuoteInputArgs) => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmountCryptoPrecision: toBaseUnit(sellAmount, sellAsset?.precision || 0),
+    sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+      sellAmountBeforeFeesCryptoPrecision,
+      sellAsset?.precision || 0,
+    ),
     sellAsset,
     buyAsset,
     sendMax: isSendMax,
@@ -133,12 +136,12 @@ export const useTradeQuoteService = () => {
   // Effects
   // Trigger trade quote query
   useEffect(() => {
-    const sellTradeAssetAmount = sellTradeAsset?.amount
+    const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoPrecision
     if (
       sellAsset &&
       buyAsset &&
       wallet &&
-      sellTradeAssetAmount &&
+      sellTradeAssetAmountCryptoPrecision &&
       receiveAddress &&
       sellAccountMetadata
     ) {
@@ -156,7 +159,7 @@ export const useTradeQuoteService = () => {
           buyAsset,
           wallet,
           receiveAddress,
-          sellAmount: sellTradeAssetAmount,
+          sellAmountBeforeFeesCryptoPrecision: sellTradeAssetAmountCryptoPrecision,
           isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)

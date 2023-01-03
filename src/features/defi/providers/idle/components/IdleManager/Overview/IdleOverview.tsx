@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
 import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -47,12 +48,6 @@ const defaultMenu: DefiButtonProps[] = [
     action: DefiAction.Withdraw,
   },
 ]
-
-export enum IdleTag {
-  BestYield = 'Best Yield',
-  JuniorTranche = 'Junior Tranche',
-  SeniorTranche = 'Senior Tranche',
-}
 
 const idleTagDescriptions: Record<IdleTag, TagDescription> = {
   [IdleTag.BestYield]: {

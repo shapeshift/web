@@ -5,6 +5,12 @@ import type { PartialRecord } from 'lib/utils'
 
 import type { OpportunityMetadata, StakingId } from '../../types'
 
+export enum IdleTag {
+  BestYield = 'Best Yield',
+  JuniorTranche = 'Junior Tranche',
+  SeniorTranche = 'Senior Tranche',
+}
+
 // If we can get the base metadata from here, all we need to re-slap in is the APY and TVL really
 export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
   StakingId,

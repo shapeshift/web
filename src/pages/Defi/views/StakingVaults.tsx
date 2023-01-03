@@ -16,12 +16,12 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
 import { RawText } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
 import {
@@ -47,6 +47,9 @@ const FoxFarmCTA = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
+  const {
+    number: { toPercent },
+  } = useLocaleFormatter()
 
   const lpOpportunitiesById = useAppSelector(selectLpOpportunitiesById)
   const stakingOpportunitiesById = useAppSelector(selectStakingOpportunitiesById)
@@ -81,6 +84,12 @@ const FoxFarmCTA = () => {
     })
   }, [history, location])
 
+  const ethFoxLpApr = toPercent(
+    bnOrZero(defaultStakingOpportunityData?.apy)
+      .plus(defaultLpOpportunityData?.apy ?? 0)
+      .toString(),
+  )
+
   return (
     <Card variant='outline' my={1}>
       <Stack
@@ -105,22 +114,14 @@ const FoxFarmCTA = () => {
           <AssetIcon ml={-3} p={0.5} boxSize='40px' src={ethAssetIcon} />
           <AssetIcon ml={-2} boxSize='40px' src={foxAssetIcon} />
           <CText ml='5' fontWeight='normal' fontSize={{ base: 'md', md: 'lg' }}>
-            {translate('defi.clickHereToEarn')}
-            <span> </span>
             <Skeleton
               display='inline-block'
               isLoaded={Boolean(
                 defaultStakingOpportunityData?.apy && defaultLpOpportunityData?.apy,
               )}
             >
-              <Amount.Percent
-                as='span'
-                value={bnOrZero(defaultStakingOpportunityData?.apy)
-                  .plus(defaultLpOpportunityData?.apy ?? 0)
-                  .toString()}
-              />
+              {translate('defi.clickHereToEarn', { apr: ethFoxLpApr })}
             </Skeleton>
-            {translate('defi.byFarming')}
           </CText>
         </Flex>
       </Stack>

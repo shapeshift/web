@@ -1,14 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { USDC_PRECISION } from 'constants/constants'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import type { MergedSerializableOpportunity } from 'pages/Defi/hooks/useVaultBalances'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
-import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
 import { chainIdToLabel } from './utils'
@@ -36,61 +30,6 @@ export type EarnOpportunityType = {
   // overrides any name down the road
   opportunityName?: string
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
-}
-
-const useTransformVault = (vaults: MergedSerializableOpportunity[]): EarnOpportunityType[] => {
-  const assetIds = useSelector(selectAssetIds)
-
-  const { vaults: vaultsWithBalances } = useVaultBalances()
-  return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
-    const chainId = fromAssetId(vault.feeAsset.assetId).chainId
-    let fiatAmount = '0'
-    let cryptoAmountBaseUnit = '0'
-    let cryptoAmountPrecision = '0'
-    if (vaultsWithBalances[vault.id]) {
-      const balances = vaultsWithBalances[vault.id]
-      cryptoAmountBaseUnit = balances.cryptoAmountBaseUnit
-      cryptoAmountPrecision = balances.cryptoAmountPrecision
-      fiatAmount = balances.fiatAmount
-    }
-    const assetId = vault.underlyingAsset.assetId
-    const data = {
-      type: DefiType.Vault,
-      provider: vault.provider,
-      version: vault.version,
-      contractAddress: vault.id,
-      rewardAddress: vault.id,
-      tvl: bnOrZero(vault.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
-      apy: vault.apy.toString(),
-      expired: vault?.expired || false,
-      chainId,
-      assetId,
-      fiatAmount,
-      cryptoAmountBaseUnit,
-      cryptoAmountPrecision,
-      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
-      isLoaded: true,
-    }
-    // show vaults that are expired but have a balance
-    // show vaults that don't have an APY but have a balance
-    // don't show vaults that don't have a balance and don't have an APY
-    // don't show new vaults that have an APY over 20,000% APY
-    if (assetIds.includes(assetId)) {
-      if (
-        vault?.expired ||
-        bnOrZero(vault?.apy).isEqualTo(0) ||
-        bnOrZero(vault.tvl.balanceUsdc).isEqualTo(0) ||
-        (bnOrZero(vault?.apy).gt(200) && (vault?.isNew || false))
-      ) {
-        if (bnOrZero(cryptoAmountBaseUnit).gt(0)) {
-          acc.push(data)
-        }
-      } else {
-        acc.push(data)
-      }
-    }
-    return acc
-  }, [])
 }
 
 const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =>
@@ -164,7 +103,6 @@ const useTransformCosmosStaking = (
 }
 
 type NormalizeOpportunitiesProps = {
-  vaultArray: MergedSerializableOpportunity[]
   foxyArray: MergedFoxyOpportunity[]
   cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
   foxEthLpOpportunity?: EarnOpportunityType
@@ -172,7 +110,6 @@ type NormalizeOpportunitiesProps = {
 }
 
 export const useNormalizeOpportunities = ({
-  vaultArray,
   foxyArray,
   cosmosSdkStakingOpportunities = [],
   foxEthLpOpportunity,
@@ -183,6 +120,5 @@ export const useNormalizeOpportunities = ({
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
     ...(stakingOpportunities ? stakingOpportunities : []),
     ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
-    ...useTransformVault(vaultArray),
   ]
 }

@@ -1,5 +1,7 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -7,18 +9,19 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { useCallback, useContext, useMemo } from 'react'
+import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,95 +29,109 @@ import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Yearn', 'Withdraw', 'Withdraw'],
+  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnWithdraw'],
 })
 
-type WithdrawProps = StepComponentProps & {
-  accountId: AccountId | undefined
-  onAccountIdChange: AccountDropdownProps['onChange']
-}
+type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
-export const Withdraw: React.FC<WithdrawProps> = ({
-  accountId,
-  onAccountIdChange: handleAccountIdChange,
-  onNext,
-}) => {
+export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
+  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
+  const [yearnOpportunity, setYearnOpportunity] = useState<YearnOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
-  const {
-    query,
-    history: { goBack: handleCancel },
-  } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { yearn: yearnInvestor } = useYearn()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
-  const opportunity = state?.opportunity
+  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, contractAddress, assetReference } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  useEffect(() => {
+    if (!opportunityData?.assetId) return
+    ;(async () => {
+      setYearnOpportunity(await yearnInvestor.findByOpportunityId(opportunityData.assetId))
+    })()
+  }, [yearnInvestor, opportunityData?.assetId, setYearnOpportunity])
+
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunityData?.assetId ?? ''),
+  )
+
+  const asset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, opportunityData?.assetId ?? ''),
+  )
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
+
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
+  const amountAvailableCryptoPrecision = useMemo(() => {
+    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(bn(10).pow(asset.precision))
+  }, [asset.precision, opportunityData?.stakedAmountCryptoBaseUnit])
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
+  const fiatAmountAvailable = useMemo(
+    () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),
+    [amountAvailableCryptoPrecision, assetMarketData],
   )
-  const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
 
-  const handlePercentClick = useCallback(
-    (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+  const getWithdrawGasEstimate = useCallback(
+    async (withdraw: WithdrawValues) => {
+      if (!(userAddress && opportunityData && assetReference)) return
+      try {
+        if (!yearnOpportunity) throw new Error('No opportunity')
+        const preparedTx = await yearnOpportunity.prepareWithdrawal({
+          amount: bnOrZero(withdraw.cryptoAmount)
+            .times(bn(10).pow(asset?.precision))
+            .integerValue(),
+          address: userAddress,
+        })
+        return bnOrZero(preparedTx.gasPrice)
+          .times(preparedTx.estimatedGas)
+          .integerValue()
+          .toString()
+      } catch (error) {
+        // TODO: handle client side errors maybe add a toast?
+        moduleLogger.error(error, 'YearnWithdraw:Withdraw:getWithdrawGasEstimate error')
+      }
     },
-    [cryptoAmountAvailable, marketData.price, setValue],
+    [userAddress, opportunityData, assetReference, yearnOpportunity, asset?.precision],
   )
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(accountAddress && opportunity && dispatch)) return
-
-      const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-        if (!(accountAddress && opportunity && assetReference)) return
-        try {
-          const yearnOpportunity = await yearnInvestor?.findByOpportunityId(
-            opportunity?.positionAsset.assetId,
-          )
-          if (!yearnOpportunity) throw new Error('No opportunity')
-          const preparedTx = await yearnOpportunity.prepareWithdrawal({
-            amount: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-            address: accountAddress,
-          })
-          return bnOrZero(preparedTx.gasPrice)
-            .times(preparedTx.estimatedGas)
-            .integerValue()
-            .toString()
-        } catch (error) {
-          // TODO: handle client side errors maybe add a toast?
-          moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'YearnWithdraw error:')
-        }
-      }
-
+      if (!(userAddress && dispatch)) return
       // set withdraw state for future use
       dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
@@ -127,93 +144,74 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       onNext(DefiStep.Confirm)
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
     },
-    [accountAddress, dispatch, asset.precision, assetReference, onNext, opportunity, yearnInvestor],
+    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
+  )
+
+  const handleCancel = useCallback(() => {
+    browserHistory.goBack()
+  }, [browserHistory])
+
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toFixed(), { shouldValidate: true })
+    },
+    [amountAvailableCryptoPrecision, assetMarketData, setValue],
   )
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance],
+    [amountAvailableCryptoPrecision],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const fiat = crypto.times(marketData.price)
+      const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const fiat = crypto.times(assetMarketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData.price],
+    [amountAvailableCryptoPrecision, assetMarketData],
   )
-
-  const pricePerShare = useMemo(
-    () =>
-      bnOrZero(state?.opportunity?.positionAsset.underlyingPerPosition).div(
-        `1e+${asset?.precision}`,
-      ),
-    [state, asset],
-  )
-
-  const vaultTokenPrice = useMemo(
-    () => pricePerShare.times(marketData.price),
-    [pricePerShare, marketData],
-  )
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
-
-  const cryptoInputValidation = useMemo(
-    () => ({
-      required: true,
-      validate: { validateCryptoAmount },
-    }),
-    [validateCryptoAmount],
-  )
-
-  const fiatInputValidation = useMemo(
-    () => ({
-      required: true,
-      validate: { validateFiatAmount },
-    }),
-    [validateFiatAmount],
-  )
-
-  const withdrawMarketData = useMemo(
-    () => ({
-      // The vault asset doesnt have market data.
-      // We're making our own market data object for the withdraw view
-      price: vaultTokenPrice.toString(),
-      marketCap: '0',
-      volume: '0',
-      changePercent24Hr: 0,
-    }),
-    [vaultTokenPrice],
-  )
-
-  const percentOptions = useMemo(() => [0.25, 0.5, 0.75, 1], [])
 
   if (!state) return null
 
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
-        accountId={accountId}
-        onAccountIdChange={handleAccountIdChange}
-        asset={underlyingAsset}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
-        cryptoInputValidation={cryptoInputValidation}
+        asset={asset}
+        cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
+        cryptoInputValidation={{
+          required: true,
+          validate: { validateCryptoAmount },
+        }}
         fiatAmountAvailable={fiatAmountAvailable.toString()}
-        fiatInputValidation={fiatInputValidation}
-        marketData={withdrawMarketData}
+        fiatInputValidation={{
+          required: true,
+          validate: { validateFiatAmount },
+        }}
+        marketData={{
+          // The vault asset doesnt have market data.
+          // We're making our own market data object for the withdraw view
+          price: assetMarketData.price,
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        }}
         onCancel={handleCancel}
         onContinue={handleContinue}
         isLoading={state.loading}
-        percentOptions={percentOptions}
+        percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
       />

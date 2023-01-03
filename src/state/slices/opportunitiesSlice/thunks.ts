@@ -44,6 +44,17 @@ export const fetchAllStakingOpportunitiesMetadata = async (
         { forceRefetch: false, ...options },
       ),
     ),
+    store.dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+        {
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Yearn,
+          opportunityType: DefiType.Staking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
     ...foxEthStakingIds.map(opportunityId =>
       store.dispatch(
         getOpportunityMetadata.initiate(
@@ -72,6 +83,10 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     {
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.Idle,
+    },
+    {
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.Yearn,
     },
     {
       defiType: DefiType.Staking,
@@ -110,6 +125,18 @@ export const fetchAllStakingOpportunitiesUserData = async (
           accountId,
           defiType: DefiType.Staking,
           defiProvider: DefiProvider.Idle,
+          opportunityType: DefiType.Staking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
+    store.dispatch(
+      getOpportunitiesUserData.initiate(
+        {
+          accountId,
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Yearn,
           opportunityType: DefiType.Staking,
         },
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached

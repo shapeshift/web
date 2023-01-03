@@ -132,6 +132,12 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const accountMetadata = portfolioAccountMetaData[firstBuyAccountId]
       if (!accountMetadata || !assetPair.buyAsset) return
       if (isUtxoAccountId(firstBuyAccountId) && !accountMetadata.accountType) return
+
+      // guard against erroneous state
+      const buyAssetChainId = assetPair.buyAsset.chainId
+      const buyAssetAccountChainId = fromAccountId(firstBuyAccountId).chainId
+      if (buyAssetChainId !== buyAssetAccountChainId) return
+
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,

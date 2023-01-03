@@ -4085,10 +4085,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.5.0.tgz#f4652b70616122abfeccb70a627cbd05d963490c"
   integrity sha512-xXMjzCFVo6/h2WVGjNlN6TbN8sWfpvMAWpjF/dqi9TCvYX1yUYEZWRqtXXrDvGsrpbMsjXsLynwuAH/SjuwfdQ==
 
-"@shapeshiftoss/chain-adapters@^10.5.0":
-  version "10.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.5.0.tgz#b1074e1832296329bac943cbaf8f86efcab72e0e"
-  integrity sha512-U7FXih1G6nwY0ZTdpF1COMGXm82Owdj/f8UrtYfOkEbPeAd9Ot9z9h9EwbyKVW9+LaJVikpw8/LiJKKURJcbOA==
+"@shapeshiftoss/chain-adapters@10.5.1":
+  version "10.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.5.1.tgz#c39ce19245c3ee8e981c7228c4c31a8b33616574"
+  integrity sha512-lNchE0ge9UdLdCyJhVa9EIgY8Z2OJOpwBNW8l8AuHDqDaCgbVHYFI4hXnvsnO6j+5rkjtF7q98iBx/WZywpHpQ==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4370,10 +4370,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^14.7.1":
-  version "14.7.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-14.7.1.tgz#ce0227adc0f28134d37d899ffc88ce0712615b80"
-  integrity sha512-nOSVmD4zXa3ttr4/iGXPO/mWJ20WyG6K+OUcrZHBXhH8/2GLZp2KiRzOkAmd4LYfsgTcyLA/iSYgTav2yfGCxQ==
+"@shapeshiftoss/swapper@^15.0.2":
+  version "15.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.0.2.tgz#72402f06d2e2d37ca0c13d9cbdb6b502fc01e183"
+  integrity sha512-fZ7E1ict/vyvnpX2sdITuGBXsYdpUx3tGuaXTvSW82RBxAajkwVXy+Hjbn3OmkbEjyFcvrAD100PdTZUso4mXA==
   dependencies:
     axios "^0.26.1"
     bignumber.js "^9.0.2"
@@ -4386,10 +4386,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-3.1.3.tgz#26b1d626d2b342b107e2ea538b5aedb0bee896ab"
   integrity sha512-Nhrs8gQelmsFAQQHTEq8TS3wueBKqjBf0pX6VxOiIQyasordSHQT4Di6WQOL1NWhciYptJ2nHPbarmhKOD63Eg==
 
-"@shapeshiftoss/types@^8.3.2":
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.2.tgz#282125c027e8cf07a892229e54b7f7177d2cb941"
-  integrity sha512-1gaYbU6pg5VSLXwKuDneerSxv3g2VyKIghvcIxuOiONDvhsjdDRgwuQyWLKfwkNKU/y2q2TZVn5FzYy1+YMroQ==
+"@shapeshiftoss/types@8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.3.tgz#5f66542a5d1d70837020d50c362aabb21e67031d"
+  integrity sha512-WD6SpW/YYwDiyxc+yeWb/F2WkCq5kHw6gzxvYfsLFlrOIXl8x4Kov5oJBrYfJO3r+UZrcgHH8UcQmyhihJlclA==
 
 "@shapeshiftoss/unchained-client@^10.4.1":
   version "10.4.1"

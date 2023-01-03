@@ -47,7 +47,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
     const asset = selectAssetById(state, assetId)
     const underlyingAsset = selectAssetById(state, opportunity.underlyingAsset.assetId)
 
-    if (!asset) continue
+    if (!asset || !underlyingAsset) continue
 
     stakingOpportunitiesById[opportunityId] = {
       apy: opportunity.apy.toFixed(),

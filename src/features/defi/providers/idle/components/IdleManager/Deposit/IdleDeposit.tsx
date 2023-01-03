@@ -119,7 +119,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: underlyingAsset?.symbol ?? '',
         }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
@@ -138,7 +138,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
         component: Status,
       },
     }
-  }, [translate, underlyingAsset.symbol, accountId, handleAccountIdChange])
+  }, [translate, underlyingAsset?.symbol, accountId, handleAccountIdChange])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

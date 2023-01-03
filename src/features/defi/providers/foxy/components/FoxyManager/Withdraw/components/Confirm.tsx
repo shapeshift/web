@@ -119,7 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
-          amountDesiredCryptoBaseUnit: bnOrZero(state.withdraw.cryptoAmount)
+          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
           type: state.withdraw.withdrawType,

@@ -74,7 +74,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           api.estimateDepositGas({
             tokenContractAddress: assetReference,
             contractAddress,
-            amountDesiredCryptoBaseUnit: bnOrZero(deposit.cryptoAmount)
+            amountDesired: bnOrZero(deposit.cryptoAmount)
               .times(`1e+${asset.precision}`)
               .decimalPlaces(0),
             userAddress: accountAddress,

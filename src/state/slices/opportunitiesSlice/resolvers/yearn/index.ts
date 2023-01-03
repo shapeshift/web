@@ -60,6 +60,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,
+      expired: opportunity.expired,
     }
   }
   const data = {

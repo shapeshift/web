@@ -37,9 +37,7 @@ export const useTradeQuoteService = () => {
   type TradeQuoteInputArg = TradeQuoteQueryInput[0]
 
   // State
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
   const { receiveAddress } = useReceiveAddress()
 

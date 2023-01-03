@@ -1,4 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import {
   type AssetId,
   cosmosChainId,
@@ -12,17 +13,21 @@ import {
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadata,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/selectors'
@@ -33,22 +38,18 @@ The Default Asset Hook is responsible for populating the trade widget with initi
 It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
 */
 export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
-  const {
-    state: { wallet },
-  } = useWallet()
+  // Hooks
+  const wallet = useWallet().state.wallet
   const { connectedEvmChainId } = useEvm()
   const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
-
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
   const dispatch = useAppDispatch()
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
 
+  // Constants
   const { getUsdRates } = swapperApi.endpoints
-
-  // Hooks
-  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains
@@ -68,6 +69,22 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
     setDefaultAssetIdPair(defaultAssetIdPair)
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
+
+  const sellAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, {
+      assetId: defaultAssetIdPair?.sellAssetId ?? '',
+    }),
+  )
+
+  /*
+  We have no form state, so we don't have an accountId.
+  Using the first is ok because we are just checking if we can get a quote for the default asset pair.
+  This quote is not, and MUST NOT be, used anywhere.
+  */
+  const sellAccountFilter = { accountId: sellAssetAccountIds[0] }
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
+  )
 
   const buyAssetId = useMemo(() => {
     if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair.sellAssetId)
@@ -93,6 +110,34 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       ? fromAssetId(routeBuyAssetId).chainId
       : maybeWalletChainId
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
+
+    const buyAsset = buyAssetId ? assets[buyAssetId] : undefined
+    const sellAsset: Asset | undefined = assets[defaultAssetIdPair?.sellAssetId]
+
+    const receiveAddress =
+      buyAsset && sellAccountMetadata
+        ? await getReceiveAddress({
+            asset: buyAsset,
+            wallet,
+            bip44Params: sellAccountMetadata.bip44Params,
+            accountType: sellAccountMetadata.accountType,
+          })
+        : undefined
+
+    // We can't use useTradeQuoteService() here because we don't yet have any form state to compute from
+    const tradeQuoteArgs =
+      sellAsset && buyAsset && wallet && sellAccountMetadata && receiveAddress
+        ? await getTradeQuoteArgs({
+            sellAsset,
+            buyAsset,
+            isSendMax: false,
+            sellAmountBeforeFeesCryptoPrecision: '0',
+            wallet,
+            receiveAddress,
+            sellAccountType: sellAccountMetadata.accountType,
+            sellAccountBip44Params: sellAccountMetadata.bip44Params,
+          })
+        : undefined
 
     const buyAssetFiatRateData =
       tradeQuoteArgs &&
@@ -161,12 +206,12 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     routeBuyAssetId,
     maybeWalletChainId,
     featureFlags,
-    dispatch,
-    getUsdRates,
-    tradeQuoteArgs,
-    wallet,
     buyAssetId,
     assets,
+    wallet,
+    sellAccountMetadata,
+    dispatch,
+    getUsdRates,
     walletAccountIds,
     portfolioAccountMetaData,
   ])

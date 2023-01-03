@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, Swapper, TradeQuote } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -28,6 +30,9 @@ type State = {
 }
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
+
+type GetBestSwapperArgs = GetTradeQuoteInput & { feeAsset: Asset }
+type GetBestSwapperReturn = Swapper<ChainId> | undefined
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -98,6 +103,25 @@ export const swapperApi = createApi({
           return {
             error: {
               error: 'getTradeQuote: error fetching trade quote',
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
+    getBestSwapper: build.query<GetBestSwapperReturn, GetBestSwapperArgs>({
+      queryFn: async (args, { getState }) => {
+        const state: State = getState() as unknown as State // ReduxState causes circular dependency
+        const featureFlags = state.preferences.featureFlags
+        const swapperManager = await getSwapperManager(featureFlags)
+
+        try {
+          const bestSwapper = await swapperManager.getBestSwapper(args)
+          return { data: bestSwapper }
+        } catch (e) {
+          return {
+            error: {
+              error: 'getBestSwapper: error getting best swapper',
               status: 'CUSTOM_ERROR',
             },
           }

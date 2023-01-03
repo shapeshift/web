@@ -43,6 +43,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],

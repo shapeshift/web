@@ -29,6 +29,7 @@ type AssetHeaderProps = {
 export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
   const {
     number: { toFiat },

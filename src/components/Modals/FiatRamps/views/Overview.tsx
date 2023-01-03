@@ -22,7 +22,6 @@ import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -36,7 +35,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssets,
+  selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
@@ -72,7 +71,6 @@ export const Overview: React.FC<OverviewProps> = ({
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
-  const assetsById = useSelector(selectAssets)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const isPopupEnabled = useFeatureFlag('FiatPopup')
@@ -222,7 +220,9 @@ export const Overview: React.FC<OverviewProps> = ({
     ))
   }, [])
 
-  return (
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
       <Flex display='flex' flexDir='column' gap={6} p={6}>
@@ -254,7 +254,7 @@ export const Overview: React.FC<OverviewProps> = ({
               <Flex alignItems='center'>
                 <AssetIcon size='sm' assetId={assetId} mr={4} />
                 <Box textAlign='left'>
-                  <RawText lineHeight={1}>{assetsById[assetId].name}</RawText>
+                  <RawText lineHeight={1}>{asset.name}</RawText>
                 </Box>
               </Flex>
             ) : (
@@ -265,10 +265,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Text
               translation={
                 isUnsupportedAsset
-                  ? [
-                      'fiatRamps.notSupported',
-                      { asset: assetsById[assetId].symbol, wallet: wallet?.getVendor() },
-                    ]
+                  ? ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
                   : fundsTranslation
               }
               color='gray.500'
@@ -354,7 +351,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   'fiatRamps.titleMessage',
                   {
                     action: translate(`fiatRamps.${fiatRampAction}`).toLocaleLowerCase(),
-                    asset: assetsById[assetId].symbol,
+                    asset: asset.symbol,
                   },
                 ]}
               />
@@ -370,5 +367,5 @@ export const Overview: React.FC<OverviewProps> = ({
         </Stack>
       </Flex>
     </>
-  )
+  ) : null
 }

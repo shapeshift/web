@@ -49,6 +49,8 @@ export const swapperApi = createApi({
         try {
           const swapper = await getBestSwapperFromArgs(buyAssetId, sellAssetId, featureFlags)
           const rateAsset = assets.byId[rateAssetId]
+          if (!rateAsset) throw new Error(`Asset not found for AssetId ${rateAssetId}`)
+
           const usdRate = await swapper.getUsdRate(rateAsset)
           const data = { usdRate }
           return { data }
@@ -74,6 +76,11 @@ export const swapperApi = createApi({
           const feeAsset = assets.byId[feeAssetId]
           const buyAsset = assets.byId[buyAssetId]
           const sellAsset = assets.byId[sellAssetId]
+
+          if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
+          if (!buyAsset) throw new Error(`Asset not found for AssetId ${buyAssetId}`)
+          if (!sellAsset) throw new Error(`Asset not found for AssetId ${sellAssetId}`)
+
           const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = await Promise.all([
             swapper.getUsdRate(feeAsset),
             swapper.getUsdRate(buyAsset),

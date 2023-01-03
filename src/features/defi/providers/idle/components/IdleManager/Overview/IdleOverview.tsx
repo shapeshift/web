@@ -4,6 +4,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
@@ -88,6 +89,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
   const assets = useAppSelector(selectAssets)
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  if (!vaultAsset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balanceFilter = useMemo(
@@ -146,7 +149,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-  const underlyingAssets = useMemo(
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
+  const underlyingAssets: AssetWithBalance[] = useMemo(
     () => [
       {
         ...underlyingAsset,
@@ -163,7 +168,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectedLocale,
   })
 
-  const rewardAssets = useMemo(() => {
+  const rewardAssets: AssetWithBalance[] = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
     return opportunityData!.rewardsAmountsCryptoBaseUnit
@@ -171,8 +176,10 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
         if (bnOrZero(amount).isZero()) return undefined
+        const rewardAsset = assets[opportunityData.rewardAssetIds[i]]
+        if (!rewardAsset) return undefined
         return {
-          ...assets[opportunityData.rewardAssetIds[i]],
+          ...rewardAsset,
           cryptoBalancePrecision: bnOrZero(amount)
             .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? '0'))
             .toFixed(6),

@@ -77,6 +77,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     assetReference: rewardId,
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
+  if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailablePrecision = bnOrZero(foxyBalance).div(
     bn(10).pow(stakingAsset?.precision ?? 0),

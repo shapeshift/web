@@ -154,11 +154,13 @@ export const useTradeAmounts = () => {
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
       const sellAsset = assets[sellAssetIdToUse]
       const buyAsset = assets[buyAssetIdToUse]
+      if (!sellAsset || !buyAsset || !wallet) return
+
       const feeAssetId = getChainAdapterManager().get(sellAsset.chainId)?.getFeeAssetId()
       if (!feeAssetId) return
       const feeAsset = assets[feeAssetId]
       const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-      if (!receiveAddress) return
+      if (!receiveAddress || !feeAsset) return
 
       const bestTradeSwapper = await swapperManager.getBestSwapper({
         buyAssetId: buyAssetIdToUse,
@@ -202,7 +204,7 @@ export const useTradeAmounts = () => {
       const formFees = quoteResponse?.data
         ? getFormFees({
             trade: quoteResponse.data,
-            sellAsset: assets[sellAssetIdToUse],
+            sellAsset,
             tradeFeeSource: bestTradeSwapper.name,
             feeAsset,
           })

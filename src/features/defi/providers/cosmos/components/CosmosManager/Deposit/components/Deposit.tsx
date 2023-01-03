@@ -51,6 +51,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const opportunity = useMemo(() => state?.cosmosOpportunity, [state])

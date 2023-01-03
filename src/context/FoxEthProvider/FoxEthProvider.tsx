@@ -54,6 +54,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     state: { wallet },
   } = useWallet()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()

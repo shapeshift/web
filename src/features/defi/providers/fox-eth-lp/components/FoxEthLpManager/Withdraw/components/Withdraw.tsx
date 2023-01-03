@@ -70,11 +70,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { setValue } = methods
 
   const asset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset.assetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
 
   const foxAmountCryptoPrecision = useMemo(
     () => fromBaseUnit(foxAmountCryptoBaseUnit, foxAsset.precision),

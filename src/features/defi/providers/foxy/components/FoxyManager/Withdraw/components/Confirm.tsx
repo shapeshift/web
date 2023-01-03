@@ -57,18 +57,21 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAsset}`)
   const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
@@ -183,7 +186,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <RawText>{underlyingAsset?.name}</RawText>
             </Stack>
             <Row.Value>
               <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />

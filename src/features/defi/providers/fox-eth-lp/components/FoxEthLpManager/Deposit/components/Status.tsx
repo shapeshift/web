@@ -68,6 +68,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

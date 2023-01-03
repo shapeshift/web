@@ -61,6 +61,10 @@ export const Status = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
@@ -121,7 +125,7 @@ export const Status = () => {
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
         amount: bnOrZero(amount)
-          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision))
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
           .toNumber(),
       }
       return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />

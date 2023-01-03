@@ -139,7 +139,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             {view === View.Balance && (
               <Stat size='sm' color='gray.500'>
                 <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>{`${cryptoHumanBalance} ${asset.symbol}`}</StatNumber>
+                  <StatNumber>{`${cryptoHumanBalance} ${asset?.symbol ?? ''}`}</StatNumber>
                 </Skeleton>
               </Stat>
             )}
@@ -162,7 +162,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
                     value={stakingFiatBalance}
-                    symbol={asset.symbol}
+                    symbol={asset?.symbol ?? ''}
                     suffix={translate('defi.staked')}
                   />
                 </AlertDescription>

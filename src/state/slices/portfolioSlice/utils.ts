@@ -99,10 +99,7 @@ export const isUtxoChainId = (chainId: ChainId): boolean =>
   fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
 
 export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
-  // the only way we get an accountId, is from a chainAdapter that supports that chain
-  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
-  // and we can safely non-null assert that it will exist
-  getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
 
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
   getChainAdapterManager().get(chainId)?.getFeeAssetId()

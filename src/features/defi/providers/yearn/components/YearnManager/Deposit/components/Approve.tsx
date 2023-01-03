@@ -60,6 +60,12 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!underlyingAsset)
+    throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[0]}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   // user info

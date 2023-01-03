@@ -29,7 +29,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0x5274891bec421b39d23760c04a6755ecb444797c': {
     assetId: 'eip155:1/erc20:0x5274891bec421b39d23760c04a6755ecb444797c',
@@ -44,7 +44,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8': {
     assetId: 'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8',
@@ -59,7 +59,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'USDT Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0xf52cdcd458bf455aed77751743180ec4a595fd3f': {
     assetId: 'eip155:1/erc20:0xf52cdcd458bf455aed77751743180ec4a595fd3f',
@@ -70,7 +70,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x875773784af8135ea0ef43b5a374aad105c5d39e'],
     underlyingAssetRatios: ['1'],
     name: 'SUSD Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0xc278041fdd8249fe4c1aad1193876857eea3d68c': {
     assetId: 'eip155:1/erc20:0xc278041fdd8249fe4c1aad1193876857eea3d68c',
@@ -81,7 +81,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x875773784af8135ea0ef43b5a374aad105c5d39e'],
     underlyingAssetRatios: ['1'],
     name: 'TUSD Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0x8c81121b15197fa0eeaee1dc75533419dcfd3151': {
     assetId: 'eip155:1/erc20:0x8c81121b15197fa0eeaee1dc75533419dcfd3151',
@@ -96,7 +96,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'WBTC Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80': {
     assetId: 'eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80',
@@ -111,7 +111,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'WETH Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0x5c960a3dcc01be8a0f49c02a8cebcacf5d07fabe': {
     assetId: 'eip155:1/erc20:0x5c960a3dcc01be8a0f49c02a8cebcacf5d07fabe',
@@ -125,7 +125,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     ],
     underlyingAssetRatios: ['1'],
     name: 'RAI Vault (Best Yield)',
-    tags: ['Best Yield'],
+    tags: [IdleTag.BestYield],
   },
   'eip155:1/erc20:0x15794da4dcf34e674c18bbfaf4a67ff6189690f5': {
     assetId: 'eip155:1/erc20:0x15794da4dcf34e674c18bbfaf4a67ff6189690f5',
@@ -136,7 +136,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve FRAX Vault (Convex Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x790e38d85a364dd03f682f5ecdc88f8ff7299908': {
     assetId: 'eip155:1/erc20:0x790e38d85a364dd03f682f5ecdc88f8ff7299908',
@@ -147,7 +147,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve alUSD Vault (Convex Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x158e04225777bbea34d2762b5df9ebd695c158d2': {
     assetId: 'eip155:1/erc20:0x158e04225777bbea34d2762b5df9ebd695c158d2',
@@ -158,7 +158,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve 3EUR Vault (Convex Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x060a53bcfdc0452f35ebd2196c6914e0152379a6': {
     assetId: 'eip155:1/erc20:0x060a53bcfdc0452f35ebd2196c6914e0152379a6',
@@ -169,7 +169,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve stETH Vault (Convex Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c': {
     assetId: 'eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c',
@@ -180,7 +180,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Euler Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07': {
     assetId: 'eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07',
@@ -191,7 +191,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'USDT Vault (Euler Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a': {
     assetId: 'eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a',
@@ -202,7 +202,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Euler Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c': {
     assetId: 'eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c',
@@ -213,7 +213,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'AGEUR Vault (Euler Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0xb86264c21418aa75f7c337b1821ccb4ff4d57673': {
     assetId: 'eip155:1/erc20:0xb86264c21418aa75f7c337b1821ccb4ff4d57673',
@@ -224,7 +224,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0xa0154a44c1c45bd007743fa622fd0da4f6d67d57': {
     assetId: 'eip155:1/erc20:0xa0154a44c1c45bd007743fa622fd0da4f6d67d57',
@@ -236,7 +236,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x1692f6574a6758adfbd12544e209146dd4510bd7': {
     assetId: 'eip155:1/erc20:0x1692f6574a6758adfbd12544e209146dd4510bd7',
@@ -247,7 +247,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Clearpool Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0xd54e5c263298e60a5030ce2c8aca7981eaaaed4a': {
     assetId: 'eip155:1/erc20:0xd54e5c263298e60a5030ce2c8aca7981eaaaed4a',
@@ -259,7 +259,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Ribbon Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x5f45a578491a23ac5aee218e2d405347a0fafa8e': {
     assetId: 'eip155:1/erc20:0x5f45a578491a23ac5aee218e2d405347a0fafa8e',
@@ -271,7 +271,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Ribbon Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x3e041c9980bc03011cc30491d0c4ccd53602f89b': {
     assetId: 'eip155:1/erc20:0x3e041c9980bc03011cc30491d0c4ccd53602f89b',
@@ -283,7 +283,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Ribbon Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307': {
     assetId: 'eip155:1/erc20:0x18cf59480d8c16856701f66028444546b7041307',
@@ -294,7 +294,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve FRAX Vault (Convex Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xa0e8c9088afb3fa0f40ecdf8b551071c34aa1aa4': {
     assetId: 'eip155:1/erc20:0xa0e8c9088afb3fa0f40ecdf8b551071c34aa1aa4',
@@ -305,7 +305,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve alUSD Vault (Convex Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x3061c652b49ae901bbecf622624cc9f633d01bbd': {
     assetId: 'eip155:1/erc20:0x3061c652b49ae901bbecf622624cc9f633d01bbd',
@@ -316,7 +316,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve 3EUR Vault (Convex Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xd83246d2bcbc00e85e248a6e9aa35d0a1548968e': {
     assetId: 'eip155:1/erc20:0xd83246d2bcbc00e85e248a6e9aa35d0a1548968e',
@@ -327,7 +327,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'Curve stETH Vault (Convex Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b': {
     assetId: 'eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b',
@@ -338,7 +338,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Euler Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854': {
     assetId: 'eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854',
@@ -349,7 +349,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'USDT Vault (Euler Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d': {
     assetId: 'eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d',
@@ -360,7 +360,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Euler Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7': {
     assetId: 'eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7',
@@ -371,7 +371,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'AGEUR Vault (Euler Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x4d9d9aa17c3fcea05f20a87fc1991a045561167d': {
     assetId: 'eip155:1/erc20:0x4d9d9aa17c3fcea05f20a87fc1991a045561167d',
@@ -382,7 +382,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x7a625a2882c9fc8df1463d5e538a3f39b5dbd073': {
     assetId: 'eip155:1/erc20:0x7a625a2882c9fc8df1463d5e538a3f39b5dbd073',
@@ -394,7 +394,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Clearpool Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xcb980b5a4f5bdb81d0b4b97a9ede64578ba9d48a': {
     assetId: 'eip155:1/erc20:0xcb980b5a4f5bdb81d0b4b97a9ede64578ba9d48a',
@@ -405,7 +405,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Clearpool Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0xd3e4c5c37ba3185410550b836557b8fa51d5ea3b': {
     assetId: 'eip155:1/erc20:0xd3e4c5c37ba3185410550b836557b8fa51d5ea3b',
@@ -417,7 +417,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'DAI Vault (Ribbon Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x982e46e81e99fbba3fb8af031a7ee8df9041bb0c': {
     assetId: 'eip155:1/erc20:0x982e46e81e99fbba3fb8af031a7ee8df9041bb0c',
@@ -429,7 +429,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Ribbon Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x65237b6fc6e62b05b62f1ebe53edaadccd1684ad': {
     assetId: 'eip155:1/erc20:0x65237b6fc6e62b05b62f1ebe53edaadccd1684ad',
@@ -441,7 +441,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: ['eip155:1/erc20:0x6123b0049f904d730db3c36a31167d9d4121fa6b'],
     underlyingAssetRatios: ['1'],
     name: 'USDC Vault (Ribbon Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877': {
     assetId: 'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877',
@@ -452,7 +452,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'STETH Vault (Lido Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x4657b96d587c4d46666c244b40216beeea437d0d': {
     assetId: 'eip155:1/erc20:0x4657b96d587c4d46666c244b40216beeea437d0d',
@@ -463,7 +463,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'PBTCCRV Vault (Convex Senior Tranche)',
-    tags: ['Senior Tranche'],
+    tags: [IdleTag.SeniorTranche],
   },
   'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978': {
     assetId: 'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978',
@@ -474,7 +474,7 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'STETH Vault (Lido Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
   'eip155:1/erc20:0x3872418402d1e967889ac609731fc9e11f438de5': {
     assetId: 'eip155:1/erc20:0x3872418402d1e967889ac609731fc9e11f438de5',
@@ -485,6 +485,6 @@ export const BASE_OPPORTUNITIES_BY_ID: PartialRecord<
     rewardAssetIds: [],
     underlyingAssetRatios: ['1'],
     name: 'PBTCCRV Vault (Convex Junior Tranche)',
-    tags: ['Junior Tranche'],
+    tags: [IdleTag.JuniorTranche],
   },
 }

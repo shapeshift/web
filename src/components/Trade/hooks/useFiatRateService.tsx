@@ -38,7 +38,7 @@ export const useFiatRateService = () => {
   // Selectors
   const sellAssetFeeAssetId = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
-  ).assetId
+  )?.assetId
 
   // API
   const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {

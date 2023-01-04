@@ -74,6 +74,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const loaded = useMemo(() => opportunity?.isLoaded, [opportunity?.isLoaded])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
   const firstAccountId = useAppSelector(state =>

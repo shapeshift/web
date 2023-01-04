@@ -87,6 +87,9 @@ export const TradeInput = () => {
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
 
+  if (!sellFeeAsset)
+    throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)
+
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
     [sellAssetAccountId, sellFeeAsset?.assetId],

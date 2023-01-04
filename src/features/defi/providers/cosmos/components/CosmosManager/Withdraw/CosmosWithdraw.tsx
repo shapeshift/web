@@ -67,6 +67,10 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,

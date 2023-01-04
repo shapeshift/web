@@ -54,6 +54,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info

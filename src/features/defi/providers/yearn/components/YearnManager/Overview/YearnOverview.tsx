@@ -69,6 +69,8 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
   })
   const assets = useAppSelector(selectAssets)
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  if (!vaultAsset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balanceFilter = useMemo(
@@ -128,13 +130,16 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
     [assets, underlyingAssetId],
   )
   const underlyingAssets = useMemo(
-    () => [
-      {
-        ...underlyingAsset,
-        cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
-        allocationPercentage: '1',
-      },
-    ],
+    () =>
+      underlyingAsset
+        ? [
+            {
+              ...underlyingAsset,
+              cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
+              allocationPercentage: '1',
+            },
+          ]
+        : [],
     [cryptoAmountAvailable, underlyingAsset],
   )
 
@@ -190,9 +195,9 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssets}
       provider='Yearn Finance'
       description={{
-        description: underlyingAsset.description,
+        description: underlyingAsset?.description,
         isLoaded: !descriptionQuery.isLoading,
-        isTrustedDescription: underlyingAsset.isTrustedDescription,
+        isTrustedDescription: underlyingAsset?.isTrustedDescription,
       }}
       tvl={bnOrZero(opportunityData.tvl).toFixed(2)}
       apy={opportunityData.apy}

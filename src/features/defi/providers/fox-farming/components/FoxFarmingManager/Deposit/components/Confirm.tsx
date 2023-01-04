@@ -55,6 +55,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${ethAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info

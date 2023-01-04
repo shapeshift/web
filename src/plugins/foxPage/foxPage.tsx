@@ -84,13 +84,16 @@ export const FoxPage = () => {
   // TODO(gomes): Use useRouteAssetId and selectAssetById programmatically
   const assetFox = useAppSelector(state => selectAssetById(state, foxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, foxyAssetId))
+  if (!assetFox) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!assetFoxy) throw new Error(`Asset not found for AssetId ${foxyAssetId}`)
+
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
 
   const selectedAssetIndex = useMemo(
-    () => assets.findIndex(asset => asset.assetId === activeAssetId),
+    () => assets.findIndex(asset => asset?.assetId === activeAssetId),
     [activeAssetId, assets],
   )
 

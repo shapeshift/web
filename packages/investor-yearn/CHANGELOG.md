@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.2.0...@shapeshiftoss/investor-yearn-v6.3.0) (2023-01-04)
+
+
+### Features
+
+* **investor-yearn:** set retired vaults as expired ([#1145](https://github.com/shapeshift/lib/issues/1145)) ([9458abf](https://github.com/shapeshift/lib/commit/9458abfa45a2fda81fbbaffcebcdf389f272372d))
+
 # [@shapeshiftoss/investor-yearn-v6.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.1.7...@shapeshiftoss/investor-yearn-v6.2.0) (2022-11-30)
 
 

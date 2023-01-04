@@ -3,9 +3,11 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -78,7 +80,7 @@ export const swapperApi = createApi({
       },
     }),
     getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
-      queryFn: async (args, { getState }) => {
+      queryFn: async (args, { getState, dispatch }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           preferences: { featureFlags },
@@ -87,12 +89,15 @@ export const swapperApi = createApi({
         try {
           const feeAssetId = getChainAdapterManager().get(args.buyAsset.chainId)!.getFeeAssetId()
           const feeAsset = assets.byId[feeAssetId]
-          const swapper = await getBestSwapperFromArgs({
-            featureFlags,
-            tradeQuoteArgs: args,
-            feeAsset,
-          })
-          const tradeQuote = await swapper.getTradeQuote(args)
+
+          const swapperManager = await getSwapperManager(featureFlags)
+          const swappers = swapperManager.swappers
+          const swapperType = await dispatch(
+            getBestSwapperApi.endpoints.getBestSwapperType.initiate({ ...args, feeAsset }),
+          ).then(r => r.data)
+          const swapper = swapperType ? swappers.get(swapperType) : undefined
+
+          const tradeQuote = await swapper?.getTradeQuote(args)
           return { data: tradeQuote }
         } catch (e) {
           return {

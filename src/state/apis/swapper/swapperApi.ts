@@ -7,6 +7,7 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { usdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -30,6 +31,9 @@ type State = {
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
 
+const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
+const getUsdRate = usdRateApi.endpoints.getUsdRate
+
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
@@ -44,38 +48,34 @@ export const swapperApi = createApi({
           ? args.tradeQuoteInputArgs.sellAsset.assetId
           : args.tradeQuoteArgs.sellAsset.assetId
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
-        const {
-          assets,
-          preferences: { featureFlags },
-        } = state
+        const { assets } = state
         try {
           const tradeQuoteArgs = args.tradeQuoteInputArgs
             ? await getTradeQuoteArgs(args.tradeQuoteInputArgs)
             : args.tradeQuoteArgs
+
           if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
           const feeAsset = assets.byId[feeAssetId]
-          const buyAsset = assets.byId[buyAssetId]
-          const sellAsset = assets.byId[sellAssetId]
-
           if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
-          if (!buyAsset) throw new Error(`Asset not found for AssetId ${buyAssetId}`)
-          if (!sellAsset) throw new Error(`Asset not found for AssetId ${sellAssetId}`)
 
-          const swapperManager = await getSwapperManager(featureFlags)
-          const swappers = swapperManager.swappers
           const swapperType = await dispatch(
-            getBestSwapperApi.endpoints.getBestSwapperType.initiate({
+            getBestSwapperType.initiate({
               ...tradeQuoteArgs,
               feeAsset,
             }),
           ).then(r => r.data)
-          const swapper = swapperType ? swappers.get(swapperType) : undefined
 
-          const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = await Promise.all([
-            swapper?.getUsdRate(feeAsset),
-            swapper?.getUsdRate(buyAsset),
-            swapper?.getUsdRate(sellAsset),
-          ])
+          if (!swapperType) throw new Error(`Swapper type not found.`)
+
+          const feeAssetUsdRate = await dispatch(
+            getUsdRate.initiate({ assetId: feeAssetId, swapperType }),
+          ).then(r => r.data)
+          const buyAssetUsdRate = await dispatch(
+            getUsdRate.initiate({ assetId: buyAssetId, swapperType }),
+          ).then(r => r.data)
+          const sellAssetUsdRate = await dispatch(
+            getUsdRate.initiate({ assetId: sellAssetId, swapperType }),
+          ).then(r => r.data)
 
           if (!feeAssetUsdRate || !buyAssetUsdRate || !sellAssetUsdRate)
             throw new Error(`USD rates not found.`)
@@ -106,7 +106,7 @@ export const swapperApi = createApi({
           const swapperManager = await getSwapperManager(featureFlags)
           const swappers = swapperManager.swappers
           const swapperType = await dispatch(
-            getBestSwapperApi.endpoints.getBestSwapperType.initiate({ ...args, feeAsset }),
+            getBestSwapperType.initiate({ ...args, feeAsset }),
           ).then(r => r.data)
           const swapper = swapperType ? swappers.get(swapperType) : undefined
 

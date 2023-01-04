@@ -4,6 +4,7 @@ import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
+import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -36,6 +37,7 @@ const apiMiddleware = [
   validatorDataApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
+  getBestSwapperApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
 ]

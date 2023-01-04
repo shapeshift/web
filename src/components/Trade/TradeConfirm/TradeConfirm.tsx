@@ -21,7 +21,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -29,7 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { useBestSwapper } from 'components/Trade/hooks/useBestSwapper'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -39,15 +38,13 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
-  selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'
@@ -57,7 +54,6 @@ import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
   const history = useHistory()
-  const thunkDispatch = useAppDispatch()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTradeId, setSellTradeId] = useState('')
@@ -69,9 +65,6 @@ export const TradeConfirm = () => {
   } = useFormContext<TS>()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
-  const flags = useSelector(selectFeatureFlags)
-
-  const { tradeQuoteArgs } = useTradeQuoteService()
 
   const {
     number: { toFiat },
@@ -81,8 +74,6 @@ export const TradeConfirm = () => {
     state: { isConnected, wallet },
     dispatch,
   } = useWallet()
-
-  const { getBestSwapper } = swapperApi.endpoints
 
   const {
     tradeAmounts,
@@ -98,6 +89,8 @@ export const TradeConfirm = () => {
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
+
+  const { bestSwapper } = useBestSwapper({ feeAsset: defaultFeeAsset })
 
   const reset = useCallback(() => {
     setValue('buyTradeAsset.amountCryptoPrecision', '')
@@ -134,24 +127,12 @@ export const TradeConfirm = () => {
   ])
 
   useEffect(() => {
-    ;(async () => {
-      const buyAssetId = trade?.buyAsset.assetId
-      const sellAssetId = trade?.sellAsset.assetId
-      if (!buyAssetId || !sellAssetId) return ''
-      const bestSwapper =
-        defaultFeeAsset && tradeQuoteArgs
-          ? (
-              await thunkDispatch(
-                getBestSwapper.initiate({
-                  ...tradeQuoteArgs,
-                  feeAsset: defaultFeeAsset,
-                }),
-              )
-            ).data
-          : undefined
+    const buyAssetId = trade?.buyAsset.assetId
+    const sellAssetId = trade?.sellAsset.assetId
+    if (!(!buyAssetId || !sellAssetId)) {
       setSwapper(bestSwapper)
-    })()
-  }, [defaultFeeAsset, flags, getBestSwapper, thunkDispatch, trade, tradeQuoteArgs])
+    }
+  }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending

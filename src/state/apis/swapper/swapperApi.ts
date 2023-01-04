@@ -4,7 +4,6 @@ import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { getBestSwapperFromArgs } from 'components/Trade/hooks/useSwapper/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
@@ -36,7 +35,7 @@ export const swapperApi = createApi({
   reducerPath: 'swapperApi',
   endpoints: build => ({
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
-      queryFn: async (args, { getState }) => {
+      queryFn: async (args, { getState, dispatch }) => {
         const { feeAssetId } = args
         const buyAssetId = args.tradeQuoteInputArgs
           ? args.tradeQuoteInputArgs.buyAsset.assetId
@@ -62,16 +61,24 @@ export const swapperApi = createApi({
           if (!buyAsset) throw new Error(`Asset not found for AssetId ${buyAssetId}`)
           if (!sellAsset) throw new Error(`Asset not found for AssetId ${sellAssetId}`)
 
-          const swapper = await getBestSwapperFromArgs({
-            featureFlags,
-            tradeQuoteArgs,
-            feeAsset,
-          })
+          const swapperManager = await getSwapperManager(featureFlags)
+          const swappers = swapperManager.swappers
+          const swapperType = await dispatch(
+            getBestSwapperApi.endpoints.getBestSwapperType.initiate({
+              ...tradeQuoteArgs,
+              feeAsset,
+            }),
+          ).then(r => r.data)
+          const swapper = swapperType ? swappers.get(swapperType) : undefined
+
           const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = await Promise.all([
-            swapper.getUsdRate(feeAsset),
-            swapper.getUsdRate(buyAsset),
-            swapper.getUsdRate(sellAsset),
+            swapper?.getUsdRate(feeAsset),
+            swapper?.getUsdRate(buyAsset),
+            swapper?.getUsdRate(sellAsset),
           ])
+
+          if (!feeAssetUsdRate || !buyAssetUsdRate || !sellAssetUsdRate)
+            throw new Error(`USD rates not found.`)
           const data = { feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate }
           return { data }
         } catch (e) {

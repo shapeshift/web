@@ -15,17 +15,8 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import {
-  type Swapper,
-  type Trade,
-  type TradeQuote,
-  type UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
+import { type Trade, type TradeQuote, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
@@ -144,31 +135,6 @@ export const getFormFees = ({
     default:
       throw new Error('Unsupported chain ' + sellAsset.chainId)
   }
-}
-
-type GetBestSwapperFromArgsInput = {
-  feeAsset: Asset
-  featureFlags: FeatureFlags
-} & (
-  | { tradeQuoteInputArgs?: never; tradeQuoteArgs: GetTradeQuoteInput }
-  | { tradeQuoteInputArgs: GetTradeQuoteInputArgs; tradeQuoteArgs?: never }
-)
-
-export const getBestSwapperFromArgs = async (
-  args: GetBestSwapperFromArgsInput,
-): Promise<Swapper<ChainId>> => {
-  const { featureFlags, tradeQuoteInputArgs, feeAsset } = args
-  const swapperManager = await getSwapperManager(featureFlags)
-  const tradeQuoteArgs: GetTradeQuoteInput | undefined = tradeQuoteInputArgs
-    ? await getTradeQuoteArgs(tradeQuoteInputArgs)
-    : args.tradeQuoteArgs
-  if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
-  const swapper = await swapperManager.getBestSwapper({
-    ...tradeQuoteArgs,
-    feeAsset,
-  })
-  if (!swapper) throw new Error('swapper is undefined')
-  return swapper
 }
 
 export const getDefaultAssetIdPairByChainId = (

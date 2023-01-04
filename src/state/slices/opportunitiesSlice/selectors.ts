@@ -370,10 +370,23 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         }, [] as StakingEarnOpportunityType[])
 
       // Keep only the version with actual data if it exists, else keep the zero'd out version
-      return uniqBy(
+      const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
         'contractAddress',
       )
+
+      return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
+        if (opportunity?.expired) {
+          return (
+            bnOrZero(opportunity.stakedAmountCryptoBaseUnit).gt(0) ||
+            opportunity?.rewardsAmountsCryptoBaseUnit?.some(rewardsAmount =>
+              bnOrZero(rewardsAmount).gt(0),
+            )
+          )
+        }
+
+        return true
+      })
     },
   )
 

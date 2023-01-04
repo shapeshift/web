@@ -29,7 +29,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -40,6 +39,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   selectFeatureFlags,
   selectFeeAssetByChainId,
@@ -47,7 +47,7 @@ import {
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'
@@ -57,6 +57,7 @@ import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
   const history = useHistory()
+  const thunkDispatch = useAppDispatch()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTradeId, setSellTradeId] = useState('')
@@ -80,6 +81,8 @@ export const TradeConfirm = () => {
     state: { isConnected, wallet },
     dispatch,
   } = useWallet()
+
+  const { getBestSwapper } = swapperApi.endpoints
 
   const {
     tradeAmounts,
@@ -135,17 +138,20 @@ export const TradeConfirm = () => {
       const buyAssetId = trade?.buyAsset.assetId
       const sellAssetId = trade?.sellAsset.assetId
       if (!buyAssetId || !sellAssetId) return ''
-      const swapperManager = await getSwapperManager(flags)
       const bestSwapper =
         defaultFeeAsset && tradeQuoteArgs
-          ? await swapperManager.getBestSwapper({
-              ...tradeQuoteArgs,
-              feeAsset: defaultFeeAsset,
-            })
+          ? (
+              await thunkDispatch(
+                getBestSwapper.initiate({
+                  ...tradeQuoteArgs,
+                  feeAsset: defaultFeeAsset,
+                }),
+              )
+            ).data
           : undefined
       setSwapper(bestSwapper)
     })()
-  }, [defaultFeeAsset, flags, trade, tradeQuoteArgs])
+  }, [defaultFeeAsset, flags, getBestSwapper, thunkDispatch, trade, tradeQuoteArgs])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending

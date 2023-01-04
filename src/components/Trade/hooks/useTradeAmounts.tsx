@@ -7,7 +7,6 @@ import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
@@ -38,7 +37,6 @@ export const useTradeAmounts = () => {
 
   // Hooks
   const dispatch = useAppDispatch()
-  const { swapperManager } = useSwapper()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
 
@@ -63,7 +61,7 @@ export const useTradeAmounts = () => {
   const sellAssetFormState = sellTradeAsset?.asset
   const buyAssetFormState = buyTradeAsset?.asset
 
-  const { getUsdRates, getTradeQuote } = swapperApi.endpoints
+  const { getUsdRates, getTradeQuote, getBestSwapper } = swapperApi.endpoints
   const assets = useSelector(selectAssets)
 
   const setTradeAmounts = useCallback(
@@ -186,10 +184,14 @@ export const useTradeAmounts = () => {
       })
 
       const bestTradeSwapper = tradeQuoteArgs
-        ? await swapperManager.getBestSwapper({
-            ...tradeQuoteArgs,
-            feeAsset,
-          })
+        ? (
+            await dispatch(
+              getBestSwapper.initiate({
+                ...tradeQuoteArgs,
+                feeAsset,
+              }),
+            )
+          ).data
         : undefined
 
       if (!bestTradeSwapper) {
@@ -248,6 +250,7 @@ export const useTradeAmounts = () => {
       assets,
       buyAssetFormState?.assetId,
       dispatch,
+      getBestSwapper,
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,
@@ -257,7 +260,6 @@ export const useTradeAmounts = () => {
       sellTradeAsset?.amountCryptoPrecision,
       setTradeAmounts,
       setValue,
-      swapperManager,
       wallet,
     ],
   )

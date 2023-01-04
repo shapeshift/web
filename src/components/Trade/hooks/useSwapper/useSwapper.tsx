@@ -23,6 +23,7 @@ import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectAssetIds, selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -30,7 +31,7 @@ import {
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
@@ -53,6 +54,7 @@ export const useSwapper = () => {
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
   const sellAssetChainId = sellAsset?.chainId
+  const { getBestSwapper } = swapperApi.endpoints
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
@@ -60,6 +62,7 @@ export const useSwapper = () => {
   const wallet = useWallet().state.wallet
   const { tradeQuoteArgs } = useTradeQuoteService()
   const { receiveAddress } = useReceiveAddress()
+  const dispatch = useAppDispatch()
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -216,15 +219,27 @@ export const useSwapper = () => {
       ;(async () => {
         const swapper =
           tradeQuoteArgs && defaultFeeAsset
-            ? await swapperManager.getBestSwapper({
-                ...tradeQuoteArgs,
-                feeAsset: defaultFeeAsset,
-              })
+            ? (
+                await dispatch(
+                  getBestSwapper.initiate({
+                    ...tradeQuoteArgs,
+                    feeAsset: defaultFeeAsset,
+                  }),
+                )
+              ).data
             : undefined
         setBestTradeSwapper(swapper)
       })()
     }
-  }, [buyAssetId, defaultFeeAsset, sellAssetId, swapperManager, tradeQuoteArgs])
+  }, [
+    buyAssetId,
+    defaultFeeAsset,
+    dispatch,
+    getBestSwapper,
+    sellAssetId,
+    swapperManager,
+    tradeQuoteArgs,
+  ])
 
   useEffect(() => {
     ;(async () => {

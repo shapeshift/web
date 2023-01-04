@@ -1,4 +1,4 @@
-import { ASSET_REFERENCE, osmosisChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
 import { Asset } from '../../service/AssetService'
@@ -27,6 +27,9 @@ type OsmoAsset = {
     dst_channel: string
     source_denom: string
   }
+  pools?: {
+    [key: string]: number
+  }
 }
 
 type OsmosisAssetList = {
@@ -35,11 +38,17 @@ type OsmosisAssetList = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const { data } = await axios.get<OsmosisAssetList>(
+  const { data: assetData } = await axios.get<OsmosisAssetList>(
     'https://raw.githubusercontent.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json',
   )
 
-  return data.assets.reduce<Asset[]>((acc, current) => {
+  /* Osmosis pool IDs are guaranteed to be unique integers, so we use a set to keep track of 
+    which pools we've already seen. A lookup is necessary because the Osmosis asset list 
+    contains duplicate entries for each pool, eg. ATOM/OSMO == OSMO/ATOM. 
+  */
+  const lpAssetsAdded = new Set()
+
+  return assetData.assets.reduce<Asset[]>((acc, current) => {
     if (!current) return acc
 
     const denom = current.denom_units.find((item) => item.denom === current.display)
@@ -58,7 +67,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     })()
 
     // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
-    const getName = (a: OsmoAsset): string => (a.ibc ? `${a.name} on Osmosis` : a.name)
+    const getAssetName = (a: OsmoAsset): string => (a.ibc ? `${a.name} on Osmosis` : a.name)
 
     const assetId = `cosmos:osmosis-1/${assetNamespace}:${assetReference}`
 
@@ -66,7 +75,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       assetId,
       chainId: osmosisChainId,
       symbol: current.symbol,
-      name: getName(current),
+      name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: current.logo_URIs.png,
@@ -92,8 +101,38 @@ export const getAssets = async (): Promise<Asset[]> => {
         options,
       )
     }
-
     acc.push(assetDatum)
+
+    // If liquidity pools are available for asset, generate assets representing LP tokens for each pool available.
+
+    const getLPTokenName = (asset1: string, asset2: string): string =>
+      `Osmosis ${asset1}/${asset2} LP Token`
+
+    if (current.pools) {
+      for (const [pairedToken, poolId] of Object.entries(current.pools)) {
+        if (lpAssetsAdded.has(poolId)) continue
+
+        const lpAssetDatum: Asset = {
+          assetId: toAssetId({
+            chainId: osmosisChainId,
+            assetNamespace: 'ibc',
+            assetReference: `gamm/pool/${poolId}`,
+          }),
+          chainId: osmosisChainId,
+          symbol: `gamm/pool/${poolId}`,
+          name: getLPTokenName(current.symbol, pairedToken),
+          precision: osmosis.precision,
+          color: osmosis.color,
+          icon: osmosis.icon,
+          explorer: osmosis.explorer,
+          explorerAddressLink: osmosis.explorerAddressLink,
+          explorerTxLink: osmosis.explorerTxLink,
+        }
+        acc.push(lpAssetDatum)
+        lpAssetsAdded.add(poolId)
+      }
+    }
+
     return acc
   }, [])
 }

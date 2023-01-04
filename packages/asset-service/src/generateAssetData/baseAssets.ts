@@ -87,7 +87,7 @@ export const osmosis: Asset = {
   name: 'Osmosis',
   precision: 6,
   color: '#750BBB',
-  icon: 'https://assets.coincap.io/assets/icons/osmo@2x.png',
+  icon: 'https://rawcdn.githack.com/cosmos/chain-registry/master/osmosis/images/osmo.png',
   explorer: 'https://www.mintscan.io/osmosis',
   explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
   explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',

@@ -43,8 +43,8 @@
   "devDependencies": {
     "@ethersproject/providers": "^5.5.3",
     "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/investor-idle": "^2.4.1",
+    "@shapeshiftoss/types": "^8.1.0",
     "@types/node-polyglot": "^2.4.2",
     "@yfi/sdk": "^1.2.0",
     "colorthief": "^2.3.2",

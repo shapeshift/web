@@ -15,7 +15,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
     return eligibleOpportunities
-      .filter(o => bnOrZero(o.tvl).gt(50000))
+      .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())
       .map(opportunity => <FeaturedCard key={opportunity.assetId} {...opportunity} />)
   }, [eligibleOpportunities])

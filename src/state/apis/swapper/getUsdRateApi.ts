@@ -15,9 +15,9 @@ type State = {
   preferences: Preferences
 }
 
-export const usdRateApi = createApi({
+export const getUsdRateApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'usdRateApi',
+  reducerPath: 'getUsdRateApi',
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
       queryFn: async ({ assetId, swapperType }, { getState }) => {
@@ -39,7 +39,7 @@ export const usdRateApi = createApi({
         } catch (e) {
           return {
             error: {
-              error: 'getUsdRates: error fetching USD rates',
+              error: 'getUsdRate: error fetching USD rate',
               status: 'CUSTOM_ERROR',
             },
           }

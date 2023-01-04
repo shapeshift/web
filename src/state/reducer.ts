@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -39,6 +40,7 @@ export const sliceReducers = {
   validatorData: validatorData.reducer,
   swapperApi: swapperApi.reducer,
   getBestSwapperApi: getBestSwapperApi.reducer,
+  getUsdRateApi: getUsdRateApi.reducer,
   opportunities: opportunities.reducer,
 }
 
@@ -50,6 +52,7 @@ export const apiSlices = {
   validatorDataApi,
   swapperApi,
   getBestSwapperApi,
+  getUsdRateApi,
   foxyApi,
   fiatRampApi,
   opportunitiesApi,
@@ -63,6 +66,7 @@ export const apiReducers = {
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
   [getBestSwapperApi.reducerPath]: getBestSwapperApi.reducer,
+  [getUsdRateApi.reducerPath]: getUsdRateApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,

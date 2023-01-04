@@ -7,7 +7,7 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
-import { usdRateApi } from 'state/apis/swapper/getUsdRateApi'
+import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -32,7 +32,7 @@ type State = {
 type GetTradeQuoteReturn = TradeQuote<ChainId>
 
 const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
-const getUsdRate = usdRateApi.endpoints.getUsdRate
+const getUsdRate = getUsdRateApi.endpoints.getUsdRate
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

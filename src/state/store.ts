@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -38,6 +39,7 @@ const apiMiddleware = [
   foxyApi.middleware,
   swapperApi.middleware,
   getBestSwapperApi.middleware,
+  getUsdRateApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
 ]

@@ -12,6 +12,11 @@ type State = {
 }
 
 type GetBestSwapperArgs = GetTradeQuoteInput & { feeAsset: Asset }
+
+/*
+We can't return the swapper directly as it is not serializable, so we return the SwapperType which can be matched
+to a swapper in the swapperManager, which is keyed by SwapperType
+ */
 type GetBestSwapperReturn = SwapperType | undefined
 
 export const getBestSwapperApi = createApi({
@@ -31,7 +36,7 @@ export const getBestSwapperApi = createApi({
         } catch (e) {
           return {
             error: {
-              error: 'getBestSwapper: error getting best swapper',
+              error: 'getBestSwapper: error getting best swapper type',
               status: 'CUSTOM_ERROR',
             },
           }

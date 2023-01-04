@@ -10,7 +10,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ThorchainSaversDeposit } from './Deposit/ThorchainSaversDeposit'
-import { YearnOverview } from './Overview/YearnOverview'
+import { ThorchainSaversOverview } from './Overview/ThorchainSaversOverview'
 import { ThorchainSaversWithdraw } from './Withdraw/ThorchainSaversWithdraw'
 
 export const ThorchainSaversManager = () => {
@@ -22,7 +22,7 @@ export const ThorchainSaversManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <YearnOverview accountId={accountId} onAccountIdChange={setAccountId} />
+          <ThorchainSaversOverview accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (

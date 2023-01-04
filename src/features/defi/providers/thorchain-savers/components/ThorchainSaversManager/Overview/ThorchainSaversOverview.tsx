@@ -49,12 +49,12 @@ const makeDefaultMenu = (isExpired?: boolean): DefiButtonProps[] => [
   },
 ]
 
-type YearnOverviewProps = {
+type OverviewProps = {
   accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-export const YearnOverview: React.FC<YearnOverviewProps> = ({
+export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {

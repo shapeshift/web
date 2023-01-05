@@ -133,7 +133,8 @@ export const Overview: React.FC<OverviewProps> = ({
     if (!accountMetadata) return
     const { accountType, bip44Params } = accountMetadata
     const showOnDevice = true
-    const payload = { accountType, bip44Params, wallet, showOnDevice }
+    const { accountNumber } = bip44Params
+    const payload = { accountType, accountNumber, wallet, showOnDevice }
     const verifiedAddress = await getChainAdapterManager()
       .get(fromAccountId(accountId).chainId)!
       .getAddress(payload)

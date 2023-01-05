@@ -4,7 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { type GetTradeQuoteInput, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -30,7 +30,7 @@ type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  sellAccountBip44Params: BIP44Params
+  sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
   sellAmountBeforeFeesCryptoPrecision: string
@@ -40,7 +40,7 @@ type GetTradeQuoteInputArgs = {
 export const getTradeQuoteArgs = async ({
   sellAsset,
   buyAsset,
-  sellAccountBip44Params,
+  sellAccountNumber,
   sellAccountType,
   wallet,
   receiveAddress,
@@ -62,7 +62,7 @@ export const getTradeQuoteArgs = async ({
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
+      accountNumber: sellAccountNumber,
     }
   } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
     if (!sellAccountType) return
@@ -71,13 +71,13 @@ export const getTradeQuoteArgs = async ({
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,
-      sellAccountBip44Params,
+      sellAccountNumber,
       sellAccountType,
     )
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
+      accountNumber: sellAccountNumber,
       accountType: sellAccountType,
       xpub,
     }
@@ -151,10 +151,11 @@ export const useTradeQuoteService = () => {
 
         if (!chainAdapter)
           throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
+        const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
-          sellAccountBip44Params: sellAccountMetadata.bip44Params,
+          sellAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,

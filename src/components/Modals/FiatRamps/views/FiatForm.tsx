@@ -76,7 +76,8 @@ export const FiatForm: React.FC<FiatFormProps> = ({
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
           moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-          const payload = { accountType, bip44Params, wallet }
+          const { accountNumber } = bip44Params
+          const payload = { accountType, accountNumber, wallet }
           const { chainId } = fromAccountId(accountId)
           const maybeAdapter = getChainAdapterManager().get(chainId)
           if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)

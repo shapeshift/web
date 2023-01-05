@@ -14,6 +14,7 @@ type EligibleSliderProps = {
 export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4, ...rest }) => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
+    // opportunities with 1% APY or more
     return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())

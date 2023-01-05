@@ -18,6 +18,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const translate = useTranslate()
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
+    // opportunities with 1% APY or more
     return eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy).minus(a.apy).toNumber())

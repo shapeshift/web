@@ -10,6 +10,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ThorchainSaversDeposit } from './Deposit/ThorchainSaversDeposit'
+import { Dust } from './Dust/Dust'
 import { ThorchainSaversOverview } from './Overview/ThorchainSaversOverview'
 import { ThorchainSaversWithdraw } from './Withdraw/ThorchainSaversWithdraw'
 
@@ -37,7 +38,7 @@ export const ThorchainSaversManager = () => {
       )}
       {modal === DefiAction.Dust && (
         <SlideTransition key={DefiAction.Dust}>
-          <ThorchainSaversWithdraw accountId={accountId} onAccountIdChange={setAccountId} />
+          <Dust accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

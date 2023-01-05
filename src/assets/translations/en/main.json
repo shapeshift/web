@@ -290,7 +290,15 @@
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Something about vault caps",
         "haultedTitle": "Deposits are temporarily halted.",
-        "haultedDescription": "Please tweet at Thorchain to raise the caps!"
+        "haultedDescription": "Please tweet at Thorchain to raise the caps!",
+        "estimatedFee": "Estimated Fee",
+        "fee": "Fee",
+        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
+        "dustAmount": "Dust Amount",
+        "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
+        "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
+        "sendDust": "Send Dust",
+        "addressToSendTo": "Address to Send To"
       }
     },
     "memoNote": {

@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -209,9 +210,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         </Row>
-        <Row p={4}>
+        <Row variant='gutter'>
           <Row.Label>
-            <Text translation='modals.confirm.estimatedGas' />
+            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
+              <Text translation='defi.modals.saversVaults.estimatedFee' />
+            </HelperTooltip>
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
@@ -229,6 +232,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                   .toFixed(5)}
                 symbol={feeAsset.symbol}
               />
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
+              <Text translation='defi.modals.saversVaults.dustAmount' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat fontWeight='bold' value='0' />
+              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
             </Box>
           </Row.Value>
         </Row>

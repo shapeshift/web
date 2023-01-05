@@ -28,7 +28,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
@@ -122,10 +121,6 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
-      },
-      [DefiStep.Approve]: {
-        label: translate('defi.steps.approve.title'),
-        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

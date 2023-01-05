@@ -60,6 +60,11 @@ const makeDefaultMenu = (isExpired?: boolean, isDisabled?: boolean): DefiButtonP
     icon: <ArrowDownIcon />,
     action: DefiAction.Withdraw,
   },
+  {
+    label: 'common.dust',
+    icon: <FaGift />,
+    action: DefiAction.Dust,
+  },
 ]
 
 type OverviewProps = {
@@ -80,7 +85,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   // Placeholder for cap amounts
   // If the cap limit is 0 we should hide these components as this should mean caps are disabled
   const capLimit = 500
-  const capUsed = 250
+  const capUsed = 500
   const capPercentaged = bnOrZero(capUsed).div(capLimit).times(100).toNumber()
   const isCapUsed = bnOrZero(capLimit).gt(0) && bnOrZero(capPercentaged).eq(100)
 
@@ -217,7 +222,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             </AlertDescription>
             <Button
               as={Link}
-              href='https://twitter.com/thorchain'
+              href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
               isExternal
               mt={4}
               colorScheme='twitter'
@@ -236,7 +241,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         )}
       </Flex>
     )
-  }, [alertBg, capPercentaged, translate])
+  }, [alertBg, capPercentaged, translate, underlyingAsset?.symbol])
 
   if (!opportunityData) {
     return (

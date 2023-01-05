@@ -11,6 +11,7 @@ import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -145,13 +146,15 @@ export const Status = () => {
         </Row>
         <Row variant='gutter'>
           <Row.Label>
-            <Text
-              translation={
-                state.withdraw.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
-              }
-            />
+            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
+              <Text
+                translation={
+                  state.withdraw.txStatus === 'pending'
+                    ? 'defi.modals.saversVaults.estimatedFee'
+                    : 'defi.modals.saversVaults.fee'
+                }
+              />
+            </HelperTooltip>
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
@@ -177,6 +180,19 @@ export const Status = () => {
                   .toFixed(5)}
                 symbol='ETH'
               />
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
+              <Text translation='defi.modals.saversVaults.dustAmount' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat fontWeight='bold' value='0' />
+              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
             </Box>
           </Row.Value>
         </Row>

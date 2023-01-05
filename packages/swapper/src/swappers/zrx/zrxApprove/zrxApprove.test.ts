@@ -1,4 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { AxiosAdapter } from 'axios'
 import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
@@ -9,6 +10,9 @@ import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove'
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 jest.mock('web3')
+jest.mock('axios-cache-adapter', () => ({
+  setupCache: jest.fn().mockReturnValue({ adapter: {} as AxiosAdapter }),
+}))
 jest.mock('../../utils/helpers/helpers', () => ({
   grantAllowance: jest.fn(() => 'grantAllowanceTxId'),
 }))

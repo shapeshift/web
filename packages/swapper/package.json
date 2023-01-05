@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "axios": "^0.26.1",
+    "axios-cache-adapter": "^2.7.3",
     "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
     "retry-axios": "^2.6.0",
@@ -44,9 +45,9 @@
     "@shapeshiftoss/errors": "^1.1.2",
     "@shapeshiftoss/hdwallet-core": "^1.41.0",
     "@shapeshiftoss/types": "^8.1.0",
+    "@shapeshiftoss/unchained-client": "^10.0.1",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
-    "web3-utils": "1.7.4",
-    "@shapeshiftoss/unchained-client": "^10.0.1"
+    "web3-utils": "1.7.4"
   }
 }

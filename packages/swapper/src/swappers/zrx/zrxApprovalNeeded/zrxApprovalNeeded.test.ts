@@ -1,5 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { AxiosAdapter } from 'axios'
 import Web3 from 'web3'
 
 import { ApprovalNeededInput } from '../../../api'
@@ -15,6 +16,9 @@ jest.mock('axios', () => ({
   create: jest.fn(() => ({
     get: jest.fn(),
   })),
+}))
+jest.mock('axios-cache-adapter', () => ({
+  setupCache: jest.fn().mockReturnValue({ adapter: {} as AxiosAdapter }),
 }))
 
 // @ts-ignore

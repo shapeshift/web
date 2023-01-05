@@ -74,12 +74,14 @@ export type FeeData = {
 }
 
 export type BuildTxInput = {
+  from?: string
   opReturnData?: string
   accountType: UtxoAccountType
   satoshiPerByte: string
 }
 
 export type GetFeeDataInput = {
+  from?: string
   pubkey: string
   opReturnData?: string
 }

@@ -1,5 +1,4 @@
 import { usePrevious } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import {
   type AssetId,
   cosmosChainId,
@@ -112,15 +111,14 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
 
     const buyAsset = buyAssetId ? assets[buyAssetId] : undefined
-    const sellAsset: Asset | undefined = assets[defaultAssetIdPair?.sellAssetId]
+    const sellAsset = assets[defaultAssetIdPair?.sellAssetId]
 
     const receiveAddress =
       buyAsset && sellAccountMetadata
         ? await getReceiveAddress({
             asset: buyAsset,
             wallet,
-            bip44Params: sellAccountMetadata.bip44Params,
-            accountType: sellAccountMetadata.accountType,
+            accountMetadata: sellAccountMetadata,
           })
         : undefined
 
@@ -193,8 +191,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,
-        bip44Params: accountMetadata.bip44Params,
-        accountType: accountMetadata.accountType,
+        accountMetadata,
       })
       const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
       const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]

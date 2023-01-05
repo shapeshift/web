@@ -43,8 +43,7 @@ export const useReceiveAddress = () => {
     async (buyAsset: Asset) => {
       if (!buyAssetAccountId) return
       if (!buyAccountMetadata) return
-      const { accountType, bip44Params } = buyAccountMetadata
-      if (isUtxoAccountId(buyAssetAccountId) && !accountType)
+      if (isUtxoAccountId(buyAssetAccountId) && !buyAccountMetadata.accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAssetAccountId}`)
       const buyAssetChainId = buyAsset.chainId
       const buyAssetAccountChainId = fromAccountId(buyAssetAccountId).chainId
@@ -56,8 +55,7 @@ export const useReceiveAddress = () => {
       const receiveAddress = await getReceiveAddress({
         asset: buyAsset,
         wallet,
-        bip44Params,
-        accountType,
+        accountMetadata: buyAccountMetadata,
       })
       return receiveAddress
     },

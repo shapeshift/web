@@ -194,10 +194,10 @@ export const getDefaultAssetIdPairByChainId = (
 export const getReceiveAddress = async ({
   asset,
   wallet,
-  bip44Params,
-  accountType,
+  accountMetadata,
 }: GetReceiveAddressArgs): Promise<string | undefined> => {
   const { chainId } = fromAssetId(asset.assetId)
+  const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!(chainAdapter && wallet)) return
   try {

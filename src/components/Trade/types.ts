@@ -10,7 +10,8 @@ import {
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
-import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY_CRYPTO = 'BUY_CRYPTO',
@@ -75,8 +76,7 @@ export type SupportedSwappingChain =
 export type GetReceiveAddressArgs = {
   asset: Asset
   wallet: HDWallet | null
-  bip44Params: BIP44Params
-  accountType?: UtxoAccountType
+  accountMetadata: AccountMetadata
 }
 
 export type TradeQuoteInputCommonArgs = Pick<

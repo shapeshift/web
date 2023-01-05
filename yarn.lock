@@ -4057,10 +4057,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.2.0":
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.2.0.tgz#668b428f360561455be974eafb546fbf7dc7b2ac"
-  integrity sha512-mA11pb0Yt50yntWgSLcbJ2r4GMz20jGYllRQwptGTgSgjJzj5H1W0yG4ora/I2X5EDR5nfBeENVvPWLPiLK5zA==
+"@shapeshiftoss/asset-service@^8.5.0":
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.5.0.tgz#6659b9ec0e2007af9fcc479ea04d87a01c1cbd87"
+  integrity sha512-c7ZnQRjiXnG8P7mfkhYSG2lTOObVSN+2uwyGiiMA2YQus1NH8fLx3d7o00MBmYHTsK2t556282PryUeG4v2D1A==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4095,10 +4095,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
   integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
 
-"@shapeshiftoss/caip@^8.5.0":
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.5.0.tgz#f4652b70616122abfeccb70a627cbd05d963490c"
-  integrity sha512-xXMjzCFVo6/h2WVGjNlN6TbN8sWfpvMAWpjF/dqi9TCvYX1yUYEZWRqtXXrDvGsrpbMsjXsLynwuAH/SjuwfdQ==
+"@shapeshiftoss/caip@^8.6.0":
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.6.0.tgz#7d0134919a92d1e2eb456f190197cf7911c01718"
+  integrity sha512-5Gw6MScFxRP89fjtKR0gqguiE4jhGNHuyuW/bcusUvlWlcr/DEOP51xOYCRX09YhKNnhkU6+Nf1SQh1DPUt6Tw==
 
 "@shapeshiftoss/chain-adapters@10.5.1":
   version "10.5.1"

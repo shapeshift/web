@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.2...@shapeshiftoss/swapper-v15.0.3) (2023-01-05)
+
+
+### Performance Improvements
+
+* **swapper:** add caching to swapper requests ([#1151](https://github.com/shapeshift/lib/issues/1151)) ([76c6f84](https://github.com/shapeshift/lib/commit/76c6f84f496931aad3c58b8f4088f84287e426ed))
+
 # [@shapeshiftoss/swapper-v15.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.1...@shapeshiftoss/swapper-v15.0.2) (2022-12-23)
 
 

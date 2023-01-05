@@ -16,7 +16,7 @@ export enum DefiProvider {
   FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
-  ThorchainSavers = 'Thorchain Savers',
+  ThorchainSavers = 'THORChain Savers',
 }
 
 export enum DefiAction {

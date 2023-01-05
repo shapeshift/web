@@ -47,6 +47,8 @@ export const SignMessageConfirmation: React.FC<SignMessageConfirmationProps> = p
   const [gasInputValue, setGasInputValue] = useState<WalletConnectFeeDataKey>(FeeDataKey.Average)
   // walletconnect only supports eth mainnet
   const ethAsset = useAppSelector(s => selectAssetById(s, ethAssetId))
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const ethMarketData = useAppSelector(s => selectMarketDataById(s, ethAssetId))
   const titleRightComponent = useMemo(() => {
     return (

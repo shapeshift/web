@@ -74,10 +74,12 @@ export const getTransfers = (
 ): Transfer[] => {
   return transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = assets[transfer.assetId]
-    return [
-      ...prev,
-      { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
-    ]
+    return asset
+      ? [
+          ...prev,
+          { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
+        ]
+      : prev
   }, [])
 }
 

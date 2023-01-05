@@ -35,7 +35,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const fiatBalances = useSelector(selectPortfolioAccountsFiatBalancesIncludingStaking)
   const cryptoBalance = cryptoBalances?.[accountId]?.[assetId]
   const fiatBalance = fiatBalances?.[accountId]?.[assetId]
-  const { icon, name, symbol } = asset
+  const { icon, name, symbol } = asset ?? {}
 
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
@@ -71,13 +71,13 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           </RawText>
         </Stack>
         <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }}>
-          <Amount.Crypto value={cryptoBalance} symbol={symbol} />
+          <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
           <Amount.Fiat value={fiatBalance} />
           <Amount.Crypto
             value={cryptoBalance}
-            symbol={symbol}
+            symbol={symbol ?? ''}
             fontSize='sm'
             display={{ base: 'block', md: 'none' }}
           />

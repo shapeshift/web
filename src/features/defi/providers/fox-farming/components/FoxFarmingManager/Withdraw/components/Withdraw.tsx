@@ -68,6 +68,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
   )

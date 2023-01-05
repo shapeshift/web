@@ -117,7 +117,7 @@ export const YearnDeposit: React.FC<YearnDepositProps> = ({
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: underlyingAsset?.symbol ?? '',
         }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
@@ -136,7 +136,7 @@ export const YearnDeposit: React.FC<YearnDepositProps> = ({
         component: Status,
       },
     }
-  }, [translate, underlyingAsset.symbol, accountId, handleAccountIdChange])
+  }, [translate, underlyingAsset?.symbol, accountId, handleAccountIdChange])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 

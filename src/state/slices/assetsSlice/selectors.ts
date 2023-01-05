@@ -18,6 +18,7 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
@@ -45,7 +46,7 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
   selectCryptoMarketDataIdsSortedByMarketCap,
-  (assetsByIdOriginal, sortedMarketDataIds) => {
+  (assetsByIdOriginal, sortedMarketDataIds): Asset[] => {
     const assetById = cloneDeep(assetsByIdOriginal)
     // we only prefetch market data for some
     // and want this to be fairly performant so do some mutatey things
@@ -58,7 +59,7 @@ export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
       return acc
     }, [])
     const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
+    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap].filter(isSome)
   },
 )
 
@@ -138,7 +139,7 @@ export const selectFeeAssetByChainId = createCachedSelector(
 export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  (assetsById, assetId): Asset => {
+  (assetsById, assetId): Asset | undefined => {
     const { chainNamespace, chainReference } = fromAssetId(assetId)
     const feeAssetId = toAssetId({
       chainNamespace,

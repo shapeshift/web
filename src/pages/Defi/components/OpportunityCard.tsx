@@ -68,6 +68,8 @@ export const OpportunityCard = ({
   const history = useHistory()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
   const { assetReference } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)

@@ -87,8 +87,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [opportunityData?.underlyingAssetIds],
   )
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])

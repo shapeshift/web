@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v7.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.2...@shapeshiftoss/investor-foxy-v7.0.3) (2023-01-05)
+
+
+### Bug Fixes
+
+* only inject accountNumber, not full bip44params ([#1147](https://github.com/shapeshift/lib/issues/1147)) ([7e53b6d](https://github.com/shapeshift/lib/commit/7e53b6d517d069d8a1831e4b474405b4e9220dcf))
+
 # [@shapeshiftoss/investor-foxy-v7.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.1...@shapeshiftoss/investor-foxy-v7.0.2) (2022-10-19)
 
 # [@shapeshiftoss/investor-foxy-v7.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.0...@shapeshiftoss/investor-foxy-v7.0.1) (2022-10-12)

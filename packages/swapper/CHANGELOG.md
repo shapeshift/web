@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.4...@shapeshiftoss/swapper-v15.1.0) (2023-01-05)
+
+
+### Features
+
+* **swapper:** update ThornodePoolResponse to the latest /lcd/thorchain/pools schema ([#1152](https://github.com/shapeshift/lib/issues/1152)) ([500af15](https://github.com/shapeshift/lib/commit/500af150287f820b8719bd67c16b75e707e184b2))
+
 # [@shapeshiftoss/swapper-v15.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.3...@shapeshiftoss/swapper-v15.0.4) (2023-01-05)
 
 

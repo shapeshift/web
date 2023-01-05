@@ -47,15 +47,11 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    bip44Params,
+    accountNumber,
     chainId,
     receiveAddress,
     sendMax,
   } = input
-
-  if (!bip44Params) {
-    throw new Error('bip44Params required in getThorTradeQuote')
-  }
 
   try {
     const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
@@ -127,7 +123,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
       buyAsset,
       sellAsset,
-      bip44Params,
+      accountNumber,
       minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
       recommendedSlippage: recommendedSlippage.toPrecision(),
     }

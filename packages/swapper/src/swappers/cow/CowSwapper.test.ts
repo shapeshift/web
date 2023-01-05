@@ -207,7 +207,7 @@ describe('CowSwapper', () => {
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
         buyAsset: FOX,
         sellAsset: WETH,
-        bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+        accountNumber: 0,
         receiveAddress: 'address11',
         feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
         rate: '14716.04718939437505555958',

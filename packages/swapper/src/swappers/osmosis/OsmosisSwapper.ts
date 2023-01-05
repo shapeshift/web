@@ -157,7 +157,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       receiveAddress,
-      bip44Params,
+      accountNumber,
     } = args
 
     if (!sellAmountCryptoBaseUnit) {
@@ -200,14 +200,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBase, // TODO(gomes): wat?
       sellAsset,
-      bip44Params,
+      accountNumber,
       sources: [{ name: SwapperName.Osmosis, proportion: '100' }],
     }
   }
 
   async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
     const {
-      bip44Params,
+      accountNumber,
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
@@ -247,7 +247,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       },
       maximum,
       minimumCryptoHuman: minimum, // TODO(gomes): shorthand?
-      bip44Params,
+      accountNumber,
       rate,
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
@@ -262,7 +262,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      bip44Params,
+      accountNumber,
       receiveAddress,
     } = trade
 
@@ -292,7 +292,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     let cosmosIbcTradeId = ''
 
     if (!isFromOsmo) {
-      sellAddress = await cosmosAdapter.getAddress({ wallet, bip44Params })
+      sellAddress = await cosmosAdapter.getAddress({ wallet, accountNumber })
 
       if (!sellAddress)
         throw new SwapError('Failed to get address', {
@@ -306,7 +306,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
-      const accountNumber = responseAccount.chainSpecific.accountNumber || '0'
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
       const { tradeId } = await performIbcTransfer(
@@ -317,7 +316,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         'uatom',
         COSMO_OSMO_CHANNEL,
         feeData.fast.txFee,
-        accountNumber,
+        accountNumber.toString(),
         sequence,
         gas,
         'uatom',
@@ -338,7 +337,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
       await new Promise((resolve) => setTimeout(resolve, 5000))
     } else {
-      sellAddress = await osmosisAdapter.getAddress({ wallet, bip44Params })
+      sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
 
       if (!sellAddress)
         throw new SwapError('failed to get osmoAddress', {

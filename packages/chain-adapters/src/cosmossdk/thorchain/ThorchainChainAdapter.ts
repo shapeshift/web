@@ -72,11 +72,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params, showOnDevice = false } = input
-
-    if (!bip44Params) {
-      throw new Error('bip44Params required in getAddress input')
-    }
+    const { wallet, accountNumber, showOnDevice = false } = input
+    const bip44Params = this.getBIP44Params({ accountNumber })
 
     try {
       if (supportsThorchain(wallet)) {
@@ -118,7 +115,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       const {
-        bip44Params,
+        accountNumber,
         chainSpecific: { fee },
         sendMax,
         to,
@@ -126,7 +123,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         wallet,
       } = tx
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
@@ -153,9 +150,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       // TODO memo validation
-      const { wallet, bip44Params, value, memo } = tx
+      const { accountNumber, wallet, value, memo } = tx
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const msg: Message = {

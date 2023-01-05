@@ -1,4 +1,3 @@
-import { BIP44Params } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as types from '../types'
@@ -25,7 +24,7 @@ export type ValidatorAction = {
 
 export type BuildTransactionInput<T extends CosmosSdkChainId> = {
   account: types.Account<T>
-  bip44Params: BIP44Params
+  accountNumber: number
   msg: Message
   memo?: string
 } & types.ChainSpecificBuildTxData<T>

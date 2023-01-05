@@ -50,8 +50,6 @@ export type ChainAdapter<T extends ChainId> = {
    */
   getAccount(pubkey: string): Promise<Account<T>>
 
-  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params
-
   /**
    * Get BIP44Params for the given accountNumber and optional accountType
    */

@@ -1,7 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
 
 import { EvmSupportedChainAdapter, SwapError, SwapErrorTypes } from '../../../../api'
@@ -10,7 +9,7 @@ import { getThorTxInfo } from './utils/getThorTxData'
 
 type MakeTradeTxArgs = {
   wallet: HDWallet
-  bip44Params: BIP44Params
+  accountNumber: number
   sellAmountCryptoBaseUnit: string
   buyAsset: Asset
   sellAsset: Asset
@@ -35,7 +34,7 @@ type MakeTradeTxArgs = {
 
 export const makeTradeTx = async ({
   wallet,
-  bip44Params,
+  accountNumber,
   sellAmountCryptoBaseUnit,
   buyAsset,
   sellAsset,
@@ -67,7 +66,7 @@ export const makeTradeTx = async ({
 
     return adapter.buildCustomTx({
       wallet,
-      bip44Params,
+      accountNumber,
       to: router,
       gasLimit,
       ...(gasPriceCryptoBaseUnit !== undefined

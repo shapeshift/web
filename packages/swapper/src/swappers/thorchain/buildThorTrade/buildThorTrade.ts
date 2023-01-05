@@ -31,7 +31,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       receiveAddress: destinationAddress,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       sellAsset,
-      bip44Params,
+      accountNumber,
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
       wallet,
       sendMax,
@@ -53,7 +53,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       const ethTradeTx = await makeTradeTx({
         wallet,
         slippageTolerance,
-        bip44Params,
+        accountNumber,
         sellAsset,
         buyAsset,
         adapter: sellAdapter as unknown as EvmSupportedChainAdapter,
@@ -92,7 +92,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         value: sellAmountCryptoBaseUnit,
         wallet,
         to: vault,
-        bip44Params: (input as GetUtxoTradeQuoteInput).bip44Params,
+        accountNumber,
         chainSpecific: {
           accountType: (input as GetUtxoTradeQuoteInput).accountType,
           satoshiPerByte: (quote as TradeQuote<UtxoSupportedChainIds>).feeData.chainSpecific
@@ -109,12 +109,8 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         txData: buildTxResponse.txToSign,
       }
     } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
-      if (!bip44Params) {
-        throw new Error('bip44Params required as input')
-      }
-
       const txData = await getCosmosTxData({
-        bip44Params,
+        accountNumber,
         deps,
         sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,
         sellAmountCryptoBaseUnit,

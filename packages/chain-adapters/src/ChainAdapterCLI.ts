@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
@@ -98,18 +98,12 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 // @ts-ignore:nextLine
 const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
   const chainAdapter = adapters.btc
-  const bip44Params: BIP44Params = {
-    purpose: 84,
-    coinType: 0,
-    accountNumber: 0,
-    isChange: false,
-    index: 10,
-  }
+  const accountNumber = 0
 
   const address = await chainAdapter.getAddress({
-    wallet,
-    bip44Params,
+    accountNumber,
     accountType: UtxoAccountType.SegwitNative,
+    wallet,
   })
   console.log('bitcoin: address:', address)
 
@@ -120,7 +114,7 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('bitcoin: txHistory:', txHistory)
 
   await chainAdapter.subscribeTxs(
-    { wallet, bip44Params, accountType: UtxoAccountType.SegwitNative },
+    { wallet, accountNumber, accountType: UtxoAccountType.SegwitNative },
     (msg) => console.log('bitcoin: tx:', msg),
     (err) => console.log(err),
   )
@@ -130,7 +124,7 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
       to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
       value: '400',
       wallet,
-      bip44Params,
+      accountNumber,
       chainSpecific: { accountType: UtxoAccountType.SegwitNative, satoshiPerByte: '4' },
     })
 
@@ -149,9 +143,9 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
 // @ts-ignore:nextLine
 const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
   const chainAdapter = adapters.eth
-  const bip44Params: BIP44Params = { purpose: 44, coinType: 60, accountNumber: 0 }
+  const accountNumber = 0
 
-  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  const address = await chainAdapter.getAddress({ accountNumber, wallet })
   console.log('ethereum: address:', address)
 
   const account = await chainAdapter.getAccount(address)
@@ -161,7 +155,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('ethereum: txHistory:', txHistory)
 
   await chainAdapter.subscribeTxs(
-    { wallet, bip44Params },
+    { accountNumber, wallet },
     (msg) => console.log('ethereum: tx:', msg),
     (err) => console.log(err),
   )
@@ -186,7 +180,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
       value: '1',
       wallet,
-      bip44Params,
+      accountNumber,
       chainSpecific: { gasPrice: '0', gasLimit: '0' },
     })
 
@@ -233,9 +227,9 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
 // @ts-ignore:nextLine
 const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
   const chainAdapter = adapters.cosmos
-  const bip44Params: BIP44Params = { purpose: 44, coinType: 118, accountNumber: 0 }
+  const accountNumber = 0
 
-  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  const address = await chainAdapter.getAddress({ accountNumber, wallet })
   console.log('cosmos: address:', address)
 
   const account = await chainAdapter.getAccount(address)
@@ -250,7 +244,7 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('cosmos: shapeshiftValidator:', shapeshiftValidator)
 
   await chainAdapter.subscribeTxs(
-    { wallet, bip44Params },
+    { accountNumber, wallet },
     (msg) => console.log('cosmos: tx:', msg),
     (err) => console.log(err),
   )
@@ -265,7 +259,7 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
       to: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
       value: '99000',
       wallet,
-      bip44Params,
+      accountNumber,
       chainSpecific: { gas, fee },
     })
 
@@ -302,9 +296,9 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
 // @ts-ignore:nextLine
 const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
   const chainAdapter = adapters.thorchain
-  const bip44Params = chainAdapter.buildBIP44Params({})
+  const accountNumber = 0
 
-  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  const address = await chainAdapter.getAddress({ accountNumber, wallet })
   console.log('thorchain: address:', address)
 
   const account = await chainAdapter.getAccount(address)
@@ -314,7 +308,7 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('thorchain: txHistory:', txHistory)
 
   await chainAdapter.subscribeTxs(
-    { wallet, bip44Params },
+    { wallet, accountNumber },
     (msg) => console.log('thorchain: tx:', msg),
     (err) => console.log(err),
   )
@@ -327,7 +321,7 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
       to: 'thor1wfpvj3txl0z82wfm6kvagfyagsmzvpyrg3c9fm',
       value: '99000',
       wallet,
-      bip44Params,
+      accountNumber,
       chainSpecific: { gas: feeData.average.chainSpecific.gasLimit, fee: feeData.average.txFee },
     })
     console.log('cosmos: unsignedTx:', JSON.stringify(unsignedTx, null, 2))
@@ -347,9 +341,9 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
 // @ts-ignore:nextLine
 const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
   const chainAdapter = adapters.osmosis
-  const bip44Params: BIP44Params = { purpose: 44, coinType: 118, accountNumber: 0 }
+  const accountNumber = 0
 
-  const address = await chainAdapter.getAddress({ wallet, bip44Params })
+  const address = await chainAdapter.getAddress({ accountNumber, wallet })
   console.log('osmosis: address:', address)
 
   const account = await chainAdapter.getAccount(address)
@@ -364,7 +358,7 @@ const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
   console.log('osmosis: shapeshiftValidator:', shapeshiftValidator)
 
   await chainAdapter.subscribeTxs(
-    { wallet, bip44Params },
+    { accountNumber, wallet },
     (msg) => console.log('osmosis: tx:', msg),
     (err) => console.log(err),
   )
@@ -379,7 +373,7 @@ const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
       to: 'osmo1thd6u0ezp96fn5fm8zeg6ef26gz4edu34800ev',
       value: '99000',
       wallet,
-      bip44Params,
+      accountNumber,
       chainSpecific: { gas, fee },
     })
 

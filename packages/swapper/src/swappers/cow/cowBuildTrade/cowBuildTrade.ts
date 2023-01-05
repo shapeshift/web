@@ -27,7 +27,7 @@ export async function cowBuildTrade(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountExcludeFeeCryptoBaseUnit,
-      bip44Params,
+      accountNumber,
       wallet,
     } = input
     const { adapter, web3 } = deps
@@ -54,7 +54,7 @@ export async function cowBuildTrade(
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-    const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
+    const receiveAddress = await adapter.getAddress({ accountNumber, wallet })
 
     /**
      * /v1/quote
@@ -137,7 +137,7 @@ export async function cowBuildTrade(
       sources: DEFAULT_SOURCE,
       buyAsset,
       sellAsset,
-      bip44Params,
+      accountNumber,
       receiveAddress,
       feeAmountInSellTokenCryptoBaseUnit,
       sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,

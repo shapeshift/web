@@ -26,7 +26,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      bip44Params,
+      accountNumber,
     } = input
     if (buyAsset.chainId !== input.chainId || sellAsset.chainId !== input.chainId) {
       throw new SwapError(
@@ -122,7 +122,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       allowanceContract: allowanceTarget,
       buyAsset,
       sellAsset,
-      bip44Params,
+      accountNumber,
     }
     return tradeQuote as TradeQuote<T>
   } catch (e) {

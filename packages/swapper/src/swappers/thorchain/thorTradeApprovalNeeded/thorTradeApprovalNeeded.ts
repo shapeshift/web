@@ -16,7 +16,7 @@ export const thorTradeApprovalNeeded = async ({
 }): Promise<ApprovalNeededOutput> => {
   try {
     const { quote, wallet } = input
-    const { sellAsset, bip44Params } = quote
+    const { sellAsset, accountNumber } = quote
     const { adapterManager, web3 } = deps
 
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
@@ -40,7 +40,7 @@ export const thorTradeApprovalNeeded = async ({
       return { approvalNeeded: false }
     }
 
-    const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
+    const receiveAddress = await adapter.getAddress({ wallet, accountNumber })
 
     if (!quote.allowanceContract) {
       throw new SwapError('[thorTradeApprovalNeeded] - allowanceTarget is required', {

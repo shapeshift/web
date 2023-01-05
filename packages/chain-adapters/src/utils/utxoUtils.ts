@@ -31,7 +31,7 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
 }
 
 /**
- * Utility function to get BIP44Params and scriptType for chain-adapter functions (getAddress, buildSendTransaction)
+ * Utility function to get BIP44Params and scriptType
  */
 export const utxoAccountParams = (
   chainId: ChainId,

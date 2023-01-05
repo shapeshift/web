@@ -8,7 +8,7 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
   { adapter }: ZrxSwapperDeps,
   { trade, wallet }: ZrxExecuteTradeInput<T>,
 ): Promise<TradeResult> {
-  const { bip44Params, sellAsset } = trade
+  const { accountNumber, sellAsset } = trade
 
   try {
     // value is 0 for erc20s
@@ -24,7 +24,7 @@ export async function zrxExecuteTrade<T extends EvmSupportedChainIds>(
         gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
         gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0),
       },
-      bip44Params,
+      accountNumber,
     })
 
     const { txToSign } = buildTxResponse

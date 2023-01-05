@@ -23,8 +23,9 @@ export async function cowApprovalNeeded(
         details: { assetNamespace },
       })
     }
+    const { accountNumber } = quote
 
-    const receiveAddress = await adapter.getAddress({ wallet, bip44Params: quote.bip44Params })
+    const receiveAddress = await adapter.getAddress({ accountNumber, wallet })
 
     const allowanceResult = await getERC20Allowance({
       web3,

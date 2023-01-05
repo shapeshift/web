@@ -212,15 +212,10 @@ describe('BitcoinChainAdapter', () => {
 
       const adapter = new bitcoin.ChainAdapter(args)
 
-      const bip44Params: BIP44Params = {
-        purpose: 84,
-        coinType: 0,
-        accountNumber: 0,
-        isChange: false,
-      }
+      const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.BitcoinMainnet> = {
-        bip44Params,
+        accountNumber,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
@@ -279,15 +274,10 @@ describe('BitcoinChainAdapter', () => {
 
       const adapter = new bitcoin.ChainAdapter(args)
 
-      const bip44Params: BIP44Params = {
-        purpose: 84,
-        coinType: 0,
-        accountNumber: 0,
-        isChange: false,
-      }
+      const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.BitcoinMainnet> = {
-        bip44Params,
+        accountNumber,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
@@ -352,17 +342,11 @@ describe('BitcoinChainAdapter', () => {
     it("should return a p2pkh address for valid derivation root path parameters (m/44'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 44,
-        accountNumber: 0,
-        isChange: false,
-        index: 0,
-      }
+      const accountNumber = 0
 
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM')
@@ -371,17 +355,14 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh address for the first receive index path (m/44'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 44,
-        accountNumber: 0,
-        index: 1,
-        isChange: false,
-      }
+      const accountNumber = 0
+      const index = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
+        index,
       })
       expect(addr).toStrictEqual('1Jxtem176sCXHnK7QCShoafF5VtWvMa7eq')
     })
@@ -389,17 +370,14 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 44,
-        accountNumber: 0,
-        index: 0,
-        isChange: true,
-      }
+      const accountNumber = 0
+      const isChange = true
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
+        isChange,
       })
       expect(addr).toStrictEqual('13ZD8S4qR6h4GvkAZ2ht7rpr15TFXYxGCx')
     })
@@ -407,16 +385,11 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 44,
-        accountNumber: 1,
-        index: 0,
-        isChange: false,
-      }
+      const accountNumber = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('1K2oFer6nGoXSPspeB5Qvt4htJvw3y31XW')
@@ -425,16 +398,11 @@ describe('BitcoinChainAdapter', () => {
     it("should return a p2wpkh address for valid derivation root path parameters (m/84'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 84,
-        accountNumber: 0,
-        isChange: false,
-        index: 0,
-      }
+      const accountNumber = 0
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.SegwitNative,
       })
       expect(addr).toStrictEqual('bc1qkkr2uvry034tsj4p52za2pg42ug4pxg5qfxyfa')
@@ -443,17 +411,14 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh address for the first receive index path (m/84'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 84,
-        accountNumber: 0,
-        index: 1,
-        isChange: false,
-      }
+      const accountNumber = 0
+      const index = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.SegwitNative,
+        index,
       })
       expect(addr).toStrictEqual('bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy')
     })
@@ -461,17 +426,14 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 84,
-        accountNumber: 0,
-        index: 0,
-        isChange: true,
-      }
+      const accountNumber = 0
+      const isChange = true
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.SegwitNative,
+        isChange,
       })
       expect(addr).toStrictEqual('bc1qhazdhyg6ukkvnnlucxamjc3dmkj2zyfte0lqa9')
     })
@@ -479,16 +441,11 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh address at the 2nd account root path (m/84'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 84,
-        accountNumber: 1,
-        index: 0,
-        isChange: false,
-      }
+      const accountNumber = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.SegwitNative,
       })
       expect(addr).toStrictEqual('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
@@ -501,15 +458,9 @@ describe('BitcoinChainAdapter', () => {
         .mockResolvedValue('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
 
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 0,
-        purpose: 84,
-        accountNumber: 1,
-        index: 0,
-        isChange: false,
-      }
+      const accountNumber = 1
 
-      await adapter.getAddress({ bip44Params, wallet, accountType: UtxoAccountType.SegwitNative })
+      await adapter.getAddress({ accountNumber, wallet, accountType: UtxoAccountType.SegwitNative })
 
       expect(wallet.btcGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483732, 2147483648, 2147483649, 0, 0],
@@ -558,9 +509,9 @@ describe('BitcoinChainAdapter', () => {
         UtxoAccountType.SegwitNative,
       ]
       const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 0, accountNumber: 0 },
-        { purpose: 49, coinType: 0, accountNumber: 0 },
-        { purpose: 84, coinType: 0, accountNumber: 0 },
+        { purpose: 44, coinType: 0, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 49, coinType: 0, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 84, coinType: 0, accountNumber: 0, isChange: false, index: 0 },
       ]
       accountTypes.forEach((accountType, i) => {
         const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
@@ -574,9 +525,9 @@ describe('BitcoinChainAdapter', () => {
         UtxoAccountType.SegwitNative,
       ]
       const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 0, accountNumber: 0 },
-        { purpose: 49, coinType: 0, accountNumber: 1 },
-        { purpose: 84, coinType: 0, accountNumber: 2 },
+        { purpose: 44, coinType: 0, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 49, coinType: 0, accountNumber: 1, isChange: false, index: 0 },
+        { purpose: 84, coinType: 0, accountNumber: 2, isChange: false, index: 0 },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
         const r = adapter.getBIP44Params({ accountNumber, accountType })

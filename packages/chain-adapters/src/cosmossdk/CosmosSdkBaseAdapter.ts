@@ -141,10 +141,6 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     return this.chainId
   }
 
-  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
-    return { ...this.defaultBIP44Params, ...params }
-  }
-
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) {
       throw new Error('accountNumber must be >= 0')
@@ -286,11 +282,13 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   ): Promise<{ txToSign: SignTx<U> }> {
     const {
       account,
-      bip44Params,
+      accountNumber,
       chainSpecific: { gas, fee },
       msg,
       memo = '',
     } = tx
+
+    const bip44Params = this.getBIP44Params({ accountNumber })
 
     const unsignedTx = {
       fee: { amount: [{ amount: bnOrZero(fee).toString(), denom: this.denom }], gas },
@@ -342,9 +340,10 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void,
   ): Promise<void> {
-    const { wallet, bip44Params = this.defaultBIP44Params } = input
+    const { accountNumber, wallet } = input
 
-    const address = await this.getAddress({ wallet, bip44Params })
+    const bip44Params = this.getBIP44Params({ accountNumber })
+    const address = await this.getAddress({ accountNumber, wallet })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(
@@ -361,7 +360,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   unsubscribeTxs(input?: SubscribeTxsInput): void {
     if (!input) return this.providers.ws.unsubscribeTxs()
 
-    const { bip44Params = this.defaultBIP44Params } = input
+    const { accountNumber } = input
+    const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })

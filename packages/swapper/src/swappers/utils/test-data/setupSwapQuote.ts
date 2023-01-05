@@ -14,7 +14,7 @@ export const setupQuote = () => {
     sellAsset,
     buyAsset,
     allowanceContract: 'allowanceContractAddress',
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     minimumCryptoHuman: '0',
     maximum: '999999999999',
     feeData: {
@@ -32,7 +32,7 @@ export const setupQuote = () => {
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     sellAsset,
     buyAsset,
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     sendMax: false,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   }
@@ -47,7 +47,7 @@ export const setupBuildTrade = () => {
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     buyAsset,
     sendMax: false,
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     sellAsset,
     wallet: <HDWallet>{},
     receiveAddress: '',

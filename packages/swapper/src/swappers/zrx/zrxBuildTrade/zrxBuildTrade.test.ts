@@ -73,7 +73,7 @@ describe('zrxBuildTrade', () => {
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   }
@@ -85,7 +85,7 @@ describe('zrxBuildTrade', () => {
     buyAmountCryptoBaseUnit: '',
     depositAddress: quoteResponse.to,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     txData: quoteResponse.data,
     rate: quoteResponse.price,
     feeData: {

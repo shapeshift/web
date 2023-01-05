@@ -14,7 +14,6 @@ describe('ZrxExecuteTrade', () => {
   } as unknown as HDWallet
 
   const adapter = {
-    buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
     buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
     signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
     broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
@@ -30,7 +29,7 @@ describe('ZrxExecuteTrade', () => {
     buyAmountCryptoBaseUnit: '',
     depositAddress: '0x123',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+    accountNumber: 0,
     txData: '0x123',
     rate: '1',
     feeData: {

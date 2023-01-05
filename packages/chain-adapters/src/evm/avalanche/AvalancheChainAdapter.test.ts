@@ -201,12 +201,12 @@ describe('AvalancheChainAdapter', () => {
 
   describe('getAddress', () => {
     const adapter = new avalanche.ChainAdapter(makeChainAdapterArgs())
-    const bip44Params = adapter.getBIP44Params({ accountNumber: 0 })
+    const accountNumber = 0
     const fn = jest.fn()
 
     it('should return a valid address', async () => {
       const wallet = await getWallet()
-      const res = await adapter.getAddress({ bip44Params, wallet })
+      const res = await adapter.getAddress({ accountNumber, wallet })
 
       expect(res).toEqual('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
     })
@@ -215,7 +215,7 @@ describe('AvalancheChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      await adapter.getAddress({ bip44Params, wallet })
+      await adapter.getAddress({ accountNumber, wallet })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
@@ -396,11 +396,14 @@ describe('AvalancheChainAdapter', () => {
   })
 
   describe('buildSendTransaction', () => {
+    const accountNumber = 0
+
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new avalanche.ChainAdapter(makeChainAdapterArgs())
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
@@ -415,6 +418,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
@@ -439,6 +443,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet,
+        accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
@@ -472,6 +477,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
@@ -498,6 +504,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
@@ -534,6 +541,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
@@ -569,6 +577,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),
@@ -605,6 +614,7 @@ describe('AvalancheChainAdapter', () => {
 
       const tx = {
         wallet: await getWallet(),
+        accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ erc20ContractAddress }),

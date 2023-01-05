@@ -135,7 +135,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,
-  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  accountNumber: 0,
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
@@ -158,7 +158,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
   sellAsset: FOX,
-  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  accountNumber: 0,
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
@@ -181,7 +181,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
   sellAsset: WETH,
-  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  accountNumber: 0,
 }
 
 const deps: CowSwapperDeps = {
@@ -203,7 +203,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
-      bip44Params: { purpose: 44, coinType: 60, accountNumber: 1 },
+      accountNumber: 0,
       receiveAddress: '',
     }
 
@@ -219,7 +219,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
-      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+      accountNumber: 0,
       receiveAddress: '',
     }
 
@@ -255,7 +255,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
-      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+      accountNumber: 0,
       receiveAddress: '',
     }
 
@@ -291,7 +291,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
       sendMax: true,
-      bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+      accountNumber: 0,
       receiveAddress: '',
     }
 

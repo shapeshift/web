@@ -37,7 +37,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
-  bip44Params: { purpose: 44, coinType: 60, accountNumber: 0 },
+  accountNumber: 0,
   recommendedSlippage: '0.00000608624714961082',
 }
 

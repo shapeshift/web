@@ -107,10 +107,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return this.rpcUrl
   }
 
-  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
-    return { ...this.defaultBIP44Params, ...params }
-  }
-
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) {
       throw new Error('accountNumber must be >= 0')
@@ -122,7 +118,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     txToSign: SignTx<T>
   }> {
     try {
-      const { to, wallet, bip44Params = this.defaultBIP44Params, sendMax = false } = tx
+      const { to, wallet, accountNumber, sendMax = false } = tx
       // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
       // Switch the chain on wallet before building/sending the Tx
       if (supportsEthSwitchChain(wallet)) {
@@ -154,7 +150,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const destAddress = erc20ContractAddress ?? to
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const isErc20Send = !!erc20ContractAddress
@@ -188,6 +184,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return { gasPrice: numberToHex(tx.chainSpecific.gasPrice!) }
       })()
 
+      const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
         value: numberToHex(isErc20Send ? '0' : tx.value),
@@ -344,7 +341,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = this.defaultBIP44Params, showOnDevice = false } = input
+    const { accountNumber, wallet, showOnDevice = false } = input
+    const bip44Params = this.getBIP44Params({ accountNumber })
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),
       showDisplay: showOnDevice,
@@ -367,9 +365,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void,
   ): Promise<void> {
-    const { wallet, bip44Params = this.defaultBIP44Params } = input
+    const { accountNumber, wallet } = input
 
-    const address = await this.getAddress({ wallet, bip44Params })
+    const address = await this.getAddress({ accountNumber, wallet })
+    const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(
@@ -406,7 +405,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   unsubscribeTxs(input?: SubscribeTxsInput): void {
     if (!input) return this.providers.ws.unsubscribeTxs()
 
-    const { bip44Params = this.defaultBIP44Params } = input
+    const { accountNumber } = input
+    const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
@@ -425,13 +425,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     gasLimit,
     to,
     wallet,
-    bip44Params = this.defaultBIP44Params,
+    accountNumber,
   }: BuildCustomTxInput): Promise<{
     txToSign: ETHSignTx
   }> {
     try {
       const chainReference = fromChainId(this.chainId).chainReference
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const fees: Fees =
@@ -442,6 +442,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             }
           : { gasPrice: numberToHex(gasPrice ?? '0') }
 
+      const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign: ETHSignTx = {
         addressNList: toAddressNList(bip44Params),
         value,

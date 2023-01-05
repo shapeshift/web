@@ -65,10 +65,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params, showOnDevice = false } = input
+    const { accountNumber, wallet, showOnDevice = false } = input
 
     try {
       if (supportsCosmos(wallet)) {
+        const bip44Params = this.getBIP44Params({ accountNumber })
         const cosmosAddress = await wallet.cosmosGetAddress({
           addressNList: toAddressNList(bip44Params),
           showDisplay: showOnDevice,
@@ -90,7 +91,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        bip44Params = this.defaultBIP44Params,
+        accountNumber,
         chainSpecific: { fee },
         sendMax,
         to,
@@ -98,7 +99,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
         wallet,
       } = tx
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
@@ -122,7 +123,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        bip44Params = this.defaultBIP44Params,
+        accountNumber,
         chainSpecific: { fee },
         sendMax,
         validator,
@@ -132,7 +133,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'delegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -157,7 +158,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        bip44Params = this.defaultBIP44Params,
+        accountNumber,
         chainSpecific: { fee },
         sendMax,
         validator,
@@ -167,7 +168,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'undelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -192,7 +193,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        bip44Params = this.defaultBIP44Params,
+        accountNumber,
         chainSpecific: { fee },
         fromValidator,
         sendMax,
@@ -204,7 +205,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       assertIsValidatorAddress(toValidator, this.getType())
       assertIsValidatorAddress(fromValidator, this.getType())
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: fromValidator, type: 'redelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -229,11 +230,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     tx: BuildClaimRewardsTxInput<KnownChainIds.CosmosMainnet>,
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
-      const { bip44Params = this.defaultBIP44Params, validator, wallet } = tx
+      const { accountNumber, validator, wallet } = tx
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ bip44Params, wallet })
+      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const msg: Message = {

@@ -215,15 +215,10 @@ describe('LitecoinChainAdapter', () => {
 
       const adapter = new litecoin.ChainAdapter(args)
 
-      const bip44Params: BIP44Params = {
-        purpose: 44,
-        coinType: 2,
-        accountNumber: 0,
-        isChange: false,
-      }
+      const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.LitecoinMainnet> = {
-        bip44Params,
+        accountNumber,
         to: pubkey,
         value: '400',
         wallet,
@@ -284,15 +279,10 @@ describe('LitecoinChainAdapter', () => {
 
       const adapter = new litecoin.ChainAdapter(args)
 
-      const bip44Params: BIP44Params = {
-        purpose: 44,
-        coinType: 3,
-        accountNumber: 0,
-        isChange: false,
-      }
+      const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.LitecoinMainnet> = {
-        bip44Params,
+        accountNumber,
         to: pubkey,
         value: '400000000',
         wallet,
@@ -354,19 +344,20 @@ describe('LitecoinChainAdapter', () => {
   })
 
   describe('getAddress', () => {
+    beforeEach(() => {
+      args.providers = {} as any
+      args.providers.http = {
+        getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
+      } as any
+    })
+
     it("should return a p2pkh address for valid first receive index (m/44'/2'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new litecoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 2,
-        purpose: 44,
-        accountNumber: 0,
-        isChange: false,
-        index: 0,
-      }
+      const accountNumber = 0
 
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
+        accountNumber,
         wallet,
         accountType: UtxoAccountType.P2pkh,
       })
@@ -376,17 +367,14 @@ describe('LitecoinChainAdapter', () => {
     it("should return a valid p2pkh address for the 2nd receive index path (m/44'/2'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new litecoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 2,
-        purpose: 44,
-        accountNumber: 0,
-        index: 1,
-        isChange: false,
-      }
+      const accountNumber = 0
+      const index = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
+        index,
       })
       expect(addr).toStrictEqual('LgCD3vmz2TkYGbaDDy1YRyT4JwL95XpYPw')
     })
@@ -394,17 +382,14 @@ describe('LitecoinChainAdapter', () => {
     it("should return a valid p2pkh change address for the first change index path (m/44'/2'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new litecoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 2,
-        purpose: 44,
-        accountNumber: 0,
-        index: 0,
-        isChange: true,
-      }
+      const accountNumber = 0
+      const isChange = true
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
+        accountNumber,
         wallet,
         accountType: UtxoAccountType.P2pkh,
+        isChange,
       })
       expect(addr).toStrictEqual('LfYSvfC3L9XyFGL42zjodCiwTSoh772XD9')
     })
@@ -412,16 +397,11 @@ describe('LitecoinChainAdapter', () => {
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/2'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new litecoin.ChainAdapter(args)
-      const bip44Params: BIP44Params = {
-        coinType: 2,
-        purpose: 44,
-        accountNumber: 1,
-        index: 0,
-        isChange: false,
-      }
+      const accountNumber = 1
+
       const addr: string | undefined = await adapter.getAddress({
-        bip44Params,
         wallet,
+        accountNumber,
         accountType: UtxoAccountType.P2pkh,
       })
       expect(addr).toStrictEqual('LeRfQnpXQDe8nth9EWkduPnfkYuD1ASwAb')
@@ -465,9 +445,9 @@ describe('LitecoinChainAdapter', () => {
         UtxoAccountType.SegwitNative,
       ]
       const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 2, accountNumber: 0 },
-        { purpose: 49, coinType: 2, accountNumber: 0 },
-        { purpose: 84, coinType: 2, accountNumber: 0 },
+        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 49, coinType: 2, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 84, coinType: 2, accountNumber: 0, isChange: false, index: 0 },
       ]
       accountTypes.forEach((accountType, i) => {
         const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
@@ -481,9 +461,9 @@ describe('LitecoinChainAdapter', () => {
         UtxoAccountType.SegwitNative,
       ]
       const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 2, accountNumber: 0 },
-        { purpose: 49, coinType: 2, accountNumber: 1 },
-        { purpose: 84, coinType: 2, accountNumber: 2 },
+        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, index: 0 },
+        { purpose: 49, coinType: 2, accountNumber: 1, isChange: false, index: 0 },
+        { purpose: 84, coinType: 2, accountNumber: 2, isChange: false, index: 0 },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
         const r = adapter.getBIP44Params({ accountNumber, accountType })

@@ -119,12 +119,12 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
       .approve(quote.allowanceContract, quote.sellAmountBeforeFeesCryptoBaseUnit)
       .encodeABI()
 
-    const { bip44Params } = quote
+    const { accountNumber } = quote
 
     const { txToSign } = await adapter.buildSendTransaction({
       wallet,
       to: sellAssetErc20Address,
-      bip44Params,
+      accountNumber,
       value: '0',
       chainSpecific: {
         erc20ContractAddress: sellAssetErc20Address,

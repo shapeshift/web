@@ -2,7 +2,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { ChainId, cosmosAssetId } from '@shapeshiftoss/caip'
 import { ChainAdapter, cosmos, thorchain } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { SwapError, SwapErrorTypes, TradeQuote } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
@@ -11,7 +11,7 @@ import { getLimit } from '../getLimit/getLimit'
 import { makeSwapMemo } from '../makeSwapMemo/makeSwapMemo'
 
 type GetCosmosTxDataInput = {
-  bip44Params: BIP44Params
+  accountNumber: number
   destinationAddress: string
   deps: ThorchainSwapperDeps
   sellAmountCryptoBaseUnit: string
@@ -26,7 +26,7 @@ type GetCosmosTxDataInput = {
 
 export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
   const {
-    bip44Params,
+    accountNumber,
     deps,
     destinationAddress,
     sellAmountCryptoBaseUnit,
@@ -67,7 +67,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     switch (true) {
       case fromThorAsset:
         return await (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
-          bip44Params,
+          accountNumber,
           value: sellAmountCryptoBaseUnit,
           wallet,
           memo,
@@ -84,7 +84,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
             details: { chainId: input.chainId },
           })
         return await (sellAdapter as unknown as cosmos.ChainAdapter).buildSendTransaction({
-          bip44Params,
+          accountNumber,
           value: sellAmountCryptoBaseUnit,
           wallet,
           to: vault,

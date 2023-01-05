@@ -19,7 +19,6 @@ export const setupThorswapDeps = (): ThorchainSwapperDeps => {
     [
       KnownChainIds.EthereumMainnet,
       {
-        buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
         getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
         getFeeData: jest.fn(() => feeData),
         getFeeAssetId: jest.fn(() => ethAssetId),

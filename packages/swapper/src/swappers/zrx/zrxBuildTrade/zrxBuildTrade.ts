@@ -22,7 +22,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountExcludeFeeCryptoBaseUnit,
     slippage,
-    bip44Params,
+    accountNumber,
     receiveAddress,
   } = input
   try {
@@ -123,7 +123,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
     const trade: ZrxTrade<EvmSupportedChainIds> = {
       sellAsset,
       buyAsset,
-      bip44Params,
+      accountNumber,
       receiveAddress,
       rate: price,
       depositAddress: to,

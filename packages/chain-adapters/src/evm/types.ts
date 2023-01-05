@@ -1,5 +1,4 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { AssetBalance } from '../types'
@@ -41,7 +40,7 @@ export type GetFeeDataInput = {
 
 export type BuildCustomTxInput = {
   wallet: HDWallet
-  bip44Params: BIP44Params
+  accountNumber: number
   to: string
   data: string
   value: string

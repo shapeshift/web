@@ -14,8 +14,12 @@ export type ThornodePoolResponse = {
   pending_inbound_asset: string
   pending_inbound_rune: string
   pool_units: string
+  savers_depth: string
+  savers_units: string
   status: string
+  synth_mint_paused: boolean
   synth_supply: string
+  synth_supply_remaining: string
   synth_units: string
 }
 

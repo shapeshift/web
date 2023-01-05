@@ -8,9 +8,13 @@ export const btcThornodePool: ThornodePoolResponse = {
   pending_inbound_asset: '0',
   pending_inbound_rune: '0',
   pool_units: '545894929144923',
+  savers_depth: '41416604834',
+  savers_units: '41128793233',
+  synth_mint_paused: false,
   status: 'Available',
-  synth_supply: '3281284823',
-  synth_units: '9838954536080',
+  synth_supply: '44718623180',
+  synth_supply_remaining: '8963246519',
+  synth_units: '142965023220851',
 }
 
 export const ethThornodePool: ThornodePoolResponse = {
@@ -21,9 +25,13 @@ export const ethThornodePool: ThornodePoolResponse = {
   pending_inbound_asset: '0',
   pending_inbound_rune: '0',
   pool_units: '274245264962453',
+  savers_depth: '167028916827',
+  savers_units: '165530383978',
   status: 'Available',
-  synth_supply: '3572065751',
-  synth_units: '535301524652',
+  synth_mint_paused: false,
+  synth_supply: '218601192670',
+  synth_supply_remaining: '183106737474',
+  synth_units: '36567637964216',
 }
 
 export const foxThornodePool: ThornodePoolResponse = {
@@ -34,9 +42,13 @@ export const foxThornodePool: ThornodePoolResponse = {
   pending_inbound_asset: '0',
   pending_inbound_rune: '0',
   pool_units: '10568061707512',
+  savers_depth: '0',
+  savers_units: '0',
   status: 'Available',
-  synth_supply: '17428372569375',
-  synth_units: '552604585625',
+  synth_mint_paused: false,
+  synth_supply: '3126453386967',
+  synth_supply_remaining: '161390775916374',
+  synth_units: '50300400994',
 }
 
 export const usdcThornodePool: ThornodePoolResponse = {
@@ -47,9 +59,13 @@ export const usdcThornodePool: ThornodePoolResponse = {
   pending_inbound_asset: '22020062300',
   pending_inbound_rune: '0',
   pool_units: '31954495292990',
+  savers_depth: '0',
+  savers_units: '0',
   status: 'Available',
-  synth_supply: '25598723155460',
-  synth_units: '1936419947970',
+  synth_mint_paused: false,
+  synth_supply: '20420358430864',
+  synth_supply_remaining: '102379864074658',
+  synth_units: '1423205664974',
 }
 
 export const thornodePools: ThornodePoolResponse[] = [

@@ -85,7 +85,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   // Placeholder for cap amounts
   // If the cap limit is 0 we should hide these components as this should mean caps are disabled
   const capLimit = 500
-  const capUsed = 500
+  const capUsed = 250
   const capPercentaged = bnOrZero(capUsed).div(capLimit).times(100).toNumber()
   const isCapUsed = bnOrZero(capLimit).gt(0) && bnOrZero(capPercentaged).eq(100)
 

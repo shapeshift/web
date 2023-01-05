@@ -123,7 +123,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         wallet: walletState.wallet,
         amount: bn(
           bnOrZero(state?.deposit.cryptoAmount).times(bn(10).pow(asset.precision)).integerValue(),
-        ).toString(),
+        ).toFixed(),
         bip44Params,
       })
       await poll({

@@ -25,7 +25,7 @@ export enum DefiAction {
   Withdraw = 'withdraw',
   GetStarted = 'get-started',
   Claim = 'claim',
-  Dust = 'dust',
+  SendDust = 'send-dust',
 }
 
 export enum DefiStep {

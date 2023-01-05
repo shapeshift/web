@@ -1,19 +1,16 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
 
 const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
 
-export const getTradeQuoteApi = createApi({
-  ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'getTradeQuoteApi',
+export const getTradeQuoteApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
       queryFn: async (args, { getState, dispatch }) => {

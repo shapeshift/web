@@ -2,9 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
-import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
-import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
-import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
@@ -39,10 +37,7 @@ export const sliceReducers = {
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   validatorData: validatorData.reducer,
-  getTradeQuoteApi: getTradeQuoteApi.reducer,
-  getBestSwapperApi: getBestSwapperApi.reducer,
-  getUsdRateApi: getUsdRateApi.reducer,
-  getUsdRatesApi: getUsdRatesApi.reducer,
+  swapperApi: swapperApi.reducer,
   opportunities: opportunities.reducer,
 }
 
@@ -52,10 +47,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
-  getTradeQuoteApi,
   getBestSwapperApi,
-  getUsdRateApi,
-  getUsdRatesApi,
   foxyApi,
   fiatRampApi,
   opportunitiesApi,
@@ -67,10 +59,7 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [validatorDataApi.reducerPath]: validatorDataApi.reducer,
-  [getTradeQuoteApi.reducerPath]: getTradeQuoteApi.reducer,
-  [getBestSwapperApi.reducerPath]: getBestSwapperApi.reducer,
-  [getUsdRateApi.reducerPath]: getUsdRateApi.reducer,
-  [getUsdRatesApi.reducerPath]: getUsdRatesApi.reducer,
+  [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,

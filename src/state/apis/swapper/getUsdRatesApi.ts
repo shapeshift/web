@@ -1,11 +1,10 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
 
 export type GetUsdRatesArgs = {
@@ -24,9 +23,7 @@ type GetUsdRatesReturn = {
 const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
 const getUsdRate = getUsdRateApi.endpoints.getUsdRate
 
-export const getUsdRatesApi = createApi({
-  ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'getUsdRatesApi',
+export const getUsdRatesApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
       queryFn: async (args, { getState, dispatch }) => {

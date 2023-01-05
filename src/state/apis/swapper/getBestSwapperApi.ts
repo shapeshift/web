@@ -1,8 +1,7 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { GetTradeQuoteInput, SwapperType } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
 
 type GetBestSwapperArgs = GetTradeQuoteInput & { feeAsset: Asset }
@@ -13,9 +12,7 @@ to a swapper in the swapperManager, which is keyed by SwapperType
  */
 type GetBestSwapperReturn = SwapperType | undefined
 
-export const getBestSwapperApi = createApi({
-  ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'getBestSwapperApi',
+export const getBestSwapperApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getBestSwapperType: build.query<GetBestSwapperReturn, GetBestSwapperArgs>({
       queryFn: async (args, { getState }) => {

@@ -90,6 +90,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const asset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, opportunityData?.assetId ?? ''),
   )
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 

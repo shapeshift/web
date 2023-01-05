@@ -34,7 +34,11 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       <Row title='for' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
           <AssetIcon src={asset?.icon} boxSize='4' />
-          <Amount value={transfer.value} precision={asset?.precision} symbol={asset?.symbol} />
+          <Amount
+            value={transfer.value}
+            precision={asset?.precision ?? 0}
+            symbol={asset?.symbol ?? ''}
+          />
         </Stack>
       </Row>
     </Stack>

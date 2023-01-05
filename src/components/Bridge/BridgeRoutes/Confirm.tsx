@@ -79,6 +79,8 @@ export const Confirm: React.FC = () => {
   })
 
   const asset = useAppSelector(state => selectAssetById(state, bridgeAsset?.assetId ?? ''))
+  if (!asset) throw new Error(`Asset not found for AssetId ${bridgeAsset?.assetId}`)
+
   const { price: bridgeTokenPrice } = useAppSelector(state =>
     selectMarketDataById(state, bridgeAsset?.assetId ?? ''),
   )

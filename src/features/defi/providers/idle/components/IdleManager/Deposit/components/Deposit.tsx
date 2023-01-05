@@ -85,6 +85,8 @@ export const Deposit: React.FC<DepositProps> = ({
     [opportunityData?.underlyingAssetIds],
   )
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])

@@ -65,8 +65,8 @@ const FoxFarmCTA = () => {
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const { icon: ethAssetIcon } = ethAsset
-  const { icon: foxAssetIcon } = foxAsset
+  const { icon: ethAssetIcon } = ethAsset ?? {}
+  const { icon: foxAssetIcon } = foxAsset ?? {}
   const hoverBg = useColorModeValue('gray.100', 'gray.750')
 
   const handleClick = useCallback(() => {

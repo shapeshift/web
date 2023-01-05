@@ -69,6 +69,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${asset.assetId}`)
+
   const balancesLoading = false
 
   const cryptoHumanBalance = bnOrZero(

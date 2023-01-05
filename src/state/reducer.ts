@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
-import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
@@ -47,7 +46,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   validatorDataApi,
-  getBestSwapperApi,
+  swapperApi,
   foxyApi,
   fiatRampApi,
   opportunitiesApi,

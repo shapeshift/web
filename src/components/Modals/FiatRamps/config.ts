@@ -153,7 +153,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     tags: ['fiatRamps.usOnly'],
     logo: junoPayLogo,
     order: 4,
-    isActive: () => true,
+    isActive: () => false,
     getBuyAndSellList: async () => {
       const buyAssetIds = await getJunoPayAssets()
       const sellAssetIds: AssetId[] = []

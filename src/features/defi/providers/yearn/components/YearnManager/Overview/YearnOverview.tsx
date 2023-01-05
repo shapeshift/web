@@ -32,12 +32,16 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const defaultMenu: DefiButtonProps[] = [
-  {
-    label: 'common.deposit',
-    icon: <ArrowUpIcon />,
-    action: DefiAction.Deposit,
-  },
+const makeDefaultMenu = (isExpired?: boolean): DefiButtonProps[] => [
+  ...(isExpired
+    ? []
+    : [
+        {
+          label: 'common.deposit',
+          icon: <ArrowUpIcon />,
+          action: DefiAction.Deposit,
+        },
+      ]),
   {
     label: 'common.withdraw',
     icon: <ArrowDownIcon />,
@@ -158,11 +162,13 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
   }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
   const menu: DefiButtonProps[] = useMemo(() => {
-    if (!(contractAddress && yearnInvestor && opportunityData)) return defaultMenu
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return defaultMenu
+    if (!(contractAddress && yearnInvestor && opportunityData))
+      return makeDefaultMenu(opportunityData?.expired)
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length)
+      return makeDefaultMenu(opportunityData.expired)
 
     return [
-      ...defaultMenu,
+      ...makeDefaultMenu(opportunityData?.expired),
       {
         icon: <FaGift />,
         colorScheme: 'green',

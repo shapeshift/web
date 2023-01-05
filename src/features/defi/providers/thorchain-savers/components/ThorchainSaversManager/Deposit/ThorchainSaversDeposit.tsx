@@ -31,7 +31,7 @@ import { useAppSelector } from 'state/store'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { YearnDepositActionType } from './DepositCommon'
+import { ThorchainSaversDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
@@ -89,7 +89,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   useEffect(() => {
     ;(() => {
       if (!opportunityData) return
-      dispatch({ type: YearnDepositActionType.SET_OPPORTUNITY, payload: opportunityData })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_OPPORTUNITY, payload: opportunityData })
     })()
   }, [opportunityData])
 

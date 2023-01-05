@@ -35,7 +35,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
@@ -127,7 +127,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
         return
 
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       if (!state?.deposit.cryptoAmount) return
 
       const yearnOpportunity = await yearnInvestor.findByOpportunityId(opportunity.assetId)
@@ -143,7 +143,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         feePriority: undefined,
         bip44Params,
       })
-      dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
@@ -154,7 +154,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
     dispatch,

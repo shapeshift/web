@@ -36,8 +36,8 @@ export const ThorchainSaversManager = () => {
           <ThorchainSaversWithdraw accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
-      {modal === DefiAction.Dust && (
-        <SlideTransition key={DefiAction.Dust}>
+      {modal === DefiAction.SendDust && (
+        <SlideTransition key={DefiAction.SendDust}>
           <Dust accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}

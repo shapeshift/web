@@ -26,7 +26,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { YearnDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
@@ -62,7 +62,7 @@ export const Status = () => {
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
-        type: YearnDepositActionType.SET_DEPOSIT,
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFee: confirmedTransaction.fee?.value,

@@ -25,7 +25,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnWithdrawActionType } from '../WithdrawCommon'
+import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
@@ -133,16 +133,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     async (formValues: WithdrawValues) => {
       if (!(userAddress && dispatch)) return
       // set withdraw state for future use
-      dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
       if (!estimatedGasCrypto) return
       dispatch({
-        type: YearnWithdrawActionType.SET_WITHDRAW,
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto },
       })
       onNext(DefiStep.Confirm)
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
     },
     [userAddress, getWithdrawGasEstimate, onNext, dispatch],
   )

@@ -6,7 +6,7 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnDepositValues = DepositValues &
+type ThorchainSaversDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
@@ -18,17 +18,17 @@ export type SerializableOpportunity = Omit<
   'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
 >
 
-export type YearnDepositState = {
+export type ThorchainSaversDepositState = {
   opportunity: StakingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   isExactAllowance?: boolean
-  deposit: YearnDepositValues
+  deposit: ThorchainSaversDepositValues
   loading: boolean
   txid: string | null
 }
 
-export enum YearnDepositActionType {
+export enum ThorchainSaversDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
   SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
@@ -39,41 +39,41 @@ export enum YearnDepositActionType {
 }
 
 type SetOpportunityAction = {
-  type: YearnDepositActionType.SET_OPPORTUNITY
+  type: ThorchainSaversDepositActionType.SET_OPPORTUNITY
   payload: StakingEarnOpportunityType
 }
 
 type SetApprove = {
-  type: YearnDepositActionType.SET_APPROVE
+  type: ThorchainSaversDepositActionType.SET_APPROVE
   payload: EstimatedGas
 }
 
 type SetIsExactAllowance = {
-  type: YearnDepositActionType.SET_IS_EXACT_ALLOWANCE
+  type: ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE
   payload: boolean
 }
 
 type SetDeposit = {
-  type: YearnDepositActionType.SET_DEPOSIT
-  payload: Partial<YearnDepositValues>
+  type: ThorchainSaversDepositActionType.SET_DEPOSIT
+  payload: Partial<ThorchainSaversDepositValues>
 }
 
 type SetUserAddress = {
-  type: YearnDepositActionType.SET_USER_ADDRESS
+  type: ThorchainSaversDepositActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: YearnDepositActionType.SET_LOADING
+  type: ThorchainSaversDepositActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: YearnDepositActionType.SET_TXID
+  type: ThorchainSaversDepositActionType.SET_TXID
   payload: string
 }
 
-export type YearnDepositActions =
+export type ThorchainSaversDepositActions =
   | SetOpportunityAction
   | SetApprove
   | SetDeposit

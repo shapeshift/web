@@ -31,7 +31,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApprovalProps = StepComponentProps & { accountId: AccountId | undefined }
@@ -123,7 +123,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       return
 
     try {
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       const yearnOpportunity = await yearnInvestor.findByOpportunityId(opportunity.assetId ?? '')
       if (!yearnOpportunity) throw new Error('No opportunity')
       const tx = await yearnOpportunity.prepareApprove(userAddress)
@@ -148,7 +148,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
-        type: YearnDepositActionType.SET_DEPOSIT,
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: { estimatedGasCrypto },
       })
 
@@ -162,7 +162,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         status: 'error',
       })
     } finally {
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
     dispatch,

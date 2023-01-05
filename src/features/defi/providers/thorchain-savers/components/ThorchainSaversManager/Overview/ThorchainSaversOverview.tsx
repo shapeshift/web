@@ -63,7 +63,7 @@ const makeDefaultMenu = (isExpired?: boolean, isDisabled?: boolean): DefiButtonP
   {
     label: 'common.dust',
     icon: <FaGift />,
-    action: DefiAction.Dust,
+    action: DefiAction.SendDust,
   },
 ]
 
@@ -216,9 +216,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         {bnOrZero(capPercentaged).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
-            <AlertTitle>{translate('defi.modals.saversVaults.haultedTitle')}</AlertTitle>
+            <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
             <AlertDescription>
-              {translate('defi.modals.saversVaults.haultedDescription')}
+              {translate('defi.modals.saversVaults.haltedDescription')}
             </AlertDescription>
             <Button
               as={Link}
@@ -228,7 +228,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               colorScheme='twitter'
               rightIcon={<FaTwitter />}
             >
-              @Thorchain
+              @THORChain
             </Button>
           </Alert>
         ) : (

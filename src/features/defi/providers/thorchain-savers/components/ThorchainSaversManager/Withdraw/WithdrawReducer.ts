@@ -1,7 +1,7 @@
-import type { YearnWithdrawActions, YearnWithdrawState } from './WithdrawCommon'
-import { YearnWithdrawActionType } from './WithdrawCommon'
+import type { ThorchainSaversWithdrawActions, ThorchainSaversWithdrawState } from './WithdrawCommon'
+import { ThorchainSaversWithdrawActionType } from './WithdrawCommon'
 
-export const initialState: YearnWithdrawState = {
+export const initialState: ThorchainSaversWithdrawState = {
   txid: null,
   opportunity: null,
   userAddress: null,
@@ -17,19 +17,19 @@ export const initialState: YearnWithdrawState = {
 }
 
 export const reducer = (
-  state: YearnWithdrawState,
-  action: YearnWithdrawActions,
-): YearnWithdrawState => {
+  state: ThorchainSaversWithdrawState,
+  action: ThorchainSaversWithdrawActions,
+): ThorchainSaversWithdrawState => {
   switch (action.type) {
-    case YearnWithdrawActionType.SET_OPPORTUNITY:
+    case ThorchainSaversWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
-    case YearnWithdrawActionType.SET_WITHDRAW:
+    case ThorchainSaversWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case YearnWithdrawActionType.SET_USER_ADDRESS:
+    case ThorchainSaversWithdrawActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
-    case YearnWithdrawActionType.SET_LOADING:
+    case ThorchainSaversWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case YearnWithdrawActionType.SET_TXID:
+    case ThorchainSaversWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:
       return state

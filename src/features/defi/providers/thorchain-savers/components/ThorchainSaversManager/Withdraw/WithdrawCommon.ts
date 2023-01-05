@@ -5,22 +5,22 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnWithdrawValues = WithdrawValues &
+type ThorchainSaversWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-export type YearnWithdrawState = {
+export type ThorchainSaversWithdrawState = {
   opportunity: StakingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
-  withdraw: YearnWithdrawValues
+  withdraw: ThorchainSaversWithdrawValues
   loading: boolean
   txid: string | null
 }
 
-export enum YearnWithdrawActionType {
+export enum ThorchainSaversWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
@@ -30,31 +30,31 @@ export enum YearnWithdrawActionType {
 }
 
 type SetOpportunityAction = {
-  type: YearnWithdrawActionType.SET_OPPORTUNITY
+  type: ThorchainSaversWithdrawActionType.SET_OPPORTUNITY
   payload: StakingEarnOpportunityType
 }
 
 type SetWithdraw = {
-  type: YearnWithdrawActionType.SET_WITHDRAW
-  payload: Partial<YearnWithdrawValues>
+  type: ThorchainSaversWithdrawActionType.SET_WITHDRAW
+  payload: Partial<ThorchainSaversWithdrawValues>
 }
 
 type SetUserAddress = {
-  type: YearnWithdrawActionType.SET_USER_ADDRESS
+  type: ThorchainSaversWithdrawActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: YearnWithdrawActionType.SET_LOADING
+  type: ThorchainSaversWithdrawActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: YearnWithdrawActionType.SET_TXID
+  type: ThorchainSaversWithdrawActionType.SET_TXID
   payload: string
 }
 
-export type YearnWithdrawActions =
+export type ThorchainSaversWithdrawActions =
   | SetOpportunityAction
   | SetWithdraw
   | SetUserAddress

@@ -29,7 +29,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
@@ -169,8 +169,8 @@ export const Deposit: React.FC<DepositProps> = ({
     async (formValues: DepositValues) => {
       if (!(userAddress && opportunityData && dispatch)) return
       // set deposit state for future use
-      dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
         // Check is approval is required for user address
         const yearnOpportunity = await yearnInvestor.findByOpportunityId(
@@ -185,20 +185,20 @@ export const Deposit: React.FC<DepositProps> = ({
           const estimatedGasCrypto = await getDepositGasEstimate(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
-            type: YearnDepositActionType.SET_DEPOSIT,
+            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
             payload: { estimatedGasCrypto },
           })
           onNext(DefiStep.Confirm)
-          dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+          dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
           dispatch({
-            type: YearnDepositActionType.SET_APPROVE,
+            type: ThorchainSaversDepositActionType.SET_APPROVE,
             payload: { estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
-          dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+          dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
         }
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
@@ -208,7 +208,7 @@ export const Deposit: React.FC<DepositProps> = ({
           title: translate('common.somethingWentWrong'),
           status: 'error',
         })
-        dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
+        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       }
     },
     [

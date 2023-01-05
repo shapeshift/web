@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import type { YearnWithdrawActions, YearnWithdrawState } from './WithdrawCommon'
+import type { ThorchainSaversWithdrawActions, ThorchainSaversWithdrawState } from './WithdrawCommon'
 
 interface IWithdrawContext {
-  state: YearnWithdrawState | null
-  dispatch: React.Dispatch<YearnWithdrawActions> | null
+  state: ThorchainSaversWithdrawState | null
+  dispatch: React.Dispatch<ThorchainSaversWithdrawActions> | null
 }
 
 export const WithdrawContext = createContext<IWithdrawContext>({ state: null, dispatch: null })

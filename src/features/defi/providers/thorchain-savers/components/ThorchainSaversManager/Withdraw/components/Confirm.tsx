@@ -37,7 +37,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnWithdrawActionType } from '../WithdrawCommon'
+import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
@@ -137,7 +137,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         )
       )
         return
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!yearnOpportunity) throw new Error('No opportunity')
 
       const yearnAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
@@ -152,12 +152,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         feePriority: undefined,
         bip44Params,
       })
-      dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
     dispatch,

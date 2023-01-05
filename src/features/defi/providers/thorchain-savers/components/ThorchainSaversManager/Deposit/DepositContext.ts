@@ -1,10 +1,10 @@
 import { createContext } from 'react'
 
-import type { YearnDepositActions, YearnDepositState } from './DepositCommon'
+import type { ThorchainSaversDepositActions, ThorchainSaversDepositState } from './DepositCommon'
 
 interface IDepositContext {
-  state: YearnDepositState | null
-  dispatch: React.Dispatch<YearnDepositActions> | null
+  state: ThorchainSaversDepositState | null
+  dispatch: React.Dispatch<ThorchainSaversDepositActions> | null
 }
 
 export const DepositContext = createContext<IDepositContext>({ state: null, dispatch: null })

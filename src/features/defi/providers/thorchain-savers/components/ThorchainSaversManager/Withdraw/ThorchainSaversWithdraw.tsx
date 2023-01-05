@@ -29,7 +29,7 @@ import { useAppSelector } from 'state/store'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { YearnWithdrawActionType } from './WithdrawCommon'
+import { ThorchainSaversWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
@@ -98,7 +98,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
   useEffect(() => {
     if (state.opportunity) return
     if (!(walletState.wallet && contractAddress && opportunityData)) return
-    dispatch({ type: YearnWithdrawActionType.SET_OPPORTUNITY, payload: opportunityData })
+    dispatch({ type: ThorchainSaversWithdrawActionType.SET_OPPORTUNITY, payload: opportunityData })
   }, [contractAddress, opportunityData, state.opportunity, walletState.wallet])
 
   const handleBack = useCallback(() => {

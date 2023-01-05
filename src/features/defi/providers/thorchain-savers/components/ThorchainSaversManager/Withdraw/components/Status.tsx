@@ -26,7 +26,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { YearnWithdrawActionType } from '../WithdrawCommon'
+import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
@@ -71,7 +71,7 @@ export const Status = () => {
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
-        type: YearnWithdrawActionType.SET_WITHDRAW,
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFee: confirmedTransaction.fee?.value,

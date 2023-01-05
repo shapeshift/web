@@ -9,7 +9,7 @@ import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuo
 import type { TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
+import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
 import {
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,

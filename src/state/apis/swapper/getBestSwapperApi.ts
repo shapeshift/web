@@ -3,13 +3,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { GetTradeQuoteInput, SwapperType } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-
-type State = {
-  assets: AssetsState
-  preferences: Preferences
-}
+import type { State } from 'state/apis/types'
 
 type GetBestSwapperArgs = GetTradeQuoteInput & { feeAsset: Asset }
 

@@ -5,8 +5,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
@@ -37,9 +38,10 @@ const apiMiddleware = [
   txHistoryApi.middleware,
   validatorDataApi.middleware,
   foxyApi.middleware,
-  swapperApi.middleware,
+  getTradeQuoteApi.middleware,
   getBestSwapperApi.middleware,
   getUsdRateApi.middleware,
+  getUsdRatesApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
 ]

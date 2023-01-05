@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import type { TS } from 'components/Trade/types'
-import { useGetUsdRatesQuery } from 'state/apis/swapper/swapperApi'
+import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

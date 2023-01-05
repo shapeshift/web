@@ -21,7 +21,7 @@ import {
 import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -49,7 +49,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
 
   // Constants
-  const { getUsdRates } = swapperApi.endpoints
+  const { getUsdRates } = getUsdRatesApi.endpoints
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains

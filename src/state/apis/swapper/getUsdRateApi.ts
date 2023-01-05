@@ -3,17 +3,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperType } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import type { Preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { State } from 'state/apis/types'
 
 export type GetUsdRateArgs = { assetId: AssetId; swapperType: SwapperType }
-
 type GetUsdRateReturn = string | undefined
-
-type State = {
-  assets: AssetsState
-  preferences: Preferences
-}
 
 export const getUsdRateApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

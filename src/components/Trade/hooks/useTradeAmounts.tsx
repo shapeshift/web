@@ -16,7 +16,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
+import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import {
   selectAssets,
   selectFeatureFlags,
@@ -60,14 +61,15 @@ export const useTradeAmounts = () => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const assets = useSelector(selectAssets)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset
   const buyAssetFormState = buyTradeAsset?.asset
 
-  const { getUsdRates, getTradeQuote } = swapperApi.endpoints
+  const { getTradeQuote } = getTradeQuoteApi.endpoints
+  const { getUsdRates } = getUsdRatesApi.endpoints
   const { getBestSwapperType } = getBestSwapperApi.endpoints
-  const assets = useSelector(selectAssets)
 
   const setTradeAmounts = useCallback(
     (args: SetTradeAmountsArgs) => {

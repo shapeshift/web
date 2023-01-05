@@ -284,6 +284,13 @@
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Earn yield on your %{asset} through the THORchain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
+        "vaultCap": "Vault Cap",
+        "vaultCapTooltip": "Something about vault caps",
+        "haultedTitle": "Deposits are temporarily halted.",
+        "haultedDescription": "Please tweet at Thorchain to raise the caps!"
       }
     },
     "memoNote": {

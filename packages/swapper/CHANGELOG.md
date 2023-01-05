@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.3...@shapeshiftoss/swapper-v15.0.4) (2023-01-05)
+
+
+### Bug Fixes
+
+* only inject accountNumber, not full bip44params ([#1147](https://github.com/shapeshift/lib/issues/1147)) ([7e53b6d](https://github.com/shapeshift/lib/commit/7e53b6d517d069d8a1831e4b474405b4e9220dcf))
+
 # [@shapeshiftoss/swapper-v15.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.2...@shapeshiftoss/swapper-v15.0.3) (2023-01-05)
 
 

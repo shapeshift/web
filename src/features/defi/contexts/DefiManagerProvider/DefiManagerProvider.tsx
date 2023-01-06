@@ -3,6 +3,7 @@ import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { FoxEthLpManager } from 'features/defi/providers/fox-eth-lp/components/FoxEthLpManager/FoxEthLpManager'
 import { FoxFarmingManager } from 'features/defi/providers/fox-farming/components/FoxFarmingManager/FoxFarmingManager'
+import { ThorchainSaversManager } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
@@ -29,7 +30,7 @@ const DefiModules = {
   [DefiProvider.FoxFarming]: FoxFarmingManager,
   [DefiProvider.Cosmos]: CosmosManager,
   [DefiProvider.Osmosis]: CosmosManager,
-  [DefiProvider.ThorchainSavers]: () => null, // revert when https://github.com/shapeshift/web/pull/3567/files#diff-ca72f9326d020c043b44c7eb79e58b62966b835e198cbeb197735c19f83f2773R33 goes in
+  [DefiProvider.ThorchainSavers]: ThorchainSaversManager,
 }
 
 const modules = Object.keys(DefiModules)

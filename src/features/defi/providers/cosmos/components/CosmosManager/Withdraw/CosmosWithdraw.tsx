@@ -101,7 +101,8 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     ;(async () => {
       try {
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const address = await chainAdapter.getAddress({ bip44Params, wallet: walletState.wallet })
+        const { accountNumber } = bip44Params
+        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({
           type: CosmosWithdrawActionType.SET_USER_ADDRESS,

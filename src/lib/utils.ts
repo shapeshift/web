@@ -119,3 +119,10 @@ export const getTypeGuardAssertion =
   (value: T | U): asserts value is T => {
     if (!typeGuard(value)) throw new Error(`${message}: ${value}`)
   }
+
+export const isFulfilled = <T>(
+  promise: PromiseSettledResult<T>,
+): promise is PromiseFulfilledResult<T> => promise.status === 'fulfilled'
+
+export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is PromiseRejectedResult =>
+  promise.status === 'rejected'

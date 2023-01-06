@@ -1,5 +1,11 @@
 import { Box } from '@chakra-ui/react'
-import { cosmosAssetId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import {
+  cosmosAssetId,
+  cosmosChainId,
+  fromAssetId,
+  osmosisAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -19,6 +25,7 @@ import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectFeatureFlags,
+  selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -62,6 +69,13 @@ export const AllEarnOpportunities = () => {
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
+  const cosmosAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, cosmosChainId),
+  )
+  const osmosisAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, osmosisChainId),
+  )
+
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
       lpId: foxEthLpAssetId,
@@ -75,12 +89,15 @@ export const AllEarnOpportunities = () => {
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
+      accountId: cosmosAccountId,
     },
   )
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
+      accountId: osmosisAccountId,
     })
+
   const allRows = useNormalizeOpportunities({
     foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
@@ -110,6 +127,8 @@ export const AllEarnOpportunities = () => {
     (opportunity: EarnOpportunityType) => {
       const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference } = fromAssetId(assetId)
+      const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
+
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
@@ -120,6 +139,7 @@ export const AllEarnOpportunities = () => {
         search: qs.stringify({
           provider,
           chainId,
+          defaultAccountId,
           contractAddress,
           assetReference,
           highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,

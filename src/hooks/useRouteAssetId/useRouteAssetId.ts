@@ -5,10 +5,20 @@ import { useEffect, useState } from 'react'
 import { matchPath, useLocation } from 'react-router'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
+// Make sure this array remains ordered from most to least specific to avoid early matching
+export const assetIdPaths = [
+  '/:chainId/:assetSubId/pool/:poolId', // Osmosis LP token path template
+  '/:chainId/:assetSubId', // Standard asset path template
+]
+
 const getRouteAssetId = (pathname: string) => {
   // Extract the chainId and assetSubId parts from an /assets route, see src/Routes/RoutesCommon.tsx
-  const assetIdAssetsPathMatch = matchPath<{ chainId: string; assetSubId: string }>(pathname, {
-    path: '/assets/:chainId/:assetSubId',
+  const assetIdAssetsPathMatch = matchPath<{
+    chainId: string
+    assetSubId: string
+    poolId?: string
+  }>(pathname, {
+    path: assetIdPaths.map(path => `/assets${path}`),
   })
 
   const assetIdAccountsPathMatch = matchPath<{
@@ -21,10 +31,11 @@ const getRouteAssetId = (pathname: string) => {
   })
 
   if (assetIdAssetsPathMatch?.params) {
-    const { chainId, assetSubId } = assetIdAssetsPathMatch.params
+    const { chainId, assetSubId, poolId = undefined } = assetIdAssetsPathMatch.params
 
     // Reconstitutes the assetId from valid matched params
-    const assetId = `${chainId}/${assetSubId}`
+    // If it's an Osmosis pool asset we need to add the pool segment and poolId attribute
+    const assetId = `${chainId}/${assetSubId}${poolId ? `/pool/${poolId}` : ''}`
     return assetId
   }
 

@@ -29,6 +29,7 @@ const DefiModules = {
   [DefiProvider.FoxFarming]: FoxFarmingManager,
   [DefiProvider.Cosmos]: CosmosManager,
   [DefiProvider.Osmosis]: CosmosManager,
+  [DefiProvider.ThorchainSavers]: () => null, // revert when https://github.com/shapeshift/web/pull/3567/files#diff-ca72f9326d020c043b44c7eb79e58b62966b835e198cbeb197735c19f83f2773R33 goes in
 }
 
 const modules = Object.keys(DefiModules)

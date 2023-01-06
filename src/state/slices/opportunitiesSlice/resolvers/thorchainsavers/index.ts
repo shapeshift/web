@@ -1,10 +1,10 @@
+import { adapters } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import type { GetOpportunityIdsOutput } from '../../types'
+import type { GetOpportunityIdsOutput, OpportunityId, StakingId } from '../../types'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -15,9 +15,15 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
   if (!opportunitiesData) return { data: [] }
 
-  const opportunityIds = opportunitiesData
-    .filter(opportunity => bnOrZero(opportunity.savers_depth).gt(0))
-    .map(opportunity => `${DefiProvider.ThorchainSavers}::${opportunity.asset}`)
+  const opportunityIds = opportunitiesData.reduce<OpportunityId[]>((acc, currentOpportunity) => {
+    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentOpportunity.asset)
+
+    if (bnOrZero(currentOpportunity.savers_depth).gt(0) && maybeOpportunityId) {
+      acc.push(maybeOpportunityId as StakingId)
+    }
+
+    return acc
+  }, [])
 
   return {
     data: opportunityIds,

@@ -1,11 +1,14 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import type { BreadcrumbsRoute } from 'react-router-breadcrumbs-hoc'
+import type { BreadcrumbsRoute, Options } from 'react-router-breadcrumbs-hoc'
 import withBreadcrumbs from 'react-router-breadcrumbs-hoc'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
+import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
+import type { PartialRecord } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,14 +33,24 @@ const GetAccountName = (props: any) => {
   return <AccountLabel accountId={accountId} />
 }
 
-const GetAssetName = (props: any) => {
+const GetAssetName = (props: {
+  match: {
+    params: PartialRecord<string, string>
+  }
+}) => {
   const {
     match: {
-      params: { chainId, assetSubId, assetId: assetIdParam },
+      params: { chainId, assetSubId, assetId: assetIdParam, poolId },
     },
   } = props
 
-  const assetId = assetIdParam ? decodeURIComponent(assetIdParam) : `${chainId}/${assetSubId}`
+  const assetId: string = (() => {
+    if (assetIdParam) return decodeURIComponent(assetIdParam)
+    // If we have a poolId it's an Osmosis pool asset
+    if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
+    return `${chainId}/${assetSubId}`
+  })()
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   return <>{asset?.name}</>
 }
@@ -54,31 +67,44 @@ const routes: BreadcrumbsRoute[] = [
   {
     path: '/trade',
     breadcrumb: 'Trade',
-    routes: [{ path: '/trade/:chainId/:assetSubId', breadcrumb: GetAssetName }],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: `/trade${assetIdPath}`,
+      breadcrumb: GetAssetName,
+    })),
   },
-  { path: '/assets/:chainId/:assetSubId', breadcrumb: GetAssetName },
+  ...assetIdPaths.map(assetIdPath => ({ path: `/assets${assetIdPath}`, breadcrumb: GetAssetName })),
   { path: '*', breadcrumb: GetTranslatedPathPart },
 ]
 
-const options = {
-  excludePaths: ['/assets/:chainId', '/trade/:chainId'],
+const options: Options = {
+  excludePaths: [
+    '/assets/:chainId',
+    '/trade/:chainId',
+    // If it's an Osmosis pool asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
+    '/assets/:chainId/ibc:gamm',
+    '/assets/:chainId/ibc:gamm/pool',
+    '/trade/:chainId/ibc:gamm',
+    '/trade/:chainId/ibc:gamm/pool',
+  ],
 }
 
 export const Breadcrumbs = withBreadcrumbs(
   routes,
   options,
-)(({ breadcrumbs }: { breadcrumbs: any }) => {
+)(({ breadcrumbs }: { breadcrumbs: any[] }) => {
   return (
     <Breadcrumb fontWeight='medium' fontSize='sm' color='gray.500'>
-      {breadcrumbs.map(({ breadcrumb, match }: { breadcrumb: any; match: any }) => {
-        return (
-          <BreadcrumbItem key={match.url}>
-            <BreadcrumbLink as={Link} to={match.url}>
-              {breadcrumb}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-        )
-      })}
+      {breadcrumbs.map(
+        ({ breadcrumb, match }: { breadcrumb: ReactNode; match: { url: string } }) => {
+          return (
+            <BreadcrumbItem key={match.url}>
+              <BreadcrumbLink as={Link} to={match.url}>
+                {breadcrumb}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          )
+        },
+      )}
     </Breadcrumb>
   )
 })

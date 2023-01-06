@@ -4316,10 +4316,10 @@
     "@shapeshiftoss/hdwallet-core" "1.41.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/investor-foxy@^7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-7.0.3.tgz#decce32136cb9b3b3193453c179e73c4d79aba41"
-  integrity sha512-W61RfWe1GbNP2IFKIgwwDi8yqUubw8iQY0aGw5EYnN9bCRoSTZXFvY9uzM6Kdt+/2vD1wEFwJ6fKa7WF6lyFgA==
+"@shapeshiftoss/investor-foxy@^7.0.4":
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-7.0.4.tgz#9097a47f3db195609f9d9592d9305ce2f1a072c7"
+  integrity sha512-tYpgiddemJWbaNiTca6SkXO2D649yC4cpPBHFBwIoSUm8U5fuHsryUPN2h9efHAlxl2kBeA5el+BATdv01dpXA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     axios "^0.26.1"

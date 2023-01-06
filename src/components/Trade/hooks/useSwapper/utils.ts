@@ -200,8 +200,9 @@ export const getReceiveAddress = async ({
   const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!(chainAdapter && wallet)) return
+  const { accountNumber } = bip44Params
   try {
-    return await chainAdapter.getAddress({ wallet, bip44Params, accountType })
+    return await chainAdapter.getAddress({ wallet, accountNumber, accountType })
   } catch (e) {
     moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
   }

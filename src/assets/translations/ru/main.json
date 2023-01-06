@@ -340,6 +340,7 @@
     "walletBalance": "Баланс кошелька",
     "earnBalance": "Баланс заработка",
     "earnBody": "Получайте пассивный доход вкладывая свои активы в стейкинг или DeFi стратегию.",
+    "clickHereToEarn": "Нажмите здесь, чтобы заработать %{apr} APR* фармингом пула ликвидности ETH-FOX",
     "overview": "Обзор",
     "liquidityPools": "Пулы ликвидности",
     "stakingVaults": "Стейкинг и хранилища",
@@ -618,8 +619,7 @@
       "tradeFailed": "Торговля не удалась. Активы возвращены за вычетом платы за газ"
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
-    "recentTrades": "Последние сделки",
-    "shapeshiftFee": "Комиссия ShapeShift"
+    "recentTrades": "Последние сделки"
   },
   "modals": {
     "popup": {

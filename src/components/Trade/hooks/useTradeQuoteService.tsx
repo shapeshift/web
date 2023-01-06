@@ -82,10 +82,11 @@ export const useTradeQuoteService = () => {
 
         if (!chainAdapter)
           throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
+        const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
-          sellAccountBip44Params: sellAccountMetadata.bip44Params,
+          sellAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,

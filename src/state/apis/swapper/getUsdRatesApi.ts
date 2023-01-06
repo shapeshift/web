@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { isFulfilled } from 'lib/utils'
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
@@ -54,15 +55,13 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
 
           if (!swapperType) throw new Error(`Swapper type not found.`)
 
-          const feeAssetUsdRate = await dispatch(
-            getUsdRate.initiate({ assetId: feeAssetId, swapperType }),
-          ).then(r => r.data)
-          const buyAssetUsdRate = await dispatch(
-            getUsdRate.initiate({ assetId: buyAssetId, swapperType }),
-          ).then(r => r.data)
-          const sellAssetUsdRate = await dispatch(
-            getUsdRate.initiate({ assetId: sellAssetId, swapperType }),
-          ).then(r => r.data)
+          const assetIds = [feeAssetId, buyAssetId, sellAssetId]
+          const usdRatePromises = await Promise.allSettled(
+            assetIds.map(assetId => dispatch(getUsdRate.initiate({ assetId, swapperType }))),
+          )
+          const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = usdRatePromises
+            .filter(isFulfilled)
+            .map(p => p.value?.data)
 
           if (!feeAssetUsdRate || !buyAssetUsdRate || !sellAssetUsdRate)
             throw new Error(`USD rates not found.`)

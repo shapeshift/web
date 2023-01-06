@@ -140,9 +140,10 @@ export const ClaimConfirm = ({
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
+        const { accountNumber } = bip44Params
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
-          bip44Params,
+          accountNumber,
         })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([

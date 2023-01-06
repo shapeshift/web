@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.6.0...@shapeshiftoss/caip-v8.7.0) (2023-01-06)
+
+
+### Features
+
+* **caip:** add bnb to thorPoolIdAssetIdSymbolMap ([#1154](https://github.com/shapeshift/lib/issues/1154)) ([28b6f39](https://github.com/shapeshift/lib/commit/28b6f39fa0829050a5ddde348f36e97d12cd6791))
+
 # [@shapeshiftoss/caip-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.5.0...@shapeshiftoss/caip-v8.6.0) (2022-12-30)
 
 

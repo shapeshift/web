@@ -18,7 +18,11 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   const opportunityIds = opportunitiesData.reduce<OpportunityId[]>((acc, currentOpportunity) => {
     const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentOpportunity.asset)
 
-    if (bnOrZero(currentOpportunity.savers_depth).gt(0) && maybeOpportunityId && currentOpportunity.status === 'Available') {
+    if (
+      bnOrZero(currentOpportunity.savers_depth).gt(0) &&
+      maybeOpportunityId &&
+      currentOpportunity.status === 'Available'
+    ) {
       acc.push(maybeOpportunityId as StakingId)
     }
 

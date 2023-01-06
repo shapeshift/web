@@ -2,6 +2,7 @@ import { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
   bchAssetId,
+  binanceAssetId,
   btcAssetId,
   cosmosAssetId,
   dogeAssetId,
@@ -61,6 +62,7 @@ const thorPoolIdAssetIdSymbolMap: Record<string, AssetId> = {
   'GAIA.ATOM': cosmosAssetId,
   'BCH.BCH': bchAssetId,
   'AVAX.AVAX': avalancheAssetId,
+  'BNB.BNB': binanceAssetId,
   'AVAX.USDC-0XB97EF9EF8734C71904D8002F8B6BC66DD9C48A6E':
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
 }

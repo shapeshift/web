@@ -23,7 +23,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
         if (!supportsAvalanche(wallet)) continue
       }
       const bip44Params = adapter.getBIP44Params({ accountNumber })
-      const pubkey = await adapter.getAddress({ bip44Params, wallet })
+      const pubkey = await adapter.getAddress({ accountNumber, wallet })
       if (!pubkey) continue
       const accountId = toAccountId({ chainId, account: pubkey })
       acc[accountId] = { bip44Params }

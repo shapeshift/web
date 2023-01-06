@@ -184,11 +184,12 @@ export const useTradeAmounts = () => {
 
       if (!sellAccountMetadata) return // no-op, need at least bip44Params to get tradeQuoteArgs
 
+      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
       const tradeQuoteArgs = await getTradeQuoteArgs({
         buyAsset,
         sellAsset,
         sellAccountType: sellAccountMetadata.accountType,
-        sellAccountBip44Params: sellAccountMetadata.bip44Params,
+        sellAccountNumber,
         wallet,
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision:

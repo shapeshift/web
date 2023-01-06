@@ -12,6 +12,7 @@ import {
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
@@ -19,9 +20,13 @@ import {
 import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountMetadata,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/selectors'
@@ -32,19 +37,18 @@ The Default Asset Hook is responsible for populating the trade widget with initi
 It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
 */
 export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
-  const {
-    state: { wallet },
-  } = useWallet()
+  // Hooks
+  const wallet = useWallet().state.wallet
   const { connectedEvmChainId } = useEvm()
   const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
-
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
   const dispatch = useAppDispatch()
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
 
-  const { getUsdRates } = swapperApi.endpoints
+  // Constants
+  const { getUsdRates } = getUsdRatesApi.endpoints
 
   // If the wallet is connected to a chain, use that ChainId
   // Else, return a prioritized ChainId based on the wallet's supported chains
@@ -64,6 +68,22 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
     setDefaultAssetIdPair(defaultAssetIdPair)
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
+
+  const sellAssetAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetId(state, {
+      assetId: defaultAssetIdPair?.sellAssetId ?? '',
+    }),
+  )
+
+  /*
+  We have no form state, so we don't have an accountId.
+  Using the first is ok because we are just checking if we can get a quote for the default asset pair.
+  This quote is not, and MUST NOT be, used anywhere.
+  */
+  const sellAccountFilter = { accountId: sellAssetAccountIds[0] }
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
+  )
 
   const buyAssetId = useMemo(() => {
     if (routeBuyAssetId && defaultAssetIdPair && routeBuyAssetId !== defaultAssetIdPair.sellAssetId)
@@ -90,13 +110,43 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       : maybeWalletChainId
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
 
-    const { data: buyAssetFiatRateData } = await dispatch(
-      getUsdRates.initiate({
-        buyAssetId: defaultAssetIdPair.buyAssetId,
-        sellAssetId: defaultAssetIdPair.sellAssetId,
-        feeAssetId: defaultAssetIdPair.buyAssetId,
-      }),
-    )
+    const buyAsset = buyAssetId ? assets[buyAssetId] : undefined
+    const sellAsset = assets[defaultAssetIdPair?.sellAssetId]
+
+    const receiveAddress =
+      buyAsset && sellAccountMetadata
+        ? await getReceiveAddress({
+            asset: buyAsset,
+            wallet,
+            accountMetadata: sellAccountMetadata,
+          })
+        : undefined
+
+    // We can't use useTradeQuoteService() here because we don't yet have any form state to compute from
+    const tradeQuoteArgs =
+      sellAsset && buyAsset && wallet && sellAccountMetadata && receiveAddress
+        ? await getTradeQuoteArgs({
+            sellAsset,
+            buyAsset,
+            isSendMax: false,
+            sellAmountBeforeFeesCryptoPrecision: '0',
+            wallet,
+            receiveAddress,
+            sellAccountType: sellAccountMetadata.accountType,
+            sellAccountNumber: sellAccountMetadata.bip44Params.accountNumber,
+          })
+        : undefined
+
+    const buyAssetFiatRateData =
+      tradeQuoteArgs &&
+      (
+        await dispatch(
+          getUsdRates.initiate({
+            feeAssetId: defaultAssetIdPair.buyAssetId,
+            tradeQuoteArgs,
+          }),
+        )
+      ).data
 
     // TODO: update Swapper to have an proper way to validate a pair is supported.
     const assetPair = (() => {
@@ -141,26 +191,26 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const receiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,
-        bip44Params: accountMetadata.bip44Params,
-        accountType: accountMetadata.accountType,
+        accountMetadata,
       })
       const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
       const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
       return { sellAsset, buyAsset }
     }
   }, [
-    assets,
-    buyAssetId,
     buyChainId,
-    dispatch,
-    featureFlags,
-    getUsdRates,
-    maybeWalletChainId,
-    walletAccountIds,
-    portfolioAccountMetaData,
     previousBuyChainId,
     routeBuyAssetId,
+    maybeWalletChainId,
+    featureFlags,
+    buyAssetId,
+    assets,
     wallet,
+    sellAccountMetadata,
+    dispatch,
+    getUsdRates,
+    walletAccountIds,
+    portfolioAccountMetaData,
   ])
 
   return { getDefaultAssets, defaultAssetIdPair }

@@ -4385,10 +4385,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^15.0.2":
-  version "15.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.0.2.tgz#72402f06d2e2d37ca0c13d9cbdb6b502fc01e183"
-  integrity sha512-fZ7E1ict/vyvnpX2sdITuGBXsYdpUx3tGuaXTvSW82RBxAajkwVXy+Hjbn3OmkbEjyFcvrAD100PdTZUso4mXA==
+"@shapeshiftoss/swapper@^15.2.0":
+  version "15.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.2.0.tgz#01de861a5159c544f32f48ec6d967de5226716fd"
+  integrity sha512-ol9a9oSF/CZFG1h1vFAC5WCSMc4ouQKyg6PAkmtnylkywiPUk1g7ImdEm79mgWX6hZeROtPxx61fnv3JMq9WpA==
   dependencies:
     axios "^0.26.1"
     axios-cache-adapter "^2.7.3"

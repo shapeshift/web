@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.1.0...@shapeshiftoss/swapper-v15.2.0) (2023-01-06)
+
+
+### Features
+
+* **swapper:** implement getBestSwapper logic ([#1123](https://github.com/shapeshift/lib/issues/1123)) ([d0ef885](https://github.com/shapeshift/lib/commit/d0ef8856addaabbfcd451b371e7174844c278e17))
+
 # [@shapeshiftoss/swapper-v15.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.0.4...@shapeshiftoss/swapper-v15.1.0) (2023-01-05)
 
 

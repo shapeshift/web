@@ -31,11 +31,13 @@ import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
+// TODO (gomes) delete this after we get resolvers setup
+
 const exampleSaverVault: EarnOpportunityType = {
   contractAddress: '0xa354f35829ae975e850e23e9615b11da1b3dc4de',
   apy: '0.02711977967163448',
   assetId: 'eip155:1/erc20:0xa354f35829ae975e850e23e9615b11da1b3dc4de',
-  provider: 'Thorchain Savers',
+  provider: 'THORChain Savers',
   tvl: '36780518.043089',
   type: 'staking',
   underlyingAssetId: 'eip155:1/erc20:0xa354f35829ae975e850e23e9615b11da1b3dc4de',
@@ -110,6 +112,7 @@ export const AllEarnOpportunities = () => {
         !opportunity.expired ||
         (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
+    // TODO (gomes) delete this after we get resolvers setup
     saversVaults: SaversVaults ? [exampleSaverVault] : [],
   })
 

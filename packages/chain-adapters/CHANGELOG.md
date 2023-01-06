@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.7.1...@shapeshiftoss/chain-adapters-v10.7.2) (2023-01-06)
+
+
+### Bug Fixes
+
+* utxo base adapter get address ([#1155](https://github.com/shapeshift/lib/issues/1155)) ([ff3b1ee](https://github.com/shapeshift/lib/commit/ff3b1ee3c2422a210988b967eb51af0fb03aa021))
+
 # [@shapeshiftoss/chain-adapters-v10.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.7.0...@shapeshiftoss/chain-adapters-v10.7.1) (2023-01-05)
 
 

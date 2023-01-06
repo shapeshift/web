@@ -133,7 +133,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
             wallet,
             receiveAddress,
             sellAccountType: sellAccountMetadata.accountType,
-            sellAccountBip44Params: sellAccountMetadata.bip44Params,
+            sellAccountNumber: sellAccountMetadata.bip44Params.accountNumber,
           })
         : undefined
 

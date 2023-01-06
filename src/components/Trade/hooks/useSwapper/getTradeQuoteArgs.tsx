@@ -1,8 +1,8 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
-import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { GetTradeQuoteInput, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
@@ -15,7 +15,7 @@ export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  sellAccountBip44Params: BIP44Params
+  sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: NonNullable<TS['receiveAddress']>
   sellAmountBeforeFeesCryptoPrecision: string
@@ -25,13 +25,13 @@ export type GetTradeQuoteInputArgs = {
 export const getTradeQuoteArgs = async ({
   sellAsset,
   buyAsset,
-  sellAccountBip44Params,
+  sellAccountNumber,
   sellAccountType,
   wallet,
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
   isSendMax,
-}: GetTradeQuoteInputArgs) => {
+}: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
@@ -42,12 +42,12 @@ export const getTradeQuoteArgs = async ({
     buyAsset,
     sendMax: isSendMax,
     receiveAddress,
+    accountNumber: sellAccountNumber,
   }
   if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
     }
   } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
     if (!sellAccountType) return
@@ -56,13 +56,12 @@ export const getTradeQuoteArgs = async ({
     ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,
-      sellAccountBip44Params,
+      sellAccountNumber,
       sellAccountType,
     )
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      bip44Params: sellAccountBip44Params,
       accountType: sellAccountType,
       xpub,
     }

@@ -58,9 +58,7 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const defaultFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, sellAssetChainId ?? ''),
-  )
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
@@ -69,7 +67,7 @@ export const useSwapper = () => {
   const { tradeQuoteArgs } = useTradeQuoteService()
   const { receiveAddress } = useReceiveAddress()
   const dispatch = useAppDispatch()
-  const { bestSwapper } = useBestSwapper({ feeAsset: defaultFeeAsset })
+  const { bestSwapper } = useBestSwapper({ feeAsset })
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -220,15 +218,7 @@ export const useSwapper = () => {
     if (buyAssetId && sellAssetId) {
       setBestTradeSwapper(bestSwapper)
     }
-  }, [
-    bestSwapper,
-    buyAssetId,
-    defaultFeeAsset,
-    dispatch,
-    sellAssetId,
-    swapperManager,
-    tradeQuoteArgs,
-  ])
+  }, [bestSwapper, buyAssetId, feeAsset, dispatch, sellAssetId, swapperManager, tradeQuoteArgs])
 
   useEffect(() => {
     ;(async () => {

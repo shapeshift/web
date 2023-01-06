@@ -133,14 +133,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   getBIP44Params({
     accountNumber,
     accountType,
-    index = 0,
+    index,
     isChange = false,
   }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) {
       throw new Error('accountNumber must be >= 0')
     }
 
-    if (index < 0) {
+    if (index !== undefined && index < 0) {
       throw new Error('index must be >= 0')
     }
 
@@ -191,7 +191,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     wallet,
     accountNumber,
     accountType = this.defaultUtxoAccountType,
-    index = 0,
+    index,
     isChange = false,
     showOnDevice = false,
   }: GetAddressInput): Promise<string> {

@@ -44,7 +44,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const makeDefaultMenu = (isExpired?: boolean, isDisabled?: boolean): DefiButtonProps[] => [
+const makeDefaultMenu = (isExpired?: boolean, isFull?: boolean): DefiButtonProps[] => [
   ...(isExpired
     ? []
     : [
@@ -52,7 +52,7 @@ const makeDefaultMenu = (isExpired?: boolean, isDisabled?: boolean): DefiButtonP
           label: 'common.deposit',
           icon: <ArrowUpIcon />,
           action: DefiAction.Deposit,
-          isDisabled,
+          isDisabled: isFull,
         },
       ]),
   {

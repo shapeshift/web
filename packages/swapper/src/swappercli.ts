@@ -1,5 +1,5 @@
-import { AssetService } from '@shapeshiftoss/asset-service'
-import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { Asset, AssetService } from '@shapeshiftoss/asset-service'
+import { CHAIN_NAMESPACE, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { bitcoin, ethereum, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -13,6 +13,7 @@ import { getAdapterManager } from './adapters'
 import { SwapperManager } from './manager'
 import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper } from './swappers'
 import { fromBaseUnit } from './swappers/utils/bignumber'
+import { setupQuote } from './swappers/utils/test-data/setupSwapQuote'
 
 dotenv.config()
 
@@ -112,9 +113,23 @@ const main = async (): Promise<void> => {
   await tc.initialize()
   swapManager.addSwapper(tc)
 
+  const ethereumAsset: Asset = {
+    assetId: ethAssetId,
+    chainId: ethChainId,
+    symbol: 'ETH',
+    name: 'Ethereum',
+    precision: 18,
+    color: '#5C6BC0',
+    icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+    explorer: 'https://etherscan.io',
+    explorerAddressLink: 'https://etherscan.io/address/',
+    explorerTxLink: 'https://etherscan.io/tx/',
+  }
+
+  const { quoteInput } = setupQuote()
   const swapper = await swapManager.getBestSwapper({
-    sellAssetId: sellAsset.assetId,
-    buyAssetId: buyAsset.assetId,
+    ...quoteInput,
+    feeAsset: ethereumAsset,
   })
 
   console.info(`using swapper ${swapper?.getType()}`)

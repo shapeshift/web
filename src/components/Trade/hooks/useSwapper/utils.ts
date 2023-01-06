@@ -1,6 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import {
-  type AssetId,
   type ChainId,
   avalancheAssetId,
   bchAssetId,
@@ -11,26 +10,18 @@ import {
   ethAssetId,
   foxAssetId,
   fromAssetId,
-  fromChainId,
   ltcAssetId,
   osmosisAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  type Swapper,
-  type Trade,
-  type TradeQuote,
-  type UtxoSupportedChainIds,
-} from '@shapeshiftoss/swapper'
+import { type Trade, type TradeQuote, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
   type AssetIdTradePair,
   type DisplayFeeData,
   type GetFormFeesArgs,
-  type SupportedSwappingChain,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -40,26 +31,7 @@ import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
-// Type guards
-export const isSupportedUtxoSwappingChain = (
-  chainId: ChainId,
-): chainId is UtxoSupportedChainIds => {
-  const { chainNamespace } = fromChainId(chainId)
-  return chainNamespace === CHAIN_NAMESPACE.Utxo
-}
-
-export const isSupportedNonUtxoSwappingChain = (
-  chainId: ChainId,
-): chainId is SupportedSwappingChain => {
-  return (
-    chainId === KnownChainIds.EthereumMainnet ||
-    chainId === KnownChainIds.AvalancheMainnet ||
-    chainId === KnownChainIds.OsmosisMainnet ||
-    chainId === KnownChainIds.CosmosMainnet ||
-    chainId === KnownChainIds.ThorchainMainnet
-  )
-}
-
+// Pure functions
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
   const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
   return assets.filter(asset => assetIdMap[asset.assetId])
@@ -165,20 +137,6 @@ export const getFormFees = ({
   }
 }
 
-export const getBestSwapperFromArgs = async (
-  buyAssetId: AssetId,
-  sellAssetId: AssetId,
-  featureFlags: FeatureFlags,
-): Promise<Swapper<ChainId>> => {
-  const swapperManager = await getSwapperManager(featureFlags)
-  const swapper = await swapperManager.getBestSwapper({
-    buyAssetId,
-    sellAssetId,
-  })
-  if (!swapper) throw new Error('swapper is undefined')
-  return swapper
-}
-
 export const getDefaultAssetIdPairByChainId = (
   buyAssetChainId: ChainId | undefined,
   featureFlags: FeatureFlags,
@@ -236,10 +194,10 @@ export const getDefaultAssetIdPairByChainId = (
 export const getReceiveAddress = async ({
   asset,
   wallet,
-  bip44Params,
-  accountType,
+  accountMetadata,
 }: GetReceiveAddressArgs): Promise<string | undefined> => {
   const { chainId } = fromAssetId(asset.assetId)
+  const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!(chainAdapter && wallet)) return
   const { accountNumber } = bip44Params

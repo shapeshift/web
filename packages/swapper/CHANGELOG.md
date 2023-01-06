@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.0...@shapeshiftoss/swapper-v15.2.1) (2023-01-06)
+
+
+### Bug Fixes
+
+* **swapper:** make osmosis swapper account-aware ([#1150](https://github.com/shapeshift/lib/issues/1150)) ([6a0c010](https://github.com/shapeshift/lib/commit/6a0c010a5d54ebe96ebe622b67fba21c0a5d3922))
+
 # [@shapeshiftoss/swapper-v15.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.1.0...@shapeshiftoss/swapper-v15.2.0) (2023-01-06)
 
 

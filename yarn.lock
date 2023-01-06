@@ -4100,10 +4100,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.6.0.tgz#7d0134919a92d1e2eb456f190197cf7911c01718"
   integrity sha512-5Gw6MScFxRP89fjtKR0gqguiE4jhGNHuyuW/bcusUvlWlcr/DEOP51xOYCRX09YhKNnhkU6+Nf1SQh1DPUt6Tw==
 
-"@shapeshiftoss/chain-adapters@10.5.1":
-  version "10.5.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.5.1.tgz#c39ce19245c3ee8e981c7228c4c31a8b33616574"
-  integrity sha512-lNchE0ge9UdLdCyJhVa9EIgY8Z2OJOpwBNW8l8AuHDqDaCgbVHYFI4hXnvsnO6j+5rkjtF7q98iBx/WZywpHpQ==
+"@shapeshiftoss/chain-adapters@10.7.2":
+  version "10.7.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-10.7.2.tgz#63d3e9c843cca7576fde4d65577d6e04ae46dc5a"
+  integrity sha512-AvTxqWVuTrCDBwR65u3L780i0PqlCzRmMzkTaglL7qXaurZPzfQhOZ+ukr439eFp8fr3a6C2h5XlzKKZKEGYiw==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"
@@ -4407,10 +4407,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.3.3.tgz#5f66542a5d1d70837020d50c362aabb21e67031d"
   integrity sha512-WD6SpW/YYwDiyxc+yeWb/F2WkCq5kHw6gzxvYfsLFlrOIXl8x4Kov5oJBrYfJO3r+UZrcgHH8UcQmyhihJlclA==
 
-"@shapeshiftoss/unchained-client@^10.4.1":
-  version "10.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.4.1.tgz#50686ee7dfc2ff3af0913595e07e60ab123a70ae"
-  integrity sha512-ETI0V0YPWZPDDOTKOSfcbjGmwVbFmiH2gFu0KpGeMp5bLXPGoFCk/5OSzKfxQbJasg0FYejY3MHktAV+Ovmilg==
+"@shapeshiftoss/unchained-client@^10.8.0":
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.8.0.tgz#3091a79b6f89e6ee7f388c9e32d8cd7cba3855e5"
+  integrity sha512-f1FEkxahRpTeilD8c9AA6/QLkhA4yEqDqR9qejkC3okm5y+DmiicD/ePVA2xfTTXZWgqciJBMQ61cOXtVsPdiw==
   dependencies:
     "@yfi/sdk" "^1.2.0"
     bignumber.js "^9.0.2"

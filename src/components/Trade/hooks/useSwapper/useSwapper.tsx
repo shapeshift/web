@@ -207,23 +207,25 @@ export const useSwapper = () => {
     }
     const sellAssetChainId = sellAsset.chainId
     if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
+      const { accountNumber } = sellAccountBip44Params
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
-        bip44Params: sellAccountBip44Params,
+        accountNumber,
       })
     } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
       const { accountType, bip44Params } = sellAccountMetadata
+      const { accountNumber } = bip44Params
       if (!bip44Params) throw new Error('no bip44Params')
       if (!accountType) throw new Error('no accountType')
       const sellAssetChainAdapter = getChainAdapterManager().get(
         sellAssetChainId,
       ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
-      const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, bip44Params, accountType)
+      const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
-        bip44Params,
+        accountNumber,
         accountType,
         xpub,
       })

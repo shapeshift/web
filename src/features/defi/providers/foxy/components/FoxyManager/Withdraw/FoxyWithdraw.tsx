@@ -90,8 +90,9 @@ export const FoxyWithdraw: React.FC<{
     ;(async () => {
       try {
         if (!(walletState.wallet && contractAddress && chainAdapter && api && bip44Params)) return
+        const { accountNumber } = bip44Params
         const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         // Get foxy fee for instant sends

@@ -236,11 +236,13 @@ export const TradeConfirm = () => {
   const tradeWarning: JSX.Element | null = useMemo(() => {
     const tradeWarningElement = (
       <Flex direction='column' gap={2}>
-        {fees?.tradeFeeSource === 'Thorchain' && (
+        {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
           <Alert status='info' width='auto' fontSize='sm'>
             <AlertIcon />
             <Stack spacing={0}>
-              <AlertTitle>{translate('trade.slowSwapTitle', { protocol: 'THORChain' })}</AlertTitle>
+              <AlertTitle>
+                {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+              </AlertTitle>
               <AlertDescription lineHeight='short'>
                 {translate('trade.slowSwapBody')}
               </AlertDescription>

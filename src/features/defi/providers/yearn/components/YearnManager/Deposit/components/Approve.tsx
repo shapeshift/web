@@ -60,6 +60,10 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   // user info
@@ -218,7 +222,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}
-      providerIcon={underlyingAsset.icon}
+      providerIcon={underlyingAsset?.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

@@ -62,6 +62,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({

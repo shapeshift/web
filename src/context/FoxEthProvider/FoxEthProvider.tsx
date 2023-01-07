@@ -54,6 +54,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     state: { wallet },
   } = useWallet()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const dispatch = useAppDispatch()
 
   const chainAdapterManager = getChainAdapterManager()
@@ -94,7 +96,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     if (wallet && adapter && lpBip44Params) {
       ;(async () => {
         if (!supportsETH(wallet)) return
-        const address = await adapter.getAddress({ wallet, bip44Params: lpBip44Params })
+        const { accountNumber } = lpBip44Params
+        const address = await adapter.getAddress({ wallet, accountNumber })
         // eth.getAddress and similar return a checksummed address, but the account part of state opportunities' AccountId isn't checksummed
         // using the checksum version would make us unable to do Txid lookup
         setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))

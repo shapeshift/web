@@ -87,11 +87,12 @@ export const useFormSend = () => {
             const erc20ContractAddress = tokenOrUndefined(
               fromAssetId(data.asset.assetId).assetReference,
             )
+            const { accountNumber } = bip44Params
             return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
               to,
               value,
               wallet,
-              bip44Params,
+              accountNumber,
               chainSpecific: {
                 erc20ContractAddress,
                 gasLimit,
@@ -109,11 +110,12 @@ export const useFormSend = () => {
                 `useFormSend: no accountType for utxo from accountId: ${data.accountId}`,
               )
             }
+            const { accountNumber } = bip44Params
             return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
               to,
               value,
               wallet,
-              bip44Params,
+              accountNumber,
               chainSpecific: {
                 satoshiPerByte: fees.chainSpecific.satoshiPerByte,
                 accountType,
@@ -124,12 +126,13 @@ export const useFormSend = () => {
 
           if (fromChainId(data.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
             const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
+            const { accountNumber } = bip44Params
             return adapter.buildSendTransaction({
               to,
               memo: (data as SendInput<CosmosSdkChainId>).memo,
               value,
               wallet,
-              bip44Params,
+              accountNumber,
               chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
               sendMax: data.sendMax,
             })

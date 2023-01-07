@@ -55,7 +55,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const rewardAmountCryptoPrecision = useMemo(
     () =>
       bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision))
+        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0))
         .toFixed(),
     [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )

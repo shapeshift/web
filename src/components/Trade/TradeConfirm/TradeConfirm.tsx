@@ -21,7 +21,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -29,7 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { useBestSwapper } from 'components/Trade/hooks/useBestSwapper'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -40,7 +39,6 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
-  selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
@@ -67,7 +65,6 @@ export const TradeConfirm = () => {
   } = useFormContext<TS>()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
-  const flags = useSelector(selectFeatureFlags)
 
   const {
     number: { toFiat },
@@ -92,6 +89,8 @@ export const TradeConfirm = () => {
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
+
+  const { bestSwapper } = useBestSwapper({ feeAsset: defaultFeeAsset })
 
   const reset = useCallback(() => {
     setValue('buyTradeAsset.amountCryptoPrecision', '')
@@ -128,15 +127,12 @@ export const TradeConfirm = () => {
   ])
 
   useEffect(() => {
-    ;(async () => {
-      const buyAssetId = trade?.buyAsset.assetId
-      const sellAssetId = trade?.sellAsset.assetId
-      if (!buyAssetId || !sellAssetId) return ''
-      const swapperManager = await getSwapperManager(flags)
-      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+    const buyAssetId = trade?.buyAsset.assetId
+    const sellAssetId = trade?.sellAsset.assetId
+    if (!(!buyAssetId || !sellAssetId)) {
       setSwapper(bestSwapper)
-    })()
-  }, [flags, trade])
+    }
+  }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
@@ -240,11 +236,13 @@ export const TradeConfirm = () => {
   const tradeWarning: JSX.Element | null = useMemo(() => {
     const tradeWarningElement = (
       <Flex direction='column' gap={2}>
-        {fees?.tradeFeeSource === 'Thorchain' && (
+        {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
           <Alert status='info' width='auto' fontSize='sm'>
             <AlertIcon />
             <Stack spacing={0}>
-              <AlertTitle>{translate('trade.slowSwapTitle', { protocol: 'THORChain' })}</AlertTitle>
+              <AlertTitle>
+                {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+              </AlertTitle>
               <AlertDescription lineHeight='short'>
                 {translate('trade.slowSwapBody')}
               </AlertDescription>

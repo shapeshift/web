@@ -13,6 +13,7 @@ import {
   idleStakingOpportunitiesUserDataResolver,
   idleStakingOpportunityIdsResolver,
 } from './idle'
+import { thorchainSaversOpportunityIdsResolver } from './thorchainsavers'
 import {
   yearnStakingOpportunitiesMetadataResolver,
   yearnStakingOpportunitiesUserDataResolver,
@@ -54,6 +55,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunityIdsResolver,
+  },
+  [`${DefiProvider.ThorchainSavers}`]: {
+    [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
   },
 }
 

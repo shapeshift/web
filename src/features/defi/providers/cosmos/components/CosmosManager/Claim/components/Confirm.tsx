@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -41,6 +41,9 @@ type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
+
+  if (!opportunity) throw new Error('Opportunity not found')
+
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const chainAdapterManager = getChainAdapterManager()
@@ -57,6 +60,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const toast = useToast()
 

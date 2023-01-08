@@ -101,7 +101,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       ...{
         rewardAssetIds: [maybeAssetId] as [AssetId],
       },
-      // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
+      // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,
     }

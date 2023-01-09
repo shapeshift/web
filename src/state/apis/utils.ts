@@ -9,7 +9,7 @@ const handleApiError = ({
   error,
   message,
 }: HandleApiErrorArgs): { error: Record<string, unknown> } => {
-  // 'code' is a getter of ErrorWithDetails, so we need to access it specifically
+  // 'code' is a getter on the ErrorWithDetails class, so we need to explicitly add it to our object
   if (error instanceof ErrorWithDetails) return { error: { ...error, code: error.code } }
   if (error instanceof Error) return { error: { ...error } }
   else

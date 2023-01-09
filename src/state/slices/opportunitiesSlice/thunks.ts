@@ -9,7 +9,7 @@ import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   const { getOpportunityMetadata } = opportunitiesApi.endpoints
 
-  await Promise.all(
+  await Promise.allSettled(
     foxEthLpAssetIds.map(opportunityId =>
       store.dispatch(
         getOpportunityMetadata.initiate(
@@ -175,7 +175,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
 ) => {
   const { getOpportunityUserData } = opportunitiesApi.endpoints
 
-  await Promise.all(
+  await Promise.allSettled(
     foxEthLpAssetIds.map(
       async opportunityId =>
         await store.dispatch(

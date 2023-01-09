@@ -124,7 +124,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   useEffect(() => {
     if (farmingAccountId && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
-        moduleLogger.info('Refetching fox lp/farming opportunities')
+        moduleLogger.info('Refetching ETH/FOX staking opportunities')
         refetchFoxEthStakingAccountData()
         if (ongoingTxContractAddress)
           dispatch(

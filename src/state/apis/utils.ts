@@ -1,17 +1,27 @@
 import { ErrorWithDetails } from '@shapeshiftoss/errors'
 
-export const handleApiError = (
-  e: unknown,
-  defaultErrorMessage: string,
-): { error: Record<string, unknown> } => {
+type HandleApiErrorArgs = {
+  message: string
+  error?: unknown
+}
+
+const handleApiError = ({
+  error,
+  message,
+}: HandleApiErrorArgs): { error: Record<string, unknown> } => {
   // 'code' is a getter of ErrorWithDetails, so we need to access it specifically
-  if (e instanceof ErrorWithDetails) return { error: { ...e, code: e.code } }
-  if (e instanceof Error) return { error: { ...e } }
+  if (error instanceof ErrorWithDetails) return { error: { ...error, code: error.code } }
+  if (error instanceof Error) return { error: { ...error } }
   else
     return {
       error: {
-        error: defaultErrorMessage,
+        error: message,
         status: 'CUSTOM_ERROR',
       },
     }
 }
+
+export const apiErrorHandler =
+  (defaultMessage: HandleApiErrorArgs['message']) =>
+  (error?: HandleApiErrorArgs['error'], message?: HandleApiErrorArgs['message']) =>
+    handleApiError({ message: message ?? defaultMessage, error })

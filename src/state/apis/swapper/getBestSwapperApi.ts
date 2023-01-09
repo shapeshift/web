@@ -3,7 +3,7 @@ import type { GetTradeQuoteInput, SwapperType } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
-import { handleApiError } from 'state/apis/utils'
+import { apiErrorHandler } from 'state/apis/utils'
 
 type GetBestSwapperArgs = GetTradeQuoteInput & { feeAsset: Asset }
 
@@ -12,6 +12,10 @@ We can't return the swapper directly as it is not serializable, so we return the
 to a swapper in the swapperManager, which is keyed by SwapperType
  */
 type GetBestSwapperReturn = SwapperType
+
+const getBestSwapperErrorHandler = apiErrorHandler(
+  'getBestSwapperType: error getting best swapper type',
+)
 
 export const getBestSwapperApi = swapperApi.injectEndpoints({
   endpoints: build => ({
@@ -24,10 +28,10 @@ export const getBestSwapperApi = swapperApi.injectEndpoints({
         try {
           const bestSwapper = await swapperManager.getBestSwapper(args)
           const type = bestSwapper?.getType()
-          if (!type) throw new Error('getBestSwapperType: No swapper type found')
+          if (!type) return getBestSwapperErrorHandler()
           return { data: type }
-        } catch (e) {
-          return handleApiError(e, 'getBestSwapperType: error getting best swapper type')
+        } catch (error) {
+          return getBestSwapperErrorHandler(error)
         }
       },
     }),

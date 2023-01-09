@@ -5,11 +5,13 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
-import { handleApiError } from 'state/apis/utils'
+import { apiErrorHandler } from 'state/apis/utils'
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
 
 const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
+
+const getTradeQuoteErrorHandler = apiErrorHandler('getTradeQuote: error fetching trade quote')
 
 export const getTradeQuoteApi = swapperApi.injectEndpoints({
   endpoints: build => ({
@@ -32,10 +34,12 @@ export const getTradeQuoteApi = swapperApi.injectEndpoints({
           ).then(r => r.data)
           const swapper = swapperType ? swappers.get(swapperType) : undefined
           const tradeQuote = await swapper?.getTradeQuote(args)
-          if (!tradeQuote) throw new Error('getTradeQuote: No trade quote found')
+          if (!tradeQuote)
+            return getTradeQuoteErrorHandler({ message: 'getTradeQuote: No trade quote found' })
+
           return { data: tradeQuote }
-        } catch (e) {
-          return handleApiError(e, 'getTradeQuote: error fetching trade quote')
+        } catch (error) {
+          return getTradeQuoteErrorHandler()
         }
       },
     }),

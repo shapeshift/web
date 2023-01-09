@@ -6,7 +6,7 @@ import { getConfig } from 'config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import memoize from 'lodash/memoize'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -61,7 +61,12 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  if (!opportunityIds?.length) {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { SaversVaults } = selectFeatureFlags(state)
+
+  if (!(SaversVaults && opportunityIds?.length)) {
     return {
       data: {
         byId: {} as Partial<Record<StakingId, OpportunityMetadata>>,
@@ -80,9 +85,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       },
     }
   }
-
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
 

@@ -61,7 +61,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  debugger
   if (!opportunityIds?.length) {
     return {
       data: {
@@ -88,19 +87,19 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
 
   for (const thorchainPool of thorchainPools) {
-    const maybeAssetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
-    if (!maybeAssetId) continue
+    const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
+    if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
-    const opportunityId = maybeAssetId as OpportunityId
+    const opportunityId = assetId as OpportunityId
 
     // Thorchain is slightly different from other opportunities in that there is no contract address for the opportunity
     // The way we represent it, the opportunityId is both the opportunityId/assetId and the underlyingAssetId
     // That's an oversimplification, as this ties a native AssetId e.g btcAssetId or ethAssetId, to a Savers opportunity
     // If we were to ever support another native asset staking opportunity e.g Ethereum 2.0 consensus layer staking
     // we would need to revisit this by using generic keys as an opportunityId
-    const asset = selectAssetById(state, maybeAssetId)
-    const underlyingAsset = selectAssetById(state, maybeAssetId)
-    const marketData = selectMarketDataById(state, maybeAssetId)
+    const asset = selectAssetById(state, assetId)
+    const underlyingAsset = selectAssetById(state, assetId)
+    const marketData = selectMarketDataById(state, assetId)
 
     if (!asset || !underlyingAsset || !marketData) continue
 
@@ -109,20 +108,18 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(marketData.price)
       .toFixed()
 
-    debugger
-
     stakingOpportunitiesById[opportunityId] = {
       // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools which we don't proxy yet
       // This is a function of liquidity over the last 4-5 days, so we can't just calculate it in the client
       apy: '42',
-      assetId: maybeAssetId,
+      assetId,
       provider: DefiProvider.ThorchainSavers,
       tvl,
       type: DefiType.Staking,
-      underlyingAssetId: maybeAssetId,
-      underlyingAssetIds: [maybeAssetId] as [AssetId],
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [assetId] as [AssetId],
       ...{
-        rewardAssetIds: [maybeAssetId] as [AssetId],
+        rewardAssetIds: [assetId] as [AssetId],
       },
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatios: ['1'],

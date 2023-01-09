@@ -155,6 +155,10 @@ export const opportunitiesApi = createApi({
           })
           const { data: opportunityIds } = selectOpportunityIds(state)
 
+          if (!opportunityIds) {
+            throw new Error("Can't select staking OpportunityIds")
+          }
+
           const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
             defiProvider,
             defiType,

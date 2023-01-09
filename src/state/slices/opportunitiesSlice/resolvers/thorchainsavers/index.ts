@@ -100,7 +100,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .toFixed()
 
     stakingOpportunitiesById[opportunityId] = {
-      // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools which we don't proxy yet
+      // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools - we need to update our Midgard to support it
       // This is a function of liquidity over the last 4-5 days, so we can't just calculate it in the client
       apy: '42',
       assetId,

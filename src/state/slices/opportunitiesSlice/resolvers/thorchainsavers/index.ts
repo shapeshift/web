@@ -4,7 +4,6 @@ import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import memoize from 'lodash/memoize'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 
@@ -19,7 +18,7 @@ import type { OpportunitiesMetadataResolverInput } from '../types'
 
 const THOR_PRECISION = 8
 
-const getThorchainPools = memoize(async (): Promise<ThornodePoolResponse[]> => {
+const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
   )
@@ -27,7 +26,7 @@ const getThorchainPools = memoize(async (): Promise<ThornodePoolResponse[]> => {
   if (!opportunitiesData) return []
 
   return opportunitiesData
-})
+}
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput

@@ -2,8 +2,9 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import type { TS } from 'components/Trade/types'
-import { useGetUsdRatesQuery } from 'state/apis/swapper/swapperApi'
+import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -16,6 +17,9 @@ export const useFiatRateService = () => {
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
   type UsdRatesInputArgs = UsdRatesQueryInput[0]
+
+  // Hooks
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
@@ -43,14 +47,13 @@ export const useFiatRateService = () => {
 
   // Trigger fiat rate query
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId) {
+    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteArgs) {
       setUsdRatesArgs({
-        buyAssetId: buyTradeAssetId,
-        sellAssetId: sellTradeAssetId,
+        tradeQuoteArgs,
         feeAssetId: sellAssetFeeAssetId,
       })
     }
-  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId])
+  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
 
   // Set fiat rates
   useEffect(() => {

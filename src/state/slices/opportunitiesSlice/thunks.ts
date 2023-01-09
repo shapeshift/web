@@ -96,6 +96,10 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
       defiType: DefiType.LiquidityPool,
       defiProvider: DefiProvider.FoxFarming,
     },
+    {
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.ThorchainSavers,
+    },
   ]
 
   for (const query of queries) {

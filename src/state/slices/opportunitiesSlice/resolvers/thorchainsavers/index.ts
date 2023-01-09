@@ -111,9 +111,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: assetId,
       underlyingAssetIds: [assetId] as [AssetId],
-      ...{
-        rewardAssetIds: [assetId] as [AssetId],
-      },
+      rewardAssetIds: [assetId] as [AssetId],
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,

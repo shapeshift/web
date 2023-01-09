@@ -34,7 +34,9 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 }> => {
   const thorchainPools = await getThorchainPools()
 
-  if (!thorchainPools.length) return { data: [] }
+  if (!thorchainPools.length) {
+    throw new Error('Error fetching THORChain pools')
+  }
 
   const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
     const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentPool.asset)
@@ -71,7 +73,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const thorchainPools = await getThorchainPools()
 
-  if (!thorchainPools?.length) {
+  if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
   }
 

@@ -5,8 +5,8 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import memoize from 'lodash/memoize'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById } from 'state/slices/selectors'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -17,6 +17,8 @@ import type {
   StakingId,
 } from '../../types'
 import type { OpportunitiesMetadataResolverInput } from '../types'
+
+const THOR_PRECISION = 8
 
 const getThorchainPools = memoize(async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
@@ -55,9 +57,20 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 }
 
 export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
+  opportunityIds,
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+  debugger
+  if (!opportunityIds?.length) {
+    return {
+      data: {
+        byId: {} as Partial<Record<StakingId, OpportunityMetadata>>,
+        type: opportunityType,
+      },
+    }
+  }
+
   const thorchainPools = await getThorchainPools()
 
   if (!thorchainPools?.length) {
@@ -87,14 +100,24 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     // we would need to revisit this by using generic keys as an opportunityId
     const asset = selectAssetById(state, maybeAssetId)
     const underlyingAsset = selectAssetById(state, maybeAssetId)
+    const marketData = selectMarketDataById(state, maybeAssetId)
 
-    if (!asset || !underlyingAsset) continue
+    if (!asset || !underlyingAsset || !marketData) continue
+
+    const tvl = bnOrZero(thorchainPool.savers_units)
+      .div(bn(10).pow(THOR_PRECISION))
+      .times(marketData.price)
+      .toFixed()
+
+    debugger
 
     stakingOpportunitiesById[opportunityId] = {
-      apy: opportunity.apy.toFixed(),
+      // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools which we don't proxy yet
+      // This is a function of liquidity over the last 4-5 days, so we can't just calculate it in the client
+      apy: '42',
       assetId: maybeAssetId,
       provider: DefiProvider.ThorchainSavers,
-      tvl: opportunity.tvl.balance.toFixed(),
+      tvl,
       type: DefiType.Staking,
       underlyingAssetId: maybeAssetId,
       underlyingAssetIds: [maybeAssetId] as [AssetId],

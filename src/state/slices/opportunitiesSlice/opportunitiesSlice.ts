@@ -148,11 +148,19 @@ export const opportunitiesApi = createApi({
     >({
       queryFn: async ({ opportunityType, defiType, defiProvider }, { dispatch, getState }) => {
         try {
+          const state: any = getState() // ReduxState causes circular dependency
+          const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
+            defiType,
+            defiProvider,
+          })
+          const { data: opportunityIds } = selectOpportunityIds(state)
+
           const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
             defiProvider,
             defiType,
           )
           const resolved = await resolver({
+            opportunityIds,
             opportunityType,
             reduxApi: { dispatch, getState },
           })

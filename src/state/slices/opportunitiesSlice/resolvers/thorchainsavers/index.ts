@@ -1,27 +1,49 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 
-import type { GetOpportunityIdsOutput, OpportunityId, StakingId } from '../../types'
+import type {
+  GetOpportunityIdsOutput,
+  GetOpportunityMetadataOutput,
+  OpportunitiesState,
+  OpportunityId,
+  StakingId,
+} from '../../types'
+import type { OpportunitiesMetadataResolverInput } from '../types'
 
-export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
-  data: GetOpportunityIdsOutput
-}> => {
+const THOR_PRECISION = 8
+
+const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
   )
 
-  if (!opportunitiesData) return { data: [] }
+  if (!opportunitiesData) return []
 
-  const opportunityIds = opportunitiesData.reduce<OpportunityId[]>((acc, currentOpportunity) => {
-    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentOpportunity.asset)
+  return opportunitiesData
+}
+
+export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
+  data: GetOpportunityIdsOutput
+}> => {
+  const thorchainPools = await getThorchainPools()
+
+  if (!thorchainPools.length) {
+    throw new Error('Error fetching THORChain pools')
+  }
+
+  const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
+    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentPool.asset)
 
     if (
-      bnOrZero(currentOpportunity.savers_depth).gt(0) &&
+      bnOrZero(currentPool.savers_depth).gt(0) &&
       maybeOpportunityId &&
-      currentOpportunity.status === 'Available'
+      currentPool.status === 'Available'
     ) {
       acc.push(maybeOpportunityId as StakingId)
     }
@@ -32,4 +54,73 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   return {
     data: opportunityIds,
   }
+}
+
+export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
+  opportunityIds,
+  opportunityType,
+  reduxApi,
+}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { SaversVaults } = selectFeatureFlags(state)
+
+  if (!(SaversVaults && opportunityIds?.length)) {
+    throw new Error('Not ready to fetch THORChain savers metadata')
+  }
+
+  const thorchainPools = await getThorchainPools()
+
+  if (!thorchainPools.length) {
+    throw new Error('Error fetching THORChain pools')
+  }
+
+  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+
+  for (const thorchainPool of thorchainPools) {
+    const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
+    if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
+
+    const opportunityId = assetId as OpportunityId
+
+    // Thorchain is slightly different from other opportunities in that there is no contract address for the opportunity
+    // The way we represent it, the opportunityId is both the opportunityId/assetId and the underlyingAssetId
+    // That's an oversimplification, as this ties a native AssetId e.g btcAssetId or ethAssetId, to a Savers opportunity
+    // If we were to ever support another native asset staking opportunity e.g Ethereum 2.0 consensus layer staking
+    // we would need to revisit this by using generic keys as an opportunityId
+    const asset = selectAssetById(state, assetId)
+    const underlyingAsset = selectAssetById(state, assetId)
+    const marketData = selectMarketDataById(state, assetId)
+
+    if (!asset || !underlyingAsset || !marketData) continue
+
+    const tvl = bnOrZero(thorchainPool.savers_units)
+      .div(bn(10).pow(THOR_PRECISION))
+      .times(marketData.price)
+      .toFixed()
+
+    stakingOpportunitiesById[opportunityId] = {
+      // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools - we need to update our Midgard to support it
+      // This is a function of liquidity over the last 4-5 days, so we can't just calculate it in the client
+      apy: '42',
+      assetId,
+      provider: DefiProvider.ThorchainSavers,
+      tvl,
+      type: DefiType.Staking,
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [assetId] as [AssetId],
+      rewardAssetIds: [assetId] as [AssetId],
+      // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
+      underlyingAssetRatios: ['1'],
+      name: `${underlyingAsset.symbol} Vault`,
+    }
+  }
+
+  const data = {
+    byId: stakingOpportunitiesById,
+    type: opportunityType,
+  }
+
+  return { data }
 }

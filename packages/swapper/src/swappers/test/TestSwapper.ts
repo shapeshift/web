@@ -5,7 +5,7 @@ import {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   Swapper,
   SwapperName,
   SwapperType,
@@ -54,7 +54,7 @@ export class TestSwapper implements Swapper<ChainId> {
 
   async approveAmount(): Promise<string> {
     throw new SwapError('TestSwapper: approveAmount unimplemented', {
-      code: SwapErrorTypes.RESPONSE_ERROR,
+      code: SwapErrorType.RESPONSE_ERROR,
     })
   }
 

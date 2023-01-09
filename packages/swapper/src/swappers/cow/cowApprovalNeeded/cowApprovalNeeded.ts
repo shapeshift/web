@@ -1,7 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
+import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
@@ -19,7 +19,7 @@ export async function cowApprovalNeeded(
   try {
     if (assetNamespace !== 'erc20') {
       throw new SwapError('[cowApprovalNeeded] - unsupported asset namespace', {
-        code: SwapErrorTypes.UNSUPPORTED_NAMESPACE,
+        code: SwapErrorType.UNSUPPORTED_NAMESPACE,
         details: { assetNamespace },
       })
     }
@@ -44,7 +44,7 @@ export async function cowApprovalNeeded(
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowApprovalNeeded]', {
       cause: e,
-      code: SwapErrorTypes.CHECK_APPROVAL_FAILED,
+      code: SwapErrorType.CHECK_APPROVAL_FAILED,
     })
   }
 }

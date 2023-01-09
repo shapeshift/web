@@ -1,7 +1,7 @@
 import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { QuoteFeeData, SwapError, SwapErrorTypes, UtxoSupportedChainIds } from '../../../../../api'
+import { QuoteFeeData, SwapError, SwapErrorType, UtxoSupportedChainIds } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
 
 type GetUtxoTxFeesInput = {
@@ -58,6 +58,6 @@ export const getUtxoTxFees = async ({
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getUtxoTxFees]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
+    throw new SwapError('[getUtxoTxFees]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }
 }

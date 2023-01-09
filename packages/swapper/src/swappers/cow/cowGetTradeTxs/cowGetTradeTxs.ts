@@ -1,4 +1,4 @@
-import { SwapError, SwapErrorTypes, TradeResult, TradeTxs } from '../../../api'
+import { SwapError, SwapErrorType, TradeResult, TradeTxs } from '../../../api'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowSwapGetOrdersResponse, CowSwapGetTradesResponse } from '../types'
 import { ORDER_STATUS_FULFILLED } from '../utils/constants'
@@ -32,7 +32,7 @@ export async function cowGetTradeTxs(deps: CowSwapperDeps, input: TradeResult): 
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowGetTradeTxs]', {
       cause: e,
-      code: SwapErrorTypes.GET_TRADE_TXS_FAILED,
+      code: SwapErrorType.GET_TRADE_TXS_FAILED,
     })
   }
 }

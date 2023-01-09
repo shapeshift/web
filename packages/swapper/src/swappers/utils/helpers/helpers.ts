@@ -8,7 +8,7 @@ import {
   EvmSupportedChainAdapter,
   EvmSupportedChainIds,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   TradeQuote,
 } from '../../../api'
 import { MAX_ALLOWANCE } from '../../cow/utils/constants'
@@ -87,7 +87,7 @@ export const isApprovalRequired = async ({
     if (!allowanceOnChain) {
       throw new SwapError(`[isApprovalRequired] - No allowance data`, {
         details: { allowanceContract, receiveAddress },
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
       })
     }
 
@@ -99,7 +99,7 @@ export const isApprovalRequired = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[isApprovalRequired]', {
       cause: e,
-      code: SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED,
+      code: SwapErrorType.ALLOWANCE_REQUIRED_FAILED,
     })
   }
 }
@@ -152,14 +152,14 @@ export const grantAllowance = async <T extends EvmSupportedChainIds>({
       return broadcastedTxId
     } else {
       throw new SwapError('[grantAllowance] - invalid HDWallet config', {
-        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
+        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       })
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[grantAllowance]', {
       cause: e,
-      code: SwapErrorTypes.GRANT_ALLOWANCE_FAILED,
+      code: SwapErrorType.GRANT_ALLOWANCE_FAILED,
     })
   }
 }

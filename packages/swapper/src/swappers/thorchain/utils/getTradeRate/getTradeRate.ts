@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { BN, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
@@ -60,7 +60,7 @@ export const getTradeRate = async (
 
   if (!buyPoolId && !isRune(buyAssetId)) {
     throw new SwapError(`[getTradeRate]: No buyPoolId for asset ${buyAssetId}`, {
-      code: SwapErrorTypes.POOL_NOT_FOUND,
+      code: SwapErrorType.POOL_NOT_FOUND,
       fn: 'getTradeRate',
       details: { buyAssetId },
     })
@@ -68,7 +68,7 @@ export const getTradeRate = async (
 
   if (!sellPoolId && !isRune(sellAsset.assetId)) {
     throw new SwapError(`[getTradeRate]: No sellPoolId for asset ${sellAsset.assetId}`, {
-      code: SwapErrorTypes.POOL_NOT_FOUND,
+      code: SwapErrorType.POOL_NOT_FOUND,
       fn: 'getTradeRate',
       details: { sellAsset: sellAsset.assetId },
     })
@@ -83,7 +83,7 @@ export const getTradeRate = async (
 
   if (!buyPool && !isRune(buyAssetId)) {
     throw new SwapError(`[getTradeRate]: no pools found`, {
-      code: SwapErrorTypes.POOL_NOT_FOUND,
+      code: SwapErrorType.POOL_NOT_FOUND,
       fn: 'getTradeRate',
       details: { buyPoolId, sellPoolId },
     })
@@ -91,7 +91,7 @@ export const getTradeRate = async (
 
   if (!sellPool && !isRune(sellAsset.assetId)) {
     throw new SwapError(`[getTradeRate]: no pools found`, {
-      code: SwapErrorTypes.POOL_NOT_FOUND,
+      code: SwapErrorType.POOL_NOT_FOUND,
       fn: 'getTradeRate',
       details: { buyPoolId, sellPoolId },
     })

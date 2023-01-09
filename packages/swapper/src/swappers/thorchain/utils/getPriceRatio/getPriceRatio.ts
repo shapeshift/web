@@ -1,6 +1,6 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
 import { isRune } from '../isRune/isRune'
@@ -17,7 +17,7 @@ export const getPriceRatio = async (
 
     if (!buyPoolId && !isRune(buyAssetId)) {
       throw new SwapError(`[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`, {
-        code: SwapErrorTypes.POOL_NOT_FOUND,
+        code: SwapErrorType.POOL_NOT_FOUND,
         fn: 'getPriceRatio',
         details: { buyAssetId },
       })
@@ -25,7 +25,7 @@ export const getPriceRatio = async (
 
     if (!sellPoolId && !isRune(sellAssetId)) {
       throw new SwapError(`[getPriceRatio]: No sellPoolId found for asset ${sellAssetId}`, {
-        code: SwapErrorTypes.POOL_NOT_FOUND,
+        code: SwapErrorType.POOL_NOT_FOUND,
         fn: 'getPriceRatio',
         details: { sellAssetId },
       })
@@ -65,7 +65,7 @@ export const getPriceRatio = async (
 
     if (!buyPool || !sellPool) {
       throw new SwapError(`[getPriceRatio]: pools not found`, {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
         details: { buyPoolId, sellPoolId },
       })
     }
@@ -75,7 +75,7 @@ export const getPriceRatio = async (
 
     if (!buyPrice.gt(0) || !sellPrice.gt(0)) {
       throw new SwapError(`[getPriceRatio]: invalid pool price`, {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
         details: { buyPrice, sellPrice },
       })
     }
@@ -84,7 +84,7 @@ export const getPriceRatio = async (
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getPriceRatio]: Thorchain getPriceRatio failed', {
-      code: SwapErrorTypes.PRICE_RATIO_FAILED,
+      code: SwapErrorType.PRICE_RATIO_FAILED,
       cause: e,
     })
   }

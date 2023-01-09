@@ -204,7 +204,7 @@ export type TradeTxs = {
 }
 
 // Swap Errors
-export enum SwapErrorTypes {
+export enum SwapErrorType {
   ALLOWANCE_REQUIRED_FAILED = 'ALLOWANCE_REQUIRED_FAILED',
   APPROVE_INFINITE_FAILED = 'APPROVE_INFINITE_FAILED',
   APPROVE_AMOUNT_FAILED = 'APPROVE_AMOUNT_FAILED',

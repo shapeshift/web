@@ -4,7 +4,7 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { bn } from '../../../utils/bignumber'
 import { CowSwapperDeps } from '../../CowSwapper'
 import { CowSwapQuoteResponse } from '../../types'
@@ -81,7 +81,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
 
   if (assetNamespace !== 'erc20') {
     throw new SwapError('[getUsdRate] - unsupported asset namespace', {
-      code: SwapErrorTypes.USD_RATE_FAILED,
+      code: SwapErrorType.USD_RATE_FAILED,
       details: { assetNamespace },
     })
   }
@@ -138,7 +138,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
 
     if (!sellAmountCryptoPrecision.gt(0))
       throw new SwapError('[getUsdRate] - Failed to get sell token amount', {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
       })
 
     // dividing $1000 by amount of sell token received
@@ -147,7 +147,7 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {
       cause: e,
-      code: SwapErrorTypes.USD_RATE_FAILED,
+      code: SwapErrorType.USD_RATE_FAILED,
     })
   }
 }

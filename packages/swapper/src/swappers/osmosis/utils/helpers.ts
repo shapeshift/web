@@ -7,7 +7,7 @@ import { find } from 'lodash'
 import {
   CosmosSdkSupportedChainAdapters,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   TradeResult,
 } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -51,7 +51,7 @@ export const pollForComplete = async (txid: string, baseUrl: string): Promise<st
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${txid}`, {
-            code: SwapErrorTypes.RESPONSE_ERROR,
+            code: SwapErrorType.RESPONSE_ERROR,
           }),
         )
       } else {
@@ -68,7 +68,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
       return axios.get(`${osmoUrl}/bank/balances/${address}`)
     } catch (e) {
       throw new SwapError('failed to get balance', {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
       })
     }
   })()
@@ -101,7 +101,7 @@ export const pollForAtomChannelBalance = async (
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find channel balance for ${address}`, {
-            code: SwapErrorTypes.RESPONSE_ERROR,
+            code: SwapErrorType.RESPONSE_ERROR,
           }),
         )
       } else {
@@ -122,7 +122,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
       return axios.get(poolsUrl)
     } catch (e) {
       throw new SwapError('failed to get pool', {
-        code: SwapErrorTypes.POOL_NOT_FOUND,
+        code: SwapErrorType.POOL_NOT_FOUND,
       })
     }
   })()
@@ -138,7 +138,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
 
   if (!foundPool)
     throw new SwapError('could not find pool', {
-      code: SwapErrorTypes.POOL_NOT_FOUND,
+      code: SwapErrorType.POOL_NOT_FOUND,
     })
 
   const { sellAssetIndex, buyAssetIndex } = (() => {
@@ -215,7 +215,7 @@ export const performIbcTransfer = async (
       return axios.get(`${blockBaseUrl}/blocks/latest`)
     } catch (e) {
       throw new SwapError('failed to get latest block', {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
       })
     }
   })()

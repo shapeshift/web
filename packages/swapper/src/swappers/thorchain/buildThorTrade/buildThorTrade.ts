@@ -8,7 +8,7 @@ import {
   EvmSupportedChainIds,
   GetUtxoTradeQuoteInput,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   TradeQuote,
   UtxoSupportedChainIds,
 } from '../../../api'
@@ -42,7 +42,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
 
     if (!sellAdapter)
       throw new SwapError('[buildTrade]: unsupported sell asset', {
-        code: SwapErrorTypes.BUILD_TRADE_FAILED,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
         fn: 'buildTrade',
         details: { sellAsset },
       })
@@ -131,7 +131,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       }
     } else {
       throw new SwapError('[buildTrade]: unsupported chain id', {
-        code: SwapErrorTypes.BUILD_TRADE_FAILED,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
         fn: 'buildTrade',
         details: { sellAsset },
       })
@@ -139,7 +139,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildTrade]: error building trade', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED,
+      code: SwapErrorType.BUILD_TRADE_FAILED,
       fn: 'buildTrade',
       cause: e,
     })

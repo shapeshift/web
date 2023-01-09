@@ -3,7 +3,7 @@ import {
   ApproveInfiniteInput,
   EvmSupportedChainIds,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
 } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
@@ -51,7 +51,7 @@ export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveAmount]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_AMOUNT_FAILED,
+      code: SwapErrorType.APPROVE_AMOUNT_FAILED,
     })
   }
 }
@@ -66,7 +66,7 @@ export async function zrxApproveInfinite<T extends EvmSupportedChainIds>(
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_INFINITE_FAILED,
+      code: SwapErrorType.APPROVE_INFINITE_FAILED,
     })
   }
 }

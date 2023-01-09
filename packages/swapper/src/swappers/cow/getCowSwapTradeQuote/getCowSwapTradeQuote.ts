@@ -2,7 +2,7 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 
-import { GetTradeQuoteInput, SwapError, SwapErrorTypes, TradeQuote } from '../../../api'
+import { GetTradeQuoteInput, SwapError, SwapErrorType, TradeQuote } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, normalizeIntegerAmount } from '../../utils/helpers/helpers'
 import { CowSwapperDeps } from '../CowSwapper'
@@ -45,7 +45,7 @@ export async function getCowSwapTradeQuote(
 
     if (sellAssetNamespace !== 'erc20') {
       throw new SwapError('[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap', {
-        code: SwapErrorTypes.UNSUPPORTED_PAIR,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       })
     }
@@ -54,7 +54,7 @@ export async function getCowSwapTradeQuote(
       throw new SwapError(
         '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
         {
-          code: SwapErrorTypes.UNSUPPORTED_PAIR,
+          code: SwapErrorType.UNSUPPORTED_PAIR,
           details: { buyAssetChainId },
         },
       )
@@ -181,13 +181,13 @@ export async function getCowSwapTradeQuote(
     ) {
       throw new SwapError('[getCowSwapTradeQuote]', {
         cause: e,
-        code: SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
+        code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
       })
     }
     if (e instanceof SwapError) throw e
     throw new SwapError('[getCowSwapTradeQuote]', {
       cause: e,
-      code: SwapErrorTypes.TRADE_QUOTE_FAILED,
+      code: SwapErrorType.TRADE_QUOTE_FAILED,
     })
   }
 }

@@ -1,7 +1,7 @@
 import { adapters, AssetId } from '@shapeshiftoss/caip'
 import BigNumber from 'bignumber.js'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
 import { ThornodePoolResponse } from '../../types'
 import { isRune } from '../isRune/isRune'
@@ -44,7 +44,7 @@ const getRuneUsdPrice = async (daemonUrl: string): Promise<BigNumber> => {
 
   if (!numPools) {
     throw new SwapError('[getUsdRate]: no available usd pools', {
-      code: SwapErrorTypes.USD_RATE_FAILED,
+      code: SwapErrorType.USD_RATE_FAILED,
     })
   }
 
@@ -62,7 +62,7 @@ export const getUsdRate = async (daemonUrl: string, assetId: AssetId): Promise<s
     const poolId = adapters.assetIdToPoolAssetId({ assetId })
     if (!poolId) {
       throw new SwapError(`[getUsdRate]: no pool found for assetId: ${assetId}`, {
-        code: SwapErrorTypes.USD_RATE_FAILED,
+        code: SwapErrorType.USD_RATE_FAILED,
       })
     }
 
@@ -72,7 +72,7 @@ export const getUsdRate = async (daemonUrl: string, assetId: AssetId): Promise<s
 
     if (data.status !== 'Available') {
       throw new SwapError('[getUsdRate]: pool is no longer available', {
-        code: SwapErrorTypes.USD_RATE_FAILED,
+        code: SwapErrorType.USD_RATE_FAILED,
       })
     }
 
@@ -81,7 +81,7 @@ export const getUsdRate = async (daemonUrl: string, assetId: AssetId): Promise<s
 
     if (assetBalance.isZero() || runeBalance.isZero()) {
       throw new SwapError('[getUsdRate]: pool has a zero balance', {
-        code: SwapErrorTypes.USD_RATE_FAILED,
+        code: SwapErrorType.USD_RATE_FAILED,
       })
     }
 
@@ -95,7 +95,7 @@ export const getUsdRate = async (daemonUrl: string, assetId: AssetId): Promise<s
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]: Thorchain getUsdRate failed', {
-      code: SwapErrorTypes.USD_RATE_FAILED,
+      code: SwapErrorType.USD_RATE_FAILED,
       cause: e,
     })
   }

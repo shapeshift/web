@@ -6,7 +6,7 @@ import {
   EvmSupportedChainIds,
   QuoteFeeData,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
 } from '../../../../../api'
 import { bn, bnOrZero } from '../../../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../../../utils/constants'
@@ -59,6 +59,6 @@ export const getEvmTxFees = async ({
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
+    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }
 }

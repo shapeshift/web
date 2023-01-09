@@ -2,7 +2,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import max from 'lodash/max'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { ALLOWABLE_MARKET_MOVEMENT } from '../../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../../constants'
@@ -37,7 +37,7 @@ export const getLimit = async ({
     ?.getFeeAssetId()
   if (!sellAssetChainFeeAssetId || !buyAssetChainFeeAssetId) {
     throw new SwapError('[getLimit]: no sellAssetChainFeeAsset or buyAssetChainFeeAssetId', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED,
+      code: SwapErrorType.BUILD_TRADE_FAILED,
       details: { sellAssetChainFeeAssetId, buyAssetChainFeeAssetId },
     })
   }
@@ -53,7 +53,7 @@ export const getLimit = async ({
     bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
   if (bnOrZero(expectedBuyAmountCryptoPrecision8).lt(0) || !isValidSlippageRange)
     throw new SwapError('[getLimit]: bad expected buy amount or bad slippage tolerance', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED,
+      code: SwapErrorType.BUILD_TRADE_FAILED,
       details: { expectedBuyAmountCryptoPrecision8, slippageTolerance },
     })
 

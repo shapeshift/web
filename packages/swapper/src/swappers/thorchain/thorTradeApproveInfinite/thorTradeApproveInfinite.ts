@@ -1,7 +1,7 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApproveInfiniteInput, SwapError, SwapErrorTypes } from '../../../api'
+import { ApproveInfiniteInput, SwapError, SwapErrorType } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { grantAllowance } from '../../utils/helpers/helpers'
@@ -42,7 +42,7 @@ export const thorTradeApproveInfinite = async ({
       throw new SwapError(
         `[thorTradeApproveInfinite] - No chain adapter found for ${sellAssetChainId}.`,
         {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { sellAssetChainId },
         },
       )
@@ -60,7 +60,7 @@ export const thorTradeApproveInfinite = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveInfinite]', {
       cause: e,
-      code: SwapErrorTypes.APPROVE_INFINITE_FAILED,
+      code: SwapErrorType.APPROVE_INFINITE_FAILED,
     })
   }
 }

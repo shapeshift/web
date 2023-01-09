@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
-import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
+import { MinMaxOutput, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getUsdRate } from '../utils/helpers/helpers'
@@ -15,7 +15,7 @@ export const getZrxMinMax = async (sellAsset: Asset, buyAsset: Asset): Promise<M
         buyAsset.chainId === sellAsset.chainId
       )
     ) {
-      throw new SwapError('[getZrxMinMax]', { code: SwapErrorTypes.UNSUPPORTED_PAIR })
+      throw new SwapError('[getZrxMinMax]', { code: SwapErrorType.UNSUPPORTED_PAIR })
     }
 
     const usdRate = await getUsdRate({ ...sellAsset })
@@ -28,6 +28,6 @@ export const getZrxMinMax = async (sellAsset: Asset, buyAsset: Asset): Promise<M
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getZrxMinMax]', { cause: e, code: SwapErrorTypes.MIN_MAX_FAILED })
+    throw new SwapError('[getZrxMinMax]', { cause: e, code: SwapErrorType.MIN_MAX_FAILED })
   }
 }

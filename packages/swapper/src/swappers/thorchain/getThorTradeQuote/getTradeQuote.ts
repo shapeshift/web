@@ -8,7 +8,7 @@ import {
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   SwapperName,
   TradeQuote,
   UtxoSupportedChainIds,
@@ -63,7 +63,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       throw new SwapError(
         `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
         {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { sellAssetChainId: chainId, buyAssetChainId },
         },
       )
@@ -204,7 +204,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         })()
       default:
         throw new SwapError('[getThorTradeQuote] - Asset chainId is not supported.', {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { chainId },
         })
     }
@@ -212,7 +212,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getThorTradeQuote]', {
       cause: e,
-      code: SwapErrorTypes.TRADE_QUOTE_FAILED,
+      code: SwapErrorType.TRADE_QUOTE_FAILED,
     })
   }
 }

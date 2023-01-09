@@ -4,7 +4,7 @@ import { ChainAdapter, cosmos, thorchain } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorTypes, TradeQuote } from '../../../../api'
+import { SwapError, SwapErrorType, TradeQuote } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { getLimit } from '../getLimit/getLimit'
@@ -43,7 +43,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
 
   if (!vault && !fromThorAsset)
     throw new SwapError('[buildTrade]: no vault for chain', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED,
+      code: SwapErrorType.BUILD_TRADE_FAILED,
       fn: 'buildTrade',
       details: { chainId: input.chainId },
     })
@@ -79,7 +79,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
       default:
         if (!vault)
           throw new SwapError('[buildTrade]: no vault for chain', {
-            code: SwapErrorTypes.BUILD_TRADE_FAILED,
+            code: SwapErrorType.BUILD_TRADE_FAILED,
             fn: 'buildTrade',
             details: { chainId: input.chainId },
           })

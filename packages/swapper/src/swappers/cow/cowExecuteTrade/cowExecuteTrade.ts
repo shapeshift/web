@@ -5,7 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import { ExecuteTradeInput, SwapError, SwapErrorTypes, TradeResult } from '../../../api'
+import { ExecuteTradeInput, SwapError, SwapErrorType, TradeResult } from '../../../api'
 import { CowSwapperDeps } from '../CowSwapper'
 import { CowTrade } from '../types'
 import {
@@ -45,14 +45,14 @@ export async function cowExecuteTrade(
 
   if (sellAssetNamespace !== 'erc20') {
     throw new SwapError('[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
-      code: SwapErrorTypes.UNSUPPORTED_PAIR,
+      code: SwapErrorType.UNSUPPORTED_PAIR,
       details: { sellAssetNamespace },
     })
   }
 
   if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
     throw new SwapError('[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
-      code: SwapErrorTypes.UNSUPPORTED_PAIR,
+      code: SwapErrorType.UNSUPPORTED_PAIR,
       details: { buyAssetChainId },
     })
   }
@@ -131,7 +131,7 @@ export async function cowExecuteTrade(
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowExecuteTrade]', {
       cause: e,
-      code: SwapErrorTypes.EXECUTE_TRADE_FAILED,
+      code: SwapErrorType.EXECUTE_TRADE_FAILED,
     })
   }
 }

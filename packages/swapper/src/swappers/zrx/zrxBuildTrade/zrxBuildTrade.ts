@@ -2,7 +2,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
-import { BuildTradeInput, EvmSupportedChainIds, SwapError, SwapErrorTypes } from '../../../api'
+import { BuildTradeInput, EvmSupportedChainIds, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from '../../utils/constants'
@@ -38,7 +38,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
 
     if (buyAsset.chainId !== adapterChainId) {
       throw new SwapError(`[zrxBuildTrade] - buyAsset must be on chainId ${adapterChainId}`, {
-        code: SwapErrorTypes.VALIDATION_FAILED,
+        code: SwapErrorType.VALIDATION_FAILED,
         details: { chainId: sellAsset.chainId },
       })
     }
@@ -146,7 +146,7 @@ export async function zrxBuildTrade<T extends EvmSupportedChainIds>(
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxBuildTrade]', {
-      code: SwapErrorTypes.BUILD_TRADE_FAILED,
+      code: SwapErrorType.BUILD_TRADE_FAILED,
     })
   }
 }

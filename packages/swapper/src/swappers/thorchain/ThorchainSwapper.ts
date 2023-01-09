@@ -33,7 +33,7 @@ import type {
   TradeTxs,
   UtxoSupportedChainIds,
 } from '../../api'
-import { SwapError, SwapErrorTypes, SwapperName, SwapperType } from '../../api'
+import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
@@ -110,7 +110,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       })
     } catch (e) {
       throw new SwapError('[thorchainInitialize]: initialize failed to set supportedAssetIds', {
-        code: SwapErrorTypes.INITIALIZE_FAILED,
+        code: SwapErrorType.INITIALIZE_FAILED,
         cause: e,
       })
     }
@@ -136,7 +136,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   async approveAmount(): Promise<string> {
     throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
-      code: SwapErrorTypes.RESPONSE_ERROR,
+      code: SwapErrorType.RESPONSE_ERROR,
     })
   }
 
@@ -167,7 +167,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       if (!adapter)
         throw new SwapError('[executeTrade]: no adapter for sell asset chain id', {
-          code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
+          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
           details: { chainId: trade.sellAsset.chainId },
           fn: 'executeTrade',
         })
@@ -202,14 +202,14 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         return { tradeId: txid }
       } else {
         throw new SwapError('[executeTrade]: unsupported trade', {
-          code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
+          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
           fn: 'executeTrade',
         })
       }
     } catch (e) {
       if (e instanceof SwapError) throw e
       throw new SwapError('[executeTrade]: failed to sign or broadcast', {
-        code: SwapErrorTypes.SIGN_AND_BROADCAST_FAILED,
+        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
         cause: e,
       })
     }
@@ -236,7 +236,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       // This will detect all the errors I have seen.
       if (data?.actions[0]?.status === 'success' && data?.actions[0]?.type !== 'swap')
         throw new SwapError('[getTradeTxs]: trade failed', {
-          code: SwapErrorTypes.TRADE_FAILED,
+          code: SwapErrorType.TRADE_FAILED,
           cause: data,
         })
 
@@ -253,7 +253,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     } catch (e) {
       if (e instanceof SwapError) throw e
       throw new SwapError('[getTradeTxs]: error', {
-        code: SwapErrorTypes.GET_TRADE_TXS_FAILED,
+        code: SwapErrorType.GET_TRADE_TXS_FAILED,
         cause: e,
       })
     }

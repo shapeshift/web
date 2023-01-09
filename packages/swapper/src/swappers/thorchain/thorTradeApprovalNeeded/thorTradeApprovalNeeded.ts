@@ -1,7 +1,7 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorTypes } from '../../../api'
+import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
@@ -30,7 +30,7 @@ export const thorTradeApprovalNeeded = async ({
       throw new SwapError(
         `[thorTradeApprovalNeeded] - no chain adapter found for chain Id: ${sellAsset.chainId}`,
         {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { chainId: sellAsset.chainId },
         },
       )
@@ -44,7 +44,7 @@ export const thorTradeApprovalNeeded = async ({
 
     if (!quote.allowanceContract) {
       throw new SwapError('[thorTradeApprovalNeeded] - allowanceTarget is required', {
-        code: SwapErrorTypes.VALIDATION_FAILED,
+        code: SwapErrorType.VALIDATION_FAILED,
         details: { chainId: sellAsset.chainId },
       })
     }
@@ -60,7 +60,7 @@ export const thorTradeApprovalNeeded = async ({
 
     if (!quote.feeData.chainSpecific?.gasPriceCryptoBaseUnit)
       throw new SwapError('[thorTradeApprovalNeeded] - no gas price with quote', {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
         details: { feeData: quote.feeData },
       })
     return {
@@ -70,7 +70,7 @@ export const thorTradeApprovalNeeded = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[thorTradeApprovalNeeded]', {
       cause: e,
-      code: SwapErrorTypes.CHECK_APPROVAL_FAILED,
+      code: SwapErrorType.CHECK_APPROVAL_FAILED,
     })
   }
 }

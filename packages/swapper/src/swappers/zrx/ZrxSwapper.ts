@@ -12,7 +12,7 @@ import {
   EvmSupportedChainIds,
   GetEvmTradeQuoteInput,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   Swapper,
   SwapperName,
   SwapperType,
@@ -47,7 +47,7 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
         return SwapperType.ZrxAvalanche
       default:
         throw new SwapError('[getType]', {
-          code: SwapErrorTypes.UNSUPPORTED_CHAIN,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
         })
     }
   }

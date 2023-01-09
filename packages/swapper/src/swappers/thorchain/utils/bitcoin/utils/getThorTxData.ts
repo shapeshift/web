@@ -1,6 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 
-import { SwapError, SwapErrorTypes } from '../../../../../api'
+import { SwapError, SwapErrorType } from '../../../../../api'
 import type { ThorchainSwapperDeps } from '../../../types'
 import { getInboundAddressDataForChain } from '../../getInboundAddressDataForChain'
 import { getLimit } from '../../getLimit/getLimit'
@@ -39,7 +39,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
 
     if (!vault)
       throw new SwapError(`[getThorTxInfo]: vault not found for asset`, {
-        code: SwapErrorTypes.RESPONSE_ERROR,
+        code: SwapErrorType.RESPONSE_ERROR,
         details: { inboundAddress, sellAsset },
       })
 
@@ -65,6 +65,6 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
+    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }
 }

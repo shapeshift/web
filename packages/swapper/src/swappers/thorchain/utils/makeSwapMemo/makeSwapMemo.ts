@@ -1,6 +1,6 @@
 import { adapters, thorchainAssetId } from '@shapeshiftoss/caip'
 
-import { SwapError, SwapErrorTypes } from '../../../../api'
+import { SwapError, SwapErrorType } from '../../../../api'
 import { THORCHAIN_AFFILIATE_BIPS, THORCHAIN_AFFILIATE_NAME } from '../constants'
 
 // BTC (and likely other utxo coins) can only support up to 80 character memos
@@ -25,7 +25,7 @@ export const makeSwapMemo = ({
   const thorId = isRune ? runeThorId : adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
   if (!thorId)
     throw new SwapError('[makeSwapMemo] - undefined thorId for given buyAssetId', {
-      code: SwapErrorTypes.MAKE_MEMO_FAILED,
+      code: SwapErrorType.MAKE_MEMO_FAILED,
       details: { buyAssetId },
     })
 
@@ -43,13 +43,13 @@ export const makeSwapMemo = ({
 
   if (abbreviationAmount > 39)
     throw new SwapError('[makeSwapMemo] - too much abbreviation for accurate matching', {
-      code: SwapErrorTypes.MAKE_MEMO_FAILED,
+      code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   // delimeter between ticker and id allowing us to abbreviate the id: https://dev.thorchain.org/thorchain-dev/memos#asset-notation
   const delimeterIndex = memo.indexOf('-') + 1
   if (!delimeterIndex) {
     throw new SwapError('[makeSwapMemo] - unable to abbreviate asset, no delimeter found', {
-      code: SwapErrorTypes.MAKE_MEMO_FAILED,
+      code: SwapErrorType.MAKE_MEMO_FAILED,
     })
   }
   return memo.replace(memo.slice(delimeterIndex, delimeterIndex + abbreviationAmount), '')

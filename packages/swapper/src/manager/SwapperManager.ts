@@ -10,7 +10,7 @@ import {
   Swapper,
   TradeQuote,
 } from '..'
-import { SwapError, SwapErrorTypes, SwapperType } from '../api'
+import { SwapError, SwapErrorType, SwapperType } from '../api'
 import { isFulfilled } from '../typeGuards'
 import { getRatioFromQuote } from './utils'
 
@@ -20,7 +20,7 @@ type SwapperRatioTuple = readonly [swapper: Swapper<ChainId>, ratio: number | un
 function validateSwapper(swapper: Swapper<ChainId>) {
   if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))
     throw new SwapError('[validateSwapper] - invalid swapper instance', {
-      code: SwapErrorTypes.MANAGER_ERROR,
+      code: SwapErrorType.MANAGER_ERROR,
     })
 }
 
@@ -53,7 +53,7 @@ export class SwapperManager {
     const swapper = this.swappers.get(swapperType)
     if (!swapper)
       throw new SwapError('[getSwapper] - swapperType doesnt exist', {
-        code: SwapErrorTypes.MANAGER_ERROR,
+        code: SwapErrorType.MANAGER_ERROR,
         details: { swapperType },
       })
     return swapper
@@ -68,7 +68,7 @@ export class SwapperManager {
     const swapper = this.swappers.get(swapperType)
     if (!swapper)
       throw new SwapError('[removeSwapper] - swapperType doesnt exist', {
-        code: SwapErrorTypes.MANAGER_ERROR,
+        code: SwapErrorType.MANAGER_ERROR,
         details: { swapperType },
       })
     this.swappers.delete(swapperType)

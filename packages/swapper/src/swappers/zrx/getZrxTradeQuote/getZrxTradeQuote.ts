@@ -5,7 +5,7 @@ import {
   EvmSupportedChainIds,
   GetEvmTradeQuoteInput,
   SwapError,
-  SwapErrorTypes,
+  SwapErrorType,
   SwapSource,
   TradeQuote,
 } from '../../../api'
@@ -32,7 +32,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       throw new SwapError(
         '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
         {
-          code: SwapErrorTypes.UNSUPPORTED_PAIR,
+          code: SwapErrorType.UNSUPPORTED_PAIR,
           details: { buyAssetChainId: buyAsset.chainId, sellAssetChainId: sellAsset.chainId },
         },
       )
@@ -127,6 +127,6 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
     return tradeQuote as TradeQuote<T>
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorTypes.TRADE_QUOTE_FAILED })
+    throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }
 }

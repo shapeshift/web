@@ -2,7 +2,7 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { MinMaxOutput, SwapError, SwapErrorTypes } from '../../../api'
+import { MinMaxOutput, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { CowSwapperDeps } from '../CowSwapper'
 import { MAX_COWSWAP_TRADE, MIN_COWSWAP_VALUE_USD } from '../utils/constants'
@@ -18,7 +18,7 @@ export const getCowSwapMinMax = async (
     const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
     if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError('[getCowSwapMinMax]', { code: SwapErrorTypes.UNSUPPORTED_PAIR })
+      throw new SwapError('[getCowSwapMinMax]', { code: SwapErrorType.UNSUPPORTED_PAIR })
     }
 
     const usdRate = await getUsdRate(deps, sellAsset)
@@ -31,6 +31,6 @@ export const getCowSwapMinMax = async (
     }
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getCowSwapMinMax]', { cause: e, code: SwapErrorTypes.MIN_MAX_FAILED })
+    throw new SwapError('[getCowSwapMinMax]', { cause: e, code: SwapErrorType.MIN_MAX_FAILED })
   }
 }

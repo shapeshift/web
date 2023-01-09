@@ -1,3 +1,16 @@
+# [@shapeshiftoss/swapper-v15.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.1...@shapeshiftoss/swapper-v15.2.2) (2023-01-09)
+
+
+### chore
+
+* use singular naming convention for SwapErrorType ([#1156](https://github.com/shapeshift/lib/issues/1156)) ([0485c7f](https://github.com/shapeshift/lib/commit/0485c7fd94212588a795e5191ffda31a198292b2))
+
+
+### BREAKING CHANGES
+
+* web consumption needs to be updated
+BREAKING CHANGES: web consumption needs to be updated
+
 # [@shapeshiftoss/swapper-v15.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.0...@shapeshiftoss/swapper-v15.2.1) (2023-01-06)
 
 

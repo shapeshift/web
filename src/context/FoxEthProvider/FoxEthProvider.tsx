@@ -10,15 +10,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
-import {
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
-} from 'state/slices/opportunitiesSlice/thunks'
+import { fetchAllStakingOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
-  selectLpAccountIds,
   selectStakingAccountIds,
   selectTxById,
 } from 'state/slices/selectors'
@@ -67,24 +63,16 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
-  const lpAccountIds = useAppSelector(selectLpAccountIds)
   const stakingAccountIds = useAppSelector(selectStakingAccountIds)
 
-  const refetchFoxEthLpAccountData = useCallback(async () => {
+  const refetchFoxEthStakingAccountData = useCallback(async () => {
     await Promise.all(
-      lpAccountIds.map(
-        async accountId => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }),
+      stakingAccountIds.map(
+        async accountId =>
+          await fetchAllStakingOpportunitiesUserData(accountId, { forceRefetch: true }),
       ),
     )
-  }, [lpAccountIds])
-
-  useEffect(() => {
-    fetchAllOpportunitiesMetadata()
-  }, [lpAccountIds, stakingAccountIds, dispatch, refetchFoxEthLpAccountData])
-
-  useEffect(() => {
-    refetchFoxEthLpAccountData()
-  }, [refetchFoxEthLpAccountData])
+  }, [stakingAccountIds])
 
   const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId }), [lpAccountId])
   const lpBip44Params = useAppSelector(state =>
@@ -136,8 +124,8 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   useEffect(() => {
     if (farmingAccountId && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
-        moduleLogger.info('Refetching fox lp/farming opportunities')
-        refetchFoxEthLpAccountData()
+        moduleLogger.info('Refetching ETH/FOX staking opportunities')
+        refetchFoxEthStakingAccountData()
         if (ongoingTxContractAddress)
           dispatch(
             opportunitiesApi.endpoints.getOpportunityUserData.initiate(
@@ -165,7 +153,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     dispatch,
     farmingAccountId,
     ongoingTxContractAddress,
-    refetchFoxEthLpAccountData,
+    refetchFoxEthStakingAccountData,
     transaction,
   ])
 

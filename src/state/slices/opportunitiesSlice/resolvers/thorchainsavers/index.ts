@@ -16,6 +16,26 @@ import type {
 } from '../../types'
 import type { OpportunitiesMetadataResolverInput } from '../types'
 
+type MidgardPoolResponse = {
+  annualPercentageRate: string
+  asset: string
+  assetDepth: string
+  assetPrice: string
+  assetPriceUSD: string
+  liquidityUnits: string
+  nativeDecimal: string
+  poolAPY: string
+  runeDepth: string
+  saversAPR: string
+  saversDepth: string
+  saversUnits: string
+  status: string
+  synthSupply: string
+  synthUnits: string
+  units: string
+  volume24h: string
+}
+
 const THOR_PRECISION = 8
 
 const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
@@ -26,6 +46,16 @@ const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   if (!opportunitiesData) return []
 
   return opportunitiesData
+}
+
+const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
+  const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
+    `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+  )
+
+  if (!poolsData) return []
+
+  return poolsData
 }
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
@@ -70,6 +100,14 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     throw new Error('Not ready to fetch THORChain savers metadata')
   }
 
+  const midgardPools = await getMidgardPools()
+
+  // It might be tempting to paralelize the two THOR requests - don't
+  // Midgard is less reliable, so there's no point to continue the flow if this fails
+  if (!midgardPools.length) {
+    throw new Error('Error fetching THORChain midgard pools')
+  }
+
   const thorchainPools = await getThorchainPools()
 
   if (!thorchainPools.length) {
@@ -100,10 +138,11 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(marketData.price)
       .toFixed()
 
+    const apy = bnOrZero(
+      midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
+    ).toString()
     stakingOpportunitiesById[opportunityId] = {
-      // TODO(gomes): saversApr is exposed from https://midgard.ninerealms.com/v2/pools - we need to update our Midgard to support it
-      // This is a function of liquidity over the last 4-5 days, so we can't just calculate it in the client
-      apy: '42',
+      apy,
       assetId,
       provider: DefiProvider.ThorchainSavers,
       tvl,

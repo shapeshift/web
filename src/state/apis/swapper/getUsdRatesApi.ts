@@ -7,6 +7,7 @@ import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
+import { handleApiError } from 'state/apis/utils'
 
 export type GetUsdRatesArgs = {
   feeAssetId: AssetId
@@ -53,7 +54,7 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
             }),
           ).then(r => r.data)
 
-          if (!swapperType) throw new Error(`Swapper type not found.`)
+          if (!swapperType) throw new Error('Swapper type not found')
 
           const assetIds = [feeAssetId, buyAssetId, sellAssetId]
           const usdRatePromises = await Promise.allSettled(
@@ -64,16 +65,11 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
             .map(p => p.value?.data)
 
           if (!feeAssetUsdRate || !buyAssetUsdRate || !sellAssetUsdRate)
-            throw new Error(`USD rates not found.`)
+            throw new Error('getUsdRates: USD rates not found')
           const data = { feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate }
           return { data }
         } catch (e) {
-          return {
-            error: {
-              error: 'getUsdRates: error fetching USD rates',
-              status: 'CUSTOM_ERROR',
-            },
-          }
+          return handleApiError(e, 'getUsdRates: error fetching USD rates')
         }
       },
     }),

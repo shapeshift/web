@@ -3,6 +3,7 @@ import type { SwapperType } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
+import { handleApiError } from 'state/apis/utils'
 
 export type GetUsdRateArgs = { assetId: AssetId; swapperType: SwapperType }
 type GetUsdRateReturn = string | undefined
@@ -24,15 +25,10 @@ export const getUsdRateApi = swapperApi.injectEndpoints({
           const swappers = swapperManager.swappers
           const swapper = swapperType ? swappers.get(swapperType) : undefined
           const rate = await swapper?.getUsdRate(asset)
-
+          if (!rate) throw new Error('getUsdRate: No rate found')
           return { data: rate }
         } catch (e) {
-          return {
-            error: {
-              error: 'getUsdRate: error fetching USD rate',
-              status: 'CUSTOM_ERROR',
-            },
-          }
+          return handleApiError(e, 'getUsdRate: error fetching USD rate')
         }
       },
     }),

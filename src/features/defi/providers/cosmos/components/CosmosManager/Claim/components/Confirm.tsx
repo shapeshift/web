@@ -117,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice).times(`1e+${asset.precision}`).toString(),
         },
         value: bnOrZero(claimAmount).times(`1e+${asset.precision}`).toString(),
         action: StakingAction.Claim,
@@ -162,7 +162,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             fontSize='3xl'
             fontWeight='medium'
             value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
-            symbol={asset?.symbol}
+            symbol={asset.symbol}
           />
         </Stack>
       </Stack>
@@ -176,7 +176,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset?.explorerAddressLink}${accountId ?? state.userAddress}`}
+                href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
               >
                 {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
               </Link>

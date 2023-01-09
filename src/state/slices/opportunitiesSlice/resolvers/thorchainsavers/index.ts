@@ -13,7 +13,6 @@ import type {
   GetOpportunityMetadataOutput,
   OpportunitiesState,
   OpportunityId,
-  OpportunityMetadata,
   StakingId,
 } from '../../types'
 import type { OpportunitiesMetadataResolverInput } from '../types'
@@ -67,23 +66,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const { SaversVaults } = selectFeatureFlags(state)
 
   if (!(SaversVaults && opportunityIds?.length)) {
-    return {
-      data: {
-        byId: {} as Partial<Record<StakingId, OpportunityMetadata>>,
-        type: opportunityType,
-      },
-    }
+    throw new Error('Not ready to fetch THORChain savers metadata')
   }
 
   const thorchainPools = await getThorchainPools()
 
   if (!thorchainPools?.length) {
-    return {
-      data: {
-        byId: {} as Partial<Record<StakingId, OpportunityMetadata>>,
-        type: opportunityType,
-      },
-    }
+    throw new Error('Error fetching THORChain pools')
   }
 
   const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}

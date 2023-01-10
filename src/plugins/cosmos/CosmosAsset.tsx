@@ -15,8 +15,8 @@ export const CosmosAsset = () => {
 
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetId ?? ''))
 
-  const chainId = fromAssetId(asset.assetId)
-  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const { chainId } = assetId ?? fromAssetId(assetId)
+  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId ?? ''))
 
   return !asset || loading ? (
     <Page key={asset?.assetId}>

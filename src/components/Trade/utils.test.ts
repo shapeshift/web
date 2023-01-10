@@ -1,5 +1,5 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { getInboundAddressDataForChain, SwapperType } from '@shapeshiftoss/swapper'
+import { getInboundAddressDataForChain, SwapperName } from '@shapeshiftoss/swapper'
 import { isTradingActive } from 'components/Trade/utils'
 
 jest.mock('@shapeshiftoss/swapper', () => ({
@@ -11,25 +11,25 @@ describe('isTradingActive', () => {
   it('detects an active chain from a valid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce({ halted: false })
 
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperType.Thorchain)
+    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(true)
   })
 
   it('detects an halted chain from a valid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce({ halted: true })
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperType.Thorchain)
+    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(false)
   })
 
   it('assumes a halted chain on invalid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce(undefined)
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperType.Thorchain)
+    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(false)
   })
 
-  it('does not look for halted flags unless the SwapperType is Thorchain', async () => {
+  it('does not look for halted flags unless the SwapperName is Thorchain', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce({ halted: true })
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperType.CowSwap)
+    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.CowSwap)
     expect(isTradingActiveResponse).toBe(true)
   })
 })

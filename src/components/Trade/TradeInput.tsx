@@ -13,6 +13,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
+import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
@@ -49,7 +50,9 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
+  const { isTradingActiveOnSellChain } = useIsTradingActive()
   const {
     checkApprovalNeeded,
     getTrade,
@@ -328,6 +331,14 @@ export const TradeInput = () => {
             buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
+    if (!isTradingActiveOnSellChain) {
+      return [
+        'trade.errors.tradingNotActive',
+        {
+          assetSymbol: sellTradeAsset?.asset?.symbol ?? '',
+        },
+      ]
+    }
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
@@ -358,6 +369,7 @@ export const TradeInput = () => {
     hasValidSellAmount,
     isBelowMinSellAmount,
     isTradeQuotePending,
+    isTradingActiveOnSellChain,
     quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,
     quote?.sellAsset.symbol,

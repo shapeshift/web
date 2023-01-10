@@ -3,7 +3,11 @@ import { cosmosAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { Page } from 'components/Layout/Page'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { LoadingAsset } from 'pages/Assets/LoadingAsset'
-import { selectAssetById, selectMarketDataLoadingById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataLoadingById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
@@ -26,6 +30,10 @@ export const CosmosAsset = () => {
       </Flex>
     </Page>
   ) : (
-    <CosmosAssetAccountDetails chainId={asset.chainId} assetId={asset.assetId} accountId={accountId} />
+    <CosmosAssetAccountDetails
+      chainId={asset.chainId}
+      assetId={asset.assetId}
+      accountId={accountId}
+    />
   )
 }

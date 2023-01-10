@@ -6,6 +6,7 @@ import { thorService } from './thorService'
 export const getInboundAddressDataForChain = async (
   daemonUrl: string,
   assetId: AssetId | undefined,
+  excludeHalted = true,
 ): Promise<InboundAddressResponse | undefined> => {
   if (!assetId) return undefined
   const assetPoolId = adapters.assetIdToPoolAssetId({ assetId })
@@ -14,5 +15,7 @@ export const getInboundAddressDataForChain = async (
     `${daemonUrl}/lcd/thorchain/inbound_addresses`,
   )
   const activeInboundAddresses = inboundAddresses.filter((a) => !a.halted)
-  return activeInboundAddresses.find((inbound) => inbound.chain === assetChainSymbol)
+  return (excludeHalted ? activeInboundAddresses : inboundAddresses).find(
+    (inbound) => inbound.chain === assetChainSymbol,
+  )
 }

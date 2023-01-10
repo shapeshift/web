@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import { getConfig } from 'config'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-
-import { osmosisImperatorBaseUrl, osmosisLcdBaseUrl } from './constants'
 
 type OsmosisToken = {
   denom: string
@@ -95,12 +94,12 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
 export const getPools = async (): Promise<OsmosisPool[]> => {
   try {
     const { data: poolData } = await axios.get<OsmosisPoolList>(
-      `${osmosisLcdBaseUrl}/gamm/v1beta1/pools?pagination.limit=1000`,
+      `${getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL}gamm/v1beta1/pools?pagination.limit=1000`,
     )
     if (!poolData) throw new Error('Unable to fetch Osmosis liquidity pool metadata')
 
     const { data: historicalDataByPoolId } = await axios.get<PoolHistoricalDataList>(
-      `${osmosisImperatorBaseUrl}/fees/v1/pools`,
+      `${getConfig().REACT_APP_OSMOSIS_IMPERATOR_BASE_URL}pools/v2/all?low_liquidity=false`,
     )
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')

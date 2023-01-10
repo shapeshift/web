@@ -1,9 +1,11 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BTCInputScriptType, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, Keyring, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import * as native from '@shapeshiftoss/hdwallet-native'
+import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
 
 /**
  *
@@ -17,9 +19,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 	  }
 	}
  */
-const stuckFundsPubkey =
-  'zpub6qanHyghGMGS1JY4a3iDGjj9xACApuKwM72LLPB6gowdeL5wcVcP3Et3txHPmMegSNcPXo9h3BHG6aoxkRUJE81AKcGxtzZUEnmV6kW5FJc'
-const stuckFundsAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
+const stuckFundsPubkeys = [
+  'zpub6qanHyghGMGS1JY4a3iDGjj9xACApuKwM72LLPB6gowdeL5wcVcP3Et3txHPmMegSNcPXo9h3BHG6aoxkRUJE81AKcGxtzZUEnmV6kW5FJc',
+].join(' ')
+// const stuckFundsAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
 
 /**
  * prob not required
@@ -99,15 +102,32 @@ const getDangerousAddresses = async ({ wallet }: GetDangerousAddressesArgs): Pro
 }
 
 export const Recovery = () => {
-  const wallet = useWallet().state.wallet
+  // const wallet = useWallet().state.wallet
   const [addresses, setAddresses] = useState<string[]>([])
 
   useEffect(() => {
-    if (!wallet) return
+    // if (!wallet) return
     ;(async () => {
+      //wormhole.app/
+
+      const adapter = NativeAdapter
+      // For the demo wallet, we use the name, DemoWallet, as the deviceId
+      const deviceId = 'RECOVERY'
+      // setLocalWalletTypeAndDeviceId(KeyManager.Demo, deviceId)
+      // setLocalNativeWalletName(name)
+      // dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
+      const keyring = new Keyring()
+      const adapterInstance = adapter.useKeyring(keyring)
+      const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
+      const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
+      await wallet.loadDevice({
+        mnemonic: await create(stuckFundsPubkeys),
+        deviceId,
+      })
+      await wallet.initialize()
       setAddresses(await getDangerousAddresses({ wallet }))
     })()
-  }, [wallet])
+  }, [])
 
   return (
     <>

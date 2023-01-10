@@ -1,13 +1,9 @@
-import type { GetAddressInput } from '@shapeshiftoss/chain-adapters'
-import {
-  accountTypeToScriptType,
-  convertXpubVersion,
-  toAddressNList,
-  toRootDerivationPath,
-} from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, PublicKey } from '@shapeshiftoss/hdwallet-core'
-import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoAccountType } from '@shapeshiftoss/types'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import { useEffect, useState } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 /**
  *
@@ -57,38 +53,66 @@ const getPublicKey = async (
 }
 */
 
-const getAddress = async ({
-  wallet,
-  accountNumber,
-  accountType,
-  index,
-  isChange = false,
-  showOnDevice = false,
-}: GetAddressInput): Promise<string> => {
-  try {
-    // this.assertIsAccountTypeSupported(accountType)
+export const recoveryAccountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType> =
+  Object.freeze({
+    [UtxoAccountType.P2pkh]: BTCInputScriptType.SpendAddress,
+    [UtxoAccountType.SegwitP2sh]: BTCInputScriptType.SpendP2SHWitness,
+    [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness,
+  })
 
-    const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
+const getDangerousBIP44Params = () => {
+  // eth
+  return {
+    purpose: 44,
+    coinType: 60,
+    accountNumber: 0,
+  }
+}
 
-    if (!supportsBTC(wallet)) {
-      throw new Error(`Recovery: wallet does not support bitcoin`)
+type GetDangerousAddressesArgs = {
+  wallet: HDWallet
+}
+
+const getDangerousAddresses = async ({ wallet }: GetDangerousAddressesArgs): Promise<string[]> => {
+  const bip44Params = getDangerousBIP44Params()
+
+  if (!supportsBTC(wallet)) {
+    throw new Error(`Recovery: wallet does not support bitcoin`)
+  }
+
+  const addressCount = 1000
+  const addresses: string[] = []
+  for (let index = 0; index < addressCount; index++) {
+    for (const scriptType of Object.values(recoveryAccountTypeToScriptType)) {
+      const address = await wallet.btcGetAddress({
+        addressNList: toAddressNList({ ...bip44Params, index }),
+        coin: 'foo',
+        scriptType,
+        showDisplay: false,
+      })
+      if (!address) throw new Error('Recovery: no address available from wallet')
+      addresses.push(address)
     }
+  }
 
-    // TODO(0xdef1cafe): just iterate a large number of addresses
-    const maybeNextIndex = bip44Params.index ?? 0
-    const address = await wallet.btcGetAddress({
-      addressNList: toAddressNList({ ...bip44Params, index: maybeNextIndex }),
-      coin: 'foo',
-      scriptType: accountTypeToScriptType[accountType as UtxoAccountType], // deliberate cast so we can pass undefined
-      showDisplay: showOnDevice,
-    })
-
-    if (!address) throw new Error('UtxoBaseAdapter: no address available from wallet')
-
-    return address
-  } catch (err) {}
+  return addresses
 }
 
 export const Recovery = () => {
-  return <div>Recovery</div>
+  const wallet = useWallet().state.wallet
+  const [addresses, setAddresses] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!wallet) return
+    ;(async () => {
+      setAddresses(await getDangerousAddresses({ wallet }))
+    })()
+  }, [wallet])
+
+  return (
+    <>
+      <div>Recovery</div>
+      <div>{addresses.join('\n')}</div>
+    </>
+  )
 }

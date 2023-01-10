@@ -12,7 +12,6 @@ export type AssetIdsTuple =
   | readonly [AssetId]
   | readonly []
 
-// TODO(gomes): import from types/utility
 /**
  * Further reading on ideas behind these utility types
  *

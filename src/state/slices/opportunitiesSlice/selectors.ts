@@ -68,11 +68,6 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
-export const selectLpAccountIds = createDeepEqualOutputSelector(
-  selectLpOpportunitiesByAccountId,
-  (byAccountId): AccountId[] => Object.keys(byAccountId),
-)
-
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),

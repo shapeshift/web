@@ -123,11 +123,12 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         const accountMetadata = portfolioAccountMetadata[accountId]
         if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
         const { accountType, bip44Params } = accountMetadata
+        const { accountNumber } = bip44Params
 
         // subscribe to new transactions for all supported accounts
         try {
           return adapter?.subscribeTxs(
-            { wallet, accountType, bip44Params },
+            { wallet, accountType, accountNumber },
             msg => {
               const { getAccount } = portfolioApi.endpoints
               const { getValidatorData } = validatorDataApi.endpoints

@@ -19,6 +19,10 @@ import {
   osmosisLpUserDataResolver,
 } from './osmosis'
 import {
+  thorchainSaversOpportunityIdsResolver,
+  thorchainSaversStakingOpportunitiesMetadataResolver,
+} from './thorchainsavers'
+import {
   yearnStakingOpportunitiesMetadataResolver,
   yearnStakingOpportunitiesUserDataResolver,
   yearnStakingOpportunityIdsResolver,
@@ -40,6 +44,9 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   },
   [`${DefiProvider.Osmosis}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunitiesMetadataResolver,
+  },
+  [`${DefiProvider.ThorchainSavers}`]: {
+    [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
   },
 }
 
@@ -65,6 +72,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   },
   [`${DefiProvider.Osmosis}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunityIdsResolver,
+  },
+  [`${DefiProvider.ThorchainSavers}`]: {
+    [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
   },
 }
 

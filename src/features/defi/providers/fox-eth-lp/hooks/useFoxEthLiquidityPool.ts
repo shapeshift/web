@@ -132,9 +132,7 @@ export const useFoxEthLiquidityPool = (
               wallet,
               data,
               gasLimit,
-              bip44Params: adapter.buildBIP44Params({
-                accountNumber,
-              }),
+              accountNumber,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
           } else {
@@ -237,9 +235,7 @@ export const useFoxEthLiquidityPool = (
               wallet,
               data,
               gasLimit,
-              bip44Params: adapter.buildBIP44Params({
-                accountNumber,
-              }),
+              accountNumber,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
           } else {
@@ -454,9 +450,7 @@ export const useFoxEthLiquidityPool = (
         wallet,
         data,
         gasLimit,
-        bip44Params: adapter.buildBIP44Params({
-          accountNumber,
-        }),
+        accountNumber,
         gasPrice,
       })
       const txToSign = result.txToSign

@@ -6,6 +6,7 @@ import type { OpportunityDefiType, OpportunityId } from '../types'
 export type ReduxApi = Pick<BaseQueryApi, 'dispatch' | 'getState'>
 
 export type OpportunitiesMetadataResolverInput = {
+  opportunityIds?: OpportunityId[]
   opportunityType: OpportunityDefiType
   reduxApi: ReduxApi
 }

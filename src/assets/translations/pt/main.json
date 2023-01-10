@@ -104,8 +104,7 @@
         "second": "monitorar suas criptos em 8 redes diferentes."
       }
     },
-    "availableAssets": "Ativos disponíveis",
-    "topAssets": "Maiores Ativos"
+    "availableAssets": "Ativos disponíveis"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -169,7 +168,7 @@
     "asset": "Ativo",
     "assetToBuy": "Ativo para comprar",
     "selectAnAssetToBuy": "Selecione um ativo para comprar",
-    "selectBody": "Escolha entre uma crescente lista de criptomoedas.",
+    "selectBody": "Escolha entre várias criptomoedas.",
     "assetToSell": "Ativo para vender",
     "selectAnAssetToSell": "Selecione um ativo para vender",
     "fundsTo": "Os fundos serão enviados para",
@@ -267,7 +266,7 @@
         "availableDate": "disponível %{date}"
       },
       "overview": {
-        "underlyingTokens": "Tokens Subjacentes",
+        "underlyingTokens": "Tokens em Stake",
         "availableRewards": "Recompensas Disponíveis",
         "about": "Sobre",
         "tvl": "TVL",
@@ -282,7 +281,7 @@
         "claimingRewards": "Resgatando recompensas",
         "claimAmount": "Valor do resgate",
         "claimToAddress": "Enviar para Endereço",
-        "confirmClaim": "Confirmar resgate de recompensas",
+        "confirmClaim": "Confirmar",
         "claimNow": "Resgatar agora",
         "claimYour": "Ganhar %{opportunity}"
       }
@@ -303,13 +302,13 @@
     "stakedAmount": "Valor Depositado",
     "unstakeFrom": "Retirar de",
     "gasFee": "Taxa de gás",
-    "provider": "Proveja",
+    "provider": "Deposite",
     "currentTvl": "TVL Atual",
     "unbondInfoItWillTake": "Enquanto seus tokens estiverem em stake, você não poderá transferi-los ou gastá-los. Levará %{unbondingDays} dias para desbloqueá-los.",
     "unbondInfoItWillTakeShort": "Levará %{unbondingDays} dias para retirar seus tokens",
     "confirmAndBroadcast": "Confirmar e transmitir",
     "signAndBroadcast": "Assinar e transmitir",
-    "averageApr": "APR média",
+    "averageApr": "APR médio",
     "estimatedYearlyRewards": "Recompensas anuais estimadas",
     "staked": "Depósitos",
     "amountStaked": "Valor Depositado",
@@ -317,12 +316,12 @@
     "stake": "Stake",
     "version": "Versão",
     "unstake": "Remover Stake",
-    "stakeAsset": "Aposta %{assetSymbol}",
-    "unstakeAsset": "Retirar %{assetSymbol}",
-    "claimAsset": "Coletar recompensas de Staking",
-    "claim": "Afirmação",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Resgatar Recompensas",
+    "claim": "Resgatar",
     "rewards": "Recompensas",
-    "unstaking": "Retirando Staking",
+    "unstaking": "Unstake",
     "available": "Disponível %{unbondingEnd}",
     "earn": "Investimentos",
     "asset": "Ativo",
@@ -332,15 +331,16 @@
     "apy": "APY",
     "apr": "APR",
     "ended": "Finalizado",
-    "balance": "Equilíbrio",
+    "balance": "Saldo",
     "defi": "DeFi",
     "startEarning": "Comece a Ganhar",
     "eligibleOpportunities": "Oportunidades Elegíveis",
     "defiBody": "Explore o crescente universo DeFi.",
-    "netWorth": "Patrimônio líquido",
+    "netWorth": "Seu Patrimônio",
     "walletBalance": "Saldo na Carteira",
     "earnBalance": "Saldo de Investimentos",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
+    "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
     "liquidityPools": "Pools de Liquidez",
     "stakingVaults": "Poupança e Cofres",
@@ -406,7 +406,7 @@
   "staking": {
     "staking": "Poupança",
     "itWillTake": "Vai levar",
-    "toUnlock": "para desbloquear seu Osmo depois de remover seu staking. As recompensas do programa de staking precisarão ser retiradas separadamente.",
+    "toUnlock": "para desbloquear seu %{assetSymbol} depois de remover seu staking. As recompensas precisarão ser retiradas separadamente.",
     "assetStakingBalance": "Saldo em Staking %{assetName}"
   },
   "navBar": {
@@ -449,7 +449,7 @@
     "to": "De",
     "from": "Para",
     "trade": "Troca",
-    "amount": "Montante",
+    "amount": "Quantia",
     "for": "Por",
     "parser": {
       "weth": {
@@ -619,8 +619,7 @@
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
-    "recentTrades": "Negociações recentes",
-    "shapeshiftFee": "Taxa ShapeShift"
+    "recentTrades": "Negociações recentes"
   },
   "modals": {
     "popup": {
@@ -1154,8 +1153,7 @@
       "failure": {
         "header": "Erro",
         "body": "Não foi possível conectar sua carteira WalletConnect"
-      },
-      "create": "Crie uma carteira"
+      }
     },
     "xdefi": {
       "errors": {

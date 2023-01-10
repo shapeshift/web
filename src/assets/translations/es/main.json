@@ -340,6 +340,7 @@
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
+    "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
     "liquidityPools": "Pools de liquidez",
     "stakingVaults": "Staking & Bóvedas",
@@ -618,8 +619,7 @@
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
-    "recentTrades": "Operaciones Recientes",
-    "shapeshiftFee": "Tarifa de ShapeShift"
+    "recentTrades": "Operaciones Recientes"
   },
   "modals": {
     "popup": {
@@ -644,8 +644,7 @@
         "body": "Etiquetar cada uno de sus dispositivos le permite distinguir fácilmente uno de otro.",
         "setLabelButton": "Coloca una etiqueta",
         "skipLabelButton": "Saltar",
-        "placeholder": "Opcional",
-        "button": "Coloca una etiqueta"
+        "placeholder": "Opcional"
       },
       "recoverySettings": {
         "header": "Recupera su Billetera",
@@ -1006,8 +1005,7 @@
           "deviceTimeout": "Tiempo de espera del dispositivo",
           "passphrase": "Frase de contraseña",
           "wipeDevice": "Reestablecer dispositivo",
-          "label": "Etiqueta",
-          "pinCaching": "Almacenamiento en caché de PIN"
+          "label": "Etiqueta"
         },
         "status": {
           "enabled": "Activado",
@@ -1020,8 +1018,7 @@
           "enterPin": "Ingrese el PIN actual",
           "setPin": "Establecer un nuevo PIN",
           "confirmPin": "Confirmar nuevo PIN",
-          "passphrase": "Frase de contraseña",
-          "pinCaching": "Almacenamiento en caché de PIN"
+          "passphrase": "Frase de contraseña"
         },
         "descriptions": {
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
@@ -1031,8 +1028,7 @@
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",
-          "timeoutDuration": "%{minutes} minutos",
-          "pinCaching": "Cuando esta función está activada, el dispositivo recordará su PIN."
+          "timeoutDuration": "%{minutes} minutos"
         },
         "alerts": {
           "passphrase": {

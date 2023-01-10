@@ -192,7 +192,7 @@ export const Confirm = () => {
                 symbol={cryptoSymbol}
                 value={cryptoAmount}
               />
-              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset.symbol} />
+              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />
             </Row.Label>
           </Box>
         </Row>

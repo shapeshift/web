@@ -42,6 +42,7 @@ type OverviewProps = {
   rewardAssetsCryptoPrecision?: AssetWithBalance[]
   name: string
   description?: AssetDescriptionTeaserProps
+  descriptionRight?: JSX.Element
   asset: Asset
   opportunityFiatBalance: string
   provider: string
@@ -50,6 +51,7 @@ type OverviewProps = {
   icons?: string[]
   expired?: boolean
   version?: string
+  postChildren?: React.ReactNode
 } & DefiActionButtonProps &
   PropsWithChildren
 
@@ -67,10 +69,12 @@ export const Overview: React.FC<OverviewProps> = ({
   apy,
   icons,
   description,
+  descriptionRight,
   menu,
   children,
   expired,
   version,
+  postChildren,
 }) => {
   const renderRewardAssets = useMemo(() => {
     if (!rewardAssetsCryptoPrecision) return null
@@ -153,12 +157,15 @@ export const Overview: React.FC<OverviewProps> = ({
           </Flex>
         </Stack>
         {children}
-        {(description || tvl || apy || expired) && (
+        {(description || tvl || apy || expired || postChildren) && (
           <>
             <Stack p={8} spacing={4}>
               <Stack spacing={0}>
                 <Text fontSize='lg' fontWeight='medium' translation='defi.modals.overview.about' />
-                {description && <AssetDescriptionTeaser {...description} />}
+                <Flex>
+                  {description && <AssetDescriptionTeaser {...description} />}
+                  {descriptionRight}
+                </Flex>
               </Stack>
               {(tvl || apy || expired) && (
                 <StatGroup>
@@ -197,6 +204,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   )}
                 </StatGroup>
               )}
+              {postChildren}
             </Stack>
           </>
         )}

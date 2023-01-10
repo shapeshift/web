@@ -137,3 +137,9 @@ export type GroupedEligibleOpportunityReturnType = {
   opportunityIds: OpportunityId[]
   netApy: number
 }
+
+export type TagDescription = {
+  title: string
+  description: string
+  icon?: string
+}

@@ -62,6 +62,8 @@ export const Withdraw: React.FC<
     assetReference: rewardId,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Staking Asset Info
@@ -71,6 +73,7 @@ export const Withdraw: React.FC<
     assetReference,
   })
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   // user info
 

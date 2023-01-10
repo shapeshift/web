@@ -187,8 +187,8 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
-    "exploreThe": "Keşfet",
-    "defiUniverse": "DeFi Dünyası",
+    "exploreThe": "DeFi Dünyası'nı",
+    "defiUniverse": "Keşfet",
     "body": "%100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "betaSunset": "Beta kullanımdan kaldırıldı, Daha Fazlasını Öğrenin",
@@ -340,6 +340,7 @@
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
+    "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
     "liquidityPools": "Likidite Havuzları",
     "stakingVaults": "Staking ve Kasalar",

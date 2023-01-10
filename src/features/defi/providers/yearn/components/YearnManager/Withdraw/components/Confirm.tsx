@@ -106,6 +106,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   // user info
   const { state: walletState } = useWallet()
 

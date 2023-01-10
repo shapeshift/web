@@ -23,6 +23,7 @@ export type FeatureFlags = {
   Wherever: boolean
   FiatPopup: boolean
   EligibleEarn: boolean
+  SaversVaults: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -58,6 +59,7 @@ const initialState: Preferences = {
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
     EligibleEarn: getConfig().REACT_APP_FEATURE_ELIGIBLE_EARN,
+    SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

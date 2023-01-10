@@ -133,7 +133,7 @@ export const AddAccountModal = () => {
         dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
       )
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
-      const { name } = assets[assetId]
+      const { name } = assets[assetId] ?? {}
       toast({
         position: 'top-right',
         title: translate('accounts.newAccountAdded', { name }),

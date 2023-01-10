@@ -51,6 +51,10 @@ export const useFoxEthLiquidityPool = (
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
+  if (!lpAsset) throw new Error(`Fee asset not found for AssetId ${foxEthLpAssetId}`)
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const filter = useMemo(() => ({ accountId }), [accountId])
 
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
@@ -128,9 +132,7 @@ export const useFoxEthLiquidityPool = (
               wallet,
               data,
               gasLimit,
-              bip44Params: adapter.buildBIP44Params({
-                accountNumber,
-              }),
+              accountNumber,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
           } else {
@@ -233,9 +235,7 @@ export const useFoxEthLiquidityPool = (
               wallet,
               data,
               gasLimit,
-              bip44Params: adapter.buildBIP44Params({
-                accountNumber,
-              }),
+              accountNumber,
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
           } else {
@@ -450,9 +450,7 @@ export const useFoxEthLiquidityPool = (
         wallet,
         data,
         gasLimit,
-        bip44Params: adapter.buildBIP44Params({
-          accountNumber,
-        }),
+        accountNumber,
         gasPrice,
       })
       const txToSign = result.txToSign

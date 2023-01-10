@@ -76,6 +76,9 @@ export const ClaimConfirm = ({
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const toast = useToast()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -137,9 +140,10 @@ export const ClaimConfirm = ({
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
+        const { accountNumber } = bip44Params
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
-          bip44Params,
+          accountNumber,
         })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([

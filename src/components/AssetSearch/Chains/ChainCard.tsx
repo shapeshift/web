@@ -14,6 +14,8 @@ type ChainCardProps = {
 export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   return (
     <Tooltip label={feeAsset.name} placement='top' isDisabled={!isLargerThanMd}>

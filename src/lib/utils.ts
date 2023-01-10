@@ -54,8 +54,16 @@ export function partitionCompareWith<T>(
   return result
 }
 
-export const isToken = (assetReference: AssetReference | string) =>
-  !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+export const isToken = (assetReference: AssetReference | string) => {
+  return !(
+    Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference) ||
+    isOsmosisLpAsset(assetReference)
+  )
+}
+
+export const isOsmosisLpAsset = (assetReference: AssetReference | string): boolean => {
+  return assetReference.startsWith('gamm/pool/')
+}
 
 export const tokenOrUndefined = (assetReference: AssetReference | string) =>
   isToken(assetReference) ? assetReference : undefined
@@ -111,3 +119,10 @@ export const getTypeGuardAssertion =
   (value: T | U): asserts value is T => {
     if (!typeGuard(value)) throw new Error(`${message}: ${value}`)
   }
+
+export const isFulfilled = <T>(
+  promise: PromiseSettledResult<T>,
+): promise is PromiseFulfilledResult<T> => promise.status === 'fulfilled'
+
+export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is PromiseRejectedResult =>
+  promise.status === 'rejected'

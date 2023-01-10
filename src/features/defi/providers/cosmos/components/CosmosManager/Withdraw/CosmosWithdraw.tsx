@@ -67,6 +67,10 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -97,7 +101,8 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     ;(async () => {
       try {
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const address = await chainAdapter.getAddress({ bip44Params, wallet: walletState.wallet })
+        const { accountNumber } = bip44Params
+        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({
           type: CosmosWithdrawActionType.SET_USER_ADDRESS,

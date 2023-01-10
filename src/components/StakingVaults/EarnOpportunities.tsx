@@ -38,6 +38,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const { data: foxyBalancesData } = useFoxyBalances()
 
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)

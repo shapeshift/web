@@ -284,6 +284,21 @@
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
+        "vaultCap": "Vault Cap",
+        "vaultCapTooltip": "Something about vault caps",
+        "haltedTitle": "Deposits are temporarily halted.",
+        "haltedDescription": "Please tweet at @THORChain to raise the caps!",
+        "estimatedFee": "Estimated Fee",
+        "fee": "Fee",
+        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
+        "dustAmount": "Dust Amount",
+        "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
+        "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
+        "sendDust": "Send Dust",
+        "addressToSendTo": "Address to Send To"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
+      "tradingNotActive": "Trading currently halted for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -1607,5 +1623,19 @@
       "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
     },
     "custom": "Custom"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "What is Best Yield?",
+      "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
+    },
+    "seniorTranche": {
+      "title": "What is a Senior Tranche?",
+      "body": "Enjoy DeFi yields across multiple protocols while keeping your deposit protected. Senior Tranches offer built-in protection on funds and provide full-spectrum coverage thanks to their Junior counterparty."
+    }, 
+    "juniorTranche": {
+      "title": "What is a Junior Tranche?",
+      "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
+    }
   }
 }

@@ -43,8 +43,10 @@ export const Status = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))

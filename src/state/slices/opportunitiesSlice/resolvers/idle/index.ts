@@ -27,7 +27,9 @@ const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'i
 export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput<DefiProvider.Idle, DefiType.Staking>
+}> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -44,7 +46,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
             opportunityId,
             { ...opportunityMetadata, apy: '0', tvl: '0' },
           ]),
-        ) as Partial<Record<StakingId, OpportunityMetadata>>,
+        ) as Partial<Record<StakingId, OpportunityMetadata<DefiProvider.Idle, DefiType.Staking>>>,
         type: opportunityType,
       },
     }
@@ -53,7 +55,9 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Partial<
+    Record<StakingId, OpportunityMetadata<DefiProvider.Idle, DefiType.Staking>>
+  > = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {
@@ -94,7 +98,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       : {
           apy: opportunity.apy.toFixed(),
           assetId,
-          provider: DefiProvider.Idle,
+          provider: DefiProvider.Idle as const,
           tvl: opportunity.tvl.balance.toFixed(),
           type: DefiType.Staking as const,
           underlyingAssetId: assetId,

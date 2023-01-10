@@ -11,6 +11,8 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -21,7 +23,9 @@ import type {
 export const yearnStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput<DefiProvider.Yearn, DefiType.Staking>
+}> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -33,7 +37,9 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Partial<
+    Record<StakingId, OpportunityMetadata<DefiProvider.Yearn, DefiType.Staking>>
+  > = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {

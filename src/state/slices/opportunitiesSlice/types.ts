@@ -12,12 +12,65 @@ export type AssetIdsTuple =
   | readonly [AssetId]
   | readonly []
 
-export type OpportunityMetadata = {
+// TODO(gomes): import from types/utility
+/**
+ * Further reading on ideas behind these utility types
+ *
+ * See: https://stackoverflow.com/questions/55904032/how-to-get-optional-property-from-union
+ */
+/** Get specific type for key(K) in union(T) */
+declare type ValueOfUnion<T, K> = T extends unknown ? (K extends keyof T ? T[K] : undefined) : never
+/** Get all keys in union(T) as union */
+declare type KeysOfUnion<T> = T extends unknown ? keyof T : never
+/**
+ * Create mapping of all keys in union(T) with proper type values
+ *
+ * _note: `| keyof T` index is simply to tell typescript that T is definitely a sub type of KeysOfUnion_
+ */
+declare type UnionMapping<T> = {
+  [K in KeysOfUnion<T> | keyof T]: ValueOfUnion<T, K>
+}
+/** Pick out the elements we know for sure and make everything else optional */
+declare type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMapping<T>>
+// Taken from ChainSpecific types implementation, same idea of a discriminated union additional fields
+// for a DefiProvider/DefiType combination
+/** Adds all possible values of union(T) as a nested object under a `chainSpecific` key */
+
+export declare type OpportunitySpecific<T, U, V> = UnionMerge<
+  T extends unknown
+    ? T extends keyof V
+      ? U extends unknown
+        ? U extends keyof V[T]
+          ? {
+              opportunitySpecific: V[T][U]
+            }
+          : undefined
+        : never
+      : undefined
+    : never
+>
+type OpportunitySpecificMetadata<T extends DefiProvider, U extends DefiType> = OpportunitySpecific<
+  T,
+  U,
+  {
+    [DefiProvider.ThorchainSavers]: {
+      [DefiType.Staking]: {
+        saversSupplyIncludeAccruedFiat: string
+        saversMaxSupplyFiat: string
+      }
+    }
+  }
+>
+
+export type OpportunityMetadata<
+  T extends DefiProvider = DefiProvider,
+  U extends DefiType = DefiType,
+> = {
   apy: string
   assetId: AssetId
-  provider: DefiProvider
+  provider: T
   tvl: string
-  type: DefiType
+  type: U
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   // Which might or might not be the same as the AssetId, e.g
@@ -38,7 +91,7 @@ export type OpportunityMetadata = {
   name?: string
   version?: string
   tags?: string[]
-}
+} & OpportunitySpecificMetadata<T, U>
 
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
@@ -64,7 +117,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata>
+    byId: PartialRecord<LpId, OpportunityMetadata<DefiProvider, DefiType>>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -77,7 +130,7 @@ export type OpportunitiesState = {
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
     byAccountId: PartialRecord<AccountId, StakingId[]>
-    byId: PartialRecord<StakingId, OpportunityMetadata>
+    byId: PartialRecord<StakingId, OpportunityMetadata<DefiProvider, DefiType>>
     ids: StakingId[]
   }
 }
@@ -105,8 +158,10 @@ export type GetOpportunityIdsInput = {
   defiProvider: DefiProvider
 }
 
-export type GetOpportunityMetadataOutput = {
-  byId: OpportunitiesState[OpportunityDefiType]['byId']
+export type GetOpportunityMetadataOutput<T extends DefiProvider, U extends DefiType> = {
+  byId: Partial<
+    Record<DefiType extends DefiType.Staking ? StakingId : LpId, OpportunityMetadata<T, U>>
+  >
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {
@@ -120,7 +175,7 @@ export type GetOpportunityUserStakingDataOutput = {
 
 export type GetOpportunityIdsOutput = OpportunityId[]
 
-export type StakingEarnOpportunityType = OpportunityMetadata & {
+export type StakingEarnOpportunityType = OpportunityMetadata<DefiProvider, DefiType> & {
   stakedAmountCryptoBaseUnit?: string
   rewardsAmountsCryptoBaseUnit?:
     | readonly [string, string, string]

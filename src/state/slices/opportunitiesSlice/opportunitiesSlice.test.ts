@@ -33,7 +33,10 @@ describe('opportunitiesSlice', () => {
     })
     describe('upsertOpportunityMetadata', () => {
       it('inserts metadata', () => {
-        const payload: GetOpportunityMetadataOutput = {
+        const payload: GetOpportunityMetadataOutput<
+          DefiProvider.FoxFarming,
+          DefiType.LiquidityPool
+        > = {
           byId: {
             [mockLpContractOne]: {
               // The LP token AssetId
@@ -58,7 +61,10 @@ describe('opportunitiesSlice', () => {
       })
 
       it('merges prevState and payload', () => {
-        const insertPayloadOne: GetOpportunityMetadataOutput = {
+        const insertPayloadOne: GetOpportunityMetadataOutput<
+          DefiProvider.FoxFarming,
+          DefiType.LiquidityPool
+        > = {
           byId: {
             [mockLpContractOne]: {
               // The LP token AssetId
@@ -81,7 +87,10 @@ describe('opportunitiesSlice', () => {
         store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadOne))
         expect(store.getState().opportunities.lp.byId).toEqual(insertPayloadOne.byId)
 
-        const insertPayloadTwo: GetOpportunityMetadataOutput = {
+        const insertPayloadTwo: GetOpportunityMetadataOutput<
+          DefiProvider.FoxFarming,
+          DefiType.LiquidityPool
+        > = {
           byId: {
             [mockLpContractTwo]: {
               // The LP token AssetId

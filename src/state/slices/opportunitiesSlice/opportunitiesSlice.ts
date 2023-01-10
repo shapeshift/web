@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -70,7 +71,7 @@ export const opportunities = createSlice({
     clear: () => initialState,
     upsertOpportunityMetadata: (
       draftState,
-      { payload }: { payload: GetOpportunityMetadataOutput },
+      { payload }: { payload: GetOpportunityMetadataOutput<DefiProvider, DefiType> },
     ) => {
       const payloadIds = Object.keys(payload.byId) as OpportunityId[]
 
@@ -127,7 +128,10 @@ export const opportunitiesApi = createApi({
         }
       },
     }),
-    getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
+    getOpportunityMetadata: build.query<
+      GetOpportunityMetadataOutput<DefiProvider, DefiType>,
+      GetOpportunityMetadataInput
+    >({
       queryFn: async (
         { opportunityId, opportunityType, defiType, defiProvider },
         { dispatch, getState },
@@ -158,7 +162,7 @@ export const opportunitiesApi = createApi({
       },
     }),
     getOpportunitiesMetadata: build.query<
-      GetOpportunityMetadataOutput,
+      GetOpportunityMetadataOutput<DefiProvider, DefiType>,
       Omit<GetOpportunityMetadataInput, 'opportunityId'>
     >({
       queryFn: async ({ opportunityType, defiType, defiProvider }, { dispatch, getState }) => {

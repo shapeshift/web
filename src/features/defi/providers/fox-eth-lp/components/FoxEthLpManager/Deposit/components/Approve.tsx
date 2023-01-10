@@ -40,6 +40,9 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!foxAsset) throw new Error('Missing FOX asset')
+  if (!feeAsset) throw new Error('Missing fee asset')
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   // user info
@@ -143,7 +146,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}
-      providerIcon={foxAsset.icon}
+      providerIcon={foxAsset?.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

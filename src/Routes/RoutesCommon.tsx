@@ -6,6 +6,7 @@ import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
+import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -41,27 +42,25 @@ export const routes: NestedRoute[] = [
     main: Assets,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
-    routes: [
-      {
-        path: '/:chainId/:assetSubId',
-        label: 'Overview',
-        icon: <AssetsIcon />,
-        main: null,
-        hide: true,
-        routes: [
-          {
-            path: '/',
-            label: 'navBar.overview',
-            main: Asset,
-          },
-          {
-            path: '/transactions',
-            label: 'navBar.transactions',
-            main: AssetTxHistory,
-          },
-        ],
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: assetIdPath,
+      label: 'Overview',
+      icon: <AssetsIcon />,
+      main: null,
+      hide: true,
+      routes: [
+        {
+          path: '/',
+          label: 'navBar.overview',
+          main: Asset,
+        },
+        {
+          path: '/transactions',
+          label: 'navBar.transactions',
+          main: AssetTxHistory,
+        },
+      ],
+    })),
   },
   {
     path: '/accounts',
@@ -156,14 +155,12 @@ export const routes: NestedRoute[] = [
     icon: <IoSwapVertical />,
     main: Trade,
     category: RouteCategory.Explore,
-    routes: [
-      {
-        label: 'Trade Asset',
-        path: '/:chainId/:assetSubId',
-        main: Trade,
-        hide: true,
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Trade Asset',
+      path: assetIdPath,
+      main: Trade,
+      hide: true,
+    })),
   },
   {
     path: '/buy-crypto',
@@ -171,13 +168,11 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
-    routes: [
-      {
-        label: 'Buy Asset',
-        path: '/:chainId/:assetSubId',
-        main: Buy,
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Buy Asset',
+      path: assetIdPath,
+      main: Buy,
+    })),
   },
   {
     path: '/flags',

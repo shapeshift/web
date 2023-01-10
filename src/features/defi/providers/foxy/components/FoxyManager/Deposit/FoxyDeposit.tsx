@@ -56,6 +56,8 @@ export const FoxyDeposit: React.FC<{
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -81,8 +83,9 @@ export const FoxyDeposit: React.FC<{
           )
         )
           return
+        const { accountNumber } = bip44Params
         const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
+          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })

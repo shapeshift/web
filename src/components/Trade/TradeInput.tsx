@@ -13,6 +13,8 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
+import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
+import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
@@ -48,7 +50,9 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
+  const { isTradingActiveOnSellPool } = useIsTradingActive()
   const {
     checkApprovalNeeded,
     getTrade,
@@ -56,8 +60,8 @@ export const TradeInput = () => {
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
-    receiveAddress,
   } = useSwapper()
+  const { receiveAddress } = useReceiveAddress()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -85,6 +89,9 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
+
+  if (!sellFeeAsset)
+    throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
@@ -324,6 +331,14 @@ export const TradeInput = () => {
             buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
+    if (!isTradingActiveOnSellPool) {
+      return [
+        'trade.errors.tradingNotActive',
+        {
+          assetSymbol: sellTradeAsset?.asset?.symbol ?? '',
+        },
+      ]
+    }
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
@@ -354,6 +369,7 @@ export const TradeInput = () => {
     hasValidSellAmount,
     isBelowMinSellAmount,
     isTradeQuotePending,
+    isTradingActiveOnSellPool,
     quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,
     quote?.sellAsset.symbol,

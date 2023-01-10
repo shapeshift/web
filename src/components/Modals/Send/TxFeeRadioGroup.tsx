@@ -116,7 +116,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
                 fontSize='sm'
                 fontWeight='normal'
                 maximumFractionDigits={6}
-                symbol={feeAsset.symbol}
+                symbol={feeAsset?.symbol ?? ''}
                 value={current.txFee}
               />
               <Amount.Fiat

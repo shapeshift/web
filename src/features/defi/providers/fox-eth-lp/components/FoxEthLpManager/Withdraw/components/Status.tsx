@@ -35,9 +35,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),

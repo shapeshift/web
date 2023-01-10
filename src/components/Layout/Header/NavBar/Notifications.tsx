@@ -4,6 +4,7 @@ import {
   NotificationBell,
   NotificationFeed,
   NotificationFeedProvider,
+  ThemeMode,
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
@@ -23,6 +24,7 @@ export const Notifications = () => {
     const baseTheme =
       colorMode === 'light'
         ? {
+            mode: ThemeMode.Light,
             primaryColor: theme.colors.primary,
             backgroundColor: theme.colors.gray[100],
             textColor: theme.colors.gray[800],
@@ -40,7 +42,7 @@ export const Notifications = () => {
 
   if (!isWhereverEnabled || !currentWallet || !isKeyManagerWithProvider(currentWallet)) return null
 
-  const disableAnalytics = true
+  const disableAnalytics = window.location.href.includes('private.shapeshift.com')
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
 
   return (
@@ -50,7 +52,7 @@ export const Notifications = () => {
         theme={themeObj}
         disableAnalytics={disableAnalytics}
       >
-        <NotificationFeed gapFromBell={10}>
+        <NotificationFeed gapFromBell={10} placement={'bottom-end'}>
           <IconButton aria-label='Open notifications'>
             <NotificationBell size={20} />
           </IconButton>

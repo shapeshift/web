@@ -49,6 +49,10 @@ export const Status = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const withdrawalFee = useMemo(() => {

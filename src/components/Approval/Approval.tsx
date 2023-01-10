@@ -75,7 +75,7 @@ export const Approval = () => {
   )
 
   const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
-    bn(10).pow(sellFeeAsset.precision),
+    bn(10).pow(sellFeeAsset?.precision ?? 0),
   )
 
   const approveContract = useCallback(async () => {

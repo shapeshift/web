@@ -33,6 +33,7 @@ export const MainOpportunity = ({
   } = useWallet()
   const greenColor = useColorModeValue('green.600', 'green.400')
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!selectedAsset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)

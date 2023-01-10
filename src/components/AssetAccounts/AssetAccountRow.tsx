@@ -50,7 +50,7 @@ export const AssetAccountRow = ({
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
+  const { assetReference, assetNamespace } = (asset && fromAssetId(asset.assetId)) ?? {}
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
 
@@ -96,7 +96,7 @@ export const AssetAccountRow = ({
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (
             <RawText fontWeight='bold' color='gray.500' fontSize='sm'>
-              {feeAsset.name}
+              {feeAsset?.name}
             </RawText>
           )}
           <Stack

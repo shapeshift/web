@@ -1,9 +1,10 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Center } from '@chakra-ui/react'
+import { Box, Center, Flex, Tag } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
@@ -16,10 +17,13 @@ import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
+import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -46,6 +50,21 @@ const defaultMenu: DefiButtonProps[] = [
   },
 ]
 
+const idleTagDescriptions: Record<IdleTag, TagDescription> = {
+  [IdleTag.BestYield]: {
+    title: 'idle.bestYield.title',
+    description: 'idle.bestYield.body',
+  },
+  [IdleTag.JuniorTranche]: {
+    title: 'idle.juniorTranche.title',
+    description: 'idle.juniorTranche.body',
+  },
+  [IdleTag.SeniorTranche]: {
+    title: 'idle.seniorTranche.title',
+    description: 'idle.seniorTranche.body',
+  },
+}
+
 type IdleOverviewProps = {
   accountId: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -70,6 +89,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
   const assets = useAppSelector(selectAssets)
   const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
+  if (!vaultAsset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   // user info
   const balanceFilter = useMemo(
@@ -128,7 +149,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-  const underlyingAssets = useMemo(
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
+  const underlyingAssets: AssetWithBalance[] = useMemo(
     () => [
       {
         ...underlyingAsset,
@@ -145,7 +168,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectedLocale,
   })
 
-  const rewardAssets = useMemo(() => {
+  const rewardAssets: AssetWithBalance[] = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
     return opportunityData!.rewardsAmountsCryptoBaseUnit
@@ -153,8 +176,10 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
         if (bnOrZero(amount).isZero()) return undefined
+        const rewardAsset = assets[opportunityData.rewardAssetIds[i]]
+        if (!rewardAsset) return undefined
         return {
-          ...assets[opportunityData.rewardAssetIds[i]],
+          ...rewardAsset,
           cryptoBalancePrecision: bnOrZero(amount)
             .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? '0'))
             .toFixed(6),
@@ -189,6 +214,20 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     ]
   }, [contractAddress, idleInvestor, opportunityData, hasClaimBalance, translate])
 
+  const renderTags = useMemo(() => {
+    return opportunityData?.tags?.map(tag => {
+      if (idleTagDescriptions[tag as IdleTag]) {
+        const tagDetails = idleTagDescriptions[tag as IdleTag]
+        return (
+          <Flex flexDir='column' px={8} py={4} key={tag}>
+            <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
+            <Text color='gray.500' translation={tagDetails.description} />
+          </Flex>
+        )
+      } else return <Tag key={tag}>{tag}</Tag>
+    })
+  }, [opportunityData?.tags])
+
   if (!opportunityData) {
     return (
       <Center minW='500px' minH='350px'>
@@ -217,6 +256,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       apy={opportunityData.apy}
       menu={menu}
       rewardAssetsCryptoPrecision={rewardAssets}
-    />
+    >
+      <Box>{renderTags}</Box>
+    </Overview>
   )
 }

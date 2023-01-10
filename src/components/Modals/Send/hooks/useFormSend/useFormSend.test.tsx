@@ -129,7 +129,11 @@ describe.each([
       },
     })
     ;(useEvm as jest.Mock<unknown>).mockImplementation(() => ({
-      supportedEvmChainIds: [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet],
+      supportedEvmChainIds: [
+        KnownChainIds.EthereumMainnet,
+        KnownChainIds.AvalancheMainnet,
+        KnownChainIds.OptimismMainnet,
+      ],
     }))
   })
 

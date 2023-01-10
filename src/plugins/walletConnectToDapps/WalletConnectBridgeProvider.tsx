@@ -209,10 +209,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
             }
           : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
       const { bip44Params } = accountMetadataById[wcAccountId]
+      const { accountNumber } = bip44Params
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildSendTransaction({
         ...tx,
         wallet,
-        bip44Params,
+        accountNumber,
         chainSpecific: {
           gasLimit: approveData.gasLimit ?? tx.gas,
           ...gasData,

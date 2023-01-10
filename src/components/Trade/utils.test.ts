@@ -8,20 +8,20 @@ jest.mock('@shapeshiftoss/swapper', () => ({
 }))
 
 describe('isTradingActive', () => {
-  it('detects an active chain from a valid response', async () => {
+  it('detects an active pool from a valid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce({ halted: false })
 
     const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(true)
   })
 
-  it('detects an halted chain from a valid response', async () => {
+  it('detects an halted pool from a valid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce({ halted: true })
     const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(false)
   })
 
-  it('assumes a halted chain on invalid response', async () => {
+  it('assumes a halted pool on invalid response', async () => {
     ;(getInboundAddressDataForChain as jest.Mock).mockResolvedValueOnce(undefined)
     const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
     expect(isTradingActiveResponse).toBe(false)

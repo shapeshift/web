@@ -6,7 +6,7 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { useAppDispatch } from 'state/store'
 
 export const useIsTradingActive = () => {
-  const [isTradingActiveOnSellChain, setIsTradingActiveOnSellChain] = useState(false)
+  const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
 
   const { bestTradeSwapper } = useSwapper()
   const dispatch = useAppDispatch()
@@ -31,9 +31,9 @@ export const useIsTradingActive = () => {
           )
         ).data
 
-      setIsTradingActiveOnSellChain(!!isTradingActiveResult)
+      setIsTradingActiveOnSellPool(!!isTradingActiveResult)
     })()
   }, [bestTradeSwapper, dispatch, getIsTradingActive, sellTradeAssetId])
 
-  return { isTradingActiveOnSellChain }
+  return { isTradingActiveOnSellPool }
 }

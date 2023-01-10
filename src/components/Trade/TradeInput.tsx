@@ -52,7 +52,7 @@ export const TradeInput = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
-  const { isTradingActiveOnSellChain } = useIsTradingActive()
+  const { isTradingActiveOnSellPool } = useIsTradingActive()
   const {
     checkApprovalNeeded,
     getTrade,
@@ -331,7 +331,7 @@ export const TradeInput = () => {
             buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
-    if (!isTradingActiveOnSellChain) {
+    if (!isTradingActiveOnSellPool) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -369,7 +369,7 @@ export const TradeInput = () => {
     hasValidSellAmount,
     isBelowMinSellAmount,
     isTradeQuotePending,
-    isTradingActiveOnSellChain,
+    isTradingActiveOnSellPool,
     quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,
     quote?.sellAsset.symbol,

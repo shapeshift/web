@@ -2,6 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
@@ -331,7 +332,8 @@ export const TradeInput = () => {
             buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
-    if (!isTradingActiveOnSellPool) {
+    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!isTradingActiveOnSellPool && bestTradeSwapper.name === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -339,7 +341,6 @@ export const TradeInput = () => {
         },
       ]
     }
-    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [

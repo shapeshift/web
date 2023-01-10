@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.2...@shapeshiftoss/swapper-v15.3.0) (2023-01-10)
+
+
+### Features
+
+* **swapper:** export `getInboundAddressDataForChain` ([#1158](https://github.com/shapeshift/lib/issues/1158)) ([8cc30f8](https://github.com/shapeshift/lib/commit/8cc30f8d3727a1f84f09b721ee5511fcb65c7414))
+
 # [@shapeshiftoss/swapper-v15.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.1...@shapeshiftoss/swapper-v15.2.2) (2023-01-09)
 
 

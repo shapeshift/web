@@ -288,13 +288,20 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   const { asset_deposit_value, asset_redeem_value } = accountPosition
 
-  const stakedAmountCryptoBaseUnit = bnOrZero(asset_deposit_value).toFixed()
+  const stakedAmountCryptoBaseUnit = bnOrZero(asset_deposit_value)
+    .div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
+    .times(bn(10).pow(asset.precision)) // to actual asset precision base unit
+
+  const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(asset_redeem_value)
+    .div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
+    .times(bn(10).pow(asset.precision)) // to actual asset precision base unit
+
   const rewardsAmountsCryptoBaseUnit = [
-    bnOrZero(asset_redeem_value).minus(asset_deposit_value).toFixed(),
+    stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
   ] as [string]
 
   stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-    stakedAmountCryptoBaseUnit,
+    stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
     rewardsAmountsCryptoBaseUnit,
   }
 

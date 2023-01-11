@@ -295,9 +295,9 @@
         "fee": "Frais",
         "estimatedFeeTooltip": "Frais de transfert de fonds depuis une blockchain de couche 1",
         "dustAmount": "Quantité de poussière",
-        "dustAmountTooltip": "Une infime somme de crypto, des poussières, est nécessaire pour identifier votre adresse, et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
+        "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
         "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
-        "sendDust": "Envoyer des poussières",
+        "sendDust": "Envoyer de la poussière",
         "addressToSendTo": "Adresse à laquelle envoyer"
       }
     },

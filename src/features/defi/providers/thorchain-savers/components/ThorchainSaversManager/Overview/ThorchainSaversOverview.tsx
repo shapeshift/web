@@ -247,7 +247,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       apy={earnOpportunityData.apy}
       menu={menu}
       postChildren={
-        bnOrZero(opportunityMetadata?.saversMaxSupplyFiat).gt(0) ? renderVaultCap : null
+        bnOrZero(opportunityMetadata?.saversMaxSupplyFiat).gt(0)
+          ? renderVaultCap
+          : null
+          ? renderVaultCap
+          : null
       }
     />
   )

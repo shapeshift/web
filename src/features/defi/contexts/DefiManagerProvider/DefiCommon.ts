@@ -4,7 +4,6 @@ export enum DefiType {
   LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
-  Farming = 'farming',
   TokenStaking = 'token_staking',
 }
 

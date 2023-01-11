@@ -18,14 +18,18 @@ export const ChainCard: React.FC<ChainCardProps> = ({ chainId, isActive, onClick
 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   return (
-    <Tooltip label={feeAsset.name} placement='top' isDisabled={!isLargerThanMd}>
+    <Tooltip
+      label={feeAsset.networkName ?? feeAsset.name}
+      placement='top'
+      isDisabled={!isLargerThanMd}
+    >
       <IconButton
         size='lg'
         variant='outline'
         isActive={isActive}
         aria-label={feeAsset.name}
         onClick={e => onClick(e)(chainId)}
-        icon={<AssetIcon size='sm' src={feeAsset.icon} />}
+        icon={<AssetIcon size='sm' asset={feeAsset} />}
       />
     </Tooltip>
   )

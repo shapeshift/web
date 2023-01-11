@@ -96,7 +96,7 @@ export const AssetAccountRow = ({
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (
             <RawText fontWeight='bold' color='gray.500' fontSize='sm'>
-              {feeAsset?.name}
+              {feeAsset?.networkName ?? feeAsset?.name}
             </RawText>
           )}
           <Stack

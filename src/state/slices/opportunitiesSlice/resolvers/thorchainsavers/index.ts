@@ -250,8 +250,9 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
     )
 
-  // A tuple of a single address for EVM and Cosmos chains since the address *is* the account
-  // An array of many PublicKeys for UTXOs, since an xpub can derive many many public keys
+  // Returns either
+  // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
+  // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
   const accountAddresses = await (async () => {
     if (isUtxoAccountId(accountId)) {
       const { chainId, account: pubkey } = fromAccountId(accountId)

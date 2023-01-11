@@ -266,7 +266,11 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
       if (!addresses) return []
 
-      return addresses.map(address => address.pubkey)
+      return addresses.map(address =>
+        address.pubkey.startsWith('bitcoincash')
+          ? address.pubkey.replace('bitcoincash:', '')
+          : address.pubkey,
+      )
     }
 
     return [fromAccountId(accountId).account]

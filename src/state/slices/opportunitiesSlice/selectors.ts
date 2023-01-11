@@ -8,7 +8,7 @@ import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
+import { isSome, isToken } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -296,12 +296,14 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 
       return Object.assign(
         {},
-        {
-          // TODO: The guts of getting contractAddress for Idle
-          // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
-          // Can we generalize this? This is getting messy
-          contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
-        },
+        isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
+          ? {
+              // TODO: The guts of getting contractAddress for Idle
+              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+              // Can we generalize this? This is getting messy
+              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+            }
+          : {},
         STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
         opportunity,
         {
@@ -339,12 +341,14 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         .reduce((acc, opportunity) => {
           const earnOpportunity = Object.assign(
             {},
-            {
-              // TODO: The guts of getting contractAddress for Idle
-              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
-              // Can we generalize this? This is getting messy
-              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
-            },
+            isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
+              ? {
+                  // TODO: The guts of getting contractAddress for Idle
+                  // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+                  // Can we generalize this? This is getting messy
+                  contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+                }
+              : {},
             STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
             opportunity,
             {
@@ -367,7 +371,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       // Keep only the version with actual data if it exists, else keep the zero'd out version
       const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
-        'contractAddress',
+        ({ contractAddress, assetId }) => contractAddress ?? assetId,
       )
 
       return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {

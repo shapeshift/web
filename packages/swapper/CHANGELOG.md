@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.0...@shapeshiftoss/swapper-v15.3.1) (2023-01-11)
+
+
+### Bug Fixes
+
+* use cosmos sdk account number in osmo buildTradeTx ([#1159](https://github.com/shapeshift/lib/issues/1159)) ([4992b0f](https://github.com/shapeshift/lib/commit/4992b0ff1c72fad44156faf8b27924809ad679bc))
+
 # [@shapeshiftoss/swapper-v15.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.2.2...@shapeshiftoss/swapper-v15.3.0) (2023-01-10)
 
 

@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -16,6 +16,7 @@ export enum DefiProvider {
   FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
+  ThorchainSavers = 'THORChain Savers',
 }
 
 export enum DefiAction {
@@ -24,6 +25,7 @@ export enum DefiAction {
   Withdraw = 'withdraw',
   GetStarted = 'get-started',
   Claim = 'claim',
+  SendDust = 'send-dust',
 }
 
 export enum DefiStep {
@@ -44,7 +46,8 @@ export type DefiQueryParams = {
   chainId: ChainId
   highestBalanceAccountAddress?: string
   contractAddress: string
-  assetReference: string
+  assetNamespace: AssetNamespace
+  assetReference: AssetReference
   rewardId: string
   modal: string
   provider: string

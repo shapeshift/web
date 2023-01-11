@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -61,7 +61,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const toast = useToast()
@@ -96,7 +95,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleConfirm = useCallback(async () => {
-    if (!(walletState.wallet && contractAddress && state?.userAddress && dispatch && bip44Params))
+    if (
+      !(
+        asset &&
+        walletState.wallet &&
+        contractAddress &&
+        state?.userAddress &&
+        dispatch &&
+        bip44Params
+      )
+    )
       return
     dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: true })
 
@@ -109,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice).times(`1e+${asset.precision}`).toString(),
         },
         value: bnOrZero(claimAmount).times(`1e+${asset.precision}`).toString(),
         action: StakingAction.Claim,
@@ -154,7 +162,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             fontSize='3xl'
             fontWeight='medium'
             value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
-            symbol={asset?.symbol}
+            symbol={asset.symbol}
           />
         </Stack>
       </Stack>
@@ -168,7 +176,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset?.explorerAddressLink}${accountId ?? state.userAddress}`}
+                href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
               >
                 {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
               </Link>

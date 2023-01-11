@@ -11,7 +11,7 @@ export type EarnOpportunityType = {
   type?: string
   provider: string
   version?: string
-  contractAddress: string
+  contractAddress?: string
   rewardAddress: string
   apy?: number | string
   tvl: string

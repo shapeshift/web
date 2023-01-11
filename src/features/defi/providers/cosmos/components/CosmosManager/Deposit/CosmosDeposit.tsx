@@ -91,8 +91,8 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId)
         if (!(walletState.wallet && contractAddress && chainAdapter && apr && bip44Params)) return
-
-        const address = await chainAdapter.getAddress({ bip44Params, wallet: walletState.wallet })
+        const { accountNumber } = bip44Params
+        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({

@@ -62,7 +62,6 @@ export const CardStyle = {
         bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props),
       },
     }),
     group: (props: Record<string, any>) => ({
@@ -77,7 +76,6 @@ export const CardStyle = {
       card: {
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props),
       },
       header: {
         borderBottomWidth: 1,
@@ -93,7 +91,6 @@ export const CardStyle = {
         bg: mode('white', 'gray.785')(props),
         borderWidth: 1,
         borderColor: mode('blackAlpha.50', 'gray.750')(props),
-        shadow: mode('base', 'lg')(props),
       },
       footer: {
         borderTopWidth: 1,

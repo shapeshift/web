@@ -1599,5 +1599,12 @@
       "title": "What is a Junior Tranche?",
       "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
     }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Buy Crypto with NO KYC",
+      "body": "Purchase up to $1,000 with Apple Pay",
+      "cta": "Buy Now"
+    }
   }
 }

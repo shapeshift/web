@@ -22,7 +22,7 @@ export const useAccountsService = () => {
   const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
 
   // Custom hooks
-  const { swapperSupportsCrossAccountTrade } = useSwapper()
+  const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
@@ -70,7 +70,10 @@ export const useAccountsService = () => {
     setValue(
       'buyAssetAccountId',
       // If the swapper does not support cross-account trades the buyAssetAccountId must match the sellAssetAccountId
-      swapperSupportsCrossAccountTrade ? buyAssetAccountId : sellAssetAccountId,
+      // If we don't have a swapper, we should not switch the buyAssetAccountId
+      swapperSupportsCrossAccountTrade || !bestTradeSwapper
+        ? buyAssetAccountId
+        : sellAssetAccountId,
     )
     // formBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
   }, [
@@ -79,5 +82,6 @@ export const useAccountsService = () => {
     setValue,
     swapperSupportsCrossAccountTrade,
     formBuyAssetAccountId,
+    bestTradeSwapper,
   ])
 }

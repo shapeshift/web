@@ -201,6 +201,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case cosmosChainId:
           case osmosisChainId:
             dispatch(getValidatorData.initiate(accountId, options))
+            fetchAllOpportunitiesUserData(accountId)
             break
           case avalancheChainId:
             fetchAllOpportunitiesUserData(accountId)

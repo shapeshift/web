@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.2...@shapeshiftoss/swapper-v15.3.3) (2023-01-11)
+
+
+### Bug Fixes
+
+* **swapper:** cache osmo pools endpoint ([#1161](https://github.com/shapeshift/lib/issues/1161)) ([3e150ee](https://github.com/shapeshift/lib/commit/3e150ee91b4cc44f618bd34725f778b9dc5fd0a3))
+
 # [@shapeshiftoss/swapper-v15.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.1...@shapeshiftoss/swapper-v15.3.2) (2023-01-11)
 
 

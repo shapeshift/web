@@ -229,10 +229,11 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   const stakingOpportunityId = accountIdToFeeAssetId(accountId)
 
-  if (!stakingOpportunityId) return // TODO(gomes)
+  if (!stakingOpportunityId)
+    throw new Error(`Cannot get stakingOpportunityId for accountId: ${accountId}`)
 
   const asset = selectAssetById(state, stakingOpportunityId)
-  if (!asset) return
+  if (!asset) throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
   const toAssetIdParts: ToAssetIdArgs = {
     assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
@@ -244,7 +245,10 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   const allPositions = await getThorchainSaversPositions(stakingOpportunityId)
 
-  if (!allPositions.length) return
+  if (!allPositions.length)
+    throw new Error(
+      `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
+    )
 
   const accountAddresses = await (async () => {
     if (isUtxoAccountId(accountId)) {
@@ -271,7 +275,14 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
   )
 
-  if (!accountPosition) return
+  // No position for that AccountId, which is actually valid - don't throw
+  if (!accountPosition)
+    return Promise.resolve({
+      data: {
+        byId: stakingOpportunitiesUserDataByUserStakingId,
+        type: opportunityType,
+      },
+    })
 
   const { asset_deposit_value, asset_redeem_value } = accountPosition
 

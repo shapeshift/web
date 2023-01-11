@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { USDC_PRECISION } from 'constants/constants'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -81,6 +81,10 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(`No-op. Won't fetch Yearn userStakingData for chainId: ${accountChainId}`)
+
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

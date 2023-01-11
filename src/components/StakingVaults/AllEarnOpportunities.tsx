@@ -10,7 +10,6 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
-import { useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -24,36 +23,11 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectFeatureFlags,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
-
-// TODO (gomes) delete this after we get resolvers setup
-
-const exampleSaverVault: EarnOpportunityType = {
-  contractAddress: '0xa354f35829ae975e850e23e9615b11da1b3dc4de',
-  apy: '0.02711977967163448',
-  assetId: 'eip155:1/erc20:0xa354f35829ae975e850e23e9615b11da1b3dc4de',
-  provider: 'THORChain Savers',
-  tvl: '36780518.043089',
-  type: 'staking',
-  underlyingAssetId: 'eip155:1/erc20:0xa354f35829ae975e850e23e9615b11da1b3dc4de',
-  version: '0.4.3',
-  expired: false,
-  rewardAddress: '0x1234',
-  chainId: 'eip155:1',
-  cryptoAmountPrecision: '0.721463',
-  cryptoAmountBaseUnit: '721463',
-  fiatAmount: '0.73911939776344621755',
-  isLoaded: true,
-  icons: [
-    'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  ],
-  opportunityName: 'USDC Vault',
-}
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
@@ -62,8 +36,6 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-
-  const { SaversVaults } = useSelector(selectFeatureFlags)
 
   const { data: foxyBalancesData } = useFoxyBalances()
 
@@ -112,8 +84,6 @@ export const AllEarnOpportunities = () => {
         !opportunity.expired ||
         (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
-    // TODO (gomes) delete this after we get resolvers setup
-    saversVaults: SaversVaults ? [exampleSaverVault] : [],
   })
 
   const filteredRows = useMemo(
@@ -129,7 +99,7 @@ export const AllEarnOpportunities = () => {
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
       const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
-      const { assetReference } = fromAssetId(assetId)
+      const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
       if (!isConnected && isDemoWallet) {
@@ -144,6 +114,7 @@ export const AllEarnOpportunities = () => {
           chainId,
           defaultAccountId,
           contractAddress,
+          assetNamespace,
           assetReference,
           highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
           rewardId: rewardAddress,

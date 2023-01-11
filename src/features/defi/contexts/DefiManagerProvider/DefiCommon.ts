@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -46,7 +46,8 @@ export type DefiQueryParams = {
   chainId: ChainId
   highestBalanceAccountAddress?: string
   contractAddress: string
-  assetReference: string
+  assetNamespace: AssetNamespace
+  assetReference: AssetReference
   rewardId: string
   modal: string
   provider: string

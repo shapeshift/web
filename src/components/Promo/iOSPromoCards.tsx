@@ -1,5 +1,5 @@
 import { Image } from '@chakra-ui/react'
-import { isIOS, isMacOs } from 'react-device-detect'
+import { isIOS } from 'react-device-detect'
 import OnRamperLogo from 'assets/on-ramper.png'
 
 import { PromoCard } from './PromoCard'
@@ -22,5 +22,5 @@ const promoData: PromoItem[] = [
 ]
 
 export const IOSPromoCards = () => {
-  return isIOS || isMacOs ? <PromoCard data={promoData} /> : null
+  return isIOS ? <PromoCard data={promoData} /> : null
 }

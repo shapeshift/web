@@ -1,20 +1,29 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
+import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { adapters, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { accountIdToFeeAssetId, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
+  GetOpportunityUserStakingDataOutput,
+  OpportunitiesState,
   OpportunityId,
   OpportunityMetadata,
   StakingId,
 } from '../../types'
-import type { OpportunitiesMetadataResolverInput } from '../types'
+import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunitiesUserDataResolverInput,
+} from '../types'
 
 type MidgardPoolResponse = {
   annualPercentageRate: string
@@ -36,11 +45,37 @@ type MidgardPoolResponse = {
   volume24h: string
 }
 
+type ThorchainSaverPositionResponse = {
+  asset: string
+  asset_address: string
+  last_add_height: number
+  units: string
+  asset_deposit_value: string
+  asset_redeem_value: string
+  growth_pct: string
+}
+
 const THOR_PRECISION = 8
 
 const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
     `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
+  )
+
+  if (!opportunitiesData) return []
+
+  return opportunitiesData
+}
+
+const getThorchainSaversPositions = async (
+  assetId: AssetId,
+): Promise<ThorchainSaverPositionResponse[]> => {
+  const poolId = adapters.assetIdToPoolAssetId({ assetId })
+
+  if (!poolId) return []
+
+  const { data: opportunitiesData } = await axios.get<ThorchainSaverPositionResponse[]>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
   )
 
   if (!opportunitiesData) return []
@@ -180,4 +215,80 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   return { data }
+}
+
+export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
+  opportunityType,
+  accountId,
+  reduxApi,
+}: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
+
+  const stakingOpportunityId = accountIdToFeeAssetId(accountId)
+
+  if (!stakingOpportunityId) return // TODO(gomes)
+
+  const asset = selectAssetById(state, stakingOpportunityId)
+  if (!asset) return
+
+  const toAssetIdParts: ToAssetIdArgs = {
+    assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+    assetReference: fromAssetId(stakingOpportunityId).assetReference,
+    chainId: fromAssetId(stakingOpportunityId).chainId,
+  }
+  const opportunityId = toOpportunityId(toAssetIdParts)
+  const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
+  const allPositions = await getThorchainSaversPositions(stakingOpportunityId)
+
+  if (!allPositions.length) return
+
+  const accountAddresses = await (async () => {
+    if (isUtxoAccountId(accountId)) {
+      const { chainId, account: pubkey } = fromAccountId(accountId)
+      const chainAdapters = getChainAdapterManager()
+      const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+      if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+
+      const {
+        chainSpecific: { addresses },
+      } = await adapter.getAccount(pubkey)
+
+      if (!addresses) return []
+
+      return addresses.map(address => address.pubkey)
+    }
+
+    return [fromAccountId(accountId).account]
+  })()
+
+  // TODO(gomes): This is wrong for UTXOs. We need to pass an address, not an AccountId
+  const accountPosition = allPositions.find(
+    ({ asset_address }) =>
+      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+  )
+
+  if (!accountPosition) return
+
+  const { asset_deposit_value, asset_redeem_value } = accountPosition
+
+  const stakedAmountCryptoBaseUnit = bnOrZero(asset_deposit_value).toFixed()
+  const rewardsAmountsCryptoBaseUnit = [
+    bnOrZero(asset_redeem_value).minus(asset_deposit_value).toFixed(),
+  ] as [string]
+
+  stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+    stakedAmountCryptoBaseUnit,
+    rewardsAmountsCryptoBaseUnit,
+  }
+
+  const data = {
+    byId: stakingOpportunitiesUserDataByUserStakingId,
+    type: opportunityType,
+  }
+
+  return Promise.resolve({ data })
 }

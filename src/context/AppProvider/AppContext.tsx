@@ -1,6 +1,16 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  bchChainId,
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  fromAccountId,
+  ltcChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import pull from 'lodash/pull'
@@ -182,9 +192,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {
+          case btcChainId:
+          case ltcChainId:
+          case dogeChainId:
+          case bchChainId:
+            fetchAllOpportunitiesUserData(accountId)
+            break
           case cosmosChainId:
           case osmosisChainId:
             dispatch(getValidatorData.initiate(accountId, options))
+            break
+          case avalancheChainId:
+            fetchAllOpportunitiesUserData(accountId)
             break
           case ethChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store

@@ -1,7 +1,6 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import OnRamperLogo from 'assets/on-ramper.png'
-import { IOSPromoCards } from 'components/Promo/iOSPromoCards'
 import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
@@ -30,7 +29,6 @@ export const DashboardSidebar = () => {
   const { EligibleEarn } = useSelector(selectFeatureFlags)
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      <IOSPromoCards />
       <PromoCard data={promoData} />
       {EligibleEarn && <EligibleCarousel display={{ base: 'none', md: 'flex' }} />}
       <TradeCard display={{ base: 'none', md: 'block' }} />

@@ -97,8 +97,15 @@ export const useSwapper = () => {
     selectBIP44ParamsByAccountId(state, sellAccountFilter),
   )
 
+  /*
+  Cross-account trading means trades that are either:
+    - Trades between assets on the same chain but different accounts
+    - Trades between assets on different chains (and possibly different accounts)
+
+   When adding a new swapper, ensure that `true` is returned here if either of the above apply.
+   */
   const swapperSupportsCrossAccountTrade = useMemo(() => {
-    if (!bestTradeSwapper) return false
+    if (!bestTradeSwapper) return undefined
     switch (bestTradeSwapper.name) {
       case SwapperName.Thorchain:
       case SwapperName.Osmosis:

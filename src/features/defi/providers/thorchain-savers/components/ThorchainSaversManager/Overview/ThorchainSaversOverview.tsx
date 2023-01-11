@@ -131,9 +131,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     .div(bnOrZero(opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat))
     .times(100)
     .toNumber()
-  const isCapUsed =
-    bnOrZero(opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat).gt(0) &&
-    bnOrZero(currentCapFillPercentage).eq(100)
 
   const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
     if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
@@ -165,8 +162,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(isCapUsed)
-  }, [earnOpportunityData, isCapUsed])
+    return makeDefaultMenu(opportunityMetadata?.opportunitySpecific?.isFull)
+  }, [earnOpportunityData, opportunityMetadata?.opportunitySpecific?.isFull])
 
   const renderVaultCap = useMemo(() => {
     return (

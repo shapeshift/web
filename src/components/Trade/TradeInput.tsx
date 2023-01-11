@@ -315,6 +315,7 @@ export const TradeInput = () => {
 
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
+    if (isSwapperApiPending) return 'common.loadingText'
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
       return [
@@ -369,6 +370,7 @@ export const TradeInput = () => {
     feesExceedsSellAmount,
     hasValidSellAmount,
     isBelowMinSellAmount,
+    isSwapperApiPending,
     isTradeQuotePending,
     isTradingActiveOnSellPool,
     quote?.feeData.networkFeeCryptoBaseUnit,

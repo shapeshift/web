@@ -306,6 +306,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
+      const ibcAccountNumber = parseInt(responseAccount.chainSpecific.accountNumber || '0')
+
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
       const { tradeId } = await performIbcTransfer(
@@ -317,6 +319,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         COSMO_OSMO_CHANNEL,
         feeData.fast.txFee,
         accountNumber,
+        ibcAccountNumber,
         sequence,
         gas,
         'uatom',
@@ -396,6 +399,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         buyAssetDenom,
         OSMO_COSMO_CHANNEL,
         '0',
+        accountNumber,
         ibcAccountNumber,
         ibcSequence,
         gas,

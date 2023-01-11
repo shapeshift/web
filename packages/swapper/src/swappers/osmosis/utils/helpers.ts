@@ -10,9 +10,21 @@ import {
   SwapErrorType,
   TradeResult,
 } from '../../../api'
+import { createCache } from '../../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { OSMOSIS_PRECISION } from './constants'
 import { IbcTransferInput, PoolInfo } from './types'
+
+// Create cached axios service for pools endpoint because it gets called a LOT
+const cache = createCache(3000, ['/osmosis/gamm/v1beta1/pools/'])
+const osmoPoolsService = axios.create({
+  timeout: 10000,
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  adapter: cache.adapter,
+})
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -115,11 +127,13 @@ export const pollForAtomChannelBalance = async (
 const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl: string) => {
   const sellAssetDenom = symbolDenomMapping[sellAssetSymbol as keyof SymbolDenomMapping]
   const buyAssetDenom = symbolDenomMapping[buyAssetSymbol as keyof SymbolDenomMapping]
-  const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
+  // pagination.limit can be small because we only care about the osmo/atom pool right now
+  // this will need to increase when adding new pools
+  const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=10'
 
   const poolsResponse = await (async () => {
     try {
-      return axios.get(poolsUrl)
+      return osmoPoolsService.get(poolsUrl)
     } catch (e) {
       throw new SwapError('failed to get pool', {
         code: SwapErrorType.POOL_NOT_FOUND,

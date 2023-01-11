@@ -20,10 +20,9 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
+import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
-import { FaGift, FaTwitter } from 'react-icons/fa'
+import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
@@ -40,12 +39,12 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const makeDefaultMenu = (isExpired?: boolean, isFull?: boolean): DefiButtonProps[] => [
-  ...(isExpired
+const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
+  ...(isFull
     ? []
     : [
         {
@@ -60,11 +59,6 @@ const makeDefaultMenu = (isExpired?: boolean, isFull?: boolean): DefiButtonProps
     icon: <ArrowDownIcon />,
     action: DefiAction.Withdraw,
   },
-  {
-    label: 'common.dust',
-    icon: <FaGift />,
-    action: DefiAction.SendDust,
-  },
 ]
 
 type OverviewProps = {
@@ -76,54 +70,32 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
 
   // Placeholder for cap amounts
   // If the cap limit is 0 we should hide these components as this should mean caps are disabled
+  // TODO(gomes): opportunity.savers_supply opportunitySpecific.max_savers_supply
   const capLimit = 500
   const capUsed = 250
   const capPercentaged = bnOrZero(capUsed).div(capLimit).times(100).toNumber()
   const isCapUsed = bnOrZero(capLimit).gt(0) && bnOrZero(capPercentaged).eq(100)
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-
-  const vaultTokenId = toAssetId({
+  const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: contractAddress,
+    assetReference,
   })
   const assets = useAppSelector(selectAssets)
-  const vaultAsset = useAppSelector(state => selectAssetById(state, vaultTokenId))
-  if (!vaultAsset) throw new Error(`Asset not found for AssetId ${vaultTokenId}`)
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  // user info
-  const balanceFilter = useMemo(
-    () => ({ accountId, assetId: vaultTokenId }),
-    [accountId, vaultTokenId],
-  )
-  // user info
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
-
-  const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(vaultAsset?.precision)),
-    [balance, vaultAsset?.precision],
-  )
-  const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
-    [cryptoAmountAvailable, marketData.price],
-  )
 
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -139,17 +111,32 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         (accountId ?? highestBalanceAccountId ?? defaultAccountId)!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
+          assetNamespace,
+          assetReference,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress, defaultAccountId, highestBalanceAccountId],
+    [accountId, assetNamespace, assetReference, chainId, defaultAccountId, highestBalanceAccountId],
   )
 
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
+
+  const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
+    if (!asset || !opportunityData?.underlyingAssetId) return '0'
+
+    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+      .div(bn(10).pow(asset.precision))
+      .toString()
+    const price = marketData.price
+    return bnOrZero(cryptoAmount).times(price).toString()
+  }, [
+    asset,
+    marketData,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.underlyingAssetId,
+  ])
 
   const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds?.[0],
@@ -159,47 +146,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     () => assets[underlyingAssetId ?? ''],
     [assets, underlyingAssetId],
   )
-  const underlyingAssets = useMemo(
-    () =>
-      underlyingAsset
-        ? [
-            {
-              ...underlyingAsset,
-              cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
-              allocationPercentage: '1',
-            },
-          ]
-        : [],
-    [cryptoAmountAvailable, underlyingAsset],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
-  const hasClaimBalance = useMemo(() => {
-    if (!opportunityData?.rewardAssetIds?.length) return false
-
-    return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
-    )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
-
   const menu: DefiButtonProps[] = useMemo(() => {
-    if (!(contractAddress && yearnInvestor && opportunityData))
-      return makeDefaultMenu(opportunityData?.expired, isCapUsed)
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length)
-      return makeDefaultMenu(opportunityData.expired, isCapUsed)
+    if (!opportunityData) return []
 
-    return [
-      ...makeDefaultMenu(opportunityData?.expired, isCapUsed),
-      {
-        icon: <FaGift />,
-        colorScheme: 'green',
-        label: 'common.claim',
-        variant: 'ghost-filled',
-        action: DefiAction.Claim,
-        isDisabled: !hasClaimBalance,
-        toolTip: translate('defi.modals.overview.noWithdrawals'),
-      },
-    ]
-  }, [contractAddress, yearnInvestor, opportunityData, isCapUsed, hasClaimBalance, translate])
+    return makeDefaultMenu(isCapUsed)
+  }, [opportunityData, isCapUsed])
 
   const renderVaultCap = useMemo(() => {
     return (
@@ -251,17 +206,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     )
   }
 
-  if (!underlyingAssets || !opportunityData) return null
+  if (!asset) return null
+  if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
 
   return (
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
-      asset={vaultAsset}
+      asset={asset}
       name={opportunityData.name ?? ''}
-      opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={underlyingAssets}
-      provider='Yearn Finance'
+      opportunityFiatBalance={underlyingAssetsFiatBalanceCryptoPrecision}
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
+      provider={DefiProvider.ThorchainSavers}
       description={{
         description: translate('defi.modals.saversVaults.description', {
           asset: underlyingAsset?.symbol ?? '',

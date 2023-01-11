@@ -295,6 +295,8 @@ export const buildTradeTx = async ({
 }) => {
   const responseAccount = await adapter.getAccount(osmoAddress)
 
+  // note - this is a cosmos sdk specific account_number, not a bip44Params accountNumber
+  const account_number = responseAccount.chainSpecific.accountNumber || '0'
   const sequence = responseAccount.chainSpecific.sequence || '0'
 
   const tx: Osmosis.StdTx = {
@@ -337,7 +339,7 @@ export const buildTradeTx = async ({
       tx,
       addressNList: toAddressNList(bip44Params),
       chain_id: CHAIN_REFERENCE.OsmosisMainnet,
-      account_number: accountNumber.toString(),
+      account_number,
       sequence,
     },
     wallet,

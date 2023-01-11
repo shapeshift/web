@@ -1,10 +1,11 @@
-import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { adapters, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
@@ -56,6 +57,31 @@ type ThorchainSaverPositionResponse = {
 }
 
 const THOR_PRECISION = 8
+
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
+  if (isUtxoAccountId(accountId)) {
+    const { chainId, account: pubkey } = fromAccountId(accountId)
+    const chainAdapters = getChainAdapterManager()
+    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+
+    const {
+      chainSpecific: { addresses },
+    } = await adapter.getAccount(pubkey)
+
+    if (!addresses) return []
+
+    return addresses.map(address =>
+      address.pubkey.startsWith('bitcoincash')
+        ? address.pubkey.replace('bitcoincash:', '')
+        : address.pubkey,
+    )
+  }
+
+  return [fromAccountId(accountId).account]
+})
 
 const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
@@ -253,28 +279,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   // Returns either
   // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
   // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
-  const accountAddresses = await (async () => {
-    if (isUtxoAccountId(accountId)) {
-      const { chainId, account: pubkey } = fromAccountId(accountId)
-      const chainAdapters = getChainAdapterManager()
-      const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-      if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-
-      const {
-        chainSpecific: { addresses },
-      } = await adapter.getAccount(pubkey)
-
-      if (!addresses) return []
-
-      return addresses.map(address =>
-        address.pubkey.startsWith('bitcoincash')
-          ? address.pubkey.replace('bitcoincash:', '')
-          : address.pubkey,
-      )
-    }
-
-    return [fromAccountId(accountId).account]
-  })()
+  const accountAddresses = await getAccountAddresses(accountId)
 
   // TODO(gomes): This is wrong for UTXOs. We need to pass an address, not an AccountId
   const accountPosition = allPositions.find(

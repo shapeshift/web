@@ -88,13 +88,15 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
+          provider: DefiProvider.Idle as const,
+          type: DefiType.Staking as const,
         }
       : {
           apy: opportunity.apy.toFixed(),
           assetId,
           provider: DefiProvider.Idle,
           tvl: opportunity.tvl.balance.toFixed(),
-          type: DefiType.Staking,
+          type: DefiType.Staking as const,
           underlyingAssetId: assetId,
           underlyingAssetIds: [opportunity.underlyingAsset.assetId],
           ...{

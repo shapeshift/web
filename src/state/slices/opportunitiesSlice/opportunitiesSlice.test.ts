@@ -39,7 +39,7 @@ describe('opportunitiesSlice', () => {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxEthLP,
+              provider: DefiProvider.FoxFarming,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -64,7 +64,7 @@ describe('opportunitiesSlice', () => {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxEthLP,
+              provider: DefiProvider.FoxFarming,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,
@@ -87,7 +87,7 @@ describe('opportunitiesSlice', () => {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
-              provider: DefiProvider.FoxEthLP,
+              provider: DefiProvider.FoxFarming,
               tvl: '424242',
               apy: '0.42',
               type: DefiType.LiquidityPool,

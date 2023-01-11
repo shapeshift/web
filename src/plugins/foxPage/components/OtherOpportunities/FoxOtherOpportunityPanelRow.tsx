@@ -83,10 +83,8 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
-          // TODO: Tighten DeFiProvider in EarnOpportunityType
-          // FoxFarming is really the only one we should need to identify ETH/FOX LP/Staking
-          // This is stemming from the old implementation that was using 2 different providers vs. 2 diff. types
-          provider: earnOpportunity.type === 'lp' ? DefiProvider.FoxEthLP : DefiProvider.FoxFarming,
+          type: earnOpportunity.type,
+          provider: DefiProvider.FoxFarming,
           chainId,
           contractAddress,
           assetReference: earnOpportunity.underlyingAssetId

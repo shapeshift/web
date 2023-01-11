@@ -85,6 +85,7 @@ export const OpportunityCard = ({
         pathname: '/defi',
         search: qs.stringify({
           provider,
+          type,
           chainId,
           highestBalanceAccountAddress,
           contractAddress,

@@ -79,7 +79,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
     const { assetReference, assetNamespace } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -96,6 +96,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
         rewardId: rewardAddress,
         provider,
+        type,
         modal: 'overview',
       }),
       state: { background: location },

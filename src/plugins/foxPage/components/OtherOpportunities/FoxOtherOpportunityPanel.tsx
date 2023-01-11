@@ -6,6 +6,7 @@ import {
   AccordionPanel,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -15,7 +16,7 @@ import { FoxOtherOpportunityPanelRow } from './FoxOtherOpportunityPanelRow'
 type FoxOtherOpportunityPanelProps = {
   opportunities: ExternalOpportunity[]
   title: string
-  type: OpportunityTypes
+  type: OpportunityTypes | DefiType
 }
 
 export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> = ({

@@ -98,7 +98,7 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
@@ -110,6 +110,7 @@ export const AllEarnOpportunities = () => {
       history.push({
         pathname: `/defi/earn`,
         search: qs.stringify({
+          type,
           provider,
           chainId,
           defaultAccountId,

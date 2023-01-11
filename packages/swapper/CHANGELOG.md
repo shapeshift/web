@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.1...@shapeshiftoss/swapper-v15.3.2) (2023-01-11)
+
+
+### Bug Fixes
+
+* cosmos account number ([#1160](https://github.com/shapeshift/lib/issues/1160)) ([d76ceaa](https://github.com/shapeshift/lib/commit/d76ceaab080cd5194f7220e6ae66bc8eceb3bf92))
+
 # [@shapeshiftoss/swapper-v15.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.0...@shapeshiftoss/swapper-v15.3.1) (2023-01-11)
 
 

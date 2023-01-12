@@ -127,9 +127,8 @@ export const pollForAtomChannelBalance = async (
 const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl: string) => {
   const sellAssetDenom = symbolDenomMapping[sellAssetSymbol as keyof SymbolDenomMapping]
   const buyAssetDenom = symbolDenomMapping[buyAssetSymbol as keyof SymbolDenomMapping]
-  // pagination.limit can be small because we only care about the osmo/atom pool right now
-  // this will need to increase when adding new pools
-  const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=10'
+
+  const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
 
   const poolsResponse = await (async () => {
     try {

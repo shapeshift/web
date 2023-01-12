@@ -70,7 +70,8 @@ export const useAccountsService = () => {
     setValue(
       'buyAssetAccountId',
       /*
-        This is extremely dangerous. We only want to do this if we have a swapper, and that swapper does not do either of:
+        This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
+        if we have a swapper, and that swapper does not do either of:
           - Trades between assets on the same chain but different accounts
           - Trades between assets on different chains (and possibly different accounts)
        */

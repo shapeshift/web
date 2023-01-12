@@ -67,18 +67,16 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: (_, { getState }) => {
-        const { OsmosisSend, OsmosisStaking, OsmosisSwap, OsmosisLP } = selectFeatureFlags(
-          getState() as ReduxState,
-        )
-
+        const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
+            if (!flags.Optimism) return prev
             if (
-              !OsmosisSend &&
-              !OsmosisStaking &&
-              !OsmosisSwap &&
-              !OsmosisLP &&
+              !flags.OsmosisSend &&
+              !flags.OsmosisStaking &&
+              !flags.OsmosisSwap &&
+              !flags.OsmosisLP &&
               asset.chainId === osmosisChainId
             )
               return prev

@@ -13,6 +13,7 @@ export default function register(): Plugins {
       'optimismChainAdapter',
       {
         name: 'optimismChainAdapter',
+        featureFlag: ['Optimism'],
         providers: {
           chainAdapters: [
             [

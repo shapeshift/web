@@ -20,13 +20,12 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 import {
+  fromThorBaseUnit,
   getAccountAddresses,
   getMidgardPools,
   getThorchainPools,
   getThorchainSaversPositions,
 } from './utils'
-
-const THOR_PRECISION = 8
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -108,20 +107,16 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     const apy = bnOrZero(
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
-    const tvl = bnOrZero(thorchainPool.savers_units)
-      .div(bn(10).pow(THOR_PRECISION))
-      .times(marketData.price)
-      .toFixed()
+    const tvl = fromThorBaseUnit(thorchainPool.savers_units).times(marketData.price).toFixed()
     // NOT the same as the TVL:
     // - TVL is the fiat total of assets locked
     // - supply is the fiat total of assets locked, including the accrued value, accounting in the max. cap
-    const saversSupplyIncludeAccruedFiat = bnOrZero(thorchainPool.savers_depth)
-      .div(bn(10).pow(THOR_PRECISION))
+    const saversSupplyIncludeAccruedFiat = fromThorBaseUnit(thorchainPool.savers_depth)
       .times(marketData.price)
       .toFixed()
-    const saversMaxSupplyFiat = bnOrZero(thorchainPool.synth_supply)
-      .plus(thorchainPool.synth_supply_remaining)
-      .div(bn(10).pow(THOR_PRECISION))
+    const saversMaxSupplyFiat = fromThorBaseUnit(
+      bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
+    )
       .times(marketData.price)
       .toFixed()
 
@@ -207,13 +202,13 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   const { asset_deposit_value, asset_redeem_value } = accountPosition
 
-  const stakedAmountCryptoBaseUnit = bnOrZero(asset_deposit_value)
-    .div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
-    .times(bn(10).pow(asset.precision)) // to actual asset precision base unit
+  const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
+    bn(10).pow(asset.precision),
+  ) // to actual asset precision base unit
 
-  const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(asset_redeem_value)
-    .div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
-    .times(bn(10).pow(asset.precision)) // to actual asset precision base unit
+  const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
+    bn(10).pow(asset.precision),
+  ) // to actual asset precision base unit
 
   const rewardsAmountsCryptoBaseUnit = [
     stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),

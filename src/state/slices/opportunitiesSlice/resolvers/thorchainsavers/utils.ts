@@ -6,9 +6,14 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber, BN } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type { MidgardPoolResponse, ThorchainSaverPositionResponse } from './types'
+
+const THOR_PRECISION = 8
+
 // Memoized on accountId, see lodash docs:
 // "By default, the first argument provided to the memoized function is used as the map cache key."
 export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
@@ -69,3 +74,6 @@ export const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
 
   return poolsData
 }
+
+export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
+  bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit

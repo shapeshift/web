@@ -19,7 +19,6 @@ import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
-  DefiType,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
@@ -32,7 +31,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { OpportunityMetadata, StakingId } from 'state/slices/opportunitiesSlice/types'
+import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -123,12 +123,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const opportunityMetadata = useMemo(
     () => opportunitiesMetadata[assetId as StakingId],
     [assetId, opportunitiesMetadata],
-  ) as OpportunityMetadata<DefiProvider.ThorchainSavers, DefiType.Staking> | undefined
+  ) as ThorchainSaversStakingSpecificMetadata | undefined
 
-  const currentCapFillPercentage = bnOrZero(
-    opportunityMetadata?.opportunitySpecific?.saversSupplyIncludeAccruedFiat,
-  )
-    .div(bnOrZero(opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat))
+  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.saversSupplyIncludeAccruedFiat)
+    .div(bnOrZero(opportunityMetadata?.saversMaxSupplyFiat))
     .times(100)
     .toNumber()
 
@@ -162,8 +160,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(opportunityMetadata?.opportunitySpecific?.isFull)
-  }, [earnOpportunityData, opportunityMetadata?.opportunitySpecific?.isFull])
+    return makeDefaultMenu(opportunityMetadata?.isFull)
+  }, [earnOpportunityData, opportunityMetadata?.isFull])
 
   const renderVaultCap = useMemo(() => {
     return (
@@ -173,11 +171,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             <Text fontWeight='medium' translation='defi.modals.saversVaults.vaultCap' />
           </HelperTooltip>
           <Flex gap={1}>
+            <Amount.Fiat value={opportunityMetadata?.saversSupplyIncludeAccruedFiat ?? 0} />
             <Amount.Fiat
-              value={opportunityMetadata?.opportunitySpecific?.saversSupplyIncludeAccruedFiat ?? 0}
-            />
-            <Amount.Fiat
-              value={opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat ?? 0}
+              value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
               prefix='/'
               color='gray.500'
             />
@@ -214,8 +210,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }, [
     alertBg,
     currentCapFillPercentage,
-    opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat,
-    opportunityMetadata?.opportunitySpecific?.saversSupplyIncludeAccruedFiat,
+    opportunityMetadata?.saversMaxSupplyFiat,
+    opportunityMetadata?.saversSupplyIncludeAccruedFiat,
     translate,
     underlyingAsset?.symbol,
   ])
@@ -251,9 +247,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       apy={earnOpportunityData.apy}
       menu={menu}
       postChildren={
-        bnOrZero(opportunityMetadata?.opportunitySpecific?.saversMaxSupplyFiat).gt(0)
-          ? renderVaultCap
-          : null
+        bnOrZero(opportunityMetadata?.saversMaxSupplyFiat).gt(0) ? renderVaultCap : null
       }
     />
   )

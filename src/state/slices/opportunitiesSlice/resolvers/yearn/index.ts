@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { USDC_PRECISION } from 'constants/constants'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -11,6 +11,8 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -21,7 +23,9 @@ import type {
 export const yearnStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -33,7 +37,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {
@@ -57,7 +61,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,
       expired: opportunity.expired,
@@ -77,6 +81,10 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(`No-op. Won't fetch Yearn userStakingData for chainId: ${accountChainId}`)
+
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

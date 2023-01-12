@@ -50,7 +50,6 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
 
@@ -67,7 +66,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
     [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset?.precision)),
+    () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset?.precision ?? 18)),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
   )
   const totalFiatBalance = opportunity?.fiatAmount
@@ -100,7 +99,7 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
       payload: { lpAmount: amountAvailableCryptoPrecision.toString(), isExiting: true },
     })
     const lpAllowance = await allowance()
-    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
+    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset?.precision ?? 18))
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
     if (allowanceAmount.gte(amountAvailableCryptoPrecision)) {
@@ -140,6 +139,8 @@ export const ExpiredWithdraw: React.FC<StepComponentProps> = ({ onNext }) => {
   }
 
   const handleCancel = browserHistory.goBack
+
+  if (!asset) return null
 
   return (
     <FormProvider {...methods}>

@@ -34,7 +34,6 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  OpportunitiesState,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
@@ -44,7 +43,9 @@ export const foxFarmingLpMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const { dispatch, getState } = reduxApi
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const state: any = getState() // ReduxState causes circular dependency
@@ -115,20 +116,21 @@ export const foxFarmingLpMetadataResolver = async ({
       [opportunityId]: {
         apy,
         assetId: opportunityId,
-        provider: DefiProvider.FoxEthLP,
+        provider: DefiProvider.FoxFarming,
         tvl,
         type: DefiType.LiquidityPool,
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [
+        underlyingAssetRatiosBaseUnit: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
         name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
-    } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
+    },
+
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }
@@ -137,7 +139,9 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -207,10 +211,10 @@ export const foxFarmingStakingMetadataResolver = async ({
         assetId: opportunityId,
         provider: DefiProvider.FoxFarming,
         tvl,
-        type: DefiType.Farming,
+        type: DefiType.Staking,
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [
+        underlyingAssetRatiosBaseUnit: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
@@ -218,9 +222,9 @@ export const foxFarmingStakingMetadataResolver = async ({
         name: 'Fox Farming',
         version,
       },
-    } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
+    },
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }

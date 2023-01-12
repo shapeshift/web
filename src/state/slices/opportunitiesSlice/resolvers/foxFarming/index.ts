@@ -111,7 +111,7 @@ export const foxFarmingLpMetadataResolver = async ({
     )
   })
 
-  const data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.LiquidityPool> = {
+  const data = {
     byId: {
       [opportunityId]: {
         apy,
@@ -130,7 +130,7 @@ export const foxFarmingLpMetadataResolver = async ({
     },
 
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }
@@ -204,7 +204,7 @@ export const foxFarmingStakingMetadataResolver = async ({
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
   const version = STAKING_ID_TO_VERSION[opportunityId]
 
-  const data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.Staking> = {
+  const data = {
     byId: {
       [opportunityId]: {
         apy,
@@ -224,7 +224,7 @@ export const foxFarmingStakingMetadataResolver = async ({
       },
     },
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }

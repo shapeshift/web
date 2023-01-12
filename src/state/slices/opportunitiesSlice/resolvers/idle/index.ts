@@ -39,7 +39,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   })()
 
   if (!opportunities?.length) {
-    const data: GetOpportunityMetadataOutput<DefiProvider.Idle, DefiType.Staking> = {
+    const data = {
       byId: Object.fromEntries(
         Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
           opportunityId,
@@ -47,7 +47,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
         ]),
       ),
       type: opportunityType,
-    }
+    } as const
 
     return {
       data,

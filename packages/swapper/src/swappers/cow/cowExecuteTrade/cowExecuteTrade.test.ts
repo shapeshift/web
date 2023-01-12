@@ -28,6 +28,8 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
     ...actualChainAdapters,
     ethereum: {
       ChainAdapter: {
+        // TODO: test account 0+
+        getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
         defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
         signMessage: jest.fn(() => Promise.resolve(Signature)),
       },

@@ -1,5 +1,5 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { ethereum, SignMessageInput, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { SignMessageInput, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { AxiosResponse } from 'axios'
@@ -34,6 +34,7 @@ export async function cowExecuteTrade(
     buyAsset,
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
+    accountNumber,
   } = cowTrade
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
@@ -81,7 +82,7 @@ export async function cowExecuteTrade(
     // For more info, check hashOrder method implementation
     const orderDigest = hashOrder(domain(1, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
 
-    const bip44Params = ethereum.ChainAdapter.defaultBIP44Params
+    const bip44Params = adapter.getBIP44Params({ accountNumber })
     const message: SignMessageInput<ETHSignMessage> = {
       messageToSign: {
         addressNList: toAddressNList(bip44Params),

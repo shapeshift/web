@@ -97,7 +97,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata<DefiProvider, DefiType>>
+    byId: PartialRecord<LpId, OpportunityMetadata>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -110,7 +110,7 @@ export type OpportunitiesState = {
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
     byAccountId: PartialRecord<AccountId, StakingId[]>
-    byId: PartialRecord<StakingId, OpportunityMetadata<DefiProvider, DefiType>>
+    byId: PartialRecord<StakingId, OpportunityMetadata>
     ids: StakingId[]
   }
 }
@@ -156,7 +156,7 @@ export type GetOpportunityUserStakingDataOutput = {
 
 export type GetOpportunityIdsOutput = OpportunityId[]
 
-export type StakingEarnOpportunityType = OpportunityMetadata<DefiProvider, DefiType> & {
+export type StakingEarnOpportunityType = OpportunityMetadata & {
   stakedAmountCryptoBaseUnit?: string
   rewardsAmountsCryptoBaseUnit?:
     | readonly [string, string, string]

@@ -174,7 +174,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formData)
+    await result.current.handleFormSend(formData)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -224,7 +224,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddress)
+    await result.current.handleFormSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -269,7 +269,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formData)
+    await result.current.handleFormSend(formData)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -319,7 +319,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddress)
+    await result.current.handleFormSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -358,7 +358,7 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    await expect(result.current.handleSend(formData)).rejects.toThrow()
+    await expect(result.current.handleFormSend(formData)).rejects.toThrow()
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
   })

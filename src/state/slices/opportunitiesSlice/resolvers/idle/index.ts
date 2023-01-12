@@ -39,16 +39,18 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   })()
 
   if (!opportunities?.length) {
+    const data: GetOpportunityMetadataOutput<DefiProvider.Idle, DefiType.Staking> = {
+      byId: Object.fromEntries(
+        Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
+          opportunityId,
+          { ...opportunityMetadata, apy: '0', tvl: '0' },
+        ]),
+      ),
+      type: opportunityType,
+    }
+
     return {
-      data: {
-        byId: Object.fromEntries(
-          Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
-            opportunityId,
-            { ...opportunityMetadata, apy: '0', tvl: '0' },
-          ]),
-        ) as Partial<Record<StakingId, OpportunityMetadata<DefiProvider.Idle, DefiType.Staking>>>,
-        type: opportunityType,
-      },
+      data,
     }
   }
 

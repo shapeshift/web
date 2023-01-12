@@ -37,8 +37,9 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: Partial<
-    Record<StakingId, OpportunityMetadata<DefiProvider.Yearn, DefiType.Staking>>
+  const stakingOpportunitiesById: Record<
+    StakingId,
+    OpportunityMetadata<DefiProvider.Yearn, DefiType.Staking>
   > = {}
 
   for (const opportunity of opportunities) {

@@ -113,14 +113,14 @@ export const foxFarmingLpMetadataResolver = async ({
     )
   })
 
-  const data = {
+  const data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.LiquidityPool> = {
     byId: {
       [opportunityId]: {
         apy,
         assetId: opportunityId,
-        provider: DefiProvider.FoxFarming as const,
+        provider: DefiProvider.FoxFarming,
         tvl,
-        type: DefiType.LiquidityPool as const,
+        type: DefiType.LiquidityPool,
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatios: [
@@ -129,9 +129,8 @@ export const foxFarmingLpMetadataResolver = async ({
         ] as const,
         name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
-    } as Partial<
-      Record<LpId, OpportunityMetadata<DefiProvider.FoxFarming, DefiType.LiquidityPool>>
-    >,
+    },
+
     type: opportunityType,
   }
 

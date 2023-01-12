@@ -116,8 +116,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     throw new Error('Error fetching THORChain pools')
   }
 
-  const stakingOpportunitiesById: Partial<
-    Record<StakingId, OpportunityMetadata<DefiProvider.ThorchainSavers, DefiType.Staking>>
+  const stakingOpportunitiesById: Record<
+    StakingId,
+    OpportunityMetadata<DefiProvider.ThorchainSavers, DefiType.Staking>
   > = {}
 
   for (const thorchainPool of thorchainPools) {

@@ -7,7 +7,7 @@ import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type { MidgardPoolResponse, ThorchainSaverPositionResponse } from './types'

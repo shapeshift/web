@@ -77,7 +77,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   // Placeholder for cap amounts
   // If the cap limit is 0 we should hide these components as this should mean caps are disabled
-  // TODO(gomes): opportunity.savers_supply opportunitySpecific.max_savers_supply
   const capLimit = 500
   const capUsed = 250
   const capPercentaged = bnOrZero(capUsed).div(capLimit).times(100).toNumber()

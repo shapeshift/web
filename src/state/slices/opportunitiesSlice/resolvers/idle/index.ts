@@ -27,7 +27,9 @@ const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'i
 export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -37,23 +39,25 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   })()
 
   if (!opportunities?.length) {
+    const data = {
+      byId: Object.fromEntries(
+        Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
+          opportunityId,
+          { ...opportunityMetadata, apy: '0', tvl: '0' },
+        ]),
+      ),
+      type: opportunityType,
+    } as const
+
     return {
-      data: {
-        byId: Object.fromEntries(
-          Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
-            opportunityId,
-            { ...opportunityMetadata, apy: '0', tvl: '0' },
-          ]),
-        ) as Partial<Record<StakingId, OpportunityMetadata>>,
-        type: opportunityType,
-      },
+      data,
     }
   }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {
@@ -88,15 +92,15 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
-          provider: DefiProvider.Idle as const,
-          type: DefiType.Staking as const,
+          provider: DefiProvider.Idle,
+          type: DefiType.Staking,
         }
       : {
           apy: opportunity.apy.toFixed(),
           assetId,
           provider: DefiProvider.Idle,
           tvl: opportunity.tvl.balance.toFixed(),
-          type: DefiType.Staking as const,
+          type: DefiType.Staking,
           underlyingAssetId: assetId,
           underlyingAssetIds: [opportunity.underlyingAsset.assetId],
           ...{

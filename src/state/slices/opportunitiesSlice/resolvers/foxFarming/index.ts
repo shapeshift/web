@@ -34,7 +34,6 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  OpportunitiesState,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
@@ -44,7 +43,9 @@ export const foxFarmingLpMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const { dispatch, getState } = reduxApi
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
   const state: any = getState() // ReduxState causes circular dependency
@@ -126,9 +127,10 @@ export const foxFarmingLpMetadataResolver = async ({
         ] as const,
         name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
       },
-    } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
+    },
+
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }
@@ -137,7 +139,9 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,
   reduxApi,
-}: OpportunityMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunityMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
@@ -218,9 +222,9 @@ export const foxFarmingStakingMetadataResolver = async ({
         name: 'Fox Farming',
         version,
       },
-    } as OpportunitiesState[DefiType.LiquidityPool]['byId'],
+    },
     type: opportunityType,
-  }
+  } as const
 
   return { data }
 }

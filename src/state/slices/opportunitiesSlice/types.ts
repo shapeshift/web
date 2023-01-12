@@ -4,6 +4,8 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
+import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
 
 export type AssetIdsTuple =
@@ -12,7 +14,7 @@ export type AssetIdsTuple =
   | readonly [AssetId]
   | readonly []
 
-export type OpportunityMetadata = {
+export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
   provider: DefiProvider
@@ -40,6 +42,8 @@ export type OpportunityMetadata = {
   tags?: string[]
 }
 
+export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
+
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
@@ -64,7 +68,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata>
+    byId: PartialRecord<LpId, OpportunityMetadataBase>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -77,7 +81,7 @@ export type OpportunitiesState = {
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
     byAccountId: PartialRecord<AccountId, StakingId[]>
-    byId: PartialRecord<StakingId, OpportunityMetadata>
+    byId: PartialRecord<StakingId, OpportunityMetadataBase>
     ids: StakingId[]
   }
 }
@@ -106,7 +110,7 @@ export type GetOpportunityIdsInput = {
 }
 
 export type GetOpportunityMetadataOutput = {
-  byId: OpportunitiesState[OpportunityDefiType]['byId']
+  byId: Record<OpportunityId, OpportunityMetadata>
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {

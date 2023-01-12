@@ -159,7 +159,7 @@ describe('opportunitiesSlice selectors', () => {
       type: DefiType.LiquidityPool,
       underlyingAssetId: foxEthLpAssetId,
       underlyingAssetIds: [foxAssetId, ethAssetId] as [AssetId, AssetId],
-      underlyingAssetRatiosBaseUnitBaseUnit: ['5000000000000000', '202200000000000000000'] as [
+      underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [
         string,
         string,
       ],
@@ -257,7 +257,10 @@ describe('opportunitiesSlice selectors', () => {
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
           underlyingAssetId: foxEthLpAssetId,
-          underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [string, string],
+          underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [
+            string,
+            string,
+          ],
         },
       },
       ids: [mockStakingContractTwo],
@@ -347,7 +350,10 @@ describe('opportunitiesSlice selectors', () => {
           type: DefiType.LiquidityPool,
           underlyingAssetId: foxEthLpAssetId,
           underlyingAssetIds: foxEthPair,
-          underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [string, string],
+          underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [
+            string,
+            string,
+          ],
           rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
           stakedAmountCryptoBaseUnit: '1437',
         })

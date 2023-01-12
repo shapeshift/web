@@ -1,14 +1,8 @@
-import type { AccountId, AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { adapters, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
-import axios from 'axios'
-import { getConfig } from 'config'
+import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import memoize from 'lodash/memoize'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { accountIdToFeeAssetId, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 
 import type {
@@ -25,99 +19,14 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
-
-type MidgardPoolResponse = {
-  annualPercentageRate: string
-  asset: string
-  assetDepth: string
-  assetPrice: string
-  assetPriceUSD: string
-  liquidityUnits: string
-  nativeDecimal: string
-  poolAPY: string
-  runeDepth: string
-  saversAPR: string
-  saversDepth: string
-  saversUnits: string
-  status: string
-  synthSupply: string
-  synthUnits: string
-  units: string
-  volume24h: string
-}
-
-type ThorchainSaverPositionResponse = {
-  asset: string
-  asset_address: string
-  last_add_height: number
-  units: string
-  asset_deposit_value: string
-  asset_redeem_value: string
-  growth_pct: string
-}
+import {
+  getAccountAddresses,
+  getMidgardPools,
+  getThorchainPools,
+  getThorchainSaversPositions,
+} from './utils'
 
 const THOR_PRECISION = 8
-
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
-  if (isUtxoAccountId(accountId)) {
-    const { chainId, account: pubkey } = fromAccountId(accountId)
-    const chainAdapters = getChainAdapterManager()
-    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
-
-    const {
-      chainSpecific: { addresses },
-    } = await adapter.getAccount(pubkey)
-
-    if (!addresses) return []
-
-    return addresses.map(address =>
-      address.pubkey.startsWith('bitcoincash')
-        ? address.pubkey.replace('bitcoincash:', '')
-        : address.pubkey,
-    )
-  }
-
-  return [fromAccountId(accountId).account]
-})
-
-const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
-  const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
-  )
-
-  if (!opportunitiesData) return []
-
-  return opportunitiesData
-}
-
-const getThorchainSaversPositions = async (
-  assetId: AssetId,
-): Promise<ThorchainSaverPositionResponse[]> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId })
-
-  if (!poolId) return []
-
-  const { data: opportunitiesData } = await axios.get<ThorchainSaverPositionResponse[]>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolId}/savers`,
-  )
-
-  if (!opportunitiesData) return []
-
-  return opportunitiesData
-}
-
-const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
-  const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
-  )
-
-  if (!poolsData) return []
-
-  return poolsData
-}
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput

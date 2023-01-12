@@ -24,7 +24,7 @@ export type ExternalOpportunity = {
 }
 
 export type OpportunitiesBucket = {
-  type: OpportunityTypes
+  type: OpportunityTypes | DefiType
   title: string
   opportunities: ExternalOpportunity[]
 }

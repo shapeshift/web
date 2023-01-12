@@ -626,7 +626,7 @@
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
-      "tradingNotActive": "Trading currently halted for %{assetSymbol}",
+      "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -1636,6 +1636,13 @@
     "juniorTranche": {
       "title": "What is a Junior Tranche?",
       "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Buy Crypto with NO KYC",
+      "body": "Purchase up to $1,000 with Apple Pay",
+      "cta": "Buy Now"
     }
   }
 }

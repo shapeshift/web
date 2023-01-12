@@ -69,8 +69,12 @@ export const useAccountsService = () => {
   useEffect(() => {
     setValue(
       'buyAssetAccountId',
-      // If the swapper does not support cross-account trades the buyAssetAccountId must match the sellAssetAccountId
-      // If we don't have a swapper, we should not switch the buyAssetAccountId
+      /*
+        This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
+        if we have a swapper, and that swapper does not do either of:
+          - Trades between assets on the same chain but different accounts
+          - Trades between assets on different chains (and possibly different accounts)
+       */
       swapperSupportsCrossAccountTrade || !bestTradeSwapper
         ? buyAssetAccountId
         : sellAssetAccountId,

@@ -91,7 +91,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
-  data: GetOpportunityMetadataOutput<DefiProvider.ThorchainSavers, DefiType.Staking>
+  data: GetOpportunityMetadataOutput
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -116,10 +116,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     throw new Error('Error fetching THORChain pools')
   }
 
-  const stakingOpportunitiesById: Record<
-    StakingId,
-    OpportunityMetadata<DefiProvider.ThorchainSavers, DefiType.Staking>
-  > = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of thorchainPools) {
     const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
@@ -170,10 +167,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatios: ['1'],
       name: `${underlyingAsset.symbol} Vault`,
-      opportunitySpecific: {
-        saversSupplyIncludeAccruedFiat,
-        saversMaxSupplyFiat,
-      },
+      saversSupplyIncludeAccruedFiat,
+      saversMaxSupplyFiat,
     }
   }
 

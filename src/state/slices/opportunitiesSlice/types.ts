@@ -1,9 +1,10 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { UnionMerge } from '@shapeshiftoss/types'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
+
+import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
 
@@ -13,44 +14,12 @@ export type AssetIdsTuple =
   | readonly [AssetId]
   | readonly []
 
-export declare type OpportunitySpecific<T, U, V> = UnionMerge<
-  T extends unknown
-    ? T extends keyof V
-      ? U extends unknown
-        ? U extends keyof V[T]
-          ? {
-              opportunitySpecific: V[T][U]
-            }
-          : undefined
-        : never
-      : undefined
-    : never
->
-type OpportunitySpecificMetadata<
-  T extends DefiProvider = DefiProvider,
-  U extends DefiType = DefiType,
-> = OpportunitySpecific<
-  T,
-  U,
-  {
-    [DefiProvider.ThorchainSavers]: {
-      [DefiType.Staking]: {
-        saversSupplyIncludeAccruedFiat: string
-        saversMaxSupplyFiat: string
-      }
-    }
-  }
->
-
-export type OpportunityMetadata<
-  T extends DefiProvider = DefiProvider,
-  U extends DefiType = DefiType,
-> = {
+export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
-  provider: T
+  provider: DefiProvider
   tvl: string
-  type: U
+  type: DefiType
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   // Which might or might not be the same as the AssetId, e.g
@@ -71,7 +40,9 @@ export type OpportunityMetadata<
   name?: string
   version?: string
   tags?: string[]
-} & OpportunitySpecificMetadata<T, U>
+}
+
+export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
 
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
@@ -97,7 +68,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata>
+    byId: PartialRecord<LpId, OpportunityMetadataBase>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -110,7 +81,7 @@ export type OpportunitiesState = {
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
     byAccountId: PartialRecord<AccountId, StakingId[]>
-    byId: PartialRecord<StakingId, OpportunityMetadata>
+    byId: PartialRecord<StakingId, OpportunityMetadataBase>
     ids: StakingId[]
   }
 }
@@ -138,11 +109,8 @@ export type GetOpportunityIdsInput = {
   defiProvider: DefiProvider
 }
 
-export type GetOpportunityMetadataOutput<
-  T extends DefiProvider = DefiProvider,
-  U extends DefiType = DefiType,
-> = {
-  byId: Record<OpportunityId, OpportunityMetadata<T, U>>
+export type GetOpportunityMetadataOutput = {
+  byId: Record<OpportunityId, OpportunityMetadata>
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {

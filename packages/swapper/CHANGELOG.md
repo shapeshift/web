@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.3...@shapeshiftoss/swapper-v15.4.0) (2023-01-12)
+
+
+### Features
+
+* **swapper:** add multi-account support to CoW Swap ([#1162](https://github.com/shapeshift/lib/issues/1162)) ([c6d396e](https://github.com/shapeshift/lib/commit/c6d396e816d90b314dc03594eb7acda6b47f32b2))
+
 # [@shapeshiftoss/swapper-v15.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.2...@shapeshiftoss/swapper-v15.3.3) (2023-01-11)
 
 

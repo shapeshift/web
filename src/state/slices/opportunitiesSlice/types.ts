@@ -142,9 +142,7 @@ export type GetOpportunityMetadataOutput<
   T extends DefiProvider = DefiProvider,
   U extends DefiType = DefiType,
 > = {
-  byId: Partial<
-    Record<DefiType extends DefiType.Staking ? StakingId : LpId, OpportunityMetadata<T, U>>
-  >
+  byId: Record<OpportunityId, OpportunityMetadata<T, U>>
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {

@@ -57,7 +57,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: Partial<Record<StakingId, OpportunityMetadata>> = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {

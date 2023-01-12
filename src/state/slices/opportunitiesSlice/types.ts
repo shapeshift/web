@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { UnionMerge } from '@shapeshiftoss/types'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
@@ -11,29 +12,6 @@ export type AssetIdsTuple =
   | readonly [AssetId, AssetId]
   | readonly [AssetId]
   | readonly []
-
-/**
- * Further reading on ideas behind these utility types
- *
- * See: https://stackoverflow.com/questions/55904032/how-to-get-optional-property-from-union
- */
-/** Get specific type for key(K) in union(T) */
-declare type ValueOfUnion<T, K> = T extends unknown ? (K extends keyof T ? T[K] : undefined) : never
-/** Get all keys in union(T) as union */
-declare type KeysOfUnion<T> = T extends unknown ? keyof T : never
-/**
- * Create mapping of all keys in union(T) with proper type values
- *
- * _note: `| keyof T` index is simply to tell typescript that T is definitely a sub type of KeysOfUnion_
- */
-declare type UnionMapping<T> = {
-  [K in KeysOfUnion<T> | keyof T]: ValueOfUnion<T, K>
-}
-/** Pick out the elements we know for sure and make everything else optional */
-declare type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMapping<T>>
-// Taken from ChainSpecific types implementation, same idea of a discriminated union additional fields
-// for a DefiProvider/DefiType combination
-/** Adds all possible values of union(T) as a nested object under a `chainSpecific` key */
 
 export declare type OpportunitySpecific<T, U, V> = UnionMerge<
   T extends unknown

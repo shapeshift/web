@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.4.0...@shapeshiftoss/swapper-v15.4.1) (2023-01-12)
+
+
+### Bug Fixes
+
+* changing pagination to 10 broke things. changes it back to 1000 ([#1164](https://github.com/shapeshift/lib/issues/1164)) ([67f860c](https://github.com/shapeshift/lib/commit/67f860c4160f634116d2eebef901a94141ab92d0))
+
 # [@shapeshiftoss/swapper-v15.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.3.3...@shapeshiftoss/swapper-v15.4.0) (2023-01-12)
 
 

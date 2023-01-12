@@ -44,7 +44,7 @@ export const foxFarmingLpMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunityMetadataResolverInput): Promise<{
-  data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.LiquidityPool>
+  data: GetOpportunityMetadataOutput
 }> => {
   const { dispatch, getState } = reduxApi
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
@@ -140,7 +140,7 @@ export const foxFarmingStakingMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunityMetadataResolverInput): Promise<{
-  data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.Staking>
+  data: GetOpportunityMetadataOutput
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency

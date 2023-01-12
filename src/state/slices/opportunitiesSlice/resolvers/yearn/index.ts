@@ -24,7 +24,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
-  data: GetOpportunityMetadataOutput<DefiProvider.Yearn, DefiType.Staking>
+  data: GetOpportunityMetadataOutput
 }> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
@@ -37,10 +37,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: Record<
-    StakingId,
-    OpportunityMetadata<DefiProvider.Yearn, DefiType.Staking>
-  > = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {

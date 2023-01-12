@@ -28,7 +28,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
-  data: GetOpportunityMetadataOutput<DefiProvider.Idle, DefiType.Staking>
+  data: GetOpportunityMetadataOutput
 }> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
@@ -57,9 +57,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: Partial<
-    Record<StakingId, OpportunityMetadata<DefiProvider.Idle, DefiType.Staking>>
-  > = {}
+  const stakingOpportunitiesById: Partial<Record<StakingId, OpportunityMetadata>> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {

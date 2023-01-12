@@ -26,7 +26,10 @@ export declare type OpportunitySpecific<T, U, V> = UnionMerge<
       : undefined
     : never
 >
-type OpportunitySpecificMetadata<T extends DefiProvider, U extends DefiType> = OpportunitySpecific<
+type OpportunitySpecificMetadata<
+  T extends DefiProvider = DefiProvider,
+  U extends DefiType = DefiType,
+> = OpportunitySpecific<
   T,
   U,
   {

@@ -13,7 +13,7 @@ export enum IdleTag {
 // If we can get the base metadata from here, all we need to re-slap in is the APY and TVL really
 export const BASE_OPPORTUNITIES_BY_ID: Record<
   StakingId,
-  Omit<OpportunityMetadata<DefiProvider.Idle, DefiType.Staking>, 'apy' | 'tvl'>
+  Omit<OpportunityMetadata, 'apy' | 'tvl'>
 > = {
   'eip155:1/erc20:0x3fe7940616e5bc47b0775a0dccf6237893353bb4': {
     assetId: 'eip155:1/erc20:0x3fe7940616e5bc47b0775a0dccf6237893353bb4',

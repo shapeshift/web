@@ -112,7 +112,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
             })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined,
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
-          underlyingAssetRatios: ['1'],
+          underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
         }

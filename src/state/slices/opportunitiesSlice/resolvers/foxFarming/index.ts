@@ -121,7 +121,7 @@ export const foxFarmingLpMetadataResolver = async ({
         type: DefiType.LiquidityPool,
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [
+        underlyingAssetRatiosBaseUnit: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
@@ -214,7 +214,7 @@ export const foxFarmingStakingMetadataResolver = async ({
         type: DefiType.Staking,
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
-        underlyingAssetRatios: [
+        underlyingAssetRatiosBaseUnit: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,

@@ -61,7 +61,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,
       expired: opportunity.expired,

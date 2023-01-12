@@ -155,6 +155,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(marketData.price)
       .toFixed()
 
+    const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -165,7 +166,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetIds: [assetId] as [AssetId],
       rewardAssetIds: [assetId] as [AssetId],
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
       name: `${underlyingAsset.symbol} Vault`,
       saversSupplyIncludeAccruedFiat,
       saversMaxSupplyFiat,

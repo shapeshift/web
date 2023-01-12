@@ -7,4 +7,5 @@ export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   type: DefiType.Staking
   saversSupplyIncludeAccruedFiat: string
   saversMaxSupplyFiat: string
+  isFull: boolean
 }

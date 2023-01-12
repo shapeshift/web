@@ -81,7 +81,7 @@ export type OpportunitiesState = {
   staking: {
     // a 1:n foreign key of which user AccountIds hold this StakingId
     byAccountId: PartialRecord<AccountId, StakingId[]>
-    byId: PartialRecord<StakingId, OpportunityMetadataBase>
+    byId: PartialRecord<StakingId, OpportunityMetadata>
     ids: StakingId[]
   }
 }

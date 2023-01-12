@@ -34,8 +34,6 @@ import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
-  OpportunityMetadata,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
@@ -206,7 +204,7 @@ export const foxFarmingStakingMetadataResolver = async ({
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
   const version = STAKING_ID_TO_VERSION[opportunityId]
 
-  const data = {
+  const data: GetOpportunityMetadataOutput<DefiProvider.FoxFarming, DefiType.Staking> = {
     byId: {
       [opportunityId]: {
         apy,
@@ -224,7 +222,7 @@ export const foxFarmingStakingMetadataResolver = async ({
         name: 'Fox Farming',
         version,
       },
-    } as Partial<Record<LpId, OpportunityMetadata<DefiProvider.FoxFarming, DefiType.Staking>>>,
+    },
     type: opportunityType,
   }
 

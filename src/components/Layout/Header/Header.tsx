@@ -160,9 +160,6 @@ export const Header = () => {
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
-              </Box>
               <ChainMenu display={{ base: 'none', md: 'block' }} />
               <Notifications />
             </Flex>

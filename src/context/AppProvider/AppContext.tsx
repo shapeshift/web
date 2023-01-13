@@ -184,6 +184,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         switch (chainId) {
           case cosmosChainId:
           case osmosisChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
             dispatch(getValidatorData.initiate(accountId, options))
             break
           case ethChainId:

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.7.2...@shapeshiftoss/chain-adapters-v10.8.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/chain-adapters-v10.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.7.1...@shapeshiftoss/chain-adapters-v10.7.2) (2023-01-06)
 
 

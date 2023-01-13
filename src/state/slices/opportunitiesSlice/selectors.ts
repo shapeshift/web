@@ -8,7 +8,7 @@ import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
+import { isSome, isToken } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -296,12 +296,14 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 
       return Object.assign(
         {},
-        {
-          // TODO: The guts of getting contractAddress for Idle
-          // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
-          // Can we generalize this? This is getting messy
-          contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
-        },
+        isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
+          ? {
+              // TODO: The guts of getting contractAddress for Idle
+              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+              // Can we generalize this? This is getting messy
+              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+            }
+          : {},
         STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
         opportunity,
         {
@@ -339,12 +341,14 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         .reduce((acc, opportunity) => {
           const earnOpportunity = Object.assign(
             {},
-            {
-              // TODO: The guts of getting contractAddress for Idle
-              // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
-              // Can we generalize this? This is getting messy
-              contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
-            },
+            isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
+              ? {
+                  // TODO: The guts of getting contractAddress for Idle
+                  // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+                  // Can we generalize this? This is getting messy
+                  contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
+                }
+              : {},
             STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
             opportunity,
             {
@@ -367,7 +371,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       // Keep only the version with actual data if it exists, else keep the zero'd out version
       const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
-        'contractAddress',
+        ({ contractAddress, assetId }) => contractAddress ?? assetId,
       )
 
       return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
@@ -439,7 +443,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
         bnOrZero(lpAssetBalanceCryptoBaseUnit)
           .times(
             fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatios[i] ?? '0',
+              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
               assets[assetId]?.precision ?? 0,
             ),
           )
@@ -449,7 +453,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .times(opportunityMetadata?.underlyingAssetRatios[i])
+          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
           .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
           .toFixed(6),
       )
@@ -538,7 +542,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
         bnOrZero(aggregatedLpAssetBalance)
           .times(
             fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatios[i] ?? '0',
+              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
               assets[assetId]?.precision ?? 0,
             ),
           )
@@ -549,7 +553,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
-          .times(opportunityMetadata?.underlyingAssetRatios[i] ?? '0')
+          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
           .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
           .toFixed(6)
           .toString(),
@@ -657,7 +661,12 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
           ? {
               ...asset,
               cryptoBalancePrecision: bnOrZero(lpAssetBalancePrecision)
-                .times(fromBaseUnit(opportunityMetadata.underlyingAssetRatios[i], asset.precision))
+                .times(
+                  fromBaseUnit(
+                    opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
+                    asset.precision,
+                  ),
+                )
                 .toFixed(6)
                 .toString(),
               icons: [underlyingAssetsIcons[i]],
@@ -689,7 +698,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
               cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
                 .times(
                   fromBaseUnit(
-                    userStakingOpportunity.underlyingAssetRatios[i],
+                    userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
                     underlyingAssetIteratee.precision,
                   ) ?? '1',
                 )

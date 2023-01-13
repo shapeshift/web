@@ -71,7 +71,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
         {
-          type: OpportunityTypes.Farming,
+          type: DefiType.Staking,
           title: 'plugins.foxPage.farming',
           opportunities: [
             ...(farmingv5EarnOpportunity
@@ -94,7 +94,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           ],
         },
         {
-          type: OpportunityTypes.LiquidityPool,
+          type: DefiType.LiquidityPool,
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             ...(foxEthLpOpportunity

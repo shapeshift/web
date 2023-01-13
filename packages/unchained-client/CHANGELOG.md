@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.8.0...@shapeshiftoss/unchained-client-v10.9.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/unchained-client-v10.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.7.0...@shapeshiftoss/unchained-client-v10.8.0) (2022-12-02)
 
 

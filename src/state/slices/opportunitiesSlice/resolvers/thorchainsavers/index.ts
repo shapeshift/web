@@ -209,9 +209,9 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     bn(10).pow(asset.precision),
   ) // to actual asset precision base unit
 
-  const rewardsAmountsCryptoBaseUnit = [
+  const rewardsAmountsCryptoBaseUnit: [string] = [
     stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
-  ] as [string]
+  ]
 
   stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
     stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),

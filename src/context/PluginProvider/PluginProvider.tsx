@@ -119,7 +119,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     setRoutes(pluginRoutes)
 
     const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
-      if (!featureFlags.Optimism) return false
+      if (!featureFlags.Optimism && chainId === KnownChainIds.OptimismMainnet) return false
       if (
         !featureFlags.OsmosisSend &&
         !featureFlags.OsmosisStaking &&

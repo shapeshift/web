@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.4.1...@shapeshiftoss/swapper-v15.5.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/swapper-v15.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.4.0...@shapeshiftoss/swapper-v15.4.1) (2023-01-12)
 
 

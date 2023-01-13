@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-v3.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v3.0.1...@shapeshiftoss/investor-v3.1.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/investor-v3.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v3.0.0...@shapeshiftoss/investor-v3.0.1) (2022-10-19)
 
 # [@shapeshiftoss/investor-v3.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v2.1.1...@shapeshiftoss/investor-v3.0.0) (2022-10-13)

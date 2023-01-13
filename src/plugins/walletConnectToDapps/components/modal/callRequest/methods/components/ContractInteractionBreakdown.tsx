@@ -10,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 import { handleAbiApiResponse } from 'state/apis/abi/utils'
 
@@ -17,6 +18,8 @@ import { useCallRequestFees } from '../hooks/useCallRequestFees'
 import { CopyButton } from './CopyButton'
 import { ExternalLinkButton } from './ExternalLinkButtons'
 import { ModalCollapsableSection } from './ModalCollapsableSection'
+
+const moduleLogger = logger.child({ namespace: 'ContractInteractionBreakdown' })
 
 type ContractInteractionBreakdownProps = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -36,17 +39,22 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
   const { feeAsset } = useCallRequestFees(request)
 
   const query = useGetContractAbiQuery(request.to)
-  const { contract } = handleAbiApiResponse(query)
-  const transaction = useMemo(
-    () => contract?.parseTransaction({ data: request.data, value: request.value }),
-    [contract, request.data, request.value],
-  )
+  const { contract, isLoading, error } = handleAbiApiResponse(query)
+
+  const transaction = useMemo(() => {
+    try {
+      return contract?.parseTransaction({ data: request.data, value: request.value })
+    } catch (e) {
+      moduleLogger.error(e, 'parseTransaction')
+      return undefined
+    }
+  }, [contract, request.data, request.value])
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
   const { accountExplorerAddressLink } = useWalletConnect()
 
   const renderAbiInput = (input: ParamType, index: number) => {
-    const inputValue = transaction!.args[index].toString()
+    const inputValue = transaction?.args[index].toString()
     switch (input.type) {
       case 'bytes[]':
         return <EncodedText value={inputValue} />

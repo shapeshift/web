@@ -144,11 +144,8 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')
 
-    //TODO: Properly handle cases where any of the above assignments fail
-
     const getPoolTVL = (pool: OsmosisBasePool): string => {
       const marketData = historicalDataByPoolId[pool.id]
-
       return bnOrZero(marketData[0].liquidity).toString()
     }
 

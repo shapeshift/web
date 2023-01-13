@@ -1,47 +1,60 @@
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { Button, Code, Heading, Spinner } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId, btcChainId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import {
+  convertXpubVersion,
+  toAddressNList,
+  toRootDerivationPath,
+} from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos'
+import { ChainAdapter as OsmosisChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/osmosis'
+import { ChainAdapter as THORChainChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/thorchain'
+import { ChainAdapter as AvalancheChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/avalanche'
+import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/ethereum'
+import { ChainAdapter as BitcoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/utxo/bitcoin'
+import { ChainAdapter as BitcoinCashChainAdapter } from '@shapeshiftoss/chain-adapters/dist/utxo/bitcoincash'
+import { ChainAdapter as DogecoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/utxo/dogecoin'
+import { ChainAdapter as LitecoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/utxo/litecoin'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BTCInputScriptType, supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import { UtxoAccountType } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { bip32ToAddressNList, BTCInputScriptType, supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import { useCallback, useEffect, useState } from 'react'
+import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 
-import { useWallet } from '../../hooks/useWallet/useWallet'
+const moduleLogger = logger.child({ module: 'Recovery' })
 
-// const stuckFundsPubkeys = [
-//   'zpub6qanHyghGMGS1JY4a3iDGjj9xACApuKwM72LLPB6gowdeL5wcVcP3Et3txHPmMegSNcPXo9h3BHG6aoxkRUJE81AKcGxtzZUEnmV6kW5FJc',
-// ].join(' ')
+// we won't have more than 10 addresses with stuck funds, or we'd have heard about it more
+const addressCount = 10
+// we have users with stuck funds on these chains
+const affectedChainsIds = [btcChainId, bchChainId]
 // const stuckFundsAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
 
-/**
- * prob not required
-const getPublicKey = async (
+const getDangerousPublicKey = async (
   wallet: HDWallet,
-  // accountNumber: number,
+  bip44Params: BIP44Params,
   accountType: UtxoAccountType,
-): Promise<PublicKey> => {
-  const bip44Params = {
-    purpose: 44,
-    coinType: 60,
-    accountNumber: 0,
-  }
+): Promise<string> => {
   const path = toRootDerivationPath(bip44Params)
   const publicKeys = await wallet.getPublicKeys([
     {
-      coin: 'foo', // 'Bitcoin', // does this do anything in hdwallet?
+      coin: 'Bitcoin',
       addressNList: bip32ToAddressNList(path),
       curve: 'secp256k1',
-      scriptType: accountTypeToScriptType[accountType], // could possibly be undefined
+      scriptType: recoveryAccountTypeToScriptType[accountType],
     },
   ])
 
   if (!publicKeys?.[0]) throw new Error("couldn't get public key")
 
-  if (accountType) {
-    return { xpub: convertXpubVersion(publicKeys[0].xpub, accountType) }
-  }
+  if (accountType) return convertXpubVersion(publicKeys[0].xpub, accountType)
 
-  return publicKeys[0]
+  return publicKeys[0].xpub
 }
-*/
 
 export const recoveryAccountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType> =
   Object.freeze({
@@ -50,63 +63,132 @@ export const recoveryAccountTypeToScriptType: Record<UtxoAccountType, BTCInputSc
     [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness,
   })
 
-const getDangerousBIP44Params = () => {
-  return {
-    purpose: 44,
-    coinType: 60,
-    accountNumber: 0,
-  }
-}
+type GetDangerousBIP44ParamsByChainId = () => GetDangerousBIP44ParamsByChainIdReturn
+type GetDangerousBIP44ParamsByChainIdReturn = Record<KnownChainIds, BIP44Params>
+
+const getDangerousBIP44ParamsByChainId: GetDangerousBIP44ParamsByChainId = () => ({
+  [KnownChainIds.EthereumMainnet]: EthereumChainAdapter.defaultBIP44Params,
+  [KnownChainIds.AvalancheMainnet]: AvalancheChainAdapter.defaultBIP44Params,
+  [KnownChainIds.BitcoinMainnet]: BitcoinChainAdapter.defaultBIP44Params,
+  [KnownChainIds.BitcoinCashMainnet]: BitcoinCashChainAdapter.defaultBIP44Params,
+  [KnownChainIds.LitecoinMainnet]: LitecoinChainAdapter.defaultBIP44Params,
+  [KnownChainIds.DogecoinMainnet]: DogecoinChainAdapter.defaultBIP44Params,
+  [KnownChainIds.ThorchainMainnet]: THORChainChainAdapter.defaultBIP44Params,
+  [KnownChainIds.CosmosMainnet]: CosmosChainAdapter.defaultBIP44Params,
+  [KnownChainIds.OsmosisMainnet]: OsmosisChainAdapter.defaultBIP44Params,
+})
 
 type GetDangerousAddressesArgs = {
   wallet: HDWallet
 }
 
-const getDangerousAddresses = async ({ wallet }: GetDangerousAddressesArgs): Promise<string[]> => {
-  const bip44Params = getDangerousBIP44Params()
+type GetDangerousAddresses = (
+  args: GetDangerousAddressesArgs,
+) => Promise<GetDangerousAddressesReturn>
+type GetDangerousAddressesReturn = {
+  input: {
+    targetChainId: ChainId
+    chainName: string
+    bip44Params: BIP44Params
+    accountType: UtxoAccountType | undefined
+  }
+  output: {
+    pubkey: string
+    addresses: string[]
+  }
+}[]
+
+const getDangerousAddresses: GetDangerousAddresses = async ({ wallet }) => {
+  const dangerousBip44ParamsByChainId = getDangerousBIP44ParamsByChainId()
 
   if (!supportsBTC(wallet)) {
     throw new Error(`Recovery: wallet does not support bitcoin`)
   }
 
-  const addressCount = 1000
-  const addresses: string[] = []
-  for (let index = 0; index < addressCount; index++) {
-    for (const scriptType of Object.values(recoveryAccountTypeToScriptType)) {
-      const address = await wallet.btcGetAddress({
-        addressNList: toAddressNList({ ...bip44Params, index }),
-        coin: 'Bitcoin',
-        scriptType,
-        showDisplay: false,
-      })
-      if (!address) throw new Error('Recovery: no address available from wallet')
-      addresses.push(address)
+  const chainAdapterManager = getChainAdapterManager()
+
+  const result = []
+
+  for (const affectedChainId of affectedChainsIds) {
+    const maybeChainAdapter = chainAdapterManager.get(affectedChainId)
+    if (!maybeChainAdapter) throw new Error(`Recovery: no chain adapter for ${affectedChainId}`)
+    const adapter = maybeChainAdapter as unknown as UtxoBaseAdapter<UtxoChainId>
+    const chainName = adapter.getName()
+    const accountTypes = adapter.getSupportedAccountTypes()
+    for (const [bip44ParamChainName, wrongChainId] of Object.entries(KnownChainIds)) {
+      const bip44Params = dangerousBip44ParamsByChainId[wrongChainId]
+      for (const accountType of accountTypes) {
+        const publicKey = await getDangerousPublicKey(wallet, bip44Params, accountType)
+
+        const addresses: string[] = []
+        for (let index = 0; index < addressCount; index++) {
+          // only segwit native produces bc1-prefixed addresses
+          const scriptType = BTCInputScriptType.SpendWitness
+          const address = await wallet.btcGetAddress({
+            addressNList: toAddressNList({ ...bip44Params, index }),
+            coin: 'Bitcoin', // only btc and bch affected
+            scriptType,
+            showDisplay: false,
+          })
+          if (!address) throw new Error('Recovery: no address available from wallet')
+          addresses.push(address)
+        }
+
+        const data = {
+          input: {
+            targetChainId: affectedChainId,
+            chainName,
+            bip44ParamChainName,
+            bip44Params,
+            accountType,
+          },
+          output: {
+            pubkey: publicKey,
+            addresses,
+          },
+        }
+        moduleLogger.info({ data }, 'data')
+        result.push(data)
+      }
     }
   }
 
-  return addresses
+  return result
 }
 
 export const Recovery = () => {
-  const [addresses, setAddresses] = useState<string[]>([])
-  const [dangerousAddresses, setDangerousAddresses] = useState<string[]>([])
+  const [dangerousAddresses, setDangerousAddresses] = useState<GetDangerousAddressesReturn>([])
   const wallet = useWallet().state.wallet
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
       setDangerousAddresses(await getDangerousAddresses({ wallet }))
-      setAddresses(await getDangerousAddresses({ wallet }))
     })()
   }, [wallet])
 
+  const handleClick = useCallback(() => {
+    ;(async () => {
+      await navigator.clipboard.writeText(JSON.stringify(dangerousAddresses, null, 2))
+    })()
+  }, [dangerousAddresses])
+
+  const isLoading = !Boolean(dangerousAddresses.length)
+  const isLocalhost = window.location.hostname === 'localhost'
+
   return (
     <>
-      <div>Recovery</div>
-      <div>Addresses</div>
-      <div>{addresses.join('\n')}</div>
-      <div>Dangerous Addresses</div>
-      <div>{dangerousAddresses.join('\n')}</div>
+      <Heading>
+        <Text translation='Recovery' />
+      </Heading>
+      <Button isLoading={isLoading} spinner={<Spinner size='md' />} onClick={handleClick}>
+        Copy
+      </Button>
+      {isLocalhost && (
+        <>
+          <Code>{JSON.stringify(dangerousAddresses, null, 2)}</Code>
+        </>
+      )}
     </>
   )
 }

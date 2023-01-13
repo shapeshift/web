@@ -21,6 +21,7 @@ import { bip32ToAddressNList, BTCInputScriptType, supportsBTC } from '@shapeshif
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
+import { FaCheck } from 'react-icons/fa'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -56,27 +57,44 @@ const getDangerousPublicKey = async (
   return publicKeys[0].xpub
 }
 
-export const recoveryAccountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType> =
-  Object.freeze({
-    [UtxoAccountType.P2pkh]: BTCInputScriptType.SpendAddress,
-    [UtxoAccountType.SegwitP2sh]: BTCInputScriptType.SpendP2SHWitness,
-    [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness,
-  })
+const recoveryAccountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType> = Object.freeze({
+  [UtxoAccountType.P2pkh]: BTCInputScriptType.SpendAddress,
+  [UtxoAccountType.SegwitP2sh]: BTCInputScriptType.SpendP2SHWitness,
+  [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness,
+})
 
 type GetDangerousBIP44ParamsByChainId = () => GetDangerousBIP44ParamsByChainIdReturn
-type GetDangerousBIP44ParamsByChainIdReturn = Record<KnownChainIds, BIP44Params>
+type GetDangerousBIP44ParamsByChainIdReturn = Record<KnownChainIds, BIP44Params[]>
 
-const getDangerousBIP44ParamsByChainId: GetDangerousBIP44ParamsByChainId = () => ({
-  [KnownChainIds.EthereumMainnet]: EthereumChainAdapter.defaultBIP44Params,
-  [KnownChainIds.AvalancheMainnet]: AvalancheChainAdapter.defaultBIP44Params,
-  [KnownChainIds.BitcoinMainnet]: BitcoinChainAdapter.defaultBIP44Params,
-  [KnownChainIds.BitcoinCashMainnet]: BitcoinCashChainAdapter.defaultBIP44Params,
-  [KnownChainIds.LitecoinMainnet]: LitecoinChainAdapter.defaultBIP44Params,
-  [KnownChainIds.DogecoinMainnet]: DogecoinChainAdapter.defaultBIP44Params,
-  [KnownChainIds.ThorchainMainnet]: THORChainChainAdapter.defaultBIP44Params,
-  [KnownChainIds.CosmosMainnet]: CosmosChainAdapter.defaultBIP44Params,
-  [KnownChainIds.OsmosisMainnet]: OsmosisChainAdapter.defaultBIP44Params,
-})
+const getDangerousBIP44ParamsByChainId: GetDangerousBIP44ParamsByChainId = () => {
+  return {
+    [KnownChainIds.EthereumMainnet]: [EthereumChainAdapter.defaultBIP44Params],
+    [KnownChainIds.AvalancheMainnet]: [AvalancheChainAdapter.defaultBIP44Params],
+    [KnownChainIds.ThorchainMainnet]: [THORChainChainAdapter.defaultBIP44Params],
+    [KnownChainIds.CosmosMainnet]: [CosmosChainAdapter.defaultBIP44Params],
+    [KnownChainIds.OsmosisMainnet]: [OsmosisChainAdapter.defaultBIP44Params],
+    [KnownChainIds.BitcoinMainnet]: [
+      { ...BitcoinChainAdapter.defaultBIP44Params, purpose: 84 },
+      { ...BitcoinChainAdapter.defaultBIP44Params, purpose: 49 },
+      { ...BitcoinChainAdapter.defaultBIP44Params, purpose: 44 },
+    ],
+    [KnownChainIds.BitcoinCashMainnet]: [
+      { ...BitcoinCashChainAdapter.defaultBIP44Params, purpose: 84 },
+      { ...BitcoinCashChainAdapter.defaultBIP44Params, purpose: 49 },
+      { ...BitcoinCashChainAdapter.defaultBIP44Params, purpose: 44 },
+    ],
+    [KnownChainIds.LitecoinMainnet]: [
+      { ...LitecoinChainAdapter.defaultBIP44Params, purpose: 84 },
+      { ...LitecoinChainAdapter.defaultBIP44Params, purpose: 49 },
+      { ...LitecoinChainAdapter.defaultBIP44Params, purpose: 44 },
+    ],
+    [KnownChainIds.DogecoinMainnet]: [
+      { ...DogecoinChainAdapter.defaultBIP44Params, purpose: 84 },
+      { ...DogecoinChainAdapter.defaultBIP44Params, purpose: 49 },
+      { ...DogecoinChainAdapter.defaultBIP44Params, purpose: 44 },
+    ],
+  }
+}
 
 type GetDangerousAddressesArgs = {
   wallet: HDWallet
@@ -114,16 +132,17 @@ const getDangerousAddresses: GetDangerousAddresses = async ({ wallet }) => {
     if (!maybeChainAdapter) throw new Error(`Recovery: no chain adapter for ${affectedChainId}`)
     const adapter = maybeChainAdapter as unknown as UtxoBaseAdapter<UtxoChainId>
     const chainName = adapter.getName()
-    const accountTypes = adapter.getSupportedAccountTypes()
     for (const [bip44ParamChainName, wrongChainId] of Object.entries(KnownChainIds)) {
-      const bip44Params = dangerousBip44ParamsByChainId[wrongChainId]
-      for (const accountType of accountTypes) {
+      const bip44ParamsArray = dangerousBip44ParamsByChainId[wrongChainId]
+      for (const bip44Params of bip44ParamsArray) {
+        // only segwit native produces bc1-prefixed addresses
+        const accountType = UtxoAccountType.SegwitNative
         const publicKey = await getDangerousPublicKey(wallet, bip44Params, accountType)
-
         const addresses: string[] = []
+        // generate addresses
         for (let index = 0; index < addressCount; index++) {
           // only segwit native produces bc1-prefixed addresses
-          const scriptType = BTCInputScriptType.SpendWitness
+          const scriptType = BTCInputScriptType.SpendWitness // segwit-native
           const address = await wallet.btcGetAddress({
             addressNList: toAddressNList({ ...bip44Params, index }),
             coin: 'Bitcoin', // only btc and bch affected
@@ -157,6 +176,7 @@ const getDangerousAddresses: GetDangerousAddresses = async ({ wallet }) => {
 }
 
 export const Recovery = () => {
+  const [copied, setCopied] = useState<boolean>(false)
   const [dangerousAddresses, setDangerousAddresses] = useState<GetDangerousAddressesReturn>([])
   const wallet = useWallet().state.wallet
 
@@ -170,6 +190,7 @@ export const Recovery = () => {
   const handleClick = useCallback(() => {
     ;(async () => {
       await navigator.clipboard.writeText(JSON.stringify(dangerousAddresses, null, 2))
+      setCopied(true)
     })()
   }, [dangerousAddresses])
 
@@ -181,8 +202,14 @@ export const Recovery = () => {
       <Heading>
         <Text translation='Recovery' />
       </Heading>
-      <Button isLoading={isLoading} spinner={<Spinner size='md' />} onClick={handleClick}>
-        Copy
+      <Button
+        color={copied ? 'green.500' : 'primary.500'}
+        isLoading={isLoading}
+        spinner={<Spinner size='md' />}
+        onClick={handleClick}
+        rightIcon={copied ? <FaCheck /> : undefined}
+      >
+        {copied ? 'Copied' : 'Copy to clipboard'}
       </Button>
       {isLocalhost && (
         <>

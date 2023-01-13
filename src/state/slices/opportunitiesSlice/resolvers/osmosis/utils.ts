@@ -65,7 +65,28 @@ type PoolHistoricalDataList = {
   [key: string]: PoolHistoricalData[]
 }
 
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'osmosis', 'utils'] })
+const OSMO_ATOM_POOL_ID = '1'
+
+const moduleLogger = logger.child({
+  namespace: ['opportunitySlice', 'resolvers', 'osmosis', 'utils'],
+})
+
+/** Somehow, the v1beta1/pools API call returns some (~12/886) objects of a type that doesn't conform
+ * to the type defined above (missing certain fields and containing others.)
+ * This type guard is used to filter out the invalid pools records. */
+const isOsmosisBasePool = (pool: any): pool is OsmosisBasePool => {
+  return (
+    pool['@type'] !== undefined &&
+    pool.address !== undefined &&
+    pool.id !== undefined &&
+    pool.pool_params !== undefined &&
+    pool.pool_liquidity === undefined &&
+    pool.future_pool_governor !== undefined &&
+    pool.total_shares !== undefined &&
+    pool.pool_assets !== undefined &&
+    pool.total_weight !== undefined
+  )
+}
 
 export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
   if (denom.startsWith('u') && denom !== 'uosmo') {
@@ -93,19 +114,43 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
 
 export const getPools = async (): Promise<OsmosisPool[]> => {
   try {
+    /**
+     * TODO: Use axios cache layer with reasonable (30s-5m) TTL to save responses between calls.
+     * At app startup, these requests are made ~10 times with the same data returned each time.
+     */
+
+    /* Fetch Osmosis pool data */
     const { data: poolData } = await axios.get<OsmosisPoolList>(
-      `${getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL}gamm/v1beta1/pools?pagination.limit=1000`,
+      (() => {
+        const url = new URL('gamm/v1beta1/pools', getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL)
+        url.searchParams.set(
+          'pagination.limit',
+          getConfig().REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT.toString(),
+        )
+        return url.toString()
+      })(),
     )
     if (!poolData) throw new Error('Unable to fetch Osmosis liquidity pool metadata')
 
+    /* Fetch historical data for Osmosis pools */
     const { data: historicalDataByPoolId } = await axios.get<PoolHistoricalDataList>(
-      `${getConfig().REACT_APP_OSMOSIS_IMPERATOR_BASE_URL}pools/v2/all?low_liquidity=false`,
+      (() => {
+        const url = new URL('pools/v2/all', getConfig().REACT_APP_OSMOSIS_IMPERATOR_BASE_URL)
+        url.searchParams.set(
+          'low_liquidity',
+          getConfig().REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS.toString(),
+        )
+        return url.toString()
+      })(),
     )
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')
 
-    const osmoHistoricalData = historicalDataByPoolId['1'].find(x => x.symbol === 'OSMO')
-    if (!osmoHistoricalData) throw new Error('Unable to find historical data for $OSMO')
+    /* Pool 1 is ATOM/OSMO. Extract OSMO market data from this record for use below. */
+    const osmoHistoricalData = historicalDataByPoolId[OSMO_ATOM_POOL_ID].find(
+      x => x.symbol === 'OSMO',
+    )
+    if (!osmoHistoricalData) throw new Error('Unable to get historical data for $OSMO')
 
     //TODO: Properly handle cases where any of the above assignments fail
 
@@ -117,6 +162,8 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
 
     const calculatePoolAPY = (pool: OsmosisBasePool): string => {
       const poolHistoricalData = historicalDataByPoolId[pool.id][0] // Identical pool-level historical data exists on both asset entries
+
+      /* Pool fee data is represented in API response like '0.2%'. */
       const feeMultiplier = bnOrZero(poolHistoricalData.fees.split('%')[0]).multipliedBy(
         bnOrZero(0.01),
       )
@@ -127,7 +174,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
 
       if (poolTVL.eq(0) || annualRevenue.eq(0)) return bnOrZero(0).toString() // TODO: Handle error properly
 
-      return annualRevenue.dividedBy(poolTVL).multipliedBy(100).toFixed(0).toString()
+      return annualRevenue.dividedBy(poolTVL).toString()
     }
 
     const getPoolName = (pool: OsmosisBasePool): string => {
@@ -135,17 +182,28 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
       return `Osmosis ${poolHistoricalData[0].symbol}/${poolHistoricalData[1].symbol} Liquidity Pool`
     }
 
-    return poolData.pools.map(pool => {
-      return {
-        ...pool,
-        name: getPoolName(pool),
-        apy: calculatePoolAPY(pool),
-        tvl: getPoolTVL(pool),
-      }
-    })
+    /** Since we may choose to filter out pools with low liquidity in the historical data query above,
+     * the pool data array could contain more entries than the historical data array.
+     * We use a Set here to keep track of which pools we have historical data for so that
+     * we can quickly filter the poolData array below.
+     */
+    const keys = Object.keys(historicalDataByPoolId)
+    const poolsWithAvailableHistoricalData = new Set(keys)
+
+    const pools = poolData.pools
+      .filter(pool => isOsmosisBasePool(pool) && poolsWithAvailableHistoricalData.has(pool.id))
+      .map(pool => {
+        return {
+          ...pool,
+          name: getPoolName(pool),
+          apy: calculatePoolAPY(pool),
+          tvl: getPoolTVL(pool),
+        } as OsmosisPool
+      })
+
+    return pools
   } catch (error) {
-    moduleLogger.debug({ fn: 'getPools', error }, `Error fetching Osmosis pools`)
-    // TODO: handle this properly
-    throw new Error('OsmosisSdk::getPools: error fetching pool data')
+    moduleLogger.error({ fn: 'getPools', error }, `Error fetching Osmosis pools`)
+    return []
   }
 }

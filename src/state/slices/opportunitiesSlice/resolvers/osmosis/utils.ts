@@ -115,7 +115,7 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
 export const getPools = async (): Promise<OsmosisPool[]> => {
   try {
     /**
-     * TODO: Use axios cache layer with reasonable (30s-5m) TTL to save responses between calls.
+     * TODO: Use axios cache layer with reasonable (30s-5m) max age to save responses between calls.
      * At app startup, these requests are made ~10 times with the same data returned each time.
      */
 

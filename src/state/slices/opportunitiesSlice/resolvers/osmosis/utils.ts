@@ -65,8 +65,6 @@ type PoolHistoricalDataList = {
   [key: string]: PoolHistoricalData[]
 }
 
-const OSMO_ATOM_POOL_ID = '1'
-
 const moduleLogger = logger.child({
   namespace: ['opportunitySlice', 'resolvers', 'osmosis', 'utils'],
 })
@@ -145,12 +143,6 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     )
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')
-
-    /* Pool 1 is ATOM/OSMO. Extract OSMO market data from this record for use below. */
-    const osmoHistoricalData = historicalDataByPoolId[OSMO_ATOM_POOL_ID].find(
-      x => x.symbol === 'OSMO',
-    )
-    if (!osmoHistoricalData) throw new Error('Unable to get historical data for $OSMO')
 
     //TODO: Properly handle cases where any of the above assignments fail
 

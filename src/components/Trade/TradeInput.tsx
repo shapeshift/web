@@ -2,6 +2,7 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,6 +14,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
+import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
@@ -49,7 +51,9 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
+  const { isTradingActiveOnSellPool } = useIsTradingActive()
   const {
     checkApprovalNeeded,
     getTrade,
@@ -311,6 +315,7 @@ export const TradeInput = () => {
 
     const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
 
+    if (isSwapperApiPending) return 'common.loadingText'
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
       return [
@@ -329,6 +334,14 @@ export const TradeInput = () => {
         },
       ]
     if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!isTradingActiveOnSellPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+      return [
+        'trade.errors.tradingNotActive',
+        {
+          assetSymbol: sellTradeAsset?.asset?.symbol ?? '',
+        },
+      ]
+    }
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [
@@ -357,7 +370,9 @@ export const TradeInput = () => {
     feesExceedsSellAmount,
     hasValidSellAmount,
     isBelowMinSellAmount,
+    isSwapperApiPending,
     isTradeQuotePending,
+    isTradingActiveOnSellPool,
     quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,
     quote?.sellAsset.symbol,
@@ -380,6 +395,7 @@ export const TradeInput = () => {
     switch (getErrorTranslationKey()) {
       case 'trade.previewTrade':
       case 'trade.updatingQuote':
+      case 'common.loadingText':
         return false
       default:
         return true

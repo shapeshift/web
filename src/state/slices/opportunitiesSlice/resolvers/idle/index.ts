@@ -1,5 +1,5 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
@@ -27,7 +27,9 @@ const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'i
 export const idleStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -37,23 +39,25 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   })()
 
   if (!opportunities?.length) {
+    const data = {
+      byId: Object.fromEntries(
+        Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
+          opportunityId,
+          { ...opportunityMetadata, apy: '0', tvl: '0' },
+        ]),
+      ),
+      type: opportunityType,
+    } as const
+
     return {
-      data: {
-        byId: Object.fromEntries(
-          Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
-            opportunityId,
-            { ...opportunityMetadata, apy: '0', tvl: '0' },
-          ]),
-        ) as Partial<Record<StakingId, OpportunityMetadata>>,
-        type: opportunityType,
-      },
+      data,
     }
   }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {
@@ -88,6 +92,8 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
+          provider: DefiProvider.Idle,
+          type: DefiType.Staking,
         }
       : {
           apy: opportunity.apy.toFixed(),
@@ -106,7 +112,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
             })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined,
           },
           // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
-          underlyingAssetRatios: ['1'],
+          underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
         }
@@ -126,6 +132,10 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(`No-op. Won't fetch idle userStakingData for chainId: ${accountChainId}`)
+
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

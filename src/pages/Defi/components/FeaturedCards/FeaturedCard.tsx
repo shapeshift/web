@@ -19,6 +19,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   tvl,
   icons,
   provider,
+  type,
   chainId,
   contractAddress,
   rewardAddress,
@@ -41,6 +42,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
+        type,
         provider,
         chainId,
         contractAddress,
@@ -50,7 +52,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       }),
       state: { background: location },
     })
-  }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress])
+  }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress, type])
   return (
     <Card
       position='relative'

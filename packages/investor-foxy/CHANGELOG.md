@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.4...@shapeshiftoss/investor-foxy-v7.1.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/investor-foxy-v7.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.3...@shapeshiftoss/investor-foxy-v7.0.4) (2023-01-05)
 
 

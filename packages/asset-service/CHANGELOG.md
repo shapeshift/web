@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.5.0...@shapeshiftoss/asset-service-v8.6.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/asset-service-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.4.2...@shapeshiftoss/asset-service-v8.5.0) (2023-01-04)
 
 

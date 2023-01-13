@@ -14,9 +14,12 @@ export type Asset = {
   isTrustedDescription?: boolean
   symbol: string
   name: string
+  networkName?: string
   precision: number
   color: string
+  networkColor?: string
   icon: string
+  networkIcon?: string
   explorer: string
   explorerTxLink: string
   explorerAddressLink: string

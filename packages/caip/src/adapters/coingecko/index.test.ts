@@ -30,14 +30,19 @@ describe('adapters:coingecko', () => {
 
     it('can get AssetIds id for ethereum', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
-      const chainReference = CHAIN_REFERENCE.EthereumMainnet
-      const assetId = toAssetId({
+      const eth = toAssetId({
         chainNamespace,
-        chainReference,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Ethereum,
       })
-      expect(coingeckoToAssetIds('ethereum')).toEqual([assetId])
+      const ethOptimism = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.OptimismMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Optimism,
+      })
+      expect(coingeckoToAssetIds('ethereum')).toEqual([eth, ethOptimism])
     })
 
     it('can get AssetIds id for FOX', () => {
@@ -73,7 +78,7 @@ describe('adapters:coingecko', () => {
       expect(coingeckoToAssetIds('osmosis')).toEqual([assetId])
     })
 
-    it('can get AssetIds for USD Coin on Ethereum and Avalanche', () => {
+    it('can get AssetIds for USD Coin on EVM Chains', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const assetNamespace = 'erc20'
       const usdcEth = toAssetId({
@@ -88,7 +93,13 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
       })
-      expect(coingeckoToAssetIds('usd-coin')).toEqual([usdcEth, usdcAvalanche])
+      const usdcOptimism = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.OptimismMainnet,
+        assetNamespace,
+        assetReference: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+      })
+      expect(coingeckoToAssetIds('usd-coin')).toEqual([usdcEth, usdcAvalanche, usdcOptimism])
     })
   })
 

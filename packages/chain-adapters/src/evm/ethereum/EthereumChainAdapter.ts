@@ -1,21 +1,18 @@
-import { ASSET_REFERENCE, AssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
-import BigNumber from 'bignumber.js'
 
-import { ChainAdapterDisplayName } from '../../types'
+import { ChainAdapterDisplayName, GasFeeDataEstimate } from '../../types'
 import {
   FeeDataEstimate,
-  GasFeeDataEstimate,
   GetFeeDataInput,
   ValidAddressResult,
   ValidAddressResultType,
   ZrxGasApiResponse,
 } from '../../types'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
-import { getErc20Data } from '../utils'
+import { calcFee, ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -68,89 +65,46 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     if (!medianFees) throw new TypeError('ETH Gas Fees should always exist')
 
     const feeData = await this.providers.http.getGasFees()
-    const normalizationConstants = {
+
+    const nc = {
       fast: bnOrZero(bn(medianFees.fast).dividedBy(medianFees.standard)),
       average: bn(1),
       slow: bnOrZero(bn(medianFees.low).dividedBy(medianFees.standard)),
     }
 
-    const calcFee = (
-      fee: string | number | BigNumber,
-      speed: 'slow' | 'average' | 'fast',
-    ): string => {
-      return bnOrZero(fee)
-        .times(normalizationConstants[speed])
-        .toFixed(0, BigNumber.ROUND_CEIL)
-        .toString()
-    }
-
     return {
       fast: {
         gasPrice: bnOrZero(medianFees.fast).toString(),
-        maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast'),
+        ...(feeData.maxFeePerGas &&
+          feeData.maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast', nc),
+            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast', nc),
+          }),
       },
       average: {
         gasPrice: bnOrZero(medianFees.standard).toString(),
-        maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average'),
+        ...(feeData.maxFeePerGas &&
+          feeData.maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average', nc),
+            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average', nc),
+          }),
       },
       slow: {
         gasPrice: bnOrZero(medianFees.low).toString(),
-        maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow'),
-        maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow'),
+        ...(feeData.maxFeePerGas &&
+          feeData.maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow', nc),
+            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow', nc),
+          }),
       },
     }
   }
 
-  async getFeeData({
-    to,
-    value,
-    chainSpecific: { contractAddress, from, contractData },
-    sendMax = false,
-  }: GetFeeDataInput<KnownChainIds.EthereumMainnet>): Promise<
-    FeeDataEstimate<KnownChainIds.EthereumMainnet>
-  > {
-    const isErc20Send = !!contractAddress
-
-    // get the exact send max value for an erc20 send to ensure we have the correct input data when estimating fees
-    if (sendMax && isErc20Send) {
-      const account = await this.getAccount(from)
-      const erc20Balance = account.chainSpecific.tokens?.find((token) => {
-        const { assetReference } = fromAssetId(token.assetId)
-        return assetReference === contractAddress.toLowerCase()
-      })?.balance
-
-      if (!erc20Balance) throw new Error('no balance')
-
-      value = erc20Balance
-    }
-
-    const data = contractData ?? (await getErc20Data(to, value, contractAddress))
-
-    const gasLimit = await this.providers.http.estimateGas({
-      from,
-      to: isErc20Send ? contractAddress : to,
-      value: isErc20Send ? '0' : value,
-      data,
-    })
-
-    const gasResults = await this.getGasFeeData()
-
-    return {
-      fast: {
-        txFee: bnOrZero(bn(gasResults.fast.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.fast },
-      },
-      average: {
-        txFee: bnOrZero(bn(gasResults.average.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.average },
-      },
-      slow: {
-        txFee: bnOrZero(bn(gasResults.slow.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...gasResults.slow },
-      },
-    }
+  async getFeeData(
+    input: GetFeeDataInput<KnownChainIds.EthereumMainnet>,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
+    const gasFeeData = await this.getGasFeeData()
+    return this.estimateFeeData({ ...input, gasFeeData })
   }
 
   async validateEnsAddress(address: string): Promise<ValidAddressResult> {

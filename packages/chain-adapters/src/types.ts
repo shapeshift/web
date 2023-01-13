@@ -19,6 +19,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.Account
     [KnownChainIds.AvalancheMainnet]: evm.Account
+    [KnownChainIds.OptimismMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -53,6 +54,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.FeeData
     [KnownChainIds.AvalancheMainnet]: evm.FeeData
+    [KnownChainIds.OptimismMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -121,6 +123,7 @@ export type TxHistoryResponse = {
 type ChainSignTx = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
+  [KnownChainIds.OptimismMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -146,6 +149,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
     [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
+    [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -222,6 +226,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
   {
     [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.OptimismMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -233,6 +238,10 @@ export type GetFeeDataInput<T extends ChainId> = {
   value: string
   sendMax?: boolean
 } & ChainSpecificGetFeeDataInput<T>
+
+export type EstimateFeeDataInput<T extends ChainId> = GetFeeDataInput<T> & {
+  gasFeeData: GasFeeDataEstimate
+}
 
 export enum ValidAddressResultType {
   Valid = 'valid',
@@ -273,6 +282,7 @@ export enum ChainAdapterDisplayName {
   Osmosis = 'Osmosis',
   Ethereum = 'Ethereum',
   Avalanche = 'Avalanche C-Chain',
+  Optimism = 'Optimism',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

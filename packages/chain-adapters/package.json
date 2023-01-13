@@ -33,21 +33,21 @@
     "bitcoinjs-lib": "^5.2.0",
     "coinselect": "^3.1.13",
     "ethers": "^5.4.7",
-    "multicoin-address-validator": "^0.5.2",
+    "multicoin-address-validator": "^0.5.12",
     "web3-utils": "1.7.4"
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.41.0",
-    "@shapeshiftoss/hdwallet-native": "^1.41.0",
+    "@shapeshiftoss/hdwallet-core": "^1.42.0",
+    "@shapeshiftoss/hdwallet-native": "^1.42.0",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^10.0.1",
     "bs58check": "^2.0.2"
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.41.0",
-    "@shapeshiftoss/hdwallet-native": "^1.41.0",
+    "@shapeshiftoss/hdwallet-core": "^1.42.0",
+    "@shapeshiftoss/hdwallet-native": "^1.42.0",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^10.0.1",
     "@types/bs58check": "^2.1.0",

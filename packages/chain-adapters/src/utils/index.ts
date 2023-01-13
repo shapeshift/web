@@ -39,9 +39,9 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.EthereumMainnet:
         case CHAIN_REFERENCE.EthereumRinkeby:
         case CHAIN_REFERENCE.EthereumRopsten:
-          return 'ethereum'
         case CHAIN_REFERENCE.AvalancheCChain:
-          return 'avalanche'
+        case CHAIN_REFERENCE.OptimismMainnet:
+          return 'ethereum' // all evm chains use the same validator (https://github.com/christsim/multicoin-address-validator/blob/master/src/ethereum_validator.js)
         default:
           throw new Error(
             `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,

@@ -1,5 +1,5 @@
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -99,10 +99,14 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return assetIds.filter(
-      (id) =>
-        fromAssetId(id).assetNamespace === 'erc20' && !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
-    )
+    return assetIds.filter((id) => {
+      const { chainId, assetNamespace } = fromAssetId(id)
+      return (
+        chainId === KnownChainIds.EthereumMainnet &&
+        assetNamespace === ASSET_NAMESPACE.erc20 &&
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+      )
+    })
   }
 
   async getTradeTxs(args: TradeResult): Promise<TradeTxs> {

@@ -9,6 +9,7 @@ import { Asset, AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as ethereum from './ethereum'
+import * as optimism from './optimism'
 import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
 import { setColors } from './setColors'
@@ -18,6 +19,7 @@ const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
   const osmosisAssets = await osmosis.getAssets()
   const avalancheAssets = await avalanche.getAssets()
+  const optimismAssets = await optimism.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -30,6 +32,7 @@ const generateAssetData = async () => {
     ...ethAssets,
     ...osmosisAssets,
     ...avalancheAssets,
+    ...optimismAssets,
   ]
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)
@@ -40,13 +43,27 @@ const generateAssetData = async () => {
   // deterministic order so diffs are readable
   const orderedAssetList = orderBy(filteredWithColors, 'assetId')
 
-  const ethTokenNames = ethAssets.map((asset) => asset.name)
+  const ethAssetNames = ethAssets.map((asset) => asset.name)
+  const avalancheAssetNames = avalancheAssets.map((asset) => asset.name)
+  const optimismAssetNames = optimismAssets.map((asset) => asset.name)
+
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
     const { chainReference } = fromAssetId(asset.assetId)
 
-    // mark any avalanche assets that also exist on ethereum
-    if (chainReference === CHAIN_REFERENCE.AvalancheCChain && ethTokenNames.includes(asset.name)) {
+    // mark any avalanche assets that also exist on other evm chains
+    if (
+      chainReference === CHAIN_REFERENCE.AvalancheCChain &&
+      ethAssetNames.concat(optimismAssetNames).includes(asset.name)
+    ) {
       asset.name = `${asset.name} on Avalanche`
+    }
+
+    // mark any optimism assets that also exist on other evm chains
+    if (
+      chainReference === CHAIN_REFERENCE.OptimismMainnet &&
+      ethAssetNames.concat(avalancheAssetNames).includes(asset.name)
+    ) {
+      asset.name = `${asset.name} on Optimism`
     }
 
     acc[asset.assetId] = asset

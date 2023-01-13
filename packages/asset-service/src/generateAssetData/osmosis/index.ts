@@ -18,15 +18,10 @@ type OsmoAsset = {
   display: string
   symbol: string
   logo_URIs: {
-    png: string
-    svg: string
+    png?: string
+    svg?: string
   }
   coingecko_id: string
-  ibc?: {
-    source_channel: string
-    dst_channel: string
-    source_denom: string
-  }
   pools?: {
     [key: string]: number
   }
@@ -67,7 +62,8 @@ export const getAssets = async (): Promise<Asset[]> => {
     })()
 
     // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
-    const getAssetName = (a: OsmoAsset): string => (a.ibc ? `${a.name} on Osmosis` : a.name)
+    const getAssetName = (a: OsmoAsset): string =>
+      a.base.startsWith('ibc') ? `${a.name} on Osmosis` : a.name
 
     const assetId = `cosmos:osmosis-1/${assetNamespace}:${assetReference}`
 
@@ -78,7 +74,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: current.logo_URIs.png,
+      icon: current.logo_URIs.png ?? current.logo_URIs.svg ?? '',
       explorer: osmosis.explorer,
       explorerAddressLink: osmosis.explorerAddressLink,
       explorerTxLink: osmosis.explorerTxLink,

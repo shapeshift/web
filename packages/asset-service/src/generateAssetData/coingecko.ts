@@ -1,8 +1,15 @@
-import { adapters, avalancheChainId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  avalancheChainId,
+  ChainId,
+  ethChainId,
+  optimismChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import axios from 'axios'
 
 import { Asset } from '../service/AssetService'
-import { avax, ethereum } from './baseAssets'
+import { avax, ethereum, optimism } from './baseAssets'
 import { colorMap } from './colorMap'
 
 type Token = {
@@ -37,6 +44,13 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: avax.explorer,
           explorerAddressLink: avax.explorerAddressLink,
           explorerTxLink: avax.explorerTxLink,
+        }
+      case optimismChainId:
+        return {
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: optimism.explorer,
+          explorerAddressLink: optimism.explorerAddressLink,
+          explorerTxLink: optimism.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

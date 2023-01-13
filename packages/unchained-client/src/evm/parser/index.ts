@@ -1,4 +1,4 @@
-import { AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -133,17 +133,24 @@ export class BaseTransactionParser<T extends Tx> {
         symbol: transfer.symbol,
       }
 
-      const transferArgs = [
-        toAssetId({
+      const assetId = (() => {
+        // alias ether token on optimism to native asset as they are the same
+        if (transfer.contract === '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000') {
+          return toAssetId({
+            chainId: this.chainId,
+            assetNamespace: 'slip44',
+            assetReference: ASSET_REFERENCE.Optimism,
+          })
+        }
+
+        return toAssetId({
           chainId: this.chainId,
           assetNamespace: 'erc20',
           assetReference: transfer.contract,
-        }),
-        transfer.from,
-        transfer.to,
-        transfer.value,
-        token,
-      ] as const
+        })
+      })()
+
+      const transferArgs = [assetId, transfer.from, transfer.to, transfer.value, token] as const
 
       // token send amount
       if (address === transfer.from) {

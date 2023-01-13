@@ -9,6 +9,7 @@ export type BIP44Params = {
 export enum KnownChainIds {
   EthereumMainnet = 'eip155:1',
   AvalancheMainnet = 'eip155:43114',
+  OptimismMainnet = 'eip155:10',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',

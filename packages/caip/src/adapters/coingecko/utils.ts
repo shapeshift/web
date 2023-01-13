@@ -15,6 +15,8 @@ import {
   ethAssetId,
   ethChainId,
   ltcChainId,
+  optimismAssetId,
+  optimismChainId,
   osmosisChainId,
   thorchainChainId,
 } from '../../constants'
@@ -70,11 +72,26 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes('optimistic-ethereum')) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.OptimismMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms['optimistic-ethereum'],
+          })
+          prev[optimismChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
       [ethChainId]: { [ethAssetId]: 'ethereum' },
       [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
+      [optimismChainId]: { [optimismAssetId]: 'ethereum' },
     },
   )
 

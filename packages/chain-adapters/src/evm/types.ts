@@ -11,8 +11,8 @@ export type Account = {
 export type FeeData = {
   gasPrice: string
   gasLimit: string
-  maxFeePerGas: string
-  maxPriorityFeePerGas: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
 }
 
 export type Fees =

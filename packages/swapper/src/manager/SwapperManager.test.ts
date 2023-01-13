@@ -113,11 +113,11 @@ describe('SwapperManager', () => {
     })
 
     it('should return an empty array if no swapper is found', () => {
-      const sellAssetId = 'randomAssetId'
-      const buyAssetId = 'randomAssetId2'
+      const sellAssetId = 'eip155:43114/slip44:60'
+      const buyAssetId = 'cosmos:cosmoshub-4/slip44:118'
       const swapperManager = new SwapperManager()
 
-      swapperManager.addSwapper(zrxEthereumSwapper).addSwapper(thorchainSwapper)
+      swapperManager.addSwapper(zrxEthereumSwapper)
 
       expect(swapperManager.getSwappersByPair({ sellAssetId, buyAssetId })).toEqual([])
     })

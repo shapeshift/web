@@ -7,6 +7,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
 import { utils } from 'ethers'
 import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
@@ -16,6 +17,7 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import {
   Account,
   BuildSendTxInput,
+  EstimateFeeDataInput,
   FeeDataEstimate,
   GasFeeDataEstimate,
   GetAddressInput,
@@ -38,11 +40,15 @@ import {
   toAddressNList,
   toRootDerivationPath,
 } from '../utils'
-import { bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../utils/bignumber'
 import { BuildCustomTxInput, Fees } from './types'
 import { getErc20Data, getGeneratedAssetData } from './utils'
 
-export const evmChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet] as const
+export const evmChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.OptimismMainnet,
+] as const
 
 export type EvmChainId = typeof evmChainIds[number]
 
@@ -52,10 +58,23 @@ export const isEvmChainId = (
   return evmChainIds.includes(maybeEvmChainId as EvmChainId)
 }
 
+type ConfirmationSpeed = 'slow' | 'average' | 'fast'
+
+export const calcFee = (
+  fee: string | number | BigNumber,
+  speed: ConfirmationSpeed,
+  normalizationConstants: Record<ConfirmationSpeed, BigNumber>,
+): string => {
+  return bnOrZero(fee)
+    .times(normalizationConstants[speed])
+    .toFixed(0, BigNumber.ROUND_CEIL)
+    .toString()
+}
+
 export interface ChainAdapterArgs {
   chainId?: EvmChainId
   providers: {
-    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api
+    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
   rpcUrl: string
@@ -72,7 +91,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api
+    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
 
@@ -198,6 +217,53 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       return { txToSign }
     } catch (err) {
       return ErrorHandler(err)
+    }
+  }
+
+  protected async estimateFeeData({
+    to,
+    value,
+    chainSpecific: { contractAddress, from, contractData },
+    sendMax = false,
+    gasFeeData: { fast, average, slow },
+  }: EstimateFeeDataInput<T>): Promise<FeeDataEstimate<EvmChainId>> {
+    const isErc20Send = !!contractAddress
+
+    // get the exact send max value for an erc20 send to ensure we have the correct input data when estimating fees
+    if (sendMax && isErc20Send) {
+      const account = await this.getAccount(from)
+      const erc20Balance = account.chainSpecific.tokens?.find((token) => {
+        const { assetReference } = fromAssetId(token.assetId)
+        return assetReference === contractAddress.toLowerCase()
+      })?.balance
+
+      if (!erc20Balance) throw new Error('no balance')
+
+      value = erc20Balance
+    }
+
+    const data = contractData ?? (await getErc20Data(to, value, contractAddress))
+
+    const gasLimit = await this.providers.http.estimateGas({
+      from,
+      to: isErc20Send ? contractAddress : to,
+      value: isErc20Send ? '0' : value,
+      data,
+    })
+
+    return {
+      fast: {
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...fast },
+      },
+      average: {
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...average },
+      },
+      slow: {
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...slow },
+      },
     }
   }
 

@@ -8,6 +8,7 @@ export * as cosmossdk from './cosmossdk'
 
 export * as ethereum from './evm/ethereum'
 export * as avalanche from './evm/avalanche'
+export * as optimism from './evm/optimism'
 export * as bitcoin from './utxo/bitcoin'
 export * as bitcoincash from './utxo/bitcoincash'
 export * as dogecoin from './utxo/dogecoin'

@@ -35,7 +35,7 @@
     "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^10.5.0",
     "@shapeshiftoss/errors": "^1.1.2",
-    "@shapeshiftoss/hdwallet-core": "^1.41.0",
+    "@shapeshiftoss/hdwallet-core": "^1.42.0",
     "@shapeshiftoss/types": "^8.1.0"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "@shapeshiftoss/caip": "^8.0.0",
     "@shapeshiftoss/chain-adapters": "^10.5.0",
     "@shapeshiftoss/errors": "^1.1.2",
-    "@shapeshiftoss/hdwallet-core": "^1.41.0",
+    "@shapeshiftoss/hdwallet-core": "^1.42.0",
     "@shapeshiftoss/types": "^8.1.0",
     "@shapeshiftoss/unchained-client": "^10.0.1",
     "@types/readline-sync": "^1.4.4",

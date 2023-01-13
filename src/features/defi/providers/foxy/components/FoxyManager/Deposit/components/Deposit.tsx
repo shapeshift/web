@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -17,10 +17,12 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,6 +36,9 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
+// AssetReference is the Contract Address
+// Contract Address is the Reward Address
+
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onNext,
@@ -44,10 +49,18 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
 
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const assetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+  const assetReference = fromAssetId(assetId).assetReference
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 

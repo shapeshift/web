@@ -55,17 +55,17 @@ export const fetchAllStakingOpportunitiesMetadata = async (
         { forceRefetch: false, ...options },
       ),
     ),
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Yearn,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
+    // store.dispatch(
+    //   opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+    //     {
+    //       defiType: DefiType.Staking,
+    //       defiProvider: DefiProvider.Yearn,
+    //       opportunityType: DefiType.Staking,
+    //     },
+    //     // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+    //     { forceRefetch: false, ...options },
+    //   ),
+    // ),
     store.dispatch(
       opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
         {
@@ -106,10 +106,10 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.Idle,
     },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Yearn,
-    },
+    // {
+    //   defiType: DefiType.Staking,
+    //   defiProvider: DefiProvider.Yearn,
+    // },
     {
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.FoxFarming,
@@ -161,18 +161,18 @@ export const fetchAllStakingOpportunitiesUserData = async (
         { forceRefetch: false, ...options },
       ),
     ),
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Yearn,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
+    // store.dispatch(
+    //   getOpportunitiesUserData.initiate(
+    //     {
+    //       accountId,
+    //       defiType: DefiType.Staking,
+    //       defiProvider: DefiProvider.Yearn,
+    //       opportunityType: DefiType.Staking,
+    //     },
+    //     // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+    //     { forceRefetch: false, ...options },
+    //   ),
+    // ),
     store.dispatch(
       getOpportunitiesUserData.initiate(
         {

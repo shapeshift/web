@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -23,11 +23,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -45,16 +47,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const assetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+  const assetReference = fromAssetId(assetId).assetReference
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

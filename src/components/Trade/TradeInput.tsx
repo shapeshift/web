@@ -395,6 +395,7 @@ export const TradeInput = () => {
     switch (getErrorTranslationKey()) {
       case 'trade.previewTrade':
       case 'trade.updatingQuote':
+      case 'common.loadingText':
         return false
       default:
         return true

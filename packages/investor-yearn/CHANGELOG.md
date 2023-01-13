@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.3.0...@shapeshiftoss/investor-yearn-v6.4.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/investor-yearn-v6.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.2.0...@shapeshiftoss/investor-yearn-v6.3.0) (2023-01-04)
 
 

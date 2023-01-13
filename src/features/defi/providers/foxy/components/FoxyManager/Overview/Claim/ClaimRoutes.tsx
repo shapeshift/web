@@ -10,7 +10,12 @@ import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectBIP44ParamsByAccountId, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  selectBIP44ParamsByAccountId,
+  selectFirstAccountIdByChainId,
+  selectStakingOpportunitiesById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -33,13 +38,18 @@ type ClaimRouteProps = {
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
+  // Staking Asset Info
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))

@@ -17,7 +17,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -36,8 +35,6 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-
-  const { data: foxyBalancesData } = useFoxyBalances()
 
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -73,7 +70,7 @@ export const AllEarnOpportunities = () => {
     })
 
   const allRows = useNormalizeOpportunities({
-    foxyArray: foxyBalancesData?.opportunities ?? [],
+    foxyArray: [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],

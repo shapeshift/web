@@ -185,7 +185,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
   const accountAddresses = await getAccountAddresses(accountId)
 
-  // TODO(gomes): This is wrong for UTXOs. We need to pass an address, not an AccountId
   const accountPosition = allPositions.find(
     ({ asset_address }) =>
       asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),

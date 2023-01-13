@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.2.2...@shapeshiftoss/market-service-v7.3.0) (2023-01-13)
+
+
+### Features
+
+* add optimism ([#1157](https://github.com/shapeshift/lib/issues/1157)) ([177725d](https://github.com/shapeshift/lib/commit/177725dc04c00ba982bbebe8e84a7edcff395367))
+
 # [@shapeshiftoss/market-service-v7.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.2.1...@shapeshiftoss/market-service-v7.2.2) (2022-11-29)
 
 

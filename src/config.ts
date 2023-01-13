@@ -6,7 +6,7 @@ import memoize from 'lodash/memoize'
 
 import env from './env'
 
-const { cleanEnv, str, url } = envalid
+const { cleanEnv, str, url, num } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -112,6 +112,10 @@ const validators = {
   }),
   REACT_APP_OSMOSIS_IMPERATOR_BASE_URL: url({
     default: 'https://api-osmosis.imperator.co/',
+  }),
+  REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS: bool({ default: false }),
+  REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT: num({
+    default: 1000,
   }),
 }
 

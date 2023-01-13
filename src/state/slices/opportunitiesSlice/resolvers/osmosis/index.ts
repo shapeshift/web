@@ -12,7 +12,8 @@ import {
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
-  OpportunitiesState,
+  LpId,
+  OpportunityMetadata,
 } from '../../types'
 import { toOpportunityId } from '../../utils'
 import type { OpportunitiesMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
@@ -25,14 +26,14 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState()
 
-  const lpOpportunitiesById: OpportunitiesState[DefiType.LiquidityPool]['byId'] = {}
+  const lpOpportunitiesById: Record<LpId, OpportunityMetadata> = {}
 
   const liquidityPools = await getPools()
 
   for (const pool of liquidityPools) {
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'ibc',
-      assetReference: `/gamm/pool/${pool.id}`,
+      assetReference: `gamm/pool/${pool.id}`,
       chainId: osmosisChainId,
     }
 
@@ -53,7 +54,10 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
         generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
         generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
       ],
-      underlyingAssetRatios: [pool.pool_assets[0].token.amount, pool.pool_assets[1].token.amount],
+      underlyingAssetRatiosBaseUnit: [
+        pool.pool_assets[0].token.amount,
+        pool.pool_assets[1].token.amount,
+      ],
       name: pool.name,
     }
   }

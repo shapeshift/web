@@ -128,6 +128,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
         return url.toString()
       })(),
     )
+
     if (!poolData) throw new Error('Unable to fetch Osmosis liquidity pool metadata')
 
     /* Fetch historical data for Osmosis pools */
@@ -141,6 +142,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
         return url.toString()
       })(),
     )
+
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')
 
@@ -179,18 +181,16 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     const keys = Object.keys(historicalDataByPoolId)
     const poolsWithAvailableHistoricalData = new Set(keys)
 
-    const pools = poolData.pools
+    return poolData.pools
       .filter(pool => isOsmosisBasePool(pool) && poolsWithAvailableHistoricalData.has(pool.id))
-      .map(pool => {
+      .map<OsmosisPool>(pool => {
         return {
           ...pool,
           name: getPoolName(pool),
           apy: calculatePoolAPY(pool),
           tvl: getPoolTVL(pool),
-        } as OsmosisPool
+        }
       })
-
-    return pools
   } catch (error) {
     moduleLogger.error({ fn: 'getPools', error }, `Error fetching Osmosis pools`)
     return []

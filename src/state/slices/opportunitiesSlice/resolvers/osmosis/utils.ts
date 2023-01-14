@@ -1,7 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
+import memoize from 'lodash/memoize'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
@@ -118,30 +120,34 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
      */
 
     /* Fetch Osmosis pool data */
-    const { data: poolData } = await axios.get<OsmosisPoolList>(
-      (() => {
-        const url = new URL('gamm/v1beta1/pools', getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL)
-        url.searchParams.set(
-          'pagination.limit',
-          getConfig().REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT.toString(),
-        )
-        return url.toString()
-      })(),
-    )
+    const { data: poolData } = await memoize(async (): Promise<AxiosResponse<OsmosisPoolList>> => {
+      return await axios.get<OsmosisPoolList>(
+        (() => {
+          const url = new URL('gamm/v1beta1/pools', getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL)
+          url.searchParams.set(
+            'pagination.limit',
+            getConfig().REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT.toString(),
+          )
+          return url.toString()
+        })(),
+      )
+    })()
 
     if (!poolData) throw new Error('Unable to fetch Osmosis liquidity pool metadata')
 
     /* Fetch historical data for Osmosis pools */
-    const { data: historicalDataByPoolId } = await axios.get<PoolHistoricalDataList>(
-      (() => {
-        const url = new URL('pools/v2/all', getConfig().REACT_APP_OSMOSIS_IMPERATOR_BASE_URL)
-        url.searchParams.set(
-          'low_liquidity',
-          getConfig().REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS.toString(),
-        )
-        return url.toString()
-      })(),
-    )
+    const { data: historicalDataByPoolId } = await memoize(async (): Promise<any> => {
+      return await axios.get<PoolHistoricalDataList>(
+        (() => {
+          const url = new URL('pools/v2/all', getConfig().REACT_APP_OSMOSIS_IMPERATOR_BASE_URL)
+          url.searchParams.set(
+            'low_liquidity',
+            getConfig().REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS.toString(),
+          )
+          return url.toString()
+        })(),
+      )
+    })()
 
     if (!historicalDataByPoolId)
       throw new Error('Unable to fetch historical data for Osmosis liquidity pools')

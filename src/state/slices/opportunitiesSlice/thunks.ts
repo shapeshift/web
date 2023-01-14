@@ -9,7 +9,7 @@ import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
   const { getOpportunityMetadata, getOpportunitiesMetadata } = opportunitiesApi.endpoints
 
-  const metadataPromises = [
+  await Promise.allSettled([
     ...foxEthLpAssetIds.map(opportunityId =>
       store.dispatch(
         getOpportunityMetadata.initiate(
@@ -34,11 +34,7 @@ export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryAction
         { forceRefetch: false, ...options },
       ),
     ),
-  ]
-
-  for (const metadataPromise of metadataPromises) {
-    await metadataPromise
-  }
+  ])
 }
 
 export const fetchAllStakingOpportunitiesMetadata = async (
@@ -151,7 +147,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
 ) => {
   const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
-  const userDataPromises = [
+  await Promise.allSettled([
     store.dispatch(
       getOpportunitiesUserData.initiate(
         {
@@ -191,11 +187,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
         ),
       ),
     ),
-  ]
-
-  for (const userDataPromise of userDataPromises) {
-    await userDataPromise
-  }
+  ])
 }
 
 export const fetchAllLpOpportunitiesUserdata = async (

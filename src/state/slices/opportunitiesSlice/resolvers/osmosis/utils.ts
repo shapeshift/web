@@ -74,15 +74,15 @@ const moduleLogger = logger.child({
  * This type guard is used to filter out the invalid pools records. */
 const isOsmosisBasePool = (pool: any): pool is OsmosisBasePool => {
   return (
-    pool['@type'] !== undefined &&
-    pool.address !== undefined &&
-    pool.id !== undefined &&
-    pool.pool_params !== undefined &&
-    pool.pool_liquidity === undefined &&
-    pool.future_pool_governor !== undefined &&
-    pool.total_shares !== undefined &&
-    pool.pool_assets !== undefined &&
-    pool.total_weight !== undefined
+    pool.hasOwnProperty('@type') &&
+    pool.hasOwnProperty('address') &&
+    pool.hasOwnProperty('id') &&
+    pool.hasOwnProperty('pool_params') &&
+    !pool.hasOwnProperty('pool_liquidity') &&
+    pool.hasOwnProperty('future_pool_governor') &&
+    pool.hasOwnProperty('total_shares') &&
+    pool.hasOwnProperty('pool_assets') &&
+    pool.hasOwnProperty('total_weight')
   )
 }
 

@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { ReduxState } from 'state/reducer'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -76,6 +76,10 @@ export const osmosisLpUserDataResolver = ({
   accountId,
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== osmosisChainId)
+    throw new Error(`No-op. Won't fetch osmosis LP user data for chainId: ${accountChainId}`)
+
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.0...@shapeshiftoss/swapper-v15.5.1) (2023-01-15)
+
+
+### Bug Fixes
+
+* **swapper:** osmo swapper cached url, small refactor ([#1165](https://github.com/shapeshift/lib/issues/1165)) ([8862158](https://github.com/shapeshift/lib/commit/8862158c4115d4e7129e2389c5a48ab07be8d0cd))
+
 # [@shapeshiftoss/swapper-v15.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.4.1...@shapeshiftoss/swapper-v15.5.0) (2023-01-13)
 
 

@@ -10,21 +10,10 @@ import {
   SwapErrorType,
   TradeResult,
 } from '../../../api'
-import { createCache } from '../../../utils'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { OSMOSIS_PRECISION } from './constants'
+import { osmoService } from './osmoService'
 import { IbcTransferInput, PoolInfo } from './types'
-
-// Create cached axios service for pools endpoint because it gets called a LOT
-const cache = createCache(3000, ['/osmosis/gamm/v1beta1/pools/'])
-const osmoPoolsService = axios.create({
-  timeout: 10000,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-  adapter: cache.adapter,
-})
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -132,7 +121,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
 
   const poolsResponse = await (async () => {
     try {
-      return osmoPoolsService.get(poolsUrl)
+      return osmoService.get(poolsUrl)
     } catch (e) {
       throw new SwapError('failed to get pool', {
         code: SwapErrorType.POOL_NOT_FOUND,

@@ -64,7 +64,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAsset}`)
   const assetId = opportunityMetadata?.underlyingAssetId ?? ''
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const rewardId = fromAssetId(assetId).assetReference
+  const rewardAssetId = fromAssetId(assetId).assetReference
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const feeAssetId = toAssetId({
     chainId,
@@ -108,7 +108,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         !(
           state &&
           accountAddress &&
-          rewardId &&
+          rewardAssetId &&
           walletState.wallet &&
           api &&
           dispatch &&
@@ -119,7 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
-          tokenContractAddress: rewardId,
+          tokenContractAddress: rewardAssetId,
           userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
@@ -158,7 +158,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     contractAddress,
     dispatch,
     onNext,
-    rewardId,
+    rewardAssetId,
     accountAddress,
     state,
     walletState.wallet,

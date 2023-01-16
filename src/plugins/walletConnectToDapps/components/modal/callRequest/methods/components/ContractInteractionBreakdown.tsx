@@ -1,5 +1,5 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
-import type { ParamType } from '@ethersproject/abi'
+import type { ParamType, TransactionDescription } from '@ethersproject/abi'
 import startCase from 'lodash/startCase'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
@@ -41,14 +41,15 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
   const query = useGetContractAbiQuery(request.to)
   const { contract, isLoading, error } = handleAbiApiResponse(query)
 
-  const transaction = useMemo(() => {
+  const transaction: TransactionDescription | undefined = useMemo(() => {
+    if (!contract || error || isLoading) return undefined
     try {
       return contract?.parseTransaction({ data: request.data, value: request.value })
     } catch (e) {
       moduleLogger.error(e, 'parseTransaction')
       return undefined
     }
-  }, [contract, request.data, request.value])
+  }, [contract, error, isLoading, request.data, request.value])
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
   const { accountExplorerAddressLink } = useWalletConnect()

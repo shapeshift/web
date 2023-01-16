@@ -7,6 +7,7 @@ import {
   dogeChainId,
   ethChainId,
   ltcChainId,
+  optimismChainId,
   osmosisChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -16,6 +17,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsOptimism,
   supportsOsmosis,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
@@ -38,6 +40,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return supportsETH(wallet)
     case avalancheChainId:
       return supportsAvalanche(wallet)
+    case optimismChainId:
+      return supportsOptimism(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case osmosisChainId:

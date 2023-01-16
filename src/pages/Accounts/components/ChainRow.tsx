@@ -42,8 +42,6 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   )
 
   const hoverBorderColor = useColorModeValue('gray.300', 'gray.700')
-  const color = asset?.color
-  const name = asset?.name
 
   const accountRows = useMemo(() => {
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
@@ -85,8 +83,8 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         py={2}
       >
         <Stack direction='row' alignItems='center' spacing={4}>
-          <Circle size={8} borderWidth={2} borderColor={color} />
-          <RawText>{name}</RawText>
+          <Circle size={8} borderWidth={2} borderColor={asset.networkColor ?? asset.color} />
+          <RawText>{asset.networkName ?? asset.name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>
           <Amount.Fiat value={chainFiatBalance} />

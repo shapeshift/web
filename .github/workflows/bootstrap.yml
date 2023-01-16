@@ -37,7 +37,3 @@ jobs:
     name: Call
     uses: ./.github/workflows/pr.yml
     needs: [install-and-cache]
-  call-pr-cypress-workflow:
-    name: Call
-    uses: ./.github/workflows/pr-cypress.yml
-    needs: [install-and-cache]

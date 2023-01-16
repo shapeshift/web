@@ -10,8 +10,8 @@ import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
-  OpportunitiesState,
   OpportunityId,
+  OpportunityMetadata,
   StakingId,
 } from '../../types'
 import type { OpportunitiesMetadataResolverInput } from '../types'
@@ -90,7 +90,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityIds,
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
@@ -114,13 +116,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     throw new Error('Error fetching THORChain pools')
   }
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of thorchainPools) {
     const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
-    const opportunityId = assetId as OpportunityId
+    const opportunityId = assetId as StakingId
 
     // Thorchain is slightly different from other opportunities in that there is no contract address for the opportunity
     // The way we represent it, the opportunityId is both the opportunityId/assetId and the underlyingAssetId
@@ -133,14 +135,27 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
     if (!asset || !underlyingAsset || !marketData) continue
 
+    const apy = bnOrZero(
+      midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
+    ).toString()
     const tvl = bnOrZero(thorchainPool.savers_units)
       .div(bn(10).pow(THOR_PRECISION))
       .times(marketData.price)
       .toFixed()
+    // NOT the same as the TVL:
+    // - TVL is the fiat total of assets locked
+    // - supply is the fiat total of assets locked, including the accrued value, accounting in the max. cap
+    const saversSupplyIncludeAccruedFiat = bnOrZero(thorchainPool.savers_depth)
+      .div(bn(10).pow(THOR_PRECISION))
+      .times(marketData.price)
+      .toFixed()
+    const saversMaxSupplyFiat = bnOrZero(thorchainPool.synth_supply)
+      .plus(thorchainPool.synth_supply_remaining)
+      .div(bn(10).pow(THOR_PRECISION))
+      .times(marketData.price)
+      .toFixed()
 
-    const apy = bnOrZero(
-      midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
-    ).toString()
+    const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -151,8 +166,11 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetIds: [assetId] as [AssetId],
       rewardAssetIds: [assetId] as [AssetId],
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
       name: `${underlyingAsset.symbol} Vault`,
+      saversSupplyIncludeAccruedFiat,
+      saversMaxSupplyFiat,
+      isFull: thorchainPool.synth_mint_paused,
     }
   }
 

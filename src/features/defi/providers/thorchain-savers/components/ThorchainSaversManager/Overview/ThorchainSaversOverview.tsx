@@ -31,6 +31,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -39,6 +41,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectStakingOpportunitiesById,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -74,14 +77,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
-
-  // Placeholder for cap amounts
-  // If the cap limit is 0 we should hide these components as this should mean caps are disabled
-  // TODO(gomes): opportunity.savers_supply opportunitySpecific.max_savers_supply
-  const capLimit = 500
-  const capUsed = 250
-  const capPercentaged = bnOrZero(capUsed).div(capLimit).times(100).toNumber()
-  const isCapUsed = bnOrZero(capLimit).gt(0) && bnOrZero(capPercentaged).eq(100)
 
   const assetId = toAssetId({
     chainId,
@@ -119,14 +114,26 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, assetNamespace, assetReference, chainId, defaultAccountId, highestBalanceAccountId],
   )
 
-  const opportunityData = useAppSelector(state =>
+  const earnOpportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
-    if (!asset || !opportunityData?.underlyingAssetId) return '0'
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
 
-    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[assetId as StakingId],
+    [assetId, opportunitiesMetadata],
+  ) as ThorchainSaversStakingSpecificMetadata | undefined
+
+  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.saversSupplyIncludeAccruedFiat)
+    .div(bnOrZero(opportunityMetadata?.saversMaxSupplyFiat))
+    .times(100)
+    .toNumber()
+
+  const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
+    if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
+
+    const cryptoAmount = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit)
       .div(bn(10).pow(asset.precision))
       .toString()
     const price = marketData.price
@@ -134,13 +141,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }, [
     asset,
     marketData,
-    opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.underlyingAssetId,
+    earnOpportunityData?.stakedAmountCryptoBaseUnit,
+    earnOpportunityData?.underlyingAssetId,
   ])
 
   const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds?.[0],
-    [opportunityData?.underlyingAssetIds],
+    () => earnOpportunityData?.underlyingAssetIds?.[0],
+    [earnOpportunityData?.underlyingAssetIds],
   )
   const underlyingAsset: Asset | undefined = useMemo(
     () => assets[underlyingAssetId ?? ''],
@@ -151,10 +158,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   )
 
   const menu: DefiButtonProps[] = useMemo(() => {
-    if (!opportunityData) return []
+    if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(isCapUsed)
-  }, [opportunityData, isCapUsed])
+    return makeDefaultMenu(opportunityMetadata?.isFull)
+  }, [earnOpportunityData, opportunityMetadata?.isFull])
 
   const renderVaultCap = useMemo(() => {
     return (
@@ -164,11 +171,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             <Text fontWeight='medium' translation='defi.modals.saversVaults.vaultCap' />
           </HelperTooltip>
           <Flex gap={1}>
-            <Amount.Fiat value={capUsed} />
-            <Amount.Fiat value={capLimit} prefix='/' color='gray.500' />
+            <Amount.Fiat value={opportunityMetadata?.saversSupplyIncludeAccruedFiat ?? 0} />
+            <Amount.Fiat
+              value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
+              prefix='/'
+              color='gray.500'
+            />
           </Flex>
         </Flex>
-        {bnOrZero(capPercentaged).eq(100) ? (
+        {bnOrZero(currentCapFillPercentage).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
             <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
@@ -188,17 +199,24 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           </Alert>
         ) : (
           <Progress
-            value={capPercentaged}
+            value={currentCapFillPercentage}
             size='sm'
             borderRadius='md'
-            colorScheme={bnOrZero(capPercentaged).lt(100) ? 'green' : 'red'}
+            colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
           />
         )}
       </Flex>
     )
-  }, [alertBg, capPercentaged, translate, underlyingAsset?.symbol])
+  }, [
+    alertBg,
+    currentCapFillPercentage,
+    opportunityMetadata?.saversMaxSupplyFiat,
+    opportunityMetadata?.saversSupplyIncludeAccruedFiat,
+    translate,
+    underlyingAsset?.symbol,
+  ])
 
-  if (!opportunityData) {
+  if (!earnOpportunityData) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -207,14 +225,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }
 
   if (!asset) return null
-  if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
+  if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
 
   return (
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
-      name={opportunityData.name ?? ''}
+      name={earnOpportunityData.name ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalanceCryptoPrecision}
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={DefiProvider.ThorchainSavers}
@@ -225,10 +243,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         isLoaded: !!underlyingAsset?.symbol,
         isTrustedDescription: true,
       }}
-      tvl={bnOrZero(opportunityData.tvl).toFixed(2)}
-      apy={opportunityData.apy}
+      tvl={bnOrZero(earnOpportunityData.tvl).toFixed(2)}
+      apy={earnOpportunityData.apy}
       menu={menu}
-      postChildren={bnOrZero(capLimit).gt(0) ? renderVaultCap : null}
+      postChildren={
+        bnOrZero(opportunityMetadata?.saversMaxSupplyFiat).gt(0) ? renderVaultCap : null
+      }
     />
   )
 }

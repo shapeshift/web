@@ -284,6 +284,21 @@
         "confirmClaim": "Confirmar Reclamo",
         "claimNow": "Reclama ahora",
         "claimYour": "Reclame su %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
+        "vaultCap": "Límite de bóveda",
+        "vaultCapTooltip": "Algo sobre los límites de bóveda",
+        "haltedTitle": "Los depositos estan temporalmente detenidos.",
+        "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
+        "estimatedFee": "Comisión estimada",
+        "fee": "Comisión",
+        "estimatedFeeTooltip": "Comisión por transferir fondos desde una cadena de bloques de  capa 1",
+        "dustAmount": "Cantidad de polvo",
+        "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
+        "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
+        "sendDust": "Send Dust",
+        "addressToSendTo": "Dirección de envío"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "No podemos obtener una cotización para este par.",
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
+      "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -1569,5 +1585,26 @@
       "tooltip": "La tarifa prioritaria es un consejo opcional para incentivar a los productores de bloques a priorizar su transacción. Establezca la tarifa de prioridad en gwei que le gustaría pagar por cada unidad de gas."
     },
     "custom": "Personalizar"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "¿Cual es el mejor rendimiento?",
+      "body": "Maximice automáticamente el rendimiento a través de múltiples protocolos DeFi probados en batalla. La estrategia del Mejor-Rendimiento optimiza la generación de rendimiento socializando los costos del gas, automatizando la generación de rendimiento mediante el desplazamiento algorítmico de capital a medida que surgen nuevas oportunidades de rendimiento."
+    },
+    "seniorTranche": {
+      "title": "¿Qué es un Tramo Senior?",
+      "body": "Disfrute de los rendimientos DeFi a través de múltiples protocolos mientras mantiene protegido su depósito. Los Tramos Senior ofrecen protección incorporada sobre los fondos y proporcionan cobertura de espectro completo gracias a su contraparte Junior."
+    },
+    "juniorTranche": {
+      "title": "¿Que es un Tramo Junior?",
+      "body": "Disfrute de rendimientos mejorados en múltiples protocolos DeFi: los tramos junior logran un rendimiento apalancado, ya que son compensados ​​por proporcionar capital de primera pérdida a su contraparte senior."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Compra cripto sin KYC",
+      "body": "Compra hasta $1,000 con Apple Pay",
+      "cta": "Compra ahora"
+    }
   }
 }

@@ -213,6 +213,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildSendTransaction({
         ...tx,
         wallet,
+        value: bnOrZero(tx.value).toFixed(0),
         accountNumber,
         chainSpecific: {
           gasLimit: approveData.gasLimit ?? tx.gas,

@@ -39,3 +39,24 @@ export type ThorchainSaverPositionResponse = {
   asset_redeem_value: string
   growth_pct: string
 }
+
+export type ThorchainSaversQuoteResponseSuccess = {
+  expected_amount_out: string
+  fees: {
+    affiliate: string
+    asset: string
+    outbound: string
+  }
+  inbound_address: string
+  inbound_confirmation_blocks: number
+  memo: string
+  slippage_bps: number
+}
+
+export type ThorchainSaversQuoteResponseError = {
+  error: string
+}
+
+export type ThorchainSaversQuoteResponse =
+  | ThorchainSaversQuoteResponseSuccess
+  | ThorchainSaversQuoteResponseError

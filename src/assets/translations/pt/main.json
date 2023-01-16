@@ -284,6 +284,21 @@
         "confirmClaim": "Confirmar",
         "claimNow": "Resgatar agora",
         "claimYour": "Ganhar %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
+        "vaultCap": "Limite da Vault",
+        "vaultCapTooltip": "Algo sobre o limite das vaults",
+        "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
+        "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
+        "estimatedFee": "Taxa estimada",
+        "fee": "Taxa",
+        "estimatedFeeTooltip": "Taxa para transferir ativos de uma blockchain Layer 1",
+        "dustAmount": "Saldo Restante",
+        "dustAmountTooltip": "Uma pequena quantidade de saldo é necessário para identificar seus endereços, e será separada para um uso posterior, quando você realizar seu saque",
+        "sendDustBody": "Você precisar enviar um pouco de suas criptos para este endereço, permitindo a você sacar seu dinheiro. ",
+        "sendDust": "Enviar Cripto",
+        "addressToSendTo": "Endereço para Enviar"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "Ocorreu um erro ao obter as taxas de negociação",
       "assetNotSupportedByWallet": "%{assetSymbol} incompatível com a carteira",
       "noReceiveAddress": "Nenhum endereço recebido para %{assetSymbol}",
+      "tradingNotActive": "Negociações temporariamente pausadas para %{assetSymbol}",
       "signing": {
         "failed": "Erro ao assinar a transação",
         "required": "É necessário assinar a transação"
@@ -1569,5 +1585,26 @@
       "tooltip": "A taxa de prioridade é uma gorjeta opcional para incentivar os produtores de blocos a priorizar sua transação. Determine a taxa de prioridade em gwei que você está disposto/a a pagar por cada unidade de gas. "
     },
     "custom": "Customizar"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "Quais as Melhores Recompensas?",
+      "body": "Maximize automaticamente o rendimento em vários protocolos DeFi testados. A estratégia Best-Yield otimiza o ganho de recompensas ao dividir os custos das taxas, automatizando a geração de incentivos ao transferir capital algoritmicamente à medida que surgem novas oportunidades."
+    },
+    "seniorTranche": {
+      "title": "O que é uma Senior Tranche?",
+      "body": "Aproveite os rendimentos DeFi em vários protocolos, mantendo seu depósito protegido. As Tranches Sênior oferecem proteção total aos seus fundos graças as Tranches Júnior."
+    },
+    "juniorTranche": {
+      "title": "O que é uma Junior Tranche?",
+      "body": "Desfrute de rendimentos maximizados em vários protocolos DeFi: as Tranches Junior alcançam rendimento alavancado, pois são compensadas por fornecer capital de primeira perda para sua contraparte sênior."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Compre Cripto SEM KYC",
+      "body": "Compre até US$ 1.000 com o Apple Pay",
+      "cta": "Compre Agora"
+    }
   }
 }

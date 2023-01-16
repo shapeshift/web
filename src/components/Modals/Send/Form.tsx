@@ -19,7 +19,8 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
-  [SendFormFields.Address]: string
+  [SendFormFields.To]: string
+  [SendFormFields.From]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.CryptoAmount]: string
@@ -50,7 +51,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     mode: 'onChange',
     defaultValues: {
       accountId,
-      address: '',
+      to: '',
       vanityAddress: '',
       asset: initialAsset,
       feeType: FeeDataKey.Average,

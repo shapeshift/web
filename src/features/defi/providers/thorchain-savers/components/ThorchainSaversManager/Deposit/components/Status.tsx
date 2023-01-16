@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -35,20 +35,11 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
-  const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
+  const assetId = state?.opportunity?.assetId
+  const feeAssetId = assetId
 
-  // TODO: We need to get the fee asset from the Opportunity
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
-
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
@@ -79,7 +70,7 @@ export const Status = () => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  if (!state) return null
+  if (!state || !asset) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.deposit.txStatus) {
@@ -156,7 +147,7 @@ export const Status = () => {
                     ? state.deposit.estimatedGasCrypto
                     : state.deposit.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(`1e+${asset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
@@ -167,23 +158,10 @@ export const Status = () => {
                     ? state.deposit.estimatedGasCrypto
                     : state.deposit.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(`1e+${asset.precision}`)
                   .toFixed(5)}
                 symbol='ETH'
               />
-            </Box>
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
-              <Text translation='defi.modals.saversVaults.dustAmount' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
             </Box>
           </Row.Value>
         </Row>

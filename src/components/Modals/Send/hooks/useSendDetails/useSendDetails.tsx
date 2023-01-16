@@ -58,8 +58,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const asset = useWatch<SendInput, SendFormFields.Asset>({
     name: SendFormFields.Asset,
   })
-  const address = useWatch<SendInput, SendFormFields.Address>({
-    name: SendFormFields.Address,
+  const address = useWatch<SendInput, SendFormFields.To>({
+    name: SendFormFields.To,
   })
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
@@ -108,9 +108,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const contractAddress = tokenOrUndefined(assetReference)
 
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
-    const { cryptoAmount, asset, address, sendMax, accountId } = getValues()
+    const { cryptoAmount, asset, to, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-    return estimateFees({ cryptoAmount, asset, address, sendMax, accountId, contractAddress })
+    return estimateFees({ cryptoAmount, asset, to, sendMax, accountId, contractAddress })
   }, [contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {

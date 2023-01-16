@@ -138,7 +138,7 @@ export const Confirm: React.FC = () => {
       const estimateFeesArgs: EstimateFeesInput = {
         cryptoAmount,
         asset,
-        address: depositAddress,
+        to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         contractAddress: assetReference,
@@ -149,7 +149,8 @@ export const Confirm: React.FC = () => {
       const handleSendArgs: SendInput = {
         cryptoAmount,
         asset,
-        address: depositAddress,
+        from: '',
+        to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',

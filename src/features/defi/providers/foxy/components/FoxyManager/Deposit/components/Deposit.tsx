@@ -36,9 +36,6 @@ type DepositProps = StepComponentProps & {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-// AssetReference is the Contract Address
-// Contract Address is the Reward Address
-
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onNext,

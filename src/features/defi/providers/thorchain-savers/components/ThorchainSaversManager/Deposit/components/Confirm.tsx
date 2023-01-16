@@ -8,10 +8,9 @@ import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Con
 import { Summary } from 'features/defi/components/Summary'
 import type {
   DefiParams,
-  ThorchainSaversDefiQueryParams,
+  DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import qs from 'qs'
+import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -42,7 +41,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ReconciliationType } from '../../UtxoReconciliate/UtxoReconciliate'
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
@@ -54,10 +52,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   // TODO: Allow user to set fee priority
-  const { query, location, history } = useBrowserRouter<
-    ThorchainSaversDefiQueryParams,
-    DefiParams
-  >()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
   const chainAdapter = getChainAdapterManager().get(chainId)
@@ -224,10 +219,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     onNext,
     toast,
     translate,
-    history,
-    location.pathname,
-    query,
-    maybeAccountAddress,
   ])
 
   const handleCancel = useCallback(() => {

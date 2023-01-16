@@ -101,6 +101,8 @@ const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.AvalancheC
           case CHAIN_REFERENCE.EthereumMainnet:
             return ASSET_REFERENCE.Ethereum
+          case CHAIN_REFERENCE.OptimismMainnet:
+            return ASSET_REFERENCE.Optimism
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

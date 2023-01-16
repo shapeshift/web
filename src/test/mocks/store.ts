@@ -48,6 +48,7 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
+      Optimism: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,

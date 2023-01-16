@@ -108,7 +108,6 @@ export const Deposit: React.FC<DepositProps> = ({
         const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        // Assume the worst and use fast fee here, though medium is going to be used (maybe?)
         const fee = (
           await adapter.getFeeData({
             to: quote.inbound_address,

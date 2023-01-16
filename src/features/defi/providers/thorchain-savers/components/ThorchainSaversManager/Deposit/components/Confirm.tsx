@@ -132,7 +132,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
       const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
 
-      // TODO: beard oil on the flow?
       const sendInput: SendInput = {
         cryptoAmount: state?.deposit.cryptoAmount ?? '',
         asset,

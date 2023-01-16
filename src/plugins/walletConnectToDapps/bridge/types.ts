@@ -44,10 +44,10 @@ export type WalletConnectEthSignTransactionCallRequest = {
     from: string
     to: string
     data: string
-    gas: string
-    gasPrice: string
-    value: string
-    nonce: string
+    gas?: string
+    gasPrice?: string
+    value?: string
+    nonce?: string
   }[]
 }
 

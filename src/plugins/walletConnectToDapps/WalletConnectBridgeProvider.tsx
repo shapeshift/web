@@ -215,8 +215,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         accountNumber,
         to: tx.to,
         data: tx.data,
-        value: tx.value ?? '0',
-        gasLimit: approveData.gasLimit ?? tx.gas ?? '9000', // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
+        value: tx.value ?? convertNumberToHex(0),
+        gasLimit:
+          (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
+          convertNumberToHex(9000), // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
         ...gasData,
       })
       const txToSign = {
@@ -258,7 +260,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const tx = request.params[0]
       const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
       const nonce = approveData.nonce ? convertNumberToHex(approveData.nonce) : tx.nonce
-      const gasLimit = approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas
+      if (!nonce) return
+      const gasLimit =
+        (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
+        convertNumberToHex(9000) // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
       const { speed, customFee } = approveData
       const fees = await chainAdapter.getFeeData({
         to: tx.to,
@@ -290,7 +295,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           gasLimit,
           nonce,
           to: tx.to,
-          value: tx.value,
+          value: tx.value ?? convertNumberToHex(0),
           ...gasData,
         },
         wallet,

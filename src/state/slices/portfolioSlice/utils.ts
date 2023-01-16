@@ -12,6 +12,7 @@ import {
   fromAssetId,
   fromChainId,
   ltcChainId,
+  optimismChainId,
   osmosisChainId,
   thorchainChainId,
   toAccountId,
@@ -23,6 +24,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsOptimism,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -61,6 +63,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
   const { chainId, account: pubkey } = fromAccountId(accountId)
   switch (chainId) {
     case avalancheChainId:
+    case optimismChainId:
     case ethChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
@@ -318,10 +321,12 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   if (!assetId) return false
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
-    case avalancheChainId:
-      return supportsAvalanche(wallet)
     case ethChainId:
       return supportsETH(wallet)
+    case avalancheChainId:
+      return supportsAvalanche(wallet)
+    case optimismChainId:
+      return supportsOptimism(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

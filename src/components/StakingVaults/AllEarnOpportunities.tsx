@@ -70,7 +70,6 @@ export const AllEarnOpportunities = () => {
     })
 
   const allRows = useNormalizeOpportunities({
-    foxyArray: [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],

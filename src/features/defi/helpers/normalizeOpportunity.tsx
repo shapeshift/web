@@ -103,20 +103,17 @@ const useTransformCosmosStaking = (
 }
 
 type NormalizeOpportunitiesProps = {
-  foxyArray: MergedFoxyOpportunity[]
   cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
   foxEthLpOpportunity?: EarnOpportunityType
   stakingOpportunities?: EarnOpportunityType[]
 }
 
 export const useNormalizeOpportunities = ({
-  foxyArray,
   cosmosSdkStakingOpportunities = [],
   foxEthLpOpportunity,
   stakingOpportunities,
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
-    ...transformFoxy(foxyArray),
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
     ...(stakingOpportunities ? stakingOpportunities : []),
     ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),

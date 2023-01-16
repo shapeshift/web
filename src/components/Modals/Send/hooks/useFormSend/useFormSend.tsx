@@ -62,6 +62,8 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
+
+        throw new Error(e)
       } finally {
         send.close()
       }

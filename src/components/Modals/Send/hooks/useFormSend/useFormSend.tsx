@@ -50,7 +50,7 @@ export const useFormSend = () => {
             position: 'top-right',
           })
         }, 5000)
-      } catch (e) {
+      } catch (e: any) {
         moduleLogger.error(e, 'Error handling form send')
         toast({
           title: translate('modals.send.errorTitle', {

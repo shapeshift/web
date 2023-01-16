@@ -210,15 +210,14 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
       const { bip44Params } = accountMetadataById[wcAccountId]
       const { accountNumber } = bip44Params
-      const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildSendTransaction({
-        ...tx,
+      const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
         wallet,
-        value: bnOrZero(tx.value).toFixed(0),
         accountNumber,
-        chainSpecific: {
-          gasLimit: approveData.gasLimit ?? tx.gas,
-          ...gasData,
-        },
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+        gasLimit: approveData.gasLimit ?? tx.gas,
+        ...gasData,
       })
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,

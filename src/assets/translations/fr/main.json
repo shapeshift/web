@@ -284,6 +284,21 @@
         "confirmClaim": "Confirmer la réclamation",
         "claimNow": "Réclamer maintenant",
         "claimYour": "Réclamer vos %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
+        "vaultCap": "Plafond du Vault",
+        "vaultCapTooltip": "Quelque chose à propos des plafonds de Vaults",
+        "haltedTitle": "Les dépôts sont temporairement suspendus.",
+        "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
+        "estimatedFee": "Frais estimés",
+        "fee": "Frais",
+        "estimatedFeeTooltip": "Frais de transfert de fonds depuis une blockchain de couche 1",
+        "dustAmount": "Quantité de poussière",
+        "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
+        "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
+        "sendDust": "Envoyer de la poussière",
+        "addressToSendTo": "Adresse à laquelle envoyer"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
       "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
       "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
+      "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -1569,5 +1585,26 @@
       "tooltip": "Les frais de priorité sont un pourboire facultatif pour inciter les producteurs de blocs à donner la priorité à votre transaction. Définissez les frais de priorité en gwei que vous souhaitez payer pour chaque unité de carburant."
     },
     "custom": "Personnalisé"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "Qu'est-ce que la stratégie \"Best Yield\" ?",
+      "body": "Maximisez automatiquement le rendement sur plusieurs protocoles DeFi éprouvés. La stratégie \"Best Yield\" optimise la génération de rendement en socialisant les coûts de carburant, en automatisant la génération de rendement par le déplacement de capitaux de manière algorithmique à mesure que de nouvelles opportunités de rendement se présentent."
+    },
+    "seniorTranche": {
+      "title": "Qu'est-ce qu'une \"Senior Tranche\" ?",
+      "body": "Profitez des rendements DeFi sur plusieurs protocoles tout en protégeant votre dépôt. Les \"Senior Tranches\" offrent une protection intégrée sur les fonds et offrent une couverture complète grâce à leur contrepartie \"Junior\"."
+    },
+    "juniorTranche": {
+      "title": "Qu'est-ce qu'une \"Junior Tranche\" ?",
+      "body": "Profitez de rendements accrus sur plusieurs protocoles DeFi : les \"Junior Tranches\" obtiennent un rendement à effet de levier car elles sont rémunérées pour avoir fourni un capital de première perte (first-loss) à leur contrepartie \"Senior\"."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Achetez des cryptos sans KYC",
+      "body": "Achats jusqu'à 1000 $ avec Apple Pay",
+      "cta": "Achetez maintenant"
+    }
   }
 }

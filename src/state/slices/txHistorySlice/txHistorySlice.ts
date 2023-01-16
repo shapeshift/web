@@ -6,7 +6,6 @@ import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -252,29 +251,13 @@ export const txHistoryApi = createApi({
                 },
               }
 
-            const pageSize = (() => {
-              switch (chainId) {
-                case KnownChainIds.AvalancheMainnet:
-                  /**
-                   * as of writing, the data source upstream from unchained can choke and timeout
-                   * on a page size of 100 for avalanche tx history.
-                   *
-                   * using a larger number of smaller requests is a stopgap to prevent timeouts
-                   * until we can address the root cause upstream.
-                   */
-                  return 10
-                default:
-                  return 100
-              }
-            })()
-
             let currentCursor: string = ''
             try {
               do {
                 const { cursor, transactions } = await adapter.getTxHistory({
                   cursor: currentCursor,
                   pubkey,
-                  pageSize,
+                  pageSize: 100,
                 })
 
                 currentCursor = cursor

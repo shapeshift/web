@@ -1,5 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -7,6 +8,7 @@ import { useAppSelector } from 'state/store'
 import { FoxIcon } from './Icons/FoxIcon'
 
 type AssetIconProps = {
+  asset?: Asset
   assetId?: string
 } & AvatarProps
 
@@ -23,14 +25,14 @@ type AssetWithNetworkProps = {
 const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...rest }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  const showFeeAsset = asset?.assetId !== feeAsset?.assetId
+  const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
   const boxShadow = useColorModeValue(
     `0 0 0 0.2em ${feeAsset?.color ?? 'black'}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
     `0 0 0 0.2em ${feeAsset?.color ?? 'white'}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
   )
   return (
     <Avatar src={asset?.icon} icon={icon} border={0} bg='none' {...rest}>
-      {showFeeAsset && (
+      {showNetwork && (
         <Avatar
           boxSize='0.85em'
           zIndex={2}
@@ -40,7 +42,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...r
           border={0}
           bg='none'
           fontSize='inherit'
-          src={feeAsset?.icon}
+          src={feeAsset?.networkIcon ?? feeAsset?.icon}
           boxShadow={boxShadow}
         />
       )}
@@ -48,20 +50,34 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...r
   )
 }
 
-export const AssetIcon = ({ assetId, src, ...rest }: AssetIconProps) => {
+export const AssetIcon = ({ asset, assetId, src, ...rest }: AssetIconProps) => {
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
 
-  if (!assetId && !src) {
-    return null
+  if (!asset && !assetId && !src) return null
+
+  if (assetId) {
+    return (
+      <AssetWithNetwork
+        assetId={assetId}
+        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        {...rest}
+      />
+    )
   }
-  return assetId ? (
-    <AssetWithNetwork
-      assetId={assetId}
-      icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-      {...rest}
-    />
-  ) : (
+
+  if (asset) {
+    return (
+      <Avatar
+        src={asset?.networkIcon ?? asset?.icon}
+        bg={assetIconBg}
+        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        {...rest}
+      />
+    )
+  }
+
+  return (
     <Avatar
       src={src}
       bg={assetIconBg}

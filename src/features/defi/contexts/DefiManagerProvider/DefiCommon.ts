@@ -4,7 +4,6 @@ export enum DefiType {
   LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
-  Farming = 'farming',
   TokenStaking = 'token_staking',
 }
 
@@ -12,7 +11,6 @@ export enum DefiProvider {
   Idle = 'idle',
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
-  FoxEthLP = 'UNI V2',
   FoxFarming = 'ShapeShift Farming',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
@@ -51,6 +49,7 @@ export type DefiQueryParams = {
   rewardId: string
   modal: string
   provider: string
+  type: string
 }
 
 export type DefiManagerProviderProps = {

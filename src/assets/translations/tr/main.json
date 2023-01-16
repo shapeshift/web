@@ -93,8 +93,8 @@
   },
   "buyPage": {
     "title": {
-      "first": "Kripto Satın Al",
-      "second": "Saniyeler içinde"
+      "first": "Saniyeler içinde",
+      "second": "Kripto Satın Alın"
     },
     "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
     "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
@@ -188,7 +188,7 @@
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "exploreThe": "DeFi Dünyası'nı",
-    "defiUniverse": "Keşfet",
+    "defiUniverse": "Keşfedin",
     "body": "%100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "betaSunset": "Beta kullanımdan kaldırıldı, Daha Fazlasını Öğrenin",
@@ -284,6 +284,21 @@
         "confirmClaim": "Talebi Onaylayın",
         "claimNow": "Şimdi Talep Et",
         "claimYour": " %{opportunity} Talep Edin"
+      },
+      "saversVaults": {
+        "description": "THORChain Birikim Kasaları aracılığıyla %{varlığınız} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
+        "vaultCap": "Kasa Üst Limiti",
+        "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
+        "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
+        "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
+        "estimatedFee": "Tahmini Ücret",
+        "fee": "Ücret",
+        "estimatedFeeTooltip": "Katman 1 blok zincirinden fon transfer ücreti",
+        "dustAmount": "Toz Bakiye",
+        "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
+        "sendDustBody": "Para çekebilmek için bu adrese biraz toz göndermeniz gerekiyor.",
+        "sendDust": "Toz Gönder",
+        "addressToSendTo": "Gönderilecek Adres"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "Bu çift için fiyat teklifi alamıyoruz",
       "assetNotSupportedByWallet": "%{assetSymbol}, cüzdan tarafından desteklenmiyor",
       "noReceiveAddress": "%{assetSymbol} için alım adresi yok",
+      "tradingNotActive": "İşlemler %{assetSymbol} için geçici olarak durduruldu",
       "signing": {
         "failed": "İşlem imzalanırken bir hata oluştu",
         "required": "İmzalanmış bir işlem gerekli"
@@ -1569,5 +1585,26 @@
       "tooltip": "Öncelik ücreti, blok üreticilerini işleminize öncelik vermeye teşvik etmek için isteğe bağlı bir ipucudur. Her bir gaz birimi için ödemek istediğiniz öncelik ücretini gwei'de belirleyin."
     },
     "custom": "Özel"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "En İyi Getiri Nedir?",
+      "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
+    },
+    "seniorTranche": {
+      "title": "Senior Tranche (Üst Dilim) nedir?",
+      "body": "Mevduatınızı korurken birden fazla protokolde DeFi getirilerinin keyfini çıkarın. Senior Tranche, fonlar üzerinde yerleşik koruma sunar ve Junior muhatabı sayesinde tam spektrumlu teminat sağlar."
+    },
+    "juniorTranche": {
+      "title": "Junior Tranche (Alt Dilim) nedir?",
+      "body": "Birden fazla DeFi protokolünde artırılmış getirilerin keyfini çıkarın: Junior Tranche, Senior muhatabına ilk kayıp sermayesini sağlamaları karşılığında tazmin edildikleri için kaldıraçlı getiri elde eder."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Kripto Satın Alın(KYC OLMADAN )",
+      "body": "Apple Pay ile 1.000 dolara kadar satın alma",
+      "cta": "Hemen Satın Al"
+    }
   }
 }

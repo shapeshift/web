@@ -93,7 +93,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
           </ModalSection>
         ) : (
           <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.amount'>
-            {feeAsset && <AmountCard value={request.value} assetId={feeAsset.assetId} />}
+            {feeAsset && <AmountCard value={request.value ?? '0'} assetId={feeAsset.assetId} />}
           </ModalSection>
         )}
         <ModalCollapsableSection

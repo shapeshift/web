@@ -215,8 +215,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         accountNumber,
         to: tx.to,
         data: tx.data,
-        value: tx.value,
-        gasLimit: approveData.gasLimit ?? tx.gas,
+        value: tx.value ?? '0',
+        gasLimit: approveData.gasLimit ?? tx.gas ?? '9000', // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
         ...gasData,
       })
       const txToSign = {

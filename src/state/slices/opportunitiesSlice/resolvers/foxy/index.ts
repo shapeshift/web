@@ -15,6 +15,8 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
@@ -33,7 +35,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     // FOXY Token
@@ -61,9 +63,6 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
     if (!underlyingAsset) continue
 
-    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
-    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
-
     const tvl = bnOrZero(opportunity.tvl)
       .div(`1e+${underlyingAsset?.precision}`)
       .times(marketData.price)
@@ -74,13 +73,12 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
-      provider: DefiProvider.ShapeShift,
+      provider: DefiProvider.ShapeShift as const,
       tvl,
       type: DefiType.Staking as const,
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
-      // Idle opportunities wrap a single yield-bearing asset, so the ratio will always be 1
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: ['1'],
       name: `${underlyingAsset.symbol}`,
     }
   }

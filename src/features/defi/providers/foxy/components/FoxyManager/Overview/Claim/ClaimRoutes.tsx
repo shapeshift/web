@@ -58,7 +58,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     accountNumber: bip44Params?.accountNumber ?? 0,
   })
   const opportunity = (foxyBalancesData?.opportunities || []).find(
-    e => e.contractAddress === contractAddress,
+    e => e.contractAssetId === contractAssetId,
   )
   const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
   const withdrawInfo = accountId
@@ -66,6 +66,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
       opportunity?.withdrawInfo[accountId]
     : // Else, get the withdrawInfo for the first account
       opportunity?.withdrawInfo[firstAccountId ?? '']
+
   const location = useLocation()
 
   return (

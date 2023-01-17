@@ -196,7 +196,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
 ) => {
   const { getOpportunityUserData, getOpportunitiesUserData } = opportunitiesApi.endpoints
 
-  const userDataPromises = [
+  await Promise.allSettled([
     ...foxEthLpAssetIds.map(
       async opportunityId =>
         await store.dispatch(
@@ -227,11 +227,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
         },
       ),
     ),
-  ]
-
-  for (const userDataPromise of userDataPromises) {
-    await userDataPromise
-  }
+  ])
 }
 
 export const fetchAllOpportunitiesUserData = (

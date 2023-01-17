@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
 type OsmosisToken = {
@@ -91,7 +91,7 @@ const isOsmosisBasePool = (pool: any): pool is OsmosisBasePool => {
 export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
   if (denom.startsWith('u') && denom !== 'uosmo') {
     return toAssetId({
-      assetNamespace: 'native' as const,
+      assetNamespace: ASSET_NAMESPACE.native,
       assetReference: denom,
       chainId: osmosisChainId,
     })
@@ -99,14 +99,14 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
 
   if (denom.startsWith('ibc')) {
     return toAssetId({
-      assetNamespace: 'ibc' as const,
+      assetNamespace: ASSET_NAMESPACE.ibc,
       assetReference: denom.split('/')[1],
       chainId: osmosisChainId,
     })
   }
 
   return toAssetId({
-    assetNamespace: 'slip44' as const,
+    assetNamespace: ASSET_NAMESPACE.slip44,
     assetReference: ASSET_REFERENCE.Osmosis,
     chainId: osmosisChainId,
   })
@@ -155,18 +155,19 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     const calculatePoolAPY = (pool: OsmosisBasePool): string => {
       const poolHistoricalData = historicalDataByPoolId[pool.id][0] // Identical pool-level historical data exists on both asset entries
 
-      /* Pool fee data is represented in API response like '0.2%'. */
-      const feeMultiplier = bnOrZero(poolHistoricalData.fees.split('%')[0]).multipliedBy(
-        bnOrZero(0.01),
-      )
+      /** Pool fee data is represented in API response like '0.2%', so we strip off the percent sign
+       * then multiply the remaining number by 0.01 to get the fee multiplier.
+       * Ex: (2% of X) = X * 2 * 0.01
+       */
+      const feeMultiplier = bnOrZero(poolHistoricalData.fees.split('%')[0]).multipliedBy(bn(0.01))
       const feesSpent7d = bnOrZero(poolHistoricalData.volume_7d).multipliedBy(feeMultiplier)
-      const averageDailyFeeRevenue = feesSpent7d.dividedBy(bnOrZero(7))
-      const annualRevenue = averageDailyFeeRevenue.multipliedBy(bnOrZero(365))
+      const averageDailyFeeRevenue = feesSpent7d.dividedBy(bn(7))
+      const annualRevenue = averageDailyFeeRevenue.multipliedBy(bn(365))
       const poolTVL = bnOrZero(getPoolTVL(pool))
 
-      if (poolTVL.eq(0) || annualRevenue.eq(0)) return bnOrZero(0).toString()
+      if (poolTVL.eq(0) || annualRevenue.eq(0)) return bn(0).toString()
 
-      return annualRevenue.dividedBy(poolTVL).multipliedBy(bnOrZero(100)).toString()
+      return annualRevenue.dividedBy(poolTVL).multipliedBy(bn(100)).toString()
     }
 
     const getPoolName = (pool: OsmosisBasePool): string => {

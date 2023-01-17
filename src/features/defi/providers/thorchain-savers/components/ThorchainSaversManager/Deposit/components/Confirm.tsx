@@ -28,6 +28,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
+  getAccountAddressesWithBalances,
   getThorchainSaversPosition,
   getThorchainSaversQuote,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -116,7 +117,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             .then(({ asset_address }) =>
               chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
             )
-            .catch(() => '')
+            .catch(async () => {
+              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
+              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
+                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
+              )[0].address
+
+              return highestBalanceAccount
+            })
         : ''
       setMaybeAccountAddress(accountAddress)
     })()

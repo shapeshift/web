@@ -17,6 +17,11 @@ const chainIdFromEthNetwork = (
   return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
 }
 
+export const getSupportedEvmChainIds = () =>
+  Array.from(getChainAdapterManager().keys()).filter(
+    chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm,
+  )
+
 export const useEvm = () => {
   const {
     state: { wallet },
@@ -25,10 +30,7 @@ export const useEvm = () => {
   const [ethNetwork, setEthNetwork] = useState<string>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
-    () =>
-      Array.from(getChainAdapterManager().keys()).filter(
-        chainId => fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm,
-      ),
+    () => getSupportedEvmChainIds(),
     // We want to explicitly react on featureFlags to get a new reference here
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],

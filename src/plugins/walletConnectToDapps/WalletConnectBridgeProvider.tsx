@@ -1,11 +1,17 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type {
+  EvmBaseAdapter,
+  EvmChainId,
+  FeeDataEstimate,
+  FeeDataKey,
+} from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
+import type { EvmSupportedChainIds } from '@shapeshiftoss/swapper'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
@@ -27,6 +33,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import type {
+  TransactionParams,
   WalletConnectCallRequest,
   WalletConnectEthSendTransactionCallRequest,
   WalletConnectEthSignCallRequest,
@@ -44,6 +51,22 @@ import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 const bridge = 'https://bridge.walletconnect.org'
+
+const getFeesForTx = async (
+  tx: TransactionParams,
+  evmChainAdapter: EvmBaseAdapter<EvmChainId>,
+  wcAccountId: AccountId,
+) => {
+  return await evmChainAdapter.getFeeData({
+    to: tx.to,
+    value: bnOrZero(tx.value).toFixed(0),
+    chainSpecific: {
+      from: fromAccountId(wcAccountId).account,
+      contractAddress: tx.to,
+      contractData: tx.data,
+    },
+  })
+}
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
@@ -179,6 +202,25 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [accountMetadataById, wallet, wcAccountId],
   )
 
+  const getGasData = useCallback(
+    (approveData: ConfirmData, fees: FeeDataEstimate<EvmSupportedChainIds>) => {
+      const { speed, customFee } = approveData
+      return speed === 'custom' && customFee?.baseFee && customFee?.baseFee
+        ? {
+            maxPriorityFeePerGas: convertNumberToHex(
+              bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
+            ),
+            maxFeePerGas: convertNumberToHex(
+              bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
+            ),
+          }
+        : {
+            gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
+          }
+    },
+    [],
+  )
+
   const eth_sendTransaction = useCallback(
     async (request: WalletConnectEthSendTransactionCallRequest, approveData: ConfirmData) => {
       if (!wallet) return
@@ -191,23 +233,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         ? convertNumberToHex(approveData.nonce)
         : null
       const didUserChangeNonce = maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== tx.nonce
-      const { speed, customFee } = approveData
-      const fees = await chainAdapter.getFeeData({
-        to: tx.to,
-        value: bnOrZero(tx.value).toFixed(0),
-        chainSpecific: {
-          from: fromAccountId(wcAccountId).account,
-          contractAddress: tx.to,
-          contractData: tx.data,
-        },
-      })
-      const gasData =
-        speed === 'custom' && customFee?.baseFee && customFee?.baseFee
-          ? {
-              maxPriorityFeePerGas: bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
-              maxFeePerGas: bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
-            }
-          : { gasPrice: fees[speed as FeeDataKey].chainSpecific.gasPrice }
+      const fees = await getFeesForTx(tx, chainAdapter, wcAccountId)
+      const gasData = getGasData(approveData, fees)
       const { bip44Params } = accountMetadataById[wcAccountId]
       const { accountNumber } = bip44Params
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
@@ -247,7 +274,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         )
       }
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadataById, getGasData, wallet, wcAccountId],
   )
 
   const eth_signTransaction = useCallback(
@@ -264,29 +291,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const gasLimit =
         (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
         convertNumberToHex(9000) // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
-      const { speed, customFee } = approveData
-      const fees = await chainAdapter.getFeeData({
-        to: tx.to,
-        value: bnOrZero(tx.value).toFixed(0),
-        chainSpecific: {
-          from: fromAccountId(wcAccountId).account,
-          contractAddress: tx.to,
-          contractData: tx.data,
-        },
-      })
-      const gasData =
-        speed === 'custom' && customFee?.baseFee && customFee?.baseFee
-          ? {
-              maxPriorityFeePerGas: convertNumberToHex(
-                bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
-              ),
-              maxFeePerGas: convertNumberToHex(
-                bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
-              ),
-            }
-          : {
-              gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
-            }
+      const fees = await getFeesForTx(tx, chainAdapter, wcAccountId)
+      const gasData = getGasData(approveData, fees)
       return await chainAdapter.signTransaction({
         txToSign: {
           addressNList,
@@ -301,7 +307,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         wallet,
       })
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadataById, getGasData, wallet, wcAccountId],
   )
 
   const approveRequest = useCallback(

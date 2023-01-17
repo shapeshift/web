@@ -23,32 +23,26 @@ export type WalletConnectPersonalSignCallRequest = {
   params: [string, string]
 }
 
+export type TransactionParams = {
+  from: string
+  to: string
+  data: string
+  gas?: string
+  gasPrice?: string
+  value?: string
+  nonce?: string
+}
+
 export type WalletConnectEthSendTransactionCallRequest = {
   id: number
   method: 'eth_sendTransaction'
-  params: {
-    from: string
-    to: string
-    data: string
-    gas?: string
-    gasPrice?: string
-    value?: string
-    nonce?: string
-  }[]
+  params: TransactionParams[]
 }
 
 export type WalletConnectEthSignTransactionCallRequest = {
   id: number
   method: 'eth_signTransaction'
-  params: {
-    from: string
-    to: string
-    data: string
-    gas?: string
-    gasPrice?: string
-    value?: string
-    nonce?: string
-  }[]
+  params: TransactionParams[]
 }
 
 export type WalletConnectSessionRequest = {

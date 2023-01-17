@@ -144,7 +144,7 @@ const getDangerousAddresses: GetDangerousAddresses = async ({ wallet }) => {
         // generate addresses
         for (let index = 0; index < addressCount; index++) {
           // only segwit native produces bc1-prefixed addresses
-          const scriptType = BTCInputScriptType.SpendWitness // segwit-native
+          const scriptType = recoveryAccountTypeToScriptType[accountType] // segwit-native
           const address = await wallet.btcGetAddress({
             addressNList: toAddressNList({ ...bip44Params, index }),
             coin: 'Bitcoin', // only btc and bch affected

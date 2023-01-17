@@ -5,6 +5,7 @@ import type { ReduxState } from 'state/reducer'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectPortfolioAccountBalances,
   selectPortfolioLoadingStatusGranular,
 } from 'state/slices/selectors'
@@ -28,37 +29,41 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 
   const lpOpportunitiesById: Record<LpId, OpportunityMetadata> = {}
 
-  const liquidityPools = await getPools()
+  const { OsmosisLP } = selectFeatureFlags(state)
 
-  for (const pool of liquidityPools) {
-    const toAssetIdParts: ToAssetIdArgs = {
-      assetNamespace: 'ibc',
-      assetReference: `gamm/pool/${pool.id}`,
-      chainId: osmosisChainId,
-    }
+  if (OsmosisLP) {
+    const liquidityPools = await getPools()
 
-    const assetId = toAssetId(toAssetIdParts)
-    const opportunityId = toOpportunityId(toAssetIdParts)
-    const asset = selectAssetById(state, assetId)
+    for (const pool of liquidityPools) {
+      const toAssetIdParts: ToAssetIdArgs = {
+        assetNamespace: 'ibc',
+        assetReference: `gamm/pool/${pool.id}`,
+        chainId: osmosisChainId,
+      }
 
-    if (!asset) continue
+      const assetId = toAssetId(toAssetIdParts)
+      const opportunityId = toOpportunityId(toAssetIdParts)
+      const asset = selectAssetById(state, assetId)
 
-    lpOpportunitiesById[opportunityId] = {
-      apy: pool.apy,
-      assetId,
-      provider: DefiProvider.Osmosis,
-      tvl: pool.tvl,
-      type: DefiType.LiquidityPool,
-      underlyingAssetId: assetId,
-      underlyingAssetIds: [
-        generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
-        generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
-      ],
-      underlyingAssetRatiosBaseUnit: [
-        pool.pool_assets[0].token.amount,
-        pool.pool_assets[1].token.amount,
-      ],
-      name: pool.name,
+      if (!asset) continue
+
+      lpOpportunitiesById[opportunityId] = {
+        apy: pool.apy,
+        assetId,
+        provider: DefiProvider.Osmosis,
+        tvl: pool.tvl,
+        type: DefiType.LiquidityPool,
+        underlyingAssetId: assetId,
+        underlyingAssetIds: [
+          generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
+          generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
+        ],
+        underlyingAssetRatiosBaseUnit: [
+          pool.pool_assets[0].token.amount,
+          pool.pool_assets[1].token.amount,
+        ],
+        name: pool.name,
+      }
     }
   }
 

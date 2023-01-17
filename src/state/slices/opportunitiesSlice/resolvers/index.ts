@@ -21,6 +21,7 @@ import {
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
+  thorchainSaversStakingOpportunitiesUserDataResolver,
 } from './thorchainsavers'
 import {
   yearnStakingOpportunitiesMetadataResolver,
@@ -56,6 +57,9 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunitiesUserDataResolver,
+  },
+  [`${DefiProvider.ThorchainSavers}`]: {
+    [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
   },
 }
 

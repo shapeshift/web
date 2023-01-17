@@ -284,6 +284,21 @@
         "confirmClaim": "Forderung bestätigen",
         "claimNow": "jetzt Einfordern",
         "claimYour": "Fordern Sie Ihre %{opportunity} an"
+      },
+      "saversVaults": {
+        "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
+        "vaultCap": "Tresorobergrenze",
+        "vaultCapTooltip": "Etwas über Tresorobergrenzen",
+        "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
+        "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
+        "estimatedFee": "Geschätzte Gebühr",
+        "fee": "Gebühr",
+        "estimatedFeeTooltip": "Gebühr für die Überweisung von Vermögenswerten einer Layer-1-Blockchain",
+        "dustAmount": "Kleinbetrag",
+        "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
+        "sendDustBody": "Sie müssen einen Kleinbetrag an diese Adresse senden, um Abheben zu können.",
+        "sendDust": "Sende Kleinbetrag",
+        "addressToSendTo": "an diese Adresse senden"
       }
     },
     "memoNote": {
@@ -611,6 +626,7 @@
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
       "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
+      "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -1569,5 +1585,26 @@
       "tooltip": "Die Prioritätsgebühr ist ein optionales Trinkgeld, um Blockproduzenten anzuregen, Ihre Transaktion zu priorisieren. Legen Sie die Prioritätsgebühr in GWEI fest, die Sie für jede Gaseinheit zahlen möchten."
     },
     "custom": "Benutzerdefiniert"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "Was ist Best Yield?",
+      "body": "Maximieren Sie automatisch den Ertrag über mehrere erprobte DeFi-Protokolle. Die Best-Yield-Strategie optimiert die Ertragsgenerierung durch Verteilung der Transaktionskosten und automatisiert die Ertragsgenerierung durch algorithmische Kapitalverlagerung, wenn sich neue Ertragschancen ergeben."
+    },
+    "seniorTranche": {
+      "title": "Was ist eine Senior Tranche?",
+      "body": "Erhalten Sie DeFi-Erträge über mehrere Protokolle hinweg, während Sie Ihre Einzahlung schützen. Senior Tranchen bieten einen integrierten Schutz für Fonds und bieten dank ihrer Junior Tranchen eine umfassende Abdeckung."
+    },
+    "juniorTranche": {
+      "title": "Was ist eine Junior Tranche?",
+      "body": "Profitieren Sie von höheren Renditen über mehrere DeFi-Protokolle hinweg, Junior Tranchen erzielen eine gehebelte Rendite, da sie für die Bereitstellung von First-Loss-Kapital für ihre Senior Tranchen entschädigt werden."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Kaufen Sie Krypto ohne KYC",
+      "body": "Kaufen Sie bis zu 1.000 $ mit Apple Pay",
+      "cta": "Kaufe jetzt"
+    }
   }
 }

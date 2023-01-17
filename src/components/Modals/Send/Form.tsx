@@ -42,7 +42,7 @@ type SendFormProps = {
 export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
   const location = useLocation()
   const history = useHistory()
-  const { handleSend } = useFormSend()
+  const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
 
@@ -87,7 +87,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
+      <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>

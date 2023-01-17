@@ -114,11 +114,6 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
 
 export const getPools = async (): Promise<OsmosisPool[]> => {
   try {
-    /**
-     * TODO: Use axios cache layer with reasonable (30s-5m) max age to save responses between calls.
-     * At app startup, these requests are made ~10 times with the same data returned each time.
-     */
-
     /* Fetch Osmosis pool data */
     const { data: poolData } = await memoize(async (): Promise<AxiosResponse<OsmosisPoolList>> => {
       return await axios.get<OsmosisPoolList>(
@@ -169,7 +164,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
       const annualRevenue = averageDailyFeeRevenue.multipliedBy(bnOrZero(365))
       const poolTVL = bnOrZero(getPoolTVL(pool))
 
-      if (poolTVL.eq(0) || annualRevenue.eq(0)) return bnOrZero(0).toString() // TODO: Handle error properly
+      if (poolTVL.eq(0) || annualRevenue.eq(0)) return bnOrZero(0).toString()
 
       return annualRevenue.dividedBy(poolTVL).multipliedBy(bnOrZero(100)).toString()
     }

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.8.0...@shapeshiftoss/caip-v8.9.0) (2023-01-17)
+
+
+### Features
+
+* add optimism assets ([#1167](https://github.com/shapeshift/lib/issues/1167)) ([1712fc2](https://github.com/shapeshift/lib/commit/1712fc2f0f7696508bdcd47266e355a070b9f061))
+
 # [@shapeshiftoss/caip-v8.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.7.0...@shapeshiftoss/caip-v8.8.0) (2023-01-13)
 
 

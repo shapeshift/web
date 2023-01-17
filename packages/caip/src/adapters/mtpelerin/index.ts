@@ -8,19 +8,22 @@ import {
   btcChainId,
   ethAssetId,
   ethChainId,
+  optimismAssetId,
+  optimismChainId,
 } from '../../constants'
 
 /**
  * provided from https://api.mtPelerin.com/currencies/tokens
  */
 const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
-  ETH: [ethAssetId],
+  ETH: [ethAssetId, optimismAssetId],
   BTC: [btcAssetId],
   DAI: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
   USDT: ['eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'],
   USDC: [
     'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+    'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
   ],
   jEUR: ['eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b'],
   jCHF: ['eip155:1/erc20:0x53dfea0a8cc2a2a2e425e1c174bc162999723ea0'],
@@ -83,8 +86,6 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     '[tezos_mainnet]/KT1JBNFcB5tiycHNdYGYCtR3kk6JaJysUCi8': 'EURL',
     '[arbitrum_mainnet]/0x0000000000000000000000000000000000000000': 'ETH',
     '[arbitrum_mainnet]/0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8': 'USDC',
-    '[optimism_mainnet]/0x0000000000000000000000000000000000000000': 'ETH',
-    '[optimism_mainnet]/0x7F5c764cBc14f9669B88837ca1490cCa17c31607': 'USDC',
     '[avalanche_mainnet]/0x9fB1d52596c44603198fB0aee434fac3a679f702': 'jEUR',
     '[avalanche_mainnet]/0x2d5563da42b06FbBF9c67b7DC073cF6A7842239e': 'jCHF',
     '[avalanche_mainnet]/0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b': 'MAI',
@@ -121,6 +122,7 @@ const chainIdToMtPelerinNetworkCodeMap: Record<ChainId, string> = {
   [ethChainId]: 'mainnet',
   [btcChainId]: 'bitcoin_mainnet',
   [avalancheChainId]: 'avalanche_mainnet', // this is actually the C-Chain
+  [optimismChainId]: 'optimism_mainnet',
 } as const
 
 /**

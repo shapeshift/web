@@ -9,6 +9,7 @@ import {
   dogeAssetId,
   ethAssetId,
   ltcAssetId,
+  optimismAssetId,
 } from '../../constants'
 
 type OnRamperTokenId = string
@@ -21,6 +22,7 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   [dogeAssetId]: ['DOGE'],
   [ltcAssetId]: ['LTC'],
   [bchAssetId]: ['BCH'],
+  [optimismAssetId]: ['ETH_OPTIMISM'],
   'eip155:1/erc20:0x111111111117dc0aa78b770fa6a738034120c302': ['1INCH'],
   'eip155:1/erc20:0xbcca60bb61934080951369a648fb03df4f96263c': ['AUSDC'],
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': ['AAVE_ECR20'],
@@ -51,6 +53,7 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'eip155:1/erc20:0x04fa0d235c4abf4bcf4787af4cf447de572ef828': ['UMA'],
   'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984': ['UNI', 'UNI-ERC20'],
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': ['USDC'],
+  'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607': ['USDC_OPTIMISM'],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': ['USDT'],
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': ['WBTC'],
   'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': ['WETH'],

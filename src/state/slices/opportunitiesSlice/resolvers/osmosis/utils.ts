@@ -171,7 +171,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
 
       if (poolTVL.eq(0) || annualRevenue.eq(0)) return bnOrZero(0).toString() // TODO: Handle error properly
 
-      return annualRevenue.dividedBy(poolTVL).toString()
+      return annualRevenue.dividedBy(poolTVL).multipliedBy(bnOrZero(100)).toString()
     }
 
     const getPoolName = (pool: OsmosisBasePool): string => {

@@ -1,7 +1,6 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type WalletConnect from '@walletconnect/client'
 import type { IClientMeta } from '@walletconnect/types'
-import type { ethers } from 'ethers'
 import { createContext, useContext } from 'react'
 
 import type { WalletConnectCallRequest } from './bridge/types'
@@ -18,7 +17,6 @@ type WalletConnectBridgeContextValue = {
   approveRequest(callRequest: WalletConnectCallRequest, approveData?: unknown): Promise<void>
   rejectRequest(callRequest: WalletConnectCallRequest): void
   wcAccountId: AccountId | undefined
-  signMessage(message: string | ethers.utils.Bytes): Promise<string | undefined>
 }
 
 export const WalletConnectBridgeContext = createContext<WalletConnectBridgeContextValue>({
@@ -33,7 +31,6 @@ export const WalletConnectBridgeContext = createContext<WalletConnectBridgeConte
   approveRequest: Promise.resolve,
   rejectRequest: Promise.resolve,
   wcAccountId: undefined,
-  signMessage: Promise.resolve,
 })
 
 export function useWalletConnect() {

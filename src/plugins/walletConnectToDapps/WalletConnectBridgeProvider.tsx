@@ -1,12 +1,11 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta } from '@walletconnect/types'
-import type { ethers } from 'ethers'
 import { useApprovalHandler } from 'plugins/walletConnectToDapps/useApprovalHandler'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -16,11 +15,7 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
-import {
-  selectAssets,
-  selectPortfolioAccountMetadata,
-  selectWalletAccountIds,
-} from 'state/slices/selectors'
+import { selectAssets, selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type {
@@ -41,15 +36,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const translate = useTranslate()
   const toast = useToast()
   const wallet = useWallet().state.wallet
-  const { eth_signTransaction, eth_sendTransaction, eth_signTypedData, personal_sign, eth_sign } =
-    useApprovalHandler()
   const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
   const [callRequest, setCallRequest] = useState<WalletConnectCallRequest | undefined>()
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const [dapp, setDapp] = useState<IClientMeta | null>(null)
   const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
-  const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
+  const { eth_signTransaction, eth_sendTransaction, eth_signTypedData, personal_sign, eth_sign } =
+    useApprovalHandler(wcAccountId)
+
   const walletAccountIds = useAppSelector(selectWalletAccountIds)
   const evmChainId = useMemo(() => connectedEvmChainId ?? ethChainId, [connectedEvmChainId])
   const chainName = useMemo(() => {
@@ -71,28 +66,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     if (!asset) return ''
     return asset.explorerAddressLink
   }, [assets, evmChainId])
-
-  const signMessage = useCallback(
-    async (message: string | ethers.utils.Bytes) => {
-      if (!message) return
-      if (!wallet) return
-      if (!wcAccountId) return
-      const { chainId } = fromAccountId(wcAccountId)
-      const maybeChainAdapter = getChainAdapterManager().get(chainId)
-      if (!maybeChainAdapter) return
-      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
-      const accountMetadata = accountMetadataById[wcAccountId]
-      if (!accountMetadata) return
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(bip44Params)
-      const messageToSign = { addressNList, message }
-      const input = { messageToSign, wallet }
-      const signedMessage = await chainAdapter.signMessage(input)
-      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signMessage failed')
-      return signedMessage
-    },
-    [accountMetadataById, wallet, wcAccountId],
-  )
 
   const handleSessionRequest = useCallback(
     (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
@@ -352,7 +325,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         accountExplorerAddressLink,
         wcAccountId,
         setWcAccountId,
-        signMessage,
       }}
     >
       {children}

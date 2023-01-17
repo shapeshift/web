@@ -1,11 +1,12 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
+import type { ethers } from 'ethers'
 import { getFeesForTx, getGasData } from 'plugins/walletConnectToDapps/utils'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useCallback } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -24,10 +25,31 @@ import type { ConfirmData } from './components/modal/callRequest/CallRequestComm
 
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
-export const useApprovalHandler = () => {
-  const { wcAccountId, signMessage } = useWalletConnect()
+export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
   const wallet = useWallet().state.wallet
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
+
+  const signMessage = useCallback(
+    async (message: string | ethers.utils.Bytes) => {
+      if (!message) return
+      if (!wallet) return
+      if (!wcAccountId) return
+      const { chainId } = fromAccountId(wcAccountId)
+      const maybeChainAdapter = getChainAdapterManager().get(chainId)
+      if (!maybeChainAdapter) return
+      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      const accountMetadata = accountMetadataById[wcAccountId]
+      if (!accountMetadata) return
+      const { bip44Params } = accountMetadata
+      const addressNList = toAddressNList(bip44Params)
+      const messageToSign = { addressNList, message }
+      const input = { messageToSign, wallet }
+      const signedMessage = await chainAdapter.signMessage(input)
+      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signMessage failed')
+      return signedMessage
+    },
+    [accountMetadataById, wallet, wcAccountId],
+  )
 
   const eth_sign = useCallback(
     async (request: WalletConnectEthSignCallRequest) => {

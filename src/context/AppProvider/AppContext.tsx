@@ -200,6 +200,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             break
           case cosmosChainId:
           case osmosisChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
             dispatch(getValidatorData.initiate(accountId, options))
             fetchAllOpportunitiesUserData(accountId)
             break

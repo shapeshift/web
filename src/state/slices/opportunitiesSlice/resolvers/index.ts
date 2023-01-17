@@ -14,6 +14,11 @@ import {
   idleStakingOpportunityIdsResolver,
 } from './idle'
 import {
+  osmosisLpOpportunitiesMetadataResolver,
+  osmosisLpOpportunityIdsResolver,
+  osmosisLpUserDataResolver,
+} from './osmosis'
+import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
   thorchainSaversStakingOpportunitiesUserDataResolver,
@@ -37,6 +42,9 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunitiesMetadataResolver,
+  },
+  [`${DefiProvider.Osmosis}`]: {
+    [`${DefiType.LiquidityPool}`]: osmosisLpOpportunitiesMetadataResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -66,6 +74,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunityIdsResolver,
   },
+  [`${DefiProvider.Osmosis}`]: {
+    [`${DefiType.LiquidityPool}`]: osmosisLpOpportunityIdsResolver,
+  },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
   },
@@ -75,5 +86,8 @@ export const DefiProviderToUserDataResolverByDeFiType = {
   [`${DefiProvider.FoxFarming}`]: {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpUserDataResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingUserDataResolver,
+  },
+  [`${DefiProvider.Osmosis}`]: {
+    [`${DefiType.LiquidityPool}`]: osmosisLpUserDataResolver,
   },
 }

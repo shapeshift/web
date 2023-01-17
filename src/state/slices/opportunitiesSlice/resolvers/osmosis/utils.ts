@@ -159,15 +159,15 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
        * then multiply the remaining number by 0.01 to get the fee multiplier.
        * Ex: (2% of X) = X * 2 * 0.01
        */
-      const feeMultiplier = bnOrZero(poolHistoricalData.fees.split('%')[0]).multipliedBy(bn(0.01))
+      const feeMultiplier = bnOrZero(poolHistoricalData.fees.split('%')[0]).multipliedBy(bn('0.01'))
       const feesSpent7d = bnOrZero(poolHistoricalData.volume_7d).multipliedBy(feeMultiplier)
       const averageDailyFeeRevenue = feesSpent7d.dividedBy(bn(7))
-      const annualRevenue = averageDailyFeeRevenue.multipliedBy(bn(365))
+      const annualRevenue = averageDailyFeeRevenue.multipliedBy(bn('365.0'))
       const poolTVL = bnOrZero(getPoolTVL(pool))
 
       if (poolTVL.eq(0) || annualRevenue.eq(0)) return bn(0).toString()
 
-      return annualRevenue.dividedBy(poolTVL).multipliedBy(bn(100)).toString()
+      return annualRevenue.dividedBy(poolTVL).toString()
     }
 
     const getPoolName = (pool: OsmosisBasePool): string => {

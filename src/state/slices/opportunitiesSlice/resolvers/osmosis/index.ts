@@ -31,39 +31,40 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 
   const { OsmosisLP } = selectFeatureFlags(state)
 
-  if (OsmosisLP) {
-    const liquidityPools = await getPools()
+  if (!OsmosisLP) {
+    throw new Error('Osmosis LP feature flag disabled. Pool metadata will not be fetched.')
+  }
+  const liquidityPools = await getPools()
 
-    for (const pool of liquidityPools) {
-      const toAssetIdParts: ToAssetIdArgs = {
-        assetNamespace: 'ibc',
-        assetReference: `gamm/pool/${pool.id}`,
-        chainId: osmosisChainId,
-      }
+  for (const pool of liquidityPools) {
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: 'ibc',
+      assetReference: `gamm/pool/${pool.id}`,
+      chainId: osmosisChainId,
+    }
 
-      const assetId = toAssetId(toAssetIdParts)
-      const opportunityId = toOpportunityId(toAssetIdParts)
-      const asset = selectAssetById(state, assetId)
+    const assetId = toAssetId(toAssetIdParts)
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const asset = selectAssetById(state, assetId)
 
-      if (!asset) continue
+    if (!asset) continue
 
-      lpOpportunitiesById[opportunityId] = {
-        apy: pool.apy,
-        assetId,
-        provider: DefiProvider.Osmosis,
-        tvl: pool.tvl,
-        type: DefiType.LiquidityPool,
-        underlyingAssetId: assetId,
-        underlyingAssetIds: [
-          generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
-          generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
-        ],
-        underlyingAssetRatiosBaseUnit: [
-          pool.pool_assets[0].token.amount,
-          pool.pool_assets[1].token.amount,
-        ],
-        name: pool.name,
-      }
+    lpOpportunitiesById[opportunityId] = {
+      apy: pool.apy,
+      assetId,
+      provider: DefiProvider.Osmosis,
+      tvl: pool.tvl,
+      type: DefiType.LiquidityPool,
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [
+        generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
+        generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
+      ],
+      underlyingAssetRatiosBaseUnit: [
+        pool.pool_assets[0].token.amount,
+        pool.pool_assets[1].token.amount,
+      ],
+      name: pool.name,
     }
   }
 

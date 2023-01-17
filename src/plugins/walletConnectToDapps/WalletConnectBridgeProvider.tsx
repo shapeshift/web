@@ -1,28 +1,22 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type {
-  EvmBaseAdapter,
-  EvmChainId,
-  FeeDataEstimate,
-  FeeDataKey,
-} from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
-import type { EvmSupportedChainIds } from '@shapeshiftoss/swapper'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta } from '@walletconnect/types'
 import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
 import type { ethers } from 'ethers'
+import { getFeesForTx, getGasData } from 'plugins/walletConnectToDapps/utils'
 import type { FC, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import {
@@ -33,7 +27,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import type {
-  TransactionParams,
   WalletConnectCallRequest,
   WalletConnectEthSendTransactionCallRequest,
   WalletConnectEthSignCallRequest,
@@ -51,22 +44,6 @@ import { WalletConnectBridgeContext } from './WalletConnectBridgeContext'
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 const bridge = 'https://bridge.walletconnect.org'
-
-const getFeesForTx = async (
-  tx: TransactionParams,
-  evmChainAdapter: EvmBaseAdapter<EvmChainId>,
-  wcAccountId: AccountId,
-) => {
-  return await evmChainAdapter.getFeeData({
-    to: tx.to,
-    value: bnOrZero(tx.value).toFixed(0),
-    chainSpecific: {
-      from: fromAccountId(wcAccountId).account,
-      contractAddress: tx.to,
-      contractData: tx.data,
-    },
-  })
-}
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
@@ -202,25 +179,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [accountMetadataById, wallet, wcAccountId],
   )
 
-  const getGasData = useCallback(
-    (approveData: ConfirmData, fees: FeeDataEstimate<EvmSupportedChainIds>) => {
-      const { speed, customFee } = approveData
-      return speed === 'custom' && customFee?.baseFee && customFee?.baseFee
-        ? {
-            maxPriorityFeePerGas: convertNumberToHex(
-              bnOrZero(customFee.priorityFee).times(1e9).toString(), // to wei
-            ),
-            maxFeePerGas: convertNumberToHex(
-              bnOrZero(customFee.baseFee).times(1e9).toString(), // to wei
-            ),
-          }
-        : {
-            gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
-          }
-    },
-    [],
-  )
-
   const eth_sendTransaction = useCallback(
     async (request: WalletConnectEthSendTransactionCallRequest, approveData: ConfirmData) => {
       if (!wallet) return
@@ -274,7 +232,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         )
       }
     },
-    [accountMetadataById, getGasData, wallet, wcAccountId],
+    [accountMetadataById, wallet, wcAccountId],
   )
 
   const eth_signTransaction = useCallback(
@@ -307,7 +265,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         wallet,
       })
     },
-    [accountMetadataById, getGasData, wallet, wcAccountId],
+    [accountMetadataById, wallet, wcAccountId],
   )
 
   const approveRequest = useCallback(

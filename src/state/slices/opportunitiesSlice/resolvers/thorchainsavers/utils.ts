@@ -22,33 +22,31 @@ const THOR_PRECISION = 8
 
 // Memoized on accountId, see lodash docs:
 // "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddressesWithBalances = memoize(
-  async (accountId: AccountId): Promise<{ address: string; balance: string }[]> => {
-    if (isUtxoAccountId(accountId)) {
-      const { chainId, account: pubkey } = fromAccountId(accountId)
-      const chainAdapters = getChainAdapterManager()
-      const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-      if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
+export const getAccountAddressesWithBalances = async (
+  accountId: AccountId,
+): Promise<{ address: string; balance: string }[]> => {
+  if (isUtxoAccountId(accountId)) {
+    const { chainId, account: pubkey } = fromAccountId(accountId)
+    const chainAdapters = getChainAdapterManager()
+    const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+    if (!adapter) throw new Error(`no adapter for ${chainId} not available`)
 
-      const {
-        chainSpecific: { addresses },
-      } = await adapter.getAccount(pubkey)
+    const {
+      chainSpecific: { addresses },
+    } = await adapter.getAccount(pubkey)
 
-      if (!addresses) return []
+    if (!addresses) return []
 
-      return addresses.map(({ pubkey, balance }) => {
-        const address = pubkey.startsWith('bitcoincash')
-          ? pubkey.replace('bitcoincash:', '')
-          : pubkey
+    return addresses.map(({ pubkey, balance }) => {
+      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
 
-        return { address, balance }
-      })
-    }
+      return { address, balance }
+    })
+  }
 
-    // We don't need balances for chain others than UTXOs
-    return [{ address: fromAccountId(accountId).account, balance: '' }]
-  },
-)
+  // We don't need balances for chain others than UTXOs
+  return [{ address: fromAccountId(accountId).account, balance: '' }]
+}
 
 // Memoized on accountId, see lodash docs:
 // "By default, the first argument provided to the memoized function is used as the map cache key."

@@ -7,7 +7,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -17,7 +17,12 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectStakingOpportunitiesById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
@@ -27,16 +32,23 @@ export const Status = () => {
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
+  const assetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
@@ -90,7 +102,7 @@ export const Status = () => {
       statusBody={statusBody}
       continueText='modals.status.position'
     >
-      <Summary>
+      <Summary mx={4} mb={4}>
         <Row variant='vertical' p={4}>
           <Row.Label>
             <Text translation='modals.confirm.amountToDeposit' />

@@ -109,28 +109,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [accountId, asset, state?.deposit.cryptoAmount])
 
-  useEffect(() => {
-    if (!accountId) return
-    ;(async () => {
-      const accountAddress = isUtxoChainId(chainId)
-        ? await getThorchainSaversPosition(accountId, assetId)
-            .then(({ asset_address }) =>
-              chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
-            )
-            .catch(async () => {
-              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
-              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
-                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
-              )[0].address
-
-              return highestBalanceAccount
-            })
-        : ''
-      setMaybeAccountAddress(accountAddress)
-    })()
-  }, [chainId, accountId, assetId])
-
-  const getSendInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+  const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId)) return
 
     try {
@@ -171,6 +150,115 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.deposit.cryptoAmount,
   ])
 
+  const getPreDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+    if (!(accountId && assetId)) return
+
+    try {
+      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+      const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+
+      const sendInput: SendInput = {
+        cryptoAmount: state?.deposit.cryptoAmount ?? '',
+        asset,
+        from: '', // Let coinselect do its magic here
+        to: maybeAccountAddress,
+        sendMax: false,
+        accountId: accountId ?? '',
+        amountFieldError: '',
+        cryptoSymbol: asset?.symbol ?? '',
+        estimatedFees,
+        feeType: FeeDataKey.Fast,
+        fiatAmount: '',
+        fiatSymbol: selectedCurrency,
+        vanityAddress: '',
+        input: quote.inbound_address,
+      }
+
+      return sendInput
+    } catch (e) {
+      moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
+    }
+  }, [
+    maybeAccountAddress,
+    accountId,
+    asset,
+    assetId,
+    getEstimateFeesArgs,
+    selectedCurrency,
+    state?.deposit.cryptoAmount,
+  ])
+
+  const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
+    if (!walletState.wallet) return
+
+    // THORChain Txs need to always be sent from the same address, since the address (NOT the pubkey) is used to identify an active position
+    // The way THORChain does this is by not being xpub-compliant, and only exposing a single address for UTXOs in their UI
+    // All deposit/withdraws done from their UI are always done with one/many UTXOs from the same address, and change sent back to the same address
+    // We also do this EXCLUSIVELY for THORChain Txs. The rest of the app uses xpubs, so the initially deposited from address isn't guaranteed to be populated
+    // if users send other UTXO Txs in the meantime after depositing
+    // Additionally, we select their highest balance UTXO address as a first deposit, which isn't guaranteed to contain enough value
+    //
+    // For both re/deposit flows, we will possibly need a pre-Tx to populate their highest UTXO/previously deposited from address with enough value
+
+    const depositInput = await getDepositInput()
+    if (!depositInput) throw new Error('Error building send input')
+
+    let txId: string
+
+    try {
+      // 1. Try to deposit from the originally deposited from / highest UTXO balance address
+      // If this is enough, no other Tx is needed
+      txId = await handleSend({
+        sendInput: depositInput,
+        wallet: walletState.wallet,
+      })
+    } catch (e) {
+      // 2. signAndBroadcastTransaction threw, meaning there's not enough value in the picked address - send funds to it
+      const preDepositInput = await getPreDepositInput()
+      if (!preDepositInput) throw new Error('Error building send input')
+      txId = await handleSend({
+        sendInput: preDepositInput,
+        wallet: walletState.wallet,
+      })
+      // 3. Sign and broadcast the depooosit Tx again
+
+      // Wait for the pre-deposit Tx to actually be in the mempool
+      await new Promise(resolve => setTimeout(resolve, 100000))
+      txId = await handleSend({
+        sendInput: depositInput,
+        wallet: walletState.wallet,
+      }).catch(e => {
+        console.log(e)
+        return ''
+      })
+    }
+
+    return txId
+  }, [getDepositInput, getPreDepositInput, walletState.wallet])
+  useEffect(() => {
+    if (!accountId) return
+    ;(async () => {
+      const accountAddress = isUtxoChainId(chainId)
+        ? await getThorchainSaversPosition(accountId, assetId)
+            .then(({ asset_address }) =>
+              chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
+            )
+            .catch(async () => {
+              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
+              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
+                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
+              )[0].address
+
+              return highestBalanceAccount
+            })
+        : ''
+      setMaybeAccountAddress(accountAddress)
+    })()
+  }, [chainId, accountId, assetId])
+
   const handleDeposit = useCallback(async () => {
     if (!dispatch || !bip44Params || !accountId || !assetId) return
     try {
@@ -189,18 +277,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       if (!state?.deposit.cryptoAmount) return
 
-      const sendInput = await getSendInput()
-      if (!sendInput) throw new Error('Error building send input')
+      const depositInput = await getDepositInput()
+      if (!depositInput) throw new Error('Error building send input')
 
-      const maybeTxId = await handleSend({
-        sendInput,
-        wallet: walletState.wallet,
-      })
+      const maybeTxId = await handleMultiTxSend()
+
+      if (!maybeTxId) {
+        throw new Error('Error sending THORCHain savers Txs')
+      }
 
       dispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
     } catch (error) {
-      moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Tx')
+      moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
       // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',
@@ -221,8 +310,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
-    state,
-    getSendInput,
+    state?.deposit.cryptoAmount,
+    getDepositInput,
+    handleMultiTxSend,
     onNext,
     toast,
     translate,

@@ -2,6 +2,7 @@ import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType, TransactionDescription } from '@ethersproject/abi'
 import startCase from 'lodash/startCase'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
+import { useGetAbi } from 'plugins/walletConnectToDapps/components/modal/callRequest/methods/hooks/useGetAbi'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
@@ -11,8 +12,6 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
-import { handleAbiApiResponse } from 'state/apis/abi/utils'
 
 import { useCallRequestFees } from '../hooks/useCallRequestFees'
 import { CopyButton } from './CopyButton'
@@ -37,19 +36,17 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
 }) => {
   // TODO(Q): this shouldn't be feeAsset, get the real asset from request
   const { feeAsset } = useCallRequestFees(request)
-
-  const query = useGetContractAbiQuery(request.to)
-  const { contract, isLoading, error } = handleAbiApiResponse(query)
+  const contractInterface = useGetAbi(request)
 
   const transaction: TransactionDescription | undefined = useMemo(() => {
-    if (!contract || error || isLoading) return undefined
+    if (!contractInterface) return undefined
     try {
-      return contract?.parseTransaction({ data: request.data, value: request.value })
+      return contractInterface?.parseTransaction({ data: request.data, value: request.value })
     } catch (e) {
       moduleLogger.error(e, 'parseTransaction')
       return undefined
     }
-  }, [contract, error, isLoading, request.data, request.value])
+  }, [contractInterface, request.data, request.value])
 
   const addressColor = useColorModeValue('blue.500', 'blue.200')
   const { accountExplorerAddressLink } = useWalletConnect()

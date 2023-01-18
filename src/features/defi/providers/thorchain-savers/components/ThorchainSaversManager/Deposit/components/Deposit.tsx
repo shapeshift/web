@@ -22,7 +22,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getThorchainSaversQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -117,9 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
         ).fast.txFee
         // We might need a dust reconciliation Tx for UTXOs, so we assume gas * 2
-        return bnOrZero(fee)
-          .times(isUtxoChainId(chainId) ? 2 : 1)
-          .toString()
+        return bnOrZero(fee).toString()
       } catch (error) {
         moduleLogger.error(
           { fn: 'getDepositGasEstimate', error },

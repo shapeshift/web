@@ -20,7 +20,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getThorchainSaversQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -104,7 +104,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+        const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const fastFeeCryptoBaseUnit = (

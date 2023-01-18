@@ -14,8 +14,8 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import type {
   MidgardPoolResponse,
   ThorchainSaverPositionResponse,
-  ThorchainSaversQuoteResponse,
-  ThorchainSaversQuoteResponseSuccess,
+  ThorchainSaversDepositQuoteResponse,
+  ThorchainSaversDepositQuoteResponseSuccess,
 } from './types'
 
 const THOR_PRECISION = 8
@@ -109,17 +109,39 @@ export const getThorchainSaversPosition = async (
   return accountPosition
 }
 
-export const getThorchainSaversQuote = async (
+export const getThorchainSaversDepositQuote = async (
   asset: Asset,
   amountCryptoBaseUnit: BigNumber.Value | null | undefined,
-): Promise<ThorchainSaversQuoteResponseSuccess> => {
+): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const amountThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
 
-  const { data: quoteData } = await axios.get<ThorchainSaversQuoteResponse>(
+  const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
+    `${
+      getConfig().REACT_APP_THORCHAIN_NODE_URL
+    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+  )
+
+  if (!quoteData || 'error' in quoteData)
+    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+
+  return quoteData
+}
+
+export const getThorchainSaversWithdrawQuote = async (
+  asset: Asset,
+  amountCryptoBaseUnit: BigNumber.Value | null | undefined,
+): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
+  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+
+  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+
+  const amountThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
+
+  const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
     }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,

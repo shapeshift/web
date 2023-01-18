@@ -3,7 +3,7 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import { btcAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
-import { getThorchainSaversQuote } from './utils'
+import { getThorchainSaversDepositQuote } from './utils'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
@@ -46,7 +46,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      const saversQuote = await getThorchainSaversQuote(btcAssetMock, '10000000')
+      const saversQuote = await getThorchainSaversDepositQuote(btcAssetMock, '10000000')
 
       expect(saversQuote).toMatchObject(btcQuote)
     })
@@ -58,7 +58,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const osmoAssetMock = { assetId: osmosisAssetId, precision: 6 } as unknown as Asset
-      await expect(getThorchainSaversQuote(osmoAssetMock, '10000000')).rejects.toThrow()
+      await expect(getThorchainSaversDepositQuote(osmoAssetMock, '10000000')).rejects.toThrow()
     })
     it('throws when deposit is over the max synth mint supply', async () => {
       mockAxios.get.mockImplementationOnce(() =>
@@ -68,7 +68,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      await expect(getThorchainSaversQuote(btcAssetMock, '10000000000000')).rejects.toThrow()
+      await expect(getThorchainSaversDepositQuote(btcAssetMock, '10000000000000')).rejects.toThrow()
     })
   })
 })

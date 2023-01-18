@@ -1,7 +1,8 @@
+import { useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -9,14 +10,17 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -29,26 +33,32 @@ import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnWithdraw'],
+  namespace: ['DeFi', 'Providers', 'ThorchainSavers', 'ThorchainSaversWithdraw'],
 })
 
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
-  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
-  const [yearnOpportunity, setYearnOpportunity] = useState<YearnOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
+  const translate = useTranslate()
+  const toast = useToast()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
   // Asset info
 
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
   )
 
   const highestBalanceAccountIdFilter = useMemo(
@@ -62,37 +72,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
-        toOpportunityId({
-          chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
-        }),
+        accountId ?? highestBalanceAccountId ?? '',
+        opportunityId ?? '',
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, highestBalanceAccountId, opportunityId],
   )
 
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  useEffect(() => {
-    if (!opportunityData?.assetId) return
-    ;(async () => {
-      setYearnOpportunity(await yearnInvestor.findByOpportunityId(opportunityData.assetId))
-    })()
-  }, [yearnInvestor, opportunityData?.assetId, setYearnOpportunity])
-
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunityData?.assetId ?? ''),
-  )
-
-  const asset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, opportunityData?.assetId ?? ''),
-  )
-
-  if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
@@ -101,32 +93,48 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(bn(10).pow(asset.precision))
   }, [asset.precision, opportunityData?.stakedAmountCryptoBaseUnit])
 
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),
-    [amountAvailableCryptoPrecision, assetMarketData],
+    [amountAvailableCryptoPrecision, assetMarketData.price],
   )
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(userAddress && opportunityData && assetReference)) return
+      if (!(userAddress && assetReference && accountId && opportunityData)) return
       try {
-        if (!yearnOpportunity) throw new Error('No opportunity')
-        const preparedTx = await yearnOpportunity.prepareWithdrawal({
-          amount: bnOrZero(withdraw.cryptoAmount)
-            .times(bn(10).pow(asset?.precision))
-            .integerValue(),
-          address: userAddress,
-        })
-        return bnOrZero(preparedTx.gasPrice)
-          .times(preparedTx.estimatedGas)
-          .integerValue()
+        const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
+          bn(10).pow(asset.precision),
+        )
+        const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+        const chainAdapters = getChainAdapterManager()
+        const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+        const fee = (
+          await adapter.getFeeData({
+            to: quote.inbound_address,
+            value: amountCryptoBaseUnit.toFixed(0),
+            chainSpecific: { pubkey: userAddress, from: '' },
+            sendMax: false,
+          })
+        ).fast.txFee
+        // We might need a dust reconciliation Tx for UTXOs, so we assume gas * 2
+        return bnOrZero(fee)
+          .times(isUtxoChainId(chainId) ? 2 : 1)
           .toString()
       } catch (error) {
-        // TODO: handle client side errors maybe add a toast?
-        moduleLogger.error(error, 'YearnWithdraw:Withdraw:getWithdrawGasEstimate error')
+        moduleLogger.error(
+          { fn: 'getDepositGasEstimate', error },
+          'Error getting deposit gas estimate',
+        )
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
       }
     },
-    [userAddress, opportunityData, assetReference, yearnOpportunity, asset?.precision],
+    [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
   )
 
   const handleContinue = useCallback(

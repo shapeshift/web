@@ -40,7 +40,7 @@ export type ThorchainSaverPositionResponse = {
   growth_pct: string
 }
 
-export type ThorchainSaversQuoteResponseSuccess = {
+export type ThorchainSaversDepositQuoteResponseSuccess = {
   expected_amount_out: string
   fees: {
     affiliate: string
@@ -53,10 +53,10 @@ export type ThorchainSaversQuoteResponseSuccess = {
   slippage_bps: number
 }
 
-export type ThorchainSaversQuoteResponseError = {
+export type ThorchainSaversDepositQuoteResponseError = {
   error: string
 }
 
-export type ThorchainSaversQuoteResponse =
-  | ThorchainSaversQuoteResponseSuccess
-  | ThorchainSaversQuoteResponseError
+export type ThorchainSaversDepositQuoteResponse =
+  | ThorchainSaversDepositQuoteResponseSuccess
+  | ThorchainSaversDepositQuoteResponseError

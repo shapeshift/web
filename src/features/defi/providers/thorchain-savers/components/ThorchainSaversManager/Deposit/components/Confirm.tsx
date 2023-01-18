@@ -31,8 +31,8 @@ import { logger } from 'lib/logger'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   getAccountAddressesWithBalances,
+  getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
-  getThorchainSaversQuote,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -106,7 +106,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
       bn(10).pow(asset.precision),
     )
-    const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+    const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
 
     return {
       cryptoAmount: state.deposit.cryptoAmount,
@@ -129,7 +129,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+      const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
 
       const sendInput: SendInput = {
         cryptoAmount: state.deposit.cryptoAmount,
@@ -170,7 +170,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+      const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
 
       const sendInput: SendInput = {
         cryptoAmount: '',

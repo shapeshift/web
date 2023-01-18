@@ -23,7 +23,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
-  getThorchainSaversQuote,
+  getThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
   THOR_DEPOSIT_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -111,7 +111,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+        const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
         const chainAdapters = getChainAdapterManager()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property

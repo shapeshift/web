@@ -184,7 +184,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const getPreDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
-    if (!(accountId && assetId)) return
+    if (!(accountId && assetId && state?.deposit?.estimatedGasCrypto)) return
 
     try {
       const estimatedFees = await estimateFees(await getEstimateFeesArgs())
@@ -194,7 +194,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
 
       const sendInput: SendInput = {
-        cryptoAmount: state?.deposit.cryptoAmount ?? '',
+        cryptoAmount: bnOrZero(state?.deposit.cryptoAmount)
+          .plus(state?.deposit?.estimatedGasCrypto)
+          .toFixed(),
         asset,
         from: '', // Let coinselect do its magic here
         to: maybeFromUTXOAccountAddress,
@@ -217,11 +219,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     maybeFromUTXOAccountAddress,
     accountId,
-    asset,
     assetId,
     getEstimateFeesArgs,
-    selectedCurrency,
     state?.deposit.cryptoAmount,
+    state?.deposit?.estimatedGasCrypto,
+    asset,
+    selectedCurrency,
   ])
 
   const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
@@ -256,10 +259,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         sendInput: preDepositInput,
         wallet: walletState.wallet,
       })
-      // 3. Sign and broadcast the depooosit Tx again
-
       // Wait for the pre-deposit Tx to actually be in the mempool
-      await new Promise(resolve => setTimeout(resolve, 100000))
+      await new Promise(resolve => setTimeout(resolve, 10000))
+      // 3. Sign and broadcast the depooosit Tx again
       txId = await handleSend({
         sendInput: depositInput,
         wallet: walletState.wallet,

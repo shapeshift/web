@@ -296,8 +296,11 @@
         "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
         "dustAmount": "Dust Amount",
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
-        "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
-        "sendDust": "Send Dust",
+        "utxoReconciliateBody": {
+          "sendDust": "You need to send some dust to this address to be able to withdraw.",
+          "sendAmount": "Before depositing, funds need to be sent to the address originally used for depositing."
+        },
+        "utxoReconciliate": "Send Dust",
         "addressToSendTo": "Address to Send To"
       }
     },

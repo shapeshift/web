@@ -10,7 +10,8 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -42,6 +43,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ReconciliationType } from '../../UtxoReconciliate/UtxoReconciliate'
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
@@ -53,7 +55,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   // TODO: Allow user to set fee priority
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { history, query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
   const chainAdapter = getChainAdapterManager().get(chainId)
@@ -108,6 +110,27 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contractAddress: '',
     }
   }, [accountId, asset, state?.deposit.cryptoAmount])
+
+  useEffect(() => {
+    if (!accountId) return
+    ;(async () => {
+      const accountAddress = isUtxoChainId(chainId)
+        ? await getThorchainSaversPosition(accountId, assetId)
+            .then(({ asset_address }) =>
+              chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
+            )
+            .catch(async () => {
+              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
+              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
+                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
+              )[0].address
+
+              return highestBalanceAccount
+            })
+        : ''
+      setMaybeAccountAddress(accountAddress)
+    })()
+  }, [chainId, accountId, assetId])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId)) return
@@ -269,8 +292,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
         return
 
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       if (!state?.deposit.cryptoAmount) return
+
+      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
       const depositInput = await getDepositInput()
       if (!depositInput) throw new Error('Error building send input')
@@ -284,8 +308,29 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
     } catch (error) {
+      moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Tx')
+      // This passed all checks. If this fails here, this means a coinselect issue
+      // i.e the UTXO that was originally used doesn't have enough value to be used again
+      // Route to the dust modal, then once dust is sent route back to this screen
+      if ((error as any).message.includes("coinSelect didn't select coins")) {
+        onNext(DefiStep.Status)
+        return history.push({
+          pathname: location.pathname,
+          search: qs.stringify({
+            ...query,
+            modal: DefiAction.UtxoReconciliate,
+            provider: opportunity?.provider!,
+            type: opportunity?.type!,
+            cryptoAmount: state?.deposit.cryptoAmount,
+            fiatAmount: state?.deposit.fiatAmount,
+            reconciliationType: ReconciliationType.Deposit,
+            accountAddress: maybeAccountAddress,
+            estimatedGasCrypto: state?.deposit.estimatedGasCrypto,
+          }),
+        })
+      }
+
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
-      // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -306,11 +351,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.estimatedGasCrypto,
     getDepositInput,
     handleMultiTxSend,
     onNext,
     toast,
     translate,
+    history,
+    location.pathname,
+    query,
+    maybeAccountAddress,
   ])
 
   const handleCancel = useCallback(() => {

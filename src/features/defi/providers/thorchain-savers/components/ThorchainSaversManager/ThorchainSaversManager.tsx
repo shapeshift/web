@@ -10,8 +10,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { ThorchainSaversDeposit } from './Deposit/ThorchainSaversDeposit'
-import { Dust } from './Dust/Dust'
 import { ThorchainSaversOverview } from './Overview/ThorchainSaversOverview'
+import { UtxoReconciliate } from './UtxoReconciliate/UtxoReconciliate'
 import { ThorchainSaversWithdraw } from './Withdraw/ThorchainSaversWithdraw'
 
 export const ThorchainSaversManager = () => {
@@ -36,9 +36,9 @@ export const ThorchainSaversManager = () => {
           <ThorchainSaversWithdraw accountId={accountId} onAccountIdChange={setAccountId} />
         </SlideTransition>
       )}
-      {modal === DefiAction.SendDust && (
-        <SlideTransition key={DefiAction.SendDust}>
-          <Dust accountId={accountId} onAccountIdChange={setAccountId} />
+      {modal === DefiAction.UtxoReconciliate && (
+        <SlideTransition key={DefiAction.UtxoReconciliate}>
+          <UtxoReconciliate accountId={accountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

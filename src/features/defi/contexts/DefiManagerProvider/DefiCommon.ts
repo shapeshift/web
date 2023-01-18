@@ -1,4 +1,5 @@
 import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
+import type { ReconciliationType } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/UtxoReconciliate/UtxoReconciliate'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -23,7 +24,7 @@ export enum DefiAction {
   Withdraw = 'withdraw',
   GetStarted = 'get-started',
   Claim = 'claim',
-  SendDust = 'send-dust',
+  UtxoReconciliate = 'utxo-reconciliate',
 }
 
 export enum DefiStep {
@@ -39,7 +40,7 @@ export type DefiParams = {
   action: DefiAction
 }
 
-export type DefiQueryParams = {
+export type DefiQueryParamsBase = {
   defaultAccountId?: AccountId
   chainId: ChainId
   highestBalanceAccountAddress?: string
@@ -50,6 +51,17 @@ export type DefiQueryParams = {
   modal: string
   provider: string
   type: string
+}
+export type DefiQueryParams = DefiQueryParamsBase | ThorchainSaversDefiQueryParams
+
+export type ThorchainSaversDefiQueryParams = DefiQueryParamsBase & {
+  provider: DefiProvider.ThorchainSavers
+  type: DefiType.Staking
+  accountAddress: string
+  reconciliationType: ReconciliationType
+  cryptoAmount: string
+  fiatAmount: string
+  estimatedGasCrypto: string
 }
 
 export type DefiManagerProviderProps = {

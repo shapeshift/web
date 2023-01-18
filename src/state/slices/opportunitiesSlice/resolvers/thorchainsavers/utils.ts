@@ -27,6 +27,8 @@ import type {
   ThorchainSaverPositionResponse,
   ThorchainSaversDepositQuoteResponse,
   ThorchainSaversDepositQuoteResponseSuccess,
+  ThorchainSaversWithdrawQuoteResponse,
+  ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
 const THOR_PRECISION = 8
@@ -152,17 +154,35 @@ export const getThorchainSaversDepositQuote = async (
 export const getThorchainSaversWithdrawQuote = async (
   asset: Asset,
   amountCryptoBaseUnit: BigNumber.Value | null | undefined,
-): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
+  accountId: AccountId,
+): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
-  const amountThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
+  // TODO(gomes)
+  const withdrawBasePoints = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
 
-  const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
+  const accountAddresses = await getAccountAddresses(accountId)
+
+  const allPositions = await getAllThorchainSaversPositions(asset.assetId)
+
+  if (!allPositions.length)
+    throw new Error(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
+
+  const accountPosition = allPositions.find(
+    ({ asset_address }) =>
+      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+  )
+
+  if (!accountPosition) throw new Error('No THORChain savers position found')
+
+  const { asset_address } = accountPosition
+
+  const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${withdrawBasePoints}`,
   )
 
   if (!quoteData || 'error' in quoteData)

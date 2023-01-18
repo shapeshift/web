@@ -42,30 +42,23 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const underlyingAssetId = toAssetId({
+  const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: contractAddress,
-  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -80,12 +73,12 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
         (accountId ?? highestBalanceAccountId)!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
+          assetNamespace,
+          assetReference,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId],
   )
 
   const opportunityData = useAppSelector(state =>
@@ -97,9 +90,9 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
 
   useEffect(() => {
     if (state.opportunity) return
-    if (!(walletState.wallet && contractAddress && opportunityData)) return
+    if (!(walletState.wallet && opportunityData)) return
     dispatch({ type: ThorchainSaversWithdrawActionType.SET_OPPORTUNITY, payload: opportunityData })
-  }, [contractAddress, opportunityData, state.opportunity, walletState.wallet])
+  }, [opportunityData, state.opportunity, walletState.wallet])
 
   const handleBack = useCallback(() => {
     history.push({

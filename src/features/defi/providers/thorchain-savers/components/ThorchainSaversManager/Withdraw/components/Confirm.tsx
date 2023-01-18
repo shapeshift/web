@@ -52,7 +52,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -60,8 +60,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAssetId = chainAdapter?.getFeeAssetId()
 
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -77,12 +77,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         (accountId ?? highestBalanceAccountId)!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
+          assetNamespace,
+          assetReference,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId],
   )
 
   const opportunityData = useAppSelector(state =>

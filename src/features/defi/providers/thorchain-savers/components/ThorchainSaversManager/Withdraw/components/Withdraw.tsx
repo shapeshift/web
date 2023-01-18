@@ -18,7 +18,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { getThorchainSaversWithdrawQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -106,7 +106,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+        const quote = await getThorchainSaversWithdrawQuote(asset, amountCryptoBaseUnit, accountId)
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const fee = (
@@ -123,7 +123,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getWithdrawGasEstimate', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -139,20 +139,31 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && dispatch)) return
-      // set withdraw state for future use
+      if (!(userAddress && opportunityData && dispatch)) return
+      // set deposit state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
-      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-      if (!estimatedGasCrypto) return
-      dispatch({
-        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
-      })
-      onNext(DefiStep.Confirm)
-      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      try {
+        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedGasCrypto },
+        })
+        onNext(DefiStep.Confirm)
+        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      }
     },
-    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
+    [userAddress, opportunityData, dispatch, getWithdrawGasEstimate, onNext, toast, translate],
   )
 
   const handleCancel = useCallback(() => {

@@ -40,7 +40,9 @@ export type ThorchainSaverPositionResponse = {
   growth_pct: string
 }
 
-export type ThorchainSaversDepositQuoteResponseSuccess = {
+export type ThorchainSaversCommonQuoteResponseSuccess = {
+  expiry: string // TODO(gomes): guard against expired quote
+  dust_threshold: string
   expected_amount_out: string
   fees: {
     affiliate: string
@@ -48,15 +50,32 @@ export type ThorchainSaversDepositQuoteResponseSuccess = {
     outbound: string
   }
   inbound_address: string
-  inbound_confirmation_blocks: number
   memo: string
   slippage_bps: number
+  notes: string
+  warning: string
 }
 
-export type ThorchainSaversDepositQuoteResponseError = {
+export type ThorchainSaversCommonQuoteResponseError = {
   error: string
 }
 
+export type ThorchainSaversDepositQuoteResponseSuccess =
+  ThorchainSaversCommonQuoteResponseSuccess & {
+    inbound_confirmation_blocks: number
+  }
+
+export type ThorchainSaversWithdrawQuoteResponseSuccess =
+  ThorchainSaversCommonQuoteResponseSuccess & {
+    outbound_delay_blocks: number
+    outbound_delay_seconds: number
+    slippage_bps: number
+  }
+
 export type ThorchainSaversDepositQuoteResponse =
   | ThorchainSaversDepositQuoteResponseSuccess
-  | ThorchainSaversDepositQuoteResponseError
+  | ThorchainSaversCommonQuoteResponseError
+
+export type ThorchainSaversWithdrawQuoteResponse =
+  | ThorchainSaversWithdrawQuoteResponseSuccess
+  | ThorchainSaversCommonQuoteResponseError

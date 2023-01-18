@@ -257,8 +257,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         sendInput: preDepositInput,
         wallet: walletState.wallet,
       })
-      // Wait for the pre-deposit Tx to actually be in the mempool
-      await new Promise(resolve => setTimeout(resolve, 10000))
       // 3. Sign and broadcast the depooosit Tx again
       txId = await handleSend({
         sendInput: depositInput,

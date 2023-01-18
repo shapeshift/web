@@ -104,13 +104,13 @@ export const opportunitiesApi = createApi({
   keepUnusedDataFor: 300,
   endpoints: build => ({
     getOpportunityIds: build.query<GetOpportunityIdsOutput, GetOpportunityIdsInput>({
-      queryFn: async ({ defiType, defiProvider }) => {
+      queryFn: async ({ defiType, defiProvider }, { dispatch, getState }) => {
         try {
           const resolver = getOpportunityIdsResolversByDefiProviderAndDefiType(
             defiProvider,
             defiType,
           )
-          const resolved = await resolver()
+          const resolved = await resolver({ reduxApi: { dispatch, getState } })
 
           return { data: resolved.data }
         } catch (e) {

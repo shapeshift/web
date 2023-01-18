@@ -56,7 +56,6 @@ const validators = {
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_ZENDESK_KEY: str({ default: '' }),
   REACT_APP_FEATURE_ZENDESK: bool({ default: false }),
-  REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
@@ -121,6 +120,7 @@ const validators = {
   REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT: num({
     default: 1000,
   }),
+  REACT_APP_FEATURE_YEARN: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

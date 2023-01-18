@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -18,11 +18,13 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,7 +48,14 @@ export const Withdraw: React.FC<
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId, assetReference } = query
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
   const toast = useToast()
 
   const methods = useForm<FoxyWithdrawValues>({ mode: 'onChange' })
@@ -54,24 +63,18 @@ export const Withdraw: React.FC<
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
-  const assetNamespace = 'erc20'
-  // Reward Asset info
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
+  // Asset info also known as FOXY
+  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const rewardId = fromAssetId(assetId).assetReference
+
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Staking Asset Info
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 

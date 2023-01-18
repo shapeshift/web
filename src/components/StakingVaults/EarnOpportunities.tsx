@@ -12,7 +12,6 @@ import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAggregatedEarnUserLpOpportunity,
@@ -40,8 +39,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const { data: foxyBalancesData } = useFoxyBalances()
-
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
   const foxEthLpOpportunityFilter = useMemo(
@@ -65,7 +62,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
-    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
     foxEthLpOpportunity,
     stakingOpportunities,

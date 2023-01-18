@@ -23,11 +23,13 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,21 +53,20 @@ export const FoxyWithdraw: React.FC<{
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId, assetReference } = query
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
+  // Asset info also known as FOXY
+  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const underlyingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)

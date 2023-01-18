@@ -107,7 +107,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        const fee = (
+        const fastFeeCryptoBaseUnit = (
           await adapter.getFeeData({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
@@ -115,7 +115,11 @@ export const Deposit: React.FC<DepositProps> = ({
             sendMax: false,
           })
         ).fast.txFee
-        return bnOrZero(fee).toString()
+
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(`1e${asset.precision}`),
+        )
+        return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         moduleLogger.error(
           { fn: 'getDepositGasEstimate', error },

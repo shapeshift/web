@@ -115,7 +115,6 @@ export const Deposit: React.FC<DepositProps> = ({
             sendMax: false,
           })
         ).fast.txFee
-        // We might need a dust reconciliation Tx for UTXOs, so we assume gas * 2
         return bnOrZero(fee).toString()
       } catch (error) {
         moduleLogger.error(

@@ -194,13 +194,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
 
       const sendInput: SendInput = {
-        cryptoAmount: bnOrZero(state?.deposit.cryptoAmount)
-          .plus(state?.deposit?.estimatedGasCrypto)
-          .toFixed(),
+        cryptoAmount: '',
         asset,
         from: '', // Let coinselect do its magic here
         to: maybeFromUTXOAccountAddress,
-        sendMax: false,
+        sendMax: true,
         accountId: accountId ?? '',
         amountFieldError: '',
         cryptoSymbol: asset?.symbol ?? '',
@@ -265,10 +263,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       txId = await handleSend({
         sendInput: depositInput,
         wallet: walletState.wallet,
-      }).catch(e => {
-        console.log(e)
-        return ''
-      })
+      }).catch(_e => '')
     }
 
     return txId
@@ -290,7 +285,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               return highestBalanceAccount
             })
         : ''
-      setmaybeFromUTXOAccountAddress(accountAddress)
+      setMaybeFromUTXOAccountAddress(accountAddress)
     })()
   }, [chainId, accountId, assetId])
 

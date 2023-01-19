@@ -27,6 +27,7 @@ function readBlobAsText(x: Blob): Promise<string> {
 // Defined at the root level entirely to make the lack of indentation on multiline
 // string literals look less strange
 const input = `// Pendo Agent Wrapper
+// Copyright 2023 Pendo.io, Inc.
 // Environment:    production
 // Agent Version:  1234
 // Installed:      1970-01-01T00:00:00Z
@@ -39,6 +40,7 @@ foobar
 
 const output = `// Pendo Agent Wrapper
 // Environment:    production
+// Copyright 2023 Pendo.io, Inc.
 // Agent Version:  1234
 // Installed:      1970-01-01T00:00:00Z
 (function (PendoConfig) {

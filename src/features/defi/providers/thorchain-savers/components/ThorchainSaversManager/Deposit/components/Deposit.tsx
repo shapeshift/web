@@ -204,7 +204,6 @@ export const Deposit: React.FC<DepositProps> = ({
     (value: string) => {
       const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
-      debugger
 
       const minLimitCryptoPrecision = bn(THOR_DEPOSIT_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
@@ -233,7 +232,6 @@ export const Deposit: React.FC<DepositProps> = ({
         .div(marketData.price)
         .times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
-      debugger
 
       const minLimitCryptoPrecision = bn(THOR_DEPOSIT_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),

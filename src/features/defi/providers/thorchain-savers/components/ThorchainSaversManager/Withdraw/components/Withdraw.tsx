@@ -18,7 +18,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getThorchainSaversWithdrawQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  getThorchainSaversWithdrawQuote,
+  getWithdrawBps,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -106,7 +109,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversWithdrawQuote(asset, amountCryptoBaseUnit, accountId)
+        const withdrawBps = getWithdrawBps(
+          amountCryptoBaseUnit,
+          opportunityData?.stakedAmountCryptoBaseUnit,
+          opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+        )
+
+        const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const fee = (

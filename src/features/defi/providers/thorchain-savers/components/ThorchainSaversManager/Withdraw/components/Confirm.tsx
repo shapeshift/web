@@ -152,17 +152,33 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
       bn(10).pow(asset.precision),
     )
-    const quote = await getThorchainSaversWithdrawQuote(asset, amountCryptoBaseUnit, accountId)
+
+    const withdrawBps = getWithdrawBps(
+      amountCryptoBaseUnit,
+      opportunityData?.stakedAmountCryptoBaseUnit,
+      opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+    )
+    const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+
+    const { dust_amount } = quote
+
+    if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
     return {
-      cryptoAmount: dustAmount, // TODO:
+      cryptoAmount: dust_amount,
       asset,
       to: quote.inbound_address,
       sendMax: false,
       accountId: accountId ?? '',
       contractAddress: '',
     }
-  }, [accountId, asset, state?.withdraw.cryptoAmount])
+  }, [
+    accountId,
+    asset,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    state?.withdraw.cryptoAmount,
+  ])
 
   const getWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId)) return
@@ -174,18 +190,21 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
 
       const withdrawBps = getWithdrawBps(
-        bnOrZero(state?.withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+        amountCryptoBaseUnit,
         opportunityData?.stakedAmountCryptoBaseUnit,
         opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
       )
 
-      debugger
-      const quote = await getThorchainSaversWithdrawQuote(asset, amountCryptoBaseUnit, accountId)
+      const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+
+      if (!quote) throw new Error('Error getting THORChain savers withdraw quote')
+
+      const { dust_amount } = quote
 
       const accountAddress = await getAccountAddress()
 
       const sendInput: SendInput = {
-        cryptoAmount: dustAmount, // TODO:
+        cryptoAmount: dust_amount,
         asset,
         to: quote.inbound_address,
         from: accountAddress,

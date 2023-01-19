@@ -31,7 +31,7 @@ import type {
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
-const THOR_PRECISION = '10000'
+const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
 
 export const THOR_DEPOSIT_DUST_THRESHOLDS = {
@@ -154,15 +154,12 @@ export const getThorchainSaversDepositQuote = async (
 
 export const getThorchainSaversWithdrawQuote = async (
   asset: Asset,
-  amountCryptoBaseUnit: BigNumber.Value | null | undefined,
   accountId: AccountId,
+  bps: string,
 ): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
-
-  // TODO(gomes)
-  const withdrawBasePoints = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
 
   const accountAddresses = await getAccountAddresses(accountId)
 
@@ -183,7 +180,7 @@ export const getThorchainSaversWithdrawQuote = async (
   const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${withdrawBasePoints}`,
+    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
   )
 
   if (!quoteData || 'error' in quoteData)
@@ -235,13 +232,7 @@ export const getWithdrawBps = (
     stakedAmountCryptoBaseUnitIncludeRewards,
   )
 
-  debugger
+  const withdrawBps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
 
-  const withdrawBps = withdrawRatio
-    .times(stakedAmountCryptoBaseUnit)
-    .times(BASE_BPS_POINTS)
-    .toFixed(0)
-
-  debugger
   return withdrawBps
 }

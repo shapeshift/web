@@ -39,8 +39,8 @@ foobar
 });`
 
 const output = `// Pendo Agent Wrapper
-// Environment:    production
 // Copyright 2023 Pendo.io, Inc.
+// Environment:    production
 // Agent Version:  1234
 // Installed:      1970-01-01T00:00:00Z
 (function (PendoConfig) {
@@ -78,7 +78,8 @@ describe('parseAgent', () => {
       baz: 'bash',
       foo: 'bar',
     })
-    expect(result.integrity).toEqual('sha256-LgG3foY4j+rqLqKN3sjc4mtT43UQORGy7+j0HcnWcq8=')
+
+    expect(result.integrity).toEqual('sha256-56zayyn6/pHtcgoxel1GySUmwrLUxNxbwPvjtlS9MDE=')
     expect(result.makeFixupHelpers).toStrictEqual(makeFixupHelpers)
     expect(result.src).toEqual('blob:foobar')
     expect(await readBlobAsText(await blobPromise)).toEqual(output)

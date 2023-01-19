@@ -242,6 +242,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     let txId: string
 
+    // Try/catching and evaluating to something in the catch isn't a good pattern usually
+    // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
+    // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
+    // and finally evaluate to either the original Tx or a falsy empty string
     try {
       // 1. Try to deposit from the originally deposited from / highest UTXO balance address
       // If this is enough, no other Tx is needed
@@ -250,7 +254,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         wallet: walletState.wallet,
       })
     } catch (e) {
-      // 2. signAndBroadcastTransaction threw, meaning there's not enough value in the picked address - send funds to it
+      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
       const preDepositInput = await getPreDepositInput()
       if (!preDepositInput) throw new Error('Error building send input')
       txId = await handleSend({

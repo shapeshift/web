@@ -17,12 +17,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
@@ -38,8 +36,6 @@ export const AllEarnOpportunities = () => {
     dispatch,
   } = useWallet()
 
-  const { OsmosisLP } = useAppSelector(selectFeatureFlags)
-
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -51,16 +47,6 @@ export const AllEarnOpportunities = () => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
 
-  const foxEthLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-    [],
-  )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
-  )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
@@ -74,7 +60,7 @@ export const AllEarnOpportunities = () => {
       accountId: osmosisAccountId,
     })
 
-  const lpOpportunities = useAppSelector(state => selectAggregatedEarnUserLpOpportunities(state))
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const allRows = useNormalizeOpportunities({
     cosmosSdkStakingOpportunities: useMemo(
@@ -86,7 +72,7 @@ export const AllEarnOpportunities = () => {
         !opportunity.expired ||
         (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
-    ...(OsmosisLP ? { lpOpportunities } : { foxEthLpOpportunity }),
+    lpOpportunities,
   })
 
   const filteredRows = useMemo(

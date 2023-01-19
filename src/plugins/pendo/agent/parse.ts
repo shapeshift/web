@@ -39,8 +39,7 @@ export async function parseAgent(
     throw new PendoAgentValidationError('fixupTables is not an object')
   }
 
-  const lines = src.split('\n')
-  if (lines[lines.length - 1] === '') lines.pop()
+  const lines = src.split('\n').filter(Boolean)
   const agentHeaderLines = []
   const innerAgentLines = []
   const config: Record<string, unknown> = {}

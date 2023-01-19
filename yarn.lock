@@ -4463,16 +4463,6 @@
   dependencies:
     apg-js "^4.1.1"
 
-"@spruceid/siwe-parser@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@spruceid/siwe-parser/-/siwe-parser-2.0.2.tgz#964dbe9e5611fe95d39e21aa96e67407f610374f"
-  integrity sha512-9WuA0ios2537cWYu39MMeH0O2KdrMKgKlOBUTWRTXQjCYu5B+mHCA0JkCbFaJ/0EjxoVIcYCXIW/DoPEpw+PqA==
-  dependencies:
-    "@noble/hashes" "^1.1.2"
-    apg-js "^4.1.1"
-    uri-js "^4.4.1"
-    valid-url "^1.0.9"
-
 "@stablelib/aead@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/aead/-/aead-1.0.1.tgz#c4b1106df9c23d1b867eb9b276d8f42d5fc4c0c3"
@@ -21021,16 +21011,6 @@ siwe@^1.1.6:
     "@stablelib/random" "^1.0.1"
     apg-js "^4.1.1"
 
-siwe@^2.0.5:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/siwe/-/siwe-2.1.3.tgz#3048f6d0c1534d4edfb074efddc3f41939472421"
-  integrity sha512-d20jADr6MI6oWPDHg9bE+CBsUYkQQ2g4+ayCQ3QapAuYeE/dvFWI/7lwOOV21EuqZMmyrLVOSezgVoq0HAn8yw==
-  dependencies:
-    "@spruceid/siwe-parser" "^2.0.2"
-    "@stablelib/random" "^1.0.1"
-    uri-js "^4.4.1"
-    valid-url "^1.0.9"
-
 slash@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-2.0.0.tgz#de552851a1759df3a8f206535442f5ec4ddeab44"
@@ -22840,7 +22820,7 @@ upath@^1.1.1, upath@^1.2.0:
   resolved "https://registry.yarnpkg.com/upath/-/upath-1.2.0.tgz#8f66dbcd55a883acdae4408af8b035a5044c1894"
   integrity sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==
 
-uri-js@^4.2.2, uri-js@^4.4.1:
+uri-js@^4.2.2:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-4.4.1.tgz#9b1a52595225859e55f669d928f88c6c57f2a77e"
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
@@ -23037,11 +23017,6 @@ val-loader@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/val-loader/-/val-loader-4.0.0.tgz#c5ccf8abfe486de412d2cd59fa56deb49d44ec8d"
   integrity sha512-tpDHHpVo1hrO9xFhpEcOw+RCK4wnQqqNkZmylwHJ04iVeue1YSYxIdDwCdKd7LVQ8g/fsGX/EC5gLda9BXovkg==
-
-valid-url@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/valid-url/-/valid-url-1.0.9.tgz#1c14479b40f1397a75782f115e4086447433a200"
-  integrity sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==
 
 validate-npm-package-license@^3.0.1:
   version "3.0.4"

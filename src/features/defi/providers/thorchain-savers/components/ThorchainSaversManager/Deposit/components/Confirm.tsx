@@ -67,7 +67,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
   const feeAssetId = assetId
 
-  const [maybeAccountAddress, setMaybeAccountAddress] = useState<string>('')
+  const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -125,7 +125,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             )
             .catch(() => '')
         : ''
-      setMaybeAccountAddress(accountAddress)
+      setMaybeFromUTXOAccountAddress(accountAddress)
     })()
   }, [chainId, accountId, assetId])
 
@@ -143,7 +143,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         cryptoAmount: state?.deposit.cryptoAmount ?? '',
         asset,
         to: quote.inbound_address,
-        from: maybeAccountAddress,
+        from: maybeFromUTXOAccountAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',
@@ -161,7 +161,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
     }
   }, [
-    maybeAccountAddress,
+    maybeFromUTXOAccountAddress,
     accountId,
     asset,
     assetId,

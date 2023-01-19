@@ -34,7 +34,9 @@ import type {
 const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
 
-export const THOR_DEPOSIT_DUST_THRESHOLDS = {
+// The minimum amount to be sent both for deposit and withdraws
+// else it will be considered a dust attack and gifted to the network
+export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [btcAssetId]: '10000',
   [bchAssetId]: '10000',
   [ltcAssetId]: '10000',
@@ -217,7 +219,7 @@ export const toThorBaseUnit = (
 export const isAboveDepositDustThreshold = (
   valueCryptoBaseUnit: BigNumber.Value | null | undefined,
   assetId: AssetId,
-) => bnOrZero(valueCryptoBaseUnit).gte(THOR_DEPOSIT_DUST_THRESHOLDS[assetId])
+) => bnOrZero(valueCryptoBaseUnit).gte(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId])
 
 export const getWithdrawBps = (
   withdrawAmountCryptoBaseUnit: BigNumber.Value,

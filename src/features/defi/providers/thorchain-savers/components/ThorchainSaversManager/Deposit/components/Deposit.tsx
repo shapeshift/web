@@ -25,7 +25,7 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   getThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
-  THOR_DEPOSIT_DUST_THRESHOLDS,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -205,7 +205,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
 
-      const minLimitCryptoPrecision = bn(THOR_DEPOSIT_DUST_THRESHOLDS[assetId]).div(
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
       )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
@@ -233,7 +233,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
 
-      const minLimitCryptoPrecision = bn(THOR_DEPOSIT_DUST_THRESHOLDS[assetId]).div(
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
       )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`

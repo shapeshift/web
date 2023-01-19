@@ -96,6 +96,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
+    if (!accountId) throw new Error('accountId required')
+
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
     }
@@ -110,7 +112,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       to: quote.inbound_address,
       sendMax: false,
-      accountId: accountId ?? '',
+      accountId,
       contractAddress: '',
     }
   }, [accountId, asset, state?.deposit.cryptoAmount])
@@ -143,14 +145,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
 
       const sendInput: SendInput = {
-        cryptoAmount: state.deposit.cryptoAmount ?? '',
+        cryptoAmount: state.deposit.cryptoAmount,
         asset,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,
         sendMax: false,
-        accountId: accountId ?? '',
+        accountId,
         amountFieldError: '',
-        cryptoSymbol: asset?.symbol ?? '',
+        cryptoSymbol: asset.symbol,
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',

@@ -21,7 +21,7 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseU
       return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'
     case Dex.Thor:
     case SwapperName.Thorchain:
-      return isOrder ? defaultExplorerBaseUrl : 'https://v2.viewblock.io/thorchain/tx/'
+      return isOrder ? defaultExplorerBaseUrl : 'https://viewblock.io/thorchain/tx/'
     default:
       return defaultExplorerBaseUrl
   }

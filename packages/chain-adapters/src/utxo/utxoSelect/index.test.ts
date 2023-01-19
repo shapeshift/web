@@ -205,6 +205,7 @@ describe('utxoSelect', () => {
           value: 1000,
         },
         {
+          address: '15uud35JNGQboswqGeGGhTttGcX413VGcw',
           value: 98774,
         },
       ],

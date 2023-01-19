@@ -96,13 +96,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
+    if (!state?.deposit.cryptoAmount) {
+      throw new Error('Cannot send 0-value THORCHain savers Tx')
+    }
+
     const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
       bn(10).pow(asset.precision),
     )
     const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
 
     return {
-      cryptoAmount: state?.deposit.cryptoAmount ?? '',
+      cryptoAmount: state.deposit.cryptoAmount,
       asset,
       to: quote.inbound_address,
       sendMax: false,

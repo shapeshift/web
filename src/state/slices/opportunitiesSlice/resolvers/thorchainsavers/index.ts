@@ -21,10 +21,10 @@ import type {
 } from '../types'
 import {
   fromThorBaseUnit,
-  getAccountAddresses,
+  getAllThorchainSaversPositions,
   getMidgardPools,
   getThorchainPools,
-  getThorchainSaversPositions,
+  getThorchainSaversPosition,
 } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
@@ -157,71 +157,64 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
-  const stakingOpportunityId = accountIdToFeeAssetId(accountId)
+  try {
+    const stakingOpportunityId = accountIdToFeeAssetId(accountId)
 
-  if (!stakingOpportunityId)
-    throw new Error(`Cannot get stakingOpportunityId for accountId: ${accountId}`)
+    if (!stakingOpportunityId)
+      throw new Error(`Cannot get stakingOpportunityId for accountId: ${accountId}`)
 
-  const asset = selectAssetById(state, stakingOpportunityId)
-  if (!asset) throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
+    const asset = selectAssetById(state, stakingOpportunityId)
+    if (!asset)
+      throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
-  const toAssetIdParts: ToAssetIdArgs = {
-    assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
-    assetReference: fromAssetId(stakingOpportunityId).assetReference,
-    chainId: fromAssetId(stakingOpportunityId).chainId,
-  }
-  const opportunityId = toOpportunityId(toAssetIdParts)
-  const userStakingId = serializeUserStakingId(accountId, opportunityId)
+    const toAssetIdParts: ToAssetIdArgs = {
+      assetNamespace: fromAssetId(stakingOpportunityId).assetNamespace,
+      assetReference: fromAssetId(stakingOpportunityId).assetReference,
+      chainId: fromAssetId(stakingOpportunityId).chainId,
+    }
+    const opportunityId = toOpportunityId(toAssetIdParts)
+    const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-  const allPositions = await getThorchainSaversPositions(stakingOpportunityId)
+    const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 
-  if (!allPositions.length)
-    throw new Error(
-      `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
-    )
+    if (!allPositions.length)
+      throw new Error(
+        `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
+      )
 
-  // Returns either
-  // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
-  // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
-  const accountAddresses = await getAccountAddresses(accountId)
+    const accountPosition = await getThorchainSaversPosition(accountId, stakingOpportunityId)
 
-  const accountPosition = allPositions.find(
-    ({ asset_address }) =>
-      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
-  )
+    const { asset_deposit_value, asset_redeem_value } = accountPosition
 
-  // No position for that AccountId, which is actually valid - don't throw
-  if (!accountPosition)
+    const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
+      bn(10).pow(asset.precision),
+    ) // to actual asset precision base unit
+
+    const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
+      bn(10).pow(asset.precision),
+    ) // to actual asset precision base unit
+
+    const rewardsAmountsCryptoBaseUnit: [string] = [
+      stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
+    ]
+
+    stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
+      rewardsAmountsCryptoBaseUnit,
+    }
+
+    const data = {
+      byId: stakingOpportunitiesUserDataByUserStakingId,
+      type: opportunityType,
+    }
+
+    return Promise.resolve({ data })
+  } catch (e) {
     return Promise.resolve({
       data: {
         byId: stakingOpportunitiesUserDataByUserStakingId,
         type: opportunityType,
       },
     })
-
-  const { asset_deposit_value, asset_redeem_value } = accountPosition
-
-  const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
-    bn(10).pow(asset.precision),
-  ) // to actual asset precision base unit
-
-  const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
-    bn(10).pow(asset.precision),
-  ) // to actual asset precision base unit
-
-  const rewardsAmountsCryptoBaseUnit: [string] = [
-    stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
-  ]
-
-  stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-    stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
-    rewardsAmountsCryptoBaseUnit,
   }
-
-  const data = {
-    byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
-  }
-
-  return Promise.resolve({ data })
 }

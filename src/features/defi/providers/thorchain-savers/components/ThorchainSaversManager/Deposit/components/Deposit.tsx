@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -20,6 +21,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { getThorchainSaversQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -29,7 +31,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -46,7 +48,8 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const { state, dispatch } = useContext(DepositContext)
+  const { state, dispatch: contextDispatch } = useContext(DepositContext)
+  const appDispatch = useAppDispatch()
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -134,19 +137,31 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(userAddress && opportunityData && dispatch)) return
+      if (!(userAddress && opportunityData && contextDispatch)) return
       // set deposit state for future use
-      dispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
+        const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+        const { data: isTradingActive } = await appDispatch(
+          getIsTradingActive.initiate({
+            assetId,
+            swapperName: SwapperName.Thorchain,
+          }),
+        )
+
+        if (!isTradingActive) {
+          throw new Error(`THORChain pool halted for assetId: ${assetId}`)
+        }
+
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
-        dispatch({
+        contextDispatch({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto },
         })
         onNext(DefiStep.Confirm)
-        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -155,10 +170,20 @@ export const Deposit: React.FC<DepositProps> = ({
           title: translate('common.somethingWentWrong'),
           status: 'error',
         })
-        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       }
     },
-    [userAddress, opportunityData, dispatch, getDepositGasEstimate, onNext, toast, translate],
+    [
+      userAddress,
+      opportunityData,
+      contextDispatch,
+      appDispatch,
+      assetId,
+      getDepositGasEstimate,
+      onNext,
+      toast,
+      translate,
+    ],
   )
 
   const handleCancel = useCallback(() => {
@@ -207,7 +232,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch || !opportunityData) return null
+  if (!state || !contextDispatch || !opportunityData) return null
 
   return (
     <ReusableDeposit

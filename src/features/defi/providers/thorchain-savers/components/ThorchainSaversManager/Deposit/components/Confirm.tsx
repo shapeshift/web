@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -27,6 +28,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   getThorchainSaversPosition,
   getThorchainSaversQuote,
@@ -39,7 +41,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -49,7 +51,8 @@ const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
-  const { state, dispatch } = useContext(DepositContext)
+  const { state, dispatch: contextDispatch } = useContext(DepositContext)
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   // TODO: Allow user to set fee priority
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -164,7 +167,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch || !bip44Params || !accountId || !assetId) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId) return
     try {
       if (
         !(
@@ -178,8 +181,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
         return
 
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       if (!state?.deposit.cryptoAmount) return
+
+      const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+      const { data: isTradingActive } = await appDispatch(
+        getIsTradingActive.initiate({
+          assetId,
+          swapperName: SwapperName.Thorchain,
+        }),
+      )
+
+      if (!isTradingActive) {
+        throw new Error(`THORChain pool halted for assetId: ${assetId}`)
+      }
 
       const sendInput = await getSendInput()
       if (!sendInput) throw new Error('Error building send input')
@@ -189,7 +204,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         wallet: walletState.wallet,
       })
 
-      dispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Tx')
@@ -201,10 +216,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    dispatch,
+    contextDispatch,
     bip44Params,
     accountId,
     assetId,
@@ -213,7 +228,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
-    state,
+    state?.deposit.cryptoAmount,
+    appDispatch,
     getSendInput,
     onNext,
     toast,
@@ -232,7 +248,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm

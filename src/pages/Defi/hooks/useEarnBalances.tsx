@@ -66,7 +66,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   )
 
   const opportunities = useNormalizeOpportunities({
-    foxyArray: foxyBalancesData?.opportunities || [],
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),

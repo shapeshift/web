@@ -9,6 +9,11 @@ import {
   foxFarmingStakingUserDataResolver,
 } from './foxFarming'
 import {
+  foxyStakingOpportunitiesMetadataResolver,
+  foxyStakingOpportunitiesUserDataResolver,
+  foxyStakingOpportunityIdsResolver,
+} from './foxy'
+import {
   idleStakingOpportunitiesMetadataResolver,
   idleStakingOpportunitiesUserDataResolver,
   idleStakingOpportunityIdsResolver,
@@ -49,6 +54,9 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
   },
+  [`${DefiProvider.ShapeShift}`]: {
+    [`${DefiType.Staking}`]: foxyStakingOpportunitiesMetadataResolver,
+  },
 }
 
 export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
@@ -57,6 +65,9 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunitiesUserDataResolver,
+  },
+  [`${DefiProvider.ShapeShift}`]: {
+    [`${DefiType.Staking}`]: foxyStakingOpportunitiesUserDataResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
@@ -79,6 +90,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
+  },
+  [`${DefiProvider.ShapeShift}`]: {
+    [`${DefiType.Staking}`]: foxyStakingOpportunityIdsResolver,
   },
 }
 

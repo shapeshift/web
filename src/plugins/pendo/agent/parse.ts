@@ -55,8 +55,10 @@ export async function parseAgent(
     }
     return line
   }
+
   const expectLastLine = (regex: RegExp) => expectLine(regex, true)
   agentHeaderLines.push(expectLine(/^\/\/ Pendo Agent Wrapper$/))
+  agentHeaderLines.push(expectLine(/^\/\/ Copyright \d{4} Pendo\.io, Inc\.$/))
   agentHeaderLines.push(expectLine(/^\/\/ Environment:\s+(production|staging)$/))
   agentHeaderLines.push(expectLine(/^\/\/ Agent Version:\s+(\d+\.)*\d+$/))
   agentHeaderLines.push(expectLine(/^\/\/ Installed:\s+\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/))

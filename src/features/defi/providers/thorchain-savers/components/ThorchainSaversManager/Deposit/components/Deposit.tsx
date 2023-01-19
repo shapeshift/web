@@ -122,7 +122,7 @@ export const Deposit: React.FC<DepositProps> = ({
         ).fast.txFee
 
         const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(`1e${asset.precision}`),
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
         )
         return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {

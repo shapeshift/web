@@ -20,9 +20,9 @@ import type {
 
 const THOR_PRECISION = 8
 
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
+export const getAccountAddressesWithBalances = async (
+  accountId: AccountId,
+): Promise<{ address: string; balance: string }[]> => {
   if (isUtxoAccountId(accountId)) {
     const { chainId, account: pubkey } = fromAccountId(accountId)
     const chainAdapters = getChainAdapterManager()
@@ -35,15 +35,23 @@ export const getAccountAddresses = memoize(async (accountId: AccountId): Promise
 
     if (!addresses) return []
 
-    return addresses.map(address =>
-      address.pubkey.startsWith('bitcoincash')
-        ? address.pubkey.replace('bitcoincash:', '')
-        : address.pubkey,
-    )
+    return addresses.map(({ pubkey, balance }) => {
+      const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
+
+      return { address, balance }
+    })
   }
 
-  return [fromAccountId(accountId).account]
-})
+  // We don't need balances for chain others than UTXOs
+  return [{ address: fromAccountId(accountId).account, balance: '' }]
+}
+
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+export const getAccountAddresses = memoize(
+  async (accountId: AccountId): Promise<string[]> =>
+    (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
+)
 
 export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
   const { data: opportunitiesData } = await axios.get<ThornodePoolResponse[]>(

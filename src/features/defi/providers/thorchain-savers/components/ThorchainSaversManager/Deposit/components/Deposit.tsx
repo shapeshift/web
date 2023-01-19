@@ -112,7 +112,7 @@ export const Deposit: React.FC<DepositProps> = ({
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        const fee = (
+        const fastFeeCryptoBaseUnit = (
           await adapter.getFeeData({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
@@ -120,7 +120,11 @@ export const Deposit: React.FC<DepositProps> = ({
             sendMax: false,
           })
         ).fast.txFee
-        return bnOrZero(fee).toString()
+
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+        )
+        return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         moduleLogger.error(
           { fn: 'getDepositGasEstimate', error },

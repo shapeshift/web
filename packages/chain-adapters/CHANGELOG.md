@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.8.0...@shapeshiftoss/chain-adapters-v10.9.0) (2023-01-19)
+
+
+### Features
+
+* **utxoSelect:** use `input.from` as change address if passed ([#1168](https://github.com/shapeshift/lib/issues/1168)) ([abe4b8c](https://github.com/shapeshift/lib/commit/abe4b8cf3999d8698f378b89d9d44bb07e228a65))
+
 # [@shapeshiftoss/chain-adapters-v10.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.7.2...@shapeshiftoss/chain-adapters-v10.8.0) (2023-01-13)
 
 

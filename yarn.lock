@@ -4057,10 +4057,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^8.6.0":
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.6.0.tgz#430490add8fb008056fc57ac5be04b3d69471536"
-  integrity sha512-34dsCmYMdoS7HlIEegmL2+yUF+4MzU3SXXplqBa+Onvw6EQP2n79dLJ/gWalPxMYkpT2Gn8tgWMy81psh5nRkQ==
+"@shapeshiftoss/asset-service@^8.6.1":
+  version "8.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-8.6.1.tgz#7de240878c4366ecd11908b2226890ca7794fb26"
+  integrity sha512-JfuUgP+rsHbX0uhkEWwFkNxBzt/u7rL61nAmv1ij87KlO06PKf9tttKSadGoj4zAsrb9TrmnBApskb7uXRmLlw==
   dependencies:
     axios "^0.26.1"
     identicon.js "^2.3.3"
@@ -4385,10 +4385,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@15.5.0":
-  version "15.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.5.0.tgz#4556ef5d1751c10814316057be3620a775ec5162"
-  integrity sha512-JBaggR/bNW56LEjscTU22548nwE2S7o4ot54INwppBksZsS1modXNCcuaUo0wTPduM1KFkPhpddH/8RWGhLYpQ==
+"@shapeshiftoss/swapper@^15.5.2":
+  version "15.5.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-15.5.2.tgz#4e6f5aae66f63e46076c4bf0610b3744f8651f4f"
+  integrity sha512-yde4yAZXL9PahJYNnBD9e/Z/S1ZX2QTYG2H1zUEGO0h5MkcyNYGR3ZKA+MI7ZuQH7OoUYY3CHZpOw7iPq0lpgw==
   dependencies:
     axios "^0.26.1"
     axios-cache-adapter "^2.7.3"

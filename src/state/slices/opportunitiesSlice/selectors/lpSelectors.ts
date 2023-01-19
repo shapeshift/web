@@ -2,7 +2,6 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -289,7 +288,6 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
           .map(icon => icon ?? ''),
         opportunityName: opportunityMetadata.name,
         rewardAddress: '',
-        provider: DefiProvider.Osmosis,
       }
 
       opportunities.push(opportunity)

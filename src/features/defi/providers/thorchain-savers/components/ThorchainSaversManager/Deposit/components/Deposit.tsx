@@ -109,6 +109,8 @@ export const Deposit: React.FC<DepositProps> = ({
         )
         const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
         const chainAdapters = getChainAdapterManager()
+        // We're lying to Ts, this isn't always an UtxoBaseAdapter
+        // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const fee = (
           await adapter.getFeeData({

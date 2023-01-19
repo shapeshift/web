@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.1...@shapeshiftoss/swapper-v15.5.2) (2023-01-19)
+
+
+### Bug Fixes
+
+* **asset-service:** update viewblock url ([#1169](https://github.com/shapeshift/lib/issues/1169)) ([f93c918](https://github.com/shapeshift/lib/commit/f93c918f8fdc77243279aae6b47431588ecafcfe))
+
 # [@shapeshiftoss/swapper-v15.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.0...@shapeshiftoss/swapper-v15.5.1) (2023-01-15)
 
 

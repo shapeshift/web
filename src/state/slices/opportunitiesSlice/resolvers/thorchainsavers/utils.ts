@@ -20,8 +20,6 @@ import type {
 
 const THOR_PRECISION = 8
 
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
 export const getAccountAddressesWithBalances = async (
   accountId: AccountId,
 ): Promise<{ address: string; balance: string }[]> => {

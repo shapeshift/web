@@ -19,7 +19,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
+  selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectFirstAccountIdByChainId,
@@ -35,6 +37,8 @@ export const AllEarnOpportunities = () => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
+
+  const { OsmosisLP } = useAppSelector(selectFeatureFlags)
 
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -63,23 +67,26 @@ export const AllEarnOpportunities = () => {
       accountId: cosmosAccountId,
     },
   )
+
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
       accountId: osmosisAccountId,
     })
 
+  const lpOpportunities = useAppSelector(state => selectAggregatedEarnUserLpOpportunities(state))
+
   const allRows = useNormalizeOpportunities({
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
-    foxEthLpOpportunity,
     stakingOpportunities: stakingOpportunities.filter(
       opportunity =>
         !opportunity.expired ||
         (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
+    ...(OsmosisLP ? { lpOpportunities } : { foxEthLpOpportunity }),
   })
 
   const filteredRows = useMemo(

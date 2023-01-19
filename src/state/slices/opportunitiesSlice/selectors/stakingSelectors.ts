@@ -7,42 +7,33 @@ import pickBy from 'lodash/pickBy'
 import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
-  selectLpIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
-import { selectAssets } from '../assetsSlice/selectors'
-import {
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectWalletAccountIds,
-} from '../common-selectors'
-import { selectMarketDataSortedByMarketCap } from '../marketDataSlice/selectors'
-import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from './constants'
+import { selectAssets } from '../../assetsSlice/selectors'
+import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../common-selectors'
+import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
+import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type {
   GroupedEligibleOpportunityReturnType,
-  LpId,
   OpportunityId,
   OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
   UserStakingOpportunity,
-} from './types'
-import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from './utils'
+} from '../types'
+import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from '../utils'
 
-// IDs selectors
-export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
+
 export const selectUserStakingIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.ids,
@@ -52,11 +43,9 @@ export const selectUserStakingIds = createDeepEqualOutputSelector(
     ),
 )
 
-export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
-  state.opportunities.lp.byAccountId
-export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.staking.byAccountId
+
 export const selectUserStakingOpportunitiesById = createSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
@@ -71,17 +60,6 @@ export const selectStakingOpportunitiesById = (state: ReduxState) =>
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),
-)
-
-// "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
-export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
-  selectLpOpportunitiesByAccountId,
-  selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => {
-    if (!accountId) return []
-
-    return lpIdsByAccountId[accountId] ?? []
-  },
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
@@ -415,73 +393,6 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
     }, undefined),
 )
 
-// A user LpOpportunity, parsed as an EarnOpportunityType
-// TODO: testme
-export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
-  selectLpIdParamFromFilter,
-  selectPortfolioCryptoBalanceByFilter,
-  selectAssets,
-  selectMarketDataSortedByMarketCap,
-  (
-    lpOpportunitiesById,
-    lpId,
-    lpAssetBalanceCryptoBaseUnit,
-    assets,
-    marketData,
-  ): StakingEarnOpportunityType | undefined => {
-    if (!lpId) return
-
-    const marketDataPrice = marketData[lpId as AssetId]?.price
-    const opportunityMetadata = lpOpportunitiesById[lpId]
-    const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
-
-    if (!opportunityMetadata) return
-
-    const [underlyingToken0AmountCryptoPrecision, underlyingToken1AmountCryptoPrecision] =
-      opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .times(
-            fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
-              assets[assetId]?.precision ?? 0,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      )
-    const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
-          .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-          .toFixed(6),
-      )
-
-    const opportunity = {
-      ...baseLpEarnOpportunity,
-      ...opportunityMetadata,
-      opportunityName: opportunityMetadata.name,
-      isLoaded: true,
-      chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken1AmountCryptoPrecision,
-      underlyingToken0AmountCryptoPrecision,
-      underlyingToken0AmountCryptoBaseUnit,
-      underlyingToken1AmountCryptoBaseUnit,
-      cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
-      fiatAmount: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-        .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
-        .times(marketDataPrice ?? '0')
-        .toString(),
-      icons: opportunityMetadata.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? ''),
-    }
-
-    return opportunity
-  },
-)
-
 // A staking opportunity parsed as an EarnOpportunityType
 // TODO: testme
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
@@ -511,205 +422,6 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
         .map(assetId => assets[assetId]?.icon)
         .map(icon => icon ?? ''),
     }
-  },
-)
-
-// The same as the previous selector, but parsed as an EarnOpportunityType
-// TODO: testme
-export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
-  selectLpIdParamFromFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectAssets,
-  selectMarketDataSortedByMarketCap,
-  (
-    lpOpportunitiesById,
-    lpId,
-    aggregatedLpAssetBalance,
-    assets,
-    marketData,
-  ): StakingEarnOpportunityType | undefined => {
-    if (!lpId || !aggregatedLpAssetBalance) return
-
-    const marketDataPrice = marketData[lpId as AssetId]?.price
-    const opportunityMetadata = lpOpportunitiesById[lpId]
-    const baseLpEarnOpportunity = LP_EARN_OPPORTUNITIES[lpId]
-
-    if (!opportunityMetadata || !baseLpEarnOpportunity) return
-
-    const [underlyingToken0AmountCryptoPrecision, underlyingToken1AmountCryptoPrecision] =
-      opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
-              assets[assetId]?.precision ?? 0,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      )
-
-    const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
-          .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-          .toFixed(6)
-          .toString(),
-      )
-
-    const opportunity = {
-      ...baseLpEarnOpportunity,
-      ...opportunityMetadata,
-      isLoaded: true,
-      chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken1AmountCryptoPrecision,
-      underlyingToken0AmountCryptoPrecision,
-      underlyingToken0AmountCryptoBaseUnit,
-      underlyingToken1AmountCryptoBaseUnit,
-      cryptoAmountPrecision: aggregatedLpAssetBalance,
-      // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
-      cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, assets[lpId]?.precision ?? 0),
-      fiatAmount: bnOrZero(aggregatedLpAssetBalance)
-        .times(marketDataPrice ?? '0')
-        .toString(),
-      icons: opportunityMetadata.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? ''),
-      opportunityName: opportunityMetadata.name,
-    }
-
-    return opportunity
-  },
-)
-
-// Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
-export const selectHighestBalanceAccountIdByStakingId = createSelector(
-  selectUserStakingOpportunitiesById,
-  selectStakingIdParamFromFilter,
-  (userStakingOpportunities, stakingId): AccountId | undefined => {
-    if (!stakingId) return '*' // Narrowing flavoured type
-
-    const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
-      UserStakingId,
-      UserStakingOpportunity,
-    ][]
-    const foundEntry = (userStakingOpportunitiesEntries ?? [])
-      .filter(([userStakingId]) =>
-        filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
-      )
-      .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
-        bnOrZero(userStakingOpportunityB.stakedAmountCryptoBaseUnit)
-          .minus(userStakingOpportunityA.stakedAmountCryptoBaseUnit)
-          .toNumber(),
-      )?.[0]
-
-    const foundUserStakingId = foundEntry?.[0]
-
-    if (!foundUserStakingId) return undefined
-
-    const [foundAccountId] = deserializeUserStakingId(foundUserStakingId)
-
-    return foundAccountId
-  },
-)
-
-// Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
-export const selectHighestBalanceAccountIdByLpId = createSelector(
-  selectPortfolioAccountBalances,
-  selectLpIdParamFromFilter,
-  (portfolioAccountBalances, lpId): AccountId | undefined => {
-    if (!lpId) return '*' // Narrowing flavoured type
-
-    const foundEntries = Object.entries(portfolioAccountBalances)
-      .filter(([, byAccountId]) => byAccountId.hasOwnProperty(lpId))
-      .sort(([, a], [, b]) =>
-        // In the case of EVM chain LPing, the LpId actually is an AssetId
-        // Note that this may not hold true for the concept of "LPing" on other chains, hence the type assertion
-        // In case we get an LpId that's not an AssetId, we'll have to implement custom logic for it
-        // This is NOT a full LP abstraction, and for all intents and purposes is assuming the LP as token i.e an AssetId in portfolio, not an IOU
-        bn(b[lpId as AssetId])
-          .minus(a[lpId as AssetId])
-          .toNumber(),
-      )[0]
-
-    // Chainable methods that produce an iterable screw the narrowed type back to string
-    const foundAccountId: AccountId = foundEntries?.[0]
-
-    return foundAccountId
-  },
-)
-
-export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
-  selectLpIdParamFromFilter,
-  selectLpOpportunitiesById,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectAssets,
-  (lpId, lpOpportunitiesById, lpAssetBalancePrecision, assets): AssetWithBalance[] | undefined => {
-    if (!lpId) return
-    const opportunityMetadata = lpOpportunitiesById[lpId]
-
-    if (!opportunityMetadata) return
-    const underlyingAssetsIcons = opportunityMetadata.underlyingAssetIds
-      .map(assetId => assets[assetId]?.icon)
-      .filter(isSome)
-    return opportunityMetadata.underlyingAssetIds
-      .map((assetId, i) => {
-        const asset = assets[assetId]
-        return asset
-          ? {
-              ...asset,
-              cryptoBalancePrecision: bnOrZero(lpAssetBalancePrecision)
-                .times(
-                  fromBaseUnit(
-                    opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
-                    asset.precision,
-                  ),
-                )
-                .toFixed(6)
-                .toString(),
-              icons: [underlyingAssetsIcons[i]],
-              allocationPercentage: '0.50',
-            }
-          : undefined
-      })
-      .filter(isSome)
-  },
-)
-export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
-  selectUserStakingOpportunityByUserStakingId,
-  selectAssets,
-  (userStakingOpportunity, assets): AssetWithBalance[] | undefined => {
-    if (!userStakingOpportunity) return
-
-    const asset = assets[userStakingOpportunity.assetId]
-    const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
-
-    const underlyingAssetsIcons = userStakingOpportunity.underlyingAssetIds
-      .map(assetId => assets[assetId]?.icon)
-      .filter(isSome)
-    return userStakingOpportunity.underlyingAssetIds
-      .map((assetId, i, original) => {
-        const underlyingAssetIteratee = assets[assetId]
-        return underlyingAssetIteratee
-          ? {
-              ...underlyingAssetIteratee,
-              cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
-                .times(
-                  fromBaseUnit(
-                    userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
-                    underlyingAssetIteratee.precision,
-                  ) ?? '1',
-                )
-                .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-                .toFixed(),
-              icons: [underlyingAssetsIcons[i]],
-              allocationPercentage: bn('1').div(original.length).toString(),
-            }
-          : undefined
-      })
-      .filter(isSome)
   },
 )
 
@@ -751,3 +463,70 @@ export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
       return eligibleOpportunitiesGroupedByUnderlyingAssetIds
     },
   )
+
+// Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
+export const selectHighestBalanceAccountIdByStakingId = createSelector(
+  selectUserStakingOpportunitiesById,
+  selectStakingIdParamFromFilter,
+  (userStakingOpportunities, stakingId): AccountId | undefined => {
+    if (!stakingId) return '*' // Narrowing flavoured type
+
+    const userStakingOpportunitiesEntries = Object.entries(userStakingOpportunities) as [
+      UserStakingId,
+      UserStakingOpportunity,
+    ][]
+    const foundEntry = (userStakingOpportunitiesEntries ?? [])
+      .filter(([userStakingId]) =>
+        filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
+      )
+      .sort(([, userStakingOpportunityA], [, userStakingOpportunityB]) =>
+        bnOrZero(userStakingOpportunityB.stakedAmountCryptoBaseUnit)
+          .minus(userStakingOpportunityA.stakedAmountCryptoBaseUnit)
+          .toNumber(),
+      )?.[0]
+
+    const foundUserStakingId = foundEntry?.[0]
+
+    if (!foundUserStakingId) return undefined
+
+    const [foundAccountId] = deserializeUserStakingId(foundUserStakingId)
+
+    return foundAccountId
+  },
+)
+
+export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
+  selectUserStakingOpportunityByUserStakingId,
+  selectAssets,
+  (userStakingOpportunity, assets): AssetWithBalance[] | undefined => {
+    if (!userStakingOpportunity) return
+
+    const asset = assets[userStakingOpportunity.assetId]
+    const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
+
+    const underlyingAssetsIcons = userStakingOpportunity.underlyingAssetIds
+      .map(assetId => assets[assetId]?.icon)
+      .filter(isSome)
+    return userStakingOpportunity.underlyingAssetIds
+      .map((assetId, i, original) => {
+        const underlyingAssetIteratee = assets[assetId]
+        return underlyingAssetIteratee
+          ? {
+              ...underlyingAssetIteratee,
+              cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+                .times(
+                  fromBaseUnit(
+                    userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
+                    underlyingAssetIteratee.precision,
+                  ) ?? '1',
+                )
+                .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
+                .toFixed(),
+              icons: [underlyingAssetsIcons[i]],
+              allocationPercentage: bn('1').div(original.length).toString(),
+            }
+          : undefined
+      })
+      .filter(isSome)
+  },
+)

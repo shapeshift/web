@@ -4,7 +4,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { mockStore } from 'test/mocks/store'
 import type { OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
 
-import { foxEthLpAssetId, foxEthPair } from './constants'
+import { foxEthLpAssetId, foxEthPair } from '../constants'
 import {
   catpuccinoAccountId,
   fauxmesAccountId,
@@ -13,8 +13,8 @@ import {
   mockLpContractTwo,
   mockStakingContractOne,
   mockStakingContractTwo,
-} from './mocks'
-import { initialState } from './opportunitiesSlice'
+} from '../mocks'
+import { initialState } from '../opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
@@ -23,8 +23,8 @@ import {
   selectStakingOpportunityIdsByAccountId,
   selectUserStakingOpportunitiesFromStakingId,
   selectUserStakingOpportunityByUserStakingId,
-} from './selectors'
-import { serializeUserStakingId } from './utils'
+} from '../selectors'
+import { serializeUserStakingId } from '../utils'
 
 describe('opportunitiesSlice selectors', () => {
   const walletId = 'walletId'

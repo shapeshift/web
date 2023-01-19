@@ -31,7 +31,8 @@ import type {
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
-const THOR_PRECISION = 8
+const THOR_PRECISION = '10000'
+const BASE_BPS_POINTS = '10000'
 
 export const THOR_DEPOSIT_DUST_THRESHOLDS = {
   [btcAssetId]: '10000',
@@ -220,3 +221,27 @@ export const isAboveDepositDustThreshold = (
   valueCryptoBaseUnit: BigNumber.Value | null | undefined,
   assetId: AssetId,
 ) => bnOrZero(valueCryptoBaseUnit).gte(THOR_DEPOSIT_DUST_THRESHOLDS[assetId])
+
+export const getWithdrawBps = (
+  withdrawAmountCryptoBaseUnit: BigNumber.Value | null | undefined,
+  stakedAmountCryptoBaseUnit: BigNumber.Value | null | undefined,
+  rewardsamountCryptoBaseUnit: BigNumber.Value | null | undefined,
+) => {
+  const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
+    rewardsamountCryptoBaseUnit,
+  )
+
+  const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(
+    stakedAmountCryptoBaseUnitIncludeRewards,
+  )
+
+  debugger
+
+  const withdrawBps = withdrawRatio
+    .times(stakedAmountCryptoBaseUnit)
+    .times(BASE_BPS_POINTS)
+    .toFixed(0)
+
+  debugger
+  return withdrawBps
+}

@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -32,6 +31,7 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
+  getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -107,26 +107,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const asset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, opportunityData?.assetId ?? ''),
-  )
-
-  const feeAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+  if (!asset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
   // user info
   const { state: walletState } = useWallet()
 
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
-    [accountId, feeAsset?.assetId],
+    () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
+    [accountId, asset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
@@ -176,6 +172,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
+
+      const withdrawBps = getWithdrawBps(
+        bnOrZero(state?.withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+        opportunityData?.stakedAmountCryptoBaseUnit,
+        opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+      )
+
+      debugger
       const quote = await getThorchainSaversWithdrawQuote(asset, amountCryptoBaseUnit, accountId)
 
       const accountAddress = await getAccountAddress()
@@ -207,6 +211,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getEstimateFeesArgs,
     state?.withdraw.cryptoAmount,
     asset,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
     getAccountAddress,
     selectedCurrency,
   ])
@@ -289,9 +295,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${asset.precision}`))
         .gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
+    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, asset?.precision],
   )
 
   if (!state || !contextDispatch) return null
@@ -331,16 +337,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
+                  .div(`1e+${asset.precision}`)
+                  .times(marketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(`1e+${asset.precision}`)
                   .toFixed(5)}
-                symbol={feeAsset.symbol}
+                symbol={asset.symbol}
               />
             </Box>
           </Row.Value>
@@ -354,14 +360,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
+              <Amount.Crypto color='gray.500' value='0' symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset.symbol }]} />
           </Alert>
         )}
       </Summary>

@@ -70,6 +70,7 @@ export type ThorchainSaversWithdrawQuoteResponseSuccess =
     outbound_delay_blocks: number
     outbound_delay_seconds: number
     slippage_bps: number
+    dust_amount: string
   }
 
 export type ThorchainSaversDepositQuoteResponse =

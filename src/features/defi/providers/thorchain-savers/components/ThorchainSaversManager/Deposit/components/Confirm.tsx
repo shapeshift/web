@@ -118,27 +118,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [accountId, asset, state?.deposit.cryptoAmount])
 
-  useEffect(() => {
-    if (!accountId) return
-    ;(async () => {
-      const accountAddress = isUtxoChainId(chainId)
-        ? await getThorchainSaversPosition(accountId, assetId)
-            .then(({ asset_address }) =>
-              chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
-            )
-            .catch(async () => {
-              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
-              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
-                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
-              )[0].address
-
-              return highestBalanceAccount
-            })
-        : ''
-      setMaybeFromUTXOAccountAddress(accountAddress)
-    })()
-  }, [chainId, accountId, assetId])
-
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId)) return
     if (!state?.deposit.cryptoAmount) {
@@ -270,6 +249,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     return txId
   }, [getDepositInput, getPreDepositInput, walletState.wallet])
+
   useEffect(() => {
     if (!accountId) return
     ;(async () => {

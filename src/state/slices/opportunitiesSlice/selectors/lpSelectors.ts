@@ -238,8 +238,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   },
 )
 
-// The same as the previous selector, but parsed as an EarnOpportunityType
-// TODO: testme
+/* Get LP opportunities for all assets with balance data aggregated across all accounts */
 export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
   selectPortfolioAssetBalances,
@@ -272,7 +271,8 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
             .toString(),
         )
 
-      const opportunity: StakingEarnOpportunityType = {
+      /* Transform data into LpEarnOpportunityType */
+      const opportunity: LpEarnOpportunityType = {
         ...opportunityMetadata,
         isLoaded: true,
         chainId: fromAssetId(lpId as AssetId).chainId,

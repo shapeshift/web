@@ -27,6 +27,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { fromBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   getThorchainSaversPosition,
@@ -34,6 +35,7 @@ import {
   getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -135,8 +137,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const getAccountAddress: () => Promise<string> = useCallback(async () => {
     if (!accountId) throw new Error('accountId is undefined')
+    if (!isUtxoChainId(chainId)) return ''
     try {
       const position = await getThorchainSaversPosition(accountId, assetId)
+      debugger
       const { asset_address } = position
       const accountAddress = chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
 
@@ -147,7 +151,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [accountId, assetId, chainId])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
-    if (!accountId) throw new Error('accountId is undefined')
+    if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
+      throw new Error('accountId is undefined')
 
     const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
       bn(10).pow(asset.precision),
@@ -156,16 +161,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const withdrawBps = getWithdrawBps(
       amountCryptoBaseUnit,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+      opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
     )
     const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+    const accountAddress = await getAccountAddress()
 
     const { dust_amount } = quote
 
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
     return {
-      cryptoAmount: dust_amount,
+      from: accountAddress,
+      cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
       asset,
       to: quote.inbound_address,
       sendMax: false,
@@ -175,13 +182,74 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
+    getAccountAddress,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
   ])
 
+  const getPreWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+    if (
+      !(
+        accountId &&
+        assetId &&
+        state?.withdraw?.estimatedGasCrypto &&
+        opportunityData?.stakedAmountCryptoBaseUnit
+      )
+    )
+      return
+
+    try {
+      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      const bps = getWithdrawBps(
+        amountCryptoBaseUnit,
+        opportunityData?.stakedAmountCryptoBaseUnit,
+        opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      )
+
+      const quote = await getThorchainSaversWithdrawQuote(asset, accountId, bps)
+      const accountAddress = await getAccountAddress()
+
+      const sendInput: SendInput = {
+        cryptoAmount: '',
+        asset,
+        from: '', // Let coinselect do its magic here
+        to: accountAddress,
+        sendMax: true,
+        accountId,
+        amountFieldError: '',
+        cryptoSymbol: asset.symbol,
+        estimatedFees,
+        feeType: FeeDataKey.Fast,
+        fiatAmount: '',
+        fiatSymbol: selectedCurrency,
+        vanityAddress: '',
+        input: quote.inbound_address,
+      }
+
+      return sendInput
+    } catch (e) {
+      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+    }
+  }, [
+    accountId,
+    assetId,
+    state?.withdraw?.estimatedGasCrypto,
+    state?.withdraw.cryptoAmount,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    getEstimateFeesArgs,
+    asset,
+    getAccountAddress,
+    selectedCurrency,
+  ])
+
   const getWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
-    if (!(accountId && assetId)) return
+    if (!(accountId && assetId && opportunityData?.stakedAmountCryptoBaseUnit)) return
 
     try {
       const estimatedFees = await estimateFees(await getEstimateFeesArgs())
@@ -192,7 +260,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const withdrawBps = getWithdrawBps(
         amountCryptoBaseUnit,
         opportunityData?.stakedAmountCryptoBaseUnit,
-        opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+        opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
       )
 
       const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
@@ -204,7 +272,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const accountAddress = await getAccountAddress()
 
       const sendInput: SendInput = {
-        cryptoAmount: dust_amount,
+        cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
         asset,
         to: quote.inbound_address,
         from: accountAddress,
@@ -235,6 +303,52 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getAccountAddress,
     selectedCurrency,
   ])
+
+  const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
+    if (!walletState.wallet) return
+
+    // THORChain Txs need to always be sent from the same address, since the address (NOT the pubkey) is used to identify an active position
+    // The way THORChain does this is by not being xpub-compliant, and only exposing a single address for UTXOs in their UI
+    // All deposit/withdraws done from their UI are always done with one/many UTXOs from the same address, and change sent back to the same address
+    // We also do this EXCLUSIVELY for THORChain Txs. The rest of the app uses xpubs, so the initially deposited from address isn't guaranteed to be populated
+    // if users send other UTXO Txs in the meantime after depositing
+    // Additionally, we select their highest balance UTXO address as a first deposit, which isn't guaranteed to contain enough value
+    //
+    // For both re/deposit flows, we will possibly need a pre-Tx to populate their highest UTXO/previously deposited from address with enough value
+
+    const withdrawInput = await getWithdrawInput()
+    if (!withdrawInput) throw new Error('Error building send input')
+
+    let txId: string
+
+    // Try/catching and evaluating to something in the catch isn't a good pattern usually
+    // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
+    // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
+    // and finally evaluate to either the original Tx or a falsy empty string
+    try {
+      // 1. Try to deposit from the originally deposited from / highest UTXO balance address
+      // If this is enough, no other Tx is needed
+      txId = await handleSend({
+        sendInput: withdrawInput,
+        wallet: walletState.wallet,
+      })
+    } catch (e) {
+      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
+      const preWithdrawInput = await getPreWithdrawInput()
+      if (!preWithdrawInput) throw new Error('Error building send input')
+      txId = await handleSend({
+        sendInput: preWithdrawInput,
+        wallet: walletState.wallet,
+      })
+      // 3. Sign and broadcast the depooosit Tx again
+      txId = await handleSend({
+        sendInput: withdrawInput,
+        wallet: walletState.wallet,
+      }).catch(_e => '')
+    }
+
+    return txId
+  }, [getPreWithdrawInput, getWithdrawInput, walletState.wallet])
 
   const handleConfirm = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
@@ -269,8 +383,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const withdrawInput = await getWithdrawInput()
       if (!withdrawInput) throw new Error('Error building send input')
 
-      const maybeTxId = await handleSend({ sendInput: withdrawInput, wallet: walletState.wallet })
-
+      const maybeTxId = await handleMultiTxSend()
       if (!maybeTxId) {
         throw new Error('Error sending THORCHain savers Txs')
       }
@@ -302,6 +415,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     appDispatch,
     getWithdrawInput,
+    handleMultiTxSend,
     onNext,
     toast,
     translate,

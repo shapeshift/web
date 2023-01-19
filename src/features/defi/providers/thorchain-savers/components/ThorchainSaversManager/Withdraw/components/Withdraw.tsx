@@ -104,7 +104,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(userAddress && assetReference && accountId && opportunityData)) return
+      if (
+        !(userAddress && assetReference && accountId && opportunityData?.stakedAmountCryptoBaseUnit)
+      )
+        return
       try {
         const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
           bn(10).pow(asset.precision),
@@ -112,7 +115,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const withdrawBps = getWithdrawBps(
           amountCryptoBaseUnit,
           opportunityData?.stakedAmountCryptoBaseUnit,
-          opportunityData?.rewardsAmountsCryptoBaseUnit?.[0],
+          opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
         )
 
         const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)

@@ -220,9 +220,9 @@ export const isAboveDepositDustThreshold = (
 ) => bnOrZero(valueCryptoBaseUnit).gte(THOR_DEPOSIT_DUST_THRESHOLDS[assetId])
 
 export const getWithdrawBps = (
-  withdrawAmountCryptoBaseUnit: BigNumber.Value | null | undefined,
-  stakedAmountCryptoBaseUnit: BigNumber.Value | null | undefined,
-  rewardsamountCryptoBaseUnit: BigNumber.Value | null | undefined,
+  withdrawAmountCryptoBaseUnit: BigNumber.Value,
+  stakedAmountCryptoBaseUnit: BigNumber.Value,
+  rewardsamountCryptoBaseUnit: BigNumber.Value,
 ) => {
   const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
     rewardsamountCryptoBaseUnit,

@@ -171,7 +171,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
+      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
     }
   }, [
     maybeFromUTXOAccountAddress,
@@ -212,7 +212,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
+      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
     }
   }, [
     maybeFromUTXOAccountAddress,

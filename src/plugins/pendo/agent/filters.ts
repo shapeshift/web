@@ -56,7 +56,7 @@ export function filterRequest(
   url: URL,
   data: object | undefined,
   integrity: string | undefined,
-) {
+): Partial<RequestInit> {
   // This is excessively paranoid, but it limits the data leakage possible to a 1-byte
   // range of values. (Actual values are in the single digits.)
   const ctEpsilon = 128
@@ -139,8 +139,24 @@ export function filterRequest(
     }
   } else if (guideHosts.includes(url.host)) {
     if (!/^\/guide-content\/.*\.dom\.json$/.test(url.pathname)) {
-      moduleLogger.error({ url }, 'fetch from guide host does not appear to be for a guide')
-      throw new PendoGuideRequestError()
+      // Special-case handling for an otherwise unverifiable request for a blank "contentUrl" file.
+      // (Not sure why the Pendo designer adds this reference; it doesn't do anything, but filtering
+      // it out can break certain guides.)
+      //
+      // 2jmj7l5rSw0yVb_vlWAYkK_YBwk is the base64url encoding of the SHA-1 hash of the empty string.
+      // 47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU= is the base64 encoding of the SHA-256 hash of the empty string.
+      if (/^\/guide-content\/.*\/2jmj7l5rSw0yVb_vlWAYkK_YBwk$/.test(url.pathname)) {
+        moduleLogger.info(
+          { url },
+          'special case: allowing fetch of guide content which is expected to be empty',
+        )
+        return {
+          integrity: 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        }
+      } else {
+        moduleLogger.error({ url }, 'fetch from guide host does not appear to be for a guide')
+        throw new PendoGuideRequestError()
+      }
     }
     // Verify no unexpected data in the URL parameters
     let sawIntegrity = false
@@ -171,6 +187,8 @@ export function filterRequest(
     moduleLogger.error({ url }, 'unrecognized URL')
     throw new PendoGuideRequestError()
   }
+
+  return {}
 }
 
 export async function filterResponse(
@@ -184,6 +202,9 @@ export async function filterResponse(
     return new Response(null, { status: 200 })
   }
   const resBuf = await response.arrayBuffer()
+  if (resBuf.byteLength === 0) {
+    return new Response(null, { status: 200 })
+  }
   const resObj = (() => {
     try {
       return JSON.parse(new TextDecoder().decode(resBuf))

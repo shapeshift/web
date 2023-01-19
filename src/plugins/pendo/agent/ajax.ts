@@ -30,8 +30,10 @@ function getTransmissionData(this: PendoEnv, url: URL, body: BodyInit | undefine
 }
 
 async function filteredFetch(this: PendoEnv, url: string, init?: RequestInit): Promise<Response> {
+  init ??= {}
+
   const urlObj = new URL(url)
-  const dataObj = getTransmissionData.call(this, urlObj, init?.body ?? undefined)
+  const dataObj = getTransmissionData.call(this, urlObj, init.body ?? undefined)
 
   // Don't report agent errors because we probably caused them ourselves.
   if (dataObj?.error) {
@@ -41,7 +43,7 @@ async function filteredFetch(this: PendoEnv, url: string, init?: RequestInit): P
 
   // Throw if fetch isn't allowed.
   try {
-    filterRequest.call(this, urlObj, dataObj, init?.integrity)
+    Object.assign(init, filterRequest.call(this, urlObj, dataObj, init.integrity))
   } catch (e) {
     if (this.sealed) {
       moduleLogger.error(e, 'fetch failed filters')

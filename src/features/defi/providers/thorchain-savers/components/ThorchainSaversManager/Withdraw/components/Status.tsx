@@ -186,7 +186,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${asset.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

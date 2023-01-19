@@ -39,7 +39,7 @@ export async function parseAgent(
     throw new PendoAgentValidationError('fixupTables is not an object')
   }
 
-  const lines = src.split('\n')
+  const lines = src.split('\n').filter(Boolean)
   const agentHeaderLines = []
   const innerAgentLines = []
   const config: Record<string, unknown> = {}
@@ -55,7 +55,6 @@ export async function parseAgent(
     }
     return line
   }
-
   const expectLastLine = (regex: RegExp) => expectLine(regex, true)
   agentHeaderLines.push(expectLine(/^\/\/ Pendo Agent Wrapper$/))
   agentHeaderLines.push(expectLine(/^\/\/ Copyright \d{4} Pendo\.io, Inc\.$/))

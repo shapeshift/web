@@ -12,6 +12,7 @@ export type FeatureFlags = {
   OsmosisStaking: boolean
   OsmosisSwap: boolean
   OsmosisLP: boolean
+  Optimism: boolean
   ThorSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
@@ -24,6 +25,7 @@ export type FeatureFlags = {
   FiatPopup: boolean
   EligibleEarn: boolean
   SaversVaults: boolean
+  Yearn: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -48,6 +50,7 @@ const initialState: Preferences = {
     OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
     OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
+    Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
@@ -60,6 +63,7 @@ const initialState: Preferences = {
     FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
     EligibleEarn: getConfig().REACT_APP_FEATURE_ELIGIBLE_EARN,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
+    Yearn: getConfig().REACT_APP_FEATURE_YEARN,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -20,10 +20,12 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,17 +44,21 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
   const toast = useToast()
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
+  // Asset info also known as FOXY
+  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const rewardId = fromAssetId(assetId).assetReference
+
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',

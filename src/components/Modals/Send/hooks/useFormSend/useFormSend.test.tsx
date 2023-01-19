@@ -1,13 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
-import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
@@ -15,6 +14,17 @@ import { ensLookup } from 'lib/address/ens'
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
+
+jest.mock('state/slices/selectors', () => ({
+  ...jest.requireActual('state/slices/selectors'),
+  selectPortfolioAccountMetadataByAccountId: () => ({
+    bip44Params: {
+      purpose: 44,
+      coinType: 60,
+      accountNumber: 0,
+    },
+  }),
+}))
 
 jest.mock('@chakra-ui/react', () => ({
   ...jest.requireActual('@chakra-ui/react'),
@@ -33,7 +43,16 @@ jest.mock('context/PluginProvider/chainAdapterSingleton')
 jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('hooks/useModal/useModal')
 jest.mock('hooks/useWallet/useWallet')
-jest.mock('hooks/useEvm/useEvm')
+
+const mockEvmChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.OptimismMainnet,
+]
+jest.mock('hooks/useEvm/useEvm', () => ({
+  ...jest.requireActual('hooks/useEvm/useEvm'),
+  getSupportedEvmChainIds: () => mockEvmChainIds,
+}))
 
 jest.mock('lib/address/ens')
 
@@ -116,23 +135,6 @@ describe.each([
   ['wallet does not support EIP-1559', false],
   ['wallet supports EIP-1559', true],
 ])('useFormSend (%s)', (_, walletSupportsEIP1559) => {
-  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
-
-  beforeEach(() => {
-    useSelectorMock.mockReturnValue({
-      [formData[SendFormFields.AccountId]]: {
-        bip44Params: {
-          purpose: 44,
-          coinType: 60,
-          accountNumber: 0,
-        },
-      },
-    })
-    ;(useEvm as jest.Mock<unknown>).mockImplementation(() => ({
-      supportedEvmChainIds: [KnownChainIds.EthereumMainnet, KnownChainIds.AvalancheMainnet],
-    }))
-  })
-
   it('handles successfully sending a tx with ETH address', async () => {
     const toaster = jest.fn()
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
@@ -170,7 +172,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formData)
+    await result.current.handleFormSend(formData)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -220,7 +222,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddress)
+    await result.current.handleFormSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -265,7 +267,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formData)
+    await result.current.handleFormSend(formData)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -273,6 +275,11 @@ describe.each([
   })
 
   it('handles successfully sending an ENS name tx without offline signing', async () => {
+    const mockWallet = {
+      supportsOfflineSigning: jest.fn().mockReturnValue(false),
+      supportsBroadcast: jest.fn().mockReturnValue(true),
+      ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
+    } as unknown as HDWallet
     const toaster = jest.fn()
     const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({
@@ -282,11 +289,7 @@ describe.each([
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: {
-        wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(false),
-          supportsBroadcast: jest.fn().mockReturnValue(true),
-          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
-        },
+        wallet: mockWallet,
       },
     }))
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
@@ -315,7 +318,7 @@ describe.each([
 
     const { result } = renderHook(() => useFormSend())
     jest.useFakeTimers()
-    await result.current.handleSend(formDataEnsAddress)
+    await result.current.handleFormSend(formDataEnsAddress)
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
@@ -354,7 +357,7 @@ describe.each([
     )
 
     const { result } = renderHook(() => useFormSend())
-    await expect(result.current.handleSend(formData)).rejects.toThrow()
+    await expect(result.current.handleFormSend(formData)).rejects.toThrow()
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
   })

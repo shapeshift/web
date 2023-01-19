@@ -23,11 +23,13 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,12 +53,20 @@ export const FoxyDeposit: React.FC<{
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'erc20'
+  const { chainId, contractAddress, assetReference, assetNamespace } = query
+  // ContractAssetId
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[assetId as StakingId],
+    [assetId, opportunitiesMetadata],
+  )
+
+  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -122,7 +132,9 @@ export const FoxyDeposit: React.FC<{
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        description: translate('defi.steps.deposit.info.description', {
+          asset: stakingAsset.symbol,
+        }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -143,9 +155,9 @@ export const FoxyDeposit: React.FC<{
         component: Status,
       },
     }
-  }, [accountId, handleAccountIdChange, contractAddress, translate, asset.symbol])
+  }, [accountId, handleAccountIdChange, contractAddress, translate, stakingAsset.symbol])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !stakingAsset || !marketData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -158,7 +170,9 @@ export const FoxyDeposit: React.FC<{
       <DefiModalContent>
         <DefiModalHeader
           onBack={handleBack}
-          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Yieldy` })}
+          title={translate('modals.deposit.depositInto', {
+            opportunity: `${stakingAsset.symbol} Yieldy`,
+          })}
         />
         <Steps steps={StepConfig} />
       </DefiModalContent>

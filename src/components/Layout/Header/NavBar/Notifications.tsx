@@ -1,4 +1,4 @@
-import { IconButton, useColorMode } from '@chakra-ui/react'
+import { Box, IconButton, useColorMode } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -95,22 +95,24 @@ export const Notifications = () => {
   }
 
   return (
-    <NotificationFeedProvider
-      customSigner={{
-        address: ethAddress as string,
-        chainId: 1,
-        signMessage,
-        signTypedData,
-      }}
-      partnerKey={partnerKey}
-      theme={themeObj}
-      disableAnalytics={disableAnalytics}
-    >
-      <NotificationFeed gapFromBell={10} placement={'bottom-end'}>
-        <IconButton aria-label='Open notifications'>
-          <NotificationBell size={20} />
-        </IconButton>
-      </NotificationFeed>
-    </NotificationFeedProvider>
+    <Box>
+      <NotificationFeedProvider
+        customSigner={{
+          address: ethAddress as string,
+          chainId: 1,
+          signMessage,
+          signTypedData,
+        }}
+        partnerKey={partnerKey}
+        theme={themeObj}
+        disableAnalytics={disableAnalytics}
+      >
+        <NotificationFeed gapFromBell={10} placement={'bottom-end'}>
+          <IconButton aria-label='Open notifications'>
+            <NotificationBell size={20} />
+          </IconButton>
+        </NotificationFeed>
+      </NotificationFeedProvider>
+    </Box>
   )
 }

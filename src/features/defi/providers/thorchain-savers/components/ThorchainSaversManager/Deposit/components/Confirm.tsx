@@ -199,9 +199,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: '', // Let coinselect do its magic here
         to: maybeFromUTXOAccountAddress,
         sendMax: true,
-        accountId: accountId ?? '',
+        accountId,
         amountFieldError: '',
-        cryptoSymbol: asset?.symbol ?? '',
+        cryptoSymbol: asset.symbol,
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',

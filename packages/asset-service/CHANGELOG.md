@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.0...@shapeshiftoss/asset-service-v8.6.1) (2023-01-19)
+
+
+### Bug Fixes
+
+* **asset-service:** update viewblock url ([#1169](https://github.com/shapeshift/lib/issues/1169)) ([f93c918](https://github.com/shapeshift/lib/commit/f93c918f8fdc77243279aae6b47431588ecafcfe))
+
 # [@shapeshiftoss/asset-service-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.5.0...@shapeshiftoss/asset-service-v8.6.0) (2023-01-13)
 
 

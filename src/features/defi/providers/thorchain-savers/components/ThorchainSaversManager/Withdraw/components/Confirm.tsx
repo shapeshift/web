@@ -185,7 +185,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     try {
       const position = await getThorchainSaversPosition({ accountId, assetId })
-      debugger
       const { asset_address } = position
       const accountAddress = chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
 

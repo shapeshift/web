@@ -22,7 +22,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
-import { getThorchainSaversQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  getThorchainSaversDepositQuote,
+  isAboveDepositDustThreshold,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -107,7 +111,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversQuote(asset, amountCryptoBaseUnit)
+        const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
         const chainAdapters = getChainAdapterManager()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
@@ -198,29 +202,55 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-      if (_value.isEqualTo(0)) return ''
+      const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
+        bn(10).pow(asset.precision),
+      )
+      const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+
+      if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+
+      const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const valueCryptoPrecision = bnOrZero(value)
+      const hasValidBalance =
+        cryptoBalancePrecision.gt(0) &&
+        valueCryptoPrecision.gt(0) &&
+        cryptoBalancePrecision.gte(value)
+      if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset?.precision],
+    [asset.precision, asset.symbol, assetId, translate, balance],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+
+      const valueCryptoBaseUnit = bnOrZero(value)
+        .div(marketData.price)
+        .times(bn(10).pow(asset.precision))
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
+        bn(10).pow(asset.precision),
+      )
+      const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+
+      if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset?.precision, marketData?.price],
+    [balance, asset.precision, asset.symbol, marketData.price, assetId, translate],
   )
 
   const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    () => bnOrZero(balance).div(bn(10).pow(asset.precision)),
     [balance, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(

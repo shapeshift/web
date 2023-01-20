@@ -58,7 +58,8 @@ const makeGetGasFeesMockedResponse = (overrideArgs?: {
   maxPriorityFeePerGas?: string
 }) => merge({ gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' }, overrideArgs)
 
-const makeEstimateGasMockedResponse = (overrideArgs?: string) => overrideArgs ?? '21000'
+const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
+  merge({ gasLimit: '21000' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -80,7 +81,7 @@ const makeGetAccountMockResponse = (balance: {
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.avalanche.V1Api }
   chainId?: EvmChainId
-}): ChainAdapterArgs =>
+}): ChainAdapterArgs<unchained.avalanche.V1Api> =>
   merge(
     {
       providers: {

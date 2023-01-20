@@ -14,6 +14,8 @@ import * as cosmossdk from './cosmossdk/types'
 import * as evm from './evm/types'
 import * as utxo from './utxo/types'
 
+export { cosmossdk, evm, utxo }
+
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
   {
@@ -68,14 +70,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
 export type FeeData<T extends ChainId> = {
   txFee: string
 } & ChainSpecificFeeData<T>
-
-export type GasFeeData = Omit<evm.FeeData, 'gasLimit'>
-
-export type GasFeeDataEstimate = {
-  [FeeDataKey.Fast]: GasFeeData
-  [FeeDataKey.Average]: GasFeeData
-  [FeeDataKey.Slow]: GasFeeData
-}
 
 export type FeeDataEstimate<T extends ChainId> = {
   [FeeDataKey.Slow]: FeeData<T>
@@ -238,10 +232,6 @@ export type GetFeeDataInput<T extends ChainId> = {
   value: string
   sendMax?: boolean
 } & ChainSpecificGetFeeDataInput<T>
-
-export type EstimateFeeDataInput<T extends ChainId> = GetFeeDataInput<T> & {
-  gasFeeData: GasFeeDataEstimate
-}
 
 export enum ValidAddressResultType {
   Valid = 'valid',

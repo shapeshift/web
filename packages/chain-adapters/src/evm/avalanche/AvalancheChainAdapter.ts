@@ -2,10 +2,11 @@ import { ASSET_REFERENCE, AssetId, avalancheAssetId } from '@shapeshiftoss/caip'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
-import { ChainAdapterDisplayName, GasFeeDataEstimate } from '../../types'
+import { ChainAdapterDisplayName } from '../../types'
 import { FeeDataEstimate, GetFeeDataInput } from '../../types'
-import { bn } from '../../utils/bignumber'
+import { bn, bnOrZero } from '../../utils/bignumber'
 import { calcFee, ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
+import { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.AvalancheMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.AvalancheMainnet
@@ -17,7 +18,9 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs) {
+  private readonly api: unchained.avalanche.V1Api
+
+  constructor(args: ChainAdapterArgs<unchained.avalanche.V1Api>) {
     super({
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
@@ -25,6 +28,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
       ...args,
     })
 
+    this.api = args.providers.http
     this.assetId = avalancheAssetId
     this.parser = new unchained.avalanche.TransactionParser({
       chainId: this.chainId,
@@ -52,33 +56,33 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const feeData = await this.providers.http.getGasFees()
+    const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.api.getGasFees()
 
-    const nc = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
+    const scalars = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
 
     return {
       fast: {
-        gasPrice: calcFee(feeData.gasPrice, 'fast', nc),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast', nc),
+        gasPrice: calcFee(gasPrice, 'fast', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'fast', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'fast', scalars),
           }),
       },
       average: {
-        gasPrice: calcFee(feeData.gasPrice, 'average', nc),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average', nc),
+        gasPrice: calcFee(gasPrice, 'average', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'average', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'average', scalars),
           }),
       },
       slow: {
-        gasPrice: calcFee(feeData.gasPrice, 'slow', nc),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow', nc),
+        gasPrice: calcFee(gasPrice, 'slow', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'slow', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'slow', scalars),
           }),
       },
     }
@@ -87,7 +91,24 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.AvalancheMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AvalancheMainnet>> {
-    const gasFeeData = await this.getGasFeeData()
-    return this.estimateFeeData({ ...input, gasFeeData })
+    const req = await this.buildEstimateGasRequest(input)
+
+    const { gasLimit } = await this.api.estimateGas(req)
+    const { fast, average, slow } = await this.getGasFeeData()
+
+    return {
+      fast: {
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...fast },
+      },
+      average: {
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...average },
+      },
+      slow: {
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...slow },
+      },
+    }
   }
 }

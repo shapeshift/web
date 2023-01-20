@@ -88,7 +88,8 @@ describe('EthereumChainAdapter', () => {
       overrideArgs,
     )
 
-  const makeEstimateGasMockedResponse = (overrideArgs?: string) => overrideArgs ?? '21000'
+  const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
+    merge({ gasLimit: '21000' }, overrideArgs)
 
   const makeGetAccountMockResponse = (balance: {
     balance: string
@@ -110,7 +111,7 @@ describe('EthereumChainAdapter', () => {
   const makeChainAdapterArgs = (overrideArgs?: {
     providers?: { http: unchained.ethereum.V1Api }
     chainId?: EvmChainId
-  }): ChainAdapterArgs =>
+  }): ChainAdapterArgs<unchained.ethereum.V1Api> =>
     merge(
       {
         providers: {

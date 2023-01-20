@@ -47,13 +47,11 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { erc20ContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: {
-  gasPrice?: string
-  maxFeePerGas?: string
-  maxPriorityFeePerGas?: string
-}) => merge({ gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string; l1GasPrice?: string }) =>
+  merge({ gasPrice: '5', l1GasPrice: '10' }, overrideArgs)
 
-const makeEstimateGasMockedResponse = (overrideArgs?: string) => overrideArgs ?? '21000'
+const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string; l1GasLimit?: string }) =>
+  merge({ gasLimit: '21000', l1GasLimit: '3500' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -75,7 +73,7 @@ const makeGetAccountMockResponse = (balance: {
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.optimism.V1Api }
   chainId?: EvmChainId
-}): ChainAdapterArgs =>
+}): ChainAdapterArgs<unchained.optimism.V1Api> =>
   merge(
     {
       providers: {
@@ -134,21 +132,21 @@ describe('OptimismChainAdapter', () => {
               gasLimit: '21000',
               gasPrice: '5',
             },
-            txFee: '105000',
+            txFee: '140000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '6',
             },
-            txFee: '126000',
+            txFee: '161000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '5',
             },
-            txFee: '105000',
+            txFee: '140000',
           },
         }),
       )

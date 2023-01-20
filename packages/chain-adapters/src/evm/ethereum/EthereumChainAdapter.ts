@@ -3,7 +3,7 @@ import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 
-import { ChainAdapterDisplayName, GasFeeDataEstimate } from '../../types'
+import { ChainAdapterDisplayName } from '../../types'
 import {
   FeeDataEstimate,
   GetFeeDataInput,
@@ -13,6 +13,7 @@ import {
 } from '../../types'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { calcFee, ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
+import { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -24,7 +25,9 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs) {
+  private readonly api: unchained.ethereum.V1Api
+
+  constructor(args: ChainAdapterArgs<unchained.ethereum.V1Api>) {
     super({
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
@@ -32,6 +35,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       ...args,
     })
 
+    this.api = args.providers.http
     this.assetId = ethAssetId
     this.parser = new unchained.ethereum.TransactionParser({
       chainId: this.chainId,
@@ -64,9 +68,9 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
     if (!medianFees) throw new TypeError('ETH Gas Fees should always exist')
 
-    const feeData = await this.providers.http.getGasFees()
+    const { maxFeePerGas, maxPriorityFeePerGas } = await this.api.getGasFees()
 
-    const nc = {
+    const scalars = {
       fast: bnOrZero(bn(medianFees.fast).dividedBy(medianFees.standard)),
       average: bn(1),
       slow: bnOrZero(bn(medianFees.low).dividedBy(medianFees.standard)),
@@ -75,26 +79,26 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     return {
       fast: {
         gasPrice: bnOrZero(medianFees.fast).toString(),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'fast', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'fast', nc),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'fast', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'fast', scalars),
           }),
       },
       average: {
         gasPrice: bnOrZero(medianFees.standard).toString(),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'average', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'average', nc),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'average', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'average', scalars),
           }),
       },
       slow: {
         gasPrice: bnOrZero(medianFees.low).toString(),
-        ...(feeData.maxFeePerGas &&
-          feeData.maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(feeData.maxFeePerGas, 'slow', nc),
-            maxPriorityFeePerGas: calcFee(feeData.maxPriorityFeePerGas, 'slow', nc),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'slow', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'slow', scalars),
           }),
       },
     }
@@ -103,8 +107,25 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.EthereumMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
-    const gasFeeData = await this.getGasFeeData()
-    return this.estimateFeeData({ ...input, gasFeeData })
+    const req = await this.buildEstimateGasRequest(input)
+
+    const { gasLimit } = await this.api.estimateGas(req)
+    const { fast, average, slow } = await this.getGasFeeData()
+
+    return {
+      fast: {
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...fast },
+      },
+      average: {
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...average },
+      },
+      slow: {
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        chainSpecific: { gasLimit, ...slow },
+      },
+    }
   }
 
   async validateEnsAddress(address: string): Promise<ValidAddressResult> {

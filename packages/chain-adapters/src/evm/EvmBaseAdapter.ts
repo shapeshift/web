@@ -17,9 +17,7 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import {
   Account,
   BuildSendTxInput,
-  EstimateFeeDataInput,
   FeeDataEstimate,
-  GasFeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
   GetFeeDataInput,
@@ -40,8 +38,8 @@ import {
   toAddressNList,
   toRootDerivationPath,
 } from '../utils'
-import { bn, bnOrZero } from '../utils/bignumber'
-import { BuildCustomTxInput, Fees } from './types'
+import { bnOrZero } from '../utils/bignumber'
+import { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data, getGeneratedAssetData } from './utils'
 
 export const evmChainIds = [
@@ -63,18 +61,17 @@ type ConfirmationSpeed = 'slow' | 'average' | 'fast'
 export const calcFee = (
   fee: string | number | BigNumber,
   speed: ConfirmationSpeed,
-  normalizationConstants: Record<ConfirmationSpeed, BigNumber>,
+  scalars: Record<ConfirmationSpeed, BigNumber>,
 ): string => {
-  return bnOrZero(fee)
-    .times(normalizationConstants[speed])
-    .toFixed(0, BigNumber.ROUND_CEIL)
-    .toString()
+  return bnOrZero(fee).times(scalars[speed]).toFixed(0, BigNumber.ROUND_CEIL).toString()
 }
 
-export interface ChainAdapterArgs {
+type EvmApi = unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
+
+export interface ChainAdapterArgs<T = EvmApi> {
   chainId?: EvmChainId
   providers: {
-    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
+    http: T
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
   rpcUrl: string
@@ -220,13 +217,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  protected async estimateFeeData({
+  protected async buildEstimateGasRequest({
     to,
     value,
     chainSpecific: { contractAddress, from, contractData },
     sendMax = false,
-    gasFeeData: { fast, average, slow },
-  }: EstimateFeeDataInput<T>): Promise<FeeDataEstimate<EvmChainId>> {
+  }: GetFeeDataInput<T>): Promise<EstimateGasRequest> {
     const isErc20Send = !!contractAddress
 
     // get the exact send max value for an erc20 send to ensure we have the correct input data when estimating fees
@@ -244,26 +240,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
     const data = contractData ?? (await getErc20Data(to, value, contractAddress))
 
-    const gasLimit = await this.providers.http.estimateGas({
+    return {
       from,
       to: isErc20Send ? contractAddress : to,
       value: isErc20Send ? '0' : value,
       data,
-    })
-
-    return {
-      fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...fast },
-      },
-      average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...average },
-      },
-      slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
-        chainSpecific: { gasLimit, ...slow },
-      },
     }
   }
 

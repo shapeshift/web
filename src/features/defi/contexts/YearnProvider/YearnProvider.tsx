@@ -5,6 +5,8 @@ import type { PropsWithChildren } from 'react'
 import React, { useContext, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { store } from 'state/store'
 const moduleLogger = logger.child({ namespace: ['YearnProvider'] })
 
 type YearnContextProps = {
@@ -25,9 +27,19 @@ export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapterManager = getChainAdapterManager()
 
+  const state = store.getState()
+  const { Yearn } = selectFeatureFlags(state)
+
   useEffect(() => {
     ;(async () => {
       try {
+        if (!Yearn) {
+          moduleLogger.debug(
+            'Yearn feature flag disabled, not initializing Yearn @yfi/sdk opportunities',
+          )
+          return
+        }
+
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return
         setLoading(true)
         const yearnInvestor = getYearnInvestor()
@@ -39,7 +51,7 @@ export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [chainAdapterManager])
+  }, [Yearn, chainAdapterManager])
 
   return <YearnContext.Provider value={{ yearn, loading }}>{children}</YearnContext.Provider>
 }

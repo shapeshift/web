@@ -40,7 +40,7 @@ const DegradedStateBanner = () => {
     return uniq(
       erroredAccountIds.map((accountId: AccountId) => {
         const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
-        return assets[feeAssetId]?.name ?? ''
+        return assets[feeAssetId]?.networkName ?? assets[feeAssetId]?.name ?? ''
       }),
     ).join(', ')
   }, [assets, erroredAccountIds])

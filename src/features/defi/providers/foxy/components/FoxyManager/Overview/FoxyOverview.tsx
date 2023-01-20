@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -20,12 +20,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
-  selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,42 +43,59 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetReference, assetNamespace } = query
+  // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: assetId as StakingId }),
+    [assetId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+
+  const accountFilter = useMemo(
+    () => ({ accountId: accountId ?? highestBalanceAccountId ?? '' }),
+    [accountId, highestBalanceAccountId],
+  )
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
     accountNumber: bip44Params?.accountNumber ?? 0,
   })
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference, rewardId } = query
-  const opportunity = useMemo(
-    () => (foxyBalancesData?.opportunities || []).find(e => e.contractAddress === contractAddress),
-    [foxyBalancesData?.opportunities, contractAddress],
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[assetId as StakingId],
+    [assetId, opportunitiesMetadata],
   )
 
-  const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
+  // The Staking asset is one of the only underlying Asset Ids FOX
+  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  // The Reward Asset is FOXY
+  const rewardAssetId = opportunityMetadata?.underlyingAssetId ?? ''
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+
+  const opportunity = useMemo(
+    () => (foxyBalancesData?.opportunities || []).find(e => e.contractAssetId === assetId),
+    [foxyBalancesData?.opportunities, assetId],
+  )
 
   const withdrawInfo = accountId
     ? // Look up the withdrawInfo for the current account, if we have one
       opportunity?.withdrawInfo[accountId]
-    : // Else, get the withdrawInfo for the first account
-      opportunity?.withdrawInfo[firstAccountId ?? '']
+    : // Else, get the withdrawInfo for the highest balance account
+      opportunity?.withdrawInfo[highestBalanceAccountId ?? '']
   const rewardBalance = bnOrZero(withdrawInfo?.amount)
   const releaseTime = withdrawInfo?.releaseTime
   const foxyBalance = bnOrZero(opportunity?.balance)
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const rewardAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)

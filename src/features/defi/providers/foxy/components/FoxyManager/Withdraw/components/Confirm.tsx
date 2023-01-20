@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -24,11 +24,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,23 +49,22 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference, rewardId } = query
+  const { chainId, assetReference: contractAddress, assetNamespace } = query
+  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
 
-  const assetNamespace = 'erc20'
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[contractAssetId as StakingId],
+    [contractAssetId, opportunitiesMetadata],
+  )
+
   // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  const underlyingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAsset}`)
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: rewardId,
-  })
+  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const rewardAssetId = fromAssetId(assetId).assetReference
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const feeAssetId = toAssetId({
     chainId,
@@ -107,7 +108,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         !(
           state &&
           accountAddress &&
-          rewardId &&
+          rewardAssetId &&
           walletState.wallet &&
           api &&
           dispatch &&
@@ -118,7 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
-          tokenContractAddress: rewardId,
+          tokenContractAddress: rewardAssetId,
           userAddress: accountAddress,
           contractAddress,
           wallet: walletState.wallet,
@@ -157,7 +158,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     contractAddress,
     dispatch,
     onNext,
-    rewardId,
+    rewardAssetId,
     accountAddress,
     state,
     walletState.wallet,

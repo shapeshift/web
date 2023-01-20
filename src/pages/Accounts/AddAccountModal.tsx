@@ -3,7 +3,6 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Avatar,
   Box,
   Button,
   forwardRef,
@@ -22,11 +21,13 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -43,12 +44,11 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ChainOptionProps = {
   chainId: ChainId
-  name: string
-  icon: string
+  asset: Asset
   setSelectedChainId: (chainId: ChainId) => void
 }
 const ChainOption = forwardRef<ChainOptionProps, 'button'>(
-  ({ chainId, name, icon, setSelectedChainId }, ref) => (
+  ({ chainId, asset, setSelectedChainId }, ref) => (
     <MenuItemOption
       ref={ref}
       key={chainId}
@@ -56,8 +56,8 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
       onClick={() => setSelectedChainId(chainId)}
     >
       <Stack direction='row' spacing={0} ml={0}>
-        <Avatar size='xs' src={icon} mr={3} />
-        <RawText fontWeight='bold'>{name}</RawText>
+        <AssetIcon size='xs' asset={asset} mr={3} />
+        <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
       </Stack>
     </MenuItemOption>
   ),
@@ -99,9 +99,8 @@ export const AddAccountModal = () => {
         const assetId = chainAdapter.getFeeAssetId()
         const asset = assets?.[assetId]
         if (!asset) return null
-        const { name, icon } = asset
-        const key = chainId
-        const chainOptionsProps = { chainId, setSelectedChainId, name, icon, key }
+        const  key = chainId
+        const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
         return <ChainOption {...chainOptionsProps} />
       })
       .filter(isSome)
@@ -147,7 +146,6 @@ export const AddAccountModal = () => {
   }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, translate, wallet])
 
   if (!asset) return null
-  const { name, icon } = asset
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
@@ -174,8 +172,8 @@ export const AddAccountModal = () => {
                   rightIcon={<ChevronDownIcon />}
                 >
                   <Stack spacing={0} direction='row' alignItems='center'>
-                    <Avatar size='xs' src={icon} mr={3} />
-                    <RawText fontWeight='bold'>{name}</RawText>
+                    <AssetIcon size='xs' asset={asset} mr={3} />
+                    <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
                   </Stack>
                 </MenuButton>
                 <MenuList>

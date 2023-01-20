@@ -17,11 +17,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { foxEthLpAssetId, foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
@@ -37,8 +36,6 @@ export const AllEarnOpportunities = () => {
     dispatch,
   } = useWallet()
 
-  const { data: foxyBalancesData } = useFoxyBalances()
-
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -50,40 +47,32 @@ export const AllEarnOpportunities = () => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
 
-  const foxEthLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-    [],
-  )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
-  )
   const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
     {
       assetId: cosmosAssetId,
       accountId: cosmosAccountId,
     },
   )
+
   const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
     useCosmosSdkStakingBalances({
       assetId: osmosisAssetId,
       accountId: osmosisAccountId,
     })
 
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
+
   const allRows = useNormalizeOpportunities({
-    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: useMemo(
       () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
       [cosmosStakingOpportunities, osmosisStakingOpportunities],
     ),
-    foxEthLpOpportunity,
     stakingOpportunities: stakingOpportunities.filter(
       opportunity =>
         !opportunity.expired ||
         (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
     ),
+    lpOpportunities,
   })
 
   const filteredRows = useMemo(

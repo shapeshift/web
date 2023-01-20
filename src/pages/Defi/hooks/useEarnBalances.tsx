@@ -6,7 +6,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
-  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunities,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -35,12 +35,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, {
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-  )
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const stakingContractsAggregatedOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunities,
@@ -61,16 +56,16 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     }),
     [],
   )
+
   const foxEthLpFiatBalance = useAppSelector(state =>
     selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
   )
 
   const opportunities = useNormalizeOpportunities({
-    foxyArray: foxyBalancesData?.opportunities || [],
     cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
       osmosisStakingOpportunities,
     ),
-    foxEthLpOpportunity,
+    lpOpportunities,
     stakingOpportunities,
   })
 

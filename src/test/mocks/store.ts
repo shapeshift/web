@@ -49,6 +49,7 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
+      Optimism: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
@@ -65,6 +66,7 @@ export const mockStore: ReduxState = {
       FiatPopup: false,
       EligibleEarn: false,
       SaversVaults: false,
+      Yearn: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

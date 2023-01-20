@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.9.0...@shapeshiftoss/chain-adapters-v10.10.0) (2023-01-20)
+
+
+### Features
+
+* optimism l1 fees ([#1170](https://github.com/shapeshift/lib/issues/1170)) ([7105f94](https://github.com/shapeshift/lib/commit/7105f94cd58483b91041b8a0d5b2841fe1a37a98))
+
 # [@shapeshiftoss/chain-adapters-v10.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.8.0...@shapeshiftoss/chain-adapters-v10.9.0) (2023-01-19)
 
 

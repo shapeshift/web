@@ -110,7 +110,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
         value: tx.value ?? convertNumberToHex(0),
         gasLimit:
           (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
-          convertNumberToHex(9000), // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
+          convertNumberToHex(90000), // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
         ...gasData,
       })
       const txToSign = {
@@ -155,7 +155,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
       if (!nonce) return
       const gasLimit =
         (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
-        convertNumberToHex(9000) // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
+        convertNumberToHex(90000) // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
       const fees = await getFeesForTx(tx, chainAdapter, wcAccountId)
       const gasData = getGasData(approveData, fees)
       return await chainAdapter.signTransaction({

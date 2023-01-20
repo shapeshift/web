@@ -117,17 +117,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
-  if (!asset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalanceFilter = useMemo(
+  const assetBalanceFilter = useMemo(
     () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
     [accountId, asset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+  const assetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, assetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -135,9 +134,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
-  const getAccountAddress: () => Promise<string> = useCallback(async () => {
+  const getMaybeUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
     if (!accountId) throw new Error('accountId is undefined')
     if (!isUtxoChainId(chainId)) return ''
+
     try {
       const position = await getThorchainSaversPosition(accountId, assetId)
       debugger
@@ -164,14 +164,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
     )
     const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
-    const accountAddress = await getAccountAddress()
+    const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
 
     const { dust_amount } = quote
 
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
     return {
-      from: accountAddress,
+      from: maybeUtxoAccountAddress,
       cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
       asset,
       to: quote.inbound_address,
@@ -182,7 +182,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
-    getAccountAddress,
+    getMaybeUtxoAccountAddress,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
@@ -212,7 +212,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
 
       const quote = await getThorchainSaversWithdrawQuote(asset, accountId, bps)
-      const accountAddress = await getAccountAddress()
+      const accountAddress = await getMaybeUtxoAccountAddress()
 
       const sendInput: SendInput = {
         cryptoAmount: '',
@@ -244,7 +244,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     getEstimateFeesArgs,
     asset,
-    getAccountAddress,
+    getMaybeUtxoAccountAddress,
     selectedCurrency,
   ])
 
@@ -269,7 +269,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const { dust_amount } = quote
 
-      const accountAddress = await getAccountAddress()
+      const accountAddress = await getMaybeUtxoAccountAddress()
 
       const sendInput: SendInput = {
         cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
@@ -300,7 +300,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     opportunityData?.stakedAmountCryptoBaseUnit,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
-    getAccountAddress,
+    getMaybeUtxoAccountAddress,
     selectedCurrency,
   ])
 
@@ -319,33 +319,34 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const withdrawInput = await getWithdrawInput()
     if (!withdrawInput) throw new Error('Error building send input')
 
-    let txId: string
-
     // Try/catching and evaluating to something in the catch isn't a good pattern usually
     // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
     // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
     // and finally evaluate to either the original Tx or a falsy empty string
-    try {
-      // 1. Try to deposit from the originally deposited from / highest UTXO balance address
-      // If this is enough, no other Tx is needed
-      txId = await handleSend({
-        sendInput: withdrawInput,
-        wallet: walletState.wallet,
+    // 1. Try to deposit from the originally deposited from / highest UTXO balance address
+    // If this is enough, no other Tx is needed
+    const txId = await handleSend({
+      sendInput: withdrawInput,
+      wallet: walletState.wallet,
+    })
+      .catch(async () => {
+        // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
+        const preWithdrawInput = await getPreWithdrawInput()
+        if (!preWithdrawInput) throw new Error('Error building send input')
+
+        return handleSend({
+          sendInput: preWithdrawInput,
+          wallet: walletState.wallet!,
+        })
       })
-    } catch (e) {
-      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
-      const preWithdrawInput = await getPreWithdrawInput()
-      if (!preWithdrawInput) throw new Error('Error building send input')
-      txId = await handleSend({
-        sendInput: preWithdrawInput,
-        wallet: walletState.wallet,
-      })
-      // 3. Sign and broadcast the depooosit Tx again
-      txId = await handleSend({
-        sendInput: withdrawInput,
-        wallet: walletState.wallet,
-      }).catch(_e => '')
-    }
+      .then(() =>
+        // 3. Sign and broadcast the depooosit Tx again
+        handleSend({
+          sendInput: withdrawInput,
+          wallet: walletState.wallet!,
+        }).catch(_e => ''),
+      )
+      .catch(_e => '')
 
     return txId
   }, [getPreWithdrawInput, getWithdrawInput, walletState.wallet])
@@ -392,7 +393,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
-      // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -427,10 +427,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(feeAssetBalance)
+      bnOrZero(assetBalance)
         .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${asset.precision}`))
         .gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, asset?.precision],
+    [assetBalance, state?.withdraw.estimatedGasCrypto, asset?.precision],
   )
 
   if (!state || !contextDispatch) return null

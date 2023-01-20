@@ -50,9 +50,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
     assetReference,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -109,7 +107,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
       [DefiStep.Info]: {
         label: translate('defi.steps.withdraw.info.title'),
         description: translate('defi.steps.withdraw.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: asset.symbol,
         }),
         component: ownProps => <Withdraw {...ownProps} accountId={accountId} />,
       },
@@ -123,7 +121,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
       },
     }
     // We only need this to update on symbol change
-  }, [accountId, translate, underlyingAsset.symbol])
+  }, [accountId, asset.symbol, translate])
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
@@ -139,7 +137,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: `${asset.symbol} Vault`,
           })}
           onBack={handleBack}
         />

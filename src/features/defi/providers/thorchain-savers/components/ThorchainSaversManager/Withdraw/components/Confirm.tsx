@@ -27,6 +27,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   fromThorBaseUnit,
@@ -67,7 +68,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [withdrawFeeCryptoBaseUnit, setWithdrawFeeCryptoBaseUnit] = useState<string>('')
-  const [dustAmountCryptoPrecision, setDustAmountCryptoPrecision] = useState<string>('')
+  const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -141,6 +142,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   useEffect(() => {
     ;(async () => {
       if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
+      if (dustAmountCryptoBaseUnit && withdrawFeeCryptoBaseUnit) return
 
       const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
         bn(10).pow(asset.precision),
@@ -159,25 +161,33 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
       })
 
+      if (bn(withdrawBps).isZero()) return
+
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
       const { dust_amount, expected_amount_out } = quote
-      const withdrawFeeCryptoBaseUnit = amountCryptoThorBaseUnit
-        .minus(expected_amount_out)
-        .div(bn(10).pow(THOR_PRECISION))
-        .times(bn(10).pow(asset.precision))
 
-      const dustAmountCryptoPrecision = fromThorBaseUnit(dust_amount)
-
-      setWithdrawFeeCryptoBaseUnit(withdrawFeeCryptoBaseUnit.toFixed())
-      setDustAmountCryptoPrecision(dustAmountCryptoPrecision.toFixed(asset.precision))
+      setWithdrawFeeCryptoBaseUnit(
+        amountCryptoThorBaseUnit
+          .minus(expected_amount_out)
+          .div(bn(10).pow(THOR_PRECISION))
+          .times(bn(10).pow(asset.precision))
+          .toFixed(),
+      )
+      setDustAmountCryptoBaseUnit(
+        bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
+          asset.precision,
+        ),
+      )
     })()
   }, [
     accountId,
     asset,
+    dustAmountCryptoBaseUnit,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
+    withdrawFeeCryptoBaseUnit,
   ])
 
   const getMaybeUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
@@ -329,6 +339,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
       })
 
+      if (bn(withdrawBps).isZero()) return
+
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
       if (!quote) throw new Error('Error getting THORChain savers withdraw quote')
@@ -463,7 +475,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({
         type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
         payload: {
-          dustAmountCryptoPrecision,
+          dustAmountCryptoBaseUnit,
           withdrawFeeCryptoBaseUnit,
         },
       })
@@ -493,7 +505,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     appDispatch,
     getWithdrawInput,
     handleMultiTxSend,
-    dustAmountCryptoPrecision,
+    dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
     onNext,
     toast,
@@ -573,11 +585,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bn(dustAmountCryptoPrecision).times(marketData.price).toFixed(2)}
+                value={bnOrZero(dustAmountCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={dustAmountCryptoPrecision}
+                value={bnOrZero(dustAmountCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
                 symbol={asset.symbol}
               />
             </Box>

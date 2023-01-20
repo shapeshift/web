@@ -1,6 +1,7 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/bridge/types'
+import { getFeesForTx } from 'plugins/walletConnectToDapps/utils'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { useEffect, useMemo, useState } from 'react'
 import type { FeePrice } from 'components/Modals/Send/views/Confirm'
@@ -34,15 +35,11 @@ export function useCallRequestFees(
     const adapter = getChainAdapterManager().get(evmChainId)
     if (!(address && evmChainId && feeAsset && feeAssetPrice && adapter)) return
     ;(async () => {
-      const estimatedFees = await (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-        to: request.to,
-        value: bnOrZero(request.value).toFixed(0),
-        chainSpecific: {
-          from: address,
-          contractAddress: request.to,
-          contractData: request.data,
-        },
-      })
+      const estimatedFees = await getFeesForTx(
+        request,
+        adapter as unknown as EvmBaseAdapter<EvmChainId>,
+        wcAccountId,
+      )
 
       const initialFees: FeePrice = {
         slow: {

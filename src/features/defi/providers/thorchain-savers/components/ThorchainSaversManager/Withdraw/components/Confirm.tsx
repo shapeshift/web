@@ -231,7 +231,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       to: quote.inbound_address,
       sendMax: false,
-      accountId: accountId ?? '',
+      accountId,
       contractAddress: '',
     }
   }, [
@@ -332,7 +332,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         to: quote.inbound_address,
         from: accountAddress,
         sendMax: false,
-        accountId: accountId ?? '',
+        accountId,
         amountFieldError: '',
         cryptoSymbol: asset?.symbol ?? '',
         estimatedFees,

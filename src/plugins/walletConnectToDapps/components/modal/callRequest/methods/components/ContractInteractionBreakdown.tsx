@@ -51,7 +51,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
   const addressColor = useColorModeValue('blue.500', 'blue.200')
   const { accountExplorerAddressLink } = useWalletConnect()
 
-  const renderAbiInput = (input: ParamType, index: number) => {
+  const renderAbiInput = (input: ParamType, index: number): JSX.Element => {
     const inputValue = transaction?.args[index].toString()
     switch (input.type) {
       case 'bytes[]':
@@ -69,6 +69,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
             />
           </HStack>
         )
+      case 'tuple':
       default:
         return (
           <RawText fontWeight='normal' fontSize='md'>

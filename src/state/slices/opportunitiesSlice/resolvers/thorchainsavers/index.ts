@@ -182,7 +182,10 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
       )
 
-    const accountPosition = await getThorchainSaversPosition(accountId, stakingOpportunityId)
+    const accountPosition = await getThorchainSaversPosition({
+      accountId,
+      assetId: stakingOpportunityId,
+    })
 
     const { asset_deposit_value, asset_redeem_value } = accountPosition
 

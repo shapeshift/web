@@ -160,7 +160,7 @@ export const Status = () => {
                 )
                   .div(bn(10).pow(asset.precision))
                   .toFixed(5)}
-                symbol='ETH'
+                symbol={asset.symbol}
               />
             </Box>
           </Row.Value>

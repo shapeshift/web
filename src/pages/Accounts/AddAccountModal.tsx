@@ -99,7 +99,7 @@ export const AddAccountModal = () => {
         const assetId = chainAdapter.getFeeAssetId()
         const asset = assets?.[assetId]
         if (!asset) return null
-        const  key = chainId
+        const key = chainId
         const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
         return <ChainOption {...chainOptionsProps} />
       })

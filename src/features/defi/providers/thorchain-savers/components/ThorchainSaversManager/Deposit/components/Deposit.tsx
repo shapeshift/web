@@ -212,7 +212,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
 
-      const cryptoBalancePrecision = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
       const valueCryptoPrecision = bnOrZero(value)
       const hasValidBalance =
         cryptoBalancePrecision.gt(0) &&
@@ -226,7 +226,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
 
       const valueCryptoBaseUnit = bnOrZero(value)
         .div(marketData.price)
@@ -250,7 +250,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    () => bnOrZero(balance).div(bn(10).pow(asset.precision)),
     [balance, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(

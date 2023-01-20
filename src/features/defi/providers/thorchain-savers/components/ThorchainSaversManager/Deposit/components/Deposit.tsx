@@ -203,7 +203,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
-      const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
 
       const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
@@ -231,7 +231,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const valueCryptoBaseUnit = bnOrZero(value)
         .div(marketData.price)
         .times(bn(10).pow(asset.precision))
-      const isBelowMinSellAmount = !isAboveDepositDustThreshold(valueCryptoBaseUnit, assetId)
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
 
       const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),

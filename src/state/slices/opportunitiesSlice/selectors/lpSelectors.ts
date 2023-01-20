@@ -279,9 +279,10 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
         underlyingToken1AmountCryptoBaseUnit,
         cryptoAmountPrecision: '',
         // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
-        cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, assets[lpId]?.precision ?? 0),
+        cryptoAmountBaseUnit: aggregatedLpAssetBalance,
         fiatAmount: bnOrZero(aggregatedLpAssetBalance)
           .times(marketDataPrice ?? '0')
+          .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
           .toString(),
         icons: opportunityMetadata.underlyingAssetIds
           .map(assetId => assets[assetId]?.icon)

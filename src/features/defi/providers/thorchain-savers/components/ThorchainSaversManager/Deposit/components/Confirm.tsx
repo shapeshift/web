@@ -106,7 +106,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
       bn(10).pow(asset.precision),
     )
-    const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+    const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
     return {
       cryptoAmount: state.deposit.cryptoAmount,
@@ -129,7 +129,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
       const sendInput: SendInput = {
         cryptoAmount: state.deposit.cryptoAmount,
@@ -170,7 +170,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
       const sendInput: SendInput = {
         cryptoAmount: '',
@@ -254,7 +254,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!accountId) return
     ;(async () => {
       const accountAddress = isUtxoChainId(chainId)
-        ? await getThorchainSaversPosition(accountId, assetId)
+        ? await getThorchainSaversPosition({ accountId, assetId })
             .then(({ asset_address }) =>
               chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
             )

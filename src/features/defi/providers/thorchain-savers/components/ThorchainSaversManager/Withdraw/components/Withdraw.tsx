@@ -112,13 +112,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const amountCryptoBaseUnit = bnOrZero(withdraw.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const withdrawBps = getWithdrawBps(
-          amountCryptoBaseUnit,
-          opportunityData?.stakedAmountCryptoBaseUnit,
-          opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
-        )
+        const withdrawBps = getWithdrawBps({
+          withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+          stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
+          rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+        })
 
-        const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+        const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
         const chainAdapters = getChainAdapterManager()
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
         const fee = (

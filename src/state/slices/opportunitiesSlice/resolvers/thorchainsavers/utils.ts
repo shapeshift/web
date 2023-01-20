@@ -106,10 +106,13 @@ export const getAllThorchainSaversPositions = async (
   return opportunitiesData
 }
 
-export const getThorchainSaversPosition = async (
-  accountId: AccountId,
-  assetId: AssetId,
-): Promise<ThorchainSaverPositionResponse> => {
+export const getThorchainSaversPosition = async ({
+  accountId,
+  assetId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+}): Promise<ThorchainSaverPositionResponse> => {
   const allPositions = await getAllThorchainSaversPositions(assetId)
 
   if (!allPositions.length)
@@ -132,15 +135,21 @@ export const getThorchainSaversPosition = async (
   return accountPosition
 }
 
-export const getThorchainSaversDepositQuote = async (
-  asset: Asset,
-  amountCryptoBaseUnit: BigNumber.Value | null | undefined,
-): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
+export const getThorchainSaversDepositQuote = async ({
+  asset,
+  amountCryptoBaseUnit,
+}: {
+  asset: Asset
+  amountCryptoBaseUnit: BigNumber.Value | null | undefined
+}): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
-  const amountThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
+  const amountThorBaseUnit = toThorBaseUnit({
+    valueCryptoBaseUnit: amountCryptoBaseUnit,
+    asset,
+  }).toString()
 
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
@@ -154,11 +163,15 @@ export const getThorchainSaversDepositQuote = async (
   return quoteData
 }
 
-export const getThorchainSaversWithdrawQuote = async (
-  asset: Asset,
-  accountId: AccountId,
-  bps: string,
-): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
+export const getThorchainSaversWithdrawQuote = async ({
+  asset,
+  accountId,
+  bps,
+}: {
+  asset: Asset
+  accountId: AccountId
+  bps: string
+}): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
@@ -204,10 +217,13 @@ export const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
 
-export const toThorBaseUnit = (
-  valueCryptoBaseUnit: BigNumber.Value | null | undefined,
-  asset: Asset,
-): BN => {
+export const toThorBaseUnit = ({
+  valueCryptoBaseUnit,
+  asset,
+}: {
+  valueCryptoBaseUnit: BigNumber.Value | null | undefined
+  asset: Asset
+}): BN => {
   if (!asset?.precision) return bn(0)
 
   return bnOrZero(valueCryptoBaseUnit)
@@ -216,16 +232,23 @@ export const toThorBaseUnit = (
     .decimalPlaces(0) // THORChain expects ints, not floats
 }
 
-export const isAboveDepositDustThreshold = (
-  valueCryptoBaseUnit: BigNumber.Value | null | undefined,
-  assetId: AssetId,
-) => bnOrZero(valueCryptoBaseUnit).gte(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId])
+export const isAboveDepositDustThreshold = ({
+  valueCryptoBaseUnit,
+  assetId,
+}: {
+  valueCryptoBaseUnit: BigNumber.Value | null | undefined
+  assetId: AssetId
+}) => bnOrZero(valueCryptoBaseUnit).gte(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId])
 
-export const getWithdrawBps = (
-  withdrawAmountCryptoBaseUnit: BigNumber.Value,
-  stakedAmountCryptoBaseUnit: BigNumber.Value,
-  rewardsamountCryptoBaseUnit: BigNumber.Value,
-) => {
+export const getWithdrawBps = ({
+  withdrawAmountCryptoBaseUnit,
+  stakedAmountCryptoBaseUnit,
+  rewardsamountCryptoBaseUnit,
+}: {
+  withdrawAmountCryptoBaseUnit: BigNumber.Value
+  stakedAmountCryptoBaseUnit: BigNumber.Value
+  rewardsamountCryptoBaseUnit: BigNumber.Value
+}) => {
   const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
     rewardsamountCryptoBaseUnit,
   )

@@ -111,7 +111,7 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversDepositQuote(asset, amountCryptoBaseUnit)
+        const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
         const chainAdapters = getChainAdapterManager()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property

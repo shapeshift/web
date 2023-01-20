@@ -46,7 +46,10 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      const saversQuote = await getThorchainSaversDepositQuote(btcAssetMock, '10000000')
+      const saversQuote = await getThorchainSaversDepositQuote({
+        asset: btcAssetMock,
+        amountCryptoBaseUnit: '10000000',
+      })
 
       expect(saversQuote).toMatchObject(btcQuote)
     })
@@ -58,7 +61,9 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const osmoAssetMock = { assetId: osmosisAssetId, precision: 6 } as unknown as Asset
-      await expect(getThorchainSaversDepositQuote(osmoAssetMock, '10000000')).rejects.toThrow()
+      await expect(
+        getThorchainSaversDepositQuote({ asset: osmoAssetMock, amountCryptoBaseUnit: '10000000' }),
+      ).rejects.toThrow()
     })
     it('throws when deposit is over the max synth mint supply', async () => {
       mockAxios.get.mockImplementationOnce(() =>
@@ -68,7 +73,12 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      await expect(getThorchainSaversDepositQuote(btcAssetMock, '10000000000000')).rejects.toThrow()
+      await expect(
+        getThorchainSaversDepositQuote({
+          asset: btcAssetMock,
+          amountCryptoBaseUnit: '10000000000000',
+        }),
+      ).rejects.toThrow()
     })
   })
 })

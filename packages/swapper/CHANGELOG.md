@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.2...@shapeshiftoss/swapper-v15.6.0) (2023-01-20)
+
+
+### Features
+
+* optimism l1 fees ([#1170](https://github.com/shapeshift/lib/issues/1170)) ([7105f94](https://github.com/shapeshift/lib/commit/7105f94cd58483b91041b8a0d5b2841fe1a37a98))
+
 # [@shapeshiftoss/swapper-v15.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.1...@shapeshiftoss/swapper-v15.5.2) (2023-01-19)
 
 

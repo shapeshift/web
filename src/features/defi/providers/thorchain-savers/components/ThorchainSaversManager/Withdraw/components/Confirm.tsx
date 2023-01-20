@@ -164,7 +164,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const { dust_amount, expected_amount_out } = quote
       const withdrawFee = amountCryptoThorBaseUnit
         .minus(expected_amount_out)
-        .div(`1e+${THOR_PRECISION}`)
+        .div(bn(10).pow(THOR_PRECISION))
 
       const dustAmountCryptoPrecision = fromThorBaseUnit(dust_amount)
 
@@ -220,7 +220,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })
     const withdrawFee = amountCryptoThorBaseUnit
       .minus(expected_amount_out)
-      .div(`1e+${THOR_PRECISION}`)
+      .div(bn(10).pow(asset.precision))
 
     setWithdrawFee(withdrawFee.toFixed())
 
@@ -384,25 +384,24 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txId = await handleSend({
       sendInput: withdrawInput,
       wallet: walletState.wallet,
-    })
-      .catch(async () => {
-        // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
-        const preWithdrawInput = await getPreWithdrawInput()
-        if (!preWithdrawInput) throw new Error('Error building send input')
+    }).catch(async () => {
+      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
+      const preWithdrawInput = await getPreWithdrawInput()
+      if (!preWithdrawInput) throw new Error('Error building send input')
 
-        return handleSend({
-          sendInput: preWithdrawInput,
-          wallet: walletState.wallet!,
-        })
+      return handleSend({
+        sendInput: preWithdrawInput,
+        wallet: walletState.wallet!,
       })
-      .then(() =>
-        // 3. Sign and broadcast the depooosit Tx again
-        handleSend({
-          sendInput: withdrawInput,
-          wallet: walletState.wallet!,
-        }).catch(_e => ''),
-      )
-      .catch(_e => '')
+        .then(() =>
+          // 3. Sign and broadcast the depooosit Tx again
+          handleSend({
+            sendInput: withdrawInput,
+            wallet: walletState.wallet!,
+          }).catch(_e => ''),
+        )
+        .catch(_e => '')
+    })
 
     return txId
   }, [getPreWithdrawInput, getWithdrawInput, walletState.wallet])
@@ -484,7 +483,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(assetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${asset.precision}`))
+        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(bn(10).pow(asset.precision)))
         .gte(0),
     [assetBalance, state?.withdraw.estimatedGasCrypto, asset?.precision],
   )

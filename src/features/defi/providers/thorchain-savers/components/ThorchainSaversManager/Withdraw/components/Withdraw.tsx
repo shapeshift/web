@@ -23,7 +23,6 @@ import {
   getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -120,8 +119,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
         const chainAdapters = getChainAdapterManager()
+        // We're lying to Ts, this isn't always an UtxoBaseAdapter
+        // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        const fee = (
+        const fastFeeCryptoBaseUnit = (
           await adapter.getFeeData({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
@@ -129,10 +130,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
             sendMax: false,
           })
         ).fast.txFee
-        // We might need a dust reconciliation Tx for UTXOs, so we assume gas * 2
-        return bnOrZero(fee)
-          .times(isUtxoChainId(chainId) ? 2 : 1)
-          .toString()
+
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+        )
+        return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         moduleLogger.error(
           { fn: 'getWithdrawGasEstimate', error },
@@ -152,7 +154,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
       if (!(userAddress && opportunityData && dispatch)) return
-      // set deposit state for future use
+      // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       try {

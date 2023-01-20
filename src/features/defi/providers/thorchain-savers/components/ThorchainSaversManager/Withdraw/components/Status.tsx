@@ -16,7 +16,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -147,7 +147,7 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${asset.precision}`)
+                  .div(bn(10).pow(asset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
@@ -158,7 +158,7 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${asset.precision}`)
+                  .div(bn(10).pow(asset.precision))
                   .toFixed(5)}
                 symbol='ETH'
               />

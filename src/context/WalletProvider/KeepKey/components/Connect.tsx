@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalHeader,
 } from '@chakra-ui/react'
+import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -17,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
+import { KeepKeyConfigRest } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
 const moduleLogger = logger.child({ namespace: ['Connect'] })
@@ -50,6 +52,25 @@ export const KeepKeyConnect = () => {
     dispatch({ type: WalletActions.DOWNLOAD_UPDATER, payload: false })
   }, [dispatch])
 
+  const setupKeepKeySDK = async () => {
+    let serviceKey = window.localStorage.getItem('@app/serviceKey')
+    let config:any = {
+      apiKey: serviceKey,
+      pairingInfo:{
+        name: "ShapeShift",
+        imageUrl:'https://assets.coincap.io/assets/icons/fox@2x.png',
+        basePath:'http://localhost:1646/spec/swagger.json',
+        url:'https://web-theta-one.vercel.app'
+      }
+    }
+    let sdk = await KeepKeySdk.create(config)
+    console.log("config.serviceKey: ",config.serviceKey)
+    if (!serviceKey) {
+      window.localStorage.setItem('@app/serviceKey', config.serviceKey)
+    }
+    return sdk
+  }
+
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
@@ -59,7 +80,18 @@ export const KeepKeyConnect = () => {
       return
     }
     if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
-      const wallet = await state.adapters
+      //Check if Keepkey bridge is live
+      let wallet
+      try{
+        const sdk = await setupKeepKeySDK()
+        wallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice(sdk)
+      }catch(e){
+        console.log("error: ",e)
+
+      }
+
+
+      wallet = await state.adapters
         .get(KeyManager.KeepKey)
         ?.pairDevice()
         .catch(err => {

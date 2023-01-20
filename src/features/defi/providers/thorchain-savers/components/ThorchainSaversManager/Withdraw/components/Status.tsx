@@ -159,7 +159,7 @@ export const Status = () => {
                     : state.withdraw.usedGasFee,
                 )
                   .div(bn(10).pow(asset.precision))
-                  .toFixed(5)}
+                  .toFixed()}
                 symbol={asset.symbol}
               />
             </Box>

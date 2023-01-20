@@ -1,6 +1,17 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { adapters, fromAccountId } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  avalancheAssetId,
+  bchAssetId,
+  binanceAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  dogeAssetId,
+  ethAssetId,
+  fromAccountId,
+  ltcAssetId,
+} from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import axios from 'axios'
@@ -19,6 +30,17 @@ import type {
 } from './types'
 
 const THOR_PRECISION = 8
+
+export const THOR_DEPOSIT_DUST_THRESHOLDS = {
+  [btcAssetId]: '10000',
+  [bchAssetId]: '10000',
+  [ltcAssetId]: '10000',
+  [dogeAssetId]: '100000000',
+  [ethAssetId]: '0',
+  [avalancheAssetId]: '0',
+  [cosmosAssetId]: '0',
+  [binanceAssetId]: '0',
+}
 
 export const getAccountAddressesWithBalances = async (
   accountId: AccountId,
@@ -151,3 +173,8 @@ export const toThorBaseUnit = (
     .times(bn(10).pow(THOR_PRECISION))
     .decimalPlaces(0) // THORChain expects ints, not floats
 }
+
+export const isAboveDepositDustThreshold = (
+  valueCryptoBaseUnit: BigNumber.Value | null | undefined,
+  assetId: AssetId,
+) => bnOrZero(valueCryptoBaseUnit).gte(THOR_DEPOSIT_DUST_THRESHOLDS[assetId])

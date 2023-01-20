@@ -31,7 +31,7 @@ import type {
   ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
-const THOR_PRECISION = '8'
+export const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
 
 // The minimum amount to be sent both for deposit and withdraws

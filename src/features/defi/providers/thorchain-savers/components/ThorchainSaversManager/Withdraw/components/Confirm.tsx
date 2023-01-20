@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -27,12 +27,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { fromBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
+  fromThorBaseUnit,
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
+  THOR_PRECISION,
+  toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -64,6 +66,8 @@ const moduleLogger = logger.child({
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const [withdrawFee, setWithdrawFee] = useState<string>('')
+  const [dustAmount, setDustAmount] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -134,6 +138,44 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
+  useEffect(() => {
+    ;(async () => {
+      if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
+
+      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      if (amountCryptoBaseUnit.isZero()) return
+
+      const amountCryptoThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset)
+
+      const withdrawBps = getWithdrawBps(
+        amountCryptoBaseUnit,
+        opportunityData.stakedAmountCryptoBaseUnit,
+        opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      )
+
+      const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+
+      const { dust_amount, expected_amount_out } = quote
+      const withdrawFee = amountCryptoThorBaseUnit
+        .minus(expected_amount_out)
+        .div(`1e+${THOR_PRECISION}`)
+
+      const dustAmountCryptoPrecision = fromThorBaseUnit(dust_amount)
+
+      setWithdrawFee(withdrawFee.toFixed())
+      setDustAmount(dustAmountCryptoPrecision.toFixed(asset.precision))
+    })()
+  }, [
+    accountId,
+    asset,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    state?.withdraw.cryptoAmount,
+  ])
+
   const getMaybeUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
     if (!accountId) throw new Error('accountId is undefined')
     if (!isUtxoChainId(chainId)) return ''
@@ -164,15 +206,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
     )
     const quote = await getThorchainSaversWithdrawQuote(asset, accountId, withdrawBps)
+
     const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
 
-    const { dust_amount } = quote
+    const { expected_amount_out, dust_amount } = quote
+
+    const amountCryptoThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset)
+    const withdrawFee = amountCryptoThorBaseUnit
+      .minus(expected_amount_out)
+      .div(`1e+${THOR_PRECISION}`)
+
+    setWithdrawFee(withdrawFee.toFixed())
 
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
     return {
       from: maybeUtxoAccountAddress,
-      cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
+      cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
       asset,
       to: quote.inbound_address,
       sendMax: false,
@@ -272,7 +322,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const accountAddress = await getMaybeUtxoAccountAddress()
 
       const sendInput: SendInput = {
-        cryptoAmount: fromBaseUnit(dust_amount, asset.precision),
+        cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
         asset,
         to: quote.inbound_address,
         from: accountAddress,
@@ -469,18 +519,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${asset.precision}`)
-                  .times(marketData.price)
-                  .toFixed(2)}
+                value={bnOrZero(withdrawFee).times(marketData.price).toFixed()}
               />
-              <Amount.Crypto
-                color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${asset.precision}`)
-                  .toFixed(5)}
-                symbol={asset.symbol}
-              />
+              <Amount.Crypto color='gray.500' value={withdrawFee} symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>
@@ -492,8 +533,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={asset.symbol} />
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bn(dustAmount).times(marketData.price).toFixed(2)}
+              />
+              <Amount.Crypto color='gray.500' value={dustAmount} symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>

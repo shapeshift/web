@@ -272,13 +272,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
-      const accountAddress = await getMaybeUtxoAccountAddress()
+      const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
+
+      if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+        throw new Error('Account address required to withdraw from THORChain savers')
+      }
 
       const sendInput: SendInput = {
         cryptoAmount: '',
         asset,
         from: '', // Let coinselect do its magic here
-        to: accountAddress,
+        to: maybeUtxoAccountAddress,
         sendMax: true,
         accountId,
         amountFieldError: '',
@@ -305,6 +309,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getEstimateFeesArgs,
     asset,
     getMaybeUtxoAccountAddress,
+    chainId,
     selectedCurrency,
   ])
 

@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, foxyAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
@@ -97,6 +97,10 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(`No-op. Won't fetch FOXy userStakingData for chainId: ${accountChainId}`)
+
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

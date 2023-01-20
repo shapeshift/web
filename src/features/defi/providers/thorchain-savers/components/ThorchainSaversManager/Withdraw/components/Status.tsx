@@ -144,7 +144,7 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.withdrawFeeCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 )
                   .div(bn(10).pow(asset.precision))
@@ -155,7 +155,7 @@ export const Status = () => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.withdrawFeeCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 )
                   .div(bn(10).pow(asset.precision))
@@ -173,7 +173,7 @@ export const Status = () => {
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
+              <Amount.Fiat fontWeight='bold' value={state.withdraw.dustAmountCryptoPrecision} />
               <Amount.Crypto color='gray.500' value='0' symbol={asset.symbol} />
             </Box>
           </Row.Value>

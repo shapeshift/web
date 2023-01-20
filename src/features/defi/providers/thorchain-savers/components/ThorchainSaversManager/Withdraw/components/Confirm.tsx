@@ -66,8 +66,8 @@ const moduleLogger = logger.child({
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
-  const [withdrawFee, setWithdrawFee] = useState<string>('')
-  const [dustAmount, setDustAmount] = useState<string>('')
+  const [withdrawFeeCryptoBaseUnit, setWithdrawFeeCryptoBaseUnit] = useState<string>('')
+  const [dustAmountCryptoPrecision, setDustAmountCryptoPrecision] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -162,14 +162,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
       const { dust_amount, expected_amount_out } = quote
-      const withdrawFee = amountCryptoThorBaseUnit
+      const withdrawFeeCryptoBaseUnit = amountCryptoThorBaseUnit
         .minus(expected_amount_out)
         .div(bn(10).pow(THOR_PRECISION))
+        .times(bn(10).pow(asset.precision))
 
       const dustAmountCryptoPrecision = fromThorBaseUnit(dust_amount)
 
-      setWithdrawFee(withdrawFee.toFixed())
-      setDustAmount(dustAmountCryptoPrecision.toFixed(asset.precision))
+      setWithdrawFeeCryptoBaseUnit(withdrawFeeCryptoBaseUnit.toFixed())
+      setDustAmountCryptoPrecision(dustAmountCryptoPrecision.toFixed(asset.precision))
     })()
   }, [
     accountId,
@@ -225,7 +226,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       .minus(expected_amount_out)
       .div(bn(10).pow(asset.precision))
 
-    setWithdrawFee(withdrawFee.toFixed())
+    setWithdrawFeeCryptoBaseUnit(withdrawFee.toFixed())
 
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
@@ -459,6 +460,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: maybeTxId })
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          dustAmountCryptoPrecision,
+          withdrawFeeCryptoBaseUnit,
+        },
+      })
       onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
@@ -485,6 +493,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     appDispatch,
     getWithdrawInput,
     handleMultiTxSend,
+    dustAmountCryptoPrecision,
+    withdrawFeeCryptoBaseUnit,
     onNext,
     toast,
     translate,
@@ -538,9 +548,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(withdrawFee).times(marketData.price).toFixed()}
+                value={bnOrZero(withdrawFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed()}
               />
-              <Amount.Crypto color='gray.500' value={withdrawFee} symbol={asset.symbol} />
+              <Amount.Crypto
+                color='gray.500'
+                value={bnOrZero(withdrawFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
+              />
             </Box>
           </Row.Value>
         </Row>
@@ -554,9 +573,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bn(dustAmount).times(marketData.price).toFixed(2)}
+                value={bn(dustAmountCryptoPrecision).times(marketData.price).toFixed(2)}
               />
-              <Amount.Crypto color='gray.500' value={dustAmount} symbol={asset.symbol} />
+              <Amount.Crypto
+                color='gray.500'
+                value={dustAmountCryptoPrecision}
+                symbol={asset.symbol}
+              />
             </Box>
           </Row.Value>
         </Row>

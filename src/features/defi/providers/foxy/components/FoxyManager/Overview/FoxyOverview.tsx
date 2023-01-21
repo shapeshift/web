@@ -10,6 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -22,12 +23,10 @@ import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAssetById,
   selectBIP44ParamsByAccountId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -45,6 +44,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, assetNamespace } = query
+  const { stakingAsset, underlyingAsset: rewardAsset, stakingAssetId } = useFoxyQuery()
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
@@ -69,19 +69,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     accountNumber: bip44Params?.accountNumber ?? 0,
   })
   const translate = useTranslate()
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[assetId as StakingId],
-    [assetId, opportunitiesMetadata],
-  )
-
-  // The Staking asset is one of the only underlying Asset Ids FOX
-  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  // The Reward Asset is FOXY
-  const rewardAssetId = opportunityMetadata?.underlyingAssetId ?? ''
-  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
   const opportunity = useMemo(
     () => (foxyBalancesData?.opportunities || []).find(e => e.contractAssetId === assetId),
@@ -96,9 +83,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   const rewardBalance = bnOrZero(withdrawInfo?.amount)
   const releaseTime = withdrawInfo?.releaseTime
   const foxyBalance = bnOrZero(opportunity?.balance)
-
-  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
-  if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailablePrecision = bnOrZero(foxyBalance).div(

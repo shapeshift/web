@@ -131,6 +131,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
+        throw new Error('Account address required to deposit in THORChain savers')
+      }
+
       const sendInput: SendInput = {
         cryptoAmount: state.deposit.cryptoAmount,
         asset,
@@ -153,13 +157,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
     }
   }, [
-    maybeFromUTXOAccountAddress,
     accountId,
-    asset,
     assetId,
-    getEstimateFeesArgs,
-    selectedCurrency,
     state?.deposit.cryptoAmount,
+    getEstimateFeesArgs,
+    asset,
+    chainId,
+    maybeFromUTXOAccountAddress,
+    selectedCurrency,
   ])
 
   const getPreDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -171,6 +176,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         bn(10).pow(asset.precision),
       )
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
+        throw new Error('Account address required to deposit in THORChain savers')
+      }
 
       const sendInput: SendInput = {
         cryptoAmount: '',
@@ -194,13 +203,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
     }
   }, [
-    maybeFromUTXOAccountAddress,
     accountId,
     assetId,
-    getEstimateFeesArgs,
-    state?.deposit.cryptoAmount,
     state?.deposit?.estimatedGasCrypto,
+    state?.deposit.cryptoAmount,
+    getEstimateFeesArgs,
     asset,
+    chainId,
+    maybeFromUTXOAccountAddress,
     selectedCurrency,
   ])
 
@@ -218,37 +228,38 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     const depositInput = await getDepositInput()
     if (!depositInput) throw new Error('Error building send input')
-
-    let txId: string
+    if (!walletState?.wallet) throw new Error('Wallet is required')
 
     // Try/catching and evaluating to something in the catch isn't a good pattern usually
     // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
     // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
     // and finally evaluate to either the original Tx or a falsy empty string
-    try {
-      // 1. Try to deposit from the originally deposited from / highest UTXO balance address
-      // If this is enough, no other Tx is needed
-      txId = await handleSend({
-        sendInput: depositInput,
-        wallet: walletState.wallet,
-      })
-    } catch (e) {
+    // 1. Try to deposit from the originally deposited from / highest UTXO balance address
+    // If this is enough, no other Tx is needed
+    const txId = await handleSend({
+      sendInput: depositInput,
+      wallet: walletState.wallet,
+    }).catch(async e => {
+      if (!isUtxoChainId(chainId)) throw e
+
       // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
       const preDepositInput = await getPreDepositInput()
       if (!preDepositInput) throw new Error('Error building send input')
-      txId = await handleSend({
+
+      return handleSend({
         sendInput: preDepositInput,
-        wallet: walletState.wallet,
-      })
-      // 3. Sign and broadcast the depooosit Tx again
-      txId = await handleSend({
-        sendInput: depositInput,
-        wallet: walletState.wallet,
-      }).catch(_e => '')
-    }
+        wallet: walletState.wallet!,
+      }).then(() =>
+        // 3. Sign and broadcast the depooosit Tx again
+        handleSend({
+          sendInput: depositInput,
+          wallet: walletState.wallet!,
+        }),
+      )
+    })
 
     return txId
-  }, [getDepositInput, getPreDepositInput, walletState.wallet])
+  }, [chainId, getDepositInput, getPreDepositInput, walletState.wallet])
 
   useEffect(() => {
     if (!accountId) return

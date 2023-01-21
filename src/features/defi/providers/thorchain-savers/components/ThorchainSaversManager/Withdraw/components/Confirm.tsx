@@ -398,7 +398,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const txId = await handleSend({
       sendInput: withdrawInput,
       wallet: walletState.wallet,
-    }).catch(async () => {
+    }).catch(async e => {
+      if (!isUtxoChainId(chainId)) throw e
+
       // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
       const preWithdrawInput = await getPreWithdrawInput()
       if (!preWithdrawInput) throw new Error('Error building send input')
@@ -406,19 +408,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return handleSend({
         sendInput: preWithdrawInput,
         wallet: walletState.wallet!,
-      })
-        .then(() =>
-          // 3. Sign and broadcast the depooosit Tx again
-          handleSend({
-            sendInput: withdrawInput,
-            wallet: walletState.wallet!,
-          }).catch(_e => ''),
-        )
-        .catch(_e => '')
+      }).then(() =>
+        // 3. Sign and broadcast the depooosit Tx again
+        handleSend({
+          sendInput: withdrawInput,
+          wallet: walletState.wallet!,
+        }),
+      )
     })
 
     return txId
-  }, [getPreWithdrawInput, getWithdrawInput, walletState.wallet])
+  }, [chainId, getPreWithdrawInput, getWithdrawInput, walletState.wallet])
 
   const handleConfirm = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return

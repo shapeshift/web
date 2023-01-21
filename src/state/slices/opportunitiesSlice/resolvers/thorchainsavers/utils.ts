@@ -25,13 +25,18 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import type {
   MidgardPoolResponse,
   ThorchainSaverPositionResponse,
-  ThorchainSaversQuoteResponse,
-  ThorchainSaversQuoteResponseSuccess,
+  ThorchainSaversDepositQuoteResponse,
+  ThorchainSaversDepositQuoteResponseSuccess,
+  ThorchainSaversWithdrawQuoteResponse,
+  ThorchainSaversWithdrawQuoteResponseSuccess,
 } from './types'
 
-const THOR_PRECISION = 8
+export const THOR_PRECISION = '8'
+const BASE_BPS_POINTS = '10000'
 
-export const THOR_DEPOSIT_DUST_THRESHOLDS = {
+// The minimum amount to be sent both for deposit and withdraws
+// else it will be considered a dust attack and gifted to the network
+export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [btcAssetId]: '10000',
   [bchAssetId]: '10000',
   [ltcAssetId]: '10000',
@@ -101,10 +106,13 @@ export const getAllThorchainSaversPositions = async (
   return opportunitiesData
 }
 
-export const getThorchainSaversPosition = async (
-  accountId: AccountId,
-  assetId: AssetId,
-): Promise<ThorchainSaverPositionResponse> => {
+export const getThorchainSaversPosition = async ({
+  accountId,
+  assetId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+}): Promise<ThorchainSaverPositionResponse> => {
   const allPositions = await getAllThorchainSaversPositions(assetId)
 
   if (!allPositions.length)
@@ -127,20 +135,67 @@ export const getThorchainSaversPosition = async (
   return accountPosition
 }
 
-export const getThorchainSaversQuote = async (
-  asset: Asset,
-  amountCryptoBaseUnit: BigNumber.Value | null | undefined,
-): Promise<ThorchainSaversQuoteResponseSuccess> => {
+export const getThorchainSaversDepositQuote = async ({
+  asset,
+  amountCryptoBaseUnit,
+}: {
+  asset: Asset
+  amountCryptoBaseUnit: BigNumber.Value | null | undefined
+}): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
   const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
-  const amountThorBaseUnit = toThorBaseUnit(amountCryptoBaseUnit, asset).toString()
+  const amountThorBaseUnit = toThorBaseUnit({
+    valueCryptoBaseUnit: amountCryptoBaseUnit,
+    asset,
+  }).toString()
 
-  const { data: quoteData } = await axios.get<ThorchainSaversQuoteResponse>(
+  const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
     }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+  )
+
+  if (!quoteData || 'error' in quoteData)
+    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+
+  return quoteData
+}
+
+export const getThorchainSaversWithdrawQuote = async ({
+  asset,
+  accountId,
+  bps,
+}: {
+  asset: Asset
+  accountId: AccountId
+  bps: string
+}): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
+  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+
+  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+
+  const accountAddresses = await getAccountAddresses(accountId)
+
+  const allPositions = await getAllThorchainSaversPositions(asset.assetId)
+
+  if (!allPositions.length)
+    throw new Error(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
+
+  const accountPosition = allPositions.find(
+    ({ asset_address }) =>
+      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+  )
+
+  if (!accountPosition) throw new Error('No THORChain savers position found')
+
+  const { asset_address } = accountPosition
+
+  const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
+    `${
+      getConfig().REACT_APP_THORCHAIN_NODE_URL
+    }/lcd/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
   )
 
   if (!quoteData || 'error' in quoteData)
@@ -162,10 +217,13 @@ export const getMidgardPools = async (): Promise<MidgardPoolResponse[]> => {
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
 
-export const toThorBaseUnit = (
-  valueCryptoBaseUnit: BigNumber.Value | null | undefined,
-  asset: Asset,
-): BN => {
+export const toThorBaseUnit = ({
+  valueCryptoBaseUnit,
+  asset,
+}: {
+  valueCryptoBaseUnit: BigNumber.Value | null | undefined
+  asset: Asset
+}): BN => {
   if (!asset?.precision) return bn(0)
 
   return bnOrZero(valueCryptoBaseUnit)
@@ -174,7 +232,32 @@ export const toThorBaseUnit = (
     .decimalPlaces(0) // THORChain expects ints, not floats
 }
 
-export const isAboveDepositDustThreshold = (
-  valueCryptoBaseUnit: BigNumber.Value | null | undefined,
-  assetId: AssetId,
-) => bnOrZero(valueCryptoBaseUnit).gte(THOR_DEPOSIT_DUST_THRESHOLDS[assetId])
+export const isAboveDepositDustThreshold = ({
+  valueCryptoBaseUnit,
+  assetId,
+}: {
+  valueCryptoBaseUnit: BigNumber.Value | null | undefined
+  assetId: AssetId
+}) => bnOrZero(valueCryptoBaseUnit).gte(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId])
+
+export const getWithdrawBps = ({
+  withdrawAmountCryptoBaseUnit,
+  stakedAmountCryptoBaseUnit,
+  rewardsamountCryptoBaseUnit,
+}: {
+  withdrawAmountCryptoBaseUnit: BigNumber.Value
+  stakedAmountCryptoBaseUnit: BigNumber.Value
+  rewardsamountCryptoBaseUnit: BigNumber.Value
+}) => {
+  const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
+    rewardsamountCryptoBaseUnit,
+  )
+
+  const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(
+    stakedAmountCryptoBaseUnitIncludeRewards,
+  )
+
+  const withdrawBps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+
+  return withdrawBps
+}

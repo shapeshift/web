@@ -1,9 +1,9 @@
-import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -11,13 +11,15 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import type { SendInput } from 'components/Modals/Send/Form'
+import type { EstimateFeesInput } from 'components/Modals/Send/utils'
+import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -25,8 +27,17 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { toBaseUnit } from 'lib/math'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import {
+  fromThorBaseUnit,
+  getThorchainSaversPosition,
+  getThorchainSaversWithdrawQuote,
+  getWithdrawBps,
+  THOR_PRECISION,
+  toThorBaseUnit,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -34,34 +45,47 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
+  selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Yearn', 'YearnManager', 'Withdraw', 'Confirm'],
+  namespace: [
+    'Defi',
+    'Providers',
+    'ThorchainSavers',
+    'ThorchainSaversManager',
+    'Withdraw',
+    'Confirm',
+  ],
 })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
-  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
-  const [yearnOpportunity, setYearnOpportunity] = useState<YearnOpportunity>()
-  const { state, dispatch } = useContext(WithdrawContext)
+  const [withdrawFee, setWithdrawFee] = useState<string>('')
+  const [dustAmount, setDustAmount] = useState<string>('')
+  const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
   // Asset info
-  const feeAssetId = chainAdapter?.getFeeAssetId()
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
 
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => toOpportunityId({ chainId, assetNamespace, assetReference }),
+    [assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -77,101 +101,393 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         (accountId ?? highestBalanceAccountId)!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
+          assetNamespace,
+          assetReference,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, assetNamespace, assetReference, chainId, highestBalanceAccountId],
   )
 
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  useEffect(() => {
-    if (!opportunityData?.assetId) return
-    ;(async () => {
-      setYearnOpportunity(await yearnInvestor.findByOpportunityId(opportunityData.assetId))
-    })()
-  }, [yearnInvestor, opportunityData?.assetId, setYearnOpportunity])
-
-  const asset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, opportunityData?.assetId ?? ''),
-  )
-
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   // user info
   const { state: walletState } = useWallet()
 
-  const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
-    [accountId, feeAsset?.assetId],
+  const assetBalanceFilter = useMemo(
+    () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
+    [accountId, asset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+  const assetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, assetBalanceFilter),
   )
 
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
+  // notify
+  const toast = useToast()
+
+  useEffect(() => {
+    ;(async () => {
+      if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
+
+      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      if (amountCryptoBaseUnit.isZero()) return
+
+      const amountCryptoThorBaseUnit = toThorBaseUnit({
+        valueCryptoBaseUnit: amountCryptoBaseUnit,
+        asset,
+      })
+
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit,
+        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      })
+
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+
+      const { dust_amount, expected_amount_out } = quote
+      const withdrawFee = amountCryptoThorBaseUnit
+        .minus(expected_amount_out)
+        .div(bn(10).pow(THOR_PRECISION))
+
+      const dustAmountCryptoPrecision = fromThorBaseUnit(dust_amount)
+
+      setWithdrawFee(withdrawFee.toFixed())
+      setDustAmount(dustAmountCryptoPrecision.toFixed(asset.precision))
+    })()
+  }, [
+    accountId,
+    asset,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    state?.withdraw.cryptoAmount,
+  ])
+
+  const getMaybeUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
+    if (!accountId) throw new Error('accountId is undefined')
+    if (!isUtxoChainId(chainId)) return ''
+
+    try {
+      const position = await getThorchainSaversPosition({ accountId, assetId })
+      const { asset_address } = position
+      const accountAddress = chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
+
+      return accountAddress
+    } catch (_e) {
+      throw new Error(`Cannot get savers position for accountId: ${accountId}`)
+    }
+  }, [accountId, assetId, chainId])
+
+  const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
+    if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
+      throw new Error('accountId is undefined')
+
+    const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+      bn(10).pow(asset.precision),
+    )
+
+    const withdrawBps = getWithdrawBps({
+      withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+      stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
+      rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+    })
+    const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+
+    const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
+
+    if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+      throw new Error('Account address required to withdraw from THORChain savers')
+    }
+
+    const { expected_amount_out, dust_amount } = quote
+
+    const amountCryptoThorBaseUnit = toThorBaseUnit({
+      valueCryptoBaseUnit: amountCryptoBaseUnit,
+      asset,
+    })
+    const withdrawFee = amountCryptoThorBaseUnit
+      .minus(expected_amount_out)
+      .div(bn(10).pow(asset.precision))
+
+    setWithdrawFee(withdrawFee.toFixed())
+
+    if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
+
+    return {
+      from: maybeUtxoAccountAddress,
+      cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
+      asset,
+      to: quote.inbound_address,
+      sendMax: false,
+      accountId,
+      contractAddress: '',
+    }
+  }, [
+    accountId,
+    asset,
+    chainId,
+    getMaybeUtxoAccountAddress,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    state?.withdraw.cryptoAmount,
+  ])
+
+  const getPreWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+    if (
+      !(
+        accountId &&
+        assetId &&
+        state?.withdraw?.estimatedGasCrypto &&
+        opportunityData?.stakedAmountCryptoBaseUnit
+      )
+    )
+      return
+
+    try {
+      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      const bps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
+        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      })
+
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
+      const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
+
+      if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+        throw new Error('Account address required to withdraw from THORChain savers')
+      }
+
+      const sendInput: SendInput = {
+        cryptoAmount: '',
+        asset,
+        from: '', // Let coinselect do its magic here
+        to: maybeUtxoAccountAddress,
+        sendMax: true,
+        accountId,
+        amountFieldError: '',
+        cryptoSymbol: asset.symbol,
+        estimatedFees,
+        feeType: FeeDataKey.Fast,
+        fiatAmount: '',
+        fiatSymbol: selectedCurrency,
+        vanityAddress: '',
+        input: quote.inbound_address,
+      }
+
+      return sendInput
+    } catch (e) {
+      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+    }
+  }, [
+    accountId,
+    assetId,
+    state?.withdraw?.estimatedGasCrypto,
+    state?.withdraw.cryptoAmount,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    getEstimateFeesArgs,
+    asset,
+    getMaybeUtxoAccountAddress,
+    chainId,
+    selectedCurrency,
+  ])
+
+  const getWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+    if (!(accountId && assetId && opportunityData?.stakedAmountCryptoBaseUnit)) return
+
+    try {
+      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
+        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      })
+
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+
+      if (!quote) throw new Error('Error getting THORChain savers withdraw quote')
+
+      const { dust_amount } = quote
+
+      const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
+
+      if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+        throw new Error('Account address required to withdraw from THORChain savers')
+      }
+
+      const sendInput: SendInput = {
+        cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
+        asset,
+        to: quote.inbound_address,
+        from: maybeUtxoAccountAddress,
+        sendMax: false,
+        accountId,
+        amountFieldError: '',
+        cryptoSymbol: asset?.symbol ?? '',
+        estimatedFees,
+        feeType: FeeDataKey.Fast,
+        fiatAmount: '',
+        fiatSymbol: selectedCurrency,
+        vanityAddress: '',
+        input: quote.inbound_address,
+      }
+
+      return sendInput
+    } catch (e) {
+      moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
+    }
+  }, [
+    accountId,
+    assetId,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    getEstimateFeesArgs,
+    state?.withdraw.cryptoAmount,
+    asset,
+    getMaybeUtxoAccountAddress,
+    chainId,
+    selectedCurrency,
+  ])
+
+  const handleMultiTxSend = useCallback(async (): Promise<string | undefined> => {
+    if (!walletState.wallet) return
+
+    // THORChain Txs need to always be sent from the same address, since the address (NOT the pubkey) is used to identify an active position
+    // The way THORChain does this is by not being xpub-compliant, and only exposing a single address for UTXOs in their UI
+    // All deposit/withdraws done from their UI are always done with one/many UTXOs from the same address, and change sent back to the same address
+    // We also do this EXCLUSIVELY for THORChain Txs. The rest of the app uses xpubs, so the initially deposited from address isn't guaranteed to be populated
+    // if users send other UTXO Txs in the meantime after depositing
+    // Additionally, we select their highest balance UTXO address as a first deposit, which isn't guaranteed to contain enough value
+    //
+    // For both re/deposit flows, we will possibly need a pre-Tx to populate their highest UTXO/previously deposited from address with enough value
+
+    const withdrawInput = await getWithdrawInput()
+    if (!withdrawInput) throw new Error('Error building send input')
+
+    // Try/catching and evaluating to something in the catch isn't a good pattern usually
+    // In our case, handleSend() catching means that after all our previous checks, building a Tx failed at coinselect time
+    // So we actually send reconciliate a reconciliate Tx, retry the original send within the same block
+    // and finally evaluate to either the original Tx or a falsy empty string
+    // 1. Try to deposit from the originally deposited from / highest UTXO balance address
+    // If this is enough, no other Tx is needed
+    const txId = await handleSend({
+      sendInput: withdrawInput,
+      wallet: walletState.wallet,
+    }).catch(async e => {
+      if (!isUtxoChainId(chainId)) throw e
+
+      // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
+      const preWithdrawInput = await getPreWithdrawInput()
+      if (!preWithdrawInput) throw new Error('Error building send input')
+
+      return handleSend({
+        sendInput: preWithdrawInput,
+        wallet: walletState.wallet!,
+      }).then(() =>
+        // 3. Sign and broadcast the depooosit Tx again
+        handleSend({
+          sendInput: withdrawInput,
+          wallet: walletState.wallet!,
+        }),
+      )
+    })
+
+    return txId
+  }, [chainId, getPreWithdrawInput, getWithdrawInput, walletState.wallet])
+
   const handleConfirm = useCallback(async () => {
-    if (!dispatch || !bip44Params) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId) return
     try {
       if (
         !(
           userAddress &&
-          walletState?.wallet &&
           assetReference &&
+          walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter &&
-          opportunityData?.assetId &&
-          asset
+          chainAdapter
         )
       )
         return
-      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
-      if (!yearnOpportunity) throw new Error('No opportunity')
 
-      const yearnAssetWithdrawAmountCryptoHuman = bnOrZero(state.withdraw.cryptoAmount)
-      const tx = await yearnOpportunity.prepareWithdrawal({
-        address: userAddress,
-        amount: bn(toBaseUnit(yearnAssetWithdrawAmountCryptoHuman, asset.precision)),
-      })
-      const txid = await yearnOpportunity.signAndBroadcast({
-        wallet: walletState.wallet,
-        tx,
-        // TODO: allow user to choose fee priority
-        feePriority: undefined,
-        bip44Params,
-      })
-      dispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: txid })
+      contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+      if (!state?.withdraw.cryptoAmount) return
+
+      const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+      const { data: isTradingActive } = await appDispatch(
+        getIsTradingActive.initiate({
+          assetId,
+          swapperName: SwapperName.Thorchain,
+        }),
+      )
+
+      if (!isTradingActive) {
+        throw new Error(`THORChain pool halted for assetId: ${assetId}`)
+      }
+
+      const withdrawInput = await getWithdrawInput()
+      if (!withdrawInput) throw new Error('Error building send input')
+
+      const maybeTxId = await handleMultiTxSend()
+      if (!maybeTxId) {
+        throw new Error('Error sending THORCHain savers Txs')
+      }
+
+      contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error',
+      })
     } finally {
-      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    dispatch,
+    contextDispatch,
     bip44Params,
+    accountId,
+    assetId,
     userAddress,
-    walletState.wallet,
     assetReference,
+    walletState.wallet,
     opportunity,
     chainAdapter,
-    opportunityData?.assetId,
-    asset,
-    yearnOpportunity,
     state?.withdraw.cryptoAmount,
+    appDispatch,
+    getWithdrawInput,
+    handleMultiTxSend,
     onNext,
+    toast,
+    translate,
   ])
 
   const handleCancel = useCallback(() => {
@@ -180,13 +496,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+      bnOrZero(assetBalance)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(bn(10).pow(asset.precision)))
         .gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
+    [assetBalance, state?.withdraw.estimatedGasCrypto, asset?.precision],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm
@@ -222,18 +538,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                value={bnOrZero(withdrawFee).times(marketData.price).toFixed()}
               />
-              <Amount.Crypto
-                color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
-                symbol={feeAsset.symbol}
-              />
+              <Amount.Crypto color='gray.500' value={withdrawFee} symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>
@@ -245,15 +552,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bn(dustAmount).times(marketData.price).toFixed(2)}
+              />
+              <Amount.Crypto color='gray.500' value={dustAmount} symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset.symbol }]} />
           </Alert>
         )}
       </Summary>

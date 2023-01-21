@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -8,6 +7,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -18,45 +18,14 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference: contractAddress, assetNamespace } = query
-  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
-  )
-
-  // Asset info
-  const underlyingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
-
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
@@ -82,7 +51,7 @@ export const Status = () => {
           statusIcon: <CheckIcon color='white' />,
           statusBg: 'green.500',
           statusBody: translate('modals.withdraw.status.success', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: `${stakingAsset.symbol} Vault`,
           }),
         }
       case 'failed':
@@ -94,7 +63,7 @@ export const Status = () => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={underlyingAsset?.icon} />,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),
@@ -120,11 +89,11 @@ export const Status = () => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={stakingAsset.icon} />
+              <RawText>{stakingAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={stakingAsset.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -187,7 +156,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${underlyingAsset.explorerTxLink}/${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

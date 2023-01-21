@@ -1,6 +1,5 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -10,6 +9,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,13 +23,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
-  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -53,30 +50,11 @@ export const FoxyWithdraw: React.FC<{
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference: contractAddress, assetNamespace } = query
-  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const { assetReference: contractAddress } = query
+  const { feeAssetId, underlyingAsset, underlyingAssetId, stakingAsset } = useFoxyQuery()
 
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
-  )
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  // Asset info also known as FOXY
-  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  // The Staking asset is one of the only underlying Asset Ids FOX
-  const underlyingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
-
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -125,7 +103,7 @@ export const FoxyWithdraw: React.FC<{
       [DefiStep.Info]: {
         label: translate('defi.steps.withdraw.info.title'),
         description: translate('defi.steps.withdraw.info.yieldyDescription', {
-          asset: underlyingAsset.symbol,
+          asset: stakingAsset.symbol,
         }),
         component: ownProps => (
           <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
@@ -145,7 +123,7 @@ export const FoxyWithdraw: React.FC<{
         component: Status,
       },
     }
-  }, [accountId, handleAccountIdChange, contractAddress, translate, underlyingAsset.symbol])
+  }, [accountId, handleAccountIdChange, contractAddress, translate, stakingAsset.symbol])
 
   const handleBack = () => {
     history.push({
@@ -157,7 +135,7 @@ export const FoxyWithdraw: React.FC<{
     })
   }
 
-  if (loading || !asset || !marketData || !feeMarketData)
+  if (loading || !underlyingAsset || !marketData || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -170,7 +148,7 @@ export const FoxyWithdraw: React.FC<{
         <DefiModalHeader
           onBack={handleBack}
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${underlyingAsset.symbol} Yieldy`,
+            opportunity: `${stakingAsset.symbol} Yieldy`,
           })}
         />
         <Steps steps={StepConfig} />

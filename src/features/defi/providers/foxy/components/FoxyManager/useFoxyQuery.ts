@@ -49,6 +49,7 @@ export const useFoxyQuery = () => {
     contractAddress,
     stakingAsset,
     feeAsset,
+    feeAssetId,
     stakingAssetId,
     underlyingAssetId,
     underlyingAsset,

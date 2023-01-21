@@ -5,7 +5,7 @@ import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Con
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyQuery'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

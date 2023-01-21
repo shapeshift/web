@@ -53,5 +53,7 @@ export const useFoxyQuery = () => {
     underlyingAssetId,
     underlyingAsset,
     rewardId,
+    chainId,
+    contractAssetId,
   }
 }

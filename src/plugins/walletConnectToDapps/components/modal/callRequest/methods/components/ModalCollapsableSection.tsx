@@ -4,21 +4,21 @@ import type { ReactElement, ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import { RawText } from 'components/Text'
 
-type ModalSectionProps = {
-  title: string
+type ModalCollapsableSectionProps = {
+  title: ReactElement
   titleRightComponent?: ReactElement
   icon?: ReactElement
   defaultOpen?: boolean
   children: ReactNode
 }
 
-export const ModalSection: React.FC<ModalSectionProps> = ({
+export const ModalCollapsableSection = ({
   title,
   icon,
   children,
   defaultOpen = true,
-  titleRightComponent = null,
-}) => {
+  titleRightComponent,
+}: ModalCollapsableSectionProps) => {
   const [isOpen, setOpen] = useState(defaultOpen)
   const toggle = useCallback(() => setOpen(prev => !prev), [])
   return (
@@ -34,17 +34,24 @@ export const ModalSection: React.FC<ModalSectionProps> = ({
         rightIcon={
           isOpen ? <ChevronUpIcon color='gray.500' /> : <ChevronDownIcon color='gray.500' />
         }
-        mb={4}
         fontWeight='medium'
         children={
-          <Box display={'flex'} justifyContent={'space-between'}>
-            <RawText flex={1}>{title}</RawText>
-            {titleRightComponent}
+          <Box display='flex' justifyContent='space-between' mb={1} flex={1}>
+            <RawText flex={1} textTransform='capitalize' textAlign='left'>
+              {title}
+            </RawText>
+            {titleRightComponent && (
+              <Box flex={1} textAlign='right'>
+                {titleRightComponent}
+              </Box>
+            )}
           </Box>
         }
         onClick={toggle}
       />
-      <Collapse in={isOpen}>{children}</Collapse>
+      <Collapse in={isOpen}>
+        <Box mb={4}>{children}</Box>
+      </Collapse>
     </Box>
   )
 }

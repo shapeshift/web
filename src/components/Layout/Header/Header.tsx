@@ -155,12 +155,12 @@ export const Header = () => {
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
               <Notifications />
             </Flex>
           </HStack>

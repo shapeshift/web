@@ -6,7 +6,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxyDeposit } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyDeposit'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyQuery'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -25,7 +25,7 @@ export const Status = () => {
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { asset, feeAsset, feeMarketData } = useFoxyDeposit()
+  const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')

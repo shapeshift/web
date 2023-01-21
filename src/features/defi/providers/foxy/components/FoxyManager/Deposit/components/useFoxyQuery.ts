@@ -11,7 +11,7 @@ import { selectStakingOpportunitiesById } from 'state/slices/opportunitiesSlice/
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
-export const useFoxyDeposit = () => {
+export const useFoxyQuery = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference: contractAddress, assetNamespace } = query
   const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
@@ -23,9 +23,9 @@ export const useFoxyDeposit = () => {
   )
 
   // The Staking asset is one of the only underlying Asset Ids FOX
-  const assetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-  const assetReference = fromAssetId(assetId).assetReference
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
+  const stakingAssetReference = fromAssetId(stakingAssetId).assetReference
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const feeAssetId = toAssetId({
     chainId,
@@ -35,8 +35,14 @@ export const useFoxyDeposit = () => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  return { assetReference, feeMarketData, contractAddress, asset, feeAsset }
+  return {
+    stakingAssetReference,
+    feeMarketData,
+    contractAddress,
+    stakingAsset,
+    feeAsset,
+  }
 }

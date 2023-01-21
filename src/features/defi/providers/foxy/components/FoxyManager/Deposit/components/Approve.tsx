@@ -7,7 +7,7 @@ import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useFoxyDeposit } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyDeposit'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -34,7 +34,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const history = useHistory()
   const translate = useTranslate()
   const toast = useToast()
-  const { assetReference, feeMarketData, contractAddress, asset, feeAsset } = useFoxyDeposit()
+  const {
+    stakingAssetReference: assetReference,
+    feeMarketData,
+    contractAddress,
+    stakingAsset: asset,
+    feeAsset,
+  } = useFoxyQuery()
 
   // user info
   const { state: walletState } = useWallet()

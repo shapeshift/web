@@ -1,32 +1,21 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-  selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
+import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
@@ -43,32 +32,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference: contractAddress, assetNamespace } = query
-  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
-  )
+  const {
+    underlyingAsset: asset,
+    rewardId,
+    feeAsset,
+    feeMarketData,
+    contractAddress,
+  } = useFoxyQuery()
   const toast = useToast()
-
-  // Asset info also known as FOXY
-  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const rewardId = fromAssetId(assetId).assetReference
-
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   // user info
   const { state: walletState } = useWallet()

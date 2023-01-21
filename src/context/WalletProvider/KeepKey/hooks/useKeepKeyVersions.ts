@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 import semverGte from 'semver/functions/gte'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_EIP712 } from '../../../../constants/Config'
+
 interface VersionUrl {
   version: string
   url: string
@@ -43,6 +45,8 @@ export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
   const [updaterUrl, setUpdaterUrl] = useState<string>()
   const [isLTCSupportedFirmwareVersion, setIsLTCSupportedFirmwareVersion] = useState<boolean>(false)
+  const [isEIP712SupportedFirmwareVersion, setIsEIP712SupportedFirmwareVersion] =
+    useState<boolean>(false)
   const {
     state: { wallet },
   } = useWallet()
@@ -79,6 +83,9 @@ export const useKeepKeyVersions = () => {
       if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_LITECOIN))
         setIsLTCSupportedFirmwareVersion(true)
 
+      if (semverGte(deviceFirmware, MINIMUM_KK_FIRMWARE_VERSION_SUPPORTING_EIP712))
+        setIsEIP712SupportedFirmwareVersion(true)
+
       const versions: Versions = {
         bootloader: {
           device: bootloaderVersion,
@@ -96,5 +103,5 @@ export const useKeepKeyVersions = () => {
     })()
   }, [wallet])
 
-  return { versions, updaterUrl, isLTCSupportedFirmwareVersion }
+  return { versions, updaterUrl, isLTCSupportedFirmwareVersion, isEIP712SupportedFirmwareVersion }
 }

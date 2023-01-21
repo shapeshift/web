@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -10,6 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -18,13 +19,10 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,15 +45,16 @@ export const Withdraw: React.FC<
   const { foxy: api } = useFoxy()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference: contractAddress, assetNamespace } = query
-  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
-  )
+  const {
+    contractAddress,
+    underlyingAssetId: assetId,
+    underlyingAsset: asset,
+    rewardId,
+    stakingAsset,
+  } = useFoxyQuery()
+
   const toast = useToast()
 
   const methods = useForm<FoxyWithdrawValues>({ mode: 'onChange' })
@@ -63,23 +62,9 @@ export const Withdraw: React.FC<
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
-  // Asset info also known as FOXY
-  const assetId = opportunityMetadata?.underlyingAssetId ?? ''
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const rewardId = fromAssetId(assetId).assetReference
-
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  // Staking Asset Info
-  // The Staking asset is one of the only underlying Asset Ids FOX
-  const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
-
   // user info
-
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 

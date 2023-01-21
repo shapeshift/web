@@ -22,6 +22,10 @@ export const useFoxyQuery = () => {
     [contractAssetId, opportunitiesMetadata],
   )
 
+  const underlyingAssetId = opportunityMetadata?.underlyingAssetId ?? ''
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const rewardId = fromAssetId(underlyingAssetId).assetReference
+
   // The Staking asset is one of the only underlying Asset Ids FOX
   const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
   const stakingAssetReference = fromAssetId(stakingAssetId).assetReference
@@ -37,6 +41,7 @@ export const useFoxyQuery = () => {
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
   return {
     stakingAssetReference,
@@ -45,5 +50,8 @@ export const useFoxyQuery = () => {
     stakingAsset,
     feeAsset,
     stakingAssetId,
+    underlyingAssetId,
+    underlyingAsset,
+    rewardId,
   }
 }

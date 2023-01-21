@@ -34,7 +34,6 @@ import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
-  THOR_PRECISION,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -168,11 +167,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const { dust_amount, expected_amount_out } = quote
 
       setWithdrawFeeCryptoBaseUnit(
-        amountCryptoThorBaseUnit
-          .minus(expected_amount_out)
-          .div(bn(10).pow(THOR_PRECISION))
-          .times(bn(10).pow(asset.precision))
-          .toFixed(),
+        toBaseUnit(
+          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
+          asset.precision,
+        ),
       )
       setDustAmountCryptoBaseUnit(
         bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
@@ -232,11 +230,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       valueCryptoBaseUnit: amountCryptoBaseUnit,
       asset,
     })
-    const withdrawFee = amountCryptoThorBaseUnit
-      .minus(expected_amount_out)
-      .div(bn(10).pow(asset.precision))
-
-    setWithdrawFeeCryptoBaseUnit(withdrawFee.toFixed())
+    setWithdrawFeeCryptoBaseUnit(
+      toBaseUnit(
+        fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
+        asset.precision,
+      ),
+    )
 
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 

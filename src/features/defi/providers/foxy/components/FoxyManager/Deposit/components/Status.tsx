@@ -1,13 +1,13 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useFoxyDeposit } from 'features/defi/providers/foxy/components/FoxyManager/Deposit/components/useFoxyDeposit'
+import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -17,13 +17,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectStakingOpportunitiesById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
 
@@ -31,29 +24,8 @@ export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const history = useHistory()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference: contractAddress, assetNamespace } = query
-  const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
-  )
-
-  const assetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
-
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { asset, feeAsset, feeMarketData } = useFoxyDeposit()
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')

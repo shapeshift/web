@@ -4,6 +4,7 @@ import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import dayjs from 'dayjs'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -66,6 +67,7 @@ const moduleLogger = logger.child({
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const [expiry, setExpiry] = useState<string>('')
   const [withdrawFeeCryptoBaseUnit, setWithdrawFeeCryptoBaseUnit] = useState<string>('')
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
@@ -164,7 +166,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
-      const { dust_amount, expected_amount_out } = quote
+      const { expiry, dust_amount, expected_amount_out } = quote
+
+      setExpiry(expiry)
 
       setWithdrawFeeCryptoBaseUnit(
         toBaseUnit(
@@ -224,12 +228,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       throw new Error('Account address required to withdraw from THORChain savers')
     }
 
-    const { expected_amount_out, dust_amount } = quote
+    const { expiry, expected_amount_out, dust_amount } = quote
 
     const amountCryptoThorBaseUnit = toThorBaseUnit({
       valueCryptoBaseUnit: amountCryptoBaseUnit,
       asset,
     })
+    setExpiry(expiry)
     setWithdrawFeeCryptoBaseUnit(
       toBaseUnit(
         fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
@@ -450,6 +455,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
 
+      if (dayjs().isAfter(expiry)) {
+        toast({
+          position: 'top-right',
+          description: translate('trade.errors.quoteExpired'),
+          title: translate('common.transactionFailed'),
+          status: 'error',
+        })
+        onNext(DefiStep.Info)
+        return
+      }
+
       const { getIsTradingActive } = getIsTradingActiveApi.endpoints
       const { data: isTradingActive } = await appDispatch(
         getIsTradingActive.initiate({
@@ -506,6 +522,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     handleMultiTxSend,
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
+    expiry,
     onNext,
     toast,
     translate,

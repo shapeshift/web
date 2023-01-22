@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.1...@shapeshiftoss/asset-service-v8.6.2) (2023-01-22)
+
+
+### Bug Fixes
+
+* **asset-service:** generate osmosis lp asset data ([#1171](https://github.com/shapeshift/lib/issues/1171)) ([edcca33](https://github.com/shapeshift/lib/commit/edcca33a8e0d33e057353fa7e1df1bb3bd63595e))
+
 # [@shapeshiftoss/asset-service-v8.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.0...@shapeshiftoss/asset-service-v8.6.1) (2023-01-19)
 
 

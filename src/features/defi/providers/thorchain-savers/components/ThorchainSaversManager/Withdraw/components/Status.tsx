@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -16,7 +16,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -33,33 +33,15 @@ export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId } = query
 
-  const assetNamespace = 'erc20'
+  const assetId = state?.opportunity?.assetId
+  const feeAssetId = assetId
 
-  const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
-  // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
-
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
@@ -88,7 +70,7 @@ export const Status = () => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  if (!state) return null
+  if (!(state && asset)) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {
@@ -98,7 +80,7 @@ export const Status = () => {
           statusIcon: <CheckIcon color='white' />,
           statusBg: 'green.500',
           statusBody: translate('modals.withdraw.status.success', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: `${asset.symbol} Vault`,
           }),
         }
       case 'failed':
@@ -136,7 +118,7 @@ export const Status = () => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
+              <AssetIcon size='xs' src={asset.icon} />
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
@@ -165,7 +147,7 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(asset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
@@ -176,9 +158,9 @@ export const Status = () => {
                     ? state.withdraw.estimatedGasCrypto
                     : state.withdraw.usedGasFee,
                 )
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(asset.precision))
                   .toFixed(5)}
-                symbol='ETH'
+                symbol={asset.symbol}
               />
             </Box>
           </Row.Value>
@@ -192,7 +174,7 @@ export const Status = () => {
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
+              <Amount.Crypto color='gray.500' value='0' symbol={asset.symbol} />
             </Box>
           </Row.Value>
         </Row>
@@ -204,7 +186,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${asset.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

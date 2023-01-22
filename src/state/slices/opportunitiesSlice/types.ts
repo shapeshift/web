@@ -136,6 +136,12 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
+export type LpEarnOpportunityType = OpportunityMetadata & {
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
+  isVisible?: boolean
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
 export type GroupedEligibleOpportunityReturnType = {
   underlyingAssetIds: AssetIdsTuple
   opportunityIds: OpportunityId[]

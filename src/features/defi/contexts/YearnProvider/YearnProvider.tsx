@@ -34,9 +34,10 @@ export const YearnProvider: React.FC<PropsWithChildren> = ({ children }) => {
     ;(async () => {
       try {
         if (!Yearn) {
-          throw new Error(
+          moduleLogger.debug(
             'Yearn feature flag disabled, not initializing Yearn @yfi/sdk opportunities',
           )
+          return
         }
 
         if (!chainAdapterManager.has(KnownChainIds.EthereumMainnet)) return

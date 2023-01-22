@@ -25,6 +25,8 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   const { type, provider } = query
 
   const renderModules = useMemo(() => {
+    if (!provider) return null
+
     return Object.values(DefiProvider).map(defiProvider => {
       const maybeModules = getDefiProviderModulesResolvers(provider as DefiProvider)
 

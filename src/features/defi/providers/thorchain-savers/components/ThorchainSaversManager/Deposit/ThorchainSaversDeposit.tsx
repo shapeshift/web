@@ -18,6 +18,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -47,19 +48,22 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
 
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // user info
   const loading = useSelector(selectPortfolioLoading)
 
-  const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+  const opportunityId: StakingId | undefined = useMemo(
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -71,17 +75,12 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
-        toOpportunityId({
-          chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
-        }),
+        accountId ?? highestBalanceAccountId ?? '',
+        opportunityId ?? '',
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, highestBalanceAccountId, opportunityId],
   )
-
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )

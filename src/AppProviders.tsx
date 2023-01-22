@@ -5,6 +5,7 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/WalletConnectBridgeProvider'
 import React from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -51,19 +52,21 @@ export function AppProviders({ children }: ProvidersProps) {
                   <BrowserRouterProvider>
                     <I18nProvider>
                       <WalletProvider>
-                        <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage}>
-                            <ModalProvider>
-                              <TransactionsProvider>
-                                <AppProvider>
-                                  <FoxEthProvider>
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
-                                  </FoxEthProvider>
-                                </AppProvider>
-                              </TransactionsProvider>
-                            </ModalProvider>
-                          </ErrorBoundary>
-                        </KeepKeyProvider>
+                        <WalletConnectBridgeProvider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage}>
+                              <ModalProvider>
+                                <TransactionsProvider>
+                                  <AppProvider>
+                                    <FoxEthProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </FoxEthProvider>
+                                  </AppProvider>
+                                </TransactionsProvider>
+                              </ModalProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectBridgeProvider>
                       </WalletProvider>
                     </I18nProvider>
                   </BrowserRouterProvider>

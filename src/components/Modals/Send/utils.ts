@@ -27,7 +27,7 @@ import type { SendInput } from './Form'
 export type EstimateFeesInput = {
   cryptoAmount: string
   asset: Asset
-  address: string
+  to: string
   sendMax: boolean
   accountId: string
   contractAddress: string | undefined
@@ -38,7 +38,7 @@ const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'utils'] })
 export const estimateFees = ({
   cryptoAmount,
   asset,
-  address,
+  to,
   sendMax,
   accountId,
   contractAddress,
@@ -57,7 +57,7 @@ export const estimateFees = ({
       return adapter.getFeeData({})
     case CHAIN_NAMESPACE.Evm:
       return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
-        to: address,
+        to,
         value,
         chainSpecific: {
           from: account,
@@ -67,7 +67,7 @@ export const estimateFees = ({
       })
     case CHAIN_NAMESPACE.Utxo: {
       return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
-        to: address,
+        to,
         value,
         chainSpecific: { pubkey: account },
         sendMax,
@@ -110,7 +110,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, address: to } = sendInput
+    const { estimatedFees, feeType, to, from } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -166,6 +166,7 @@ export const handleSend = async ({
           wallet,
           accountNumber,
           chainSpecific: {
+            from,
             satoshiPerByte: fees.chainSpecific.satoshiPerByte,
             accountType,
           },
@@ -218,8 +219,8 @@ export const handleSend = async ({
     }
 
     return broadcastTXID
-  } catch (error) {
+  } catch (error: any) {
     moduleLogger.error(error, { fn: 'handleSend' }, 'Error handling send')
-    throw new Error('handleSend: transaction rejected')
+    throw new Error(error)
   }
 }

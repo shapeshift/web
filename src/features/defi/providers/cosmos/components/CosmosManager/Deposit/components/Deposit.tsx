@@ -79,7 +79,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimatedFees = await estimateFees({
         cryptoAmount: cryptoAmountAvailable.toString(),
         asset,
-        address: '',
+        to: '',
         sendMax: true,
         accountId,
         contractAddress: '',

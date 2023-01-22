@@ -17,25 +17,38 @@ type OsmoAsset = {
   name: string
   display: string
   symbol: string
+  traces: {
+    type: string
+    counterparty: {
+      chain_name: string
+      bse_denom: string
+      channel_id: string
+    }
+    chain: {
+      channel_id: string
+    }
+  }[]
   logo_URIs: {
     png?: string
     svg?: string
   }
   coingecko_id: string
-  pools?: {
-    [key: string]: number
-  }
+  keywords: string[]
 }
 
 type OsmosisAssetList = {
-  chain_id: string
+  chain_name: string
   assets: OsmoAsset[]
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
+  /* Fetch asset list */
+
   const { data: assetData } = await axios.get<OsmosisAssetList>(
-    'https://raw.githubusercontent.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json',
+    `https://rawcdn.githack.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json`,
   )
+
+  if (!assetData) throw new Error('Could not get Osmosis asset data!')
 
   /* Osmosis pool IDs are guaranteed to be unique integers, so we use a set to keep track of 
     which pools we've already seen. A lookup is necessary because the Osmosis asset list 
@@ -43,7 +56,8 @@ export const getAssets = async (): Promise<Asset[]> => {
   */
   const lpAssetsAdded = new Set()
 
-  return assetData.assets.reduce<Asset[]>((acc, current) => {
+  return assetData.assets.reduce<Promise<Asset[]>>(async (accPrevious, current) => {
+    const acc = await accPrevious
     if (!current) return acc
 
     const denom = current.denom_units.find((item) => item.denom === current.display)
@@ -99,13 +113,48 @@ export const getAssets = async (): Promise<Asset[]> => {
     }
     acc.push(assetDatum)
 
-    // If liquidity pools are available for asset, generate assets representing LP tokens for each pool available.
+    /* If liquidity pools are available for asset, generate assets representing LP tokens for each pool available. */
 
     const getLPTokenName = (asset1: string, asset2: string): string =>
       `Osmosis ${asset1}/${asset2} LP Token`
 
-    if (current.pools) {
-      for (const [pairedToken, poolId] of Object.entries(current.pools)) {
+    /** Helper function to make sure that a given keyword is a valid pool entry.
+     * Pool entries are of the form "<symbol:string>:<pool_id:number>".
+     */
+    const keywordReducer = (
+      keywords: { pairedSymbol: string; poolId: string }[],
+      currentKeyword: string,
+    ): { pairedSymbol: string; poolId: string }[] => {
+      /* https://bobbyhadz.com/blog/typescript-check-if-string-is-valid-number */
+      const isNumeric = (s: string) => {
+        if (typeof s !== 'string') return false
+        if (s.trim() === '') return false
+        return !Number.isNaN(Number(s))
+      }
+
+      if (currentKeyword.includes(':')) {
+        const substrings = currentKeyword.split(':')
+        if (substrings.length === 2 && isNumeric(substrings[1])) {
+          keywords.push({
+            pairedSymbol: substrings[0],
+            poolId: substrings[1],
+          })
+        }
+      }
+      return keywords
+    }
+
+    /** The new osmosis.zone.json file doesn't contain both symbol names for the underlying assets in the liquidity pools.
+     * For now, the Osmosis pool data can be parsed from the keywords array in the assetlist.json entries.
+     * This might become unreliable later if the schema changes again, but for now this works and is better than making
+     * several API calls for each entry.
+     *
+     * https://github.com/osmosis-labs/assetlists/blob/main/osmosis-1/osmosis.zone.json
+     * https://raw.githack.com/osmosis-labs/assetlists/676c665f8c8c661d199402dfb18514a7f57faccf/osmosis-1/osmosis-1.assetlist.json
+     * */
+
+    if (current.keywords) {
+      for (const { pairedSymbol, poolId } of current.keywords.reduce(keywordReducer, [])) {
         if (lpAssetsAdded.has(poolId)) continue
 
         const lpAssetDatum: Asset = {
@@ -116,7 +165,7 @@ export const getAssets = async (): Promise<Asset[]> => {
           }),
           chainId: osmosisChainId,
           symbol: `gamm/pool/${poolId}`,
-          name: getLPTokenName(current.symbol, pairedToken),
+          name: getLPTokenName(current.symbol, pairedSymbol),
           precision: osmosis.precision,
           color: osmosis.color,
           icon: osmosis.icon,
@@ -130,5 +179,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     }
 
     return acc
-  }, [])
+  }, Promise.resolve([]))
 }

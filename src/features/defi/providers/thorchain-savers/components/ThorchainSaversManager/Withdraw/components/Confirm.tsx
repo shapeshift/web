@@ -455,7 +455,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
 
-      if (dayjs().isAfter(expiry)) {
+      if (dayjs().isAfter(dayjs.unix(Number(expiry)))) {
         toast({
           position: 'top-right',
           description: translate('trade.errors.quoteExpired'),

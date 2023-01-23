@@ -136,6 +136,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           const evmAddressData = await getInboundAddressDataForChain(
             deps.daemonUrl,
             sellChainFeeAssetId,
+            false,
           )
           const router = evmAddressData?.router
           if (!router)

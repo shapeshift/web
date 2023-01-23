@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.6.0...@shapeshiftoss/swapper-v15.7.0) (2023-01-23)
+
+
+### Features
+
+* **swapper:** return maybe halted data from getThorTxInfo ([#1175](https://github.com/shapeshift/lib/issues/1175)) ([10b98c4](https://github.com/shapeshift/lib/commit/10b98c46ef67e813bbf0cd5b82ef6da65379d0d6))
+
 # [@shapeshiftoss/swapper-v15.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.5.2...@shapeshiftoss/swapper-v15.6.0) (2023-01-20)
 
 

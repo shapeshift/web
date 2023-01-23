@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v10.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.10.0...@shapeshiftoss/chain-adapters-v10.11.0) (2023-01-23)
+
+
+### Features
+
+* **chain-adapters:** return token balances from cosmossdk getaccount method ([#1176](https://github.com/shapeshift/lib/issues/1176)) ([45ac971](https://github.com/shapeshift/lib/commit/45ac9715a4b9cfbd16fca899704bac6d70c2e530))
+
 # [@shapeshiftoss/chain-adapters-v10.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.9.0...@shapeshiftoss/chain-adapters-v10.10.0) (2023-01-20)
 
 

@@ -6,6 +6,7 @@ import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'red
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { migrations } from './migrations'
@@ -38,6 +39,7 @@ const apiMiddleware = [
   swapperApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
+  abiApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

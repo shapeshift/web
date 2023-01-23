@@ -1,17 +1,10 @@
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { FoxEthLpManager } from 'features/defi/providers/fox-eth-lp/components/FoxEthLpManager/FoxEthLpManager'
-import { FoxFarmingManager } from 'features/defi/providers/fox-farming/components/FoxFarmingManager/FoxFarmingManager'
-import { ThorchainSaversManager } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
-import { CosmosManager } from '../../providers/cosmos/components/CosmosManager/CosmosManager'
-import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
-import { IdleManager } from '../../providers/idle/components/IdleManager/IdleManager'
-import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 import type {
   DefiManagerContextProps,
   DefiManagerProviderProps,
@@ -19,21 +12,9 @@ import type {
   DefiQueryParams,
 } from './DefiCommon'
 import { DefiProvider } from './DefiCommon'
+import { getDefiProviderModulesResolvers } from './utils'
 
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
-
-const DefiModules = {
-  [DefiProvider.Idle]: IdleManager,
-  [DefiProvider.Yearn]: YearnManager,
-  [DefiProvider.ShapeShift]: FoxyManager,
-  [DefiProvider.FoxEthLP]: FoxEthLpManager,
-  [DefiProvider.FoxFarming]: FoxFarmingManager,
-  [DefiProvider.Cosmos]: CosmosManager,
-  [DefiProvider.Osmosis]: CosmosManager,
-  [DefiProvider.ThorchainSavers]: ThorchainSaversManager,
-}
-
-const modules = Object.keys(DefiModules)
 
 /*
 Cosmos modals are not part of this provider, those can be found under plugins/cosmos/components/modals.
@@ -41,18 +22,33 @@ Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the
 */
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { provider } = query
+  const { type, provider } = query
 
   const renderModules = useMemo(() => {
-    return modules.map(module => {
-      const Module = DefiModules[module as DefiProvider]
+    if (!provider) return null
+
+    return Object.values(DefiProvider).map(defiProvider => {
+      const maybeModules = getDefiProviderModulesResolvers(provider as DefiProvider)
+
+      if (typeof maybeModules === 'object')
+        return Object.entries(maybeModules).map(([defiType, Module]) => (
+          <DefiModal
+            key={`${defiProvider}-${defiType}`}
+            isOpen={provider === defiProvider && defiType === type}
+          >
+            <Module />
+          </DefiModal>
+        ))
+
+      const Module = maybeModules
+
       return (
-        <DefiModal key={module} isOpen={provider === module}>
+        <DefiModal key={defiProvider} isOpen={provider === defiProvider}>
           <Module />
         </DefiModal>
       )
     })
-  }, [provider])
+  }, [provider, type])
 
   return (
     <DefiManagerContext.Provider value={null}>

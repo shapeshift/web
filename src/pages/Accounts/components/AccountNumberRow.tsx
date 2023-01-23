@@ -112,7 +112,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
     selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
   )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
-  const color = feeAsset?.color ?? ''
+  const color = feeAsset?.networkColor ?? feeAsset?.color ?? ''
 
   /**
    * for UTXO chains, we want to display accounts aggregated by accountNumber first,

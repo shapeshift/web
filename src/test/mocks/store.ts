@@ -28,6 +28,7 @@ export const mockStore: ReduxState = {
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
+  abiApi: mockApiFactory('abiApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -48,6 +49,7 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
+      Optimism: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
@@ -64,6 +66,7 @@ export const mockStore: ReduxState = {
       FiatPopup: false,
       EligibleEarn: false,
       SaversVaults: false,
+      Yearn: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -2,7 +2,6 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import type { MergedFoxyOpportunity } from 'state/apis/foxy/foxyApi'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
 import { chainIdToLabel } from './utils'
@@ -11,7 +10,7 @@ export type EarnOpportunityType = {
   type?: string
   provider: string
   version?: string
-  contractAddress: string
+  contractAddress?: string
   rewardAddress: string
   apy?: number | string
   tvl: string
@@ -31,41 +30,6 @@ export type EarnOpportunityType = {
   opportunityName?: string
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
-
-const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =>
-  foxies.map(foxy => {
-    const {
-      provider,
-      contractAddress,
-      stakingToken: tokenAddress,
-      rewardToken: rewardAddress,
-      tvl,
-      apy,
-      expired,
-      chainId,
-      tokenAssetId: assetId,
-      fiatAmount,
-      cryptoAmountPrecision,
-      cryptoAmountBaseUnit,
-    } = foxy
-    return {
-      type: DefiType.TokenStaking,
-      provider,
-      contractAddress,
-      tokenAddress,
-      rewardAddress,
-      tvl: bnOrZero(tvl).toString(),
-      apy,
-      expired,
-      chainId,
-      assetId,
-      fiatAmount,
-      cryptoAmountBaseUnit,
-      cryptoAmountPrecision,
-      // DeFi foxy and yearn vaults are already loaded by the time they are transformed
-      isLoaded: true,
-    }
-  })
 
 const useTransformCosmosStaking = (
   cosmosStakingOpportunities: MergedActiveStakingOpportunity[],
@@ -103,25 +67,19 @@ const useTransformCosmosStaking = (
 }
 
 type NormalizeOpportunitiesProps = {
-  foxyArray: MergedFoxyOpportunity[]
   cosmosSdkStakingOpportunities: MergedActiveStakingOpportunity[]
-  foxEthLpOpportunity?: EarnOpportunityType
   stakingOpportunities?: EarnOpportunityType[]
-  saversVaults?: EarnOpportunityType[]
+  lpOpportunities?: EarnOpportunityType[]
 }
 
 export const useNormalizeOpportunities = ({
-  foxyArray,
   cosmosSdkStakingOpportunities = [],
-  foxEthLpOpportunity,
   stakingOpportunities,
-  saversVaults,
+  lpOpportunities,
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
   return [
-    ...transformFoxy(foxyArray),
     ...useTransformCosmosStaking(cosmosSdkStakingOpportunities),
     ...(stakingOpportunities ? stakingOpportunities : []),
-    ...(foxEthLpOpportunity ? [foxEthLpOpportunity] : []),
-    ...(saversVaults ? saversVaults : []),
+    ...(lpOpportunities ? lpOpportunities : []),
   ]
 }

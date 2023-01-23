@@ -6,6 +6,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -15,11 +16,11 @@ import { SendFormFields, SendRoutes } from './SendCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
-import { QrCodeScanner } from './views/QrCodeScanner'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
-  [SendFormFields.Address]: string
+  [SendFormFields.To]: string
+  [SendFormFields.From]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.CryptoAmount]: string
@@ -42,7 +43,7 @@ type SendFormProps = {
 export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
   const location = useLocation()
   const history = useHistory()
-  const { handleSend } = useFormSend()
+  const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
 
@@ -50,7 +51,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     mode: 'onChange',
     defaultValues: {
       accountId,
-      address: '',
+      to: '',
       vanityAddress: '',
       asset: initialAsset,
       feeType: FeeDataKey.Average,
@@ -76,7 +77,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     [history, marketData, methods, selectedCurrency],
   )
 
-  const handleSelectBack = useCallback(() => {
+  const handleBack = useCallback(() => {
     history.goBack()
   }, [history])
 
@@ -84,14 +85,22 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     if (event.key === 'Enter') event.preventDefault()
   }, [])
 
+  const handleQrSuccess = useCallback(
+    (decodedText: string) => {
+      methods.setValue(SendFormFields.Input, decodedText.trim())
+      history.push(SendRoutes.Address)
+    },
+    [history, methods],
+  )
+
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
+      <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>
-              <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} />
+              <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />
             </Route>
             <Route path={SendRoutes.Address}>
               <Address />
@@ -100,7 +109,7 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
               <Details />
             </Route>
             <Route path={SendRoutes.Scan}>
-              <QrCodeScanner />
+              <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} />
             </Route>
             <Route path={SendRoutes.Confirm}>
               <Confirm />

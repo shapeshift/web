@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -16,7 +16,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -35,20 +35,10 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
-  const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
+  const assetId = state?.opportunity?.assetId
 
-  // TODO: We need to get the fee asset from the Opportunity
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
-
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
@@ -79,7 +69,7 @@ export const Status = () => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  if (!state) return null
+  if (!state || !asset) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.deposit.txStatus) {
@@ -151,39 +141,18 @@ export const Status = () => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
-                symbol='ETH'
+                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
               />
-            </Box>
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
-              <Text translation='defi.modals.saversVaults.dustAmount' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={feeAsset.symbol} />
             </Box>
           </Row.Value>
         </Row>
@@ -195,7 +164,7 @@ export const Status = () => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={`${asset.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

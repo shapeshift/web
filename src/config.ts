@@ -6,7 +6,7 @@ import memoize from 'lodash/memoize'
 
 import env from './env'
 
-const { cleanEnv, str, url } = envalid
+const { cleanEnv, str, url, num } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -16,6 +16,8 @@ const validators = {
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: url(),
   REACT_APP_UNCHAINED_AVALANCHE_WS_URL: url(),
+  REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_OPTIMISM_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -34,6 +36,7 @@ const validators = {
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_ETHEREUM_INFURA_URL: url(),
   REACT_APP_AVALANCHE_NODE_URL: url(),
+  REACT_APP_OPTIMISM_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
@@ -53,11 +56,11 @@ const validators = {
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_ZENDESK_KEY: str({ default: '' }),
   REACT_APP_FEATURE_ZENDESK: bool({ default: false }),
-  REACT_APP_FEATURE_YEARN: bool({ default: true }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SWAP: bool({ default: false }),
+  REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -104,9 +107,20 @@ const validators = {
   REACT_APP_KEEPKEY_UPDATER_BASE_URL: url({
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
-
+  REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
   REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
   REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
+  REACT_APP_OSMOSIS_LCD_BASE_URL: url({
+    default: 'https://lcd-osmosis.keplr.app/osmosis/',
+  }),
+  REACT_APP_OSMOSIS_IMPERATOR_BASE_URL: url({
+    default: 'https://api-osmosis.imperator.co/',
+  }),
+  REACT_APP_OSMOSIS_ALLOW_LOW_LIQUIDITY_POOLS: bool({ default: false }),
+  REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT: num({
+    default: 1000,
+  }),
+  REACT_APP_FEATURE_YEARN: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -1,4 +1,5 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -64,7 +65,10 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+            <Tag
+              textTransform={value === DefiType.LiquidityPool ? 'uppercase' : 'capitalize'}
+              size={{ base: 'sm', md: 'md' }}
+            >
               {value?.replace('_', ' ')}
             </Tag>
           </Skeleton>

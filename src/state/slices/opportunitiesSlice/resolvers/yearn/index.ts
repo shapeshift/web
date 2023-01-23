@@ -1,27 +1,44 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { USDC_PRECISION } from 'constants/constants'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeatureFlags,
+  selectPortfolioCryptoBalanceByFilter,
+} from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
+  OpportunityMetadata,
+  StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
+  OpportunityIdsResolverInput,
 } from '../types'
 
 export const yearnStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
-}: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { Yearn } = selectFeatureFlags(state)
+
+  if (!Yearn) {
+    return { data: { byId: {}, type: opportunityType } }
+  }
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -30,10 +47,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
     return await getYearnInvestor().findAll()
   })()
 
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
-
-  const stakingOpportunitiesById: OpportunitiesState[DefiType.Staking]['byId'] = {}
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const opportunity of opportunities) {
     const toAssetIdParts: ToAssetIdArgs = {
@@ -57,7 +71,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: assetId,
       underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-      underlyingAssetRatios: ['1'],
+      underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,
       expired: opportunity.expired,
@@ -79,6 +93,16 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
+
+  const { Yearn } = selectFeatureFlags(state)
+  const { chainId: accountChainId } = fromAccountId(accountId)
+
+  if (!Yearn || accountChainId !== ethChainId)
+    return {
+      data: {
+        byId: {},
+      },
+    }
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
@@ -135,9 +159,18 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
   return Promise.resolve({ data })
 }
 
-export const yearnStakingOpportunityIdsResolver = async (): Promise<{
+export const yearnStakingOpportunityIdsResolver = async ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { Yearn } = selectFeatureFlags(state)
+  if (!Yearn) {
+    return { data: [] }
+  }
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities

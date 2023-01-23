@@ -4,6 +4,8 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
+import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
 
 export type AssetIdsTuple =
@@ -12,7 +14,7 @@ export type AssetIdsTuple =
   | readonly [AssetId]
   | readonly []
 
-export type OpportunityMetadata = {
+export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
   provider: DefiProvider
@@ -30,7 +32,7 @@ export type OpportunityMetadata = {
   // For opportunities a la Idle, that's the asset the opportunity wraps
   underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
-  underlyingAssetRatios: readonly [string, string] | readonly [string]
+  underlyingAssetRatiosBaseUnit: readonly [string, string] | readonly [string]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // TODO: Optional for backwards compatibility, but it should always be present
   rewardAssetIds?: AssetIdsTuple
@@ -39,6 +41,8 @@ export type OpportunityMetadata = {
   version?: string
   tags?: string[]
 }
+
+export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
 
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
@@ -64,7 +68,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata>
+    byId: PartialRecord<LpId, OpportunityMetadataBase>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -106,7 +110,7 @@ export type GetOpportunityIdsInput = {
 }
 
 export type GetOpportunityMetadataOutput = {
-  byId: OpportunitiesState[OpportunityDefiType]['byId']
+  byId: Record<OpportunityId, OpportunityMetadata>
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {
@@ -127,6 +131,12 @@ export type StakingEarnOpportunityType = OpportunityMetadata & {
     | readonly [string, string]
     | readonly [string]
     | readonly []
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
+  isVisible?: boolean
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type LpEarnOpportunityType = OpportunityMetadata & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean

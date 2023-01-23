@@ -95,8 +95,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       search: qs.stringify({
         provider: DefiProvider.ShapeShift,
         chainId: asset.chainId,
-        contractAddress: foxyAddresses[0].staking,
-        assetReference: foxyAddresses[0].fox,
+        assetNamespace: 'erc20',
+        contractAddress: foxyAddresses[0].foxy,
+        assetReference: foxyAddresses[0].staking,
         rewardId: foxyAddresses[0].foxy,
         modal: 'overview',
       }),

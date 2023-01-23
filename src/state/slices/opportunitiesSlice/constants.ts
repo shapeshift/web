@@ -111,7 +111,7 @@ export const baseEarnFarmingOpportunity = {
   cryptoAmountBaseUnit: '',
   cryptoAmountPrecision: '',
   isLoaded: false,
-  type: DefiType.Farming,
+  type: DefiType.Staking,
 }
 
 export const v5EarnFarmingOpportunity: EarnOpportunityType = {

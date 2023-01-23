@@ -7,6 +7,7 @@ import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
+import { apiErrorHandler } from 'state/apis/utils'
 
 export type GetUsdRatesArgs = {
   feeAssetId: AssetId
@@ -23,6 +24,8 @@ type GetUsdRatesReturn = {
 
 const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
 const getUsdRate = getUsdRateApi.endpoints.getUsdRate
+
+const getUsdRatesErrorHandler = apiErrorHandler('getUsdRates: error fetching USD rates')
 
 export const getUsdRatesApi = swapperApi.injectEndpoints({
   endpoints: build => ({
@@ -42,9 +45,14 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
             ? await getTradeQuoteArgs(args.tradeQuoteInputArgs)
             : args.tradeQuoteArgs
 
-          if (!tradeQuoteArgs) throw new Error('tradeQuoteArgs is undefined')
+          if (!tradeQuoteArgs)
+            return getUsdRatesErrorHandler({ message: 'getUsdRates: tradeQuoteArgs is undefined' })
+
           const feeAsset = assets.byId[feeAssetId]
-          if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
+          if (!feeAsset)
+            return getUsdRatesErrorHandler({
+              message: `getUsdRates: Asset not found for AssetId ${feeAssetId}`,
+            })
 
           const swapperType = await dispatch(
             getBestSwapperType.initiate({
@@ -53,7 +61,8 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
             }),
           ).then(r => r.data)
 
-          if (!swapperType) throw new Error(`Swapper type not found.`)
+          if (!swapperType)
+            return getUsdRatesErrorHandler({ message: 'getUsdRates: Swapper type not found' })
 
           const assetIds = [feeAssetId, buyAssetId, sellAssetId]
           const usdRatePromises = await Promise.allSettled(
@@ -64,16 +73,12 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
             .map(p => p.value?.data)
 
           if (!feeAssetUsdRate || !buyAssetUsdRate || !sellAssetUsdRate)
-            throw new Error(`USD rates not found.`)
+            return getUsdRatesErrorHandler({ message: 'getUsdRates: USD rates not found' })
+
           const data = { feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate }
           return { data }
-        } catch (e) {
-          return {
-            error: {
-              error: 'getUsdRates: error fetching USD rates',
-              status: 'CUSTOM_ERROR',
-            },
-          }
+        } catch (error) {
+          return getUsdRatesErrorHandler()
         }
       },
     }),

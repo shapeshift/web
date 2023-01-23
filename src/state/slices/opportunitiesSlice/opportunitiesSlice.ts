@@ -7,6 +7,7 @@ import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
+import type { ReduxApi } from './resolvers/types'
 import {
   getMetadataResolversByDefiProviderAndDefiType,
   getOpportunitiesMetadataResolversByDefiProviderAndDefiType,
@@ -47,6 +48,20 @@ export const initialState: OpportunitiesState = {
 }
 
 const moduleLogger = logger.child({ namespace: ['opportunitiesSlice'] })
+
+// tsc is drunk, extracting this makes it happy
+const getOpportunityIds = (
+  { defiProvider, defiType }: Pick<GetOpportunityMetadataInput, 'defiProvider' | 'defiType'>,
+  { getState }: { getState: ReduxApi['getState'] },
+): OpportunityId[] | undefined => {
+  const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
+    defiType,
+    defiProvider,
+  })
+  const { data: opportunityIds } = selectOpportunityIds(getState() as any)
+
+  return opportunityIds
+}
 
 export const opportunities = createSlice({
   name: 'opportunitiesData',
@@ -89,13 +104,13 @@ export const opportunitiesApi = createApi({
   keepUnusedDataFor: 300,
   endpoints: build => ({
     getOpportunityIds: build.query<GetOpportunityIdsOutput, GetOpportunityIdsInput>({
-      queryFn: async ({ defiType, defiProvider }) => {
+      queryFn: async ({ defiType, defiProvider }, { dispatch, getState }) => {
         try {
           const resolver = getOpportunityIdsResolversByDefiProviderAndDefiType(
             defiProvider,
             defiType,
           )
-          const resolved = await resolver()
+          const resolved = await resolver({ reduxApi: { dispatch, getState } })
 
           return { data: resolved.data }
         } catch (e) {
@@ -148,11 +163,14 @@ export const opportunitiesApi = createApi({
     >({
       queryFn: async ({ opportunityType, defiType, defiProvider }, { dispatch, getState }) => {
         try {
+          const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
+
           const resolver = getOpportunitiesMetadataResolversByDefiProviderAndDefiType(
             defiProvider,
             defiType,
           )
           const resolved = await resolver({
+            opportunityIds,
             opportunityType,
             reduxApi: { dispatch, getState },
           })
@@ -233,12 +251,7 @@ export const opportunitiesApi = createApi({
         { dispatch, getState },
       ) => {
         try {
-          const state: any = getState() // ReduxState causes circular dependency
-          const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
-            defiType,
-            defiProvider,
-          })
-          const { data: opportunityIds } = selectOpportunityIds(state)
+          const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
 
           if (!opportunityIds) {
             throw new Error("Can't select staking OpportunityIds")

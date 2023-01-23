@@ -70,7 +70,7 @@ export const OpportunityCard = ({
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const { assetReference } = fromAssetId(assetId)
+  const { assetReference, assetNamespace } = fromAssetId(assetId)
 
   const assets = useAppSelector(selectAssets)
 
@@ -85,9 +85,11 @@ export const OpportunityCard = ({
         pathname: '/defi',
         search: qs.stringify({
           provider,
+          type,
           chainId,
           highestBalanceAccountAddress,
           contractAddress,
+          assetNamespace,
           assetReference,
           rewardId: rewardAddress,
           modal: 'overview',

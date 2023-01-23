@@ -1,7 +1,9 @@
 import { useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -9,16 +11,22 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import {
+  getThorchainSaversDepositQuote,
+  isAboveDepositDustThreshold,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -27,12 +35,12 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['YearnDeposit:Deposit'] })
+const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -44,16 +52,21 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const yearnInvestor = useMemo(() => getYearnInvestor(), [])
-  const { state, dispatch } = useContext(DepositContext)
+  const { state, dispatch: contextDispatch } = useContext(DepositContext)
+  const appDispatch = useAppDispatch()
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetNamespace, assetReference } = query
 
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
   const opportunityId = useMemo(
-    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
-    [chainId, contractAddress],
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
   )
   const highestBalanceAccountIdFilter = useMemo(
     () => ({ stakingId: opportunityId }),
@@ -65,25 +78,17 @@ export const Deposit: React.FC<DepositProps> = ({
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId)!,
-        toOpportunityId({
-          chainId,
-          assetNamespace: 'erc20',
-          assetReference: contractAddress,
-        }),
+        accountId ?? highestBalanceAccountId ?? '',
+        opportunityId ?? '',
       ),
     }),
-    [accountId, chainId, contractAddress, highestBalanceAccountId],
+    [accountId, highestBalanceAccountId, opportunityId],
   )
 
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const assetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
-  )
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
@@ -101,19 +106,29 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
-      if (!(userAddress && assetReference && yearnInvestor && accountId && opportunityData)) return
+      if (!(userAddress && assetReference && accountId && opportunityData)) return
       try {
-        const yearnOpportunity = await yearnInvestor.findByOpportunityId(opportunityData.assetId)
-        if (!yearnOpportunity) throw new Error('No opportunity')
-        const preparedTx = await yearnOpportunity.prepareDeposit({
-          amount: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-          address: fromAccountId(accountId).account,
-        })
-        // TODO(theobold): Figure out a better way for the safety factor
-        return bnOrZero(preparedTx.gasPrice)
-          .times(preparedTx.estimatedGas)
-          .integerValue()
-          .toString()
+        const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
+          bn(10).pow(asset.precision),
+        )
+        const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+        const chainAdapters = getChainAdapterManager()
+        // We're lying to Ts, this isn't always an UtxoBaseAdapter
+        // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
+        const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
+        const fastFeeCryptoBaseUnit = (
+          await adapter.getFeeData({
+            to: quote.inbound_address,
+            value: amountCryptoBaseUnit.toFixed(0),
+            chainSpecific: { pubkey: userAddress, from: '' },
+            sendMax: false,
+          })
+        ).fast.txFee
+
+        const fastFeeCryptoPrecision = bnOrZero(
+          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+        )
+        return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         moduleLogger.error(
           { fn: 'getDepositGasEstimate', error },
@@ -127,79 +142,36 @@ export const Deposit: React.FC<DepositProps> = ({
         })
       }
     },
-    [
-      userAddress,
-      assetReference,
-      yearnInvestor,
-      accountId,
-      opportunityData,
-      asset.precision,
-      toast,
-      translate,
-    ],
+    [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
   )
-
-  const getApproveGasEstimate = useCallback(async (): Promise<string | undefined> => {
-    if (!(userAddress && assetReference && opportunityData)) return
-    try {
-      const yearnOpportunity = await yearnInvestor.findByOpportunityId(
-        opportunityData.assetId ?? '',
-      )
-      if (!yearnOpportunity) throw new Error('No opportunity')
-      const preparedApproval = await yearnOpportunity.prepareApprove(userAddress)
-      return bnOrZero(preparedApproval.gasPrice)
-        .times(preparedApproval.estimatedGas)
-        .integerValue()
-        .toString()
-    } catch (error) {
-      moduleLogger.error(
-        { fn: 'getApproveEstimate', error },
-        'Error getting deposit approval gas estimate',
-      )
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error',
-      })
-    }
-  }, [userAddress, assetReference, opportunityData, yearnInvestor, toast, translate])
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(userAddress && opportunityData && dispatch)) return
+      if (!(userAddress && opportunityData && contextDispatch)) return
       // set deposit state for future use
-      dispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
-        // Check is approval is required for user address
-        const yearnOpportunity = await yearnInvestor.findByOpportunityId(
-          opportunityData.assetId ?? '',
+        const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+        const { data: isTradingActive } = await appDispatch(
+          getIsTradingActive.initiate({
+            assetId,
+            swapperName: SwapperName.Thorchain,
+          }),
         )
-        if (!yearnOpportunity) throw new Error('No opportunity')
-        const _allowance = await yearnOpportunity.allowance(userAddress)
-        const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
-        // Skip approval step if user allowance is greater than requested deposit amount
-        if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-          if (!estimatedGasCrypto) return
-          dispatch({
-            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
-          })
-          onNext(DefiStep.Confirm)
-          dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        } else {
-          const estimatedGasCrypto = await getApproveGasEstimate()
-          if (!estimatedGasCrypto) return
-          dispatch({
-            type: ThorchainSaversDepositActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
-          })
-          onNext(DefiStep.Approve)
-          dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        if (!isTradingActive) {
+          throw new Error(`THORChain pool halted for assetId: ${assetId}`)
         }
+
+        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+        if (!estimatedGasCrypto) return
+        contextDispatch({
+          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+          payload: { estimatedGasCrypto },
+        })
+        onNext(DefiStep.Confirm)
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -208,18 +180,17 @@ export const Deposit: React.FC<DepositProps> = ({
           title: translate('common.somethingWentWrong'),
           status: 'error',
         })
-        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       }
     },
     [
       userAddress,
       opportunityData,
-      dispatch,
-      yearnInvestor,
-      asset.precision,
+      contextDispatch,
+      appDispatch,
+      assetId,
       getDepositGasEstimate,
       onNext,
-      getApproveGasEstimate,
       toast,
       translate,
     ],
@@ -231,29 +202,55 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-      const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-      if (_value.isEqualTo(0)) return ''
+      const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
+        bn(10).pow(asset.precision),
+      )
+      const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+
+      if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+
+      const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const valueCryptoPrecision = bnOrZero(value)
+      const hasValidBalance =
+        cryptoBalancePrecision.gt(0) &&
+        valueCryptoPrecision.gt(0) &&
+        cryptoBalancePrecision.gte(value)
+      if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset?.precision],
+    [asset.precision, asset.symbol, assetId, translate, balance],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+
+      const valueCryptoBaseUnit = bnOrZero(value)
+        .div(marketData.price)
+        .times(bn(10).pow(asset.precision))
+      const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+
+      const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
+        bn(10).pow(asset.precision),
+      )
+      const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+
+      if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset?.precision, marketData?.price],
+    [balance, asset.precision, asset.symbol, marketData.price, assetId, translate],
   )
 
   const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    () => bnOrZero(balance).div(bn(10).pow(asset.precision)),
     [balance, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(
@@ -271,7 +268,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch || !opportunityData) return null
+  if (!state || !contextDispatch || !opportunityData) return null
 
   return (
     <ReusableDeposit

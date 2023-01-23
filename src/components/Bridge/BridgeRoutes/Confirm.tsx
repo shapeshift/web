@@ -45,7 +45,7 @@ export const Confirm: React.FC = () => {
   const [isLoadingRelayerFee, setIsLoadingRelayerFee] = useState(true)
   const [isExecutingTransaction, setIsExecutingTransaction] = useState(false)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const { handleSend } = useFormSend()
+  const { handleFormSend } = useFormSend()
   const translate = useTranslate()
 
   const axelarAssetTransferSdk = getAxelarAssetTransferSdk()
@@ -138,7 +138,7 @@ export const Confirm: React.FC = () => {
       const estimateFeesArgs: EstimateFeesInput = {
         cryptoAmount,
         asset,
-        address: depositAddress,
+        to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         contractAddress: assetReference,
@@ -149,7 +149,8 @@ export const Confirm: React.FC = () => {
       const handleSendArgs: SendInput = {
         cryptoAmount,
         asset,
-        address: depositAddress,
+        from: '',
+        to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',
@@ -162,7 +163,7 @@ export const Confirm: React.FC = () => {
         input: depositAddress,
       }
 
-      await handleSend(handleSendArgs)
+      await handleFormSend(handleSendArgs)
       history.push(BridgeRoutePaths.Status)
     } catch (e) {
       moduleLogger.error(e, 'GasFee error')

@@ -39,7 +39,7 @@ export const Status = () => {
   const feeAssetId = assetId
 
   const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
@@ -142,24 +142,16 @@ export const Status = () => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
-                )
+                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                  .times(marketData.price)
+                  .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
-                )
+                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
-                  .toFixed(5)}
+                  .toFixed()}
                 symbol={asset.symbol}
               />
             </Box>
@@ -173,8 +165,20 @@ export const Status = () => {
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
-              <Amount.Fiat fontWeight='bold' value='0' />
-              <Amount.Crypto color='gray.500' value='0' symbol={asset.symbol} />
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed()}
+              />
+              <Amount.Crypto
+                color='gray.500'
+                value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
+              />
             </Box>
           </Row.Value>
         </Row>

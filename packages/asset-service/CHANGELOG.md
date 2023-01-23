@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.6.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.2...@shapeshiftoss/asset-service-v8.6.3) (2023-01-23)
+
+
+### Bug Fixes
+
+* **asset-service:** use recommended githack url format for osmosis urls ([#1172](https://github.com/shapeshift/lib/issues/1172)) ([8ba4a6d](https://github.com/shapeshift/lib/commit/8ba4a6de2c962ba6dd0a745e4ba18eac85fd4c10))
+
 # [@shapeshiftoss/asset-service-v8.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.1...@shapeshiftoss/asset-service-v8.6.2) (2023-01-22)
 
 

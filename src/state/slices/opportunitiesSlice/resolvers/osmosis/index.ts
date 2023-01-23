@@ -83,7 +83,7 @@ export const osmosisLpUserDataResolver = ({
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
-  // Looks the same as the happy path but isn't, we won't hit this as a guard with non-Ethereum account ChainIds
+  // Looks the same as the happy path but isn't, we won't hit this as a guard with non-Osmosis account ChainIds
   if (accountChainId !== osmosisChainId) return Promise.resolve()
 
   const { getState } = reduxApi

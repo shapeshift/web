@@ -38,6 +38,7 @@ export type FeePrice = {
   [key in FeeDataKey]: {
     fiatFee: string
     txFee: string
+    gasPriceGwei?: string
   }
 }
 
@@ -50,7 +51,7 @@ export const Confirm = () => {
   const translate = useTranslate()
   const {
     accountId,
-    address,
+    to,
     asset,
     cryptoAmount,
     cryptoSymbol,
@@ -84,8 +85,7 @@ export const Confirm = () => {
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
-  if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
-    return null
+  if (!(to && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition>
@@ -135,9 +135,7 @@ export const Confirm = () => {
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
-            <Row.Value>
-              {vanityAddress ? vanityAddress : <MiddleEllipsis value={address} />}
-            </Row.Value>
+            <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
           </Row>
           {showMemoRow && (
             <Row>

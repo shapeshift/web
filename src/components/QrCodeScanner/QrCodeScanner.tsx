@@ -11,18 +11,16 @@ import {
 } from '@chakra-ui/react'
 import type {
   Html5QrcodeError,
+  Html5QrcodeResult,
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
 import { useState } from 'react'
-import { useController } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
-import { SendFormFields, SendRoutes } from '../SendCommon'
 import { QrCodeReader } from './QrCodeReader'
 
 export type DOMExceptionCallback = (errorMessage: string) => void
@@ -33,17 +31,20 @@ const isPermissionError = (
 ): error is DOMException['message'] =>
   typeof (error as DOMException['message']) === 'string' && error === PERMISSION_ERROR
 
-export const QrCodeScanner = () => {
-  const history = useHistory()
+export const QrCodeScanner = ({
+  onSuccess,
+  onBack,
+  onError,
+}: {
+  onSuccess: (decodedText: string, result: Html5QrcodeResult) => void
+  onBack: () => void
+  onError?: (errorMessage: string, error: Html5QrcodeError) => void
+}) => {
   const translate = useTranslate()
   const [error, setError] = useState<DOMException['message'] | null>(null)
-  const {
-    field: { onChange },
-  } = useController({ name: SendFormFields.Input })
 
   const handleScanSuccess: QrcodeSuccessCallback = (decodedText, _result) => {
-    onChange(decodedText.trim())
-    history.push(SendRoutes.Address)
+    onSuccess(decodedText, _result)
   }
 
   const handleScanError: QrcodeErrorCallback | DOMExceptionCallback = (_errorMessage, error) => {
@@ -54,6 +55,7 @@ export const QrCodeScanner = () => {
     }
 
     setError(_errorMessage)
+    if (onError) onError(_errorMessage, error)
   }
 
   return (
@@ -93,12 +95,7 @@ export const QrCodeScanner = () => {
         )}
       </ModalBody>
       <ModalFooter>
-        <Button
-          width='full'
-          variant='ghost'
-          size='lg'
-          onClick={() => history.push(SendRoutes.Address)}
-        >
+        <Button width='full' variant='ghost' size='lg' onClick={onBack}>
           <Text translation='common.back' />
         </Button>
       </ModalFooter>

@@ -5,7 +5,7 @@ import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -14,7 +14,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
-  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunities,
   selectAssetById,
 } from 'state/slices/selectors'
@@ -41,16 +41,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const foxEthLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-    [],
-  )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
-  )
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
@@ -63,7 +54,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const allRows = useNormalizeOpportunities({
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity,
+    lpOpportunities,
     stakingOpportunities,
   }).filter(
     row =>

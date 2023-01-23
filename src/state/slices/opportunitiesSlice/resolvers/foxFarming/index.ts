@@ -1,4 +1,4 @@
-import { ethAssetId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Fetcher, Token } from '@uniswap/sdk'
@@ -235,6 +235,11 @@ export const foxFarmingLpUserDataResolver = ({
   accountId,
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(
+      `No-op. Won't fetch ETH/FOX farming userStakingData for chainId: ${accountChainId}`,
+    )
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
@@ -262,6 +267,11 @@ export const foxFarmingStakingUserDataResolver = async ({
   accountId,
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { chainId: accountChainId } = fromAccountId(accountId)
+  if (accountChainId !== ethChainId)
+    throw new Error(
+      `No-op. Won't fetch ETH/FOX farming userStakingData for chainId: ${accountChainId}`,
+    )
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)

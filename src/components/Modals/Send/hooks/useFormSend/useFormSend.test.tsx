@@ -58,7 +58,8 @@ jest.mock('lib/address/ens')
 
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
-  [SendFormFields.Address]: EthSend.address,
+  [SendFormFields.From]: '',
+  [SendFormFields.To]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
   [SendFormFields.Asset]: {
     chainId: ethChainId,
@@ -112,7 +113,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
 }
 
-const formDataEnsAddress = { ...formData, [SendFormFields.Address]: 'willywonka.eth' }
+const formDataEnsAddress = { ...formData, [SendFormFields.To]: 'willywonka.eth' }
 
 const textTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],

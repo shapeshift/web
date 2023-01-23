@@ -179,11 +179,11 @@ type BuildLPTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to' | 'value
 }
 
 export type BuildLPAddTxInput<T extends ChainId> = BuildLPTxInput<T> & {
-  tokenInMaxs: [cosmossdk.CosmosSDKToken, cosmossdk.CosmosSDKToken]
+  tokenInMaxs: [{ denom: string; amount: string }, { denom: string; amount: string }]
 }
 
 export type BuildLPRemoveTxInput<T extends ChainId> = BuildLPTxInput<T> & {
-  tokenOutMins: [cosmossdk.CosmosSDKToken, cosmossdk.CosmosSDKToken]
+  tokenOutMins: [{ denom: string; amount: string }, { denom: string; amount: string }]
 }
 
 export type SignTxInput<TxType> = {

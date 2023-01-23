@@ -22,7 +22,7 @@ type OsmoAsset = {
     type: string
     counterparty: {
       chain_name: string
-      bse_denom: string
+      base_denom: string
       channel_id: string
     }
     chain: {

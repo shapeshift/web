@@ -1,4 +1,5 @@
 import { AccountId, fromAccountId } from './accountId/accountId'
+import { AssetId, toAssetId } from './assetId/assetId'
 import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 
@@ -16,6 +17,30 @@ export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,
 ) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
+
+export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
+  if (denom.startsWith('u') && denom !== 'uosmo') {
+    return toAssetId({
+      assetNamespace: constants.ASSET_NAMESPACE.native,
+      assetReference: denom,
+      chainId: constants.osmosisChainId,
+    })
+  }
+
+  if (denom.startsWith('ibc')) {
+    return toAssetId({
+      assetNamespace: constants.ASSET_NAMESPACE.ibc,
+      assetReference: denom.split('/')[1],
+      chainId: constants.osmosisChainId,
+    })
+  }
+
+  return toAssetId({
+    assetNamespace: constants.ASSET_NAMESPACE.slip44,
+    assetReference: constants.ASSET_REFERENCE.Osmosis,
+    chainId: constants.osmosisChainId,
+  })
+}
 
 export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }
 export const bitcoinCashAssetMap = { [constants.bchAssetId]: 'bitcoin-cash' }

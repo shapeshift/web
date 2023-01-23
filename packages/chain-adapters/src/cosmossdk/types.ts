@@ -1,3 +1,4 @@
+import { AssetId } from '@shapeshiftoss/caip'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as types from '../types'
@@ -10,6 +11,7 @@ export type Account = {
   redelegations: Redelegation[]
   undelegations: Undelegation[]
   rewards: ValidatorReward[]
+  assets: CosmosSDKToken[]
 }
 
 export type Message = {
@@ -88,7 +90,7 @@ export type FeeData = {
 }
 
 export type CosmosSDKToken = {
-  denom: string
+  assetId: AssetId
   amount: string
 }
 

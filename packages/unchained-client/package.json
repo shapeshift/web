@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@yfi/sdk": "^1.2.0",
+    "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "ethers": "^5.5.3",
     "isomorphic-ws": "^4.0.1",

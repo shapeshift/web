@@ -19,7 +19,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
     // due to the current parser logic, order here matters (register most generic first to most specific last)
     // weth and yearn have the same sigHash for deposit(), but the weth parser is stricter resulting in faster processing times
     this.registerParsers([
-      new yearn.Parser({ chainId: this.chainId, provider: this.provider }),
+      new yearn.Parser({ chainId: this.chainId }),
       new foxy.Parser(),
       new weth.Parser({ chainId: this.chainId, provider: this.provider }),
       new uniV2.Parser({ chainId: this.chainId, provider: this.provider }),

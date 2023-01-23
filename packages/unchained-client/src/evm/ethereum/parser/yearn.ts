@@ -1,5 +1,5 @@
 import { ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainId as YearnChainId, Yearn } from '@yfi/sdk'
+import axios from 'axios'
 import { BigNumber, ethers } from 'ethers'
 
 import { Tx } from '../../../generated/ethereum'
@@ -9,6 +9,34 @@ import shapeShiftRouter from './abi/shapeShiftRouter'
 import yearnVault from './abi/yearnVault'
 import { SHAPE_SHIFT_ROUTER_CONTRACT } from './constants'
 
+export const YEARN_VAULTS_URL = 'https://ydaemon.yearn.finance/api/1/vaults/all'
+
+interface Vault {
+  address: string
+  migrationTargetVault: string
+  migrationContract: string
+  displayName: string
+  comment: string
+  apyTypeOverride: string
+  apyOverride: number
+  order: number
+  chainID: number
+  hideAlways: boolean
+  depositsDisabled: boolean
+  withdrawalsDisabled: boolean
+  migrationAvailable: boolean
+  allowZapIn: boolean
+  allowZapOut: boolean
+  retired: boolean
+  classification: {
+    isAutomated: boolean
+    isPool: boolean
+    poolProvider: string
+    stability: string
+    stableBaseAsset: string
+  }
+}
+
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'yearn'
   assetId?: string
@@ -17,12 +45,9 @@ export interface TxMetadata extends BaseTxMetadata {
 
 interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.JsonRpcProvider
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.providers.JsonRpcProvider
-  yearnSdk: Yearn<YearnChainId> | undefined
   yearnTokenVaultAddresses: string[] | undefined
 
   readonly chainId: ChainId
@@ -43,14 +68,7 @@ export class Parser implements SubParser<Tx> {
   }
 
   constructor(args: ParserArgs) {
-    this.provider = args.provider
     this.chainId = args.chainId
-
-    // The only Yearn-supported chain we currently support is mainnet
-    if (args.chainId === 'eip155:1') {
-      // 1 for EthMain (@yfi/sdk/dist/chain.d.ts)
-      this.yearnSdk = new Yearn(1, { provider: this.provider })
-    }
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -70,8 +88,8 @@ export class Parser implements SubParser<Tx> {
 
     if (!this.yearnTokenVaultAddresses) {
       try {
-        const vaults = await this.yearnSdk?.vaults.get()
-        this.yearnTokenVaultAddresses = vaults?.map((vault) => vault.address)
+        const { data } = await axios.get<Vault[]>(YEARN_VAULTS_URL)
+        this.yearnTokenVaultAddresses = data?.map((vault) => vault.address)
       } catch (e) {
         console.error('yearn tx parser unable to fetch vaults', e)
         return

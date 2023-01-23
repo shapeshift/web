@@ -142,22 +142,14 @@ export const Status = () => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.withdrawFeeCryptoBaseUnit
-                    : state.withdraw.usedGasFee,
-                )
+                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.withdrawFeeCryptoBaseUnit
-                    : state.withdraw.usedGasFee,
-                )
+                value={bnOrZero(state.withdraw.withdrawFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}
                 symbol={asset.symbol}

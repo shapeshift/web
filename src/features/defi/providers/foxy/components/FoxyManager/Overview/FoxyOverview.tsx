@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -44,11 +44,11 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, assetNamespace } = query
+  const { chainId, assetReference } = query
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
-    assetNamespace,
+    assetNamespace: ASSET_NAMESPACE.erc20,
     assetReference,
   })
 

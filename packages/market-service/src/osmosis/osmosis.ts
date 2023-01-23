@@ -25,7 +25,7 @@ export class OsmosisMarketService implements MarketService {
         .map((data) => data ?? []) // filter out rate limited results
         .sort((a, b) => (a.liquidity < b.liquidity ? 1 : -1))
         .reduce((acc, token) => {
-          const assetId = adapters.osmosisToAssetId(token.denom)
+          const assetId = adapters.osmosisToAssetId(token.symbol)
           if (!assetId) return acc
 
           acc[assetId] = {

@@ -23,8 +23,7 @@
     "dev": "tsc --watch",
     "prepare": "yarn build",
     "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.build.json --noEmit",
-    "marketcli": "yarn build && node ./dist/marketDataCLI.js"
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",

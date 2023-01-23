@@ -83,8 +83,8 @@ export const osmosisLpUserDataResolver = ({
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== osmosisChainId)
-    throw new Error(`No-op. Won't fetch osmosis LP user data for chainId: ${accountChainId}`)
+  // Looks the same as the happy path but isn't, we won't hit this as a guard with non-Ethereum account ChainIds
+  if (accountChainId !== osmosisChainId) return Promise.resolve()
 
   const { getState } = reduxApi
   const state: ReduxState = getState() as any

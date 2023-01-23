@@ -6,6 +6,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 
 let maybeYearnInvestor: YearnInvestor | undefined
 export const getYearnInvestor = () => {
+  debugger
   if (maybeYearnInvestor) return maybeYearnInvestor
 
   maybeYearnInvestor = new YearnInvestor({

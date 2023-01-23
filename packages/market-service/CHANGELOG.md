@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.4.0...@shapeshiftoss/market-service-v7.5.0) (2023-01-23)
+
+
+### Features
+
+* **market-service:** fix osmosis market-service bug, remove market-service cli ([#1173](https://github.com/shapeshift/lib/issues/1173)) ([65f30dd](https://github.com/shapeshift/lib/commit/65f30ddb060723d515f1e0c74c829675c60404ff))
+
 # [@shapeshiftoss/market-service-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.3.0...@shapeshiftoss/market-service-v7.4.0) (2023-01-23)
 
 

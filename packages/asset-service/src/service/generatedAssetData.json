@@ -66,7 +66,7 @@
     "name": "JunoSwap on Osmosis",
     "precision": 6,
     "color": "#F07C92",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/raw.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/raw.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -78,7 +78,7 @@
     "name": "Medas Digital on Osmosis",
     "precision": 6,
     "color": "#147CCC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/medasdigital/images/medas.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/medasdigital/images/medas.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -90,7 +90,7 @@
     "name": "Secret Network on Osmosis",
     "precision": 6,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/scrt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -102,7 +102,7 @@
     "name": "JoeDAO on Osmosis",
     "precision": 6,
     "color": "#F4BBB0",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/joe.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/joe.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -114,7 +114,7 @@
     "name": "Dai Stablecoin on Osmosis",
     "precision": 18,
     "color": "#F3AC35",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/dai.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/dai.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -126,7 +126,7 @@
     "name": "O9W on Osmosis",
     "precision": 6,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/odin/images/o9w.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/odin/images/o9w.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -138,7 +138,7 @@
     "name": "Frax on Osmosis",
     "precision": 18,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/frax.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/frax.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -150,7 +150,7 @@
     "name": "Luna Classic on Osmosis",
     "precision": 6,
     "color": "#FCDB5B",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/luna.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/terra/images/luna.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -162,7 +162,7 @@
     "name": "Akash Network on Osmosis",
     "precision": 6,
     "color": "#BC342C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/akt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/akash/images/akt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -174,7 +174,7 @@
     "name": "Oraichain on Osmosis",
     "precision": 6,
     "color": "#FFFFFF",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/oraichain/images/orai-white.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/oraichain/images/orai-white.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -186,7 +186,7 @@
     "name": "Amber on Osmosis",
     "precision": 6,
     "color": "#F2B853",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/amber.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/amber.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -198,7 +198,7 @@
     "name": "StakeEasy SEASY on Osmosis",
     "precision": 6,
     "color": "#2D2D2D",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/seasy.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/seasy.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -210,7 +210,7 @@
     "name": "Shiba Inu on Osmosis",
     "precision": 18,
     "color": "#DC3C24",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/shib.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/shib.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -222,7 +222,7 @@
     "name": "e-Money on Osmosis",
     "precision": 6,
     "color": "#052D34",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/emoney/images/ngm.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/emoney/images/ngm.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -234,7 +234,7 @@
     "name": "Regen Network on Osmosis",
     "precision": 6,
     "color": "#4CB474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/regen/images/regen.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/regen/images/regen.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -246,7 +246,7 @@
     "name": "Tgrade on Osmosis",
     "precision": 6,
     "color": "#A7248A",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/tgrade/images/tgrade-symbol-gradient.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/tgrade/images/tgrade-symbol-gradient.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -258,7 +258,7 @@
     "name": "Wrapped Moonbeam on Osmosis",
     "precision": 18,
     "color": "#E4147C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/moonbeam/images/glmr.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/moonbeam/images/glmr.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -270,7 +270,7 @@
     "name": "Button on Osmosis",
     "precision": 6,
     "color": "#7B04EB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/butt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/butt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -282,7 +282,7 @@
     "name": "TerraClassicKRW on Osmosis",
     "precision": 6,
     "color": "#4B83E0",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/krt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/terra/images/krt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -294,7 +294,7 @@
     "name": "CMST on Osmosis",
     "precision": 6,
     "color": "#1C1C1C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/comdex/images/cmst.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/comdex/images/cmst.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -306,7 +306,7 @@
     "name": "Rizon Chain on Osmosis",
     "precision": 6,
     "color": "#2B1C54",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/rizon/images/atolo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/rizon/images/atolo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -318,7 +318,7 @@
     "name": "Cosmos Hub Atom on Osmosis",
     "precision": 6,
     "color": "#272D45",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/cosmoshub/images/atom.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -330,7 +330,7 @@
     "name": "Neta on Osmosis",
     "precision": 6,
     "color": "#F77A7A",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/neta.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/neta.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -342,7 +342,7 @@
     "name": "Agoric on Osmosis",
     "precision": 6,
     "color": "#EB2C53",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/agoric/images/bld.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/agoric/images/bld.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -354,7 +354,7 @@
     "name": "Dig Chain on Osmosis",
     "precision": 6,
     "color": "#1B1433",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/dig/images/dig.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/dig/images/dig.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -366,7 +366,7 @@
     "name": "DARC on Osmosis",
     "precision": 6,
     "color": "#042961",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/konstellation/images/darc.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/konstellation/images/darc.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -378,7 +378,7 @@
     "name": "Aave on Osmosis",
     "precision": 18,
     "color": "#A4DC24",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/aave.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/aave.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -390,7 +390,7 @@
     "name": "MediBloc on Osmosis",
     "precision": 6,
     "color": "#2474EC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/panacea/images/med.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/panacea/images/med.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -402,7 +402,7 @@
     "name": "Wrapped Polkadot on Osmosis",
     "precision": 10,
     "color": "#E4047C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/polkadot/images/dot.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/polkadot/images/dot.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -414,7 +414,7 @@
     "name": "Cerberus on Osmosis",
     "precision": 6,
     "color": "#EAB628",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cerberus/images/crbrus.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/cerberus/images/crbrus.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -426,7 +426,7 @@
     "name": "USK on Osmosis",
     "precision": 6,
     "color": "#4BD5D4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kujira/images/usk.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kujira/images/usk.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -438,7 +438,7 @@
     "name": "Juno on Osmosis",
     "precision": 6,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/juno.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/juno.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -450,7 +450,7 @@
     "name": "Echelon on Osmosis",
     "precision": 18,
     "color": "#B0F49A",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/echelon/images/logo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/echelon/images/logo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -462,7 +462,7 @@
     "name": "BitSong on Osmosis",
     "precision": 6,
     "color": "#BA3C88",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bitsong/images/btsg.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/bitsong/images/btsg.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -474,7 +474,7 @@
     "name": "Starname on Osmosis",
     "precision": 6,
     "color": "#5C64B4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/starname/images/iov.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/starname/images/iov.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -486,7 +486,7 @@
     "name": "Gelotto on Osmosis",
     "precision": 6,
     "color": "#D5A474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/glto.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/glto.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -498,7 +498,7 @@
     "name": "DHK on Osmosis",
     "precision": 6,
     "color": "#F8E004",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/dhk.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/dhk.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -510,7 +510,7 @@
     "name": "Kava on Osmosis",
     "precision": 6,
     "color": "#E64942",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kava/images/kava.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kava/images/kava.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -522,7 +522,7 @@
     "name": "e-Money EUR on Osmosis",
     "precision": 6,
     "color": "#0C3493",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/emoney/images/eeur.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/emoney/images/eeur.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -534,7 +534,7 @@
     "name": "Crescent on Osmosis",
     "precision": 6,
     "color": "#3C2832",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/crescent/images/cre.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/crescent/images/cre.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -546,7 +546,7 @@
     "name": "fetch-ai on Osmosis",
     "precision": 18,
     "color": "#1C2444",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/fetchhub/images/fet.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/fetchhub/images/fet.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -558,7 +558,7 @@
     "name": "Arable USD on Osmosis",
     "precision": 6,
     "color": "#77B64F",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/acrechain/images/arusd.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/acrechain/images/arusd.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -570,7 +570,7 @@
     "name": "stSTARS on Osmosis",
     "precision": 6,
     "color": "#E40474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/ststars.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stride/images/ststars.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -582,7 +582,7 @@
     "name": "Unification Network on Osmosis",
     "precision": 9,
     "color": "#1774BE",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/unification/images/fund.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/unification/images/fund.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -594,7 +594,7 @@
     "name": "Binance USD on Osmosis",
     "precision": 18,
     "color": "#F4BC0C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/busd.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/busd.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -606,7 +606,7 @@
     "name": "Injective on Osmosis",
     "precision": 18,
     "color": "#04A2FC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/injective/images/inj.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/injective/images/inj.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -618,7 +618,7 @@
     "name": "Wrapped Ethereum on Osmosis",
     "precision": 18,
     "color": "#2F3A6F",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/gweth.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/gweth.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -630,7 +630,7 @@
     "name": "Microtick on Osmosis",
     "precision": 6,
     "color": "#6CAC14",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/microtick/images/tick.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/microtick/images/tick.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -642,7 +642,7 @@
     "name": "Umee on Osmosis",
     "precision": 6,
     "color": "#C7B0F4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/umee/images/umee.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/umee/images/umee.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -654,7 +654,7 @@
     "name": "MEME on Osmosis",
     "precision": 6,
     "color": "#050405",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/meme/images/meme.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/meme/images/meme.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -666,7 +666,7 @@
     "name": "Evmos on Osmosis",
     "precision": 18,
     "color": "#EC4C34",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/evmos/images/evmos.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/evmos/images/evmos.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -678,7 +678,7 @@
     "name": "MuseDAO on Osmosis",
     "precision": 6,
     "color": "#32255F",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/muse.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/muse.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -690,7 +690,7 @@
     "name": "Racoon on Osmosis",
     "precision": 6,
     "color": "#070F0E",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/rac.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/rac.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -702,7 +702,7 @@
     "name": "Axie Infinity Shard on Osmosis",
     "precision": 18,
     "color": "#DC2454",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/axs.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/axs.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -714,7 +714,7 @@
     "name": "Wrapped AVAX on Osmosis",
     "precision": 18,
     "color": "#EB4444",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/avalanche/images/avax.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/avalanche/images/avax.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -726,7 +726,7 @@
     "name": "Swap on Osmosis",
     "precision": 6,
     "color": "#544CFC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kava/images/swp.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kava/images/swp.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -738,7 +738,7 @@
     "name": "Shade on Osmosis",
     "precision": 8,
     "color": "#332C51",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/shd.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/shd.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -750,7 +750,7 @@
     "name": "Tether USD on Osmosis",
     "precision": 6,
     "color": "#55AC95",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/gusdt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/gusdt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -762,7 +762,7 @@
     "name": "Luna on Osmosis",
     "precision": 6,
     "color": "#F4DE6F",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra2/images/luna.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/terra2/images/luna.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -774,7 +774,7 @@
     "name": "cheqd on Osmosis",
     "precision": 9,
     "color": "#B35524",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cheqd/images/cheq.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/cheqd/images/cheq.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -786,7 +786,7 @@
     "name": "IRISnet on Osmosis",
     "precision": 6,
     "color": "#5664AD",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/irisnet/images/iris.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/irisnet/images/iris.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -798,7 +798,7 @@
     "name": "GKey on Osmosis",
     "precision": 6,
     "color": "#521CAF",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/gkey.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/gkey.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -810,7 +810,7 @@
     "name": "Fanfury on Osmosis",
     "precision": 6,
     "color": "#14045C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/fanfury.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/fanfury.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -822,7 +822,7 @@
     "name": "Shentu on Osmosis",
     "precision": 6,
     "color": "#E4AC4C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/shentu/images/ctk.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/shentu/images/ctk.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -834,7 +834,7 @@
     "name": "pSTAKE Finance on Osmosis",
     "precision": 18,
     "color": "#050505",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/persistence/images/pstake.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/persistence/images/pstake.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -846,7 +846,7 @@
     "name": "Lambda on Osmosis",
     "precision": 18,
     "color": "#E41C54",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/lambda/images/lambda.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/lambda/images/lambda.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -858,7 +858,7 @@
     "name": "Tether USD on Osmosis",
     "precision": 6,
     "color": "#54AB93",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/usdt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/usdt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -870,7 +870,7 @@
     "name": "Sifchain Rowan on Osmosis",
     "precision": 18,
     "color": "#BE9926",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sifchain/images/rowan.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/sifchain/images/rowan.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -882,7 +882,7 @@
     "name": "stJUNO on Osmosis",
     "precision": 6,
     "color": "#E40474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/stjuno.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stride/images/stjuno.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -894,7 +894,7 @@
     "name": "Lum on Osmosis",
     "precision": 6,
     "color": "#080808",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/lumnetwork/images/lum.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/lumnetwork/images/lum.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -906,7 +906,7 @@
     "name": "Jackal on Osmosis",
     "precision": 6,
     "color": "#041536",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/jackal/images/jkl.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/jackal/images/jkl.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -918,7 +918,7 @@
     "name": "Carbon on Osmosis",
     "precision": 8,
     "color": "#A5EDF2",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/carbon/images/swth.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/carbon/images/swth.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -930,7 +930,7 @@
     "name": "Axelar on Osmosis",
     "precision": 6,
     "color": "#050505",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/axl.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/axl.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -942,7 +942,7 @@
     "name": "IMV on Osmosis",
     "precision": 18,
     "color": "#4C54E4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/imversed/images/imversed.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/imversed/images/imversed.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -954,7 +954,7 @@
     "name": "Inter Stable Token on Osmosis",
     "precision": 6,
     "color": "#D485E2",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/agoric/images/ist.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/agoric/images/ist.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -966,7 +966,7 @@
     "name": "Sentinel on Osmosis",
     "precision": 6,
     "color": "#179BF0",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sentinel/images/dvpn.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/sentinel/images/dvpn.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -978,7 +978,7 @@
     "name": "Stargaze on Osmosis",
     "precision": 6,
     "color": "#BCC987",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stargaze/images/stars.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stargaze/images/stars.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -990,7 +990,7 @@
     "name": "LikeCoin on Osmosis",
     "precision": 9,
     "color": "#2D656C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/likecoin/images/like.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/likecoin/images/like.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1002,7 +1002,7 @@
     "name": "SIENNA on Osmosis",
     "precision": 18,
     "color": "#2C2C2C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/sienna.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/sienna.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1014,7 +1014,7 @@
     "name": "GEO on Osmosis",
     "precision": 6,
     "color": "#C3EBF3",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/odin/images/geo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/odin/images/geo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1026,7 +1026,7 @@
     "name": "Somm on Osmosis",
     "precision": 6,
     "color": "#3E2040",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/sommelier/images/somm.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/sommelier/images/somm.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1038,7 +1038,7 @@
     "name": "Decentr on Osmosis",
     "precision": 6,
     "color": "#4678E9",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/decentr/images/dec.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/decentr/images/dec.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1050,7 +1050,7 @@
     "name": "USD Coin on Osmosis",
     "precision": 6,
     "color": "#2473CB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/gusdc.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/gusdc.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1062,7 +1062,7 @@
     "name": "Persistence on Osmosis",
     "precision": 6,
     "color": "#242424",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/persistence/images/xprt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/persistence/images/xprt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1074,7 +1074,7 @@
     "name": "Rebus on Osmosis",
     "precision": 18,
     "color": "#E75486",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/rebus/images/rebus.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/rebus/images/rebus.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1086,7 +1086,7 @@
     "name": "Alter on Osmosis",
     "precision": 6,
     "color": "#694C90",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/alter.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/alter.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1098,7 +1098,7 @@
     "name": "Stride on Osmosis",
     "precision": 6,
     "color": "#E40474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/strd.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stride/images/strd.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1110,7 +1110,7 @@
     "name": "Another.Software Validator Token on Osmosis",
     "precision": 6,
     "color": "#402E5D",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/asvt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/asvt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1122,7 +1122,7 @@
     "name": "Wrapped Matic on Osmosis",
     "precision": 18,
     "color": "#2B96F5",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/polygon/images/matic-purple.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/polygon/images/matic-purple.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1134,7 +1134,7 @@
     "name": "LVN on Osmosis",
     "precision": 6,
     "color": "#683480",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kichain/images/lvn.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kichain/images/lvn.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1146,7 +1146,7 @@
     "name": "Uniswap on Osmosis",
     "precision": 18,
     "color": "#24CCDC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/uni.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/uni.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1158,7 +1158,7 @@
     "name": "Planq on Osmosis",
     "precision": 18,
     "color": "#D4F3FB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/planq/images/planq.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/planq/images/planq.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1170,7 +1170,7 @@
     "name": "Ki on Osmosis",
     "precision": 6,
     "color": "#1C04FC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kichain/images/xki.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kichain/images/xki.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1182,7 +1182,7 @@
     "name": "Chain on Osmosis",
     "precision": 18,
     "color": "#74DC24",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/xcn.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/xcn.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1194,7 +1194,7 @@
     "name": "Nom on Osmosis",
     "precision": 18,
     "color": "#1C1C27",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/onomy/images/nom.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/onomy/images/nom.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1206,7 +1206,7 @@
     "name": "Chihuahua on Osmosis",
     "precision": 6,
     "color": "#343434",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/chihuahua/images/huahua.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/chihuahua/images/huahua.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1218,7 +1218,7 @@
     "name": "Kuji on Osmosis",
     "precision": 6,
     "color": "#24242C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kujira/images/kuji.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kujira/images/kuji.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1230,7 +1230,7 @@
     "name": "Acre on Osmosis",
     "precision": 18,
     "color": "#4AA39E",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/acrechain/images/acre.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/acrechain/images/acre.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1242,7 +1242,7 @@
     "name": "Rai Reflex Index on Osmosis",
     "precision": 18,
     "color": "#DC2474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/rai.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/rai.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1254,7 +1254,7 @@
     "name": "TerraClassicUSD on Osmosis",
     "precision": 6,
     "color": "#5492F2",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/ust.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/terra/images/ust.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1266,7 +1266,7 @@
     "name": "stATOM on Osmosis",
     "precision": 6,
     "color": "#E40474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/statom.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stride/images/statom.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1278,7 +1278,7 @@
     "name": "Hope Galaxy on Osmosis",
     "precision": 6,
     "color": "#E2877E",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/hope.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/hope.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1290,7 +1290,7 @@
     "name": "StakeEasy bJUNO on Osmosis",
     "precision": 6,
     "color": "#254454",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/bjuno.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/bjuno.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1302,7 +1302,7 @@
     "name": "ODIN on Osmosis",
     "precision": 6,
     "color": "#FFFFFF",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/odin/images/odin.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/odin/images/odin.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1314,7 +1314,7 @@
     "name": "Solarbank DAO on Osmosis",
     "precision": 6,
     "color": "#1C1C1B",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/solar.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/solar.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1326,7 +1326,7 @@
     "name": "StakeEasy seJUNO on Osmosis",
     "precision": 6,
     "color": "#223240",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/sejuno.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/sejuno.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1338,7 +1338,7 @@
     "name": "USDX on Osmosis",
     "precision": 6,
     "color": "#04D4A3",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kava/images/usdx.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kava/images/usdx.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1350,7 +1350,7 @@
     "name": "BeeZee on Osmosis",
     "precision": 6,
     "color": "#079FD7",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/beezee/images/bze.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/beezee/images/bze.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1362,7 +1362,7 @@
     "name": "Wrapped Bitcoin on Osmosis",
     "precision": 8,
     "color": "#253375",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/gwbtc.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/gwbtc.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1374,7 +1374,7 @@
     "name": "PSTAKE staked ATOM on Osmosis",
     "precision": 6,
     "color": "#181E2A",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/persistence/images/stkatom.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/persistence/images/stkatom.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1386,7 +1386,7 @@
     "name": "AssetMantle on Osmosis",
     "precision": 6,
     "color": "#ECB448",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/assetmantle/images/mntl.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/assetmantle/images/mntl.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1398,7 +1398,7 @@
     "name": "Hash on Osmosis",
     "precision": 9,
     "color": "#3C84F4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/provenance/images/hash.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/provenance/images/hash.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1410,7 +1410,7 @@
     "name": "SCRT Staking Derivatives on Osmosis",
     "precision": 6,
     "color": "#BC9EF0",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/stkd-scrt.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/secretnetwork/images/stkd-scrt.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1422,7 +1422,7 @@
     "name": "Wrapped Bitcoin on Osmosis",
     "precision": 8,
     "color": "#2C2734",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/wbtc.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/wbtc.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1434,7 +1434,7 @@
     "name": "stOSMO on Osmosis",
     "precision": 6,
     "color": "#E40474",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/stosmo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/stride/images/stosmo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1446,7 +1446,7 @@
     "name": "USD Coin on Osmosis",
     "precision": 6,
     "color": "#2473CB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/axelar/images/usdc.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/axelar/images/usdc.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1458,7 +1458,7 @@
     "name": "Maker on Osmosis",
     "precision": 18,
     "color": "#246CDC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/mkr.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/mkr.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1470,7 +1470,7 @@
     "name": "Chainlink on Osmosis",
     "precision": 18,
     "color": "#2B5BDB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/link.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/link.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1482,7 +1482,7 @@
     "name": "HOPERS on Osmosis",
     "precision": 6,
     "color": "#04E494",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/hopers.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/hopers.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1494,7 +1494,7 @@
     "name": "POSTHUMAN on Osmosis",
     "precision": 6,
     "color": "#BCC2C6",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/phmn.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/phmn.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1506,7 +1506,7 @@
     "name": "Hard on Osmosis",
     "precision": 6,
     "color": "#D7C5E9",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/kava/images/hard.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/kava/images/hard.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1518,7 +1518,7 @@
     "name": "BitCanna on Osmosis",
     "precision": 6,
     "color": "#3CC494",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bitcanna/images/bcna.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/bitcanna/images/bcna.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1530,7 +1530,7 @@
     "name": "Block on Osmosis",
     "precision": 6,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/block.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/block.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1542,7 +1542,7 @@
     "name": "Cudos on Osmosis",
     "precision": 18,
     "color": "#5D95EC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cudos/images/cudos.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/cudos/images/cudos.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1554,7 +1554,7 @@
     "name": "Dys on Osmosis",
     "precision": 6,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/dyson/images/dys.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/dyson/images/dys.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1566,7 +1566,7 @@
     "name": "Cronos on Osmosis",
     "precision": 8,
     "color": "#143C6C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/cronos/images/cronos.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/cronos/images/cronos.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1578,7 +1578,7 @@
     "name": "Vidulum on Osmosis",
     "precision": 6,
     "color": "#3454BC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/vidulum/images/vdl.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/vidulum/images/vdl.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1590,7 +1590,7 @@
     "name": "Graviton on Osmosis",
     "precision": 6,
     "color": "#042CA4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/grav.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/grav.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1602,7 +1602,7 @@
     "name": "Wrapped Ether on Osmosis",
     "precision": 18,
     "color": "#2B2732",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/eth-white.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/eth-white.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1614,7 +1614,7 @@
     "name": "Comdex on Osmosis",
     "precision": 6,
     "color": "#E91C3C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/comdex/images/cmdx.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/comdex/images/cmdx.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1626,7 +1626,7 @@
     "name": "Desmos on Osmosis",
     "precision": 6,
     "color": "#FB804E",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/desmos/images/dsm.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/desmos/images/dsm.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1638,7 +1638,7 @@
     "name": "Teritori on Osmosis",
     "precision": 6,
     "color": "#42B9F3",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/teritori/images/utori.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/teritori/images/utori.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1650,7 +1650,7 @@
     "name": "GenesisL1 on Osmosis",
     "precision": 18,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/genesisl1/images/l1.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/genesisl1/images/l1.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1662,7 +1662,7 @@
     "name": "Dai Stablecoin on Osmosis",
     "precision": 18,
     "color": "#F4AC36",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/gravitybridge/images/gdai.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/gravitybridge/images/gdai.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1674,7 +1674,7 @@
     "name": "IXO on Osmosis",
     "precision": 6,
     "color": "#2C4484",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/impacthub/images/ixo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/impacthub/images/ixo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1686,7 +1686,7 @@
     "name": "Galaxy on Osmosis",
     "precision": 6,
     "color": "#5E3BE6",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/galaxy/images/glx.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/galaxy/images/glx.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1698,7 +1698,7 @@
     "name": "Wrapped BNB on Osmosis",
     "precision": 18,
     "color": "#F3BC0C",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/binancesmartchain/images/wbnb.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/binancesmartchain/images/wbnb.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1710,7 +1710,7 @@
     "name": "Marble on Osmosis",
     "precision": 3,
     "color": "#040404",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/marble.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/juno/images/marble.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1722,7 +1722,7 @@
     "name": "ApeCoin on Osmosis",
     "precision": 18,
     "color": "#3C24DC",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/_non-cosmos/ethereum/images/ape.svg",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/_non-cosmos/ethereum/images/ape.svg",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1734,7 +1734,7 @@
     "name": "Band Protocol on Osmosis",
     "precision": 6,
     "color": "#4424E4",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bandchain/images/band.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/bandchain/images/band.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1746,7 +1746,7 @@
     "name": "Bostrom on Osmosis",
     "precision": 6,
     "color": "#06AB06",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/bostrom/images/boot.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/bostrom/images/boot.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -1758,7 +1758,7 @@
     "name": "LUMEN on Osmosis",
     "precision": 6,
     "color": "#D8AA77",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/lumenx/images/lumen.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/lumenx/images/lumen.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -3186,7 +3186,7 @@
     "name": "Ion",
     "precision": 6,
     "color": "#4453C7",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/ion.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/osmosis/images/ion.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -3198,7 +3198,7 @@
     "name": "Osmosis",
     "precision": 6,
     "color": "#750BBB",
-    "icon": "https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png",
+    "icon": "https://rawcdn.githack.com/cosmos/chain-registry/3daa874bec573a4628abf84a7bd6f062ca67ee31/osmosis/images/osmo.png",
     "explorer": "https://www.mintscan.io/osmosis",
     "explorerAddressLink": "https://www.mintscan.io/osmosis/account/",
     "explorerTxLink": "https://www.mintscan.io/osmosis/txs/"
@@ -28439,7 +28439,7 @@
     "chainId": "eip155:1",
     "name": "inheritance Art",
     "precision": 18,
-    "color": "#F3F1EB",
+    "color": "#F6F6F1",
     "icon": "https://assets.coingecko.com/coins/images/24221/thumb/iAI.jpg?1646919582",
     "symbol": "IAI",
     "explorer": "https://etherscan.io",

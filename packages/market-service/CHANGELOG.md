@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.3.0...@shapeshiftoss/market-service-v7.4.0) (2023-01-23)
+
+
+### Features
+
+* disable Yearn in market-service / unchained-client ([#1174](https://github.com/shapeshift/lib/issues/1174)) ([6551bc1](https://github.com/shapeshift/lib/commit/6551bc106327c6b6f965b443aab6959a4d943f6e))
+
 # [@shapeshiftoss/market-service-v7.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.2.2...@shapeshiftoss/market-service-v7.3.0) (2023-01-13)
 
 

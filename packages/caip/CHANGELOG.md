@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.9.0...@shapeshiftoss/caip-v8.10.0) (2023-01-23)
+
+
+### Features
+
+* **chain-adapters:** return token balances from cosmossdk getaccount method ([#1176](https://github.com/shapeshift/lib/issues/1176)) ([45ac971](https://github.com/shapeshift/lib/commit/45ac9715a4b9cfbd16fca899704bac6d70c2e530))
+
 # [@shapeshiftoss/caip-v8.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.8.0...@shapeshiftoss/caip-v8.9.0) (2023-01-17)
 
 

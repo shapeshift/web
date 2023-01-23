@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.9.0...@shapeshiftoss/unchained-client-v10.10.0) (2023-01-23)
+
+
+### Features
+
+* disable Yearn in market-service / unchained-client ([#1174](https://github.com/shapeshift/lib/issues/1174)) ([6551bc1](https://github.com/shapeshift/lib/commit/6551bc106327c6b6f965b443aab6959a4d943f6e))
+
 # [@shapeshiftoss/unchained-client-v10.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.8.0...@shapeshiftoss/unchained-client-v10.9.0) (2023-01-13)
 
 

@@ -258,6 +258,9 @@ export const Deposit: React.FC<DepositProps> = ({
     [cryptoAmountAvailable, marketData?.price],
   )
 
+  const handlePercentClick = (percent: number) => {
+    console.log('todo', percent)
+  }
   const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,
@@ -288,6 +291,7 @@ export const Deposit: React.FC<DepositProps> = ({
       }}
       marketData={marketData}
       onCancel={handleCancel}
+      onPercentClick={handlePercentClick}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

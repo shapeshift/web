@@ -11,6 +11,7 @@ type ThorchainSaversWithdrawValues = WithdrawValues &
     usedGasFee: string
     dustAmountCryptoBaseUnit: string
     withdrawFeeCryptoBaseUnit: string
+    maybeFromUTXOAccountAddress: string
   }
 
 export type ThorchainSaversWithdrawState = {

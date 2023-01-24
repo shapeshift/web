@@ -4344,10 +4344,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
-"@shapeshiftoss/market-service@^7.3.0":
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.3.0.tgz#4288a95fe92ae35a9542a1aa4159e59bc76113b4"
-  integrity sha512-FwJ45fhrZpx9TgcmQ/Yizq0J3XxUYdoGFiK0lUvMXuAM3BBy32Sx5qIHnrUu+iIsB8VOkMCkb8cGWBPayxMueg==
+"@shapeshiftoss/market-service@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.4.0.tgz#c0dbf91f3cca1e40dcbedbb6783161023b013405"
+  integrity sha512-BJJ3FWiixi2epx194gBID65hRrb0tq6UsokT9oQ9mTdGwZpSO7nJo/VCm+/lHgrpgpX6MkJ4fCsdJVkljUKLlQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.2.0"
@@ -4392,12 +4392,13 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-8.5.0.tgz#5724f54f40c2e90e093a2d9b11cd44391288fe1c"
   integrity sha512-Uw3DWBbVC+/xjugbh3JrawTtrZCgHNxVfg+vE/bx+AiKPJkDCYTN6iXtASnV+9eM07eu9jrpfQyXNN43eTbYwA==
 
-"@shapeshiftoss/unchained-client@^10.9.0":
-  version "10.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.9.0.tgz#29aa40bb512395dd726919dd58eb2ebd209c2c2b"
-  integrity sha512-TRaP/51CwyyGNcjV5ww5Ho5wBsn4y6DvHw9J7iR9ghSmSvGZ4g8JKvlCCQQlUdmEFkhH4oK1caTHmoS1B8EaGA==
+"@shapeshiftoss/unchained-client@^10.10.0":
+  version "10.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-10.10.0.tgz#cf7f1bbf4892b0fe8f9363f4db521f0f9ee41720"
+  integrity sha512-XrhFBOc/C5gWPN/FXHneN0C47MONkYVf/Fy2z2pEzZThU8jKJ4k+L/2u4gy7cpUxywPJGd4Sg4mI7jzdXFqjEA==
   dependencies:
     "@yfi/sdk" "^1.2.0"
+    axios "^0.26.1"
     bignumber.js "^9.0.2"
     ethers "^5.5.3"
     isomorphic-ws "^4.0.1"
@@ -10242,9 +10243,9 @@ cookie@^0.4.1:
   integrity sha512-ZwrFkGJxUR3EIoXtO+yVE69Eb7KlixbaeAWfBQB9vVsNn/o+Yw69gBWSSDK825hQNdN+wF8zELf3dFNl/kxkUA==
 
 cookiejar@^2.1.1:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/cookiejar/-/cookiejar-2.1.3.tgz#fc7a6216e408e74414b90230050842dacda75acc"
-  integrity sha512-JxbCBUdrfr6AQjOXrxoTvAMJO4HBTUIlBzslcJPAz+/KT8yk53fXun51u+RenNYvad/+Vc2DIz5o9UxlCDymFQ==
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/cookiejar/-/cookiejar-2.1.4.tgz#ee669c1fea2cf42dc31585469d193fef0d65771b"
+  integrity sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==
 
 copy-concurrently@^1.0.0:
   version "1.0.5"

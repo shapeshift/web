@@ -199,7 +199,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           }
 
           const sendInput: SendInput = {
-            cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision ?? state.deposit.cryptoAmount,
+            cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
             asset,
             to: quote.inbound_address,
             from: maybeFromUTXOAccountAddress,
@@ -399,6 +399,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: {
           depositFeeCryptoBaseUnit,
+          maybeFromUTXOAccountAddress,
         },
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
@@ -430,6 +431,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getDepositInput,
     handleMultiTxSend,
     depositFeeCryptoBaseUnit,
+    maybeFromUTXOAccountAddress,
     onNext,
     toast,
     translate,

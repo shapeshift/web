@@ -92,16 +92,8 @@ export const Waterman = () => {
       {
         addressType: BTCOutputAddressType.Spend,
         address: validReceiveAddress, // where we actually want it to go
-        amount: affectedBalance,
+        amount: 'TODO', // affected amount - fee (miner keep different between sum of inputs and sum of outputs)
       },
-      {
-        addressType: BTCOutputAddressType.Change,
-        amount: '0',
-        addressNList: outputAddressNList,
-        scriptType: BTCOutputScriptType.PayToWitness, // https://github.com/shapeshift/lib/blob/main/packages/chain-adapters/src/utils/utxoUtils.ts#L140
-        isChange: true,
-      },
-      // TODO(0xdef1cafe): make change output the same as the spend output per kev
     ]
     const coin = 'Bitcoin' // required by hdwallet
 
@@ -109,6 +101,10 @@ export const Waterman = () => {
 
     const txToSign: BTCSignTx = { coin, inputs, outputs, opReturnData }
     console.log({ txToSign })
+
+    // TODO(0xdef1cafe): render tx to user for confirmation
+
+    // TODO(0xdef1cafe): test this ourselves by getting doggy coin stuck on thorchain bip44 path
 
     const signedTx = await bitcoinChainAdapter.signTransaction({ txToSign, wallet })
     console.log({ signedTx })

@@ -79,15 +79,8 @@ export const Waterman = () => {
       },
     ]
 
-    const validOutputBip44Params = bitcoinChainAdapter.getBIP44Params({
-      accountNumber,
-      accountType,
-    })
+    // no change address in outputs - so no need to specific addressNList!
 
-    // TODO(0xdef1cafe): index?
-    const outputAddressNList = bip32ToAddressNList(
-      toPath({ ...validOutputBip44Params, isChange: true }),
-    )
     const outputs: BTCSignTxOutput[] = [
       {
         addressType: BTCOutputAddressType.Spend,

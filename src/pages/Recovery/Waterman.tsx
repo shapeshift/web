@@ -63,6 +63,7 @@ export const Waterman = () => {
 
     // original bad txid https://blockchair.com/bitcoin/transaction/2267f89589c7ce8c9be466658b021f998391856d66864fd951485c09d51d9d95
     // hex obtained via unchained https://api.bitcoin.shapeshift.com/api/v1/tx/2267f89589c7ce8c9be466658b021f998391856d66864fd951485c09d51d9d95/raw
+    const originalVout = 0 // obtained and confirmed via tx link above ^^^
 
     const originalBadTxHex =
       '01000000000101378789b74a220101e33f58ca29f4bc3e110d605e0de0f8f3e703422c3dd7dc2e0100000000ffffffff03112cf901000000001600142dc476feb7b8b59ff8685aa8be787982ea4ee0153614584d05000000160014fb302e192fee2372915f553d59303c619b0906560000000000000000466a444f55543a424630413034354132443634344131413543363946323636304239373042303530393238363746314537394131463235303335453337323744434435433643460247304402205db90ad90f7b0017bbcdd4a3f3dcf49e8dc0083aff1e4270ce879cbc1a1c52f002202a12b9e98095b5810b1313dba1a7a331f6bd8b4ee07ec43674cebeb9a5852cbb0121026fbfb85de0351983cd9a86fc5eb97e83fdcee13d958acd0cfd1d0236c71f016700000000'
@@ -72,7 +73,7 @@ export const Waterman = () => {
       {
         addressNList: inputAddressNList,
         scriptType: BTCInputScriptType.SpendWitness,
-        vout: 0,
+        vout: originalVout,
         txid: originalBadTxId,
         hex: originalBadTxHex,
         amount: affectedBalance,

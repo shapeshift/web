@@ -235,7 +235,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         balanceCryptoPrecision.gt(0) &&
         valueCryptoPrecision.gt(0) &&
         balanceCryptoPrecision.gte(valueCryptoPrecision)
-      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lte(0)
+      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
 
       if (isBelowWithdrawThreshold) {
         const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
@@ -271,7 +271,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         .div(assetMarketData.price)
         .times(bn(10).pow(asset.precision))
 
-      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lte(0)
+      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
 
       if (isBelowWithdrawThreshold) {
         const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(

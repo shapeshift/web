@@ -121,7 +121,7 @@ export const Deposit: React.FC<DepositProps> = ({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
             chainSpecific: { pubkey: userAddress, from: '' },
-            sendMax: false,
+            sendMax: Boolean(state?.deposit.sendMax),
           })
         ).fast.txFee
 
@@ -258,11 +258,21 @@ export const Deposit: React.FC<DepositProps> = ({
     [cryptoAmountAvailable, marketData?.price],
   )
 
-  const handlePercentClick = (percent: number) => {
-    if (percent === 1) {
-      // TODO: set sendMax in state
-    }
-  }
+  const handleSendMax = useCallback(
+    (isSendMax?: boolean) => {
+      if (!contextDispatch) return
+
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: { sendMax: Boolean(isSendMax) },
+      })
+    },
+    [contextDispatch],
+  )
+  const handlePercentClick = useCallback(
+    (percent: number) => handleSendMax(percent === 1),
+    [handleSendMax],
+  )
   const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,

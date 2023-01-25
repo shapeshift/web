@@ -259,7 +259,9 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const handlePercentClick = (percent: number) => {
-    console.log('todo', percent)
+    if (percent === 1) {
+      // TODO: set sendMax in state
+    }
   }
   const handleBack = useCallback(() => {
     history.push({

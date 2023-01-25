@@ -262,14 +262,39 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateFiatAmount = useCallback(
     (value: string) => {
+      if (!outboundFeeCryptoBaseUnit) return false
       const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+
       const fiat = crypto.times(assetMarketData.price)
-      const _value = bnOrZero(value)
-      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-      if (_value.isEqualTo(0)) return ''
+      const valueCryptoPrecision = bnOrZero(value)
+      const valueCryptoBaseUnit = bnOrZero(value)
+        .div(assetMarketData.price)
+        .times(bn(10).pow(asset.precision))
+
+      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lte(0)
+
+      if (isBelowWithdrawThreshold) {
+        const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+          bn(10).pow(asset.precision),
+        )
+        const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+        return translate('trade.errors.amountTooSmall', {
+          minLimit,
+        })
+      }
+
+      const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
+      if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [amountAvailableCryptoPrecision, assetMarketData],
+    [
+      amountAvailableCryptoPrecision,
+      asset.precision,
+      asset.symbol,
+      assetMarketData.price,
+      outboundFeeCryptoBaseUnit,
+      translate,
+    ],
   )
 
   if (!state) return null

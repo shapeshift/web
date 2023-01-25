@@ -155,11 +155,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
       to: quote.inbound_address,
-      sendMax: Boolean(state?.deposit.sendMax),
+      sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
     }
-  }, [accountId, asset, state?.deposit.cryptoAmount, state?.deposit.sendMax])
+  }, [accountId, asset, chainId, state?.deposit.cryptoAmount, state?.deposit.sendMax])
 
   const getDepositInput: (params: { isRetry: boolean }) => Promise<SendInput | undefined> =
     useCallback(
@@ -203,7 +203,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             asset,
             to: quote.inbound_address,
             from: maybeFromUTXOAccountAddress,
-            sendMax: Boolean(state?.deposit.sendMax),
+            sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
             accountId,
             amountFieldError: '',
             cryptoSymbol: asset.symbol,

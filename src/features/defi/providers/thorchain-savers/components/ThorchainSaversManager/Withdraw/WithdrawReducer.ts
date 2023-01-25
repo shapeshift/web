@@ -15,6 +15,7 @@ export const initialState: ThorchainSaversWithdrawState = {
     usedGasFee: '',
     dustAmountCryptoBaseUnit: '',
     withdrawFeeCryptoBaseUnit: '',
+    maybeFromUTXOAccountAddress: '',
   },
 }
 

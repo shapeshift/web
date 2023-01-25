@@ -1,6 +1,5 @@
 import { Box, IconButton, useColorMode } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import type { ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
+import type { BIP32Path, ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { CustomTheme } from '@wherever/react-notification-feed'
 import {
@@ -10,13 +9,10 @@ import {
   ThemeMode,
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { breakpoints, theme } from 'theme/theme'
 
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native]
@@ -25,21 +21,14 @@ export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
-    state: { wallet },
+    state: { wallet, type },
   } = useWallet()
 
-  const walletAccountIds = useSelector(selectWalletAccountIds)
-
-  const ethFullAccount = walletAccountIds.find(accountId => {
-    const fullAccount = fromAccountId(accountId)
-    return fullAccount.chainId === 'eip155:1'
-  })
-
-  const ethAddress = ethFullAccount ? fromAccountId(ethFullAccount).account : ''
+  const [addressNList, setAddressNList] = useState<BIP32Path>()
+  const [ethAddress, setEthAddress] = useState<string | null>()
 
   const disableAnalytics = window.location.href.includes('private.shapeshift.com')
   const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
-  const currentWallet = getLocalWalletType()
   const mobileBreakpoint = Number(breakpoints.md.replace('px', ''))
 
   const themeObj: CustomTheme = useMemo(() => {
@@ -62,37 +51,60 @@ export const Notifications = () => {
     }
   }, [colorMode, mobileBreakpoint])
 
+  useEffect(() => {
+    if (!wallet || !supportsETH(wallet)) return
+    ;(async () => {
+      const { addressNList } = wallet.ethGetAccountPaths({
+        coin: 'Ethereum',
+        accountIdx: 0,
+      })[0]
+
+      const ethAddress = await wallet.ethGetAddress({ addressNList })
+
+      setEthAddress(ethAddress)
+      setAddressNList(addressNList)
+    })()
+  }, [wallet])
+
+  const signMessage = useCallback(
+    async (message: string) => {
+      if (!addressNList || !wallet || !supportsETH(wallet)) {
+        return
+      }
+
+      const signedMsg = await wallet.ethSignMessage({
+        addressNList,
+        message,
+      })
+
+      return signedMsg?.signature
+    },
+    [wallet, addressNList],
+  )
+
+  const signTypedData = useCallback(
+    async (typedData: ETHSignTypedData['typedData']) => {
+      if (!addressNList || !wallet || !supportsETH(wallet)) {
+        return
+      }
+
+      const signedMsg = await wallet.ethSignTypedData?.({
+        addressNList,
+        typedData,
+      })
+
+      return signedMsg?.signature
+    },
+    [wallet, addressNList],
+  )
+
   if (
     !isWhereverEnabled ||
-    !currentWallet ||
-    !eip712SupportedWallets.includes(currentWallet) ||
     !wallet ||
+    !eip712SupportedWallets.includes(type as KeyManager) ||
     !supportsETH(wallet)
   )
     return null
-
-  const { addressNList } = wallet.ethGetAccountPaths({
-    coin: 'Ethereum',
-    accountIdx: 0,
-  })[0]
-
-  const signMessage = async (message: string) => {
-    const signedMsg = await wallet.ethSignMessage({
-      addressNList,
-      message,
-    })
-
-    return signedMsg?.signature
-  }
-
-  const signTypedData = async (typedData: ETHSignTypedData['typedData']) => {
-    const signedMsg = await wallet.ethSignTypedData?.({
-      addressNList,
-      typedData,
-    })
-
-    return signedMsg?.signature
-  }
 
   return (
     <Box>

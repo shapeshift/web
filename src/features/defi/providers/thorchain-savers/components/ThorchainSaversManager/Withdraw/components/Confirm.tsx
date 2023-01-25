@@ -452,11 +452,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter &&
-          maybeFromUTXOAccountAddress
+          chainAdapter
         )
       )
         return
+
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) return
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
@@ -523,6 +524,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    chainId,
     maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
     expiry,

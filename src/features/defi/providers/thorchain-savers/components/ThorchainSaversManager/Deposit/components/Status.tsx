@@ -43,7 +43,7 @@ export const Status = () => {
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const userAddress = useMemo(
-    () => state?.deposit.maybeFromUTXOAccountAddress ?? accountAddress,
+    () => state?.deposit.maybeFromUTXOAccountAddress || accountAddress,
     [accountAddress, state?.deposit.maybeFromUTXOAccountAddress],
   )
 

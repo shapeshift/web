@@ -107,8 +107,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   )
 
   const getOutboundFeeCryptoBaseUnit = useCallback(async () => {
-    if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit)) return
-
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
     const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
 
@@ -119,7 +117,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
 
     return outboundFeeCryptoBaseUnit
-  }, [accountId, asset.precision, assetId, opportunityData?.stakedAmountCryptoBaseUnit])
+  }, [asset.precision, assetId])
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {

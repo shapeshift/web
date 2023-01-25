@@ -142,7 +142,17 @@ export const Deposit: React.FC<DepositProps> = ({
         })
       }
     },
-    [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
+    [
+      userAddress,
+      assetReference,
+      accountId,
+      opportunityData,
+      asset,
+      chainId,
+      state?.deposit.sendMax,
+      toast,
+      translate,
+    ],
   )
 
   const handleContinue = useCallback(

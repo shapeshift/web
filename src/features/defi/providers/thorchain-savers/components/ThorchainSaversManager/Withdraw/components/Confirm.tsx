@@ -430,13 +430,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return handleSend({
         sendInput: preWithdrawInput,
         wallet: walletState.wallet!,
-      }).then(() =>
+      }).then(async () => {
+        // Safety factor for the Tx to be seen in the mempool
+        await new Promise(resolve => setTimeout(resolve, 5000))
         // 3. Sign and broadcast the depooosit Tx again
-        handleSend({
+        return handleSend({
           sendInput: withdrawInput,
           wallet: walletState.wallet!,
-        }),
-      )
+        })
+      })
     })
 
     return txId

@@ -48,6 +48,65 @@ export const TableStyle = {
   },
   // Styles for the visual style variations
   variants: {
+    default: (props: Record<string, any>) => {
+      return {
+        thead: {
+          tr: {
+            bg: mode('gray.100', 'gray.785')(props),
+            'th:first-of-type': {
+              borderTopLeftRadius: 'xl',
+            },
+            'th:last-of-type': {
+              borderTopRightRadius: 'xl',
+            },
+          },
+        },
+        tbody: {
+          tr: {
+            borderRadius: '0',
+            _focus: {
+              boxShadow: 'outline-inset',
+            },
+            _disabled: {
+              opacity: 0.4,
+              cursor: 'not-allowed',
+              boxShadow: 'none',
+              pointerEvents: 'none',
+            },
+            _hover: {
+              color: mode('inherit', 'whiteAlpha.800')(props),
+              bg: mode('gray.100', 'gray.750')(props),
+              textDecoration: 'none',
+              _disabled: {
+                bg: 'initial',
+              },
+            },
+            bg: mode('gray.100', 'gray.785')(props),
+            ':last-of-type td:first-of-type': {
+              borderBottomLeftRadius: 'xl',
+            },
+            ':last-of-type td:last-of-type': {
+              borderBottomRightRadius: 'xl',
+            },
+            td: {
+              borderTop: '1px',
+              borderColor: mode('gray.200', 'gray.750')(props),
+              fontWeight: 'medium',
+            },
+          },
+          'tr.expanded-details': {
+            bg: mode('gray.100', 'gray.785')(props),
+            _hover: {
+              bg: mode('gray.100', 'gray.785')(props),
+              color: 'inherit',
+            },
+          },
+          'tr.expanded td': {
+            bg: mode('gray.200', 'blackAlpha.400')(props),
+          },
+        },
+      }
+    },
     clickable: (props: Record<string, any>) => {
       return {
         tbody: {

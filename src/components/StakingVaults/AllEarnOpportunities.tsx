@@ -26,6 +26,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { PositionTable } from './PositionTable'
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
@@ -128,6 +129,7 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={0}>
+        <PositionTable />
         <StakingTable data={filteredRows} onClick={handleClick} />
       </Card.Body>
     </Card>

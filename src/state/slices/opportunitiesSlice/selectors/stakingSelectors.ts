@@ -2,9 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
-import chain from 'lodash/chain'
 import pickBy from 'lodash/pickBy'
-import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -22,8 +20,6 @@ import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../comm
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type {
-  GroupedEligibleOpportunityReturnType,
-  OpportunityId,
   OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
@@ -442,27 +438,6 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
     return eligibleOpportunities
   },
 )
-
-export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
-  createDeepEqualOutputSelector(
-    selectAggregatedEarnUserStakingEligibleOpportunities,
-    (userOpportunities): GroupedEligibleOpportunityReturnType[] => {
-      const eligibleOpportunitiesGroupedByUnderlyingAssetIds = chain(userOpportunities)
-        .groupBy('underlyingAssetIds')
-        .map(values => {
-          const netApy = sumBy(values, o => bn(o.apy).toNumber())
-          const opportunityIds: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
-          const underlyingAssetIds = values[0].underlyingAssetIds
-          return {
-            underlyingAssetIds,
-            netApy,
-            opportunityIds,
-          }
-        })
-        .value()
-      return eligibleOpportunitiesGroupedByUnderlyingAssetIds
-    },
-  )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
 export const selectHighestBalanceAccountIdByStakingId = createSelector(

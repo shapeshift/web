@@ -143,9 +143,13 @@ export type LpEarnOpportunityType = OpportunityMetadata & {
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type GroupedEligibleOpportunityReturnType = {
+  assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  opportunityIds: OpportunityId[]
   netApy: number
+  balance: number
+  cryptoBalance: number
+  rewards: number
+  opportunities: Record<DefiType, OpportunityId[]>
 }
 
 export type TagDescription = {

@@ -35,6 +35,7 @@ type DepositProps = {
   // Asset market data
   marketData: MarketData
   onAccountIdChange?: AccountDropdownProps['onChange']
+  onPercentClick?: (percent: number) => void
   onMaxClick?: (setValue: UseFormSetValue<DepositValues>) => Promise<void>
   // Array of the % options
   percentOptions: number[]
@@ -76,6 +77,7 @@ export const Deposit = ({
   onAccountIdChange: handleAccountIdChange,
   onContinue,
   onMaxClick,
+  onPercentClick,
   percentOptions,
   inputIcons,
   rewardAsset,
@@ -132,6 +134,7 @@ export const Deposit = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
+      if (onPercentClick) onPercentClick(percent)
       // The human crypto amount as a result of amount * percentage / 100, possibly with too many digits
       const percentageCryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent)
       const percentageFiatAmount = percentageCryptoAmount.times(marketData.price)
@@ -147,7 +150,7 @@ export const Deposit = ({
         shouldValidate: true,
       })
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, setValue],
+    [asset.precision, cryptoAmountAvailable, marketData.price, onPercentClick, setValue],
   )
 
   const onSubmit = (values: DepositValues) => {

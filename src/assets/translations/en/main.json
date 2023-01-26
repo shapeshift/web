@@ -162,6 +162,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -608,6 +609,7 @@
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
       "dexTradeFailed": "Trade Failed, Tokens Returned",
       "quoteFailed": "An error occurred getting a quote for your trade.",
+      "quoteExpired": "Quote expired, try again.",
       "failedQuoteExecuted": "Cannot execute a failed quote",
       "sellAssetRequired": "Cannot execute a quote without an asset to sell",
       "sellAmountRequired": "Cannot execute a quote without an amount to sell",
@@ -1512,6 +1514,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Unsupported Chain",
+        "description": "ShapeShift currently only supports %{supportedChainNames} with WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Connect dApp",
+        "connectedDapp": "Connected dApp",
+        "menu": {
+          "disconnect": "Disconnect",
+          "address": "Address",
+          "connected": "Connected",
+          "network": "Network",
+          "unsupportedNetwork": "Unsupported Network"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1521,9 +1538,20 @@
           "message": "Message",
           "description": "You will need to confirm signing this message with your connected wallet.",
           "confirm": "Confirm",
-          "reject": "Reject"
+          "reject": "Reject",
+          "messageData": "Message data",
+          "domain": "Domain"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Sending From",
+          "sendingTo": "Sending To",
+          "interactingWith": "Interacting With",
+          "amount": "Amount",
+          "contractInteraction": {
+            "title": "Contract Interaction",
+            "sendingEth": "Sending ETH",
+            "data": "Raw Data (hex encoded)"
+          },
           "advancedParameters": {
             "title": "Advanced Parameters",
             "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
@@ -1537,7 +1565,19 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          }
+          },
+          "estGasCost": "Est. Gas Cost",
+          "description": "You're about to create a transaction and will have to confirm it with your currently connected wallet."
+        },
+        "signTransaction": {
+          "description": "You're about to sign a transaction and will have to confirm it with your currently connected wallet."
+        },
+        "connect": {
+          "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
+          "howTo": "How to connect to a dApp?",
+          "linkPlaceholder": "QR code or connection link",
+          "connect": "Connect",
+          "connectionError": "Can't connect to provided URI."
         }
       },
       "registry": {

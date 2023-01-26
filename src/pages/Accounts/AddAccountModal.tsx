@@ -33,6 +33,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
@@ -91,14 +92,18 @@ export const AddAccountModal = () => {
 
   const menuOptions = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
-    return chainIds.map(chainId => {
-      const assetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
-      const asset = assetId ? assets[assetId] : undefined
-      if (!asset) return null
-      const key = chainId
-      const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
-      return <ChainOption {...chainOptionsProps} />
-    })
+    return chainIds
+      .map(chainId => {
+        const chainAdapter = chainAdapterManager.get(chainId)
+        if (!chainAdapter) return null
+        const assetId = chainAdapter.getFeeAssetId()
+        const asset = assets?.[assetId]
+        if (!asset) return null
+        const key = chainId
+        const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
+        return <ChainOption {...chainOptionsProps} />
+      })
+      .filter(isSome)
   }, [assets, chainIds])
 
   const asset = useMemo(() => {

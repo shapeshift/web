@@ -38,6 +38,7 @@ export type FeePrice = {
   [key in FeeDataKey]: {
     fiatFee: string
     txFee: string
+    gasPriceGwei?: string
   }
 }
 

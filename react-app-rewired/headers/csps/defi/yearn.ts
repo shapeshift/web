@@ -21,6 +21,8 @@ export const csp: Csp = {
     'https://meta.yearn.network/vaults/1/all',
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/assets.ts#L13
     'https://api.github.com/repos/yearn/yearn-assets/',
+    // Fetching directly from ydaemon since yfi/sdk is broken upstream
+    'https://ydaemon.yearn.finance/api/1/vaults/all'
   ],
   'img-src': [
     'https://rawcdn.githack.com/yearn/yearn-assets/',

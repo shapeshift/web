@@ -1,6 +1,7 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -8,23 +9,26 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useOsmosis } from 'features/defi/contexts/OsmosisProvider/OsmosisProvider'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import {
+  getPool,
+  getPoolIdFromAssetReference,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectEarnUserLpOpportunity,
+  selectHighestBalanceAccountIdByStakingId,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,64 +40,98 @@ import { OsmosisDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Osmosis', 'OsmosisDeposit'],
-})
-
-export const OsmosisDeposit: React.FC<{
-  onAccountIdChange: AccountDropdownProps['onChange']
+type OsmosisDepositProps = {
   accountId: AccountId | undefined
-}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { osmosis: api } = useOsmosis()
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
+
+export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const chainAdapterManager = getChainAdapterManager()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
-  const assetNamespace = 'slip44'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
-  // user info
-  const chainAdapter = chainAdapterManager.get(chainId)
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
+  const opportunityId: LpId | undefined = useMemo(
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
+  )
+
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+
+  const OsmosisLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: opportunityId ?? '',
+      assetId,
+      accountId: highestBalanceAccountId ?? '',
+    }),
+    [assetId, highestBalanceAccountId, opportunityId],
+  )
+  const opportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
+  )
+
+  const underlyingAsset0Id = useMemo(
+    () => opportunity?.underlyingAssetIds[0] ?? '',
+    [opportunity?.underlyingAssetIds],
+  )
+  const underlyingAsset1Id = useMemo(
+    () => opportunity?.underlyingAssetIds[1] ?? '',
+    [opportunity?.underlyingAssetIds],
+  )
+
+  const underlyingAsset0: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAsset0Id),
+  )
+  const underlyingAsset1: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAsset1Id),
+  )
+
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && chainAdapter && api && bip44Params)) return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          api.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
+    ;(() => {
+      dispatch({
+        type: OsmosisDepositActionType.SET_USER_ADDRESS,
+        payload: userAddress ?? '',
+      })
 
-        dispatch({ type: OsmosisDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'OsmosisDeposit error')
+      if (!opportunity) return
+      dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: opportunity })
+
+      const getPoolData = async (): Promise<OsmosisPool | undefined> => {
+        const opportunityAssetId = opportunity.assetId
+        if (!opportunityAssetId) return
+        const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
+        if (!poolAssetReference) return
+        const id = getPoolIdFromAssetReference(poolAssetReference)
+        if (!id) return
+        return await getPool(id)
       }
+      getPoolData().then(data => {
+        if (!data) return
+        dispatch({ type: OsmosisDepositActionType.SET_POOL_DATA, payload: data })
+      })
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
+  }, [opportunity, userAddress])
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -101,13 +139,17 @@ export const OsmosisDeposit: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location, query])
+  }
 
-  const StepConfig: DefiStepProps = useMemo(() => {
+  const StepConfig: DefiStepProps | undefined = useMemo(() => {
+    if (!underlyingAsset0 || !underlyingAsset1) return
+
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', { asset: asset.symbol }),
+        description: translate('defi.steps.deposit.info.description', {
+          asset: `${underlyingAsset0.symbol} and ${underlyingAsset1.symbol}`,
+        }),
         component: ownProps => (
           <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
@@ -117,13 +159,15 @@ export const OsmosisDeposit: React.FC<{
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
-        label: 'Status',
-        component: ownProps => <Status {...ownProps} accountId={accountId} />,
+        label: translate('defi.steps.status.title'),
+        component: Status,
       },
     }
-  }, [accountId, handleAccountIdChange, asset.symbol, translate])
+  }, [underlyingAsset0, underlyingAsset1, translate, accountId, handleAccountIdChange])
 
-  if (loading || !asset || !marketData || !api) {
+  const value = useMemo(() => ({ state, dispatch }), [state])
+
+  if (loading || !asset || !opportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -132,10 +176,12 @@ export const OsmosisDeposit: React.FC<{
   }
 
   return (
-    <DepositContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          title={translate('modals.deposit.depositInto', {
+            opportunity: opportunity.opportunityName!,
+          })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

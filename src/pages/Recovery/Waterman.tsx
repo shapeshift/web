@@ -31,7 +31,7 @@ export const Waterman = () => {
     // const affectedXpub =
     //   'zpub6rqc3KmwAavANm7AKqZDTZmPSAzimbq6AcYpANx7cX4ovgmqAfFNBY9oA7ySkSmZQ7Noqaw7z57VijCXumXrgrXSv2E2n6xAMAKw46mXHL8'
     const affectedAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
-    const affectedBalance = '33107961'
+    const affectedBalance = '33106961'
     const accountType = UtxoAccountType.SegwitNative
 
     // user wants to receive back into their regular account

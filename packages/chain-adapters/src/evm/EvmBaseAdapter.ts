@@ -187,7 +187,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           tx.value = bnOrZero(account.balance).minus(fee).toString()
         }
       }
-      const data = await getErc20Data(to, tx.value, erc20ContractAddress)
+      const data = tx.memo || (await getErc20Data(to, tx.value, erc20ContractAddress))
 
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
@@ -218,6 +218,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   protected async buildEstimateGasRequest({
+    memo,
     to,
     value,
     chainSpecific: { contractAddress, from, contractData },
@@ -238,7 +239,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       value = erc20Balance
     }
 
-    const data = contractData ?? (await getErc20Data(to, value, contractAddress))
+    const data = memo || contractData || (await getErc20Data(to, value, contractAddress))
 
     return {
       from,

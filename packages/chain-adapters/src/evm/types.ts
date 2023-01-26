@@ -19,6 +19,9 @@ export type BuildCustomTxInput = {
 } & Fees
 
 export type BuildTxInput = {
+  // Optional hex-encoded calldata
+  // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
+  memo?: string
   gasLimit: string
   erc20ContractAddress?: string
 } & Fees

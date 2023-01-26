@@ -1,32 +1,38 @@
-import { Button } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { toPath } from '@shapeshiftoss/chain-adapters'
+import { toPath, utxoSelect } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, BTCSignTxInput, BTCSignTxOutput } from '@shapeshiftoss/hdwallet-core'
 import {
   bip32ToAddressNList,
   BTCInputScriptType,
   BTCOutputAddressType,
-  BTCOutputScriptType,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import { useCallback } from 'react'
+import axios from 'axios'
+import { getConfig } from 'config'
+import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const Waterman = () => {
   const wallet = useWallet().state.wallet
-  const sendRecoveryTx = useCallback(async () => {
+  const [unsignedTx, setUnsignedTx] = useState<BTCSignTx | undefined>()
+  const [signedTx, setSignedTx] = useState<string>('')
+  const [txId, setTxId] = useState<string>('')
+
+  const bitcoinChainAdapter = getChainAdapterManager().get(
+    btcChainId,
+  ) as unknown as UtxoBaseAdapter<KnownChainIds.BitcoinMainnet>
+
+  const buildRecoveryTx = useCallback(async () => {
     if (!wallet) return
-    const affectedXpub =
-      'zpub6rqc3KmwAavANm7AKqZDTZmPSAzimbq6AcYpANx7cX4ovgmqAfFNBY9oA7ySkSmZQ7Noqaw7z57VijCXumXrgrXSv2E2n6xAMAKw46mXHL8'
+    // const affectedXpub =
+    //   'zpub6rqc3KmwAavANm7AKqZDTZmPSAzimbq6AcYpANx7cX4ovgmqAfFNBY9oA7ySkSmZQ7Noqaw7z57VijCXumXrgrXSv2E2n6xAMAKw46mXHL8'
     const affectedAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
     const affectedBalance = '33107961'
     const accountType = UtxoAccountType.SegwitNative
-    const bitcoinChainAdapter = getChainAdapterManager().get(
-      btcChainId,
-    ) as unknown as UtxoBaseAdapter<KnownChainIds.BitcoinMainnet>
 
     // user wants to receive back into their regular account
     const accountNumber = 0
@@ -36,20 +42,61 @@ export const Waterman = () => {
       accountNumber,
       accountType,
     })
-    const sendMax = true
-    const fees = await bitcoinChainAdapter.getFeeData({
+
+    const { data: rawFees } = await axios.get(
+      `${getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL}/api/v1/fees`,
+    )
+    console.log({ rawFees })
+
+    const utxos = [
+      // {
+      //   txid: '994929ee81f6909e53cacda3c39e16c45a0508fb8783f1d05c3fc4dfd8d5255a',
+      //   vout: 0,
+      //   value: '1000',
+      //   height: 768701,
+      //   confirmations: 4892,
+      //   address: 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx',
+      //   path: "m/84'/0'/0'/0/0",
+      // },
+      {
+        txid: '2267f89589c7ce8c9be466658b021f998391856d66864fd951485c09d51d9d95',
+        vout: 0,
+        value: '33106961',
+        height: 768689,
+        confirmations: 4904,
+        address: 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx',
+        // path: "m/84'/0'/0'/0/0", // this is per blockbook, but is not correct, or perhaps required?
+      },
+    ]
+
+    const satoshiPerByte = String(Math.round(rawFees.fast.satsPerKiloByte / 1024))
+    console.log({ satoshiPerByte })
+
+    const utxoSelectResult = utxoSelect.utxoSelect({
+      from: affectedAddress,
       to: validReceiveAddress,
       value: affectedBalance,
-      chainSpecific: {
-        from: affectedAddress,
-        pubkey: affectedXpub,
-      },
-      sendMax,
+      satoshiPerByte,
+      utxos,
+      sendMax: true,
     })
-    console.log({ fees })
-    // TODO(0xdef1cafe): hardcode input utxos
-    // const utxoUrl = `https://api.bitcoin.shapeshift.com/api/v1/account/${affectedXpub}/utxos`
-    // const { data: utxos } = await axios.get(utxoUrl)
+
+    console.log({ utxoSelectResult })
+
+    const feeString = utxoSelectResult.fee
+    const feeInSats = Number(feeString)
+
+    const feeThreshold = 20000
+
+    // sanity check we don't spend more than $5ish in fees, something is badly wrong
+    if (feeInSats > feeThreshold) throw new Error(`fee exceeds fee threshold ${feeThreshold}}`)
+
+    console.log({ feeInSats })
+
+    const affectedBalanceNumber = Number(affectedBalance)
+
+    const amountToSendNumber = affectedBalanceNumber - feeInSats
+    const amountToSendString = String(amountToSendNumber)
 
     // incorrect bip44params used to generate affected address (THORChain)
     const dangerousBip44Params = {
@@ -86,30 +133,68 @@ export const Waterman = () => {
       {
         addressType: BTCOutputAddressType.Spend,
         address: validReceiveAddress, // where we actually want it to go
-        amount: 'TODO', // affected amount - fee (miner keep different between sum of inputs and sum of outputs)
+        amount: amountToSendString, // affected amount - fee (miner keep difference between sum of inputs and sum of outputs)
       },
     ]
     const coin = 'Bitcoin' // required by hdwallet
 
-    const opReturnData = undefined // to be explicit
-
-    const txToSign: BTCSignTx = { coin, inputs, outputs, opReturnData }
+    const txToSign: BTCSignTx = { coin, inputs, outputs }
     console.log({ txToSign })
 
-    // TODO(0xdef1cafe): render tx to user for confirmation
+    setUnsignedTx(txToSign)
 
-    // TODO(0xdef1cafe): test this ourselves by getting doggy coin stuck on thorchain bip44 path
+    // console.log({ signedTx })
+  }, [bitcoinChainAdapter, wallet])
 
-    const signedTx = await bitcoinChainAdapter.signTransaction({ txToSign, wallet })
-    console.log({ signedTx })
-  }, [wallet])
+  const signRecoveryTx = useCallback(async () => {
+    if (!wallet) return
+    if (!unsignedTx) return
+    try {
+      const signed = await bitcoinChainAdapter.signTransaction({ txToSign: unsignedTx, wallet })
+      setSignedTx(signed)
+    } catch (e) {
+      console.error(e)
+    }
+  }, [bitcoinChainAdapter, wallet, unsignedTx])
+
+  const sendRecoveryTx = useCallback(async () => {
+    if (!signedTx) return
+    try {
+      const id = await bitcoinChainAdapter.broadcastTransaction(signedTx)
+      setTxId(id)
+      console.log({ id })
+    } catch (e) {
+      console.error(e)
+    }
+  }, [bitcoinChainAdapter, signedTx])
 
   if (!wallet) return null
 
   return (
     <div>
-      <h1>Waterman</h1>
-      <Button onClick={sendRecoveryTx}>Send recovery tx</Button>
+      <Flex direction='column'>
+        <h1>Waterman</h1>
+        <Button onClick={buildRecoveryTx} maxW={200}>
+          Build recovery tx (1/3)
+        </Button>
+        {unsignedTx && (
+          <div>
+            <pre>{JSON.stringify(unsignedTx, null, 2)}</pre>
+            <Button onClick={signRecoveryTx} maxW={200}>
+              Sign recovery tx (2/3)
+            </Button>
+            {signedTx && (
+              <>
+                <pre>{JSON.stringify(signedTx)}</pre>
+                <Button onClick={sendRecoveryTx} maxW={200}>
+                  Send recovery tx (3/3)
+                </Button>
+                {txId && <pre>{JSON.stringify(txId)}</pre>}
+              </>
+            )}
+          </div>
+        )}
+      </Flex>
     </div>
   )
 }

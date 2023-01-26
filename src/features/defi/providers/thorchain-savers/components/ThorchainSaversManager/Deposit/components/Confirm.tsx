@@ -347,7 +347,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
               )[0].address
 
-              return highestBalanceAccount
+              return chainId === bchChainId
+                ? `bitcoincash:${highestBalanceAccount}`
+                : highestBalanceAccount
             })
         : ''
       setMaybeFromUTXOAccountAddress(accountAddress)

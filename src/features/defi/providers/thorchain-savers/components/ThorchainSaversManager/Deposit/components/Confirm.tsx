@@ -38,7 +38,6 @@ import {
   getAccountAddressesWithBalances,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
-  makeSaversMemo,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -166,12 +165,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       ),
     )
 
-    // TODO: Pass as quote payload and get from quote
-    const memoUtf8 = makeSaversMemo({
-      assetId,
-      amountCryptoBaseUnit: amountCryptoBaseUnit.toString(),
-      type: 'deposit',
-    })
+    const memoUtf8 = quote.memo
+    debugger
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
@@ -185,11 +180,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
-    assetId,
     chainId,
     maybeFromUTXOAccountAddress,
-    state.deposit.cryptoAmount,
-    state.deposit.sendMax,
+    state?.deposit.cryptoAmount,
+    state?.deposit.sendMax,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -260,12 +254,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             .toFixed()
       }
 
-      // TODO: Pass as quote payload and get from quote
-      const memoUtf8 = makeSaversMemo({
-        assetId,
-        amountCryptoBaseUnit: amountCryptoBaseUnit.toString(),
-        type: 'deposit',
-      })
+      const memoUtf8 = quote.memo
+      debugger
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,

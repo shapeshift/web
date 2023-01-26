@@ -6,3 +6,10 @@ export const opToken: Token = {
   name: 'Optimism',
   symbol: 'OP',
 }
+
+export const usdcToken: Token = {
+  contract: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+  decimals: 6,
+  name: 'USD Coin',
+  symbol: 'USDC',
+}

@@ -45,6 +45,8 @@ export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
         return SwapperType.ZrxEthereum
       case KnownChainIds.AvalancheMainnet:
         return SwapperType.ZrxAvalanche
+      case KnownChainIds.OptimismMainnet:
+        return SwapperType.ZrxOptimism
       default:
         throw new SwapError('[getType]', {
           code: SwapErrorType.UNSUPPORTED_CHAIN,

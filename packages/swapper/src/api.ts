@@ -1,6 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { avalanche, cosmos, ethereum, osmosis } from '@shapeshiftoss/chain-adapters'
+import { avalanche, cosmos, ethereum, optimism, osmosis } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
@@ -81,14 +81,20 @@ type CommonTradeInput = {
   accountNumber: number
 }
 
-export type EvmSupportedChainIds = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+export type EvmSupportedChainIds =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.OptimismMainnet
 
 export type CosmosSdkSupportedChainIds =
   | KnownChainIds.CosmosMainnet
   | KnownChainIds.OsmosisMainnet
   | KnownChainIds.ThorchainMainnet
 
-export type EvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
+export type EvmSupportedChainAdapter =
+  | ethereum.ChainAdapter
+  | avalanche.ChainAdapter
+  | optimism.ChainAdapter
 
 export type CosmosSdkSupportedChainAdapters = cosmos.ChainAdapter | osmosis.ChainAdapter
 
@@ -198,6 +204,7 @@ export enum SwapperName {
 export enum SwapperType {
   ZrxEthereum = '0xEthereum',
   ZrxAvalanche = '0xAvalanche',
+  ZrxOptimism = '0xOptimism',
   Thorchain = 'Thorchain',
   Osmosis = 'Osmosis',
   CowSwap = 'CoW Swap',

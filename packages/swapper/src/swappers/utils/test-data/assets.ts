@@ -5,6 +5,8 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
+  optimismAssetId,
+  optimismChainId,
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -111,6 +113,22 @@ export const AVAX: Asset = {
   explorer: 'https://snowtrace.io',
   explorerAddressLink: 'https://snowtrace.io/address/',
   explorerTxLink: 'https://snowtrace.io/tx/',
+}
+
+export const OPTIMISM: Asset = {
+  assetId: optimismAssetId,
+  chainId: optimismChainId,
+  name: 'Ethereum',
+  networkName: 'Optimism',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#FC0424',
+  icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/25244/thumb/Optimism.png?1660904599',
+  explorer: 'https://optimistic.etherscan.io',
+  explorerAddressLink: 'https://optimistic.etherscan.io/address/',
+  explorerTxLink: 'https://optimistic.etherscan.io/tx/',
 }
 
 export const RUNE: Asset = {

@@ -1,4 +1,4 @@
-import { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalanche, ChainAdapterManager, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
@@ -24,12 +24,21 @@ export const getZrxEthereumSwapper = () => new ZrxSwapper(zrxEthereumSwapperDeps
 
 const zrxAvalancheSwapperDeps: ZrxSwapperDeps = {
   web3: <Web3>{},
-  adapter: <ethereum.ChainAdapter>{
+  adapter: <avalanche.ChainAdapter>{
     getChainId: () => KnownChainIds.AvalancheMainnet,
   },
 }
 
 export const getZrxAvalancheSwapper = () => new ZrxSwapper(zrxAvalancheSwapperDeps)
+
+const zrxOptimismSwapperDeps: ZrxSwapperDeps = {
+  web3: <Web3>{},
+  adapter: <optimism.ChainAdapter>{
+    getChainId: () => KnownChainIds.OptimismMainnet,
+  },
+}
+
+export const getZrxOptimismSwapper = () => new ZrxSwapper(zrxOptimismSwapperDeps)
 
 const cowSwapperDeps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',

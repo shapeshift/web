@@ -1,14 +1,16 @@
 import { optimismAssetId, optimismChainId } from '@shapeshiftoss/caip'
 
-import { TransferType, TxStatus } from '../../../../types'
+import { Dex, Trade, TradeType, Transfer, TransferType, TxStatus } from '../../../../types'
 import { ParsedTx } from '../../../parser'
-import { TransactionParser } from '../index'
+import { TransactionParser, ZRX_OPTIMISM_PROXY_CONTRACT } from '../index'
 import erc20Approve from './mockData/erc20Approve'
 import ethSelfSend from './mockData/ethSelfSend'
 import ethStandard from './mockData/ethStandard'
-import { opToken } from './mockData/tokens'
+import { opToken, usdcToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
+import zrxTradeEthToUsdc from './mockData/zrxTradeEthToUsdc'
+import zrxTradeUsdcToOp from './mockData/zrxTradeUsdcToOp'
 
 const txParser = new TransactionParser({ rpcUrl: '', chainId: optimismChainId })
 
@@ -444,6 +446,114 @@ describe('parseTx', () => {
       const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
+    })
+  })
+
+  describe('zrx trade', () => {
+    it('should be able to parse eth -> token', async () => {
+      const { tx } = zrxTradeEthToUsdc
+      const address = '0x5e2f658E1677b38fF8D5E6B847A4B377F9C80F60'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
+      const sellTransfer: Transfer = {
+        assetId: optimismAssetId,
+        components: [{ value: '34100000000000000' }],
+        from: address,
+        to: ZRX_OPTIMISM_PROXY_CONTRACT,
+        token: undefined,
+        totalValue: '34100000000000000',
+        type: TransferType.Send,
+      }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+        components: [{ value: '53869470' }],
+        from: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
+        to: address,
+        token: usdcToken,
+        totalValue: '53869470',
+        type: TransferType.Receive,
+      }
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: optimismChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '357031000000',
+          assetId: optimismAssetId,
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token -> token', async () => {
+      const { tx } = zrxTradeUsdcToOp
+      const address = '0x6e2E4991eBC00841e10419065c966b613bC4A84B'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+        components: [{ value: '2451109749' }],
+        from: address,
+        to: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
+        token: usdcToken,
+        totalValue: '2451109749',
+        type: TransferType.Send,
+      }
+
+      const refundTransfer: Transfer = {
+        assetId: 'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
+        components: [{ value: '2380453' }],
+        from: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
+        to: address,
+        token: usdcToken,
+        totalValue: '2380453',
+        type: TransferType.Receive,
+      }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',
+        components: [{ value: '1000111408396873959586' }],
+        from: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
+        to: address,
+        token: opToken,
+        totalValue: '1000111408396873959586',
+        type: TransferType.Receive,
+      }
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: optimismChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '1133496000000',
+          assetId: optimismAssetId,
+        },
+        transfers: [sellTransfer, refundTransfer, buyTransfer],
+        trade,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
     })
   })
 })

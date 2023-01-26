@@ -72,7 +72,10 @@ export interface BtcThorTrade<C extends ChainId> extends Trade<C> {
 }
 
 export interface EvmThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+  chainId:
+    | KnownChainIds.EthereumMainnet
+    | KnownChainIds.AvalancheMainnet
+    | KnownChainIds.OptimismMainnet
   txData: ETHSignTx
 }
 

@@ -1,8 +1,8 @@
 import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
 
 import { Dex, Trade, TradeType, Transfer, TransferType, TxStatus } from '../../../../types'
-import { ParsedTx, ParsedTx as Tx } from '../../../parser'
-import { TransactionParser } from '../index'
+import { ParsedTx } from '../../../parser'
+import { TransactionParser, ZRX_AVALANCHE_PROXY_CONTRACT } from '../index'
 import avaxSelfSend from './mockData/avaxSelfSend'
 import avaxStandard from './mockData/avaxStandard'
 import erc20Approve from './mockData/erc20Approve'
@@ -454,39 +454,28 @@ describe('parseTx', () => {
     it('should be able to parse token -> avax', async () => {
       const { tx } = zrxTradeWethToAvax
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
-      const trade: Trade = {
-        dexName: Dex.Zrx,
-        type: TradeType.Trade,
-      }
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
       const buyTransfer: Transfer = {
         assetId: avalancheAssetId,
-        components: [
-          {
-            value: '1419200313588432512',
-          },
-        ],
+        components: [{ value: '1419200313588432512' }],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
-        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
-        token: undefined,
+        to: address,
         totalValue: '1419200313588432512',
         type: TransferType.Receive,
       }
 
       const sellTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-        components: [
-          {
-            value: '20000000000000000',
-          },
-        ],
-        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        components: [{ value: '20000000000000000' }],
+        from: address,
         to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         token: wrappedEther,
         totalValue: '20000000000000000',
         type: TransferType.Send,
       }
 
-      const expected: Tx = {
+      const expected: ParsedTx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
@@ -494,10 +483,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        data: {
-          method: undefined,
-          parser: 'zrx',
-        },
+        data: { parser: 'zrx' },
         status: TxStatus.Confirmed,
         fee: {
           value: '6626525000000000',
@@ -515,20 +501,13 @@ describe('parseTx', () => {
     it('should be able to parse avax -> token', async () => {
       const { tx } = zrxTradeAvaxToWeth
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
-      const trade: Trade = {
-        dexName: Dex.Zrx,
-        type: TradeType.Trade,
-      }
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
       const buyTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-        components: [
-          {
-            value: '819115016056635',
-          },
-        ],
+        components: [{ value: '819115016056635' }],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
-        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        to: address,
         token: wrappedEther,
         totalValue: '819115016056635',
         type: TransferType.Receive,
@@ -536,19 +515,14 @@ describe('parseTx', () => {
 
       const sellTransfer: Transfer = {
         assetId: avalancheAssetId,
-        components: [
-          {
-            value: '50000000000000000',
-          },
-        ],
-        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
-        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
-        token: undefined,
+        components: [{ value: '50000000000000000' }],
+        from: address,
+        to: ZRX_AVALANCHE_PROXY_CONTRACT,
         totalValue: '50000000000000000',
         type: TransferType.Send,
       }
 
-      const expected: Tx = {
+      const expected: ParsedTx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
@@ -556,10 +530,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        data: {
-          method: undefined,
-          parser: 'zrx',
-        },
+        data: { parser: 'zrx' },
         status: TxStatus.Confirmed,
         fee: {
           value: '6346125000000000',
@@ -577,20 +548,13 @@ describe('parseTx', () => {
     it('should be able to parse token -> token', async () => {
       const { tx } = zrxTradeWethToWbtc
       const address = '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC'
-      const trade: Trade = {
-        dexName: Dex.Zrx,
-        type: TradeType.Trade,
-      }
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
       const buyTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x50b7545627a5162f82a992c33b87adc75187b218',
-        components: [
-          {
-            value: '14605',
-          },
-        ],
+        components: [{ value: '14605' }],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
-        to: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        to: address,
         token: wrappedBitcoin,
         totalValue: '14605',
         type: TransferType.Receive,
@@ -598,19 +562,15 @@ describe('parseTx', () => {
 
       const sellTransfer: Transfer = {
         assetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-        components: [
-          {
-            value: '2000000000000000',
-          },
-        ],
-        from: '0xc2090e54B0Db09a1515f203aEA6Ed62A115548eC',
+        components: [{ value: '2000000000000000' }],
+        from: address,
         to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         token: wrappedEther,
         totalValue: '2000000000000000',
         type: TransferType.Send,
       }
 
-      const expected: Tx = {
+      const expected: ParsedTx = {
         txid: tx.txid,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
@@ -618,10 +578,7 @@ describe('parseTx', () => {
         address,
         chainId: avalancheChainId,
         confirmations: tx.confirmations,
-        data: {
-          method: undefined,
-          parser: 'zrx',
-        },
+        data: { parser: 'zrx' },
         status: TxStatus.Confirmed,
         fee: {
           value: '8329875000000000',

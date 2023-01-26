@@ -1,15 +1,25 @@
 import { BaseTxMetadata, Dex, TradeType } from '../../types'
-import { type SubParser, type TxSpecific, txInteractsWithContract } from '.'
-import { ZRX_PROXY_CONTRACT } from './constants'
-import { type Tx } from './types'
+import type { SubParser, TxSpecific } from '.'
+import { txInteractsWithContract } from '.'
+import type { Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'zrx'
 }
 
+export interface ParserArgs {
+  proxyContract: string
+}
+
 export class Parser implements SubParser<Tx> {
+  private readonly proxyContract
+
+  constructor(args: ParserArgs) {
+    this.proxyContract = args.proxyContract
+  }
+
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (!txInteractsWithContract(tx, ZRX_PROXY_CONTRACT)) return
+    if (!txInteractsWithContract(tx, this.proxyContract)) return
     if (!(tx.tokenTransfers && tx.tokenTransfers.length)) return
 
     return {

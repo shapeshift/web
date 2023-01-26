@@ -816,6 +816,10 @@
       "blockExplorer": "Explorer"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Your Allocation",
+        "fractionDescription":"% of pool"
+      },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",

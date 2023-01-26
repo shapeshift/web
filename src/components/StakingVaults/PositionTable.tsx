@@ -55,7 +55,8 @@ export const PositionTable = () => {
       },
       {
         Header: 'Claimable Rewards',
-        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.balance} />,
+        accessor: 'rewards',
+        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.rewards} />,
       },
       {
         Header: () => null,

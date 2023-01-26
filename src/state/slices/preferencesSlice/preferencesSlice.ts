@@ -13,6 +13,7 @@ export type FeatureFlags = {
   OsmosisSwap: boolean
   OsmosisLP: boolean
   Optimism: boolean
+  OptimismZrx: boolean
   ThorSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
@@ -51,6 +52,7 @@ const initialState: Preferences = {
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,
     OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
+    OptimismZrx: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,

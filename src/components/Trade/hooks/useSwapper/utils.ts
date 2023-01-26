@@ -11,6 +11,7 @@ import {
   foxAssetId,
   fromAssetId,
   ltcAssetId,
+  optimismAssetId,
   osmosisAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
@@ -146,12 +147,20 @@ export const getDefaultAssetIdPairByChainId = (
     sellAssetId: ethAssetId,
     buyAssetId: foxAssetId,
   }
+
   switch (buyAssetChainId) {
     case KnownChainIds.AvalancheMainnet:
       return {
         sellAssetId: avalancheAssetId,
         buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
       }
+    case KnownChainIds.OptimismMainnet:
+      return featureFlags.OptimismZrx
+        ? {
+            sellAssetId: optimismAssetId,
+            buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',
+          }
+        : ethFoxPair
     case KnownChainIds.CosmosMainnet:
       return osmosisEnabled
         ? { sellAssetId: cosmosAssetId, buyAssetId: osmosisAssetId }

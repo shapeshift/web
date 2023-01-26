@@ -6,6 +6,7 @@ import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
+import { utils } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -26,6 +27,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -61,6 +63,9 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 // So the actual buffer is at best 3 Txs (4 -1 Tx), at worst 2 Txs (4 - 2 Txs)
 // Or even a bit less
 const TXS_BUFFER = 8
+const THORCHAIN_SAVERS_MEMO = 'test' // TODO
+
+const supportedEvmChainIds = getSupportedEvmChainIds()
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
@@ -167,6 +172,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
+      memo: supportedEvmChainIds.includes(chainId)
+        ? utils.hexlify(utils.toUtf8Bytes(THORCHAIN_SAVERS_MEMO))
+        : THORCHAIN_SAVERS_MEMO,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
@@ -255,6 +263,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
+        memo: supportedEvmChainIds.includes(chainId)
+          ? utils.hexlify(utils.toUtf8Bytes(THORCHAIN_SAVERS_MEMO))
+          : THORCHAIN_SAVERS_MEMO,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
         estimatedFees,

@@ -1512,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Rede não suportada",
+        "description": "A ShapeShift atualmente suporta apenas %{supportedChainNames} com WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Conecte ao dApp",
+        "connectedDapp": "dApp Conectado",
+        "menu": {
+          "disconnect": "Desconecte",
+          "address": "Endereço",
+          "connected": "Conectado",
+          "network": "Rede",
+          "unsupportedNetwork": "Rede não suportada"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1521,23 +1536,46 @@
           "message": "Mensagem",
           "description": "Você precisa confirmar a assinatura da mensagem com a sua wallet conectada.",
           "confirm": "Confirmar",
-          "reject": "Rejeitar"
+          "reject": "Rejeitar",
+          "messageData": "Dados da mensagem",
+          "domain": "Domínio"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Enviando de",
+          "sendingTo": "Enviando para",
+          "interactingWith": "Interagindo com",
+          "amount": "Quantia",
+          "contractInteraction": {
+            "title": "Interação no Contrato",
+            "sendingEth": "Enviando ETH",
+            "data": "Dados brutos (codificados em hexadecimal)"
+          },
           "advancedParameters": {
             "title": "Parâmetros Avançados",
-            "alert": "Somente para usuários avançados.\nModificar estas configurações pode resultar em transações não executadas.",
+            "alert": "Apenas para uso avançado. Modificar essas configurações pode resultar em falhas nas transações. ",
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "Nonce explicado aqui"
+              "tooltip": "O número de transações enviadas de um determinado endereço. Somente usuários avançados."
             },
             "gasLimit": {
               "title": "Limite de Gas",
               "placeholder": "Limite de Gas...",
-              "tooltip": "Explicação sobre o limite do gas aqui"
+              "tooltip": "O limite de gás refere-se à quantidade máxima de gás que um usuário pode consumir para realizar uma transação."
             }
-          }
+          },
+          "estGasCost": "Est. Custo de Gas",
+          "description": "Você está prestes a criar uma transação e terá que confirmá-la com sua carteira atualmente conectada."
+        },
+        "signTransaction": {
+          "description": "Você está prestes a assinar uma transação e terá que confirmá-la com sua carteira atualmente conectada."
+        },
+        "connect": {
+          "title": "Conecte sua carteira a um dApp via WalletConnect e realize transações",
+          "howTo": "Como se conectar a um dApp?",
+          "linkPlaceholder": "Código QR ou link para conectar-se",
+          "connect": "Conectar",
+          "connectionError": "Não é possível conectar ao URI fornecido."
         }
       },
       "registry": {

@@ -34,6 +34,8 @@ import type {
 const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
 
+export const THORCHAIN_AFFILIATE_NAME = 'ss'
+
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
@@ -260,4 +262,26 @@ export const getWithdrawBps = ({
   const withdrawBps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
 
   return withdrawBps
+}
+
+// Testing only, remove me
+export const makeSaversMemo = ({
+  assetId,
+  amountCryptoBaseUnit,
+  // TODO: We will need an affiliate address on all L1s
+  // For now, we use the affiliate name in place of an address, which won't result in affiliate fees
+  // See: https://discord.com/channels/838986635756044328/1060678683486072903/1060821122423201843
+  affiliateAddress = THORCHAIN_AFFILIATE_NAME,
+  type,
+}: {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  affiliateAddress?: string
+  type: 'deposit' | 'withdraw'
+}) => {
+  const prefix = type === 'deposit' ? '+' : '-'
+  const poolId = adapters.assetIdToPoolAssetId({ assetId })
+  if (!poolId) throw new Error(`THORChain pool not found for assetId: ${assetId}`)
+
+  return `${prefix}:${poolId}::${affiliateAddress}:0`
 }

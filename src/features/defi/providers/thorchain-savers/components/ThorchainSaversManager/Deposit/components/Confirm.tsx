@@ -38,6 +38,7 @@ import {
   getAccountAddressesWithBalances,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
+  makeSaversMemo,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -57,13 +58,11 @@ const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
-// The amount of Txs we want to keep gas away for
 // Estimated miner fees are approximative since there might be a reconciliation Tx
 // and an actual savers Tx with different fees, and we're doubling the fees
 // So the actual buffer is at best 3 Txs (4 -1 Tx), at worst 2 Txs (4 - 2 Txs)
 // Or even a bit less
 const TXS_BUFFER = 8
-const THORCHAIN_SAVERS_MEMO = 'test' // TODO
 
 const supportedEvmChainIds = getSupportedEvmChainIds()
 
@@ -167,14 +166,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       ),
     )
 
+    // TODO: Pass as quote payload and get from quote
+    const memoUtf8 = makeSaversMemo({
+      assetId,
+      amountCryptoBaseUnit: amountCryptoBaseUnit.toString(),
+      type: 'deposit',
+    })
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
-      memo: supportedEvmChainIds.includes(chainId)
-        ? utils.hexlify(utils.toUtf8Bytes(THORCHAIN_SAVERS_MEMO))
-        : THORCHAIN_SAVERS_MEMO,
+      memo: supportedEvmChainIds.includes(chainId) ? utils.hexlify(memoUtf8) : memoUtf8,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
@@ -182,10 +185,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
+    assetId,
     chainId,
     maybeFromUTXOAccountAddress,
-    state?.deposit.cryptoAmount,
-    state?.deposit.sendMax,
+    state.deposit.cryptoAmount,
+    state.deposit.sendMax,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -256,6 +260,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             .toFixed()
       }
 
+      // TODO: Pass as quote payload and get from quote
+      const memoUtf8 = makeSaversMemo({
+        assetId,
+        amountCryptoBaseUnit: amountCryptoBaseUnit.toString(),
+        type: 'deposit',
+      })
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,
@@ -263,9 +273,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId)
-          ? utils.hexlify(utils.toUtf8Bytes(THORCHAIN_SAVERS_MEMO))
-          : THORCHAIN_SAVERS_MEMO,
+        memo: supportedEvmChainIds.includes(chainId) ? utils.hexlify(memoUtf8) : memoUtf8,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
         estimatedFees,

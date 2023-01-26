@@ -1512,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Nicht unterstütztes Netzwerk",
+        "description": "ShapeShift unterstützt derzeit nur %{supportedChainNames} mit WalletConnect."
+      },
+      "header": {
+        "connectDapp": "dApp verbinden",
+        "connectedDapp": "dApp verbunden",
+        "menu": {
+          "disconnect": "Trennen",
+          "address": "Adresse ",
+          "connected": "Verbunden",
+          "network": "Netzwerk",
+          "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
+        }
+      },
       "modal": {
         "title": "Wallet verbinden",
         "ethereum": "Ethereum",
@@ -1521,23 +1536,46 @@
           "message": "Nachricht",
           "description": "Sie müssen das Signieren dieser Nachricht mit Ihrer verbundenen Wallet bestätigen.",
           "confirm": "Bestätigen",
-          "reject": "Reject"
+          "reject": "Reject",
+          "messageData": "Nachrichtdaten",
+          "domain": "Domaine"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Senden von",
+          "sendingTo": "Senden an",
+          "interactingWith": "Interagieren mit",
+          "amount": "Betrag",
+          "contractInteraction": {
+            "title": "Vertragsinteraktion",
+            "sendingEth": "ETH senden",
+            "data": "Rohdaten (Hex-kodiert)"
+          },
           "advancedParameters": {
             "title": "Erweiterte Parameter",
             "alert": "Nur für fortgeschrittene Benutzer. Das Ändern dieser Einstellungen kann zu festgefahrenen Transaktionen führen.",
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "Die Anzahl der von einer bestimmten Adresse gesendeten Transaktionen. Nur fortgeschrittene Benutzer."
+              "tooltip": "Anzahl der von einer bestimmten Adresse gesendeten Transaktionen. Nur fortgeschrittene Benutzer."
             },
             "gasLimit": {
               "title": "Gas Limit",
               "placeholder": "Gas Limit...",
               "tooltip": "Das Gaslimit bezieht sich auf die maximale Menge an Gas, die ein Benutzer verbrauchen kann, um eine Transaktion durchzuführen."
             }
-          }
+          },
+          "estGasCost": "zirka Gas Kosten",
+          "description": "Sie sind dabei, eine Transaktion zu erstellen und müssen diese mit Ihrer derzeit verbundenen Wallet bestätigen."
+        },
+        "signTransaction": {
+          "description": "Sie sind dabei, eine Transaktion zu unterzeichnen und müssen diese mit Ihrer derzeit verbundenen Wallet bestätigen."
+        },
+        "connect": {
+          "title": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und lösen Sie Transaktionen aus",
+          "howTo": "Wie verbinde ich mich mit einer dApp?",
+          "linkPlaceholder": "QR-Code oder Verbindungslink",
+          "connect": "Verbinden",
+          "connectionError": "Keine Verbindung zum angegebenen URI möglich."
         }
       },
       "registry": {

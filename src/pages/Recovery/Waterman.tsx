@@ -1,20 +1,21 @@
 import { Button, Flex } from '@chakra-ui/react'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { toPath, utxoSelect } from '@shapeshiftoss/chain-adapters'
+import { toPath } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, BTCSignTxInput, BTCSignTxOutput } from '@shapeshiftoss/hdwallet-core'
 import {
   bip32ToAddressNList,
   BTCInputScriptType,
   BTCOutputAddressType,
 } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({ namespace: ['Waterman'] })
 
 export const Waterman = () => {
   const wallet = useWallet().state.wallet
@@ -30,80 +31,30 @@ export const Waterman = () => {
     if (!wallet) return
     // const affectedXpub =
     //   'zpub6rqc3KmwAavANm7AKqZDTZmPSAzimbq6AcYpANx7cX4ovgmqAfFNBY9oA7ySkSmZQ7Noqaw7z57VijCXumXrgrXSv2E2n6xAMAKw46mXHL8'
-    const affectedAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
-    const affectedBalance = '33106961'
+    // const affectedAddress = 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx'
+    const affectedBalance = 33106961
     const accountType = UtxoAccountType.SegwitNative
 
-    // user wants to receive back into their regular account
-    const accountNumber = 0
-    // get a normal receive address to send stuck funds back to 🤦‍♂️
-    const validReceiveAddress = await bitcoinChainAdapter.getAddress({
-      wallet,
-      accountNumber,
-      accountType,
-    })
-
-    const { data: rawFees } = await axios.get(
-      `${getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL}/api/v1/fees`,
-    )
-    console.log({ rawFees })
-
-    const utxos = [
-      // {
-      //   txid: '994929ee81f6909e53cacda3c39e16c45a0508fb8783f1d05c3fc4dfd8d5255a',
-      //   vout: 0,
-      //   value: '1000',
-      //   height: 768701,
-      //   confirmations: 4892,
-      //   address: 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx',
-      //   path: "m/84'/0'/0'/0/0",
-      // },
-      {
-        txid: '2267f89589c7ce8c9be466658b021f998391856d66864fd951485c09d51d9d95',
-        vout: 0,
-        value: '33106961',
-        height: 768689,
-        confirmations: 4904,
-        address: 'bc1q9hz8dl4hhz6el7rgt25tu7rest4yacq4fwyknx',
-        // path: "m/84'/0'/0'/0/0", // this is per blockbook, but is not correct, or perhaps required?
-      },
-    ]
-
-    const satoshiPerByte = String(Math.round(rawFees.fast.satsPerKiloByte / 1024))
-    console.log({ satoshiPerByte })
-
-    const utxoSelectResult = utxoSelect.utxoSelect({
-      from: affectedAddress,
-      to: validReceiveAddress,
-      value: affectedBalance,
-      satoshiPerByte,
-      utxos,
-      sendMax: true,
-    })
-
-    console.log({ utxoSelectResult })
-
-    const feeString = utxoSelectResult.fee
-    const feeInSats = Number(feeString)
-
-    const feeThreshold = 20000
-
-    // sanity check we don't spend more than $5ish in fees, something is badly wrong
-    if (feeInSats > feeThreshold) throw new Error(`fee exceeds fee threshold ${feeThreshold}}`)
-
-    console.log({ feeInSats })
-
-    const affectedBalanceNumber = Number(affectedBalance)
-
-    const amountToSendNumber = affectedBalanceNumber - feeInSats
-    const amountToSendString = String(amountToSendNumber)
-
     // incorrect bip44params used to generate affected address (THORChain)
-    const dangerousBip44Params = {
+    const dangerousBip44Params: BIP44Params = {
       purpose: 44,
       coinType: 931,
       accountNumber: 0,
+      isChange: false,
+      index: 0,
     }
+
+    // get a normal receive address to send stuck funds back to 🤦‍♂️
+    const validReceiveAddress = await bitcoinChainAdapter.getAddress({
+      wallet,
+      accountNumber: 0,
+      accountType,
+    })
+
+    // https://www.coinbase.com/converter/sats/usd ~$4.60 at 23k btc
+    const feeInSats = 20000
+    const amountToSendNumber = affectedBalance - feeInSats
+    const amountToSendString = String(amountToSendNumber)
 
     const inputPath = toPath(dangerousBip44Params)
     const inputAddressNList = bip32ToAddressNList(inputPath)
@@ -123,7 +74,7 @@ export const Waterman = () => {
         vout: originalVout,
         txid: originalBadTxId,
         hex: originalBadTxHex,
-        amount: affectedBalance,
+        amount: String(affectedBalance),
       },
     ]
 
@@ -137,13 +88,9 @@ export const Waterman = () => {
       },
     ]
     const coin = 'Bitcoin' // required by hdwallet
-
     const txToSign: BTCSignTx = { coin, inputs, outputs }
-    console.log({ txToSign })
 
     setUnsignedTx(txToSign)
-
-    // console.log({ signedTx })
   }, [bitcoinChainAdapter, wallet])
 
   const signRecoveryTx = useCallback(async () => {
@@ -153,7 +100,7 @@ export const Waterman = () => {
       const signed = await bitcoinChainAdapter.signTransaction({ txToSign: unsignedTx, wallet })
       setSignedTx(signed)
     } catch (e) {
-      console.error(e)
+      moduleLogger.error(e, 'error signing tx')
     }
   }, [bitcoinChainAdapter, wallet, unsignedTx])
 
@@ -162,9 +109,9 @@ export const Waterman = () => {
     try {
       const id = await bitcoinChainAdapter.broadcastTransaction(signedTx)
       setTxId(id)
-      console.log({ id })
+      moduleLogger.info({ id }, 'txid')
     } catch (e) {
-      console.error(e)
+      moduleLogger.error(e, 'error broadcasting tx')
     }
   }, [bitcoinChainAdapter, signedTx])
 
@@ -189,7 +136,7 @@ export const Waterman = () => {
                 <Button onClick={sendRecoveryTx} maxW={200}>
                   Send recovery tx (3/3)
                 </Button>
-                {txId && <pre>{JSON.stringify(txId)}</pre>}
+                {txId && <pre>txid: {JSON.stringify(txId)}</pre>}
               </>
             )}
           </div>

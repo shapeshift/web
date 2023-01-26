@@ -166,13 +166,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     )
 
     const memoUtf8 = quote.memo
-    debugger
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
-      memo: supportedEvmChainIds.includes(chainId) ? utils.hexlify(memoUtf8) : memoUtf8,
+      memo: supportedEvmChainIds.includes(chainId)
+        ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
+        : memoUtf8,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
@@ -255,7 +256,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       const memoUtf8 = quote.memo
-      debugger
+
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,
@@ -263,7 +264,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId) ? utils.hexlify(memoUtf8) : memoUtf8,
+        memo: supportedEvmChainIds.includes(chainId)
+          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
+          : memoUtf8,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
         estimatedFees,

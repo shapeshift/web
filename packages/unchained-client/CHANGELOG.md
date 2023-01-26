@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.10.0...@shapeshiftoss/unchained-client-v10.11.0) (2023-01-26)
+
+
+### Features
+
+* add optimism support on zrx ([#1178](https://github.com/shapeshift/lib/issues/1178)) ([5de1305](https://github.com/shapeshift/lib/commit/5de1305fd9c4ba080115002d486f3aa374aed0de))
+
 # [@shapeshiftoss/unchained-client-v10.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.9.0...@shapeshiftoss/unchained-client-v10.10.0) (2023-01-23)
 
 

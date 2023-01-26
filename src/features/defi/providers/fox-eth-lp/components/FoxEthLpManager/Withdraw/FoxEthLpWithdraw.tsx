@@ -46,23 +46,17 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
+  const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -100,7 +94,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
       [DefiStep.Info]: {
         label: translate('defi.steps.withdraw.info.title'),
         description: translate('defi.steps.withdraw.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: asset.symbol,
         }),
         component: ownProps => (
           <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
@@ -119,7 +113,7 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, translate, underlyingAsset.symbol])
+  }, [accountId, asset.symbol, handleAccountIdChange, translate])
 
   if (loading || !asset || !foxEthLpOpportunity)
     return (

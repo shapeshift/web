@@ -1512,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Cadena no soportada",
+        "description": "ShapeShift actualmente solo admite %{supportedChainNames} con WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Conectar dApp",
+        "connectedDapp": "dApp Conectada",
+        "menu": {
+          "disconnect": "Desconectar",
+          "address": "Dirección",
+          "connected": "Conectado",
+          "network": "Red",
+          "unsupportedNetwork": "Red no soportada"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1521,23 +1536,46 @@
           "message": "Mensaje",
           "description": "Deberá firmar el mensaje de confirmacion desde su billetera conectada.",
           "confirm": "Confirmar",
-          "reject": "Rechazar"
+          "reject": "Rechazar",
+          "messageData": "Datos del mensaje",
+          "domain": "Dominio"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Enviar desde",
+          "sendingTo": "Enviar a",
+          "interactingWith": "Interactuando con",
+          "amount": "Cantidad",
+          "contractInteraction": {
+            "title": "Interacción del contrato",
+            "sendingEth": "Enviar ETH",
+            "data": "Datos sin procesar (codificado hex)"
+          },
           "advancedParameters": {
             "title": "Parámetros Avanzados",
             "alert": "Solo para uso avanzado. La modificación de esta configuración podría resultar en transacciones atascadas.",
             "nonce": {
               "title": "Mientras tanto",
               "placeholder": "Mientras tanto...",
-              "tooltip": "El número de transacciones enviadas desde una dirección determinada. Solo usuarios avanzados."
+              "tooltip": "El número de transacciones enviadas desde una dirección dada. Solo usuarios avanzados."
             },
             "gasLimit": {
               "title": "Límite de Gas",
-              "placeholder": "Limite de Gas...",
+              "placeholder": "Límite de gas...",
               "tooltip": "El límite de gas se refiere a la cantidad máxima de gas que un usuario puede consumir para realizar una transacción."
             }
-          }
+          },
+          "estGasCost": "Est. Costo de Gas",
+          "description": "Está a punto de crear una transacción y deberá confirmar con su billetera actual conectada."
+        },
+        "signTransaction": {
+          "description": "Está a punto de crear una transacción y deberá confirmar con su billetera actual conectada."
+        },
+        "connect": {
+          "title": "Conecte su billetera a una dApp a través de WalletConnect y active transacciones",
+          "howTo": "¿Cómo conectar a una dApp?",
+          "linkPlaceholder": "Código QR o enlace de conexión",
+          "connect": "Conectar",
+          "connectionError": "No se puede conectar al URI proporcionado."
         }
       },
       "registry": {

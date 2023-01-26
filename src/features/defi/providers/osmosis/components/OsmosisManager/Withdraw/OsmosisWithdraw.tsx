@@ -1,7 +1,7 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -9,23 +9,26 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useOsmosis } from 'features/defi/contexts/OsmosisProvider/OsmosisProvider'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import {
+  getPool,
+  getPoolIdFromAssetReference,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectEarnUserLpOpportunity,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -37,73 +40,66 @@ import { OsmosisWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Osmosis', 'OsmosisWithdraw'],
-})
-
-export const OsmosisWithdraw: React.FC<{
+type OsmosisWithdrawProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
   accountId: AccountId | undefined
-}> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { yearn: api } = useOsmosis()
+}
+
+export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const underlyingAssetId = toAssetId({
+  const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
-  // user info
-  const chainAdapterManager = getChainAdapterManager()
-  const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-  const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && vaultAddress && api && chainAdapter && bip44Params)) return
-        const [address, opportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params }),
-          api.findByOpportunityId(
-            toAssetId({ chainId, assetNamespace, assetReference: vaultAddress }),
-          ),
-        ])
-        if (!opportunity) {
-          return toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-        dispatch({ type: OsmosisWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'OsmosisWithdraw error')
-      }
-    })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet, translate, toast, chainId, bip44Params])
+  const opportunityId: LpId | undefined = useMemo(
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
+  )
 
-  const handleBack = useCallback(() => {
+  const OsmosisLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: opportunityId,
+      assetId,
+      accountId,
+    }),
+    [accountId, assetId, opportunityId],
+  )
+  const opportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
+  )
+
+  const underlyingAsset0Id = useMemo(
+    () => opportunity?.underlyingAssetIds[0] ?? '',
+    [opportunity?.underlyingAssetIds],
+  )
+  const underlyingAsset1Id = useMemo(
+    () => opportunity?.underlyingAssetIds[1] ?? '',
+    [opportunity?.underlyingAssetIds],
+  )
+
+  const underlyingAsset0: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAsset0Id),
+  )
+  const underlyingAsset1: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, underlyingAsset1Id),
+  )
+
+  const handleBack = () => {
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -111,14 +107,16 @@ export const OsmosisWithdraw: React.FC<{
         modal: DefiAction.Overview,
       }),
     })
-  }, [history, location, query])
+  }
 
-  const StepConfig: DefiStepProps = useMemo(() => {
+  const StepConfig: DefiStepProps | undefined = useMemo(() => {
+    if (!underlyingAsset0 || !underlyingAsset1) return
+
     return {
       [DefiStep.Info]: {
         label: translate('defi.steps.withdraw.info.title'),
         description: translate('defi.steps.withdraw.info.description', {
-          asset: underlyingAsset.symbol,
+          asset: `${underlyingAsset0.symbol} and ${underlyingAsset1.symbol}`,
         }),
         component: ownProps => (
           <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
@@ -129,25 +127,50 @@ export const OsmosisWithdraw: React.FC<{
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Status]: {
-        label: 'Status',
-        component: ownProps => <Status {...ownProps} accountId={accountId} />,
+        label: translate('defi.steps.status.title'),
+        component: Status,
       },
     }
-  }, [accountId, translate, underlyingAsset.symbol, handleAccountIdChange])
+  }, [underlyingAsset0, underlyingAsset1, translate, accountId, handleAccountIdChange])
 
-  if (loading || !asset || !marketData)
+  useEffect(() => {
+    dispatch({
+      type: OsmosisWithdrawActionType.SET_USER_ADDRESS,
+      payload: userAddress ?? '',
+    })
+
+    if (!opportunity) return
+    dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
+
+    const getPoolData = async (): Promise<OsmosisPool | undefined> => {
+      const opportunityAssetId = opportunity.assetId
+      if (!opportunityAssetId) return
+      const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
+      if (!poolAssetReference) return
+      const id = getPoolIdFromAssetReference(poolAssetReference)
+      if (!id) return
+      return await getPool(id)
+    }
+    getPoolData().then(data => {
+      if (!data) return
+      dispatch({ type: OsmosisWithdrawActionType.SET_POOL_DATA, payload: data })
+    })
+  }, [opportunity, userAddress])
+
+  if (loading || !asset || !marketData || !opportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
+  }
 
   return (
     <WithdrawContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: opportunity.opportunityName!,
           })}
           onBack={handleBack}
         />

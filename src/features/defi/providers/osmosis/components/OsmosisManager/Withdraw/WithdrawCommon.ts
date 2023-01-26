@@ -1,26 +1,29 @@
-import type { OsmosisOpportunity } from '@shapeshiftoss/investor-osmosis'
-import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import type {
+  OsmosisPool,
+  OsmosisToken,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
-type EstimatedGas = {
-  estimatedGasCrypto?: string
+type EstimatedFee = {
+  estimatedFeeCrypto?: string
+}
+
+type WithdrawValues = {
+  underlyingAsset0: OsmosisToken & { fiatAmount: string }
+  underlyingAsset1: OsmosisToken & { fiatAmount: string }
+  shareOutAmount: string
 }
 
 type OsmosisWithdrawValues = WithdrawValues &
-  EstimatedGas & {
+  EstimatedFee & {
     txStatus: string
     usedGasFee: string
   }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-type SerializableOpportunity = Omit<
-  OsmosisOpportunity,
-  'allowance' | 'prepareApprove' | 'prepareDeposit' | 'prepareWithdrawal' | 'signAndBroadcast'
->
-
 export type OsmosisWithdrawState = {
-  opportunity: SerializableOpportunity | null
+  opportunity: LpEarnOpportunityType | null
+  poolData: Partial<OsmosisPool> | null
   userAddress: string | null
-  approve: EstimatedGas
   withdraw: OsmosisWithdrawValues
   loading: boolean
   txid: string | null
@@ -28,6 +31,7 @@ export type OsmosisWithdrawState = {
 
 export enum OsmosisWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
+  SET_POOL_DATA = 'SET_POOL_DATA',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
@@ -37,17 +41,22 @@ export enum OsmosisWithdrawActionType {
 
 type SetOpportunityAction = {
   type: OsmosisWithdrawActionType.SET_OPPORTUNITY
-  payload: OsmosisOpportunity
+  payload: LpEarnOpportunityType
 }
 
-type SetWithdraw = {
-  type: OsmosisWithdrawActionType.SET_WITHDRAW
-  payload: Partial<OsmosisWithdrawValues>
+type SetPoolData = {
+  type: OsmosisWithdrawActionType.SET_POOL_DATA
+  payload: OsmosisPool
 }
 
 type SetUserAddress = {
   type: OsmosisWithdrawActionType.SET_USER_ADDRESS
   payload: string
+}
+
+type SetWithdraw = {
+  type: OsmosisWithdrawActionType.SET_WITHDRAW
+  payload: Partial<OsmosisWithdrawValues>
 }
 
 type SetLoading = {
@@ -60,9 +69,17 @@ type SetTxid = {
   payload: string
 }
 
+type SetTxStatus = {
+  type: OsmosisWithdrawActionType.SET_TX_STATUS
+  payload: string
+}
+
 export type OsmosisWithdrawActions =
   | SetOpportunityAction
+  | SetPoolData
+  | SetUserAddress
   | SetWithdraw
   | SetUserAddress
   | SetLoading
   | SetTxid
+  | SetTxStatus

@@ -4,13 +4,22 @@ import { OsmosisWithdrawActionType } from './WithdrawCommon'
 export const initialState: OsmosisWithdrawState = {
   txid: null,
   opportunity: null,
+  poolData: null,
   userAddress: null,
   loading: false,
-  approve: {},
   withdraw: {
-    fiatAmount: '',
-    cryptoAmount: '',
-    slippage: '',
+    underlyingAsset0: {
+      amount: '',
+      denom: '',
+      fiatAmount: '',
+    },
+    underlyingAsset1: {
+      amount: '',
+      denom: '',
+      fiatAmount: '',
+    },
+    estimatedFeeCrypto: '',
+    shareOutAmount: '',
     txStatus: 'pending',
     usedGasFee: '',
   },

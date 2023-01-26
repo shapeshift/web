@@ -1,7 +1,9 @@
-import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { fromAccountId, osmosisAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
+import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -9,8 +11,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useOsmosis } from 'features/defi/contexts/OsmosisProvider/OsmosisProvider'
-import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -18,13 +18,17 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -37,41 +41,64 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
 })
 
-export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
-  onNext,
-  accountId,
-}) => {
-  const { state, dispatch } = useContext(WithdrawContext)
+type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
+
+export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
+  const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { osmosis: osmosisInvestor } = useOsmosis()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
-  const opportunity = state?.opportunity
+  const { chainId, assetNamespace, assetReference } = query
+  // const opportunity = useMemo(() => state?.opportunity, [state])
 
-  const assetNamespace = 'slip44'
-  // Asset info
-  const underlyingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const opportunityId: LpId | undefined = useMemo(
+    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
+    [assetId, assetNamespace, assetReference, chainId],
+  )
+
+  const OsmosisLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: opportunityId,
+      assetId,
+      accountId,
+    }),
+    [accountId, assetId, opportunityId],
+  )
+  const opportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
+  )
+
+  const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter // TODO:(pastaghost) Ew.
+
+  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
+
+  // const rawOpportunityData = useAppSelector(state => selectLpOppo)
+
+  const underlyingAsset0 = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetIds[0] || ''),
+  )
+  const underlyingAsset1 = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetIds[1] || ''),
+  )
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
+  if (!underlyingAsset0)
+    throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[0]}`)
+  if (!underlyingAsset1)
+    throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
+
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, osmosisAssetId))
+
+  const accountFilter = useMemo(() => ({ accountId }), [accountId])
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
   const { state: walletState } = useWallet()
+
+  // notify
+  const toast = useToast()
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
@@ -81,92 +108,142 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
-  const handleConfirm = useCallback(async () => {
+  const handleWithdraw = useCallback(async () => {
     if (
       !(
-        dispatch &&
-        bip44Params &&
-        accountAddress &&
+        contextDispatch &&
+        state &&
+        state.poolData &&
+        userAddress &&
         assetReference &&
+        walletState &&
         walletState.wallet &&
-        supportsETH(walletState.wallet) &&
-        opportunity
+        supportsOsmosis(walletState.wallet) &&
+        opportunity &&
+        chainAdapter &&
+        bip44Params
       )
     )
       return
 
     try {
-      dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
-      const osmosisOpportunity = await osmosisInvestor?.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
-      if (!osmosisOpportunity) throw new Error('No opportunity')
-      const tx = await osmosisOpportunity.prepareWithdrawal({
-        address: accountAddress,
-        amount: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).integerValue(),
-      })
-      const txid = await osmosisOpportunity.signAndBroadcast({
-        wallet: walletState.wallet,
-        tx,
-        // TODO: allow user to choose fee priority
-        feePriority: undefined,
-        bip44Params,
-      })
-      dispatch({ type: OsmosisWithdrawActionType.SET_TXID, payload: txid })
+      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
+
+      const estimatedFees = await chainAdapter.getFeeData({ sendMax: false })
+      const result = await (async () => {
+        const fees = estimatedFees.average as FeeData<CosmosSdkChainId>
+        const {
+          chainSpecific: { gasLimit },
+          txFee,
+        } = fees
+
+        if (!state.poolData || !state.poolData.id || !walletState.wallet) return
+        const { accountNumber } = bip44Params
+
+        return await chainAdapter.buildLPRemoveTransaction({
+          poolId: state.poolData.id,
+          shareOutAmount: state.withdraw.shareOutAmount,
+          tokenOutMins: [
+            {
+              amount: state.withdraw.underlyingAsset0.amount,
+              denom: state.withdraw.underlyingAsset0.denom,
+            },
+            {
+              amount: state.withdraw.underlyingAsset1.amount,
+              denom: state.withdraw.underlyingAsset1.denom,
+            },
+          ],
+          wallet: walletState?.wallet,
+          accountNumber,
+          chainSpecific: {
+            gas: gasLimit,
+            fee: txFee,
+          },
+        })
+      })()
+      const txToSign = result?.txToSign
+
+      if (!txToSign) {
+        throw new Error('Error generating unsigned transaction')
+      }
+
+      const txid = await (async () => {
+        if (walletState.wallet?.supportsOfflineSigning()) {
+          const signedTx = await chainAdapter.signTransaction({
+            txToSign,
+            wallet: walletState.wallet,
+          })
+          return chainAdapter.broadcastTransaction(signedTx)
+        } else if (walletState.wallet?.supportsBroadcast()) {
+          /**
+           * signAndBroadcastTransaction is an optional method on the HDWallet interface.
+           * Check and see if it exists; if so, call and make sure a txhash is returned
+           */
+          if (!chainAdapter.signAndBroadcastTransaction) {
+            throw new Error('signAndBroadcastTransaction undefined for wallet')
+          }
+          return chainAdapter.signAndBroadcastTransaction?.({
+            txToSign,
+            wallet: walletState?.wallet,
+          })
+        } else {
+          throw new Error('Bad hdwallet config')
+        }
+      })()
+
+      if (!txid) {
+        throw new Error('Broadcast failed')
+      }
+
+      contextDispatch({ type: OsmosisWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error',
+      })
     } finally {
-      dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    asset.precision,
+    contextDispatch,
+    state,
+    userAddress,
     assetReference,
-    bip44Params,
-    dispatch,
-    onNext,
+    walletState,
     opportunity,
-    state?.opportunity,
-    accountAddress,
-    state?.withdraw.cryptoAmount,
-    walletState.wallet,
-    osmosisInvestor,
+    chainAdapter,
+    bip44Params,
+    onNext,
+    toast,
+    translate,
   ])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
   }, [onNext])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
-
-  const notEnoughGasTranslation = useMemo(
+  const hasEnoughBalanceForGas = useMemo(
     () =>
-      ['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }] as [
-        string,
-        InterpolationOptions,
-      ],
-    [feeAsset.symbol],
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.withdraw.estimatedFeeCrypto).div(`1e+${feeAsset.precision}`))
+        .gte(0),
+    [feeAssetBalance, state?.withdraw, feeAsset?.precision],
   )
 
-  if (!state || !dispatch) return null
+  if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm
       onCancel={handleCancel}
-      headerText='modals.confirm.withdraw.header'
+      onConfirm={handleWithdraw}
       isDisabled={!hasEnoughBalanceForGas}
       loading={state.loading}
       loadingText={translate('common.confirm')}
-      onConfirm={handleConfirm}
+      headerText='modals.confirm.withdraw.header'
     >
       <Summary>
         <Row variant='vertical' p={4}>
@@ -175,11 +252,26 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={underlyingAsset0.icon} />
+              <RawText>{underlyingAsset0.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.underlyingAsset0.amount}
+                symbol={underlyingAsset0.symbol}
+              />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={underlyingAsset1.icon} />
+              <RawText>{underlyingAsset1.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto
+                value={state.withdraw.underlyingAsset1.amount}
+                symbol={underlyingAsset1.symbol}
+              />
             </Row.Value>
           </Row>
         </Row>
@@ -191,28 +283,25 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
+                value={bnOrZero(state.withdraw.estimatedFeeCrypto)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedFeeCrypto).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>
         </Row>
-        {!hasEnoughBalanceForGas && (
-          <Alert status='error' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={notEnoughGasTranslation} />
-          </Alert>
-        )}
       </Summary>
+      {!hasEnoughBalanceForGas && (
+        <Alert status='error' borderRadius='lg'>
+          <AlertIcon />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+        </Alert>
+      )}
     </ReusableConfirm>
   )
 }

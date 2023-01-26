@@ -11,6 +11,8 @@ type ThorchainSaversDepositValues = DepositValues &
     txStatus: string
     usedGasFee: string
     depositFeeCryptoBaseUnit: string
+    maybeFromUTXOAccountAddress: string
+    sendMax?: boolean
   }
 
 // Redux only stores things that are serializable. Class methods are removed when put in state.

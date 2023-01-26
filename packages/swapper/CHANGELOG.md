@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v15.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.7.0...@shapeshiftoss/swapper-v15.8.0) (2023-01-26)
+
+
+### Features
+
+* add optimism support on zrx ([#1178](https://github.com/shapeshift/lib/issues/1178)) ([5de1305](https://github.com/shapeshift/lib/commit/5de1305fd9c4ba080115002d486f3aa374aed0de))
+
 # [@shapeshiftoss/swapper-v15.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v15.6.0...@shapeshiftoss/swapper-v15.7.0) (2023-01-23)
 
 

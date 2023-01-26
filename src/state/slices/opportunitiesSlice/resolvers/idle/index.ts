@@ -134,7 +134,12 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
   if (accountChainId !== ethChainId)
-    throw new Error(`No-op. Won't fetch idle userStakingData for chainId: ${accountChainId}`)
+    return Promise.resolve({
+      data: {
+        byId: {},
+        type: opportunityType,
+      },
+    })
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency

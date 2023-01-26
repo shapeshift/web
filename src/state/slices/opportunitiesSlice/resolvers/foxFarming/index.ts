@@ -236,10 +236,9 @@ export const foxFarmingLpUserDataResolver = ({
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    throw new Error(
-      `No-op. Won't fetch ETH/FOX farming userStakingData for chainId: ${accountChainId}`,
-    )
+  // Looks the same as the happy path but isn't, we won't hit this as a guard with non-Ethereum account ChainIds
+  if (accountChainId !== ethChainId) return Promise.resolve()
+
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)
@@ -269,9 +268,11 @@ export const foxFarmingStakingUserDataResolver = async ({
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
   if (accountChainId !== ethChainId)
-    throw new Error(
-      `No-op. Won't fetch ETH/FOX farming userStakingData for chainId: ${accountChainId}`,
-    )
+    return {
+      data: {
+        byId: {},
+      },
+    }
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)

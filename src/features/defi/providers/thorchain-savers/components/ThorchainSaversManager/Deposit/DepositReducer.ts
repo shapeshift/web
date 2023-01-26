@@ -14,6 +14,8 @@ export const initialState: ThorchainSaversDepositState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
+    depositFeeCryptoBaseUnit: '',
+    maybeFromUTXOAccountAddress: '',
   },
 }
 

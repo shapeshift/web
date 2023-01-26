@@ -3,6 +3,8 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { getInboundAddressDataForChain } from '@shapeshiftoss/swapper'
+import { getConfig } from 'config'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -10,7 +12,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -18,7 +20,9 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import {
+  fromThorBaseUnit,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -41,6 +45,7 @@ const moduleLogger = logger.child({
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
+  const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const toast = useToast()
@@ -101,6 +106,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [amountAvailableCryptoPrecision, assetMarketData.price],
   )
 
+  const getOutboundFeeCryptoBaseUnit = useCallback(async () => {
+    const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+    const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+
+    if (!inboundAddressData) return
+
+    const { outbound_fee } = inboundAddressData
+
+    const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
+
+    return outboundFeeCryptoBaseUnit
+  }, [asset.precision, assetId])
+
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
       if (
@@ -151,6 +169,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
   )
 
+  useEffect(() => {
+    ;(async () => {
+      if (outboundFeeCryptoBaseUnit) return
+
+      setOutboundFeeCryptoBaseUnit((await getOutboundFeeCryptoBaseUnit()) ?? '')
+    })()
+  }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
+
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
       if (!(userAddress && opportunityData && dispatch)) return
@@ -196,25 +222,77 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
-      const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
-      if (_value.isEqualTo(0)) return ''
+      if (!opportunityData?.stakedAmountCryptoBaseUnit) return false
+      if (!outboundFeeCryptoBaseUnit) return false
+
+      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const valueCryptoPrecision = bnOrZero(value)
+      const valueCryptoBaseUnit = bn(value).times(bn(10).pow(asset.precision))
+
+      const hasValidBalance =
+        balanceCryptoPrecision.gt(0) &&
+        valueCryptoPrecision.gt(0) &&
+        balanceCryptoPrecision.gte(valueCryptoPrecision)
+      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
+
+      if (isBelowWithdrawThreshold) {
+        const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+          bn(10).pow(asset.precision),
+        )
+        const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+        return translate('trade.errors.amountTooSmall', {
+          minLimit,
+        })
+      }
+
+      if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [amountAvailableCryptoPrecision],
+    [
+      amountAvailableCryptoPrecision,
+      asset.precision,
+      asset.symbol,
+      opportunityData?.stakedAmountCryptoBaseUnit,
+      outboundFeeCryptoBaseUnit,
+      translate,
+    ],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
+      if (!outboundFeeCryptoBaseUnit) return false
       const crypto = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+
       const fiat = crypto.times(assetMarketData.price)
-      const _value = bnOrZero(value)
-      const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
-      if (_value.isEqualTo(0)) return ''
+      const valueCryptoPrecision = bnOrZero(value)
+      const valueCryptoBaseUnit = bnOrZero(value)
+        .div(assetMarketData.price)
+        .times(bn(10).pow(asset.precision))
+
+      const isBelowWithdrawThreshold = valueCryptoBaseUnit.minus(outboundFeeCryptoBaseUnit).lt(0)
+
+      if (isBelowWithdrawThreshold) {
+        const minLimitCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+          bn(10).pow(asset.precision),
+        )
+        const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+        return translate('trade.errors.amountTooSmall', {
+          minLimit,
+        })
+      }
+
+      const hasValidBalance = fiat.gt(0) && valueCryptoPrecision.gt(0) && fiat.gte(value)
+      if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [amountAvailableCryptoPrecision, assetMarketData],
+    [
+      amountAvailableCryptoPrecision,
+      asset.precision,
+      asset.symbol,
+      assetMarketData.price,
+      outboundFeeCryptoBaseUnit,
+      translate,
+    ],
   )
 
   if (!state) return null

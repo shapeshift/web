@@ -1,7 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, osmosisAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
 import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -23,12 +22,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
-  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -38,42 +34,21 @@ import { OsmosisWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
+  namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
 })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
-export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
+export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference } = query
-  // const opportunity = useMemo(() => state?.opportunity, [state])
+  const { chainId } = query
+  const opportunity = state?.opportunity
 
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const opportunityId: LpId | undefined = useMemo(
-    () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
-    [assetId, assetNamespace, assetReference, chainId],
-  )
+  const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
-  const OsmosisLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: opportunityId,
-      assetId,
-      accountId,
-    }),
-    [accountId, assetId, opportunityId],
-  )
-  const opportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
-  )
-
-  const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter // TODO:(pastaghost) Ew.
-
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-
-  // const rawOpportunityData = useAppSelector(state => selectLpOppo)
 
   const underlyingAsset0 = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetIds[0] || ''),
@@ -81,12 +56,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const underlyingAsset1 = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetIds[1] || ''),
   )
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
-  if (!underlyingAsset0)
-    throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[0]}`)
-  if (!underlyingAsset1)
-    throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, osmosisAssetId))
 
@@ -115,7 +84,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         state &&
         state.poolData &&
         userAddress &&
-        assetReference &&
         walletState &&
         walletState.wallet &&
         supportsOsmosis(walletState.wallet) &&
@@ -123,9 +91,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         chainAdapter &&
         bip44Params
       )
-    )
+    ) {
       return
-
+    }
     try {
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
 
@@ -142,14 +110,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
         return await chainAdapter.buildLPRemoveTransaction({
           poolId: state.poolData.id,
-          shareOutAmount: state.withdraw.shareOutAmount,
+          shareOutAmount: state.withdraw.shareInAmount,
           tokenOutMins: [
             {
-              amount: state.withdraw.underlyingAsset0.amount,
+              amount: bnOrZero(state.withdraw.underlyingAsset0.amount)
+                .pow(10, underlyingAsset0?.precision ?? '0')
+                .toFixed(0),
               denom: state.withdraw.underlyingAsset0.denom,
             },
             {
-              amount: state.withdraw.underlyingAsset1.amount,
+              amount: bnOrZero(state.withdraw.underlyingAsset1.amount)
+                .pow(10, underlyingAsset0?.precision ?? '0')
+                .toFixed(0),
               denom: state.withdraw.underlyingAsset1.denom,
             },
           ],
@@ -166,7 +138,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       if (!txToSign) {
         throw new Error('Error generating unsigned transaction')
       }
-
+      moduleLogger.info(JSON.stringify(txToSign, null, 2))
       const txid = await (async () => {
         if (walletState.wallet?.supportsOfflineSigning()) {
           const signedTx = await chainAdapter.signTransaction({
@@ -212,12 +184,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     contextDispatch,
     state,
     userAddress,
-    assetReference,
     walletState,
     opportunity,
     chainAdapter,
     bip44Params,
     onNext,
+    underlyingAsset0?.precision,
     toast,
     translate,
   ])
@@ -229,12 +201,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedFeeCrypto).div(`1e+${feeAsset.precision}`))
+        .minus(bnOrZero(state?.withdraw.estimatedFeeCrypto).div(`1e+${feeAsset?.precision}`))
         .gte(0),
     [feeAssetBalance, state?.withdraw, feeAsset?.precision],
   )
 
-  if (!state || !contextDispatch) return null
+  if (!(state && contextDispatch && underlyingAsset0 && underlyingAsset1 && feeAsset)) return null
 
   return (
     <ReusableConfirm

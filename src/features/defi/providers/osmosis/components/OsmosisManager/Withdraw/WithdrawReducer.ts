@@ -11,15 +11,13 @@ export const initialState: OsmosisWithdrawState = {
     underlyingAsset0: {
       amount: '',
       denom: '',
-      fiatAmount: '',
     },
     underlyingAsset1: {
       amount: '',
       denom: '',
-      fiatAmount: '',
     },
     estimatedFeeCrypto: '',
-    shareOutAmount: '',
+    shareInAmount: '',
     txStatus: 'pending',
     usedGasFee: '',
   },
@@ -32,6 +30,8 @@ export const reducer = (
   switch (action.type) {
     case OsmosisWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
+    case OsmosisWithdrawActionType.SET_POOL_DATA:
+      return { ...state, poolData: { ...state.poolData, ...action.payload } }
     case OsmosisWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case OsmosisWithdrawActionType.SET_USER_ADDRESS:

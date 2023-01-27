@@ -133,6 +133,7 @@ export const marketApi = createApi({
           return { error }
         }
       },
+      keepUnusedDataFor: 5, // Invalidate cached asset market data after 5 seconds.
     }),
     findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
@@ -198,5 +199,9 @@ export const marketApi = createApi({
   }),
 })
 
-export const { useFindAllQuery, useFindByFiatSymbolQuery, useFindPriceHistoryByFiatSymbolQuery } =
-  marketApi
+export const {
+  useFindByAssetIdQuery,
+  useFindAllQuery,
+  useFindByFiatSymbolQuery,
+  useFindPriceHistoryByFiatSymbolQuery,
+} = marketApi

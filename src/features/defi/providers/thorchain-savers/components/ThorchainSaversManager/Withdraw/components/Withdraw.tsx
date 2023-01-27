@@ -53,8 +53,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { chainId, assetNamespace, assetReference } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { setValue } = methods
 
+  const { setValue } = methods
   // Asset info
 
   const assetId = toAssetId({
@@ -173,13 +173,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     ;(async () => {
       if (outboundFeeCryptoBaseUnit) return
 
-      setOutboundFeeCryptoBaseUnit((await getOutboundFeeCryptoBaseUnit()) ?? '')
+      const dustThresholdFee = await getOutboundFeeCryptoBaseUnit()
+      if (!dustThresholdFee) return ''
+
+      // Add 1% as as a safety factor since the dust threshold fee is not necessarily going to cut it
+      const safeOutboundFee = bn(dustThresholdFee).times(101).div(100).toString()
+      setOutboundFeeCryptoBaseUnit(safeOutboundFee ?? '')
     })()
   }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
       if (!(userAddress && opportunityData && dispatch)) return
+
       // set withdraw state for future use
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
@@ -203,7 +209,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
-    [userAddress, opportunityData, dispatch, getWithdrawGasEstimate, onNext, toast, translate],
+    [userAddress, opportunityData, dispatch, translate, getWithdrawGasEstimate, onNext, toast],
   )
 
   const handleCancel = useCallback(() => {

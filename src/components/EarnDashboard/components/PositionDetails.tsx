@@ -14,12 +14,15 @@ export const PositionDetails = ({ original }: RowProps) => {
     <Flex bg='blackAlpha.400' px={6} py={8} flexDir='column' gap={6}>
       <AssetHeader assetId={original.assetId} />
       <StatGroup flex={1}>
-        <StakedBalance cryptoAmountBaseUnit={original.cryptoBalance} assetId={assetId} />
-        <AvailableBalance assetId={assetId} />
+        <StakedBalance
+          cryptoBalancePrecision={original.cryptoBalancePrecision}
+          assetId={original.assetId}
+        />
+        <AvailableBalance assetId={original.assetId} />
       </StatGroup>
       <ProviderPositions ids={original.opportunities.staking} />
 
-      <LpPositions ids={original.opportunities.lp} />
+      <LpPositions ids={original.opportunities.lp} assetId={original.assetId} />
     </Flex>
   )
 }

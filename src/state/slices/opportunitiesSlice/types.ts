@@ -146,8 +146,8 @@ export type GroupedEligibleOpportunityReturnType = {
   assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
   netApy: number
-  balance: number
-  cryptoBalance: number
+  fiatAmount: number
+  cryptoBalancePrecision: number
   rewards: number
   opportunities: Record<DefiType, OpportunityId[]>
 }

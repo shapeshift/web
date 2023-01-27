@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Tag } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -8,11 +9,28 @@ import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GroupedEligibleOpportunityReturnType } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnOpportunitiesByAssetId } from 'state/slices/selectors'
+import { selectAggregatedEarnOpportunitiesByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type RowProps = Row<GroupedEligibleOpportunityReturnType>
+
+const AssetCell = ({ assetId }: { assetId: AssetId }) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) return null
+  return (
+    <Flex alignItems='center' gap={4}>
+      <AssetIcon size='sm' assetId={assetId} />
+      <Flex flexDir='column'>
+        <RawText>{asset.name}</RawText>
+        <RawText color='gray.500' fontSize='sm'>
+          {asset.symbol}
+        </RawText>
+      </Flex>
+    </Flex>
+  )
+}
 
 export const PositionTable = () => {
   const translate = useTranslate()
@@ -30,19 +48,19 @@ export const PositionTable = () => {
       {
         Header: translate('defi.asset'),
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex>
-            <Flex>
-              <AssetIcon size='sm' assetId={row.original.assetId} />
-            </Flex>
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) => <AssetCell assetId={row.original.assetId} />,
         disableSortBy: true,
       },
       {
         Header: 'Total Value',
-        accessor: 'balance',
-        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.balance} />,
+        id: 'fiatAmount',
+        accessor: 'fiatAmount',
+        Cell: ({ row }: { row: RowProps }) => (
+          <Amount.Fiat
+            color={bnOrZero(row.original.fiatAmount).gt(0) ? 'inherit' : 'gray.500'}
+            value={row.original.fiatAmount}
+          />
+        ),
       },
       {
         Header: 'Net APY',
@@ -78,5 +96,12 @@ export const PositionTable = () => {
     ],
     [translate],
   )
-  return <ReactTable data={positions} columns={columns} renderSubComponent={PositionDetails} />
+  return (
+    <ReactTable
+      data={positions}
+      columns={columns}
+      renderSubComponent={PositionDetails}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+    />
+  )
 }

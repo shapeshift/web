@@ -1,5 +1,6 @@
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -12,25 +13,31 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserLpOpportunities,
+  selectAssets,
+  selectCryptoMarketData,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ProviderPositionProps = {
   ids: OpportunityId[]
+  assetId: AssetId
 }
 
 export type RowProps = Row<LpEarnOpportunityType>
 
-export const LpPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
+export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
   const location = useLocation()
   const history = useHistory()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectCryptoMarketData)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
@@ -107,7 +114,16 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
       {
         Header: 'Total Value',
         accessor: 'fiatAmount',
-        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.fiatAmount} />,
+        Cell: ({ row }: { row: RowProps }) => {
+          const underlyingBalances = getUnderlyingAssetIdsBalances({
+            underlyingAssetIds: row.original.underlyingAssetIds,
+            underlyingAssetRatiosBaseUnit: row.original.underlyingAssetRatiosBaseUnit,
+            cryptoAmountBaseUnit: row.original.cryptoAmountBaseUnit,
+            assets,
+            marketData,
+          })
+          return <Amount.Fiat value={underlyingBalances[assetId].fiatAmount ?? 0} />
+        },
       },
       {
         Header: 'APY',
@@ -143,7 +159,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
         ),
       },
     ],
-    [handleClick],
+    [assetId, assets, handleClick, marketData],
   )
 
   if (!filteredDown.length) return null

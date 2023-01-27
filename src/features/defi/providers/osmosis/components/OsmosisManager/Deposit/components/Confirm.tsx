@@ -33,7 +33,9 @@ import { useAppSelector } from 'state/store'
 import { OsmosisDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['OsmosisDeposit:Confirm'] })
+const moduleLogger = logger.child({
+  namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Deposit', 'Confirm'],
+})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -47,8 +49,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-
-  // const rawOpportunityData = useAppSelector(state => selectLpOppo)
 
   const underlyingAsset0 = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetIds[0] || ''),
@@ -113,11 +113,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           shareOutAmount: state.deposit.shareOutAmount,
           tokenInMaxs: [
             {
-              amount: state.deposit.underlyingAsset0.amount,
+              amount: bnOrZero(state.deposit.underlyingAsset0.amount)
+                .pow(10, underlyingAsset0?.precision ?? '0')
+                .toFixed(0),
               denom: state.deposit.underlyingAsset0.denom,
             },
             {
-              amount: state.deposit.underlyingAsset1.amount,
+              amount: bnOrZero(state.deposit.underlyingAsset1.amount)
+                .pow(10, underlyingAsset1?.precision ?? '0')
+                .toFixed(0),
               denom: state.deposit.underlyingAsset1.denom,
             },
           ],
@@ -134,7 +138,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       if (!txToSign) {
         throw new Error('Error generating unsigned transaction')
       }
-
       const txid = await (async () => {
         if (walletState.wallet?.supportsOfflineSigning()) {
           const signedTx = await chainAdapter.signTransaction({

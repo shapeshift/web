@@ -10,7 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -51,12 +51,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onNext,
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const translate = useTranslate()
+  const toast = useToast()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
+  const methods = useForm<WithdrawValues>({ mode: 'onChange' })
+  const { setValue } = methods
+
   const assets = useAppSelector(selectAssets)
-  const translate = useTranslate()
-  const toast = useToast()
 
   const assetId = toAssetId({
     chainId,
@@ -86,9 +89,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     useState('0')
   const [underlyingAsset1AmountCryptoBaseUnit, setUnderlyingAsset1AmountCryptoBaseUnit] =
     useState('0')
-
-  const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { setValue } = methods
 
   const underlyingAsset0Id = opportunity?.underlyingAssetIds[0]
   const underlyingAsset1Id = opportunity?.underlyingAssetIds[1]
@@ -140,7 +140,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
 
-  const getWithdrawFeeEstimate = useCallback(async (): Promise<string | undefined> => {
+  if (!state || !dispatch || !opportunity?.icons) return null
+
+  const getWithdrawFeeEstimate = async (): Promise<string | undefined> => {
     if (!(userAddress && assetReference && accountId && opportunity)) return
     try {
       const chainAdapters = getChainAdapterManager()
@@ -169,51 +171,38 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         status: 'error',
       })
     }
-  }, [userAddress, assetReference, accountId, opportunity, asset, chainId, toast, translate])
+  }
 
-  const handleContinue = useCallback(
-    async (formValues: WithdrawValues) => {
-      if (!(userAddress && dispatch)) return
-      // set withdraw state for future use
-      dispatch({
-        type: OsmosisWithdrawActionType.SET_WITHDRAW,
-        payload: {
-          underlyingAsset0: {
-            amount: formValues.cryptoAmount1,
-            denom: fromAssetId(underlyingAsset0.assetId).assetReference,
-            fiatAmount: formValues.fiatAmount1,
-          },
-          underlyingAsset1: {
-            amount: formValues.cryptoAmount2,
-            denom: fromAssetId(underlyingAsset1.assetId).assetReference,
-            fiatAmount: formValues.cryptoAmount2,
-          },
-          shareOutAmount: '0',
-        },
-      })
-      dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
-      const estimatedFeeCrypto = await getWithdrawFeeEstimate()
-      if (!estimatedFeeCrypto) return
-      dispatch({
-        type: OsmosisWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedFeeCrypto },
-      })
-      onNext(DefiStep.Confirm)
+  const handleContinue = async () => {
+    if (!opportunity) return
+    // set withdraw state for future use
+    dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
+    dispatch({
+      type: OsmosisWithdrawActionType.SET_WITHDRAW,
+      // payload: {
+      //   lpAmount: formValues.cryptoAmount,
+      //   foxAmount: underlyingAsset1AmountCryptoPrecision,
+      //   ethAmount: underlyingAsset0AmountCryptoPrecision,
+      // },
+      payload: {},
+    })
+
+    const estimatedFeeCrypto = await getWithdrawFeeEstimate()
+    if (!estimatedFeeCrypto) {
       dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
-    },
-    [
-      userAddress,
-      getWithdrawFeeEstimate,
-      underlyingAsset0AmountCryptoPrecision,
-      underlyingAsset1AmountCryptoPrecision,
-      onNext,
-      dispatch,
-    ],
-  )
+      return
+    }
+    dispatch({
+      type: OsmosisWithdrawActionType.SET_WITHDRAW,
+      payload: { estimatedFeeCrypto },
+    })
+    onNext(DefiStep.Confirm)
+    dispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+  }
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     browserHistory.goBack()
-  }, [browserHistory])
+  }
 
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toString()

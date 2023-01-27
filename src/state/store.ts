@@ -113,6 +113,8 @@ export const createStore = () =>
           ignoredActions: [PERSIST, PURGE],
         },
         serializableCheck: {
+          ignoreState: true,
+          ignoreActions: true,
           warnAfter: 128,
           ignoredActions: [PERSIST, PURGE],
         },

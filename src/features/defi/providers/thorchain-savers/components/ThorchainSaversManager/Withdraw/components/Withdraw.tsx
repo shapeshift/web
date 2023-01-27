@@ -176,8 +176,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       const dustThresholdFee = await getOutboundFeeCryptoBaseUnit()
       if (!dustThresholdFee) return ''
 
-      // Add 1% as as a safety factor since the dust threshold fee is not necessarily going to cut it
-      const safeOutboundFee = bn(dustThresholdFee).times(101).div(100).toString()
+      // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
+      const safeOutboundFee = bn(dustThresholdFee).times(105).div(100).toString()
       setOutboundFeeCryptoBaseUnit(safeOutboundFee ?? '')
     })()
   }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])

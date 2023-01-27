@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
@@ -55,7 +56,7 @@ const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 // The amount of Txs we want to keep gas away for
-const TXS_BUFFER = 4
+const TXS_BUFFER = 2
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
@@ -182,7 +183,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
 
     try {
-      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      // Estimated fees tend to produce too low fees on e.g Dogecoin
+      // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
+      const estimatedFees = Object.fromEntries(
+        Object.entries(await estimateFees(await getEstimateFeesArgs())).map(
+          ([feeType, feeData]) => [
+            feeType as FeeDataKey,
+            {
+              ...feeData,
+              txFee: bn(feeData.txFee).times(2).toString(),
+              chainSpecific: {
+                ...(feeData as FeeData<UtxoChainId>).chainSpecific,
+                satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
+                  .times(2)
+                  .toString(),
+              },
+            },
+          ],
+        ),
+      ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )

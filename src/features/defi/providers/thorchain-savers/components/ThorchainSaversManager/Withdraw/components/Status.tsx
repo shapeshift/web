@@ -42,7 +42,11 @@ export const Status = () => {
   const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress = useMemo(
+    () => state?.withdraw.maybeFromUTXOAccountAddress || accountAddress,
+    [accountAddress, state?.withdraw.maybeFromUTXOAccountAddress],
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''

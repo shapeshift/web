@@ -68,6 +68,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [expiry, setExpiry] = useState<string>('')
+  const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const [withdrawFeeCryptoBaseUnit, setWithdrawFeeCryptoBaseUnit] = useState<string>('')
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
@@ -192,7 +193,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     withdrawFeeCryptoBaseUnit,
   ])
 
-  const getMaybeUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
+  const getMaybeFromUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
     if (!accountId) throw new Error('accountId is undefined')
     if (!isUtxoChainId(chainId)) return ''
 
@@ -206,6 +207,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       throw new Error(`Cannot get savers position for accountId: ${accountId}`)
     }
   }, [accountId, assetId, chainId])
+
+  useEffect(() => {
+    ;(async () => {
+      if (maybeFromUTXOAccountAddress) return
+
+      const maybeFromUtxoAccountAddress = await getMaybeFromUtxoAccountAddress()
+      setMaybeFromUTXOAccountAddress(maybeFromUtxoAccountAddress)
+    })()
+  }, [accountId, getMaybeFromUtxoAccountAddress, maybeFromUTXOAccountAddress])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))
@@ -222,9 +232,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })
     const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
-    const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
-
-    if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+    if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
       throw new Error('Account address required to withdraw from THORChain savers')
     }
 
@@ -245,7 +253,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!quote) throw new Error('Cannot get THORCHain savers withdraw quote')
 
     return {
-      from: maybeUtxoAccountAddress,
+      from: maybeFromUTXOAccountAddress,
       cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
       asset,
       to: quote.inbound_address,
@@ -257,7 +265,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     asset,
     chainId,
-    getMaybeUtxoAccountAddress,
+    maybeFromUTXOAccountAddress,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
@@ -287,9 +295,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
-      const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
 
-      if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
         throw new Error('Account address required to withdraw from THORChain savers')
       }
 
@@ -297,7 +304,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         cryptoAmount: '',
         asset,
         from: '', // Let coinselect do its magic here
-        to: maybeUtxoAccountAddress,
+        to: maybeFromUTXOAccountAddress,
         sendMax: true,
         accountId,
         amountFieldError: '',
@@ -323,8 +330,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.rewardsAmountsCryptoBaseUnit,
     getEstimateFeesArgs,
     asset,
-    getMaybeUtxoAccountAddress,
     chainId,
+    maybeFromUTXOAccountAddress,
     selectedCurrency,
   ])
 
@@ -351,9 +358,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const { dust_amount } = quote
 
-      const maybeUtxoAccountAddress = await getMaybeUtxoAccountAddress()
-
-      if (isUtxoChainId(chainId) && !maybeUtxoAccountAddress) {
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
         throw new Error('Account address required to withdraw from THORChain savers')
       }
 
@@ -361,7 +366,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
         asset,
         to: quote.inbound_address,
-        from: maybeUtxoAccountAddress,
+        from: maybeFromUTXOAccountAddress,
         sendMax: false,
         accountId,
         amountFieldError: '',
@@ -386,8 +391,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getEstimateFeesArgs,
     state?.withdraw.cryptoAmount,
     asset,
-    getMaybeUtxoAccountAddress,
     chainId,
+    maybeFromUTXOAccountAddress,
     selectedCurrency,
   ])
 
@@ -425,13 +430,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return handleSend({
         sendInput: preWithdrawInput,
         wallet: walletState.wallet!,
-      }).then(() =>
+      }).then(async () => {
+        // Safety factor for the Tx to be seen in the mempool
+        await new Promise(resolve => setTimeout(resolve, 5000))
         // 3. Sign and broadcast the depooosit Tx again
-        handleSend({
+        return handleSend({
           sendInput: withdrawInput,
           wallet: walletState.wallet!,
-        }),
-      )
+        })
+      })
     })
 
     return txId
@@ -451,6 +458,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         )
       )
         return
+
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) return
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
@@ -492,6 +501,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         payload: {
           dustAmountCryptoBaseUnit,
           withdrawFeeCryptoBaseUnit,
+          maybeFromUTXOAccountAddress,
         },
       })
       onNext(DefiStep.Status)
@@ -516,13 +526,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    chainId,
+    maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
+    expiry,
     appDispatch,
     getWithdrawInput,
     handleMultiTxSend,
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
-    expiry,
     onNext,
     toast,
     translate,

@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -95,7 +96,12 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         Header: 'Liquidity Pool',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
-          <Flex>
+          <Flex alignItems='center' gap={4}>
+            <Flex>
+              {row.original.underlyingAssetIds.map(assetId => (
+                <AssetIcon assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
+              ))}
+            </Flex>
             <Stack
               divider={
                 <RawText color='gray.500' mx={1}>
@@ -122,7 +128,22 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
             assets,
             marketData,
           })
-          return <Amount.Fiat value={underlyingBalances[assetId].fiatAmount ?? 0} />
+          return (
+            <Flex direction='column'>
+              <Flex gap={1}>
+                <Amount.Fiat value={underlyingBalances[assetId].fiatAmount ?? 0} />
+                <Flex color='gray.500'>
+                  {'('} <Amount.Fiat value={row.original.fiatAmount} /> {')'}
+                </Flex>
+              </Flex>
+              <Amount.Crypto
+                fontSize='sm'
+                color='gray.500'
+                value={underlyingBalances[assetId].cryptoBalancePrecision ?? 0}
+                symbol={assets[assetId]?.symbol ?? ''}
+              />
+            </Flex>
+          )
         },
       },
       {

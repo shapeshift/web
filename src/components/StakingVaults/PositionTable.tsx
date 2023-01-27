@@ -101,7 +101,7 @@ export const PositionTable = () => {
       data={positions}
       columns={columns}
       renderSubComponent={PositionDetails}
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />
   )
 }

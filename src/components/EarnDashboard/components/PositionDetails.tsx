@@ -11,7 +11,7 @@ export const PositionDetails = ({ original }: RowProps) => {
   const assetId = original.underlyingAssetIds[0]
   if (!assetId) return null
   return (
-    <Flex bg='blackAlpha.400' px={6} py={8} flexDir='column' gap={6}>
+    <Flex px={6} py={8} flexDir='column' gap={6}>
       <AssetHeader assetId={original.assetId} />
       <StatGroup flex={1}>
         <StakedBalance
@@ -20,7 +20,7 @@ export const PositionDetails = ({ original }: RowProps) => {
         />
         <AvailableBalance assetId={original.assetId} />
       </StatGroup>
-      <ProviderPositions ids={original.opportunities.staking} />
+      <ProviderPositions ids={original.opportunities.staking} assetId={original.assetId} />
 
       <LpPositions ids={original.opportunities.lp} assetId={original.assetId} />
     </Flex>

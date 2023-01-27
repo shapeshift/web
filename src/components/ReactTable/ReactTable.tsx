@@ -1,9 +1,21 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
+import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import {
+  Flex,
+  IconButton,
+  Table,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import type { Column, Row, TableState } from 'react-table'
-import { useExpanded, useSortBy, useTable } from 'react-table'
+import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
+import { RawText } from 'components/Text'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -27,18 +39,31 @@ export const ReactTable = <T extends {}>({
   renderSubComponent,
 }: ReactTableProps<T>) => {
   const hoverColor = useColorModeValue('black', 'white')
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, visibleColumns } =
-    useTable<T>(
-      {
-        columns,
-        data,
-        initialState,
-      },
-      useSortBy,
-      useExpanded,
-    )
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    visibleColumns,
+    pageOptions,
+    nextPage,
+    previousPage,
+    canNextPage,
+    canPreviousPage,
+    state: { pageIndex },
+  } = useTable<T>(
+    {
+      columns,
+      data,
+      initialState,
+    },
+    useSortBy,
+    useExpanded,
+    usePagination,
+  )
   const renderRows = useMemo(() => {
-    return rows.map(row => {
+    return page.map(row => {
       prepareRow(row)
       return (
         <>
@@ -74,7 +99,7 @@ export const ReactTable = <T extends {}>({
       )
     })
   }, [
-    rows,
+    page,
     prepareRow,
     rowDataTestKey,
     rowDataTestPrefix,
@@ -116,6 +141,33 @@ export const ReactTable = <T extends {}>({
         </Thead>
       )}
       <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+      {(canNextPage || canPreviousPage) && (
+        <Tfoot>
+          <Tr>
+            <Td colSpan={visibleColumns.length} py={0}>
+              <Flex width='full' justifyContent='space-between' alignItems='center'>
+                <IconButton
+                  icon={<ArrowBackIcon />}
+                  size='sm'
+                  isDisabled={!canPreviousPage}
+                  onClick={previousPage}
+                  variant='ghost'
+                  aria-label='Previous Page'
+                />
+                <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
+                <IconButton
+                  icon={<ArrowForwardIcon />}
+                  size='sm'
+                  isDisabled={!canNextPage}
+                  onClick={nextPage}
+                  variant='ghost'
+                  aria-label='Next Page'
+                />
+              </Flex>
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
     </Table>
   )
 }

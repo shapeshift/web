@@ -28,6 +28,7 @@ import { useAppSelector } from 'state/store'
 
 type ProviderPositionProps = {
   ids: OpportunityId[]
+  assetId: AssetId
 }
 
 export type RowProps = Row<StakingEarnOpportunityType>
@@ -58,7 +59,7 @@ const calculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
+export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
   const location = useLocation()
   const history = useHistory()
   const {
@@ -145,7 +146,19 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
       {
         Header: 'Total Value',
         accessor: 'fiatAmount',
-        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.fiatAmount} />,
+        Cell: ({ row }: { row: RowProps }) => (
+          <Flex flexDir='column'>
+            <Amount.Fiat value={row.original.fiatAmount} />
+            <Amount.Crypto
+              fontSize='sm'
+              color='gray.500'
+              value={bnOrZero(row.original.cryptoAmountBaseUnit)
+                .div(bnOrZero(10).pow(assets[assetId]?.precision ?? 0))
+                .toString()}
+              symbol={assets[assetId]?.symbol ?? ''}
+            />
+          </Flex>
+        ),
       },
       {
         Header: 'APY',
@@ -166,7 +179,12 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
             assets,
             marketData,
           })
-          return <Amount.Fiat value={fiatAmount} />
+          return (
+            <Amount.Fiat
+              value={fiatAmount}
+              color={bnOrZero(fiatAmount).gt(0) ? 'green.500' : 'gray.500'}
+            />
+          )
         },
         sortType: (a: RowProps, b: RowProps): number => {
           const aFiatPrice = calculateRewardFiatAmount({
@@ -194,7 +212,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids }) => {
         ),
       },
     ],
-    [assets, handleClick, marketData],
+    [assetId, assets, handleClick, marketData],
   )
 
   if (!filteredDown.length) return null

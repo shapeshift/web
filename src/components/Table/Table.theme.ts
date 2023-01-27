@@ -22,6 +22,14 @@ export const TableStyle = {
           },
         },
       },
+      tfoot: {
+        tr: {
+          td: {
+            paddingTop: 2,
+            paddingBottom: 2,
+          },
+        },
+      },
     },
     sm: {
       thead: {
@@ -50,6 +58,14 @@ export const TableStyle = {
   variants: {
     default: (props: Record<string, any>) => {
       return {
+        table: {
+          '> :last-child tr:last-of-type td:first-of-type': {
+            borderBottomLeftRadius: 'xl',
+          },
+          '> :last-child tr:last-of-type td:last-of-type': {
+            borderBottomRightRadius: 'xl',
+          },
+        },
         thead: {
           tr: {
             bg: mode('gray.100', 'gray.785')(props),
@@ -82,12 +98,6 @@ export const TableStyle = {
               },
             },
             bg: mode('gray.100', 'gray.785')(props),
-            ':last-of-type td:first-of-type': {
-              borderBottomLeftRadius: 'xl',
-            },
-            ':last-of-type td:last-of-type': {
-              borderBottomRightRadius: 'xl',
-            },
             td: {
               borderTop: '1px',
               borderColor: mode('gray.200', 'gray.750')(props),
@@ -95,14 +105,24 @@ export const TableStyle = {
             },
           },
           'tr.expanded-details': {
-            bg: mode('gray.100', 'gray.785')(props),
+            bg: mode('white', 'gray.785')(props),
+            '> td': {
+              bg: mode('transparent', 'blackAlpha.400')(props),
+            },
             _hover: {
-              bg: mode('gray.100', 'gray.785')(props),
+              bg: mode('white', 'gray.785')(props),
               color: 'inherit',
             },
           },
           'tr.expanded td': {
-            bg: mode('gray.200', 'blackAlpha.400')(props),
+            bg: mode('white', 'blackAlpha.400')(props),
+          },
+        },
+        tfoot: {
+          tr: {
+            td: {
+              bg: mode('white', 'gray.785')(props),
+            },
           },
         },
       }

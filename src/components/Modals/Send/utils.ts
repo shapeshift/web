@@ -27,6 +27,7 @@ import type { SendInput } from './Form'
 export type EstimateFeesInput = {
   cryptoAmount: string
   asset: Asset
+  from?: string
   to: string
   sendMax: boolean
   accountId: string
@@ -38,6 +39,7 @@ const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'utils'] })
 export const estimateFees = ({
   cryptoAmount,
   asset,
+  from,
   to,
   sendMax,
   accountId,
@@ -69,7 +71,7 @@ export const estimateFees = ({
       return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
         to,
         value,
-        chainSpecific: { pubkey: account },
+        chainSpecific: { from, pubkey: account },
         sendMax,
       })
     }

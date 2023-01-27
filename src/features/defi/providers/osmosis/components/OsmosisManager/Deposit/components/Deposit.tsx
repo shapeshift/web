@@ -1,13 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  fromAccountId,
-  fromAssetId,
-  osmosisAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDepositWithAllocation } from 'features/defi/components/Deposit/PairDepositWithAllocation'
@@ -26,18 +20,17 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import {
-  selectAssetById,
-  selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OsmosisDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['OsmosisDeposit:Deposit'] })
+const moduleLogger = logger.child({
+  namespace: ['DeFi', 'Providers', 'Osmosis', 'Deposit', 'Deposit'],
+})
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -63,30 +56,12 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
 
-  const underlyingAsset0 = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetIds[0] || ''),
-  )
-  const underlyingAsset1 = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetIds[1] || ''),
-  )
-  // if (!underlyingAsset0)
-  //   throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[0]}`)
-  // if (!underlyingAsset1)
-  //   throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
+  const underlyingAsset0Id = opportunity?.underlyingAssetIds[0] || ''
+  const underlyingAsset1Id = opportunity?.underlyingAssetIds[1] || ''
+  const underlyingAsset0 = useAppSelector(state => selectAssetById(state, underlyingAsset0Id))
+  const underlyingAsset1 = useAppSelector(state => selectAssetById(state, underlyingAsset1Id))
 
-  const underlyingAsset0MarketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity?.underlyingAssetIds[0] || ''),
-  )
-  const underlyingAsset1MarketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity?.underlyingAssetIds[1] || ''),
-  )
-
-  // user info
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const underlyingAsset0Balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
       assetId: opportunity?.underlyingAssetIds[0],
@@ -99,6 +74,15 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId: accountId ?? '',
     }),
   )
+
+  const { data: underlyingAsset0Data } = useFindByAssetIdQuery(underlyingAsset0?.assetId || '')
+  const underlyingAsset0MarketData = underlyingAsset0Data?.[underlyingAsset0?.assetId || '']
+
+  const { data: underlyingAsset1Data } = useFindByAssetIdQuery(underlyingAsset1?.assetId || '')
+  const underlyingAsset1MarketData = underlyingAsset1Data?.[underlyingAsset1?.assetId || '']
+
+  // user info
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // notify
   const toast = useToast()
@@ -117,7 +101,7 @@ export const Deposit: React.FC<DepositProps> = ({
       ).fast.txFee
 
       const fastFeeCryptoPrecision = bnOrZero(
-        bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
+        bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset?.precision ?? 0)),
       )
       return bnOrZero(fastFeeCryptoPrecision).toString()
     } catch (error) {
@@ -145,32 +129,6 @@ export const Deposit: React.FC<DepositProps> = ({
     toast,
     translate,
   ])
-
-  // const calculateShareOutAmount = useCallback(
-  //   (inputAsset: Asset, inputAssetAmount: string): string => {
-  //     const poolAssets = state?.poolData?.pool_assets
-  //     let { assetReference: inputAssetReference } = fromAssetId(inputAsset.assetId)
-  //     if (inputAssetReference === ASSET_REFERENCE.Osmosis) inputAssetReference = 'uosmo'
-
-  //     const poolTotalShares = state?.poolData?.total_shares?.amount
-  //     if (!poolTotalShares)
-  //       throw new Error(`Could not get total shares for pool ${state?.poolData?.id}`)
-
-  //     if (!poolAssets) return '0'
-  //     const poolAssetAmount = poolAssets.find(asset =>
-  //       asset.token.denom.toLowerCase().includes(inputAssetReference.toLowerCase()),
-  //     )?.token?.amount
-
-  //     if (bnOrZero(poolAssetAmount).eq(bn(0))) return '0'
-  //     const shareOutAmount = bnOrZero(poolTotalShares)
-  //       .multipliedBy(bnOrZero(inputAssetAmount))
-  //       .div(bnOrZero(poolAssetAmount))
-  //       .div(bn(10).pow(inputAsset.precision ?? 0))
-  //       .toString()
-  //     return shareOutAmount
-  //   },
-  //   [state?.poolData?.id, state?.poolData?.pool_assets, state?.poolData?.total_shares?.amount],
-  // )
 
   /** Returns an array containing the allocation fraction and shareOutAmount,
    * calculated from the form input parameters */
@@ -218,8 +176,6 @@ export const Deposit: React.FC<DepositProps> = ({
       const allocationFraction = inputAmountFullPrecision
         .div(bnOrZero(poolAssetAmount).plus(inputAmountFullPrecision))
         .toString()
-      // moduleLogger.info(`calculated allocation fraction: ${allocationFraction}`)
-      // moduleLogger.info(`Got allocationFractiont: ${allocationFraction}`)
 
       const shareOutAmount = bnOrZero(allocationFraction)
         .multipliedBy(bnOrZero(poolTotalShares))
@@ -322,8 +278,20 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!(state && contextDispatch && opportunity && underlyingAsset0 && underlyingAsset1))
+  if (
+    !(
+      asset &&
+      state &&
+      contextDispatch &&
+      opportunity &&
+      underlyingAsset0 &&
+      underlyingAsset1 &&
+      underlyingAsset0MarketData &&
+      underlyingAsset1MarketData
+    )
+  ) {
     return null
+  }
 
   const validateCryptoAmount = (value: string, isForAsset1: boolean) => {
     const crypto = bnOrZero(isForAsset1 ? underlyingAsset1Balance : underlyingAsset0Balance).div(

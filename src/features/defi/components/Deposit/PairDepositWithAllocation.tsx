@@ -147,12 +147,10 @@ export const PairDepositWithAllocation = ({
   const { field: allocationFraction } = useController({
     name: 'allocationFraction',
     control,
-    rules: fiatInputValidation2,
   })
   const { field: shareOutAmount } = useController({
     name: 'shareOutAmount',
     control,
-    rules: fiatInputValidation2,
   })
   const cryptoError1 = get(errors, 'cryptoAmount1.message', null)
   const cryptoError2 = get(errors, 'cryptoAmount2.message', null)
@@ -200,8 +198,8 @@ export const PairDepositWithAllocation = ({
     }
     if (!calculateAllocations) return
     const allocations = calculateAllocations(allocationFractionAsset, value)
-    setValue(Field.AllocationFraction, allocations.allocationFraction, { shouldValidate: false })
-    setValue(Field.ShareOutAmount, allocations.shareOutAmount.baseUnits, { shouldValidate: false })
+    setValue(Field.AllocationFraction, allocations.allocationFraction)
+    setValue(Field.ShareOutAmount, allocations.shareOutAmount.baseUnits)
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {

@@ -1,5 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -17,23 +18,20 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectMarketDataById,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Status = () => {
+type StatusProps = {
+  accountId: AccountId | undefined
+}
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId } = query
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const assetId = state?.opportunity?.assetId
   const feeAssetId = assetId
@@ -41,7 +39,6 @@ export const Status = () => {
   const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
-  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const userAddress = useMemo(
     () => state?.withdraw.maybeFromUTXOAccountAddress || accountAddress,

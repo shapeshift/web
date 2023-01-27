@@ -56,7 +56,11 @@ const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 // The amount of Txs we want to keep gas away for
-const TXS_BUFFER = 2
+// Estimated miner fees are approximative since there might be a reconciliation Tx
+// and an actual savers Tx with different fees, and we're doubling the fees
+// So the actual buffer is at best 3 Txs (4 -1 Tx), at worst 2 Txs (4 - 2 Txs)
+// Or even a bit less
+const TXS_BUFFER = 8
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')

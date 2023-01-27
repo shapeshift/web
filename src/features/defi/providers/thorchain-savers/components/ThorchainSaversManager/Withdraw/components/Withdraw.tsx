@@ -97,8 +97,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   // user info
   const amountAvailableCryptoPrecision = useMemo(() => {
-    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(bn(10).pow(asset.precision))
-  }, [asset.precision, opportunityData?.stakedAmountCryptoBaseUnit])
+    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+      .plus(bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0])) // Savers rewards are denominated in a single asset
+      .div(bn(10).pow(asset.precision))
+  }, [
+    asset.precision,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+  ])
 
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const fiatAmountAvailable = useMemo(

@@ -520,7 +520,8 @@
         "recv_packet": "Received"
       },
       "lp": {
-        "deposit": "Add Liquidity"
+        "deposit": "Add Liquidity",
+        "withdraw": "Remove Liquidity"
       }
     },
     "unknown": "Transaction"

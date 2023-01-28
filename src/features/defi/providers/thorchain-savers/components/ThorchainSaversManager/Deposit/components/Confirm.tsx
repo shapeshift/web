@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
@@ -28,21 +29,24 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
+  fromThorBaseUnit,
   getAccountAddressesWithBalances,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
+  toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -51,7 +55,15 @@ const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
+// The amount of Txs we want to keep gas away for
+// Estimated miner fees are approximative since there might be a reconciliation Tx
+// and an actual savers Tx with different fees, and we're doubling the fees
+// So the actual buffer is at best 3 Txs (4 -1 Tx), at worst 2 Txs (4 - 2 Txs)
+// Or even a bit less
+const TXS_BUFFER = 8
+
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -66,15 +78,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetNamespace,
     assetReference,
   })
-  const feeAssetId = assetId
 
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -86,18 +95,51 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
-  const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId }),
-    [accountId, feeAsset?.assetId],
+  const assetBalanceFilter = useMemo(
+    () => ({ assetId: asset?.assetId, accountId }),
+    [accountId, asset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+
+  const assetBalanceCryptoBaseUnit = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, assetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
+  useEffect(() => {
+    ;(async () => {
+      if (!(accountId && state?.deposit.cryptoAmount && asset)) return
+      if (depositFeeCryptoBaseUnit) return
+
+      const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
+        bn(10).pow(asset.precision),
+      )
+
+      if (amountCryptoBaseUnit.isZero()) return
+
+      const amountCryptoThorBaseUnit = toThorBaseUnit({
+        valueCryptoBaseUnit: amountCryptoBaseUnit,
+        asset,
+      })
+
+      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+
+      const { expected_amount_out } = quote
+
+      setDepositFeeCryptoBaseUnit(
+        toBaseUnit(
+          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
+          asset.precision,
+        ),
+      )
+    })()
+  }, [accountId, asset, depositFeeCryptoBaseUnit, state?.deposit.cryptoAmount])
+
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!accountId) throw new Error('accountId required')
+    if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
+      throw new Error('UTXO from address required')
+    }
 
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
@@ -108,15 +150,35 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     )
     const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
+    const amountCryptoThorBaseUnit = toThorBaseUnit({
+      valueCryptoBaseUnit: amountCryptoBaseUnit,
+      asset,
+    })
+
+    setDepositFeeCryptoBaseUnit(
+      toBaseUnit(
+        fromThorBaseUnit(amountCryptoThorBaseUnit.minus(quote.expected_amount_out)),
+        asset.precision,
+      ),
+    )
+
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
+      from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
-      sendMax: false,
+      sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
     }
-  }, [accountId, asset, state?.deposit.cryptoAmount])
+  }, [
+    accountId,
+    asset,
+    chainId,
+    maybeFromUTXOAccountAddress,
+    state?.deposit.cryptoAmount,
+    state?.deposit.sendMax,
+  ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (!(accountId && assetId)) return
@@ -125,22 +187,73 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
 
     try {
-      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      // Estimated fees tend to produce too low fees on e.g Dogecoin
+      // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
+      const estimatedFees = Object.fromEntries(
+        Object.entries(await estimateFees(await getEstimateFeesArgs())).map(
+          ([feeType, feeData]) => [
+            feeType as FeeDataKey,
+            {
+              ...feeData,
+              txFee: bn(feeData.txFee).times(2).toString(),
+              chainSpecific: {
+                ...(feeData as FeeData<UtxoChainId>).chainSpecific,
+                satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
+                  .times(2)
+                  .toString(),
+              },
+            },
+          ],
+        ),
+      ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
-      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
-        throw new Error('Account address required to deposit in THORChain savers')
+      let maybeGasDeductedCryptoAmountCryptoPrecision = ''
+      if (isUtxoChainId(chainId)) {
+        if (!maybeFromUTXOAccountAddress) {
+          throw new Error('Account address required to deposit in THORChain savers')
+        }
+
+        // DO NOT MAKE ME A `useAppSelector()` HOOK
+        // DO NOT extract store.getState() to a component/module-scope variable
+        // React reconciliation algorithm makes it so this wouldn't change until the next time this is fired
+        // But the balance actually changes from the gas fees of the reconciliation Tx if it's fired
+        // So the next time we fire the actual send Tx, we should deduct from the udpated balance
+        const assetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceByFilter(
+          store.getState(),
+          assetBalanceFilter,
+        )
+        const fastFeesBaseUnit = estimatedFees.fast.txFee
+        const cryptoAmountBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
+          bn(10).pow(asset.precision),
+        )
+
+        if (cryptoAmountBaseUnit.lt(cryptoAmountBaseUnit)) {
+          // If this throws, we know we goof'd up
+          throw new Error('Cannot send more than asset balance')
+        }
+
+        const needsFeeDeduction = cryptoAmountBaseUnit
+          .plus(fastFeesBaseUnit)
+          .gte(assetBalanceCryptoBaseUnit)
+
+        if (needsFeeDeduction)
+          // We tend to overestimate so that SHOULD be safe but this is both
+          // a safety factor as well as ensuring we keep a bit of gas away for another Tx
+          maybeGasDeductedCryptoAmountCryptoPrecision = bnOrZero(state.deposit.cryptoAmount)
+            .minus(bn(fastFeesBaseUnit).times(TXS_BUFFER).div(bn(10).pow(asset.precision)))
+            .toFixed()
       }
 
       const sendInput: SendInput = {
-        cryptoAmount: state.deposit.cryptoAmount,
+        cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,
-        sendMax: false,
+        sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
@@ -160,11 +273,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     state?.deposit.cryptoAmount,
+    state?.deposit.sendMax,
     getEstimateFeesArgs,
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
     selectedCurrency,
+    assetBalanceFilter,
   ])
 
   const getPreDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -249,13 +364,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return handleSend({
         sendInput: preDepositInput,
         wallet: walletState.wallet!,
-      }).then(() =>
+      }).then(async () => {
+        // Safety factor for the Tx to be seen in the mempool
+        await new Promise(resolve => setTimeout(resolve, 5000))
+        // We get a fresh deposit input, since amounts close to 100% balance might not work anymore after a pre-tx
+        const depositInput = await getDepositInput()
+        if (!depositInput) throw new Error('Error building send input')
         // 3. Sign and broadcast the depooosit Tx again
-        handleSend({
+        return handleSend({
           sendInput: depositInput,
           wallet: walletState.wallet!,
-        }),
-      )
+        })
+      })
     })
 
     return txId
@@ -275,7 +395,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
               )[0].address
 
-              return highestBalanceAccount
+              return chainId === bchChainId
+                ? `bitcoincash:${highestBalanceAccount}`
+                : highestBalanceAccount
             })
         : ''
       setMaybeFromUTXOAccountAddress(accountAddress)
@@ -324,6 +446,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error('Error sending THORCHain savers Txs')
       }
 
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: {
+          depositFeeCryptoBaseUnit,
+          maybeFromUTXOAccountAddress,
+        },
+      })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
     } catch (error) {
@@ -352,6 +481,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     appDispatch,
     getDepositInput,
     handleMultiTxSend,
+    depositFeeCryptoBaseUnit,
+    maybeFromUTXOAccountAddress,
     onNext,
     toast,
     translate,
@@ -363,10 +494,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+      bnOrZero(assetBalanceCryptoBaseUnit)
+        .minus(state?.deposit.estimatedGasCrypto ?? 0)
         .gte(0),
-    [feeAssetBalance, state?.deposit, feeAsset?.precision],
+    [assetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCrypto],
   )
 
   if (!state || !contextDispatch) return null
@@ -405,17 +536,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
+                value={bnOrZero(depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
                   .times(feeMarketData.price)
-                  .toFixed(2)}
+                  .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
-                symbol={feeAsset.symbol}
+                value={bnOrZero(depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
               />
             </Box>
           </Row.Value>
@@ -424,7 +555,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       {!hasEnoughBalanceForGas && (
         <Alert status='error' borderRadius='lg'>
           <AlertIcon />
-          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset.symbol }]} />
         </Alert>
       )}
     </ReusableConfirm>

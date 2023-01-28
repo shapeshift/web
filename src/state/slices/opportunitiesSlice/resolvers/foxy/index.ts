@@ -92,14 +92,17 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 }
 
 export const foxyStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
   accountId,
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
   if (accountChainId !== ethChainId)
-    throw new Error(`No-op. Won't fetch FOXy userStakingData for chainId: ${accountChainId}`)
+    return {
+      data: {
+        byId: {},
+      },
+    }
 
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -146,7 +149,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
   }
 
   return Promise.resolve({ data })

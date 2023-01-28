@@ -8,5 +8,7 @@ export const csp: Csp = {
     'https://gas.api.0x.org',
     // @shapeshiftoss/swapper: https://github.com/shapeshift/lib/blob/094c684297666bc4b78e7eb1805dbeed6e6e69b1/packages/swapper/src/swappers/zrx/utils/helpers/helpers.ts#L16
     'https://avalanche.api.0x.org',
+    // @shapeshiftoss/swapper: https://github.com/shapeshift/lib/blob/baa02e4355bff52cd89efd93ea4f38a50fe284f5/packages/swapper/src/swappers/zrx/utils/helpers/helpers.ts#L24
+    'https://optimism.api.0x.org',
   ],
 }

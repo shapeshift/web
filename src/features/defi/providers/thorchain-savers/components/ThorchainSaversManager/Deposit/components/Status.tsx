@@ -16,7 +16,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -36,13 +36,16 @@ export const Status = () => {
   const { chainId } = query
 
   const assetId = state?.opportunity?.assetId
-  const feeAssetId = assetId
 
-  const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress = useMemo(
+    () => state?.deposit.maybeFromUTXOAccountAddress || accountAddress,
+    [accountAddress, state?.deposit.maybeFromUTXOAccountAddress],
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
@@ -142,25 +145,17 @@ export const Status = () => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
-                )
-                  .div(`1e+${asset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
-                    : state.deposit.usedGasFee,
-                )
-                  .div(`1e+${asset.precision}`)
-                  .toFixed(5)}
-                symbol='ETH'
+                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
               />
             </Box>
           </Row.Value>

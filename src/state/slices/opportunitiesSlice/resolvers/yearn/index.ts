@@ -37,7 +37,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { Yearn } = selectFeatureFlags(state)
 
   if (!Yearn) {
-    throw new Error('Yearn feature flag disabled. Not fetching Yearn metadata')
+    return { data: { byId: {}, type: opportunityType } }
   }
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
@@ -95,13 +95,14 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
 
   const { Yearn } = selectFeatureFlags(state)
-
-  if (!Yearn) {
-    throw new Error('Yearn feature flag disabled. Not fetching Yearn userData')
-  }
   const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    throw new Error(`No-op. Won't fetch Yearn userStakingData for chainId: ${accountChainId}`)
+
+  if (!Yearn || accountChainId !== ethChainId)
+    return {
+      data: {
+        byId: {},
+      },
+    }
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
@@ -168,7 +169,7 @@ export const yearnStakingOpportunityIdsResolver = async ({
 
   const { Yearn } = selectFeatureFlags(state)
   if (!Yearn) {
-    throw new Error('Yearn feature flag disabled. Not fetching Yearn opportunity IDs')
+    return { data: [] }
   }
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()

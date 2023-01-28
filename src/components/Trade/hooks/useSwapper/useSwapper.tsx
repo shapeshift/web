@@ -75,6 +75,7 @@ export const useSwapper = () => {
       const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
         assetIds,
       })
+
       return filterAssetsByIds(assets, sellableAssetIds)
     },
     [assetIds, swapperManager],

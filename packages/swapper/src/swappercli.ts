@@ -127,10 +127,12 @@ const main = async (): Promise<void> => {
   }
 
   const { quoteInput } = setupQuote()
-  const swapper = await swapManager.getBestSwapper({
+  const swappersWithQuoteMetadata = await swapManager.getSwappersWithQuoteMetadata({
     ...quoteInput,
     feeAsset: ethereumAsset,
   })
+
+  const swapper = swappersWithQuoteMetadata[0].swapper
 
   console.info(`using swapper ${swapper?.getType()}`)
   if (!swapper) {

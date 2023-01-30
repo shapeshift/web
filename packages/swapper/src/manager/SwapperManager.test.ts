@@ -1,6 +1,6 @@
 import { ChainId } from '@shapeshiftoss/caip'
 
-import { Swapper, SwapperType } from '../api'
+import { Swapper, SwapperType, SwapperWithQuoteMetadata } from '../api'
 import { CowSwapper, ThorchainSwapper, ZrxSwapper } from '../swappers'
 import { ETH } from '../swappers/utils/test-data/assets'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
@@ -195,8 +195,8 @@ describe('SwapperManager', () => {
     })
   })
 
-  describe('getBestSwapper', () => {
-    it('should return the supported swapper with the best rate', async () => {
+  describe('getSwappersWithQuoteMetadata', () => {
+    it('should return the supported swappers with quote and ratio details, sorted by ratio', async () => {
       const cowSwapperGetUsdRateMock = jest
         .spyOn(cowSwapper, 'getUsdRate')
         .mockImplementation(
@@ -245,8 +245,23 @@ describe('SwapperManager', () => {
         .addSwapper(zrxOptimismSwapper)
 
       const { quoteInput } = setupQuote()
-      const bestSwapper = await swapperManager.getBestSwapper({ ...quoteInput, feeAsset: ETH })
-      expect(bestSwapper).toEqual(zrxEthereumSwapper)
+      const swappers = await swapperManager.getSwappersWithQuoteMetadata({
+        ...quoteInput,
+        feeAsset: ETH,
+      })
+      const expectedSwappers: SwapperWithQuoteMetadata[] = [
+        {
+          swapper: zrxEthereumSwapper,
+          quote: goodTradeQuote,
+          inputOutputRatio: 0.5030325781663417,
+        },
+        {
+          swapper: cowSwapper,
+          quote: badTradeQuote,
+          inputOutputRatio: 0.3433182480125743,
+        },
+      ]
+      expect(swappers).toEqual(expectedSwappers)
 
       expect(swapperManagerMock).toHaveBeenCalledTimes(1)
       expect(cowSwapperGetUsdRateMock).toHaveBeenCalledTimes(3)

@@ -7646,10 +7646,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@0.3.4":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.4.tgz#c18a2d5306ca0f98fb1948fb348c8efe5748b1fe"
-  integrity sha512-TaI8p73LjqCp3zukZ+ZHsWnQ545j7PGTPS8MZ0ulSWyh11nhzkFSBV/isj0nYOY7QrXqeodveqZv9shdZfTKNw==
+"@wherever/react-notification-feed@0.3.7":
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.7.tgz#3b732f5d55ecd7756290f612421148d7cd7aa7ac"
+  integrity sha512-kb0BkHkGip+wzs7FP/rsACKkf+kc82VD/LCzbyAck4DPHkdVWKOuG9XY4eCc4U1Q8N6a5BEiLqiS7cdh1EwcBw==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@epnsproject/sdk-restapi" "^0.1.20"
@@ -7659,6 +7659,7 @@
     ethers "^5.6.9"
     graphql "^16.6.0"
     react-click-away-listener "^2.2.2"
+    react-infinite-scroller "^1.2.6"
     react-popper "^2.3.0"
     rudder-sdk-js "^2.18.1"
     siwe "^1.1.6"

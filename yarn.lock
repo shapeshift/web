@@ -7646,10 +7646,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@0.3.7":
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.7.tgz#3b732f5d55ecd7756290f612421148d7cd7aa7ac"
-  integrity sha512-kb0BkHkGip+wzs7FP/rsACKkf+kc82VD/LCzbyAck4DPHkdVWKOuG9XY4eCc4U1Q8N6a5BEiLqiS7cdh1EwcBw==
+"@wherever/react-notification-feed@0.3.8":
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.8.tgz#d44c2b9d1473776d04fe996b8bbceee788229924"
+  integrity sha512-R8q2YcxS9tJUT+YlP1UMiXSJnqJ6Zim1Isprx+8Usvf5UG0PQvOerxtAJ90u14sO/oP7NEm7zNL5FLFaofkZpQ==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@epnsproject/sdk-restapi" "^0.1.20"

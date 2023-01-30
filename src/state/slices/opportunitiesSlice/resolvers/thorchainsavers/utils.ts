@@ -39,7 +39,7 @@ export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // for the current PoolId when that's done
 // For now, we use the affiliate name in place of an address, which won't result in affiliate fees
 // See: https://discord.com/channels/838986635756044328/1060678683486072903/1060821122423201843
-const AFFILIATE_ADDRESS = THORCHAIN_AFFILIATE_NAME
+// const AFFILIATE_ADDRESS = THORCHAIN_AFFILIATE_NAME
 // Affiliate bps must be >0, so we set to 1 for the time being until we get L1 addresses rolling
 const AFFILIATE_BPS = 1
 
@@ -144,6 +144,22 @@ export const getThorchainSaversPosition = async ({
   return accountPosition
 }
 
+const makeAffiliateAddress = (assetId: AssetId) => {
+  // For affiliates, THORCHain savers explicitly requires either:
+  // - a THORName, which links addresses over all supported L1s together
+  // - an affiliate name, linked to a THOR address
+  // - L1 addresses for each chain
+  // Failure to provide it will result in Txs being refunded
+  // We can't do the first since we don't have DAO addresses except for THORChain
+  // We can't do the second since this would only work for THOR saver (which does not exist)
+  // Our best option for now is 3. to allow testing. These are my own address from a testing wallet (gomes)
+  switch (assetId) {
+    case dogeAssetId:
+      return 'D7FJUbJ9Wx2WSooDhh9aDHGiGHTRmKcAHc'
+    default:
+      return ''
+  }
+}
 export const getThorchainSaversDepositQuote = async ({
   asset,
   amountCryptoBaseUnit,
@@ -163,7 +179,9 @@ export const getThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${AFFILIATE_ADDRESS}&affiliate_bps=${AFFILIATE_BPS}`,
+    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${makeAffiliateAddress(
+      asset.assetId,
+    )}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)

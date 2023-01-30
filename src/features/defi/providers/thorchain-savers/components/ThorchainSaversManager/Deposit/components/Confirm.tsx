@@ -191,6 +191,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     maybeFromUTXOAccountAddress,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
+    supportedEvmChainIds,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -291,6 +292,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
+    supportedEvmChainIds,
     selectedCurrency,
     assetBalanceFilter,
   ])

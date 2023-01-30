@@ -17,6 +17,7 @@ import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import LoadingBar from 'react-redux-loading-bar'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -116,6 +117,7 @@ export const Header = () => {
             </SlideFade>
           )}
         </AnimatePresence>
+
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
           <HStack
             width='full'

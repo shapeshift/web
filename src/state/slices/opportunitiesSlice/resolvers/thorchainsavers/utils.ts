@@ -34,6 +34,15 @@ import type {
 const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
 
+export const THORCHAIN_AFFILIATE_NAME = 'ss'
+// TODO: We will need an affiliate address on all L1s, remove these two and get the programmatic address
+// for the current PoolId when that's done
+// For now, we use the affiliate name in place of an address, which won't result in affiliate fees
+// See: https://discord.com/channels/838986635756044328/1060678683486072903/1060821122423201843
+const AFFILIATE_ADDRESS = THORCHAIN_AFFILIATE_NAME
+// Affiliate bps must be >0, so we set to 1 for the time being until we get L1 addresses rolling
+const AFFILIATE_BPS = 1
+
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
@@ -154,7 +163,7 @@ export const getThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${AFFILIATE_ADDRESS}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)

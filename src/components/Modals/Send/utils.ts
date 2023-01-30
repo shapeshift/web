@@ -27,6 +27,10 @@ import type { SendInput } from './Form'
 export type EstimateFeesInput = {
   cryptoAmount: string
   asset: Asset
+  // Optional hex-encoded calldata
+  // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
+  memo?: string
+  from?: string
   to: string
   sendMax: boolean
   accountId: string
@@ -38,6 +42,8 @@ const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'utils'] })
 export const estimateFees = ({
   cryptoAmount,
   asset,
+  from,
+  memo,
   to,
   sendMax,
   accountId,
@@ -57,6 +63,7 @@ export const estimateFees = ({
       return adapter.getFeeData({})
     case CHAIN_NAMESPACE.Evm:
       return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+        memo,
         to,
         value,
         chainSpecific: {
@@ -69,7 +76,7 @@ export const estimateFees = ({
       return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
         to,
         value,
-        chainSpecific: { pubkey: account },
+        chainSpecific: { from, pubkey: account },
         sendMax,
       })
     }
@@ -110,7 +117,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, to, from } = sendInput
+    const { estimatedFees, feeType, to, memo, from } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -138,6 +145,7 @@ export const handleSend = async ({
         )
         const { accountNumber } = bip44Params
         return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
+          memo,
           to,
           value,
           wallet,
@@ -169,6 +177,7 @@ export const handleSend = async ({
             from,
             satoshiPerByte: fees.chainSpecific.satoshiPerByte,
             accountType,
+            opReturnData: memo,
           },
           sendMax: sendInput.sendMax,
         })

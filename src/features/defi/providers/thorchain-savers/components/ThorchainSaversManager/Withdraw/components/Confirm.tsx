@@ -430,13 +430,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return handleSend({
         sendInput: preWithdrawInput,
         wallet: walletState.wallet!,
-      }).then(() =>
+      }).then(async () => {
+        // Safety factor for the Tx to be seen in the mempool
+        await new Promise(resolve => setTimeout(resolve, 5000))
         // 3. Sign and broadcast the depooosit Tx again
-        handleSend({
+        return handleSend({
           sendInput: withdrawInput,
           wallet: walletState.wallet!,
-        }),
-      )
+        })
+      })
     })
 
     return txId
@@ -452,11 +454,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter &&
-          maybeFromUTXOAccountAddress
+          chainAdapter
         )
       )
         return
+
+      if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) return
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
@@ -523,6 +526,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    chainId,
     maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
     expiry,

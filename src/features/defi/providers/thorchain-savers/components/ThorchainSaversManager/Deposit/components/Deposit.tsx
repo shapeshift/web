@@ -121,7 +121,7 @@ export const Deposit: React.FC<DepositProps> = ({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
             chainSpecific: { pubkey: userAddress, from: '' },
-            sendMax: false,
+            sendMax: Boolean(state?.deposit.sendMax),
           })
         ).fast.txFee
 
@@ -142,7 +142,17 @@ export const Deposit: React.FC<DepositProps> = ({
         })
       }
     },
-    [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
+    [
+      userAddress,
+      assetReference,
+      accountId,
+      opportunityData,
+      asset,
+      chainId,
+      state?.deposit.sendMax,
+      toast,
+      translate,
+    ],
   )
 
   const handleContinue = useCallback(
@@ -258,6 +268,21 @@ export const Deposit: React.FC<DepositProps> = ({
     [cryptoAmountAvailable, marketData?.price],
   )
 
+  const handleSendMax = useCallback(
+    (isSendMax?: boolean) => {
+      if (!contextDispatch) return
+
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: { sendMax: Boolean(isSendMax) },
+      })
+    },
+    [contextDispatch],
+  )
+  const handlePercentClick = useCallback(
+    (percent: number) => handleSendMax(percent === 1),
+    [handleSendMax],
+  )
   const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,
@@ -288,6 +313,7 @@ export const Deposit: React.FC<DepositProps> = ({
       }}
       marketData={marketData}
       onCancel={handleCancel}
+      onPercentClick={handlePercentClick}
       onContinue={handleContinue}
       onBack={handleBack}
       percentOptions={[0.25, 0.5, 0.75, 1]}

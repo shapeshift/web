@@ -8,10 +8,10 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type BestSwapperArgs = { feeAsset: Asset | undefined }
+type AvailableSwapperArgs = { feeAsset: Asset | undefined }
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
-export const useAvailableSwappers = ({ feeAsset }: BestSwapperArgs) => {
+export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   const [swappersWithQuoteMetadata, setSwappersWithQuoteMetadata] =
     useState<GetSwappersWithQuoteMetadataReturn>()
   const dispatch = useAppDispatch()

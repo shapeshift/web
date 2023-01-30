@@ -1,12 +1,12 @@
-import { Flex, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Grid, Heading, Link, useColorModeValue } from '@chakra-ui/react'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
-import ArkeoLogo from 'assets/arkeo-logo.svg'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
+import { LpCards } from './LpCards'
 import { StakingCards } from './StakingCards'
 
 type OpportunityReturn = {
@@ -16,6 +16,7 @@ type OpportunityReturn = {
 const opportunities: OpportunityReturn = {
   staking: [
     'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b',
+    'eip155:1/erc20:0xc14eaa8284feff79edc118e06cadbf3813a7e555',
     'cosmos:osmosis-1/slip44:118',
     'cosmos:cosmoshub-4/slip44:118',
   ],
@@ -28,15 +29,15 @@ export const ArkeoPage = () => {
   const translate = useTranslate()
   const linkColor = useColorModeValue('blue.500', 'blue.200')
   return (
-    <Main backgroundImage={ArkeoBg} backgroundSize='cover'>
-      <Flex>
-        <Flex flexDir='column' gap={8} flexBasis='583px'>
+    <Main backgroundImage={ArkeoBg} backgroundSize='cover' px={8}>
+      <Flex flexDir={{ base: 'column-reverse', lg: 'row' }} gap={8}>
+        <Flex flexDir='column' gap={8} flexBasis={{ base: 'auto', lg: '583px' }}>
           <Flex flexDir='column' gap={4}>
             <Heading fontSize='2xl'>
               <Text translation='arkeo.whatIsArkeo.title' />
             </Heading>
             <Flex>
-              <RawText>
+              <RawText fontSize='lg' color='gray.500'>
                 {`
               ${translate('arkeo.whatIsArkeo.bodyParts.1')} `}
                 <Link color={linkColor} isExternal href='https://www.coinbase.com/ventures'>
@@ -61,7 +62,7 @@ export const ArkeoPage = () => {
             <Heading fontSize='2xl'>
               <Text translation='arkeo.whoQualifies.title' />
             </Heading>
-            <Text translation='arkeo.whoQualifies.body' />
+            <Text fontSize='lg' color='gray.500' translation='arkeo.whoQualifies.body' />
           </Flex>
         </Flex>
         <Flex flex={1} alignItems='center' justifyContent='center'>
@@ -84,7 +85,10 @@ export const ArkeoPage = () => {
           </svg>
         </Flex>
       </Flex>
-      <StakingCards ids={opportunities.staking} />
+      <Grid gridTemplateColumns={{ base: '1fr', lg: '1fr 1fr', xl: '1fr 1fr 1fr' }} gap={4} mt={8}>
+        <StakingCards ids={opportunities.staking} />
+        <LpCards ids={opportunities.lp} />
+      </Grid>
     </Main>
   )
 }

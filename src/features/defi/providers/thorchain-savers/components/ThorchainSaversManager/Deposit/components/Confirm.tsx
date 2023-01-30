@@ -6,7 +6,6 @@ import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
-import { utils } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -27,7 +26,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -165,15 +163,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       ),
     )
 
-    const memoUtf8 = quote.memo
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
-      memo: supportedEvmChainIds.includes(chainId)
-        ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-        : memoUtf8,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
@@ -256,8 +250,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             .toFixed()
       }
 
-      const memoUtf8 = quote.memo
-
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,
@@ -265,9 +257,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-          : memoUtf8,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
         estimatedFees,

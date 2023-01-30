@@ -63,8 +63,6 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 // Or even a bit less
 const TXS_BUFFER = 8
 
-const supportedEvmChainIds = getSupportedEvmChainIds()
-
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
@@ -75,6 +73,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
   const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
   const assetId = toAssetId({
     chainId,
@@ -185,6 +185,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     maybeFromUTXOAccountAddress,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
+    supportedEvmChainIds,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -290,6 +291,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
+    supportedEvmChainIds,
     selectedCurrency,
     assetBalanceFilter,
   ])

@@ -17,6 +17,7 @@ export const isSupportedNonUtxoSwappingChain = (
   return (
     chainId === KnownChainIds.EthereumMainnet ||
     chainId === KnownChainIds.AvalancheMainnet ||
+    chainId === KnownChainIds.OptimismMainnet ||
     chainId === KnownChainIds.OsmosisMainnet ||
     chainId === KnownChainIds.CosmosMainnet ||
     chainId === KnownChainIds.ThorchainMainnet

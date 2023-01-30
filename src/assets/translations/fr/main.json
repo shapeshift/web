@@ -1512,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Chaîne non prise en charge",
+        "description": "ShapeShift ne prend actuellement en charge que %{supportedChainNames} avec WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Connecter la dApp",
+        "connectedDapp": "dApp connectée",
+        "menu": {
+          "disconnect": "Déconnecter",
+          "address": "Adresse",
+          "connected": "Connecté",
+          "network": "Réseau",
+          "unsupportedNetwork": "Réseau non pris en charge"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1521,23 +1536,46 @@
           "message": "Message",
           "description": "Vous devrez confirmer la signature de ce message avec votre porte-monnaie connecté.",
           "confirm": "Confirmer",
-          "reject": "Rejeter"
+          "reject": "Rejeter",
+          "messageData": "Données du message",
+          "domain": "Domaine"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Envoi depuis",
+          "sendingTo": "Envoi vers",
+          "interactingWith": "Interagit avec",
+          "amount": "Montant",
+          "contractInteraction": {
+            "title": "Interaction du contrat",
+            "sendingEth": "Envoi en ETH",
+            "data": "Données brutes (codées en hex)"
+          },
           "advancedParameters": {
             "title": "Paramètres avancés",
-            "alert": "Pour utilisation avancée uniquement. La modification de ces paramètres peut provoquer un blocage de transactions.",
+            "alert": "Pour une utilisation avancée uniquement. La modification de ces paramètres peut entraîner des transactions bloquées.",
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "Le nombre de transactions qui ont été envoyées à partir d'une adresse donnée. Utilisateurs avancés uniquement."
+              "tooltip": "Le nombre de transactions envoyées à partir d'une adresse donnée. Utilisateurs avancés uniquement."
             },
             "gasLimit": {
               "title": "Limite de carburant",
               "placeholder": "Limite de carburant...",
               "tooltip": "La limite de carburant fait référence à la quantité maximale de carburant qu'un utilisateur peut consommer pour effectuer une transaction."
             }
-          }
+          },
+          "estGasCost": "Est. du coût de carburant",
+          "description": "Vous êtes sur le point de créer une transaction et vous devrez la confirmer avec votre porte-monnaie actuellement connecté."
+        },
+        "signTransaction": {
+          "description": "Vous êtes sur le point de signer une transaction et devrez la confirmer avec votre porte-monnaie actuellement connecté."
+        },
+        "connect": {
+          "title": "Connecter votre porte-monnaie à une dApp via WalletConnect et déclencher des transactions",
+          "howTo": "Comment se connecter à une dApp ?",
+          "linkPlaceholder": "Code QR ou lien de connexion",
+          "connect": "Connecter",
+          "connectionError": "Impossible de se connecter à l'URI fourni."
         }
       },
       "registry": {

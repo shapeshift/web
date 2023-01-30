@@ -154,8 +154,19 @@ const makeAffiliateAddress = (assetId: AssetId) => {
   // We can't do the second since this would only work for THOR saver (which does not exist)
   // Our best option for now is 3. to allow testing. These are my own address from a testing wallet (gomes)
   switch (assetId) {
+    case avalancheAssetId:
+    case ethAssetId:
+      return '0xadce7057af0083ee269ef01d8c5b567adac85406'
+    case btcAssetId:
+      return 'bc1qhmnzvy5uspf7qqa9h835x4xrelyxv2ec5wm8df'
+    case bchAssetId:
+      return 'qzpaz2g2u0hqzv2rt5lxh4hsag6qez4lnunrrq08wz'
+    case ltcAssetId:
+      return 'ltc1qp4j6ra28p24dhnyywg990yqe8jkpeqpgdmpsh4'
     case dogeAssetId:
       return 'D7FJUbJ9Wx2WSooDhh9aDHGiGHTRmKcAHc'
+    case cosmosAssetId:
+      return 'cosmos14pujse3kejjm4w96pkfcfmyysu4hk38ware588'
     default:
       return ''
   }

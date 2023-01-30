@@ -2,7 +2,12 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  FeeData,
+  FeeDataEstimate,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
@@ -73,7 +78,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
-  const chainAdapter = getChainAdapterManager().get(chainId)
+
+  // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
+  const chainAdapter = getChainAdapterManager().get(
+    chainId,
+  ) as unknown as UtxoBaseAdapter<UtxoChainId>
 
   const assetId = toAssetId({
     chainId,
@@ -397,7 +406,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [chainId, getDepositInput, getPreDepositInput, walletState.wallet])
 
   useEffect(() => {
-    if (!(accountId && chainAdapter && walletState?.wallet && bip44Params)) return
+    if (!(accountId && chainAdapter && walletState?.wallet && bip44Params && accountType)) return
     ;(async () => {
       const accountAddress = isUtxoChainId(chainId)
         ? await getThorchainSaversPosition({ accountId, assetId })

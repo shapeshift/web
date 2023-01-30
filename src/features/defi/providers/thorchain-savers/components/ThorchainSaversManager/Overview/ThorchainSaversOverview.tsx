@@ -14,6 +14,7 @@ import {
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -42,11 +43,15 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectStakingOpportunitiesById,
+  selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
+const makeDefaultMenu = ({
+  isFull,
+  hasPendingTxs,
+}: { isFull?: boolean; hasPendingTxs?: boolean } = {}): DefiButtonProps[] => [
   ...(isFull
     ? []
     : [
@@ -54,13 +59,16 @@ const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
           label: 'common.deposit',
           icon: <ArrowUpIcon />,
           action: DefiAction.Deposit,
-          isDisabled: isFull,
+          isDisabled: isFull || hasPendingTxs,
+          toolTip: hasPendingTxs ? `Cannot deposit while Txs are pending` : undefined,
         },
       ]),
   {
     label: 'common.withdraw',
     icon: <ArrowDownIcon />,
     action: DefiAction.Withdraw,
+    isDisabled: hasPendingTxs,
+    toolTip: hasPendingTxs ? `Cannot withdraw while Txs are pending` : undefined,
   },
 ]
 
@@ -157,11 +165,25 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
+  const txsFilter = useMemo(
+    () => ({
+      accountId,
+      assetId,
+    }),
+    [accountId, assetId],
+  )
+  const pendingTxsLength = useAppSelector(state => selectTxsByFilter(state, txsFilter)).filter(
+    tx => tx.status === TxStatus.Pending,
+  ).length
+
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(opportunityMetadata?.isFull)
-  }, [earnOpportunityData, opportunityMetadata?.isFull])
+    return makeDefaultMenu({
+      isFull: opportunityMetadata?.isFull,
+      hasPendingTxs: Boolean(pendingTxsLength),
+    })
+  }, [earnOpportunityData, opportunityMetadata?.isFull, pendingTxsLength])
 
   const renderVaultCap = useMemo(() => {
     return (

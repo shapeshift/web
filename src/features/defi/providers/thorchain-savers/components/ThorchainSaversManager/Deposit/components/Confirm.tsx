@@ -72,7 +72,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const opportunity = useMemo(() => state?.opportunity, [state])
   const chainAdapter = getChainAdapterManager().get(chainId)
 
-  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+  // const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
   const assetId = toAssetId({
     chainId,
@@ -179,7 +179,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     maybeFromUTXOAccountAddress,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
-    supportedEvmChainIds,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -280,7 +279,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
-    supportedEvmChainIds,
     selectedCurrency,
     assetBalanceFilter,
   ])

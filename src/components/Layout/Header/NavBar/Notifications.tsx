@@ -100,6 +100,7 @@ export const Notifications = () => {
 
   if (
     !isWhereverEnabled ||
+    !ethAddress ||
     !wallet ||
     !eip712SupportedWallets.includes(type as KeyManager) ||
     !supportsETH(wallet)
@@ -110,7 +111,7 @@ export const Notifications = () => {
     <Box>
       <NotificationFeedProvider
         customSigner={{
-          address: ethAddress as string,
+          address: ethAddress,
           chainId: 1,
           signMessage,
           signTypedData,

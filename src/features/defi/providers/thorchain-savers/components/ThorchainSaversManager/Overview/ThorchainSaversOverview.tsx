@@ -22,7 +22,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -47,30 +47,6 @@ import {
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const makeDefaultMenu = ({
-  isFull,
-  hasPendingTxs,
-}: { isFull?: boolean; hasPendingTxs?: boolean } = {}): DefiButtonProps[] => [
-  ...(isFull
-    ? []
-    : [
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-          isDisabled: isFull || hasPendingTxs,
-          toolTip: hasPendingTxs ? `Cannot deposit while Txs are pending` : undefined,
-        },
-      ]),
-  {
-    label: 'common.withdraw',
-    icon: <ArrowDownIcon />,
-    action: DefiAction.Withdraw,
-    isDisabled: hasPendingTxs,
-    toolTip: hasPendingTxs ? `Cannot withdraw while Txs are pending` : undefined,
-  },
-]
 
 type OverviewProps = {
   accountId: AccountId | undefined
@@ -176,6 +152,36 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     tx => tx.status === TxStatus.Pending,
   ).length
 
+  const makeDefaultMenu = useCallback(
+    ({
+      isFull,
+      hasPendingTxs,
+    }: { isFull?: boolean; hasPendingTxs?: boolean } = {}): DefiButtonProps[] => [
+      ...(isFull
+        ? []
+        : [
+            {
+              label: 'common.deposit',
+              icon: <ArrowUpIcon />,
+              action: DefiAction.Deposit,
+              isDisabled: isFull || hasPendingTxs,
+              toolTip: hasPendingTxs
+                ? translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
+                : undefined,
+            },
+          ]),
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+        isDisabled: hasPendingTxs,
+        toolTip: hasPendingTxs
+          ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+          : undefined,
+      },
+    ],
+    [translate],
+  )
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
@@ -183,7 +189,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull,
       hasPendingTxs: Boolean(pendingTxsLength),
     })
-  }, [earnOpportunityData, opportunityMetadata?.isFull, pendingTxsLength])
+  }, [earnOpportunityData, makeDefaultMenu, opportunityMetadata?.isFull, pendingTxsLength])
 
   const renderVaultCap = useMemo(() => {
     return (

@@ -447,7 +447,8 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "trade": "Trade",
-    "buyCrypto": "Buy/Sell Crypto"
+    "buyCrypto": "Buy/Sell Crypto",
+    "arkeo": "Arkeo"
   },
   "transactionRow": {
     "send": "Sent",
@@ -1646,5 +1647,61 @@
       "body": "Purchase up to $1,000 with Apple Pay",
       "cta": "Buy Now"
     }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "What is Arkeo?",
+      "bodyParts": {
+        "1": "Last year, alongside",
+        "2": "Coinbase Ventures",
+        "3": "ShapeShift incubated a project called Arkeo. Mainnet launch is just around the corner!",
+        "4": "Arkeo was created to be a decentralized back-end for all node data. Applications that use Arkeo will benefit from increased development velocity, censorship-resistance and",
+        "5": "nakamoto coefficient",
+        "6": "while reducing reliance on centralized data sources."
+      }
+    },
+    "whoQualifies": {
+      "title": "Who qualifies for the Arkeo Airdrop?",
+      "body": "There are a number of ways you can qualify for the airdrop using the ShapeShift dApp. The snapshot is rolling, you still have time to qualify!"
+    },
+    "foxTokenHolders": {
+      "title": "FOX Token Holders",
+      "body": "Hodling FOX tokens. The larger your bag, the larger your Arkeo airdrop.",
+      "cta": "Trade for FOX",
+      "secondary": "Buy FOX"
+    }, 
+    "foxyTokenHolders": {
+      "title": "FOXy Token Holders",
+      "body": "Stake your idle FOX tokens and earn %{apr} APR. Plus qualify for the airdrop.",
+      "cta": "Stake FOX Tokens"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH LP Providers",
+      "body": "Got FOX and ETH? Provide liquidity into the pool, to earn %{apr} APR and qualify for the airdrop.",
+      "cta": "Deposit Liquidity"
+    },
+    "atomOsmoProviders": {
+      "title": "ATOM/OSMO LP Providers",
+      "body": "Got ATOM and OSMO? Provide liquidity into the pool, to earn %{apr} APR and qualify for the airdrop.",
+      "cta": "Deposit Liquidity"
+    },
+    "stakeAtom": {
+      "title": "Stake ATOM",
+      "body": "Earn up to %{apr} APR on your idle ATOM. PLUS any ATOM you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification.",
+      "cta": "Stake ATOM"
+    },
+    "stakeOsmo": {
+      "title": "Stake OSMO",
+      "body": "Earn up to %{apr} APR on your idle OSMO. PLUS any OSMO you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification."
+    },
+    "footer": {
+      "title": "There are other ways you can qualify too, outside of the ShapeShift dApp. For a complete list, check out the governance proposal.",
+      "cta": "Check out the governance proposal",
+      "disclaimer": {
+        "body": "* Self-custody wallets only will qualify. Tokens held or staked in a wallet via a centralized exchange do not qualify. Need a wallet?",
+        "cta": "Create one"
+      }
+    }
+
   }
 }

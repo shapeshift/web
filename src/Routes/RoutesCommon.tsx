@@ -2,6 +2,7 @@ import { getConfig } from 'config'
 import { FaCreditCard, FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
+import { ArkeoIcon } from 'components/Icons/Arkeo'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -12,6 +13,7 @@ import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
 import { AccountTokenTxHistory } from 'pages/Accounts/AccountToken/AccountTokenTxHistory'
 import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
+import { ArkeoPage } from 'pages/Arkeo/Arkeo'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
@@ -190,6 +192,13 @@ export const routes: NestedRoute[] = [
     label: 'Recovery',
     hide: true,
     main: Recovery,
+  },
+  {
+    path: 'arkeo',
+    label: 'navBar.arkeo',
+    icon: <ArkeoIcon />,
+    main: ArkeoPage,
+    category: RouteCategory.Explore,
   },
   {
     // a temporary route specifically for an affected user with stuck funds

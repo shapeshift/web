@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
   avalancheAssetId,
@@ -10,6 +10,7 @@ import {
   dogeAssetId,
   ethAssetId,
   fromAccountId,
+  fromAssetId,
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
@@ -55,6 +56,20 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
 }
+
+const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
+  cosmosAssetId,
+  avalancheAssetId,
+  ethAssetId,
+  btcAssetId,
+  bchAssetId,
+  ltcAssetId,
+  dogeAssetId,
+]
+
+const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
+  assetId => fromAssetId(assetId).chainId,
+)
 
 export const getAccountAddressesWithBalances = async (
   accountId: AccountId,
@@ -270,3 +285,8 @@ export const getWithdrawBps = ({
 
   return withdrawBps
 }
+
+export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
+  SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.includes(assetId)
+export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
+  SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)

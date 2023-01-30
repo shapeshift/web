@@ -8,7 +8,6 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -65,27 +64,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         // This way, we ensure "View Position" actually routes to the updated position
         await new Promise(resolve => setTimeout(resolve, 17000))
         if (confirmedTransaction.status === 'Confirmed') {
-          // Await the RTK query thunk to ensure we've finishsed fetching
-          await appDispatch(
-            getOpportunitiesUserData.initiate(
-              {
-                accountId,
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.ThorchainSavers,
-                opportunityType: DefiType.Staking,
-              },
-              { forceRefetch: true },
-            ),
-          )
+          contextDispatch({
+            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+            payload: {
+              txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
+              usedGasFee: confirmedTransaction.fee?.value,
+            },
+          })
         }
-
-        contextDispatch({
-          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-          payload: {
-            txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-            usedGasFee: confirmedTransaction.fee?.value,
-          },
-        })
       })()
     }
   }, [accountId, appDispatch, confirmedTransaction, contextDispatch, getOpportunitiesUserData])

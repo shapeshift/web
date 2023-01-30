@@ -31,8 +31,6 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
-  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
-
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter

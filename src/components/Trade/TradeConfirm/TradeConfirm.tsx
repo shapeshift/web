@@ -28,7 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useBestSwapper } from 'components/Trade/hooks/useBestSwapper'
+import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -90,7 +90,8 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const { bestSwapper } = useBestSwapper({ feeAsset: defaultFeeAsset })
+  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
+  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   const reset = useCallback(() => {
     setValue('buyTradeAsset.amountCryptoPrecision', '')

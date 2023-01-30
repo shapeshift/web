@@ -15,7 +15,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
 import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import {
@@ -69,7 +69,7 @@ export const useTradeAmounts = () => {
 
   const { getTradeQuote } = getTradeQuoteApi.endpoints
   const { getUsdRates } = getUsdRatesApi.endpoints
-  const { getBestSwapperType } = getBestSwapperApi.endpoints
+  const { getAvailableSwappers } = getSwappersApi.endpoints
 
   const setTradeAmounts = useCallback(
     (args: SetTradeAmountsArgs) => {
@@ -193,16 +193,18 @@ export const useTradeAmounts = () => {
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
-      const bestSwapperType = tradeQuoteArgs
+      const availableSwappers = tradeQuoteArgs
         ? (
             await dispatch(
-              getBestSwapperType.initiate({
+              getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 feeAsset,
               }),
             )
           ).data
         : undefined
+
+      const bestSwapperType = availableSwappers?.[0].swapperType
 
       const swapperManager = await getSwapperManager(featureFlags)
       const swappers = swapperManager.swappers
@@ -265,7 +267,7 @@ export const useTradeAmounts = () => {
       buyAssetFormState?.assetId,
       dispatch,
       featureFlags,
-      getBestSwapperType,
+      getAvailableSwappers,
       getReceiveAddressFromBuyAsset,
       getTradeQuote,
       getUsdRates,

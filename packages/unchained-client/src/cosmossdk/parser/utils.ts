@@ -1,4 +1,5 @@
 import {
+  ASSET_NAMESPACE,
   AssetId,
   cosmosAssetId,
   fromAssetId,
@@ -27,7 +28,10 @@ export const getAssetIdByDenom = (denom: string, assetId: string): AssetId | und
 
   const { chainId } = fromAssetId(assetId)
 
-  const [assetNamespace, assetReference] = denom.split('/')
+  const [assetNamespace, assetReference] = denom.includes('gamm/pool')
+    ? [ASSET_NAMESPACE.ibc, denom]
+    : denom.split('/')
+
   if (assetNamespace === 'ibc' && assetReference) {
     return toAssetId({ chainId, assetNamespace, assetReference })
   }
@@ -116,6 +120,18 @@ export const metaData = (
       return {
         parser: 'swap',
         method: msg.type,
+      }
+    case 'join_pool':
+      return {
+        parser: 'lp',
+        method: msg.type,
+        pool: event['pool_joined']['pool_id'],
+      }
+    case 'exit_pool':
+      return {
+        parser: 'lp',
+        method: msg.type,
+        pool: event['pool_exited']['pool_id'],
       }
     case 'send':
       // known message types with no applicable metadata

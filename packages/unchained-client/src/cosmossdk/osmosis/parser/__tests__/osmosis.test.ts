@@ -4,8 +4,10 @@ import { Dex, Fee, TradeType, TransferType, TxStatus } from '../../../../types'
 import { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import delegate from './mockData/delegate'
+import exit_pool from './mockData/exit_pool'
 import ibc_receive from './mockData/ibc_receive'
 import ibc_transfer from './mockData/ibc_transfer'
+import join_pool from './mockData/join_pool'
 import redelegate from './mockData/redelegate'
 import reward from './mockData/reward'
 import standard from './mockData/standard'
@@ -417,6 +419,156 @@ describe('parseTx', () => {
       trade: {
         dexName: Dex.Osmosis,
         type: TradeType.Trade,
+      },
+    }
+
+    const expectedWithFee = { ...expected, fee }
+    const actualWithFee = await txParser.parse(txWithFee, address)
+
+    expect(expectedWithFee).toEqual(actualWithFee)
+
+    const expectedNoFee = expected
+    const actualNoFee = await txParser.parse(txNoFee, address)
+
+    expect(expectedNoFee).toEqual(actualNoFee)
+  })
+
+  it('should be able to parse a lp deposit tx', async () => {
+    const { tx, txNoFee, txWithFee } = join_pool
+    const address = 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu'
+
+    const fee: Fee = {
+      assetId: osmosisAssetId,
+      value: '12345',
+    }
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: osmosisChainId,
+      transfers: [
+        {
+          type: TransferType.Send,
+          assetId:
+            'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+          from: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
+          to: '',
+          totalValue: '4996551',
+          components: [
+            {
+              value: '4996551',
+            },
+          ],
+        },
+        {
+          type: TransferType.Send,
+          assetId: 'cosmos:osmosis-1/slip44:118',
+          from: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
+          to: '',
+          totalValue: '69000357',
+          components: [
+            {
+              value: '69000357',
+            },
+          ],
+        },
+        {
+          type: TransferType.Receive,
+          assetId: 'cosmos:osmosis-1/ibc:gamm/pool/1',
+          from: 'osmo1c9y7crgg6y9pfkq0y8mqzknqz84c3etr0kpcvj',
+          to: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
+          totalValue: '492310218978494996725',
+          components: [
+            {
+              value: '492310218978494996725',
+            },
+          ],
+        },
+      ],
+      data: {
+        parser: 'lp',
+        method: 'join_pool',
+        pool: '1',
+      },
+    }
+
+    const expectedWithFee = { ...expected, fee }
+    const actualWithFee = await txParser.parse(txWithFee, address)
+
+    expect(expectedWithFee).toEqual(actualWithFee)
+
+    const expectedNoFee = expected
+    const actualNoFee = await txParser.parse(txNoFee, address)
+
+    expect(expectedNoFee).toEqual(actualNoFee)
+  })
+
+  it('should be able to parse a lp withdraw tx', async () => {
+    const { tx, txNoFee, txWithFee } = exit_pool
+    const address = 'osmo1mw5cp5jurwkd53a0hefq6epj88700kdzwqmcl7'
+
+    const fee: Fee = {
+      assetId: osmosisAssetId,
+      value: '12345',
+    }
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: osmosisChainId,
+      transfers: [
+        {
+          type: TransferType.Receive,
+          assetId:
+            'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+          from: '',
+          to: 'osmo1mw5cp5jurwkd53a0hefq6epj88700kdzwqmcl7',
+          totalValue: '24670050',
+          components: [
+            {
+              value: '24670050',
+            },
+          ],
+        },
+        {
+          type: TransferType.Receive,
+          assetId: 'cosmos:osmosis-1/slip44:118',
+          from: '',
+          to: 'osmo1mw5cp5jurwkd53a0hefq6epj88700kdzwqmcl7',
+          totalValue: '335768900',
+          components: [
+            {
+              value: '335768900',
+            },
+          ],
+        },
+        {
+          type: TransferType.Send,
+          assetId: 'cosmos:osmosis-1/ibc:gamm/pool/1',
+          from: 'osmo1mw5cp5jurwkd53a0hefq6epj88700kdzwqmcl7',
+          to: 'osmo1c9y7crgg6y9pfkq0y8mqzknqz84c3etr0kpcvj',
+          totalValue: '2412819982721898705868',
+          components: [
+            {
+              value: '2412819982721898705868',
+            },
+          ],
+        },
+      ],
+      data: {
+        parser: 'lp',
+        method: 'exit_pool',
+        pool: '1',
       },
     }
 

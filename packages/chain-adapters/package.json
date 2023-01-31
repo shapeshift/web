@@ -41,7 +41,7 @@
     "@shapeshiftoss/hdwallet-core": "^1.42.0",
     "@shapeshiftoss/hdwallet-native": "^1.42.0",
     "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.0.1",
+    "@shapeshiftoss/unchained-client": "^10.11.0",
     "bs58check": "^2.0.2"
   },
   "devDependencies": {

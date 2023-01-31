@@ -58,7 +58,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
   const maybeRefetchOpportunities = useCallback(
     ({ chainId, transfers, status }: Transaction, accountId: AccountId) => {
-      if (status === TxStatus.Confirmed) return
+      if (status !== TxStatus.Confirmed) return
 
       if (
         isSupportedThorchainSaversChainId(chainId) &&

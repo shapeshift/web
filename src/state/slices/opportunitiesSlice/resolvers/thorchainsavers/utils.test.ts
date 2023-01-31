@@ -2,13 +2,14 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { btcAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import merge from 'lodash/merge'
 
 import { getThorchainSaversDepositQuote } from './utils'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
 
-const btcQuote = {
+const btcQuoteResponse = {
   expected_amount_out: '9997894',
   fees: {
     affiliate: '0',
@@ -20,6 +21,8 @@ const btcQuote = {
   memo: '+:BTC/BTC',
   slippage_bps: 2,
 }
+
+const thorchainSaversDepositQuote = merge(btcQuoteResponse, { memo: '+:BTC/BTC::ss:0' })
 
 const thorchainErrorResponse = {
   error: 'Invalid pool',
@@ -41,7 +44,7 @@ describe('resolvers/thorchainSavers/utils', () => {
     it('gets a quote for a valid pool AssetId', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
-          data: btcQuote,
+          data: btcQuoteResponse,
         }),
       )
 
@@ -51,7 +54,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         amountCryptoBaseUnit: '10000000',
       })
 
-      expect(saversQuote).toMatchObject(btcQuote)
+      expect(saversQuote).toMatchObject(thorchainSaversDepositQuote)
     })
     it('throws for an invalid pool AssetId', async () => {
       mockAxios.get.mockImplementationOnce(() =>

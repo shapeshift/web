@@ -134,22 +134,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       : undefined,
   )
 
-  const underlyingAssetsIcons: string[] = useMemo(
-    () =>
-      earnOpportunityData?.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? '') ?? [],
-    [assets, earnOpportunityData?.underlyingAssetIds],
-  )
-
-  const underlyingAssetsIcons: string[] = useMemo(
-    () =>
-      earnOpportunityData?.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? '') ?? [],
-    [assets, earnOpportunityData?.underlyingAssetIds],
-  )
-
   const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
 
   const opportunityMetadata = useMemo(
@@ -266,9 +250,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     return (
       <ThorchainSaversEmpty
         assetId={assetId}
-        assets={[{ icons: underlyingAssetsIcons }]}
-        apy={earnOpportunityData.apy.toString() ?? ''}
-        opportunityName={earnOpportunityData.name ?? ''}
         onClick={() =>
           history.push({
             pathname: location.pathname,

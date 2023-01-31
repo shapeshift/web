@@ -1,7 +1,6 @@
 import { Button, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import type { EmptyOverviewAsset } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { useTranslate } from 'react-polyglot'
 import SaversVaultTop from 'assets/savers-vault-top.png'
@@ -11,13 +10,10 @@ import { useAppSelector } from 'state/store'
 
 type ThorchainSaversEmptyProps = {
   assetId: AssetId
-  assets: EmptyOverviewAsset[]
-  apy: string | undefined
   onClick?: () => void
-  opportunityName: string
 }
 
-export const ThorchainSaversEmpty = ({ assets, assetId, onClick }: ThorchainSaversEmptyProps) => {
+export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const linkColor = useColorModeValue('blue.500', 'blue.200')
@@ -29,7 +25,7 @@ export const ThorchainSaversEmpty = ({ assets, assetId, onClick }: ThorchainSave
       backgroundRepeat='no-repeat'
     >
       <EmptyOverview
-        assets={assets}
+        assets={[{ icon: asset?.icon ?? '' }]}
         footer={
           <Button width='full' colorScheme='blue' onClick={onClick}>
             <Text translation='defi.modals.saversVaults.understand' />

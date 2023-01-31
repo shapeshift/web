@@ -127,9 +127,9 @@ export const Deposit: React.FC<DepositProps> = ({
       if (outboundFeeCryptoBaseUnit) return
 
       const outboundFee = await getOutboundFeeCryptoBaseUnit()
-      if (!outboundFee) return ''
+      if (!outboundFee) return
 
-      setOutboundFeeCryptoBaseUnit(outboundFee ?? '')
+      setOutboundFeeCryptoBaseUnit(outboundFee)
     })()
   }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
   // notify

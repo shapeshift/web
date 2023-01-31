@@ -21,7 +21,6 @@ export type FeatureFlags = {
   Yat: boolean
   WalletConnectToDapps: boolean
   Wherever: boolean
-  FiatPopup: boolean
   SaversVaults: boolean
   Yearn: boolean
 }
@@ -57,7 +56,6 @@ const initialState: Preferences = {
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
-    FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
   },

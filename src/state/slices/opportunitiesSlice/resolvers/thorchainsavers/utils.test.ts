@@ -2,7 +2,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { btcAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import merge from 'lodash/merge'
 
 import { getThorchainSaversDepositQuote } from './utils'
 
@@ -22,7 +21,7 @@ const btcQuoteResponse = {
   slippage_bps: 2,
 }
 
-const thorchainSaversDepositQuote = merge(btcQuoteResponse, { memo: '+:BTC/BTC::ss:0' })
+const thorchainSaversDepositQuote = Object.assign({}, btcQuoteResponse, { memo: '+:BTC/BTC::ss:0' })
 
 const thorchainErrorResponse = {
   error: 'Invalid pool',

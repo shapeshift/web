@@ -156,14 +156,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       : undefined,
   )
 
-  const txsFilter = useMemo(
+  const hasPendingTxsFilter = useMemo(
     () => ({
       accountId,
       assetId,
     }),
     [accountId, assetId],
   )
-  const hasPendingTxs = useAppSelector(state => selectTxsByFilter(state, txsFilter)).some(
+  const hasPendingTxs = useAppSelector(state => selectTxsByFilter(state, hasPendingTxsFilter)).some(
     tx => tx.status === TxStatus.Pending,
   )
 

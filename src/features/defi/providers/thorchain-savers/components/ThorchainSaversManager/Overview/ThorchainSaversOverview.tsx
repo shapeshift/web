@@ -148,9 +148,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     }),
     [accountId, assetId],
   )
-  const pendingTxsLength = useAppSelector(state => selectTxsByFilter(state, txsFilter)).filter(
+  const hasPendingTxs = useAppSelector(state => selectTxsByFilter(state, txsFilter)).some(
     tx => tx.status === TxStatus.Pending,
-  ).length
+  )
 
   const makeDefaultMenu = useCallback(
     ({
@@ -187,9 +187,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
     return makeDefaultMenu({
       isFull: opportunityMetadata?.isFull,
-      hasPendingTxs: Boolean(pendingTxsLength),
+      hasPendingTxs,
     })
-  }, [earnOpportunityData, makeDefaultMenu, opportunityMetadata?.isFull, pendingTxsLength])
+  }, [earnOpportunityData, makeDefaultMenu, opportunityMetadata?.isFull, hasPendingTxs])
 
   const renderVaultCap = useMemo(() => {
     return (

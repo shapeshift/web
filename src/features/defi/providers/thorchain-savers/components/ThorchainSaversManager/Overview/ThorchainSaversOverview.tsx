@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -21,7 +21,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -99,23 +99,36 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
-  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
-  const opportunityDataFilter = useMemo(
-    () => ({
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
+  )
+
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!maybeAccountId?.length) return
+
+    return {
       userStakingId: serializeUserStakingId(
-        (accountId ?? highestBalanceAccountId ?? defaultAccountId)!,
+        maybeAccountId!,
         toOpportunityId({
           chainId,
           assetNamespace,
           assetReference,
         }),
       ),
-    }),
-    [accountId, assetNamespace, assetReference, chainId, defaultAccountId, highestBalanceAccountId],
-  )
+    }
+  }, [assetNamespace, assetReference, chainId, maybeAccountId])
 
   const earnOpportunityData = useAppSelector(state =>
-    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
@@ -154,7 +167,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [assets, underlyingAssetId],
   )
   const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
-    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
+    opportunityDataFilter
+      ? selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter)
+      : undefined,
   )
 
   const menu: DefiButtonProps[] = useMemo(() => {
@@ -224,12 +239,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     )
   }
 
+  if (!(maybeAccountId && opportunityDataFilter)) return null
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
 
   return (
     <Overview
-      accountId={accountId}
+      accountId={maybeAccountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       name={earnOpportunityData.name ?? ''}

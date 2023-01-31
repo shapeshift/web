@@ -1,4 +1,6 @@
 import { Box, IconButton, useColorMode } from '@chakra-ui/react'
+import type { BIP32Path, ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { CustomTheme } from '@wherever/react-notification-feed'
 import {
   NotificationBell,
@@ -7,17 +9,26 @@ import {
   ThemeMode,
 } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
-import { useMemo } from 'react'
-import { getLocalWalletType } from 'context/WalletProvider/local-wallet'
-import { isKeyManagerWithProvider } from 'context/WalletProvider/WalletProvider'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { breakpoints, theme } from 'theme/theme'
+
+const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native]
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
+  const {
+    state: { wallet, type },
+  } = useWallet()
 
-  const currentWallet = getLocalWalletType()
+  const [addressNList, setAddressNList] = useState<BIP32Path>()
+  const [ethAddress, setEthAddress] = useState<string | null>()
+
+  const disableAnalytics = window.location.href.includes('private.shapeshift.com')
+  const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
   const mobileBreakpoint = Number(breakpoints.md.replace('px', ''))
 
   const themeObj: CustomTheme = useMemo(() => {
@@ -40,14 +51,71 @@ export const Notifications = () => {
     }
   }, [colorMode, mobileBreakpoint])
 
-  if (!isWhereverEnabled || !currentWallet || !isKeyManagerWithProvider(currentWallet)) return null
+  useEffect(() => {
+    if (!wallet || !supportsETH(wallet)) return
+    ;(async () => {
+      const { addressNList } = wallet.ethGetAccountPaths({
+        coin: 'Ethereum',
+        accountIdx: 0,
+      })[0]
 
-  const disableAnalytics = window.location.href.includes('private.shapeshift.com')
-  const partnerKey = getConfig().REACT_APP_WHEREVER_PARTNER_KEY
+      const ethAddress = await wallet.ethGetAddress({ addressNList })
+
+      setEthAddress(ethAddress)
+      setAddressNList(addressNList)
+    })()
+  }, [wallet])
+
+  const signMessage = useCallback(
+    async (message: string) => {
+      if (!addressNList || !wallet || !supportsETH(wallet)) {
+        return
+      }
+
+      const signedMsg = await wallet.ethSignMessage({
+        addressNList,
+        message,
+      })
+
+      return signedMsg?.signature
+    },
+    [wallet, addressNList],
+  )
+
+  const signTypedData = useCallback(
+    async (typedData: ETHSignTypedData['typedData']) => {
+      if (!addressNList || !wallet || !supportsETH(wallet)) {
+        return
+      }
+
+      const signedMsg = await wallet.ethSignTypedData?.({
+        addressNList,
+        typedData,
+      })
+
+      return signedMsg?.signature
+    },
+    [wallet, addressNList],
+  )
+
+  if (
+    !isWhereverEnabled ||
+    !ethAddress ||
+    !wallet ||
+    !eip712SupportedWallets.includes(type as KeyManager) ||
+    !supportsETH(wallet)
+  )
+    return null
 
   return (
     <Box>
       <NotificationFeedProvider
+        customSigner={{
+          address: ethAddress,
+          chainId: 1,
+          signMessage,
+          signTypedData,
+        }}
         partnerKey={partnerKey}
         theme={themeObj}
         disableAnalytics={disableAnalytics}

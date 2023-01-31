@@ -2,11 +2,15 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  FeeData,
+  FeeDataEstimate,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
-import { utils } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -27,7 +31,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -35,7 +38,6 @@ import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   fromThorBaseUnit,
-  getAccountAddressesWithBalances,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
   toThorBaseUnit,
@@ -43,8 +45,8 @@ import {
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -63,8 +65,6 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 // Or even a bit less
 const TXS_BUFFER = 8
 
-const supportedEvmChainIds = getSupportedEvmChainIds()
-
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
@@ -74,7 +74,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
-  const chainAdapter = getChainAdapterManager().get(chainId)
+
+  // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
+  const chainAdapter = getChainAdapterManager().get(
+    chainId,
+  ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+  // const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
   const assetId = toAssetId({
     chainId,
@@ -89,7 +95,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+  const accountType = accountMetadata?.accountType
+  const bip44Params = accountMetadata?.bip44Params
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
@@ -165,15 +175,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       ),
     )
 
-    const memoUtf8 = quote.memo
     return {
       cryptoAmount: state.deposit.cryptoAmount,
       asset,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
-      memo: supportedEvmChainIds.includes(chainId)
-        ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-        : memoUtf8,
       sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
       accountId,
       contractAddress: '',
@@ -255,8 +261,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             .toFixed()
       }
 
-      const memoUtf8 = quote.memo
-
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         asset,
@@ -264,9 +268,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-          : memoUtf8,
         amountFieldError: '',
         cryptoSymbol: asset.symbol,
         estimatedFees,
@@ -394,7 +395,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [chainId, getDepositInput, getPreDepositInput, walletState.wallet])
 
   useEffect(() => {
-    if (!accountId) return
+    if (!(accountId && chainAdapter && walletState?.wallet && bip44Params && accountType)) return
     ;(async () => {
       const accountAddress = isUtxoChainId(chainId)
         ? await getThorchainSaversPosition({ accountId, assetId })
@@ -402,19 +403,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
             )
             .catch(async () => {
-              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
-              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
-                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
-              )[0].address
+              const firstReceiveAddress = await chainAdapter.getAddress({
+                wallet: walletState.wallet!,
+                accountNumber: bip44Params.accountNumber,
+                accountType,
+                index: 0,
+              })
 
-              return chainId === bchChainId
-                ? `bitcoincash:${highestBalanceAccount}`
-                : highestBalanceAccount
+              return firstReceiveAddress
             })
         : ''
+
       setMaybeFromUTXOAccountAddress(accountAddress)
     })()
-  }, [chainId, accountId, assetId])
+  }, [chainId, accountId, assetId, chainAdapter, walletState.wallet, bip44Params, accountType])
 
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return

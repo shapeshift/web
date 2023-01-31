@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.11.0...@shapeshiftoss/unchained-client-v10.12.0) (2023-01-31)
+
+
+### Features
+
+* parse osmosis lp transactions ([#1183](https://github.com/shapeshift/lib/issues/1183)) ([40cc338](https://github.com/shapeshift/lib/commit/40cc338ec264c977b911b902b57eee84b931cf7e))
+
 # [@shapeshiftoss/unchained-client-v10.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.10.0...@shapeshiftoss/unchained-client-v10.11.0) (2023-01-26)
 
 

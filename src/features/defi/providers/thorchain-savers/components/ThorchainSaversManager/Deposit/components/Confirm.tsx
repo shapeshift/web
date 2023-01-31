@@ -37,6 +37,7 @@ import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
+  BASE_BPS_POINTS,
   fromThorBaseUnit,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
@@ -68,6 +69,10 @@ const TXS_BUFFER = 8
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
+  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
+    null,
+  )
+  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
   // TODO: Allow user to set fee priority
@@ -137,7 +142,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
-      const { expected_amount_out } = quote
+      const { expected_amount_out, slippage_bps } = quote
 
       setDepositFeeCryptoBaseUnit(
         toBaseUnit(
@@ -145,8 +150,26 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           asset.precision,
         ),
       )
+      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+
+      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+      const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
+        .times(percentage)
+        .div(100)
+      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+      // daily upside
+      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
+        .times(opportunity?.apy ?? 0)
+        .div(365)
+
+      const daysToBreakEven = cryptoSlippageAmountPrecision
+        .div(dailyEarnAmount)
+        .toFixed(0)
+        .toString()
+      setDaysToBreakEven(daysToBreakEven)
     })()
-  }, [accountId, asset, depositFeeCryptoBaseUnit, state?.deposit.cryptoAmount])
+  }, [accountId, asset, depositFeeCryptoBaseUnit, opportunity?.apy, state?.deposit.cryptoAmount])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!accountId) throw new Error('accountId required')
@@ -539,6 +562,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>{translate('common.slippage')}</Row.Label>
+          <Row.Value>
+            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            {translate(
+              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+              { amount: daysToBreakEven ?? '0' },
+            )}
+          </Row.Value>
         </Row>
         <Row variant='gutter'>
           <Row.Label>

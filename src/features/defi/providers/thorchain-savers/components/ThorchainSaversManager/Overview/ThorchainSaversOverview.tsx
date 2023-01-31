@@ -128,7 +128,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [assetId, opportunitiesMetadata],
   ) as ThorchainSaversStakingSpecificMetadata | undefined
 
-  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.saversSupplyIncludeAccruedFiat)
+  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.tvl)
     .div(bnOrZero(opportunityMetadata?.saversMaxSupplyFiat))
     .times(100)
     .toNumber()
@@ -247,7 +247,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             <Text fontWeight='medium' translation='defi.modals.saversVaults.vaultCap' />
           </HelperTooltip>
           <Flex gap={1}>
-            <Amount.Fiat value={opportunityMetadata?.saversSupplyIncludeAccruedFiat ?? 0} />
+            <Amount.Fiat value={opportunityMetadata?.tvl ?? 0} />
             <Amount.Fiat
               value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
               prefix='/'
@@ -287,7 +287,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     alertBg,
     currentCapFillPercentage,
     opportunityMetadata?.saversMaxSupplyFiat,
-    opportunityMetadata?.saversSupplyIncludeAccruedFiat,
+    opportunityMetadata?.tvl,
     translate,
     underlyingAsset?.symbol,
   ])

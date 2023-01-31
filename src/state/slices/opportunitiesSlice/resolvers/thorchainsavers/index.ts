@@ -112,13 +112,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     const apy = bnOrZero(
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
-    const tvl = fromThorBaseUnit(thorchainPool.savers_units).times(marketData.price).toFixed()
-    // NOT the same as the TVL:
-    // - TVL is the fiat total of assets locked
-    // - supply is the fiat total of assets locked, including the accrued value, accounting in the max. cap
-    const saversSupplyIncludeAccruedFiat = fromThorBaseUnit(thorchainPool.savers_depth)
-      .times(marketData.price)
-      .toFixed()
+    const tvl = fromThorBaseUnit(thorchainPool.synth_supply).times(marketData.price).toFixed()
     const saversMaxSupplyFiat = fromThorBaseUnit(
       bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
     )
@@ -138,7 +132,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
       name: `${underlyingAsset.symbol} Vault`,
-      saversSupplyIncludeAccruedFiat,
       saversMaxSupplyFiat,
       isFull: thorchainPool.synth_mint_paused,
     }

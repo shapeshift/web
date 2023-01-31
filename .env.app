@@ -9,10 +9,6 @@ REACT_APP_PENDO_VISITOR_ID_PREFIX=test_visitor
 # paranoia
 REACT_APP_PENDO_UNSAFE_DESIGNER_MODE=false
 
-# zendesk
-# no-referrer in private w/o zendesk, origin for app w/ zendesk when enabled
-REACT_APP_REFERRER=no-referrer
-
 # unchained
 REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://api.ethereum.shapeshift.com

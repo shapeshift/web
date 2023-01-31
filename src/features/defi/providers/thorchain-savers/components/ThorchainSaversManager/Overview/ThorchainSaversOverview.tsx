@@ -115,7 +115,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
     return {
       userStakingId: serializeUserStakingId(
-        maybeAccountId!,
+        maybeAccountId,
         toOpportunityId({
           chainId,
           assetNamespace,

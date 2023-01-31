@@ -181,9 +181,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     }),
     [],
   )
-  const hasPendingQueries = useAppSelector(state =>
-    selectOpportunitiesApiQueriesByFilter(state, pendingQueriesFilter),
-  ).length
+  const hasPendingQueries = Boolean(
+    useAppSelector(state => selectOpportunitiesApiQueriesByFilter(state, pendingQueriesFilter))
+      .length,
+  )
 
   const makeDefaultMenu = useCallback(
     ({
@@ -228,7 +229,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     return makeDefaultMenu({
       isFull: opportunityMetadata?.isFull,
       hasPendingTxs,
-      hasPendingQueries: Boolean(hasPendingQueries),
+      hasPendingQueries,
     })
   }, [
     earnOpportunityData,

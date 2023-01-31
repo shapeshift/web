@@ -37,6 +37,7 @@ const BASE_BPS_POINTS = '10000'
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
+const AFFILIATE_ADDRESS = THORCHAIN_AFFILIATE_NAME
 
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
@@ -158,7 +159,7 @@ export const getThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${AFFILIATE_ADDRESS}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)

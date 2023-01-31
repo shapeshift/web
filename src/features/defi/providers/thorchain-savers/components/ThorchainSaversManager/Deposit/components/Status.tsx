@@ -19,6 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -62,7 +63,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       ;(async () => {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        await new Promise(resolve => setTimeout(resolve, 17000))
+        await waitForSaversUpdate()
+
         if (confirmedTransaction.status === 'Confirmed') {
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_DEPOSIT,

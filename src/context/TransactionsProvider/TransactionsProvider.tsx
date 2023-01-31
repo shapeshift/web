@@ -19,6 +19,7 @@ import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesS
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
+  waitForSaversUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   fetchAllOpportunitiesIds,
@@ -66,7 +67,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         const { getOpportunitiesUserData } = opportunitiesApi.endpoints
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        new Promise(resolve => setTimeout(resolve, 17000)).then(() => {
+        waitForSaversUpdate().then(() => {
           dispatch(
             getOpportunitiesUserData.initiate(
               {

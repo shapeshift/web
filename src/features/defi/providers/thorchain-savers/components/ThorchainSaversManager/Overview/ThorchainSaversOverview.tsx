@@ -14,6 +14,7 @@ import {
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -21,7 +22,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -42,27 +43,10 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectStakingOpportunitiesById,
+  selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
-  ...(isFull
-    ? []
-    : [
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-          isDisabled: isFull,
-        },
-      ]),
-  {
-    label: 'common.withdraw',
-    icon: <ArrowDownIcon />,
-    action: DefiAction.Withdraw,
-  },
-]
 
 type OverviewProps = {
   accountId: AccountId | undefined
@@ -172,11 +156,55 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       : undefined,
   )
 
+  const hasPendingTxsFilter = useMemo(
+    () => ({
+      accountId,
+      assetId,
+    }),
+    [accountId, assetId],
+  )
+  const hasPendingTxs = useAppSelector(state => selectTxsByFilter(state, hasPendingTxsFilter)).some(
+    tx => tx.status === TxStatus.Pending,
+  )
+
+  const makeDefaultMenu = useCallback(
+    ({
+      isFull,
+      hasPendingTxs,
+    }: { isFull?: boolean; hasPendingTxs?: boolean } = {}): DefiButtonProps[] => [
+      ...(isFull
+        ? []
+        : [
+            {
+              label: 'common.deposit',
+              icon: <ArrowUpIcon />,
+              action: DefiAction.Deposit,
+              isDisabled: isFull || hasPendingTxs,
+              toolTip: hasPendingTxs
+                ? translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
+                : undefined,
+            },
+          ]),
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+        isDisabled: hasPendingTxs,
+        toolTip: hasPendingTxs
+          ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+          : undefined,
+      },
+    ],
+    [translate],
+  )
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(opportunityMetadata?.isFull)
-  }, [earnOpportunityData, opportunityMetadata?.isFull])
+    return makeDefaultMenu({
+      isFull: opportunityMetadata?.isFull,
+      hasPendingTxs,
+    })
+  }, [earnOpportunityData, makeDefaultMenu, opportunityMetadata?.isFull, hasPendingTxs])
 
   const renderVaultCap = useMemo(() => {
     return (

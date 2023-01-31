@@ -299,7 +299,14 @@
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
         "sendDust": "Send Dust",
-        "addressToSendTo": "Address to Send To"
+        "addressToSendTo": "Address to Send To",
+        "introducingSaversVaults": "Introducing Savers Vaults",
+        "risksBody": {
+          "1": "Refer to",
+          "2": "this article",
+          "3": "for risks involved with savers vaults."
+        },
+        "understand": "I understand"
       }
     },
     "memoNote": {

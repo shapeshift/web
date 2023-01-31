@@ -21,6 +21,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -45,6 +46,8 @@ import {
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
 
 const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
   ...(isFull
@@ -74,7 +77,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
 
@@ -129,6 +132,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     opportunityDataFilter
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
+  )
+
+  const underlyingAssetsIcons: string[] = useMemo(
+    () =>
+      earnOpportunityData?.underlyingAssetIds
+        .map(assetId => assets[assetId]?.icon)
+        .map(icon => icon ?? '') ?? [],
+    [assets, earnOpportunityData?.underlyingAssetIds],
   )
 
   const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
@@ -242,6 +253,26 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   if (!(maybeAccountId && opportunityDataFilter)) return null
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
+
+  if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0)) {
+    return (
+      <ThorchainSaversEmpty
+        assetId={assetId}
+        assets={[{ icons: underlyingAssetsIcons }]}
+        apy={earnOpportunityData.apy.toString() ?? ''}
+        opportunityName={earnOpportunityData.name ?? ''}
+        onClick={() =>
+          history.push({
+            pathname: location.pathname,
+            search: qs.stringify({
+              ...query,
+              modal: DefiAction.Deposit,
+            }),
+          })
+        }
+      />
+    )
+  }
 
   return (
     <Overview

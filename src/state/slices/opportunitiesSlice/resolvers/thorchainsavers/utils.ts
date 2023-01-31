@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
   avalancheAssetId,
@@ -10,6 +10,7 @@ import {
   dogeAssetId,
   ethAssetId,
   fromAccountId,
+  fromAssetId,
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
@@ -20,6 +21,7 @@ import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import type {
@@ -33,6 +35,7 @@ import type {
 
 const THOR_PRECISION = '8'
 const BASE_BPS_POINTS = '10000'
+const SAVERS_UPDATE_TIME = 17000 // The time it takes for savers to be updated (currently ~15s) with some safety buffer
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // TODO: We will need an affiliate address on all L1s, remove these two and get the programmatic address
@@ -55,6 +58,20 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
   [cosmosAssetId]: '0',
   [binanceAssetId]: '0',
 }
+
+const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
+  cosmosAssetId,
+  avalancheAssetId,
+  ethAssetId,
+  btcAssetId,
+  bchAssetId,
+  ltcAssetId,
+  dogeAssetId,
+]
+
+const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
+  assetId => fromAssetId(assetId).chainId,
+)
 
 export const getAccountAddressesWithBalances = async (
   accountId: AccountId,
@@ -270,3 +287,10 @@ export const getWithdrawBps = ({
 
   return withdrawBps
 }
+
+export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
+  SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.includes(assetId)
+export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
+  SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
+
+export const waitForSaversUpdate = () => setTimeoutAsync(SAVERS_UPDATE_TIME)

@@ -7,12 +7,20 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import {
+  isSupportedThorchainSaversAssetId,
+  isSupportedThorchainSaversChainId,
+  waitForSaversUpdate,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
@@ -49,7 +57,30 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
 
   const maybeRefetchOpportunities = useCallback(
-    ({ chainId, transfers }: Transaction, accountId: AccountId) => {
+    ({ chainId, transfers, status }: Transaction, accountId: AccountId) => {
+      if (status !== TxStatus.Confirmed) return
+
+      if (
+        isSupportedThorchainSaversChainId(chainId) &&
+        transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
+      ) {
+        const { getOpportunitiesUserData } = opportunitiesApi.endpoints
+        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
+        // This way, we ensure "View Position" actually routes to the updated position
+        waitForSaversUpdate().then(() => {
+          dispatch(
+            getOpportunitiesUserData.initiate(
+              {
+                accountId,
+                defiType: DefiType.Staking,
+                defiProvider: DefiProvider.ThorchainSavers,
+                opportunityType: DefiType.Staking,
+              },
+              { forceRefetch: true },
+            ),
+          )
+        })
+      }
       if (
         !(
           chainId === ethChainId &&

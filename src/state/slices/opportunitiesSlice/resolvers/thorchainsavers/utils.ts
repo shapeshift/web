@@ -38,13 +38,8 @@ const BASE_BPS_POINTS = '10000'
 const SAVERS_UPDATE_TIME = 17000 // The time it takes for savers to be updated (currently ~15s) with some safety buffer
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
-// TODO: We will need an affiliate address on all L1s, remove these two and get the programmatic address
-// for the current PoolId when that's done
-// For now, we use the affiliate name in place of an address, which won't result in affiliate fees
-// See: https://discord.com/channels/838986635756044328/1060678683486072903/1060821122423201843
-// const AFFILIATE_ADDRESS = THORCHAIN_AFFILIATE_NAME
-// Affiliate bps must be >0, so we set to 1 for the time being until we get L1 addresses rolling
-// const AFFILIATE_BPS = 1
+// BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
+const AFFILIATE_BPS = 0
 
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
@@ -180,13 +175,16 @@ export const getThorchainSaversDepositQuote = async ({
   const { data: quoteData } = await axios.get<ThorchainSaversDepositQuoteResponse>(
     `${
       getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}`,
+    }/lcd/thorchain/quote/saver/deposit?asset=${poolId}&amount=${amountThorBaseUnit}&affiliate=${THORCHAIN_AFFILIATE_NAME}&affiliate_bps=${AFFILIATE_BPS}`,
   )
 
   if (!quoteData || 'error' in quoteData)
     throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return quoteData
+  return {
+    ...quoteData,
+    memo: `${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`,
+  }
 }
 
 export const getThorchainSaversWithdrawQuote = async ({

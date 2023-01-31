@@ -4,6 +4,7 @@ import {
   EvmSupportedChainIds,
   SwapError,
   SwapErrorType,
+  TradeQuote,
 } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
@@ -16,9 +17,9 @@ const grantAllowanceForAmount = async <T extends EvmSupportedChainIds>(
   { quote, wallet }: ApproveInfiniteInput<T>,
   approvalAmount: string,
 ) => {
-  const approvalQuote = {
+  const approvalQuote: TradeQuote<T> = {
     ...quote,
-    sellAmount: approvalAmount,
+    sellAmountBeforeFeesCryptoBaseUnit: approvalAmount,
     feeData: {
       ...quote.feeData,
       chainSpecific: {
@@ -43,9 +44,8 @@ export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
   args: ApproveAmountInput<T>,
 ) {
   try {
-    const sellAmount = args.quote.sellAmountBeforeFeesCryptoBaseUnit
     // If no amount is specified we use the quotes sell amount
-    const approvalAmount = args.amount ?? sellAmount
+    const approvalAmount = args.amount ?? args.quote.sellAmountBeforeFeesCryptoBaseUnit
     return grantAllowanceForAmount(deps, args, approvalAmount)
   } catch (e) {
     if (e instanceof SwapError) throw e

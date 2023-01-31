@@ -18,7 +18,6 @@ export type FeatureFlags = {
   Pendo: boolean
   IdleFinance: boolean
   Axelar: boolean
-  Zendesk: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
   DashboardBreakdown: boolean
@@ -57,7 +56,6 @@ const initialState: Preferences = {
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
-    Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,

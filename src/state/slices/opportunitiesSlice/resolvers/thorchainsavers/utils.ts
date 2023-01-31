@@ -32,7 +32,7 @@ import type {
 } from './types'
 
 const THOR_PRECISION = '8'
-const BASE_BPS_POINTS = '10000'
+export const BASE_BPS_POINTS = '10000'
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'
 // TODO: We will need an affiliate address on all L1s, remove these two and get the programmatic address

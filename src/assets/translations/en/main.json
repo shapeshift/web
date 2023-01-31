@@ -84,7 +84,8 @@
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "slippage": "Slippage"
   },
   "errorPage": {
     "title": "Oops!",
@@ -306,7 +307,13 @@
           "2": "this article",
           "3": "for risks involved with savers vaults."
         },
-        "understand": "I understand"
+        "understand": "I understand",
+        "days": "%{amount} days",
+        "day": "%{amount} day",
+        "timeToBreakEven": {
+          "title": "Time to break even",
+          "tooltip": "Estimated time to cover deposit fees and earnings."
+        }
       }
     },
     "memoNote": {

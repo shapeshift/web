@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -105,6 +105,17 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
     selectAssetById(state, underlyingAsset1Id),
   )
 
+  const getPoolData = useCallback(async (): Promise<OsmosisPool | undefined> => {
+    if (!opportunity) return undefined
+    const opportunityAssetId = opportunity.assetId
+    if (!opportunityAssetId) return
+    const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
+    if (!poolAssetReference) return
+    const id = getPoolIdFromAssetReference(poolAssetReference)
+    if (!id) return
+    return await getPool(id)
+  }, [opportunity])
+
   useEffect(() => {
     ;(() => {
       dispatch({
@@ -115,21 +126,12 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
       if (!opportunity) return
       dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: opportunity })
 
-      const getPoolData = async (): Promise<OsmosisPool | undefined> => {
-        const opportunityAssetId = opportunity.assetId
-        if (!opportunityAssetId) return
-        const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
-        if (!poolAssetReference) return
-        const id = getPoolIdFromAssetReference(poolAssetReference)
-        if (!id) return
-        return await getPool(id)
-      }
       getPoolData().then(data => {
         if (!data) return
         dispatch({ type: OsmosisDepositActionType.SET_POOL_DATA, payload: data })
       })
     })()
-  }, [opportunity, userAddress])
+  }, [getPoolData, opportunity, userAddress])
 
   const handleBack = () => {
     history.push({

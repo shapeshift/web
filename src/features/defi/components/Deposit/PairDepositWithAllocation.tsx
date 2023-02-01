@@ -230,16 +230,12 @@ export const PairDepositWithAllocation = ({
     }
   }
 
-  const onSubmit = (values: DepositValues) => {
-    onContinue(values)
-  }
-
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
   const fiatYield = bnOrZero(cryptoYield).times(marketData1.price).toFixed(2)
 
   return (
     <>
-      <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={6} as='form' width='full' onSubmit={handleSubmit(onContinue)}>
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             {...(accountId ? { accountId } : {})}

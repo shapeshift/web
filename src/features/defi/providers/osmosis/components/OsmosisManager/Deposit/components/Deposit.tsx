@@ -222,12 +222,10 @@ export const Deposit: React.FC<DepositProps> = ({
           underlyingAsset0: {
             amount: asset0AmountBaseUnits,
             denom: fromAssetId(underlyingAsset0.assetId).assetReference,
-            fiatAmount: formValues.fiatAmount1,
           },
           underlyingAsset1: {
             amount: asset1AmountBaseUnits,
             denom: fromAssetId(underlyingAsset1.assetId).assetReference,
-            fiatAmount: formValues.fiatAmount2,
           },
           shareOutAmount: calculateAllocations(underlyingAsset0, formValues.cryptoAmount1)
             .shareOutAmount,

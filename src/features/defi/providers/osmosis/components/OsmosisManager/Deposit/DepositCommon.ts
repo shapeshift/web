@@ -9,8 +9,8 @@ type EstimatedFee = {
 }
 
 type DepositValues = {
-  underlyingAsset0: OsmosisToken & { fiatAmount: string }
-  underlyingAsset1: OsmosisToken & { fiatAmount: string }
+  underlyingAsset0: OsmosisToken
+  underlyingAsset1: OsmosisToken
   shareOutAmount: string
 }
 

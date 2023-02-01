@@ -26,6 +26,9 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
   const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
+
+  // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
+  // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
     [cosmosChainId || osmosisChainId].includes(fromAccountId(accountId).chainId),
   )

@@ -67,6 +67,7 @@ export const mockStore: ReduxState = {
       EligibleEarn: false,
       SaversVaults: false,
       Yearn: false,
+      CosmosSdkOpportunitiesAbstraction: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

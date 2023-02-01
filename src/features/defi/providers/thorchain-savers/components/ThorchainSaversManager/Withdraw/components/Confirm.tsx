@@ -211,7 +211,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dustAmountCryptoBaseUnit,
     opportunity?.apy,
     opportunityData?.rewardsAmountsCryptoBaseUnit,
-    opportunityData.stakedAmountCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     withdrawFeeCryptoBaseUnit,
   ])

@@ -35,7 +35,6 @@ export const cosmosSdkOpportunityIdsResolver = async ({
       const adapter = chainAdapters.get(
         chainId,
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-      // TODO: skip ChainIds
       return adapter.getAccount(pubKey)
     }),
   ).then(settledAccountsPromises =>

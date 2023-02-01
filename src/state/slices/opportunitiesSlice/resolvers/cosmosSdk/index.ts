@@ -1,5 +1,5 @@
 import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { Account, CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
 import { isFulfilled, isRejected, isSome } from 'lib/utils'
@@ -37,7 +37,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
       // TODO: skip ChainIds
       return adapter.getAccount(pubKey)
-    }, {} as Record<string, Promise<Account<CosmosSdkChainId>>>),
+    }),
   ).then(settledAccountsPromises =>
     settledAccountsPromises
       .map(settledAccount => {

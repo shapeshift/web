@@ -120,21 +120,21 @@ export const Header = () => {
               />
             </Box>
             <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-              <AnimatePresence exitBeforeEnter initial={true}>
-                {isLoading ? (
-                  <SlideTransitionY key='loader'>
-                    <Center boxSize='7'>
-                      <CircularProgress size={7} />
-                    </Center>
-                  </SlideTransitionY>
-                ) : (
-                  <SlideTransitionY key='logo'>
-                    <Link to='/'>
+              <Link to='/'>
+                <AnimatePresence exitBeforeEnter initial={true}>
+                  {isLoading ? (
+                    <SlideTransitionY key='loader'>
+                      <Center boxSize='7'>
+                        <CircularProgress size={7} />
+                      </Center>
+                    </SlideTransitionY>
+                  ) : (
+                    <SlideTransitionY key='logo'>
                       <FoxIcon boxSize='7' />
-                    </Link>
-                  </SlideTransitionY>
-                )}
-              </AnimatePresence>
+                    </SlideTransitionY>
+                  )}
+                </AnimatePresence>
+              </Link>
             </Flex>
             <HStack
               width='100%'

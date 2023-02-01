@@ -1,9 +1,6 @@
 import type { ICore } from '@walletconnect/types'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
-import {
-  getWalletConnectCore,
-  getWalletConnectWallet,
-} from 'plugins/walletConnectToDapps/walletUtils'
+import { getWalletConnectCore, getWalletConnectWallet } from 'plugins/walletConnectV2/walletUtils'
 import { useEffect, useState } from 'react'
 
 export const useWalletConnectWallet = () => {

@@ -9,9 +9,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const StakingCard: React.FC<EarnOpportunityType> = opportunity => {
+type StakingCardProps = {
+  onClick: (arg: EarnOpportunityType) => void
+} & EarnOpportunityType
+
+export const StakingCard: React.FC<StakingCardProps> = props => {
   const translate = useTranslate()
-  const { assetId, underlyingAssetId, provider, apy, moniker } = opportunity
+  const { onClick, ...rest } = props
+  const { assetId, underlyingAssetId, provider, apy, moniker } = rest
   const currentAssetId =
     provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? assetId : underlyingAssetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
@@ -19,7 +24,7 @@ export const StakingCard: React.FC<EarnOpportunityType> = opportunity => {
   const providerName =
     provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? moniker : provider
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100'>
+    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100' onClick={() => onClick(rest)}>
       <Card.Body display='flex' flexDir='column' gap={4}>
         <AssetIcon assetId={currentAssetId} />
         <Text

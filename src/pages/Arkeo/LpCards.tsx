@@ -1,6 +1,14 @@
-import { useMemo } from 'react'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnUserLpOpportunities } from 'state/slices/selectors'
+import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import qs from 'qs'
+import { useCallback, useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import {
+  selectAggregatedEarnUserLpOpportunities,
+  selectFirstAccountIdByChainId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LpCard } from './LpCard'
@@ -10,10 +18,54 @@ type LpCardsProps = {
 }
 
 export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
+  const history = useHistory()
+  const location = useLocation()
+  const {
+    state: { isConnected, isDemoWallet },
+    dispatch,
+  } = useWallet()
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filtered = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const cosmosAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, cosmosChainId),
+  )
+  const osmosisAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, osmosisChainId),
+  )
+  const handleClick = useCallback(
+    (opportunity: LpEarnOpportunityType) => {
+      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const { assetReference, assetNamespace } = fromAssetId(assetId)
+      const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
+
+      if (!isConnected && isDemoWallet) {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+
+      history.push({
+        pathname: location.pathname,
+        search: qs.stringify({
+          type,
+          provider,
+          chainId,
+          defaultAccountId,
+          contractAddress,
+          assetNamespace,
+          assetReference,
+          highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
+          rewardId: rewardAddress,
+          modal: 'overview',
+        }),
+        state: { background: location },
+      })
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, history, isConnected, location],
+  )
+
   const renderCards = useMemo(() => {
-    return filtered.map(e => <LpCard key={e.assetId} {...e} />)
-  }, [filtered])
+    return filtered.map(e => <LpCard key={e.assetId} onClick={handleClick} {...e} />)
+  }, [filtered, handleClick])
   return <>{renderCards}</>
 }

@@ -9,9 +9,14 @@ import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/type
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const LpCard: React.FC<LpEarnOpportunityType> = opportunity => {
+type LpCardProps = {
+  onClick: (arg: LpEarnOpportunityType) => void
+} & LpEarnOpportunityType
+
+export const LpCard: React.FC<LpCardProps> = props => {
   const translate = useTranslate()
-  const { apy, underlyingAssetIds } = opportunity
+  const { onClick, ...rest } = props
+  const { apy, underlyingAssetIds } = rest
   const asset1Id = underlyingAssetIds[0]
   const asset2Id = underlyingAssetIds[1]
   const asset1 = useAppSelector(state => selectAssetById(state, asset1Id ?? ''))
@@ -21,7 +26,7 @@ export const LpCard: React.FC<LpEarnOpportunityType> = opportunity => {
     return underlyingAssetIds.map(assetId => <AssetIcon _last={{ ml: -4 }} assetId={assetId} />)
   }, [underlyingAssetIds])
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100'>
+    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100' onClick={() => onClick(rest)}>
       <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
         <Flex>{renderPairIcons}</Flex>
         <Text

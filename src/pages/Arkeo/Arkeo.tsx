@@ -1,7 +1,9 @@
-import { Flex, Grid, Heading, Link, useColorModeValue } from '@chakra-ui/react'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button, Flex, Grid, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
+import NodeImage from 'assets/node.svg'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -89,6 +91,21 @@ export const ArkeoPage = () => {
         <StakingCards ids={opportunities.staking} />
         <LpCards ids={opportunities.lp} />
       </Grid>
+      <Flex gap={4} py={12}>
+        <Image src={NodeImage} boxSize='24' />
+        <Flex flexDir='column' gap={4} alignItems='flex-start'>
+          <Text translation='arkeo.footer.title' fontSize='2xl' mt={4} />
+          <Button variant='link' rightIcon={<ArrowForwardIcon />} colorScheme='blue' size='lg'>
+            {translate('arkeo.footer.cta')}
+          </Button>
+          <Flex gap={1} fontSize='sm'>
+            <Text translation='arkeo.footer.disclaimer.body' color='gray.500' />
+            <Button variant='link' colorScheme='blue' size='sm'>
+              {translate('arkeo.footer.disclaimer.cta')}
+            </Button>
+          </Flex>
+        </Flex>
+      </Flex>
     </Main>
   )
 }

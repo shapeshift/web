@@ -194,7 +194,7 @@ export const routes: NestedRoute[] = [
     main: Recovery,
   },
   {
-    path: 'arkeo',
+    path: '/arkeo',
     label: 'navBar.arkeo',
     icon: <ArkeoIcon />,
     main: ArkeoPage,

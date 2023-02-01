@@ -22,7 +22,10 @@ const opportunities: OpportunityReturn = {
     'cosmos:osmosis-1/slip44:118',
     'cosmos:cosmoshub-4/slip44:118',
   ],
-  lp: ['eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'],
+  lp: [
+    'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+    'cosmos:osmosis-1/ibc:gamm/pool/1',
+  ],
   vault: [],
   token_staking: [],
 }

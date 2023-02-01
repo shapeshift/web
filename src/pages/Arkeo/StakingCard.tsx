@@ -17,30 +17,30 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
   const translate = useTranslate()
   const { onClick, ...rest } = props
   const { assetId, underlyingAssetId, provider, apy, moniker } = rest
-  const currentAssetId =
-    provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? assetId : underlyingAssetId
+  const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = `${bnOrZero(apy).times(100).toFixed(2)}%`
   const providerName =
     provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? moniker : provider
+
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100' onClick={() => onClick(rest)}>
+    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100'>
       <Card.Body display='flex' flexDir='column' gap={4}>
         <AssetIcon assetId={currentAssetId} />
         <Text
           fontSize='xl'
           fontWeight='bold'
-          translation={['arkeo.staking.title', { asset: asset?.symbol }]}
+          translation={['arkeo.staking.title', { asset: asset?.name }]}
         />
         <Text
           color='gray.500'
           translation={[
             'arkeo.staking.body',
-            { asset: asset?.symbol, apy: opportunityApy, provider: providerName },
+            { asset: asset?.name, apy: opportunityApy, provider: providerName },
           ]}
         />
-        <Button width='full' colorScheme='blue' mt='auto'>
-          {translate('arkeo.staking.cta', { asset: asset?.symbol })}
+        <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(rest)}>
+          {translate('arkeo.staking.cta', { asset: asset?.name })}
         </Button>
       </Card.Body>
     </Card>

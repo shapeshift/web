@@ -23,6 +23,7 @@ export type FeatureFlags = {
   Wherever: boolean
   SaversVaults: boolean
   Yearn: boolean
+  CosmosSdkOpportunitiesAbstraction: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -58,6 +59,8 @@ const initialState: Preferences = {
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
+    CosmosSdkOpportunitiesAbstraction:
+      getConfig().REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Skeleton, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
@@ -70,6 +70,7 @@ export const Deposit: React.FC<DepositProps> = ({
     fiatAmount: string
     cryptoAmount: string
   } | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -306,6 +307,7 @@ export const Deposit: React.FC<DepositProps> = ({
     if (amountCryptoBaseUnit.isZero()) return
 
     const debounced = debounce(async () => {
+      setQuoteLoading(true)
       const quote = await getThorchainSaversDepositQuote({
         asset,
         amountCryptoBaseUnit,
@@ -327,6 +329,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .toFixed(0)
         .toString()
       setDaysToBreakEven(daysToBreakEven)
+      setQuoteLoading(false)
     })
 
     debounced()
@@ -381,7 +384,9 @@ export const Deposit: React.FC<DepositProps> = ({
       <Row>
         <Row.Label>{translate('common.slippage')}</Row.Label>
         <Row.Value>
-          <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+          <Skeleton isLoaded={!quoteLoading}>
+            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+          </Skeleton>
         </Row.Value>
       </Row>
       <Row>
@@ -391,10 +396,12 @@ export const Deposit: React.FC<DepositProps> = ({
           </HelperTooltip>
         </Row.Label>
         <Row.Value>
-          {translate(
-            `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-            { amount: daysToBreakEven ?? '0' },
-          )}
+          <Skeleton isLoaded={!quoteLoading}>
+            {translate(
+              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+              { amount: daysToBreakEven ?? '0' },
+            )}
+          </Skeleton>
         </Row.Value>
       </Row>
     </ReusableDeposit>

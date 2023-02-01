@@ -7,33 +7,31 @@ import { toValidatorId } from '../../utils'
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
 ): StakingId[] =>
-  cosmosAccounts
-    .map(cosmosAccount => {
-      return Array.from(
-        new Set(
-          [
-            cosmosAccount.chainSpecific.delegations.map(delegation =>
+  cosmosAccounts.flatMap(cosmosAccount => {
+    return Array.from(
+      new Set(
+        [
+          cosmosAccount.chainSpecific.delegations.map(delegation =>
+            toValidatorId({
+              account: delegation.validator.address,
+              chainId: cosmosAccount.chainId,
+            }),
+          ),
+          cosmosAccount.chainSpecific.undelegations
+            .map(undelegation =>
               toValidatorId({
-                account: delegation.validator.address,
+                account: undelegation.validator.address,
                 chainId: cosmosAccount.chainId,
               }),
-            ),
-            cosmosAccount.chainSpecific.undelegations
-              .map(undelegation =>
-                toValidatorId({
-                  account: undelegation.validator.address,
-                  chainId: cosmosAccount.chainId,
-                }),
-              )
-              .filter(isSome),
-            cosmosAccount.chainSpecific.rewards.map(reward =>
-              toValidatorId({
-                account: reward.validator.address,
-                chainId: cosmosAccount.chainId,
-              }),
-            ),
-          ].flat(),
-        ),
-      )
-    })
-    .flat()
+            )
+            .filter(isSome),
+          cosmosAccount.chainSpecific.rewards.map(reward =>
+            toValidatorId({
+              account: reward.validator.address,
+              chainId: cosmosAccount.chainId,
+            }),
+          ),
+        ].flat(),
+      ),
+    )
+  })

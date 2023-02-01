@@ -6,8 +6,13 @@ import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile as isMobileApp } from 'lib/globals'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
+import { FoxTokenHolders } from './FoxTokenHolders'
 import { LpCards } from './LpCards'
 import { StakingCards } from './StakingCards'
 
@@ -33,6 +38,12 @@ const opportunities: OpportunityReturn = {
 export const ArkeoPage = () => {
   const translate = useTranslate()
   const linkColor = useColorModeValue('blue.500', 'blue.200')
+  const { create, dispatch } = useWallet()
+
+  const handleCreateClick = () => {
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)
+  }
   return (
     <Main backgroundImage={ArkeoBg} backgroundSize='cover' px={8}>
       <Flex flexDir={{ base: 'column-reverse', lg: 'row' }} gap={8}>
@@ -91,19 +102,34 @@ export const ArkeoPage = () => {
         </Flex>
       </Flex>
       <Grid gridTemplateColumns={{ base: '1fr', lg: '1fr 1fr', xl: '1fr 1fr 1fr' }} gap={4} mt={8}>
+        <FoxTokenHolders />
         <StakingCards ids={opportunities.staking} />
         <LpCards ids={opportunities.lp} />
       </Grid>
-      <Flex gap={4} py={12}>
+      <Flex gap={4} py={12} flexDir={{ base: 'column', md: 'row' }}>
         <Image src={NodeImage} boxSize='24' />
         <Flex flexDir='column' gap={4} alignItems='flex-start'>
           <Text translation='arkeo.footer.title' fontSize='2xl' mt={4} />
-          <Button variant='link' rightIcon={<ArrowForwardIcon />} colorScheme='blue' size='lg'>
+          <Button
+            as={Link}
+            variant='link'
+            rightIcon={<ArrowForwardIcon />}
+            colorScheme='blue'
+            size='lg'
+            href='https://snapshot.org/#/shapeshiftdao.eth/proposal/0xcc1e83822fc7668a9d9e9136e5bd8973b7dc1ed766c2a0826d3e89d624e8b1c5'
+            isExternal
+          >
             {translate('arkeo.footer.cta')}
           </Button>
-          <Flex gap={1} fontSize='sm'>
+          <Flex
+            gap={1}
+            fontSize='sm'
+            flexDir={{ base: 'column', md: 'row' }}
+            justifyContent='flex-start'
+            alignItems='flex-start'
+          >
             <Text translation='arkeo.footer.disclaimer.body' color='gray.500' />
-            <Button variant='link' colorScheme='blue' size='sm'>
+            <Button variant='link' colorScheme='blue' size='sm' onClick={handleCreateClick}>
               {translate('arkeo.footer.disclaimer.cta')}
             </Button>
           </Flex>

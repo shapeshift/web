@@ -244,6 +244,7 @@
     "typechain": "^8.1.1",
     "typescript": "^4.7.0",
     "val-loader": "^4.0.0",
+    "@walletconnectV1/types": "npm:@walletconnect/types@1.8.0",
     "web3-utils": "^1.5.2",
     "webpack": "5.72.1",
     "webpack-subresource-integrity": "^5.0.0",

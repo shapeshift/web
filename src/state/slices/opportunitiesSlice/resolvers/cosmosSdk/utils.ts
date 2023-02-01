@@ -2,7 +2,7 @@ import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { isSome } from 'lib/utils'
 
 import type { StakingId } from '../../types'
-import { toOpportunityAccountId } from '../../utils'
+import { toValidatorId } from '../../utils'
 
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
@@ -13,21 +13,21 @@ export const makeUniqueValidatorAccountIds = (
         new Set(
           [
             cosmosAccount.chainSpecific.delegations.map(delegation =>
-              toOpportunityAccountId({
+              toValidatorId({
                 account: delegation.validator.address,
                 chainId: cosmosAccount.chainId,
               }),
             ),
             cosmosAccount.chainSpecific.undelegations
               .map(undelegation =>
-                toOpportunityAccountId({
+                toValidatorId({
                   account: undelegation.validator.address,
                   chainId: cosmosAccount.chainId,
                 }),
               )
               .filter(isSome),
             cosmosAccount.chainSpecific.rewards.map(reward =>
-              toOpportunityAccountId({
+              toValidatorId({
                 account: reward.validator.address,
                 chainId: cosmosAccount.chainId,
               }),

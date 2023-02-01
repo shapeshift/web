@@ -1,6 +1,6 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type WalletConnect from '@walletconnect/client'
-import type { IClientMeta } from '@walletconnectv1/types'
+import type { IClientMeta } from '@walletconnectV1/types'
 import { createContext, useContext } from 'react'
 
 import type { WalletConnectCallRequest } from './bridge/types'

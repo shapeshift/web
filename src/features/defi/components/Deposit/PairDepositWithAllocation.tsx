@@ -30,7 +30,7 @@ type DepositProps = {
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): { allocationFraction: string; shareOutAmount: { baseUnits: string; decimal: string } }
+  ): { allocationFraction: string; shareOutAmount: string }
   // Users available amount
   cryptoAmountAvailable1: string
   cryptoAmountAvailable2: string
@@ -162,7 +162,7 @@ export const PairDepositWithAllocation = ({
     const assetMarketData = isForAsset1 ? marketData1 : marketData2
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-    const allocationFractionAsset = isForAsset1 ? asset1 : asset2
+    const selectedAsset = isForAsset1 ? asset1 : asset2
 
     // for keeping inputs synced
     const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
@@ -197,9 +197,9 @@ export const PairDepositWithAllocation = ({
       }
     }
     if (!calculateAllocations) return
-    const allocations = calculateAllocations(allocationFractionAsset, value)
+    const allocations = calculateAllocations(selectedAsset, value)
     setValue(Field.AllocationFraction, allocations.allocationFraction)
-    setValue(Field.ShareOutAmount, allocations.shareOutAmount.baseUnits)
+    setValue(Field.ShareOutAmount, allocations.shareOutAmount)
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {

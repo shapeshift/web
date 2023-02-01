@@ -155,7 +155,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision ?? 0))
 
   const calculateTokenOutMins = useCallback(
-    (inputAssetAmount: string): { amount: string; denom: string }[] => {
+    (inputPoolSharesBaseUnits: string): { amount: string; denom: string }[] => {
       const defaultReturn = [
         {
           amount: '',
@@ -180,31 +180,46 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       ) {
         return defaultReturn
       }
-      const poolTokenPrice = bnOrZero(opportunity.tvl)
+
+      /** asset_n_proportional_weight = asset_n_weight / total_pool_weight
+       * This represents the proportional weight (think partial pressure from chemistry ) of asset n in the liquidity pool */
+      const asset0ProportionalWeight = bnOrZero(state.poolData.pool_assets[0].weight)
+        .dividedBy(bnOrZero(state.poolData.total_weight))
+        .toString()
+      const asset1ProportionalWeight = bnOrZero(state.poolData.pool_assets[1].weight)
+        .dividedBy(bnOrZero(state.poolData.total_weight))
+        .toString()
+
+      /**
+       * pool_share_fraction = input_pool_shares / total_pool_shares
+       * This represents the fraction of the total number of pool LP tokens being redeemed
+       */
+      if (bnOrZero(state.poolData.total_shares.amount).eq(bn(0))) return defaultReturn
+      const poolShareFraction = bnOrZero(inputPoolSharesBaseUnits)
         .dividedBy(state.poolData.total_shares.amount)
         .toString()
 
-      const liquidityValue = bnOrZero(inputAssetAmount)
-        .multipliedBy(bnOrZero(poolTokenPrice))
+      /**
+       * token_out_n_amount = token_n_amount * pool_share_fraction * asset_n_proportional_weight
+       * This represents the number of each underlying token being returned to the user
+       */
+
+      const tokenOut0AmountBaseUnits = bnOrZero(state.poolData.pool_assets[0].token.amount)
+        .multipliedBy(poolShareFraction)
+        .multipliedBy(asset0ProportionalWeight)
         .toString()
-
-      /* Proportion of asset 0 in liquidity pool */
-      const asset0Ratio = bnOrZero(state.poolData.pool_assets[0].weight).dividedBy(
-        bnOrZero(state.poolData.total_weight),
-      )
-
-      /* Proportion of asset 1 in liquidity pool */
-      const asset1Ratio = bnOrZero(state.poolData.pool_assets[1].weight).dividedBy(
-        bnOrZero(state.poolData.total_weight),
-      )
+      const tokenOut1AmountBaseUnits = bnOrZero(state.poolData.pool_assets[1].token.amount)
+        .multipliedBy(poolShareFraction)
+        .multipliedBy(asset1ProportionalWeight)
+        .toString()
 
       return [
         {
-          amount: bnOrZero(liquidityValue).multipliedBy(bnOrZero(asset0Ratio)).toString(),
+          amount: tokenOut0AmountBaseUnits,
           denom: fromAssetId(underlyingAsset0.assetId).assetReference,
         },
         {
-          amount: bnOrZero(liquidityValue).multipliedBy(bnOrZero(asset1Ratio)).toString(),
+          amount: tokenOut1AmountBaseUnits,
           denom: fromAssetId(underlyingAsset1.assetId).assetReference,
         },
       ]

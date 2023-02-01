@@ -21,7 +21,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -81,10 +80,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { data: underlyingAsset1Data } = useFindByAssetIdQuery(underlyingAsset1?.assetId || '')
   const underlyingAsset1MarketData = underlyingAsset1Data?.[underlyingAsset1?.assetId || '']
 
-  // user info
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-
-  // notify
   const toast = useToast()
 
   const getDepositFeeEstimate = useCallback(async (): Promise<string | undefined> => {
@@ -141,8 +137,8 @@ export const Deposit: React.FC<DepositProps> = ({
     (
       inputAsset: Asset,
       inputAssetAmount: string,
-    ): { allocationFraction: string; shareOutAmount: { baseUnits: string; decimal: string } } => {
-      const ret = { allocationFraction: '0', shareOutAmount: { baseUnits: '0', decimal: '0' } }
+    ): { allocationFraction: string; shareOutAmount: string } => {
+      const ret = { allocationFraction: '0', shareOutAmount: '0' }
       if (!state || !state.poolData) {
         return ret
       }
@@ -157,40 +153,41 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       if (poolAssetIndex < 0) return ret
 
-      const poolTotalShares = state?.poolData?.total_shares?.amount
-      if (!poolTotalShares) {
+      const inputAssetAmountBaseUnits = bnOrZero(inputAssetAmount)
+        .pow(10, bnOrZero(inputAsset.precision))
+        .toString()
+
+      const poolTotalSharesBaseUnits = state?.poolData?.total_shares?.amount
+      if (!poolTotalSharesBaseUnits) {
         moduleLogger.error(`Could not get total shares for pool ${state?.poolData?.id}`)
         return ret
       }
 
-      const poolAssetAmount = poolAssets[poolAssetIndex]?.token.amount
-      const poolAssetWeight = poolAssets[poolAssetIndex]?.weight
-      const totalPoolWeight = state?.poolData?.total_weight
+      const poolAssetAmountBaseUnits = poolAssets[poolAssetIndex]?.token.amount
 
-      const weightMultiplier = bnOrZero(poolAssetWeight).div(bnOrZero(totalPoolWeight))
-      const inputAmountFullPrecision = bnOrZero(inputAssetAmount)
-        .multipliedBy(bn(10).pow(inputAsset.precision ?? 0))
-        .multipliedBy(weightMultiplier)
+      if (bnOrZero(poolAssetAmountBaseUnits).eq(bn(0))) return ret
 
-      if (bnOrZero(poolAssetAmount).eq(bn(0))) return ret
-      const allocationFraction = inputAmountFullPrecision
-        .div(bnOrZero(poolAssetAmount).plus(inputAmountFullPrecision))
+      /** allocation_fraction = input_asset_amount / (pool_asset_amount + pool_asset_amount)
+       * This represents the fraction of the pool that the user will own after once the liquiditt
+       * has been provided
+       */
+      const allocationFraction = bnOrZero(inputAssetAmountBaseUnits)
+        .div(bnOrZero(poolAssetAmountBaseUnits).plus(inputAssetAmountBaseUnits))
         .toString()
 
-      const shareOutAmount = bnOrZero(allocationFraction)
-        .multipliedBy(bnOrZero(poolTotalShares))
-        .toFixed(0)
-        .toString()
-      const shareOutAmountDecimal = bnOrZero(shareOutAmount)
-        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+      /** share_out_amount = total_pool_shares * (input_asset_amount / pool_asset_amount)
+       * This represents the number of pool shares that the user will receive in exchange
+       * for the provided liquidity
+       */
+      const shareOutAmountBaseUnits = bnOrZero(poolTotalSharesBaseUnits)
+        .multipliedBy(
+          bnOrZero(inputAssetAmountBaseUnits).dividedBy(bnOrZero(poolAssetAmountBaseUnits)),
+        )
         .toFixed(0)
         .toString()
 
       ret.allocationFraction = allocationFraction
-      ret.shareOutAmount = {
-        baseUnits: shareOutAmount,
-        decimal: shareOutAmountDecimal,
-      }
+      ret.shareOutAmount = shareOutAmountBaseUnits
       return ret
     },
     [state],
@@ -210,22 +207,30 @@ export const Deposit: React.FC<DepositProps> = ({
       )
         return
 
+      const asset0AmountBaseUnits = bnOrZero(formValues.cryptoAmount1)
+        .pow(10, bnOrZero(underlyingAsset0.precision))
+        .toString()
+
+      const asset1AmountBaseUnits = bnOrZero(formValues.cryptoAmount2)
+        .pow(10, bnOrZero(underlyingAsset1.precision))
+        .toString()
+
       // set deposit state for future use
       contextDispatch({
         type: OsmosisDepositActionType.SET_DEPOSIT,
         payload: {
           underlyingAsset0: {
-            amount: formValues.cryptoAmount1,
+            amount: asset0AmountBaseUnits,
             denom: fromAssetId(underlyingAsset0.assetId).assetReference,
             fiatAmount: formValues.fiatAmount1,
           },
           underlyingAsset1: {
-            amount: formValues.cryptoAmount2,
+            amount: asset1AmountBaseUnits,
             denom: fromAssetId(underlyingAsset1.assetId).assetReference,
-            fiatAmount: formValues.cryptoAmount2,
+            fiatAmount: formValues.fiatAmount2,
           },
-          shareOutAmount: calculateAllocations(underlyingAsset0, formValues.fiatAmount1)
-            .shareOutAmount.baseUnits,
+          shareOutAmount: calculateAllocations(underlyingAsset0, formValues.cryptoAmount1)
+            .shareOutAmount,
         },
       })
       contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: true })

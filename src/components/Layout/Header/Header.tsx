@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
+import { MdLocalActivity } from 'react-icons/md'
 import { Link, useHistory } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
@@ -22,6 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { UserMenu } from './NavBar/UserMenu'
+import { PendingTxWindow } from './PendingTx/PendingTx'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
@@ -131,6 +133,7 @@ export const Header = () => {
                 </Box>
               )}
               <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <PendingTxWindow />
             </Flex>
           </HStack>
         </HStack>

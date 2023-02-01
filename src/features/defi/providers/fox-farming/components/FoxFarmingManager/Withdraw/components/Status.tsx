@@ -43,6 +43,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
@@ -83,7 +86,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         return {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.success', {
+          statusBody: translate('modals.withdraw.status.success', {
             opportunity: opportunity?.opportunityName,
           }),
           statusBg: 'green.500',
@@ -92,14 +95,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         return {
           statusText: StatusTextEnum.failed,
           statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.failed'),
+          statusBody: translate('modals.withdraw.status.failed'),
           statusBg: 'red.500',
         }
       default:
         return {
           statusIcon: null,
           statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
+          statusBody: translate('modals.withdraw.status.pending'),
           statusBg: 'transparent',
         }
     }

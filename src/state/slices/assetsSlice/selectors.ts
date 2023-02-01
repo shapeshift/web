@@ -18,13 +18,17 @@ import {
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import createCachedSelector from 're-reselect'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectCryptoMarketDataIds } from 'state/slices/marketDataSlice/selectors'
+import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+
+import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
+  // TODO(0xdef1cafe): make this return type AssetId | undefined and fix the 600+ type errors
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
@@ -39,15 +43,15 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
-export const selectAssetsByMarketCap = createSelector(
+export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
-  selectCryptoMarketDataIds,
-  (assetsByIdOriginal, marketDataIds) => {
+  selectCryptoMarketDataIdsSortedByMarketCap,
+  (assetsByIdOriginal, sortedMarketDataIds): Asset[] => {
     const assetById = cloneDeep(assetsByIdOriginal)
     // we only prefetch market data for some
     // and want this to be fairly performant so do some mutatey things
     // market data ids are already sorted by market cap
-    const sortedWithMarketCap = marketDataIds.reduce<Asset[]>((acc, cur) => {
+    const sortedWithMarketCap = sortedMarketDataIds.reduce<Asset[]>((acc, cur) => {
       const asset = assetById[cur]
       if (!asset) return acc
       acc.push(asset)
@@ -55,8 +59,20 @@ export const selectAssetsByMarketCap = createSelector(
       return acc
     }, [])
     const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
+    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap].filter(isSome)
   },
+)
+
+export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  (sortedAssets: Asset[]): ChainId[] =>
+    sortedAssets.reduce<ChainId[]>((acc, { assetId }) => {
+      const feeAssetId = assetIdToFeeAssetId(assetId)
+      if (feeAssetId !== assetId) return acc
+      const { chainId } = fromAssetId(feeAssetId)
+      if (!acc.includes(chainId)) acc.push(chainId)
+      return acc
+    }, []),
 )
 
 // @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
@@ -85,6 +101,8 @@ const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.AvalancheC
           case CHAIN_REFERENCE.EthereumMainnet:
             return ASSET_REFERENCE.Ethereum
+          case CHAIN_REFERENCE.OptimismMainnet:
+            return ASSET_REFERENCE.Optimism
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -123,7 +141,7 @@ export const selectFeeAssetByChainId = createCachedSelector(
 export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  (assetsById, assetId): Asset => {
+  (assetsById, assetId): Asset | undefined => {
     const { chainNamespace, chainReference } = fromAssetId(assetId)
     const feeAssetId = toAssetId({
       chainNamespace,

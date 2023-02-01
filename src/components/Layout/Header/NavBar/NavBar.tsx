@@ -22,7 +22,8 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
   const { routes: pluginRoutes } = usePlugins()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
-  const groupColor = useColorModeValue('gray.300', 'gray.600')
+  const groupColor = useColorModeValue('gray.400', 'gray.600')
+  const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
 
   const navItemGroups = useMemo(() => {
     const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
@@ -38,7 +39,13 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   }, [pluginRoutes])
 
   return (
-    <Stack width='full' flex='1 1 0%' spacing={6} divider={<Divider />} {...rest}>
+    <Stack
+      width='full'
+      flex='1 1 0%'
+      spacing={6}
+      divider={<Divider borderColor={dividerColor} />}
+      {...rest}
+    >
       {navItemGroups.map((group, id) => {
         const [name, values] = group
         return (

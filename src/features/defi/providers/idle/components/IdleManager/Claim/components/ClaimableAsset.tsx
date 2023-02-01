@@ -7,7 +7,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimableAssetProps = {
-  token: ClaimableToken
+  token: Omit<ClaimableToken, 'address'>
 }
 
 export const ClaimableAsset: React.FC<ClaimableAssetProps> = ({ token }) => {

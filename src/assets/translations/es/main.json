@@ -79,8 +79,17 @@
     "unsupportedNetwork": "Red No Soportada",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
+    "searchAsset": "Buscar activo",
     "enterAmount": "Ingrese la cantidad",
-    "pageNotFound": "La página que buscas no se encuentra"
+    "pageNotFound": "La página que buscas no se encuentra",
+    "buySell": "Comprar/Vender",
+    "all": "Todo",
+    "viewAll": "Ver todo"
+  },
+  "errorPage": {
+    "title": "¡Ups!",
+    "body": "Algo salió mal",
+    "cta": "Intentar otra vez"
   },
   "buyPage": {
     "title": {
@@ -139,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Intercambiar",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Gane"
     }
   },
   "fiatRamps": {
@@ -168,6 +178,8 @@
     "usOnly": "Solamente - EEUU",
     "noKYC": "SIN KYC",
     "nonUS": "NO-USA",
+    "buyWith": "Compra con",
+    "sellFor": "Vender por",
     "availableProviders": "Proveedores Disponibles",
     "noProvidersAvailable": "No hay Proveedores Disponibles",
     "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso.",
@@ -272,6 +284,21 @@
         "confirmClaim": "Confirmar Reclamo",
         "claimNow": "Reclama ahora",
         "claimYour": "Reclame su %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
+        "vaultCap": "Límite de bóveda",
+        "vaultCapTooltip": "Algo sobre los límites de bóveda",
+        "haltedTitle": "Los depositos estan temporalmente detenidos.",
+        "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
+        "estimatedFee": "Comisión estimada",
+        "fee": "Comisión",
+        "estimatedFeeTooltip": "Comisión por transferir fondos desde una cadena de bloques de  capa 1",
+        "dustAmount": "Cantidad de polvo",
+        "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
+        "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
+        "sendDust": "Send Dust",
+        "addressToSendTo": "Dirección de envío"
       }
     },
     "memoNote": {
@@ -290,6 +317,8 @@
     "stakedAmount": "Monto en Stake",
     "unstakeFrom": "Unstake desde",
     "gasFee": "Tarifa de Gas",
+    "provider": "Proveedor",
+    "currentTvl": "TVL actual",
     "unbondInfoItWillTake": "Mientras sus tokens estén en Staking, no podrá transferirlos ni gastarlos. Tomará %{unbondingDays} días desbloquearlos después de Unstaking.",
     "unbondInfoItWillTakeShort": "Tardará %{unbondingDays} días en unstake sus tokens",
     "confirmAndBroadcast": "Confirmar y transmitir",
@@ -300,6 +329,7 @@
     "amountStaked": "Cantidad Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
+    "version": "Versión",
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
@@ -318,13 +348,14 @@
     "ended": "Finalizado",
     "balance": "Balance",
     "defi": "DeFi",
+    "startEarning": "Empezar a ganar",
+    "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
-    "clickHereToEarn": "Haga clic aquí para ganar",
-    "byFarming": " APR* al hacer farming con sus tokens ETH-FOX del pool de liquidez ",
+    "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
     "liquidityPools": "Pools de liquidez",
     "stakingVaults": "Staking & Bóvedas",
@@ -518,6 +549,8 @@
     "noRateAvailable": "No hay tarifa disponible.",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
+    "tradeFrom": "Intercambia desde",
+    "tradeTo": "Intercambia a",
     "minerFee": "Tarifa de minero",
     "protocolFee": "Tarifa de protocolo",
     "protocol": "Protocolo",
@@ -554,6 +587,10 @@
     },
     "errors": {
       "title": "Algo salió mal",
+      "sellAssetStartSentence": "Vender activo",
+      "buyAssetStartSentence": "Comprar activo",
+      "sellAssetMiddleSentence": "vender activo",
+      "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
@@ -589,6 +626,7 @@
       "rateError": "No podemos obtener una cotización para este par.",
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
+      "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -597,10 +635,16 @@
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
-    "recentTrades": "Operaciones Recientes",
-    "shapeshiftFee": "Tarifa de ShapeShift"
+    "recentTrades": "Operaciones Recientes"
   },
   "modals": {
+    "popup": {
+      "body": "Hemos lanzado una ventana segura para completar su pedido.",
+      "body2": "¿No ve la ventana segura? Le ayudaremos a abrirla para completar su pedido.",
+      "continue": "Haz click para continuar",
+      "showWindow": "Mostrar ventana",
+      "cancel": "Cancelar"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -616,8 +660,7 @@
         "body": "Etiquetar cada uno de sus dispositivos le permite distinguir fácilmente uno de otro.",
         "setLabelButton": "Coloca una etiqueta",
         "skipLabelButton": "Saltar",
-        "placeholder": "Opcional",
-        "button": "Coloca una etiqueta"
+        "placeholder": "Opcional"
       },
       "recoverySettings": {
         "header": "Recupera su Billetera",
@@ -661,6 +704,10 @@
         "header": "Descargar KeepKey Updater",
         "button": "Descargar %{filename}",
         "wrongPlatform": "¿No usas %{platform}? haga clic aquí"
+      },
+      "disconnect": {
+        "header": "Desconectar dispositivo KeepKey",
+        "body": "Desafortunadamente, ocurrió un error al recuperar/configurar su dispositivo KeepKey. Desconecte y vuelva a conectar su dispositivo e intente configurar su dispositivo KeepKey nuevamente. Si el problema persiste, comuníquese con el soporte KeepKey."
       }
     },
     "shapeShift": {
@@ -974,8 +1021,7 @@
           "deviceTimeout": "Tiempo de espera del dispositivo",
           "passphrase": "Frase de contraseña",
           "wipeDevice": "Reestablecer dispositivo",
-          "label": "Etiqueta",
-          "pinCaching": "Almacenamiento en caché de PIN"
+          "label": "Etiqueta"
         },
         "status": {
           "enabled": "Activado",
@@ -988,8 +1034,7 @@
           "enterPin": "Ingrese el PIN actual",
           "setPin": "Establecer un nuevo PIN",
           "confirmPin": "Confirmar nuevo PIN",
-          "passphrase": "Frase de contraseña",
-          "pinCaching": "Almacenamiento en caché de PIN"
+          "passphrase": "Frase de contraseña"
         },
         "descriptions": {
           "pin": "El PIN es una combinación de hasta 9 números que selecciona después de inicializar su KeepKey. Un PIN protege su dispositivo contra el uso no autorizado en caso de que su KeepKey caiga en manos equivocadas.",
@@ -999,8 +1044,7 @@
           "buttonPrompt": "Mantenga presionado el botón en su KeepKey para cambiar el dispositivo %{setting}.",
           "updateSuccess": "¡%{setting} actualizado con éxito!",
           "updateFailed": "Ocurrió un error al actualizar %{setting}.",
-          "timeoutDuration": "%{minutes} minutos",
-          "pinCaching": "Cuando esta función está activada, el dispositivo recordará su PIN."
+          "timeoutDuration": "%{minutes} minutos"
         },
         "alerts": {
           "passphrase": {
@@ -1468,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Cadena no soportada",
+        "description": "ShapeShift actualmente solo admite %{supportedChainNames} con WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Conectar dApp",
+        "connectedDapp": "dApp Conectada",
+        "menu": {
+          "disconnect": "Desconectar",
+          "address": "Dirección",
+          "connected": "Conectado",
+          "network": "Red",
+          "unsupportedNetwork": "Red no soportada"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1477,23 +1536,46 @@
           "message": "Mensaje",
           "description": "Deberá firmar el mensaje de confirmacion desde su billetera conectada.",
           "confirm": "Confirmar",
-          "reject": "Rechazar"
+          "reject": "Rechazar",
+          "messageData": "Datos del mensaje",
+          "domain": "Dominio"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Enviar desde",
+          "sendingTo": "Enviar a",
+          "interactingWith": "Interactuando con",
+          "amount": "Cantidad",
+          "contractInteraction": {
+            "title": "Interacción del contrato",
+            "sendingEth": "Enviar ETH",
+            "data": "Datos sin procesar (codificado hex)"
+          },
           "advancedParameters": {
             "title": "Parámetros Avanzados",
             "alert": "Solo para uso avanzado. La modificación de esta configuración podría resultar en transacciones atascadas.",
             "nonce": {
               "title": "Mientras tanto",
               "placeholder": "Mientras tanto...",
-              "tooltip": "El número de transacciones enviadas desde una dirección determinada. Solo usuarios avanzados."
+              "tooltip": "El número de transacciones enviadas desde una dirección dada. Solo usuarios avanzados."
             },
             "gasLimit": {
               "title": "Límite de Gas",
-              "placeholder": "Limite de Gas...",
+              "placeholder": "Límite de gas...",
               "tooltip": "El límite de gas se refiere a la cantidad máxima de gas que un usuario puede consumir para realizar una transacción."
             }
-          }
+          },
+          "estGasCost": "Est. Costo de Gas",
+          "description": "Está a punto de crear una transacción y deberá confirmar con su billetera actual conectada."
+        },
+        "signTransaction": {
+          "description": "Está a punto de crear una transacción y deberá confirmar con su billetera actual conectada."
+        },
+        "connect": {
+          "title": "Conecte su billetera a una dApp a través de WalletConnect y active transacciones",
+          "howTo": "¿Cómo conectar a una dApp?",
+          "linkPlaceholder": "Código QR o enlace de conexión",
+          "connect": "Conectar",
+          "connectionError": "No se puede conectar al URI proporcionado."
         }
       },
       "registry": {
@@ -1541,5 +1623,26 @@
       "tooltip": "La tarifa prioritaria es un consejo opcional para incentivar a los productores de bloques a priorizar su transacción. Establezca la tarifa de prioridad en gwei que le gustaría pagar por cada unidad de gas."
     },
     "custom": "Personalizar"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "¿Cual es el mejor rendimiento?",
+      "body": "Maximice automáticamente el rendimiento a través de múltiples protocolos DeFi probados en batalla. La estrategia del Mejor-Rendimiento optimiza la generación de rendimiento socializando los costos del gas, automatizando la generación de rendimiento mediante el desplazamiento algorítmico de capital a medida que surgen nuevas oportunidades de rendimiento."
+    },
+    "seniorTranche": {
+      "title": "¿Qué es un Tramo Senior?",
+      "body": "Disfrute de los rendimientos DeFi a través de múltiples protocolos mientras mantiene protegido su depósito. Los Tramos Senior ofrecen protección incorporada sobre los fondos y proporcionan cobertura de espectro completo gracias a su contraparte Junior."
+    },
+    "juniorTranche": {
+      "title": "¿Que es un Tramo Junior?",
+      "body": "Disfrute de rendimientos mejorados en múltiples protocolos DeFi: los tramos junior logran un rendimiento apalancado, ya que son compensados ​​por proporcionar capital de primera pérdida a su contraparte senior."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Compra cripto sin KYC",
+      "body": "Compra hasta $1,000 con Apple Pay",
+      "cta": "Compra ahora"
+    }
   }
 }

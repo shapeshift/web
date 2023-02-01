@@ -5,18 +5,16 @@ import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
-  selectAggregatedEarnUserLpOpportunity,
+  selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunities,
   selectAssetById,
 } from 'state/slices/selectors'
@@ -39,21 +37,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const { vaults } = useVaultBalances()
-  const { data: foxyBalancesData } = useFoxyBalances()
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const foxFarmingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
-  const foxEthLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-    [],
-  )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
-  )
+  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
@@ -65,11 +53,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
-    vaultArray: Object.values(vaults),
-    foxyArray: foxyBalancesData?.opportunities ?? [],
     cosmosSdkStakingOpportunities: [],
-    foxEthLpOpportunity,
-    foxFarmingOpportunities,
+    lpOpportunities,
+    stakingOpportunities,
   }).filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
@@ -80,8 +66,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
-    const { assetReference } = fromAssetId(assetId)
+    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { assetReference, assetNamespace } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
@@ -92,10 +78,12 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       search: qs.stringify({
         chainId,
         contractAddress,
+        assetNamespace,
         assetReference,
         highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
         rewardId: rewardAddress,
         provider,
+        type,
         modal: 'overview',
       }),
       state: { background: location },

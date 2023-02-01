@@ -1,4 +1,5 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,7 +10,6 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { AssetCell } from './Cells'
-import { makeProviderName } from './utils'
 
 type StakingTableProps = {
   data: EarnOpportunityType[]
@@ -37,16 +37,27 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
           <Skeleton isLoaded={row.original.isLoaded}>
             <AssetCell
               assetId={row.original.underlyingAssetId ?? row.original.assetId}
-              subText={makeProviderName(row.original.provider)}
+              subText={row.original.version}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
-              postFix={row.original.version && `(${row.original.version})`}
             />
           </Skeleton>
         ),
         disableSortBy: true,
+      },
+      {
+        Header: translate('defi.provider'),
+        accessor: 'provider',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
+          <Skeleton isLoaded={row.original.isLoaded}>
+            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+              {value}
+            </Tag>
+          </Skeleton>
+        ),
       },
       {
         Header: translate('defi.type'),
@@ -54,7 +65,10 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+            <Tag
+              textTransform={value === DefiType.LiquidityPool ? 'uppercase' : 'capitalize'}
+              size={{ base: 'sm', md: 'md' }}
+            >
               {value?.replace('_', ' ')}
             </Tag>
           </Skeleton>
@@ -67,7 +81,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
             <Tag size={{ base: 'sm', md: 'md' }} colorScheme='green'>
-              <Amount.Percent autoColor value={value ?? ''} />
+              <Amount.Percent value={value ?? ''} />
             </Tag>
           </Skeleton>
         ),
@@ -109,5 +123,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     [onClick],
   )
 
-  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
+  return (
+    <ReactTable
+      data={data}
+      columns={columns}
+      onRowClick={handleRowClick}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+    />
+  )
 }

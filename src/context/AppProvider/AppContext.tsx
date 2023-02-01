@@ -1,13 +1,20 @@
-import { AlertDescription, Button, Flex, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, ethChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  bchChainId,
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  fromAccountId,
+  ltcChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { entries } from 'lodash'
 import pull from 'lodash/pull'
-import uniq from 'lodash/uniq'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
@@ -25,21 +32,18 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
+  fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  selectAssets,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectPortfolioLoadingStatusGranular,
   selectSelectedCurrency,
   selectSelectedLocale,
   selectWalletAccountIds,
@@ -63,16 +67,13 @@ import { useAppDispatch, useAppSelector } from 'state/store'
  */
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
-  const accountErrorToastId = 'accountError'
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const wallet = useWallet().state.wallet
-  const assets = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
@@ -158,7 +159,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    dispatch(getAllTxHistory.initiate(requestedAccountIds, { forceRefetch: true }))
+    dispatch(getAllTxHistory.initiate(requestedAccountIds))
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
@@ -185,23 +186,29 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(getValidatorData.initiate(accountId, options))
       }
 
+      await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
-      requestedAccountIds.forEach(async accountId => {
+      requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {
+          case btcChainId:
+          case ltcChainId:
+          case dogeChainId:
+          case bchChainId:
+            fetchAllOpportunitiesUserData(accountId)
+            break
           case cosmosChainId:
           case osmosisChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
             dispatch(getValidatorData.initiate(accountId, options))
+            fetchAllOpportunitiesUserData(accountId)
+            break
+          case avalancheChainId:
+            fetchAllOpportunitiesUserData(accountId)
             break
           case ethChainId:
-            await dispatch(
-              opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate({
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.Idle,
-                opportunityType: DefiType.Staking,
-              }),
-            )
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
 
@@ -224,9 +231,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       })
     })()
-    // this effect cares specifically about changes to portfolio accounts or assets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, portfolioLoadingStatus, portfolioAccounts, portfolioAssetIds])
+  }, [
+    dispatch,
+    portfolioLoadingStatus,
+    portfolioAccounts,
+    portfolioAssetIds,
+    wallet,
+    requestedAccountIds,
+  ])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
@@ -245,71 +257,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
-
-  const handleAccountErrorToastClose = useCallback(
-    () => toast.isActive(accountErrorToastId) && toast.close(accountErrorToastId),
-    [toast],
-  )
-
-  /**
-   * portfolio loading error notification
-   */
-  useEffect(() => {
-    const erroredAccountIds = entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
-      (acc, [accountId, accountState]) => {
-        accountState === 'error' && acc.push(accountId)
-        return acc
-      },
-      [],
-    )
-
-    if (!erroredAccountIds.length) return // yay
-
-    // we can have multiple accounts with the same name, dont show 'Bitcoin, Bitcoin, Bitcoin'
-    const erroredAccountNames = uniq(
-      erroredAccountIds.map(accountId => assets[accountIdToFeeAssetId(accountId)].name),
-    ).join(', ')
-
-    const handleRetry = () => {
-      handleAccountErrorToastClose()
-      erroredAccountIds.forEach(accountId =>
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountId, upsertOnFetch: true },
-            { forceRefetch: true },
-          ),
-        ),
-      )
-    }
-    const toastOptions = {
-      position: 'top-right' as const,
-      id: accountErrorToastId,
-      title: translate('common.somethingWentWrong'),
-      status: 'error' as const,
-      description: (
-        <Flex flexDir='column' gap={4} alignItems='flex-start'>
-          <AlertDescription>
-            {translate('common.accountError', { erroredAccountNames })}
-          </AlertDescription>
-          <Button colorScheme='red' onClick={handleRetry}>
-            {translate('common.retry')}
-          </Button>
-        </Flex>
-      ),
-      isClosable: true,
-      duration: null, // don't auto-dismiss
-    }
-    toast.isActive(accountErrorToastId)
-      ? toast.update(accountErrorToastId, toastOptions)
-      : toast(toastOptions)
-  }, [
-    assets,
-    dispatch,
-    handleAccountErrorToastClose,
-    portfolioLoadingStatusGranular,
-    toast,
-    translate,
-  ])
 
   /**
    * fetch forex spot and history for user's selected currency

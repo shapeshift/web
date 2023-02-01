@@ -1,12 +1,9 @@
-import { Center } from '@chakra-ui/react'
-import type { HTMLMotionProps } from 'framer-motion'
-import { AnimatePresence } from 'framer-motion'
+import type { FlexProps } from '@chakra-ui/react'
+import { Center, Flex } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import type { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-
-import { PageTransition } from './PageTransition'
 
 type PageProps = {
   children: ReactNode
@@ -15,7 +12,7 @@ type PageProps = {
   renderError?: () => ReactNode
   renderLoading?: () => ReactNode
   route?: Route
-} & HTMLMotionProps<'div'>
+} & FlexProps
 
 export const Page: React.FC<PageProps> = ({
   children,
@@ -27,11 +24,9 @@ export const Page: React.FC<PageProps> = ({
   ...rest
 }: PageProps) => {
   return (
-    <AnimatePresence exitBeforeEnter initial>
-      <PageTransition style={{ flex: 1, display: 'flex', flexDirection: 'column' }} {...rest}>
-        {error && !loading ? renderError() : loading ? renderLoading() : children}
-      </PageTransition>
-    </AnimatePresence>
+    <Flex flex={1} flexDir='column' {...rest}>
+      {error && !loading ? renderError() : loading ? renderLoading() : children}
+    </Flex>
   )
 }
 

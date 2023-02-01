@@ -131,7 +131,6 @@ export const useKeepKeyEventHandler = (
               payload: {
                 deviceId,
                 pinRequestType: message?.type,
-                showBackButton: disposition !== 'initialized',
               },
             })
           } else {

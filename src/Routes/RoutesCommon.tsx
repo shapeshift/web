@@ -6,6 +6,7 @@ import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
+import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
@@ -21,6 +22,8 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Recovery } from 'pages/Recovery/Recovery'
+import { Waterman } from 'pages/Recovery/Waterman'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -41,27 +44,25 @@ export const routes: NestedRoute[] = [
     main: Assets,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
-    routes: [
-      {
-        path: '/:chainId/:assetSubId',
-        label: 'Overview',
-        icon: <AssetsIcon />,
-        main: null,
-        hide: true,
-        routes: [
-          {
-            path: '/',
-            label: 'navBar.overview',
-            main: Asset,
-          },
-          {
-            path: '/transactions',
-            label: 'navBar.transactions',
-            main: AssetTxHistory,
-          },
-        ],
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      path: assetIdPath,
+      label: 'Overview',
+      icon: <AssetsIcon />,
+      main: null,
+      hide: true,
+      routes: [
+        {
+          path: '/',
+          label: 'navBar.overview',
+          main: Asset,
+        },
+        {
+          path: '/transactions',
+          label: 'navBar.transactions',
+          main: AssetTxHistory,
+        },
+      ],
+    })),
   },
   {
     path: '/accounts',
@@ -156,6 +157,12 @@ export const routes: NestedRoute[] = [
     icon: <IoSwapVertical />,
     main: Trade,
     category: RouteCategory.Explore,
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Trade Asset',
+      path: assetIdPath,
+      main: Trade,
+      hide: true,
+    })),
   },
   {
     path: '/buy-crypto',
@@ -163,13 +170,11 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
-    routes: [
-      {
-        label: 'Buy Asset',
-        path: '/:chainId/:assetSubId',
-        main: Buy,
-      },
-    ],
+    routes: assetIdPaths.map(assetIdPath => ({
+      label: 'Buy Asset',
+      path: assetIdPath,
+      main: Buy,
+    })),
   },
   {
     path: '/flags',
@@ -179,5 +184,18 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/recovery',
+    label: 'Recovery',
+    hide: true,
+    main: Recovery,
+  },
+  {
+    // a temporary route specifically for an affected user with stuck funds
+    path: '/waterman',
+    label: 'Waterman',
+    hide: true,
+    main: Waterman,
   },
 ]

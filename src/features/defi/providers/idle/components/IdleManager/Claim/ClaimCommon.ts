@@ -1,4 +1,4 @@
-import type { ClaimableToken, IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 
 export enum ClaimPath {
   Claim = '/',
@@ -20,33 +20,16 @@ type IdleClaimValues = EstimatedGas & {
   usedGasFee: string
 }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-type SerializableOpportunity = Omit<
-  IdleOpportunity,
-  | 'allowance'
-  | 'prepareApprove'
-  | 'prepareDeposit'
-  | 'prepareWithdrawal'
-  | 'prepareClaimTokens'
-  | 'signAndBroadcast'
-  | 'getClaimableTokens'
->
-
 export type IdleClaimState = {
-  opportunity: SerializableOpportunity | undefined
-  userAddress: string | undefined
   approve: EstimatedGas
   claim: IdleClaimValues
-  claimableTokens: ClaimableToken[]
   loading: boolean
   txid: string | undefined
 }
 
 export enum IdleClaimActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_CLAIM = 'SET_CLAIM',
-  SET_CLAIMABLE_TOKENS = 'SET_CLAIMABLE_TOKENS',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS',
@@ -57,19 +40,9 @@ type SetOpportunityAction = {
   payload: IdleOpportunity
 }
 
-type SetUserAddress = {
-  type: IdleClaimActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetClaim = {
   type: IdleClaimActionType.SET_CLAIM
   payload: Partial<IdleClaimValues>
-}
-
-type SetClaimableTokens = {
-  type: IdleClaimActionType.SET_CLAIMABLE_TOKENS
-  payload: ClaimableToken[]
 }
 
 type SetLoading = {
@@ -82,10 +55,4 @@ type SetTxid = {
   payload: string
 }
 
-export type IdleClaimActions =
-  | SetOpportunityAction
-  | SetClaimableTokens
-  | SetUserAddress
-  | SetLoading
-  | SetClaim
-  | SetTxid
+export type IdleClaimActions = SetOpportunityAction | SetLoading | SetClaim | SetTxid

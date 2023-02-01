@@ -4,8 +4,9 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { osmosisChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import { optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import type { PartialRecord } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -22,7 +23,7 @@ const getAssetService = () => {
   return service
 }
 
-export type AssetsById = Record<AssetId, Asset>
+export type AssetsById = PartialRecord<AssetId, Asset>
 
 export type AssetsState = {
   byId: AssetsById
@@ -66,21 +67,19 @@ export const assetApi = createApi({
     getAssets: build.query<AssetsState, void>({
       // all assets
       queryFn: (_, { getState }) => {
-        const { OsmosisSend, OsmosisStaking, OsmosisSwap, OsmosisLP, Thorchain } =
-          selectFeatureFlags(getState() as ReduxState)
-
+        const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
+            if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (
-              !OsmosisSend &&
-              !OsmosisStaking &&
-              !OsmosisSwap &&
-              !OsmosisLP &&
+              !flags.OsmosisSend &&
+              !flags.OsmosisStaking &&
+              !flags.OsmosisSwap &&
+              !flags.OsmosisLP &&
               asset.chainId === osmosisChainId
             )
               return prev
-            if (!Thorchain && asset.chainId === thorchainChainId) return prev
             prev[assetId] = asset
             return prev
           },
@@ -112,8 +111,8 @@ export const assetApi = createApi({
         const byId = cloneDeep(byIdOriginal)
         try {
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
-          byId[assetId].description = description
-          byId[assetId].isTrustedDescription = isTrusted
+          const originalAsset = byId[assetId]
+          byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }
           return { data }
         } catch (e) {

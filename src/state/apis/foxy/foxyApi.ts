@@ -15,7 +15,7 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectMarketData,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -59,7 +59,9 @@ export type FoxyOpportunity = {
 }
 
 export type MergedFoxyOpportunity = FoxyOpportunity & {
-  cryptoAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
   fiatAmount: string
 }
 
@@ -119,7 +121,8 @@ const makeMergedOpportunities = (
     const data = {
       ...opportunity,
       tvl,
-      cryptoAmount: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toString(),
+      cryptoAmountPrecision: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toFixed(),
+      cryptoAmountBaseUnit: opportunity.balance,
       fiatAmount: fiatAmount.toString(),
     }
     return data
@@ -238,7 +241,7 @@ export const foxyApi = createApi({
 
         const foxy = getFoxyApi()
 
-        const marketData = selectMarketData(state)
+        const marketData = selectMarketDataSortedByMarketCap(state)
         const assets = selectAssets(state)
 
         try {

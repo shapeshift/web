@@ -18,6 +18,17 @@ export const ButtonStyle: ComponentStyleConfig = {
         height: '1rem',
       },
     },
+    'sm-multiline': {
+      svg: {
+        width: '1rem',
+        height: '1rem',
+      },
+      whiteSpace: 'normal',
+      h: 'auto',
+      minH: '10',
+      py: '2',
+      px: '4',
+    },
     lg: (props: StyleFunctionProps) => {
       const { variant: v } = props
       return {
@@ -27,6 +38,21 @@ export const ButtonStyle: ComponentStyleConfig = {
         },
         fontSize: v === 'nav-link' ? 'md' : 'lg',
         px: v === 'nav-link' ? 4 : 6,
+      }
+    },
+    'lg-multiline': (props: StyleFunctionProps) => {
+      const { variant: v } = props
+      return {
+        svg: {
+          width: '1.5rem',
+          height: '1.5rem',
+        },
+        fontSize: v === 'nav-link' ? 'md' : 'lg',
+        px: v === 'nav-link' ? 4 : 6,
+        whiteSpace: 'normal',
+        h: 'auto',
+        minH: '12',
+        py: '3',
       }
     },
   },

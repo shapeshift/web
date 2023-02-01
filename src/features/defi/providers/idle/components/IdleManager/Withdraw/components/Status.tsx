@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -32,9 +32,11 @@ export const Status = () => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, assetReference } = query
 
   const assetNamespace = 'erc20'
+
+  const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -42,11 +44,6 @@ export const Status = () => {
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference: vaultAddress,
-  })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
@@ -54,14 +51,20 @@ export const Status = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && state?.userAddress && accountId)) return ''
-    return serializeTxIndex(accountId, state.txid, state.userAddress)
-  }, [state?.txid, state?.userAddress, accountId])
+    if (!(state?.txid && userAddress && accountId)) return ''
+    return serializeTxIndex(accountId, state.txid, userAddress)
+  }, [state?.txid, userAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -133,10 +136,10 @@ export const Status = () => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
         </Row>

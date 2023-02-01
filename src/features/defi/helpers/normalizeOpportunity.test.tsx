@@ -3,11 +3,9 @@ import { renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 
 import { useNormalizeOpportunities } from './normalizeOpportunity'
 
-jest.mock('pages/Defi/hooks/useVaultBalances')
 jest.mock('@shapeshiftoss/investor-yearn')
 jest.mock('pages/Defi/hooks/useFoxyBalances')
 
@@ -21,7 +19,8 @@ const mockCosmosStakingOpportunities = [
     totalDelegations: '42',
     rewards: '4.2',
     isLoaded: true,
-    cryptoAmount: '0.407785',
+    cryptoAmountBaseUnit: '1337',
+    cryptoAmountPrecision: '0.001337',
     tvl: '21040543.6367982',
     fiatAmount: '4.2',
     chainId: cosmosChainId,
@@ -37,7 +36,8 @@ const mockCosmosStakingOpportunities = [
     totalDelegations: '242424',
     rewards: '2.5',
     isLoaded: true,
-    cryptoAmount: '0.013967',
+    cryptoAmountBaseUnit: '12345',
+    cryptoAmountPrecision: '0.012345',
     tvl: '63799889.014332',
     fiatAmount: '0.24',
     chainId: cosmosChainId,
@@ -57,8 +57,6 @@ function setup({
     () =>
       useNormalizeOpportunities({
         cosmosSdkStakingOpportunities: cosmosStakingOpportunities ?? [],
-        foxyArray: [],
-        vaultArray: [],
       }),
     { wrapper },
   )
@@ -66,14 +64,6 @@ function setup({
 }
 
 describe('useNormalizeOpportunities', () => {
-  beforeEach(() => {
-    ;(useVaultBalances as jest.Mock<unknown>).mockImplementation(() => ({
-      vaults: [],
-      totalBalance: '0',
-      loading: false,
-    }))
-  })
-
   it('returns empty arrays when provided with empty arrays', () => {
     const { result } = setup()
     expect(result.current).toEqual([])

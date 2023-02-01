@@ -201,7 +201,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
           )
         },
         id: KEEPKEY_TOAST_ID,
-        duration: null,
+        duration: 12000,
         isClosable: true,
         position: 'bottom-right',
       })

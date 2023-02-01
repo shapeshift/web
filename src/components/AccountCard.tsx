@@ -38,7 +38,7 @@ export const AccountCard = ({
       textAlign='left'
       leftIcon={
         <SkeletonCircle isLoaded={isLoaded} boxSize='40px'>
-          <AssetIcon src={asset.icon} boxSize='40px' />
+          <AssetIcon asset={asset} boxSize='40px' />
         </SkeletonCircle>
       }
       rightIcon={<ChevronRightIcon boxSize={6} />}

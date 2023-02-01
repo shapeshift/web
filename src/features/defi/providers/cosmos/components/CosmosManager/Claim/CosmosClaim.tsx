@@ -67,7 +67,8 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
           chainId,
         ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
         if (!(walletState.wallet && contractAddress && chainAdapter)) return
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, bip44Params })
+        const { accountNumber } = bip44Params
+        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
 
         dispatch({ type: CosmosClaimActionType.SET_USER_ADDRESS, payload: address })
         dispatch({

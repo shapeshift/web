@@ -25,7 +25,6 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,6 +38,7 @@ export type FeePrice = {
   [key in FeeDataKey]: {
     fiatFee: string
     txFee: string
+    gasPriceGwei?: string
   }
 }
 
@@ -51,7 +51,7 @@ export const Confirm = () => {
   const translate = useTranslate()
   const {
     accountId,
-    address,
+    to,
     asset,
     cryptoAmount,
     cryptoSymbol,
@@ -63,7 +63,6 @@ export const Confirm = () => {
     control,
   }) as Partial<SendInput>
   const { fees } = useSendFees()
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset?.assetId ?? ''))
   const showMemoRow = useMemo(
@@ -86,8 +85,7 @@ export const Confirm = () => {
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
-  if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
-    return null
+  if (!(to && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition>
@@ -119,29 +117,25 @@ export const Confirm = () => {
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
-          {isMultiAccountsEnabled && (
-            <Row alignItems='center'>
-              <Row.Label>
-                <Text translation='modals.send.confirm.sendFrom' />
-              </Row.Label>
-              <Row.Value display='flex' alignItems='center'>
-                <AccountDropdown
-                  onChange={handleAccountChange}
-                  assetId={asset.assetId}
-                  defaultAccountId={accountId}
-                  buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
-                  disabled
-                />
-              </Row.Value>
-            </Row>
-          )}
+          <Row alignItems='center'>
+            <Row.Label>
+              <Text translation='modals.send.confirm.sendFrom' />
+            </Row.Label>
+            <Row.Value display='flex' alignItems='center'>
+              <AccountDropdown
+                onChange={handleAccountChange}
+                assetId={asset.assetId}
+                defaultAccountId={accountId}
+                buttonProps={{ variant: 'ghost', height: 'auto', p: 0, size: 'md' }}
+                disabled
+              />
+            </Row.Value>
+          </Row>
           <Row>
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
-            <Row.Value>
-              {vanityAddress ? vanityAddress : <MiddleEllipsis value={address} />}
-            </Row.Value>
+            <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
           </Row>
           {showMemoRow && (
             <Row>
@@ -195,7 +189,7 @@ export const Confirm = () => {
                 symbol={cryptoSymbol}
                 value={cryptoAmount}
               />
-              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset.symbol} />
+              <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />
             </Row.Label>
           </Box>
         </Row>

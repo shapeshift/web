@@ -29,6 +29,7 @@ export const TransactionReceive = ({
     <>
       <TransactionGenericRow
         type={txDetails.type}
+        status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}

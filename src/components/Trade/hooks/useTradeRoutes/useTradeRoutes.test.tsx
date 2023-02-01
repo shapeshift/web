@@ -24,6 +24,7 @@ jest.mock('hooks/useWallet/useWallet', () => ({
 }))
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('state/slices/selectors', () => ({
+  ...jest.requireActual('state/slices/selectors'),
   selectAssets: () => ({
     [mockEthAssetId]: mockETH,
     [mockFoxAssetId]: mockFOX,

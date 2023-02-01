@@ -14,14 +14,13 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, osmosisAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
 import { type TradeTxs } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -29,18 +28,17 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
 import {
-  selectAssetById,
-  selectFeatureFlags,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
@@ -57,7 +55,8 @@ import { ReceiveSummary } from './ReceiveSummary'
 export const TradeConfirm = () => {
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const [sellTxid, setSellTxid] = useState('')
+  const warningColor = useColorModeValue('red.600', 'red.400')
+  const [sellTradeId, setSellTradeId] = useState('')
   const [buyTxid, setBuyTxid] = useState('')
   const {
     handleSubmit,
@@ -65,9 +64,7 @@ export const TradeConfirm = () => {
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
-  const osmosisAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
-  const flags = useSelector(selectFeatureFlags)
 
   const {
     number: { toFiat },
@@ -82,9 +79,7 @@ export const TradeConfirm = () => {
     tradeAmounts,
     trade,
     fees,
-    sellAssetFiatRate,
     feeAssetFiatRate,
-    buyAssetFiatRate,
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
@@ -95,9 +90,12 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
+  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
+  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
+
   const reset = useCallback(() => {
-    setValue('buyTradeAsset.amount', '')
-    setValue('sellTradeAsset.amount', '')
+    setValue('buyTradeAsset.amountCryptoPrecision', '')
+    setValue('sellTradeAsset.amountCryptoPrecision', '')
     setValue('fiatSellAmount', '')
   }, [setValue])
 
@@ -130,31 +128,27 @@ export const TradeConfirm = () => {
   ])
 
   useEffect(() => {
-    ;(async () => {
-      const buyAssetId = trade?.buyAsset.assetId
-      const sellAssetId = trade?.sellAsset.assetId
-      if (!buyAssetId || !sellAssetId) return ''
-      const swapperManager = await getSwapperManager(flags)
-      const bestSwapper = await swapperManager.getBestSwapper({ buyAssetId, sellAssetId })
+    const buyAssetId = trade?.buyAsset.assetId
+    const sellAssetId = trade?.sellAsset.assetId
+    if (!(!buyAssetId || !sellAssetId)) {
       setSwapper(bestSwapper)
-    })()
-  }, [flags, trade])
+    }
+  }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status =
     useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const txLink = useMemo(() => {
-    switch (trade?.sources[0]?.name) {
-      case 'Osmosis':
-        return `${osmosisAsset?.explorerTxLink}${sellTxid}`
-      case 'CowSwap':
-        return `https://explorer.cow.fi/orders/${sellTxid}`
-      default:
-        return `${trade?.sellAsset?.explorerTxLink}${sellTxid}`
-    }
-  }, [trade, sellTxid, osmosisAsset])
+  const sellTxLink = useMemo(
+    () =>
+      getTxLink({
+        name: trade?.sources[0]?.name,
+        defaultExplorerBaseUrl: trade?.sellAsset?.explorerTxLink ?? '',
+        tradeId: sellTradeId,
+      }),
+    [sellTradeId, trade],
+  )
 
   const { showErrorToast } = useErrorHandler()
 
@@ -174,7 +168,7 @@ export const TradeConfirm = () => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setSellTxid(result.tradeId)
+      setSellTradeId(result.tradeId)
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
@@ -195,34 +189,17 @@ export const TradeConfirm = () => {
     } catch (e) {
       showErrorToast(e)
       reset()
-      setSellTxid('')
+      setSellTradeId('')
       history.push(TradeRoutePaths.Input)
     }
   }
 
-  const handleBack = () => {
-    if (sellTxid) {
+  const handleBack = useCallback(() => {
+    if (sellTradeId) {
       reset()
     }
     history.push(TradeRoutePaths.Input)
-  }
-
-  const sellAmountCrypto = fromBaseUnit(
-    bnOrZero(trade.sellAmountCryptoPrecision),
-    trade.sellAsset?.precision ?? 0,
-  )
-  const buyAmountCrypto = fromBaseUnit(
-    bnOrZero(trade.buyAmountCryptoPrecision),
-    trade.buyAsset?.precision ?? 0,
-  )
-
-  const sellAmountFiat = bnOrZero(sellAmountCrypto)
-    .times(bnOrZero(sellAssetFiatRate))
-    .times(selectedCurrencyToUsdRate)
-
-  const buyAmountFiat = bnOrZero(buyAmountCrypto)
-    .times(bnOrZero(buyAssetFiatRate))
-    .times(selectedCurrencyToUsdRate)
+  }, [history, reset, sellTradeId])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)
@@ -230,29 +207,142 @@ export const TradeConfirm = () => {
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
-    .dividedBy(sellAmountFiat)
+    .dividedBy(tradeAmounts?.sellAmountBeforeFeesFiat ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
   const isFeeRatioOverThreshold =
     networkFeeToTradeRatioPercentage > networkFeeToTradeRatioPercentageThreshold
 
+  const header: JSX.Element = useMemo(
+    () => (
+      <>
+        <Card.Header px={0} pt={0}>
+          <WithBackButton handleBack={handleBack}>
+            <Card.Heading textAlign='center'>
+              <Text
+                translation={
+                  status === TxStatus.Confirmed ? 'trade.complete' : 'trade.confirmDetails'
+                }
+              />
+            </Card.Heading>
+          </WithBackButton>
+        </Card.Header>
+        <Divider />
+      </>
+    ),
+    [handleBack, status],
+  )
+
+  const tradeWarning: JSX.Element | null = useMemo(() => {
+    const tradeWarningElement = (
+      <Flex direction='column' gap={2}>
+        {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
+          <Alert status='info' width='auto' fontSize='sm'>
+            <AlertIcon />
+            <Stack spacing={0}>
+              <AlertTitle>
+                {translate('trade.slowSwapTitle', { protocol: fees?.tradeFeeSource })}
+              </AlertTitle>
+              <AlertDescription lineHeight='short'>
+                {translate('trade.slowSwapBody')}
+              </AlertDescription>
+            </Stack>
+          </Alert>
+        )}
+        {trade.buyAsset.assetId === thorchainAssetId && (
+          <Alert status='info' width='auto' mb={3} fontSize='sm'>
+            <AlertIcon />
+            <Stack spacing={0}>
+              <AlertDescription lineHeight='short'>
+                {translate('trade.intoRUNEBody')}
+              </AlertDescription>
+            </Stack>
+          </Alert>
+        )}
+      </Flex>
+    )
+    const shouldRenderWarnings = tradeWarningElement.props?.children?.some(
+      (child: JSX.Element | false) => !!child,
+    )
+    return shouldRenderWarnings ? tradeWarningElement : null
+  }, [fees?.tradeFeeSource, trade.buyAsset.assetId, translate])
+
+  const sendReceiveSummary: JSX.Element = useMemo(
+    () => (
+      <Stack spacing={4}>
+        <Row>
+          <Row.Label>{translate('common.send')}</Row.Label>
+          <Row.Value textAlign='right'>
+            <Amount.Crypto
+              value={
+                fromBaseUnit(
+                  tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
+                  trade.sellAsset.precision,
+                ) ?? ''
+              }
+              symbol={trade.sellAsset.symbol}
+            />
+            <Amount.Fiat
+              color='gray.500'
+              value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
+              prefix='≈'
+            />
+          </Row.Value>
+        </Row>
+        <ReceiveSummary
+          symbol={trade.buyAsset.symbol ?? ''}
+          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
+          beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
+          protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
+          shapeShiftFee='0'
+          slippage={slippage}
+          fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
+          swapperName={swapper?.name ?? ''}
+        />
+      </Stack>
+    ),
+    [
+      buyTradeAsset?.amountCryptoPrecision,
+      slippage,
+      swapper?.name,
+      trade.buyAsset.symbol,
+      trade.sellAsset.precision,
+      trade.sellAsset.symbol,
+      tradeAmounts?.beforeFeesBuyAsset,
+      tradeAmounts?.buyAmountAfterFeesFiat,
+      tradeAmounts?.sellAmountBeforeFeesBaseUnit,
+      tradeAmounts?.sellAmountBeforeFeesFiat,
+      tradeAmounts?.totalTradeFeeBuyAsset,
+      translate,
+    ],
+  )
+
+  const footer: JSX.Element = useMemo(
+    () => (
+      <Card.Footer px={0} py={0}>
+        {!sellTradeId && !isSubmitting && (
+          <Button
+            colorScheme='blue'
+            size='lg'
+            width='full'
+            mt={6}
+            data-test='trade-form-confirm-and-trade-button'
+            type='submit'
+          >
+            <Text translation='trade.confirmAndTrade' />
+          </Button>
+        )}
+      </Card.Footer>
+    ),
+    [isSubmitting, sellTradeId],
+  )
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
         <Card variant='unstyled'>
-          <Card.Header px={0} pt={0}>
-            <WithBackButton handleBack={handleBack}>
-              <Card.Heading textAlign='center'>
-                <Text
-                  translation={
-                    status === TxStatus.Confirmed ? 'trade.complete' : 'trade.confirmDetails'
-                  }
-                />
-              </Card.Heading>
-            </WithBackButton>
-          </Card.Header>
-          <Divider />
+          {header}
           <Card.Body pb={0} px={0}>
             <Stack
               spacing={4}
@@ -266,60 +356,18 @@ export const TradeConfirm = () => {
                 sellIcon={trade.sellAsset.icon}
                 buyColor={trade.buyAsset.color}
                 sellColor={trade.sellAsset.color}
-                status={sellTxid || isSubmitting ? status : undefined}
+                status={sellTradeId || isSubmitting ? status : undefined}
               />
-              <Flex direction='column' gap={2}>
-                {fees?.tradeFeeSource === 'Thorchain' && (
-                  <Alert status='info' width='auto' fontSize='sm'>
-                    <AlertIcon />
-                    <Stack spacing={0}>
-                      <AlertTitle>
-                        {translate('trade.slowSwapTitle', { protocol: 'THORChain' })}
-                      </AlertTitle>
-                      <AlertDescription lineHeight='short'>
-                        {translate('trade.slowSwapBody')}
-                      </AlertDescription>
-                    </Stack>
-                  </Alert>
-                )}
-                {trade.buyAsset.assetId === thorchainAssetId && (
-                  <Alert status='info' width='auto' mb={3} fontSize='sm'>
-                    <AlertIcon />
-                    <Stack spacing={0}>
-                      <AlertDescription lineHeight='short'>
-                        {translate('trade.intoRUNEBody')}
-                      </AlertDescription>
-                    </Stack>
-                  </Alert>
-                )}
-              </Flex>
+              {tradeWarning}
+              {sendReceiveSummary}
               <Stack spacing={4}>
-                <Row>
-                  <Row.Label>{translate('common.send')}</Row.Label>
-                  <Row.Value textAlign='right'>
-                    <Amount.Crypto value={sellAmountCrypto} symbol={trade.sellAsset.symbol} />
-                    <Amount.Fiat color='gray.500' value={sellAmountFiat.toString()} prefix='≈' />
-                  </Row.Value>
-                </Row>
-                <ReceiveSummary
-                  symbol={trade.buyAsset.symbol ?? ''}
-                  amount={buyTradeAsset?.amount ?? ''}
-                  beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
-                  protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
-                  shapeShiftFee='0'
-                  slippage={slippage}
-                  fiatAmount={buyAmountFiat.toString()}
-                  swapperName={swapper?.name ?? ''}
-                />
-              </Stack>
-              <Stack spacing={4}>
-                {sellTxid && (
+                {sellTradeId && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={txLink}>
+                      <Link isExternal color='blue.500' href={sellTxLink}>
                         <Text translation='trade.viewTransaction' />
                       </Link>
                     </Box>
@@ -348,16 +396,16 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     {defaultFeeAsset &&
-                      `${bnOrZero(fees?.networkFeeCryptoHuman).toNumber()} ${
+                      `${bnOrZero(fees?.networkFeeCryptoHuman).toFixed()} ${
                         defaultFeeAsset.symbol
                       } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (
                   <Flex justifyContent='center' gap={4} alignItems='center'>
-                    <WarningTwoIcon w={5} h={5} color='red.400' />
+                    <WarningTwoIcon w={5} h={5} color={warningColor} />
                     <Text
-                      color='red.400'
+                      color={warningColor}
                       translation={[
                         'trade.gasFeeExceedsTradeAmountThreshold',
                         { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
@@ -368,20 +416,7 @@ export const TradeConfirm = () => {
               </Stack>
             </Stack>
           </Card.Body>
-          <Card.Footer px={0} py={0}>
-            {!sellTxid && !isSubmitting && (
-              <Button
-                colorScheme='blue'
-                size='lg'
-                width='full'
-                mt={6}
-                data-test='trade-form-confirm-and-trade-button'
-                type='submit'
-              >
-                <Text translation='trade.confirmAndTrade' />
-              </Button>
-            )}
-          </Card.Footer>
+          {footer}
         </Card>
       </Box>
     </SlideTransition>

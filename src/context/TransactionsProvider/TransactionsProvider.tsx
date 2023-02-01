@@ -7,17 +7,30 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import React, { useEffect, useState } from 'react'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { fetchAllOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import {
+  isSupportedThorchainSaversAssetId,
+  isSupportedThorchainSaversChainId,
+  waitForSaversUpdate,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import {
+  fetchAllOpportunitiesIds,
+  fetchAllOpportunitiesMetadata,
+  fetchAllOpportunitiesUserData,
+} from 'state/slices/opportunitiesSlice/thunks'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
@@ -31,20 +44,6 @@ type TransactionsProviderProps = {
   children: React.ReactNode
 }
 
-const maybeRefetchOpportunities = ({ chainId, transfers }: Transaction, accountId: AccountId) => {
-  if (
-    !(
-      chainId === ethChainId &&
-      // We don't parse FOX farming Txs with any specific parser, hence we're unable to discriminate by parser type
-      // This will refetch opportunities user data on any FOX/ FOX LP token transfer Tx
-      // But this is the best we can do at the moment to be reactive
-      transfers.some(({ assetId }) => [foxAssetId, foxEthLpAssetId].includes(assetId))
-    )
-  )
-    return
-  ;(async () => await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true }))()
-}
-
 export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ children }) => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
@@ -55,6 +54,71 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const { supportedChains } = usePlugins()
 
+  const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
+
+  const maybeRefetchOpportunities = useCallback(
+    ({ chainId, transfers, status }: Transaction, accountId: AccountId) => {
+      if (status !== TxStatus.Confirmed) return
+
+      if (
+        isSupportedThorchainSaversChainId(chainId) &&
+        transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
+      ) {
+        const { getOpportunitiesUserData } = opportunitiesApi.endpoints
+        // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
+        // This way, we ensure "View Position" actually routes to the updated position
+        waitForSaversUpdate().then(() => {
+          dispatch(
+            getOpportunitiesUserData.initiate(
+              {
+                accountId,
+                defiType: DefiType.Staking,
+                defiProvider: DefiProvider.ThorchainSavers,
+                opportunityType: DefiType.Staking,
+              },
+              { forceRefetch: true },
+            ),
+          )
+        })
+      }
+      if (
+        !(
+          chainId === ethChainId &&
+          // We don't parse FOX farming Txs with any specific parser, hence we're unable to discriminate by parser type
+          // This will refetch opportunities user data on any FOX/ FOX LP token transfer Tx
+          // But this is the best we can do at the moment to be reactive
+          transfers.some(
+            ({ assetId }) =>
+              [foxAssetId, foxEthLpAssetId].includes(assetId) ||
+              Object.values(stakingOpportunitiesById).some(opportunity =>
+                // Detect Txs including a transfer either of either
+                // - an asset being wrapped into an Idle token
+                // - Idle reward assets being claimed
+                // - the Idle AssetId being withdrawn
+                Boolean(
+                  opportunity?.assetId === assetId ||
+                    opportunity?.underlyingAssetId === assetId ||
+                    (opportunity?.underlyingAssetIds?.length &&
+                      opportunity?.underlyingAssetIds.includes(assetId)) ||
+                    (opportunity?.rewardAssetIds?.length &&
+                      opportunity?.rewardAssetIds.includes(assetId)),
+                ),
+              ),
+          )
+        )
+      )
+        return
+      ;(async () => {
+        await fetchAllOpportunitiesIds({ forceRefetch: true })
+        await fetchAllOpportunitiesMetadata({ forceRefetch: true })
+        await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+      })()
+    },
+    // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope
+    // Investigate me, but for now having no deps here is our safest bet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
   /**
    * unsubscribe and cleanup logic
    */
@@ -90,11 +154,12 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         const accountMetadata = portfolioAccountMetadata[accountId]
         if (!accountMetadata) throw new Error('subscribe txs no accountMetadata?')
         const { accountType, bip44Params } = accountMetadata
+        const { accountNumber } = bip44Params
 
         // subscribe to new transactions for all supported accounts
         try {
           return adapter?.subscribeTxs(
-            { wallet, accountType, bip44Params },
+            { wallet, accountType, accountNumber },
             msg => {
               const { getAccount } = portfolioApi.endpoints
               const { getValidatorData } = validatorDataApi.endpoints
@@ -123,7 +188,14 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       setIsSubscribed(true)
     })()
-  }, [dispatch, isSubscribed, portfolioLoadingStatus, portfolioAccountMetadata, wallet])
+  }, [
+    dispatch,
+    isSubscribed,
+    portfolioLoadingStatus,
+    portfolioAccountMetadata,
+    wallet,
+    maybeRefetchOpportunities,
+  ])
 
   return <>{children}</>
 }

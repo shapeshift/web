@@ -27,6 +27,7 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
 
   // Get asset from assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const {
     state: { wallet },

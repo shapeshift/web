@@ -14,3 +14,12 @@ export * from './preferencesSlice/selectors'
 export * from './txHistorySlice/selectors'
 export * from './validatorDataSlice/selectors'
 export * from './opportunitiesSlice/selectors'
+
+/**
+ * some selectors span multiple business logic domains, e.g. portfolio and opportunities
+ * slices are closely related in logic
+ *
+ * to avoid both circular dependencies and duplication of logic,
+ * we define them higher up the tree at a common place
+ */
+export * from './common-selectors'

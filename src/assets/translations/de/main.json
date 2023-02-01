@@ -79,8 +79,17 @@
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
+    "searchAsset": "Vermögenswert suchen",
     "enterAmount": "Betrag eingeben",
-    "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden"
+    "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
+    "buySell": "Kaufen/Verkaufen",
+    "all": "Alle",
+    "viewAll": "Alle ansehen"
+  },
+  "errorPage": {
+    "title": "Hoppala!",
+    "body": "Etwas ist schief gelaufen",
+    "cta": "Versuchen Sie es nochmal"
   },
   "buyPage": {
     "title": {
@@ -139,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Handeln",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Verdiene"
     }
   },
   "fiatRamps": {
@@ -168,6 +178,8 @@
     "usOnly": "nur US Bürger(innen)",
     "noKYC": "kein KYC",
     "nonUS": "Nicht-US Bürger",
+    "buyWith": "Kaufen Sie mit",
+    "sellFor": "Verkaufen für",
     "availableProviders": "Verfügbare Anbieter",
     "noProvidersAvailable": "Keine Anbieter verfügbar",
     "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert.",
@@ -272,6 +284,21 @@
         "confirmClaim": "Forderung bestätigen",
         "claimNow": "jetzt Einfordern",
         "claimYour": "Fordern Sie Ihre %{opportunity} an"
+      },
+      "saversVaults": {
+        "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
+        "vaultCap": "Tresorobergrenze",
+        "vaultCapTooltip": "Etwas über Tresorobergrenzen",
+        "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
+        "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
+        "estimatedFee": "Geschätzte Gebühr",
+        "fee": "Gebühr",
+        "estimatedFeeTooltip": "Gebühr für die Überweisung von Vermögenswerten einer Layer-1-Blockchain",
+        "dustAmount": "Kleinbetrag",
+        "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
+        "sendDustBody": "Sie müssen einen Kleinbetrag an diese Adresse senden, um Abheben zu können.",
+        "sendDust": "Sende Kleinbetrag",
+        "addressToSendTo": "an diese Adresse senden"
       }
     },
     "memoNote": {
@@ -290,6 +317,8 @@
     "stakedAmount": "Staking Betrag",
     "unstakeFrom": "Staking beenden von",
     "gasFee": "Gasgebühr",
+    "provider": "Anbieter",
+    "currentTvl": "Aktuelle TVL",
     "unbondInfoItWillTake": "Während Sie Ihre Token Staken, können Sie sie nicht übertragen oder ausgeben. Es dauert %{unbondingDays} Tage, um sie freizuschalten, nachdem Sie Staken beendet haben.",
     "unbondInfoItWillTakeShort": "Es dauert %{unbondingDays} Tage, um Staken Ihrer Tokens zu beenden",
     "confirmAndBroadcast": "Bestätigen & Übertragen",
@@ -300,6 +329,7 @@
     "amountStaked": "Staking Betrag",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
+    "version": "Version",
     "unstake": "Staking beenden",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "%{assetSymbol} Staking beenden",
@@ -318,13 +348,14 @@
     "ended": "Beendet",
     "balance": "Kontostand",
     "defi": "DeFi",
+    "startEarning": "Anfangen zu verdienen",
+    "eligibleOpportunities": "Berechtigte Gelegenheiten",
     "defiBody": "Entdecken Sie ein wachsendes Universum von DeFi Verdienstmöglichkeiten.",
     "netWorth": "Nettovermögen",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
-    "clickHereToEarn": "Klicken und verdienen Sie",
-    "byFarming": " APR*, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
+    "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -518,6 +549,8 @@
     "noRateAvailable": "Kein Wechselkurs verfügbar.",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
+    "tradeFrom": "Handel ab",
+    "tradeTo": "Handel bis",
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
     "protocol": "Protokoll",
@@ -554,6 +587,10 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
+      "sellAssetStartSentence": "Vermögenswerte verkaufen",
+      "buyAssetStartSentence": "Vermögenswerte kaufen",
+      "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
+      "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
@@ -589,6 +626,7 @@
       "rateError": "Wir können für dieses Paar kein Angebot einholen",
       "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
+      "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -600,6 +638,13 @@
     "recentTrades": "Letzte Handelsaktionen"
   },
   "modals": {
+    "popup": {
+      "body": "Wir haben ein sicheres Fenster geöffnet, um Ihre Bestellung abzuschließen.",
+      "body2": "Sie sehen das sichere Fenster nicht? Wir helfen Ihnen, das Fenster neu zu starten, um Ihre Bestellung abzuschließen.",
+      "continue": "Klicke um Fortzufahren",
+      "showWindow": "zeige Fenster",
+      "cancel": "Abbrechen"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -659,6 +704,10 @@
         "header": "Lade den KeepKey-Updater",
         "button": "Lade %{filename}",
         "wrongPlatform": "Sie verwenden %{platform} nicht? Klick hier"
+      },
+      "disconnect": {
+        "header": "Trennen Sie das KeepKey-Gerät",
+        "body": "Leider ist beim Wiederherstellen/Einrichten Ihres KeepKey-Geräts ein Fehler aufgetreten. Bitte trennen Sie Ihr Gerät, schließen Sie es wieder an und versuchen Sie erneut, Ihr KeepKey-Gerät einzurichten. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den KeepKey-Support."
       }
     },
     "shapeShift": {
@@ -1463,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Nicht unterstütztes Netzwerk",
+        "description": "ShapeShift unterstützt derzeit nur %{supportedChainNames} mit WalletConnect."
+      },
+      "header": {
+        "connectDapp": "dApp verbinden",
+        "connectedDapp": "dApp verbunden",
+        "menu": {
+          "disconnect": "Trennen",
+          "address": "Adresse ",
+          "connected": "Verbunden",
+          "network": "Netzwerk",
+          "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
+        }
+      },
       "modal": {
         "title": "Wallet verbinden",
         "ethereum": "Ethereum",
@@ -1472,23 +1536,46 @@
           "message": "Nachricht",
           "description": "Sie müssen das Signieren dieser Nachricht mit Ihrer verbundenen Wallet bestätigen.",
           "confirm": "Bestätigen",
-          "reject": "Reject"
+          "reject": "Reject",
+          "messageData": "Nachrichtdaten",
+          "domain": "Domaine"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Senden von",
+          "sendingTo": "Senden an",
+          "interactingWith": "Interagieren mit",
+          "amount": "Betrag",
+          "contractInteraction": {
+            "title": "Vertragsinteraktion",
+            "sendingEth": "ETH senden",
+            "data": "Rohdaten (Hex-kodiert)"
+          },
           "advancedParameters": {
             "title": "Erweiterte Parameter",
             "alert": "Nur für fortgeschrittene Benutzer. Das Ändern dieser Einstellungen kann zu festgefahrenen Transaktionen führen.",
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "Die Anzahl der von einer bestimmten Adresse gesendeten Transaktionen. Nur fortgeschrittene Benutzer."
+              "tooltip": "Anzahl der von einer bestimmten Adresse gesendeten Transaktionen. Nur fortgeschrittene Benutzer."
             },
             "gasLimit": {
               "title": "Gas Limit",
               "placeholder": "Gas Limit...",
               "tooltip": "Das Gaslimit bezieht sich auf die maximale Menge an Gas, die ein Benutzer verbrauchen kann, um eine Transaktion durchzuführen."
             }
-          }
+          },
+          "estGasCost": "zirka Gas Kosten",
+          "description": "Sie sind dabei, eine Transaktion zu erstellen und müssen diese mit Ihrer derzeit verbundenen Wallet bestätigen."
+        },
+        "signTransaction": {
+          "description": "Sie sind dabei, eine Transaktion zu unterzeichnen und müssen diese mit Ihrer derzeit verbundenen Wallet bestätigen."
+        },
+        "connect": {
+          "title": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und lösen Sie Transaktionen aus",
+          "howTo": "Wie verbinde ich mich mit einer dApp?",
+          "linkPlaceholder": "QR-Code oder Verbindungslink",
+          "connect": "Verbinden",
+          "connectionError": "Keine Verbindung zum angegebenen URI möglich."
         }
       },
       "registry": {
@@ -1536,5 +1623,26 @@
       "tooltip": "Die Prioritätsgebühr ist ein optionales Trinkgeld, um Blockproduzenten anzuregen, Ihre Transaktion zu priorisieren. Legen Sie die Prioritätsgebühr in GWEI fest, die Sie für jede Gaseinheit zahlen möchten."
     },
     "custom": "Benutzerdefiniert"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "Was ist Best Yield?",
+      "body": "Maximieren Sie automatisch den Ertrag über mehrere erprobte DeFi-Protokolle. Die Best-Yield-Strategie optimiert die Ertragsgenerierung durch Verteilung der Transaktionskosten und automatisiert die Ertragsgenerierung durch algorithmische Kapitalverlagerung, wenn sich neue Ertragschancen ergeben."
+    },
+    "seniorTranche": {
+      "title": "Was ist eine Senior Tranche?",
+      "body": "Erhalten Sie DeFi-Erträge über mehrere Protokolle hinweg, während Sie Ihre Einzahlung schützen. Senior Tranchen bieten einen integrierten Schutz für Fonds und bieten dank ihrer Junior Tranchen eine umfassende Abdeckung."
+    },
+    "juniorTranche": {
+      "title": "Was ist eine Junior Tranche?",
+      "body": "Profitieren Sie von höheren Renditen über mehrere DeFi-Protokolle hinweg, Junior Tranchen erzielen eine gehebelte Rendite, da sie für die Bereitstellung von First-Loss-Kapital für ihre Senior Tranchen entschädigt werden."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Kaufen Sie Krypto ohne KYC",
+      "body": "Kaufen Sie bis zu 1.000 $ mit Apple Pay",
+      "cta": "Kaufe jetzt"
+    }
   }
 }

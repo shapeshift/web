@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import Web3 from 'web3'
 
@@ -11,6 +11,8 @@ const httpProviderByChainId = (chainId: ChainId): string => {
   switch (chainId) {
     case avalancheChainId:
       return getConfig().REACT_APP_AVALANCHE_NODE_URL
+    case optimismChainId:
+      return getConfig().REACT_APP_OPTIMISM_NODE_URL
     case ethChainId:
     default:
       return getConfig().REACT_APP_ETHEREUM_NODE_URL

@@ -78,6 +78,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -187,11 +190,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={underlyingAsset.icon} />
-              <RawText>{underlyingAsset.name}</RawText>
+              <AssetIcon size='xs' src={underlyingAsset?.icon} />
+              <RawText>{underlyingAsset?.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.cryptoAmount} symbol={underlyingAsset.symbol} />
+              <Amount.Crypto
+                value={state.withdraw.cryptoAmount}
+                symbol={underlyingAsset?.symbol ?? ''}
+              />
             </Row.Value>
           </Row>
         </Row>

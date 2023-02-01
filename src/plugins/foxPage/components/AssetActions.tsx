@@ -47,6 +47,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
   const location = useLocation()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const { description } = asset || {}
   const trimmedDescription = trimWithEndEllipsis(description, TrimmedDescriptionLength)
   const isFoxAsset = assetId === foxAssetId
@@ -94,8 +95,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       search: qs.stringify({
         provider: DefiProvider.ShapeShift,
         chainId: asset.chainId,
-        contractAddress: foxyAddresses[0].staking,
-        assetReference: foxyAddresses[0].fox,
+        assetNamespace: 'erc20',
+        contractAddress: foxyAddresses[0].foxy,
+        assetReference: foxyAddresses[0].staking,
         rewardId: foxyAddresses[0].foxy,
         modal: 'overview',
       }),

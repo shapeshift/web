@@ -64,7 +64,7 @@ export const AssetToAsset: FC<AssetToAssetProps> = ({
       <Box flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center'>
           <AssetIcon src={sellIcon} boxSize={boxSize} />
-          <Divider borderBottomWidth={2} flex={1} bgColor={sellColor} />
+          <Divider borderBottomWidth={2} flex={1} bgColor={sellColor} borderColor={sellColor} />
         </Flex>
       </Box>
       <Flex>
@@ -79,7 +79,7 @@ export const AssetToAsset: FC<AssetToAssetProps> = ({
       </Flex>
       <Flex flexDirection='column' flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center' flex={1} justify='flex-start'>
-          <Divider borderBottomWidth={2} flex={1} bgColor={buyColor} />
+          <Divider borderBottomWidth={2} flex={1} bgColor={buyColor} borderColor={buyColor} />
           <AssetIcon src={buyIcon} boxSize={boxSize} />
         </Flex>
       </Flex>

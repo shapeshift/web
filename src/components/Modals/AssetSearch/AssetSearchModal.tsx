@@ -8,6 +8,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { FC } from 'react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
@@ -16,10 +17,16 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import { breakpoints } from 'theme/theme'
 
-export const AssetSearchModal: React.FC<AssetSearchProps> = ({
+interface AssetSearchModalProps extends AssetSearchProps {
+  onClick: Required<AssetSearchProps>['onClick']
+  title?: string
+}
+
+export const AssetSearchModal: FC<AssetSearchModalProps> = ({
   onClick,
   filterBy,
   disableUnsupported,
+  title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -42,9 +49,9 @@ export const AssetSearchModal: React.FC<AssetSearchProps> = ({
     <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} trapFocus={false}>
       <ModalOverlay />
       <ModalContent height={`${modalHeight}vh`}>
-        <ModalHeader>{translate('common.selectAsset')}</ModalHeader>
+        <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody p={2} display='flex' flexDir='column'>
+        <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
           <AssetSearch
             onClick={handleClick}
             filterBy={filterBy}

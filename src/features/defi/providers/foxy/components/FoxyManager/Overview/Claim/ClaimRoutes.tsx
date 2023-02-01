@@ -1,14 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import type {
-  DefiParams,
-  DefiQueryParams,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { ethChainId } from '@shapeshiftoss/caip'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectBIP44ParamsByAccountId, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -32,14 +28,7 @@ type ClaimRouteProps = {
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) => {
-  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
-  const assetNamespace = 'erc20'
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  const { contractAddress, stakingAssetId, chainId, contractAssetId } = useFoxyQuery()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -48,7 +37,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
     accountNumber: bip44Params?.accountNumber ?? 0,
   })
   const opportunity = (foxyBalancesData?.opportunities || []).find(
-    e => e.contractAddress === contractAddress,
+    e => e.contractAssetId === contractAssetId,
   )
   const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
   const withdrawInfo = accountId
@@ -56,6 +45,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
       opportunity?.withdrawInfo[accountId]
     : // Else, get the withdrawInfo for the first account
       opportunity?.withdrawInfo[firstAccountId ?? '']
+
   const location = useLocation()
 
   return (

@@ -79,8 +79,17 @@
     "unsupportedNetwork": "Réseau non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",
+    "searchAsset": "Rechercher un actif",
     "enterAmount": "Entrer le montant",
-    "pageNotFound": "La page que vous recherchez est introuvable"
+    "pageNotFound": "La page que vous recherchez est introuvable",
+    "buySell": "Acheter/Vendre",
+    "all": "Tout",
+    "viewAll": "Tout voir"
+  },
+  "errorPage": {
+    "title": "Oups !",
+    "body": "Quelque chose s'est mal passé",
+    "cta": "Réessayer"
   },
   "buyPage": {
     "title": {
@@ -139,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Échanger",
-      "bridge": "Pont"
+      "bridge": "Pont",
+      "earn": "Gagner"
     }
   },
   "fiatRamps": {
@@ -168,6 +178,8 @@
     "usOnly": "Uniquement aux USA",
     "noKYC": "Sans KYC",
     "nonUS": "Hors USA",
+    "buyWith": "Acheter avec des",
+    "sellFor": "Vendre contre des",
     "availableProviders": "Fournisseurs disponibles",
     "noProvidersAvailable": "Aucun fournisseur disponible",
     "noProvidersBody": "Il semble que nous n'ayons pas encore de fournisseur pour cet actif.",
@@ -272,6 +284,21 @@
         "confirmClaim": "Confirmer la réclamation",
         "claimNow": "Réclamer maintenant",
         "claimYour": "Réclamer vos %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
+        "vaultCap": "Plafond du Vault",
+        "vaultCapTooltip": "Quelque chose à propos des plafonds de Vaults",
+        "haltedTitle": "Les dépôts sont temporairement suspendus.",
+        "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
+        "estimatedFee": "Frais estimés",
+        "fee": "Frais",
+        "estimatedFeeTooltip": "Frais de transfert de fonds depuis une blockchain de couche 1",
+        "dustAmount": "Quantité de poussière",
+        "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
+        "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
+        "sendDust": "Envoyer de la poussière",
+        "addressToSendTo": "Adresse à laquelle envoyer"
       }
     },
     "memoNote": {
@@ -290,6 +317,8 @@
     "stakedAmount": "Montant misé",
     "unstakeFrom": "Démiser de",
     "gasFee": "Frais de carburant",
+    "provider": "Fournisseur",
+    "currentTvl": "TVL actuelle",
     "unbondInfoItWillTake": "Tant que vos jetons sont misés, vous ne pourrez pas les transférer ou les dépenser. Il faudra %{unbondingDays} jours pour les débloquer après les avoir démisés.",
     "unbondInfoItWillTakeShort": "Il faudra %{unbondingDays} jours pour démiser vos jetons",
     "confirmAndBroadcast": "Confirmer & diffuser",
@@ -300,6 +329,7 @@
     "amountStaked": "Montant misé",
     "assetStaking": "Mises en %{assetName}",
     "stake": "Miser",
+    "version": "Version",
     "unstake": "Démiser",
     "stakeAsset": "Miser %{assetSymbol}",
     "unstakeAsset": "Démiser des %{assetSymbol}",
@@ -318,18 +348,19 @@
     "ended": "Terminé",
     "balance": "Solde",
     "defi": "DeFi",
+    "startEarning": "Commencer à gagner",
+    "eligibleOpportunities": "Opportunités éligibles",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
     "netWorth": "Patrimoine net",
     "walletBalance": "Solde du porte-monnaie",
-    "earnBalance": "Solde des gains",
+    "earnBalance": "Solde dans Gagner",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
-    "clickHereToEarn": "Cliquez ici pour gagner",
-    "byFarming": " APR* par farming de vos jetons de pool de liquidité ETH-FOX",
+    "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
     "liquidityPools": "Pools de liquidité",
     "stakingVaults": "Mises et Coffres-forts",
     "farming": "Farming",
-    "totalEarningBalance": "Solde total des gains",
+    "totalEarningBalance": "Solde total dans Gagner",
     "stakingBalance": "Solde des mises",
     "farmingBalance": "Solde du farming",
     "liquidityPoolBalance": "Solde pools de liquidité",
@@ -518,6 +549,8 @@
     "noRateAvailable": "Aucun taux disponible.",
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
+    "tradeFrom": "Échanger de",
+    "tradeTo": "Échanger en",
     "minerFee": "Frais de minage",
     "protocolFee": "Frais de protocole",
     "protocol": "Protocole",
@@ -554,6 +587,10 @@
     },
     "errors": {
       "title": "Il y a eu un problème",
+      "sellAssetStartSentence": "Actif à vendre",
+      "buyAssetStartSentence": "Actif à acheter",
+      "sellAssetMiddleSentence": "actif à vendre",
+      "buyAssetMiddleSentence": "actif à acheter",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
       "amountTooSmall": "Minimum : %{minLimit}",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
@@ -589,6 +626,7 @@
       "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
       "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
       "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
+      "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -600,6 +638,13 @@
     "recentTrades": "Échanges récents"
   },
   "modals": {
+    "popup": {
+      "body": "Nous avons ouvert une fenêtre sécurisée pour finaliser votre ordre.",
+      "body2": "Vous ne voyez pas la fenêtre sécurisée ? Nous allons vous aider à rouvrir la fenêtre pour terminer votre ordre.",
+      "continue": "Cliquez pour continuer",
+      "showWindow": "Afficher la fenêtre",
+      "cancel": "Annuler"
+    },
     "keepKey": {
       "passphrase": {
         "errors": {
@@ -659,6 +704,10 @@
         "header": "Télécharger le programme de mise à jour KeepKey",
         "button": "Télécharger %{filename}",
         "wrongPlatform": "Vous n'utilisez pas %{platform} ? Cliquez ici"
+      },
+      "disconnect": {
+        "header": "Déconnecter l'appareil KeepKey",
+        "body": "Malheureusement, une erreur s'est produite lors de la récupération/configuration de votre appareil KeepKey. Veuillez déconnecter et reconnecter votre appareil et réessayez de configurer votre appareil KeepKey. Si le problème persiste, veuillez contacter l'assistance KeepKey."
       }
     },
     "shapeShift": {
@@ -1463,6 +1512,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Chaîne non prise en charge",
+        "description": "ShapeShift ne prend actuellement en charge que %{supportedChainNames} avec WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Connecter la dApp",
+        "connectedDapp": "dApp connectée",
+        "menu": {
+          "disconnect": "Déconnecter",
+          "address": "Adresse",
+          "connected": "Connecté",
+          "network": "Réseau",
+          "unsupportedNetwork": "Réseau non pris en charge"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1472,23 +1536,46 @@
           "message": "Message",
           "description": "Vous devrez confirmer la signature de ce message avec votre porte-monnaie connecté.",
           "confirm": "Confirmer",
-          "reject": "Rejeter"
+          "reject": "Rejeter",
+          "messageData": "Données du message",
+          "domain": "Domaine"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Envoi depuis",
+          "sendingTo": "Envoi vers",
+          "interactingWith": "Interagit avec",
+          "amount": "Montant",
+          "contractInteraction": {
+            "title": "Interaction du contrat",
+            "sendingEth": "Envoi en ETH",
+            "data": "Données brutes (codées en hex)"
+          },
           "advancedParameters": {
             "title": "Paramètres avancés",
-            "alert": "Pour utilisation avancée uniquement. La modification de ces paramètres peut provoquer un blocage de transactions.",
+            "alert": "Pour une utilisation avancée uniquement. La modification de ces paramètres peut entraîner des transactions bloquées.",
             "nonce": {
               "title": "Nonce",
               "placeholder": "Nonce...",
-              "tooltip": "Le nombre de transactions qui ont été envoyées à partir d'une adresse donnée. Utilisateurs avancés uniquement."
+              "tooltip": "Le nombre de transactions envoyées à partir d'une adresse donnée. Utilisateurs avancés uniquement."
             },
             "gasLimit": {
               "title": "Limite de carburant",
               "placeholder": "Limite de carburant...",
               "tooltip": "La limite de carburant fait référence à la quantité maximale de carburant qu'un utilisateur peut consommer pour effectuer une transaction."
             }
-          }
+          },
+          "estGasCost": "Est. du coût de carburant",
+          "description": "Vous êtes sur le point de créer une transaction et vous devrez la confirmer avec votre porte-monnaie actuellement connecté."
+        },
+        "signTransaction": {
+          "description": "Vous êtes sur le point de signer une transaction et devrez la confirmer avec votre porte-monnaie actuellement connecté."
+        },
+        "connect": {
+          "title": "Connecter votre porte-monnaie à une dApp via WalletConnect et déclencher des transactions",
+          "howTo": "Comment se connecter à une dApp ?",
+          "linkPlaceholder": "Code QR ou lien de connexion",
+          "connect": "Connecter",
+          "connectionError": "Impossible de se connecter à l'URI fourni."
         }
       },
       "registry": {
@@ -1536,5 +1623,26 @@
       "tooltip": "Les frais de priorité sont un pourboire facultatif pour inciter les producteurs de blocs à donner la priorité à votre transaction. Définissez les frais de priorité en gwei que vous souhaitez payer pour chaque unité de carburant."
     },
     "custom": "Personnalisé"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "Qu'est-ce que la stratégie \"Best Yield\" ?",
+      "body": "Maximisez automatiquement le rendement sur plusieurs protocoles DeFi éprouvés. La stratégie \"Best Yield\" optimise la génération de rendement en socialisant les coûts de carburant, en automatisant la génération de rendement par le déplacement de capitaux de manière algorithmique à mesure que de nouvelles opportunités de rendement se présentent."
+    },
+    "seniorTranche": {
+      "title": "Qu'est-ce qu'une \"Senior Tranche\" ?",
+      "body": "Profitez des rendements DeFi sur plusieurs protocoles tout en protégeant votre dépôt. Les \"Senior Tranches\" offrent une protection intégrée sur les fonds et offrent une couverture complète grâce à leur contrepartie \"Junior\"."
+    },
+    "juniorTranche": {
+      "title": "Qu'est-ce qu'une \"Junior Tranche\" ?",
+      "body": "Profitez de rendements accrus sur plusieurs protocoles DeFi : les \"Junior Tranches\" obtiennent un rendement à effet de levier car elles sont rémunérées pour avoir fourni un capital de première perte (first-loss) à leur contrepartie \"Senior\"."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Achetez des cryptos sans KYC",
+      "body": "Achats jusqu'à 1000 $ avec Apple Pay",
+      "cta": "Achetez maintenant"
+    }
   }
 }

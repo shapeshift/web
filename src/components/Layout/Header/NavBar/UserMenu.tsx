@@ -65,7 +65,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 }) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
-  const bgColor = useColorModeValue('gray.300', 'gray.800')
+  const bgColor = useColorModeValue('gray.200', 'gray.800')
 
   const {
     data: ensName,

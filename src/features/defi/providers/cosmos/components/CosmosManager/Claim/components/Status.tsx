@@ -49,6 +49,7 @@ export const Status = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const txStatus = useMemo(() => {
     if (!state) return TxStatus.PENDING
     if (state.txid) return TxStatus.SUCCESS

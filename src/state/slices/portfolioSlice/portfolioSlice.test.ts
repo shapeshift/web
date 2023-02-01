@@ -23,6 +23,7 @@ import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
+import { selectPortfolioCryptoHumanBalanceByFilter } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
@@ -30,9 +31,8 @@ import {
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
-  selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
+  selectPortfolioFiatBalancesByAccount,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -375,7 +375,7 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
         expect(fiatAccountBalance).toEqual(returnValue)
       })
 
@@ -395,7 +395,7 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+        const fiatAccountBalance = selectPortfolioFiatBalancesByAccount(state)
         expect(fiatAccountBalance).toEqual(returnValue)
       })
     })

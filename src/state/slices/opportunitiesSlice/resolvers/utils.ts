@@ -8,6 +8,7 @@ import { getEthersProvider } from 'plugins/foxPage/utils'
 import {
   DefiProviderToMetadataResolverByDeFiType,
   DefiProviderToOpportunitiesMetadataResolverByDeFiType,
+  DefiProviderToOpportunitiesUserDataResolverByDeFiType,
   DefiProviderToOpportunityIdsResolverByDeFiType,
   DefiProviderToUserDataResolverByDeFiType,
 } from '.'
@@ -67,6 +68,25 @@ export const getUserDataResolversByDefiProviderAndDefiType = (
     getDefiProviderUserDataResolvers,
     getDefiTypeUserDataResolvers.bind(this, defiType),
   )(defiProvider)
+
+// "Give me the resolvers for a given DeFi provider"
+export const getDefiProviderOpportunitiesUserDataResolvers = (defiProvider: DefiProvider) =>
+  DefiProviderToOpportunitiesUserDataResolverByDeFiType[defiProvider]
+// "Give me the resolvers for a given DeFi type"
+export const getDefiTypeOpportunitiesUserDataResolvers = (
+  defiType: DefiType,
+  resolversByType: ReturnType<typeof getDefiProviderOpportunitiesUserDataResolvers>,
+) => resolversByType?.[defiType]
+
+export const getOpportunitiesUserDataResolversByDefiProviderAndDefiType = (
+  defiProvider: DefiProvider,
+  defiType: DefiType,
+) =>
+  pipe(
+    getDefiProviderOpportunitiesUserDataResolvers,
+    getDefiTypeOpportunitiesUserDataResolvers.bind(this, defiType),
+  )(defiProvider)
+
 // "Give me the resolvers for a given DeFi provider"
 export const getDefiProviderOpportunityIdsResolvers = (defiProvider: DefiProvider) =>
   DefiProviderToOpportunityIdsResolverByDeFiType[defiProvider]

@@ -76,10 +76,11 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       // if (chainAdapter.isAccountTypeRequired() && !accountType) return
       const { chainNamespace } = fromChainId(asset.chainId)
       if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
+      const { accountNumber } = bip44Params
       const selectedAccountAddress = await chainAdapter.getAddress({
         wallet,
         accountType,
-        bip44Params,
+        accountNumber,
       })
       setReceiveAddress(selectedAccountAddress)
     })()
@@ -103,11 +104,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
     const { chainNamespace } = fromChainId(asset.chainId)
     if (CHAIN_NAMESPACE.Utxo === chainNamespace && !accountType) return
+    const { accountNumber } = bip44Params
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
       accountType,
-      bip44Params,
+      accountNumber,
     })
 
     setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)

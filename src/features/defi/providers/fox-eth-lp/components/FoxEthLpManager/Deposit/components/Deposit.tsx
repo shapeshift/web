@@ -58,6 +58,10 @@ export const Deposit: React.FC<DepositProps> = ({
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
 
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   // user info
   const foxBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {

@@ -1,5 +1,5 @@
-import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
-import type { avalanche, ethereum } from '@shapeshiftoss/chain-adapters'
+import { avalancheChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import type { avalanche, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,
@@ -31,21 +31,17 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
 
-  /** NOTE - ordering here defines the priority - until logic is implemented in getBestSwapper */
-
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  if (flags.CowSwap) {
-    const cowSwapper = new CowSwapper({
-      adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-      web3: ethWeb3,
-    })
+  const cowSwapper = new CowSwapper({
+    adapter: ethereumChainAdapter,
+    apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+    web3: ethWeb3,
+  })
 
-    _swapperManager.addSwapper(cowSwapper)
-  }
+  _swapperManager.addSwapper(cowSwapper)
 
   const zrxEthereumSwapper = new ZrxSwapper({
     web3: ethWeb3,
@@ -62,6 +58,20 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     adapter: avalancheChainAdapter,
   })
   _swapperManager.addSwapper(zrxAvalancheSwapper)
+
+  if (flags.OptimismZrx) {
+    const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
+
+    const optimismChainAdapter = adapterManager.get(
+      KnownChainIds.OptimismMainnet,
+    ) as unknown as optimism.ChainAdapter
+
+    const zrxOptimismSwapper = new ZrxSwapper({
+      web3: optimismWeb3,
+      adapter: optimismChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxOptimismSwapper)
+  }
 
   if (flags.ThorSwap) {
     await (async () => {

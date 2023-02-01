@@ -1,4 +1,10 @@
-import { avalancheAssetId, btcAssetId, cosmosAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  ethAssetId,
+  optimismAssetId,
+} from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { accountToPortfolio } from 'state/slices/portfolioSlice/utils'
@@ -49,6 +55,12 @@ export const mockChainAdapters = new Map([
     KnownChainIds.AvalancheMainnet,
     {
       getFeeAssetId: () => avalancheAssetId,
+    },
+  ],
+  [
+    KnownChainIds.OptimismMainnet,
+    {
+      getFeeAssetId: () => optimismAssetId,
     },
   ],
 ])

@@ -11,4 +11,5 @@ export enum KeepKeyRoutes {
   RecoverySettings = '/keepkey/recovery-settings',
   RecoverySettingUp = '/keepkey/recovery-setting-up',
   DownloadUpdater = '/keepkey/download-updater',
+  Disconnect = '/keepkey/disconnect',
 }

@@ -36,7 +36,7 @@ export const Address = () => {
     setValue,
     formState: { errors },
   } = useFormContext<SendInput>()
-  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
@@ -83,14 +83,14 @@ export const Address = () => {
                 validateAddress: async (rawInput: string) => {
                   const value = rawInput.trim() // trim leading/trailing spaces
                   // clear previous values
-                  setValue(SendFormFields.Address, '')
+                  setValue(SendFormFields.To, '')
                   setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   // this does not throw, everything inside is handled
                   const { address, vanityAddress } = await parseAddressInput({ chainId, value })
                   setIsValidating(false)
                   // set returned values
-                  setValue(SendFormFields.Address, address)
+                  setValue(SendFormFields.To, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
                   const invalidMessage =
                     isYatFeatureEnabled && isYatSupportedChain

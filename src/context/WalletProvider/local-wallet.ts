@@ -15,6 +15,7 @@ const storage = {
 const LOCAL_WALLET_TYPE = 'localWalletType'
 const LOCAL_WALLET_DEVICE_ID = 'localWalletDeviceId'
 const LOCAL_NATIVE_WALLET_NAME = 'localNativeWalletName'
+const WALLETCONNECT_SESSION = 'walletconnect'
 
 export const setLocalWalletTypeAndDeviceId = (type: KeyManager, deviceId: string) => {
   // If passed invalid data, clear local wallet data
@@ -29,6 +30,7 @@ export const clearLocalWallet = () => {
   storage.remove(LOCAL_WALLET_TYPE)
   storage.remove(LOCAL_WALLET_DEVICE_ID)
   storage.remove(LOCAL_NATIVE_WALLET_NAME)
+  storage.remove(WALLETCONNECT_SESSION)
 }
 
 export const getLocalWalletType = () => {

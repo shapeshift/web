@@ -5,6 +5,7 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/WalletConnectBridgeProvider'
 import React from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
@@ -12,7 +13,6 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
-import { Zendesk } from 'components/Zendesk/Zendesk'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
@@ -44,26 +44,27 @@ export function AppProviders({ children }: ProvidersProps) {
             <ColorModeScript storageKey='ss-theme' />
             <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
               <ToastContainer />
-              <Zendesk />
               <PersistGate loading={<SplashScreen />} persistor={persistor}>
                 <HashRouter basename='/'>
                   <ScrollToTop />
                   <BrowserRouterProvider>
                     <I18nProvider>
                       <WalletProvider>
-                        <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage}>
-                            <ModalProvider>
-                              <TransactionsProvider>
-                                <AppProvider>
-                                  <FoxEthProvider>
-                                    <DefiManagerProvider>{children}</DefiManagerProvider>
-                                  </FoxEthProvider>
-                                </AppProvider>
-                              </TransactionsProvider>
-                            </ModalProvider>
-                          </ErrorBoundary>
-                        </KeepKeyProvider>
+                        <WalletConnectBridgeProvider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage}>
+                              <ModalProvider>
+                                <TransactionsProvider>
+                                  <AppProvider>
+                                    <FoxEthProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </FoxEthProvider>
+                                  </AppProvider>
+                                </TransactionsProvider>
+                              </ModalProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectBridgeProvider>
                       </WalletProvider>
                     </I18nProvider>
                   </BrowserRouterProvider>

@@ -81,7 +81,7 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     selectPortfolioAccountsFiatBalancesIncludingStaking,
   )
   const assetIds = useMemo(
-    () => Object.keys(accountAssetBalancesSortedFiat[accountId]),
+    () => Object.keys(accountAssetBalancesSortedFiat[accountId] ?? {}),
     [accountAssetBalancesSortedFiat, accountId],
   )
   return useMemo(
@@ -112,7 +112,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
     selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
   )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
-  const color = feeAsset?.color ?? ''
+  const color = feeAsset?.networkColor ?? feeAsset?.color ?? ''
 
   /**
    * for UTXO chains, we want to display accounts aggregated by accountNumber first,
@@ -132,13 +132,12 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
     [accountIds, chainId, isUtxoAccount],
   )
 
-  const title = useMemo(
-    () =>
-      isUtxoAccount
-        ? assets[accountIdToFeeAssetId(accountId)].name
-        : firstFourLastFour(fromAccountId(accountId).account),
-    [assets, accountId, isUtxoAccount],
-  )
+  const title = useMemo(() => {
+    const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
+    return isUtxoAccount
+      ? assets[feeAssetId]?.name ?? ''
+      : firstFourLastFour(fromAccountId(accountId).account)
+  }, [assets, accountId, isUtxoAccount])
 
   const fontFamily = useMemo(() => (!isUtxoChainId(chainId) ? 'monospace' : ''), [chainId])
 

@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
@@ -23,10 +24,10 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
       amount: '0',
-      sellTradeAsset: { amount: '0' },
-      buyTradeAsset: { amount: '0' },
+      sellTradeAsset: { amountCryptoPrecision: '0' },
+      buyTradeAsset: { amountCryptoPrecision: '0' },
       isExactAllowance: false,
-      slippage: 0.002,
+      slippage: DEFAULT_SLIPPAGE,
       action: TradeAmountInputField.SELL_CRYPTO,
       isSendMax: false,
     },
@@ -44,8 +45,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       methods.setValue('sellTradeAsset.asset', sellAsset)
       methods.setValue('buyTradeAsset.asset', buyAsset)
       const defaultAssetsAreChainDefaults =
-        sellAsset.assetId === defaultAssetIdPair?.sellAssetId &&
-        buyAsset.assetId === defaultAssetIdPair?.buyAssetId
+        sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
+        buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
       if (!defaultAssetsAreChainDefaults && defaultAssetIdPair) {
         // If the default assets are the chain defaults then keep this useEffect active as we might not have stabilized
         // Else, we know the default values have been set, so don't run this again unless the route changes
@@ -53,8 +54,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       }
       methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('sellTradeAsset.amount', '0')
-      methods.setValue('buyTradeAsset.amount', '0')
+      methods.setValue('sellTradeAsset.amountCryptoPrecision', '0')
+      methods.setValue('buyTradeAsset.amountCryptoPrecision', '0')
       methods.setValue('fiatBuyAmount', '0')
       methods.setValue('fiatSellAmount', '0')
       methods.setValue('quote', undefined)

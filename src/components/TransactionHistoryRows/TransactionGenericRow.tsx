@@ -1,7 +1,7 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, SimpleGrid, Stack, Tag } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Flex, SimpleGrid, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useMemo } from 'react'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
@@ -43,20 +43,27 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
 const TransactionIcon = ({
   type,
+  status,
   assetId,
   value,
   compactMode,
 }: {
   type: string
+  status: TxStatus
   assetId: AssetId | undefined
   value: string | undefined
   compactMode: boolean
 }) => {
+  const green = useColorModeValue('green.700', 'green.500')
+  const red = useColorModeValue('red.700', 'red.500')
+
+  if (status === TxStatus.Failed) return <WarningTwoIcon color={red} />
+
   switch (type) {
     case TransferType.Send:
       return <ArrowUpIcon />
     case TransferType.Receive:
-      return <ArrowDownIcon color='green.500' />
+      return <ArrowDownIcon color={green} />
     case TradeType.Trade:
       return <FaExchangeAlt />
     case Method.Approve: {
@@ -73,6 +80,7 @@ const TransactionIcon = ({
 
 type TransactionGenericRowProps = {
   type: string
+  status: TxStatus
   title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
@@ -88,6 +96,7 @@ type TransactionGenericRowProps = {
 
 export const TransactionGenericRow = ({
   type,
+  status,
   title,
   transfersByType,
   fee,
@@ -148,9 +157,14 @@ export const TransactionGenericRow = ({
       >
         <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
           <Flex alignItems='center' width='full'>
-            <IconCircle mr={2} boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}>
+            <IconCircle
+              mr={2}
+              boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
+              bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.200')}
+            >
               <TransactionIcon
                 type={type}
+                status={status}
                 assetId={txData?.assetId}
                 value={txData?.value}
                 compactMode={compactMode}

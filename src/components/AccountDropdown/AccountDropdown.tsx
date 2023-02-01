@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuList,
   MenuOptionGroup,
+  Portal,
   Stack,
   Text,
   useColorModeValue,
@@ -17,11 +18,10 @@ import {
 import {
   type AccountId,
   type AssetId,
-  btcChainId,
   CHAIN_NAMESPACE,
+  fromAccountId,
   fromAssetId,
   fromChainId,
-  ltcChainId,
 } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
@@ -30,9 +30,10 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { isValidAccountNumber } from 'lib/utils'
 import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -47,6 +48,8 @@ import { useAppSelector } from 'state/store'
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
+
+const moduleLogger = logger.child({ module: 'AccountDropdown' })
 
 export type AccountDropdownProps = {
   assetId: AssetId
@@ -88,6 +91,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const { chainId } = fromAssetId(assetId)
 
   const color = useColorModeValue('black', 'white')
+  const labelColor = useColorModeValue('gray.600', 'gray.500')
 
   const filter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector((s: ReduxState) =>
@@ -96,6 +100,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   const translate = useTranslate()
   const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
+
+  if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
+
   const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const highestFiatBalanceAccountId = useAppSelector(state =>
@@ -104,6 +111,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
     defaultAccountId,
   )
+
+  // very suspicious of this
   // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
   const previousSelectedAccountId = usePrevious(selectedAccountId)
   const isDropdownDisabled = disabled || accountIds.length <= 1
@@ -129,10 +138,17 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
       validatedAccountIdFromArgs ??
       (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
       firstAccountId
+    /**
+     * assert asset the chainId of the accountId and assetId match
+     */
+    const accountIdChainId = fromAccountId(preSelectedAccountId).chainId
+    const assetIdChainId = fromAssetId(assetId).chainId
+    if (accountIdChainId !== assetIdChainId) {
+      moduleLogger.error({ accountIdChainId, assetIdChainId }, 'chainId mismatch!')
+      throw new Error('AccountDropdown: chainId mismatch!')
+    }
     setSelectedAccountId(preSelectedAccountId)
-    // this effect sets selectedAccountId on first render when we receive accountIds and when defaultAccountId changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetId, accountIds, defaultAccountId])
+  }, [assetId, accountIds, defaultAccountId, highestFiatBalanceAccountId, autoSelectHighestBalance])
 
   const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 
@@ -144,7 +160,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     [selectedAccountId],
   )
 
-  const accountNumber = useMemo(
+  const accountNumber: number | undefined = useMemo(
     () => selectedAccountId && accountMetadata[selectedAccountId]?.bip44Params?.accountNumber,
     [accountMetadata, selectedAccountId],
   )
@@ -170,7 +186,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   )
 
   const menuOptions = useMemo(() => {
-    const makeTitle = (accountId: AccountId) => {
+    const makeTitle = (accountId: AccountId): string => {
       /**
        * for UTXO chains, we want the title to be the account type
        * for account-based chains, we want the title to be the asset name
@@ -181,7 +197,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           return accountIdToLabel(accountId)
         }
         default: {
-          return asset.name
+          return asset?.name ?? ''
         }
       }
     }
@@ -224,9 +240,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
               title={makeTitle(iterAccountId)}
               cryptoBalance={fromBaseUnit(
                 accountBalances?.[iterAccountId]?.[assetId] ?? 0,
-                asset.precision,
+                asset?.precision ?? 0,
               )}
-              symbol={asset.symbol}
+              symbol={asset?.symbol ?? ''}
               isChecked={selectedAccountId === iterAccountId}
               onClick={() => handleClick(iterAccountId)}
               isDisabled={disabled}
@@ -239,9 +255,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   }, [
     accountIds,
     chainId,
-    asset.name,
-    asset.precision,
-    asset.symbol,
+    asset?.name,
+    asset?.precision,
+    asset?.symbol,
     accountMetadata,
     autoSelectHighestBalance,
     getAccountIdsSortedByBalance,
@@ -256,17 +272,15 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   ])
 
   /**
-   * these chains already have multi account support via sending and receiving,
-   * and we need to use *and* render this new component while we retrofit the rest of the app
+   * do NOT remove these checks, this is not a visual thing, this is a safety check!
    *
-   * the effectful logic above will still run for other chains, and return the first account
-   * via the onChange callback on mount, but nothing will be visually rendered
+   * this component is responsible for selecting the correct account for operations where
+   * we are sending funds, we need to be paranoid.
    */
-  const existingMultiAccountChainIds = useMemo(() => [btcChainId, ltcChainId], [])
-  const isMultiAccountsEnabled = useFeatureFlag('MultiAccounts')
-  if (!isMultiAccountsEnabled && !existingMultiAccountChainIds.includes(chainId)) return null
-
   if (!accountIds.length) return null
+  if (!isValidAccountNumber(accountNumber)) return null
+  if (!menuOptions.length) return null
+  if (!accountLabel) return null
 
   return (
     <Box px={2} my={2} {...boxProps}>
@@ -285,16 +299,18 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color='gray.500'>
+            <Text fontWeight='medium' color={labelColor}>
               {accountLabel}
             </Text>
           </Stack>
         </MenuButton>
-        <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
-          <MenuOptionGroup defaultValue='asc' type='radio'>
-            {menuOptions}
-          </MenuOptionGroup>
-        </MenuList>
+        <Portal>
+          <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+            <MenuOptionGroup defaultValue='asc' type='radio'>
+              {menuOptions}
+            </MenuOptionGroup>
+          </MenuList>
+        </Portal>
       </Menu>
     </Box>
   )

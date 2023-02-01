@@ -17,8 +17,9 @@ import {
   selectChainIdParamFromFilter,
 } from 'state/selectors'
 
+import { selectWalletAccountIds } from '../common-selectors'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
-import { selectPortfolioAccountMetadata, selectWalletAccountIds } from '../portfolioSlice/selectors'
+import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type {
   RebaseId,
   RebaseIdsByAccountIdAssetId,

@@ -64,10 +64,11 @@ export const useStakingAction = () => {
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
       const { txToSign } = await (() => {
+        const { accountNumber } = bip44Params
         switch (action) {
           case StakingAction.Claim:
             return adapter.buildClaimRewardsTransaction({
-              bip44Params,
+              accountNumber,
               wallet,
               validator,
               chainSpecific,
@@ -75,7 +76,7 @@ export const useStakingAction = () => {
             })
           case StakingAction.Stake:
             return adapter.buildDelegateTransaction({
-              bip44Params,
+              accountNumber,
               wallet,
               validator,
               value,
@@ -84,7 +85,7 @@ export const useStakingAction = () => {
             })
           case StakingAction.Unstake:
             return adapter.buildUndelegateTransaction({
-              bip44Params,
+              accountNumber,
               wallet,
               validator,
               value,

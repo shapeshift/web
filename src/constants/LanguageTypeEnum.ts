@@ -3,8 +3,8 @@ export enum LanguageTypeEnum {
   en = 'en',
   /** Español */
   es = 'es',
-  /** український */
-  ua = 'ua',
+  /** українська */
+  uk = 'uk',
   /** हिंदी */
   hi = 'hi',
   /** 日本語 */

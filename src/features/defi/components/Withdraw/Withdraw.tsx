@@ -163,6 +163,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     onContinue(values)
   }
 
+  if (!asset) return null
+
   return (
     <Stack spacing={6} as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
       <FormField label={translate('modals.withdraw.amountToWithdraw')}>

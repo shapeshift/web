@@ -55,7 +55,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
       data-test='account-row'
     >
       <Flex alignItems='center'>
-        <AssetIcon src={asset.icon} boxSize='30px' mr={2} />
+        <AssetIcon asset={asset} boxSize='30px' mr={2} />
         <Flex flexDir='column' ml={2}>
           <RawText
             fontWeight='medium'

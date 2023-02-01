@@ -79,6 +79,8 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountAddress = useMemo(
@@ -145,7 +147,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto value={amount} symbol={asset?.symbol} />
+              <Amount.Crypto value={amount} symbol={asset?.symbol ?? ''} />
             </Row.Value>
           </Row>
           <Row>

@@ -41,10 +41,9 @@ export const useBridgeRoutes = (): {
       const chainId = fromAssetId(asset.assetId).chainId
       const chainAdapter = chainAdapterManager.get(chainId)
       if (!(wallet && chainAdapter)) return
-      const bip44Params = chainAdapter.getBIP44Params({ accountNumber: 0 })
       const accountAddress = await chainAdapter.getAddress({
         wallet,
-        bip44Params,
+        accountNumber: 0, // TODO(0xdef1cafe): multi account support
       })
 
       const fromChainLabel = getAxelarChainNameFromBridgeAsset(asset)

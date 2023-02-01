@@ -22,3 +22,4 @@ fi
 git config --local include.path '../.gitconfig'
 
 yarn patch-package
+yarn typechain src/state/slices/opportunitiesSlice/resolvers/foxFarming/abis/*.json --target=ethers-v5 --out-dir ./src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts

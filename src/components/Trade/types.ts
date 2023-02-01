@@ -10,7 +10,8 @@ import {
   type Trade,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
-import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export enum TradeAmountInputField {
   BUY_CRYPTO = 'BUY_CRYPTO',
@@ -21,7 +22,7 @@ export enum TradeAmountInputField {
 
 export type TradeAsset = {
   asset?: Asset
-  amount?: string
+  amountCryptoPrecision?: string
   fiatAmount?: string
 }
 
@@ -51,7 +52,7 @@ export type TradeState<C extends ChainId> = {
   quoteError: string | null
   amount: string
   receiveAddress: string | null // TODO: Implement
-  slippage: number
+  slippage: string
   isSendMax: boolean
 }
 
@@ -75,18 +76,28 @@ export type SupportedSwappingChain =
 export type GetReceiveAddressArgs = {
   asset: Asset
   wallet: HDWallet | null
-  bip44Params: BIP44Params
-  accountType?: UtxoAccountType
+  accountMetadata: AccountMetadata
 }
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress'
+  | 'sellAmountBeforeFeesCryptoBaseUnit'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'sendMax'
+  | 'receiveAddress'
+  | 'accountNumber'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
   BuildTradeInput,
-  'sellAmountCryptoPrecision' | 'sellAsset' | 'buyAsset' | 'sendMax' | 'receiveAddress' | 'wallet'
+  | 'sellAmountBeforeFeesCryptoBaseUnit'
+  | 'sellAsset'
+  | 'buyAsset'
+  | 'sendMax'
+  | 'receiveAddress'
+  | 'wallet'
+  | 'slippage'
 >
 
 export type GetFormFeesArgs = {

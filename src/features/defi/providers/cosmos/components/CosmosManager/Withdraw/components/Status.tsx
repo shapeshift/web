@@ -35,12 +35,15 @@ export const Status = () => {
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
+
   const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')

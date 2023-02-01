@@ -11,11 +11,7 @@ import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import {
-  selectAssets,
-  selectPortfolioAccountMetadata,
-  selectWalletAccountIds,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -29,12 +25,17 @@ type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputRe
 type FiatFormProps = {
   assetId: AssetId
   fiatRampAction: FiatRampAction
+  accountId?: AccountId
 }
 
-export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRampAction }) => {
+export const FiatForm: React.FC<FiatFormProps> = ({
+  assetId = ethAssetId,
+  fiatRampAction,
+  accountId: selectedAccountId,
+}) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const [accountId, setAccountId] = useState<AccountId | undefined>()
+  const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
 
@@ -42,29 +43,21 @@ export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRa
     state: { wallet, isDemoWallet },
   } = useWallet()
 
-  const assets = useSelector(selectAssets)
   const { data: ramps } = useGetFiatRampsQuery()
-
   const { assetSearch } = useModal()
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
       const assetIds =
-        fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds
-      const listOfAssets = assetIds?.reduce<Asset[]>((acc, assetId) => {
-        const asset = assets[assetId]
-        if (!asset) return acc
-        acc.push(asset)
-        return acc
-      }, [])
+        (fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds) ?? []
       assetSearch.open({
         onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        filterBy: () => listOfAssets,
+        filterBy: (assets: Asset[]) => assets.filter(asset => assetIds.includes(asset.assetId)),
         disableUnsupported: true,
       })
     },
-    [assetSearch, assets, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
+    [assetSearch, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
   )
 
   /**
@@ -83,7 +76,8 @@ export const FiatForm: React.FC<FiatFormProps> = ({ assetId = ethAssetId, fiatRa
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
           moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
-          const payload = { accountType, bip44Params, wallet }
+          const { accountNumber } = bip44Params
+          const payload = { accountType, accountNumber, wallet }
           const { chainId } = fromAccountId(accountId)
           const maybeAdapter = getChainAdapterManager().get(chainId)
           if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)

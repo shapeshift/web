@@ -12,7 +12,9 @@ import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { OpportunityCard } from './OpportunityCard'
 
 export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  const activeOpportunities = balances.opportunities.filter(o => bnOrZero(o.cryptoAmount).gt(0))
+  const activeOpportunities = balances.opportunities.filter(o =>
+    bnOrZero(o.cryptoAmountBaseUnit).gt(0),
+  )
 
   return (
     <Box mb={6}>

@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistReducer, persistStore } from 'redux-persist'
+import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
+import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -20,8 +22,11 @@ import { validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['txHistory', 'portfolio'],
+  version: 1,
+  whitelist: ['txHistory', 'portfolio', 'opportunities'],
   storage: localforage,
+  // @ts-ignore createMigrate typings are wrong
+  migrate: createMigrate(migrations, { debug: false }),
 }
 
 const apiMiddleware = [
@@ -34,6 +39,7 @@ const apiMiddleware = [
   swapperApi.middleware,
   fiatRampApi.middleware,
   opportunitiesApi.middleware,
+  abiApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
@@ -44,6 +50,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.validatorData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
+  store.dispatch(slices.opportunities.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -103,11 +110,13 @@ export const createStore = () =>
       getDefaultMiddleware({
         immutableCheck: {
           warnAfter: 128,
-          ignoredActions: [PERSIST],
+          ignoredActions: [PERSIST, PURGE],
         },
         serializableCheck: {
+          ignoreState: true,
+          ignoreActions: true,
           warnAfter: 128,
-          ignoredActions: [PERSIST],
+          ignoredActions: [PERSIST, PURGE],
         },
       }).concat(apiMiddleware),
     devTools: {

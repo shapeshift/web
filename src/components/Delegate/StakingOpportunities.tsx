@@ -82,6 +82,8 @@ export const ValidatorName = ({
 
 export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])

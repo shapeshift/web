@@ -12,18 +12,19 @@ import {
   fromAssetId,
   fromChainId,
   ltcChainId,
+  optimismChainId,
   osmosisChainId,
   thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsAvalanche,
   supportsBTC,
   supportsCosmos,
   supportsETH,
-  supportsEthSwitchChain,
+  supportsOptimism,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -62,6 +63,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
   const { chainId, account: pubkey } = fromAccountId(accountId)
   switch (chainId) {
     case avalancheChainId:
+    case optimismChainId:
     case ethChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
@@ -99,11 +101,14 @@ export const isUtxoAccountId = (accountId: AccountId): boolean =>
 export const isUtxoChainId = (chainId: ChainId): boolean =>
   fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
 
-export const accountIdToFeeAssetId = (accountId: AccountId): AssetId =>
-  // the only way we get an accountId, is from a chainAdapter that supports that chain
-  // hence, a chainId obtained from an accountId is guaranteed to have a chain adapter
-  // and we can safely non-null assert that it will exist
-  getChainAdapterManager().get(accountIdToChainId(accountId))!.getFeeAssetId()
+export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
+
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
+  getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
+  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
 
 export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
@@ -114,15 +119,6 @@ export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | 
   if (pubkeyVariant?.startsWith('Ltub')) return UtxoAccountType.P2pkh // ltc
   if (pubkeyVariant?.startsWith('Mtub')) return UtxoAccountType.SegwitP2sh // ltc
   return null
-}
-
-export const accountIdToUtxoParams = (accountId: AccountId, accountIndex: number) => {
-  const accountType = accountIdToAccountType(accountId)
-  const chainId = fromAccountId(accountId).chainId
-  // for eth, we don't return a UtxoAccountType or utxoParams
-  if (!accountType) return {}
-  const utxoParams = utxoAccountParams(chainId, accountType, accountIndex)
-  return { utxoParams, accountType }
 }
 
 export const findAccountsByAssetId = (
@@ -325,10 +321,12 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
   if (!assetId) return false
   const { chainId } = fromAssetId(assetId)
   switch (chainId) {
-    case avalancheChainId:
-      return supportsEthSwitchChain(wallet)
     case ethChainId:
       return supportsETH(wallet)
+    case avalancheChainId:
+      return supportsAvalanche(wallet)
+    case optimismChainId:
+      return supportsOptimism(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

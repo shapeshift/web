@@ -1,5 +1,6 @@
 import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -18,7 +19,7 @@ export type SerializableOpportunity = Omit<
 >
 
 export type YearnDepositState = {
-  opportunity: SerializableOpportunity | null
+  opportunity: StakingEarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   isExactAllowance?: boolean
@@ -39,7 +40,7 @@ export enum YearnDepositActionType {
 
 type SetOpportunityAction = {
   type: YearnDepositActionType.SET_OPPORTUNITY
-  payload: YearnOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetApprove = {

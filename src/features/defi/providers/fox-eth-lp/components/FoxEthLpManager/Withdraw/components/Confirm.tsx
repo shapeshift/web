@@ -47,6 +47,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   })
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
 
+  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+
   // user info
   const { state: walletState } = useWallet()
 

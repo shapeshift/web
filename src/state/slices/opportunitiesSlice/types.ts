@@ -1,11 +1,20 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
+import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
 
-export type OpportunityMetadata = {
+export type AssetIdsTuple =
+  | readonly [AssetId, AssetId, AssetId]
+  | readonly [AssetId, AssetId]
+  | readonly [AssetId]
+  | readonly []
+
+export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
   provider: DefiProvider
@@ -21,25 +30,30 @@ export type OpportunityMetadata = {
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
   // For opportunities a la Idle, that's the asset the opportunity wraps
-  underlyingAssetIds: readonly [AssetId, AssetId] | readonly [AssetId]
+  underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
-  underlyingAssetRatios: readonly [string, string] | readonly [string]
+  underlyingAssetRatiosBaseUnit: readonly [string, string] | readonly [string]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // TODO: Optional for backwards compatibility, but it should always be present
-  rewardAssetIds?:
-    | readonly [AssetId, AssetId, AssetId]
-    | readonly [AssetId, AssetId]
-    | readonly [AssetId]
+  rewardAssetIds?: AssetIdsTuple
   expired?: boolean
   name?: string
+  version?: string
+  tags?: string[]
 }
+
+export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
 
 // User-specific values for this opportunity
 export type UserStakingOpportunity = {
   // The amount of farmed LP tokens
-  stakedAmountCryptoPrecision: string
+  stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountCryptoPrecision: string
+  rewardsAmountsCryptoBaseUnit:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
 }
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
@@ -54,7 +68,7 @@ export type UserStakingId = `${AccountId}*${StakingId}`
 export type OpportunitiesState = {
   lp: {
     byAccountId: PartialRecord<AccountId, LpId[]> // a 1:n foreign key of which user AccountIds hold this LpId
-    byId: PartialRecord<LpId, OpportunityMetadata>
+    byId: PartialRecord<LpId, OpportunityMetadataBase>
     ids: LpId[]
   }
   // Staking is the odd one here - it isn't a portfolio holding, but rather a synthetic value living on a smart contract
@@ -91,13 +105,12 @@ export type GetOpportunityUserDataInput = {
 }
 
 export type GetOpportunityIdsInput = {
-  opportunityId: OpportunityId
   defiType: DefiType
   defiProvider: DefiProvider
 }
 
 export type GetOpportunityMetadataOutput = {
-  byId: OpportunitiesState[OpportunityDefiType]['byId']
+  byId: Record<OpportunityId, OpportunityMetadata>
   type: OpportunityDefiType
 }
 export type GetOpportunityUserDataOutput = {
@@ -110,3 +123,33 @@ export type GetOpportunityUserStakingDataOutput = {
 }
 
 export type GetOpportunityIdsOutput = OpportunityId[]
+
+export type StakingEarnOpportunityType = OpportunityMetadata & {
+  stakedAmountCryptoBaseUnit?: string
+  rewardsAmountsCryptoBaseUnit?:
+    | readonly [string, string, string]
+    | readonly [string, string]
+    | readonly [string]
+    | readonly []
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
+  isVisible?: boolean
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type LpEarnOpportunityType = OpportunityMetadata & {
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
+  isVisible?: boolean
+} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type GroupedEligibleOpportunityReturnType = {
+  underlyingAssetIds: AssetIdsTuple
+  opportunityIds: OpportunityId[]
+  netApy: number
+}
+
+export type TagDescription = {
+  title: string
+  description: string
+  icon?: string
+}

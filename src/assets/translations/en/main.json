@@ -41,7 +41,7 @@
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
-    "accountError": "Error loading accounts for %{erroredAccountNames}.",
+    "accountError": "Temporarily unable to fetch data for the following chains: %{erroredAccountNames}.",
     "degradedState": "The App is in a degraded state",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
@@ -79,8 +79,12 @@
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
+    "searchAsset": "Search for asset",
     "enterAmount": "Enter Amount",
-    "pageNotFound": "The page you're looking for cannot be found"
+    "pageNotFound": "The page you're looking for cannot be found",
+    "buySell": "Buy/Sell",
+    "all": "All",
+    "viewAll": "View All"
   },
   "errorPage": {
     "title": "Oops!",
@@ -144,7 +148,8 @@
     },
     "tradeCard": {
       "trade": "Trade",
-      "bridge": "Bridge"
+      "bridge": "Bridge",
+      "earn": "Earn"
     }
   },
   "fiatRamps": {
@@ -157,6 +162,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
@@ -173,6 +179,8 @@
     "usOnly": "US-Only",
     "noKYC": "NO KYC",
     "nonUS": "NON-US",
+    "buyWith": "Buy with",
+    "sellFor": "Sell for",
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
@@ -277,6 +285,23 @@
         "confirmClaim": "Confirm Claim",
         "claimNow": "Claim Now",
         "claimYour": "Claim your %{opportunity}"
+      },
+      "saversVaults": {
+        "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
+        "vaultCap": "Vault Cap",
+        "vaultCapTooltip": "Something about vault caps",
+        "haltedTitle": "Deposits are temporarily halted.",
+        "haltedDescription": "Please tweet at @THORChain to raise the caps!",
+        "estimatedFee": "Estimated Fee",
+        "fee": "Fee",
+        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
+        "dustAmount": "Dust Amount",
+        "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
+        "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
+        "sendDust": "Send Dust",
+        "addressToSendTo": "Address to Send To",
+        "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
+        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
       }
     },
     "memoNote": {
@@ -295,6 +320,8 @@
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
+    "provider": "Provider",
+    "currentTvl": "Current TVL",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
     "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
     "confirmAndBroadcast": "Confirm & Broadcast",
@@ -305,6 +332,7 @@
     "amountStaked": "Amount Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
+    "version": "Version",
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
@@ -323,13 +351,14 @@
     "ended": "Ended",
     "balance": "Balance",
     "defi": "DeFi",
+    "startEarning": "Start Earning",
+    "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-    "clickHereToEarn": "Click here to Earn",
-    "byFarming": " APR* by farming your ETH-FOX liquidity pool tokens",
+    "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -523,6 +552,8 @@
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
+    "tradeFrom": "Trade from",
+    "tradeTo": "Trade to",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
@@ -559,6 +590,10 @@
     },
     "errors": {
       "title": "Something went wrong",
+      "sellAssetStartSentence": "Sell asset",
+      "buyAssetStartSentence": "Buy asset",
+      "sellAssetMiddleSentence": "sell asset",
+      "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
@@ -576,6 +611,7 @@
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
       "dexTradeFailed": "Trade Failed, Tokens Returned",
       "quoteFailed": "An error occurred getting a quote for your trade.",
+      "quoteExpired": "Quote expired, try again.",
       "failedQuoteExecuted": "Cannot execute a failed quote",
       "sellAssetRequired": "Cannot execute a quote without an asset to sell",
       "sellAmountRequired": "Cannot execute a quote without an amount to sell",
@@ -594,6 +630,7 @@
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
+      "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
@@ -671,6 +708,10 @@
         "header": "Download KeepKey Updater",
         "button": "Download %{filename}",
         "wrongPlatform": "Not using %{platform}? Click here"
+      },
+      "disconnect": {
+        "header": "Disconnect KeepKey device",
+        "body": "Unfortunately, an error occured while recovering/setting up your KeepKey device. Please disconnect and reconnect your device and try setting up your KeepKey device again. If problem persists, please contact KeepKey support."
       }
     },
     "shapeShift": {
@@ -1475,6 +1516,21 @@
       }
     },
     "walletConnectToDapps": {
+      "unsupportedToast": {
+        "title": "Unsupported Chain",
+        "description": "ShapeShift currently only supports %{supportedChainNames} with WalletConnect."
+      },
+      "header": {
+        "connectDapp": "Connect dApp",
+        "connectedDapp": "Connected dApp",
+        "menu": {
+          "disconnect": "Disconnect",
+          "address": "Address",
+          "connected": "Connected",
+          "network": "Network",
+          "unsupportedNetwork": "Unsupported Network"
+        }
+      },
       "modal": {
         "title": "WalletConnect",
         "ethereum": "Ethereum",
@@ -1484,9 +1540,20 @@
           "message": "Message",
           "description": "You will need to confirm signing this message with your connected wallet.",
           "confirm": "Confirm",
-          "reject": "Reject"
+          "reject": "Reject",
+          "messageData": "Message data",
+          "domain": "Domain"
         },
-        "signTransaction": {
+        "sendTransaction": {
+          "sendingFrom": "Sending From",
+          "sendingTo": "Sending To",
+          "interactingWith": "Interacting With",
+          "amount": "Amount",
+          "contractInteraction": {
+            "title": "Contract Interaction",
+            "sendingEth": "Sending ETH",
+            "data": "Raw Data (hex encoded)"
+          },
           "advancedParameters": {
             "title": "Advanced Parameters",
             "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
@@ -1500,7 +1567,19 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          }
+          },
+          "estGasCost": "Est. Gas Cost",
+          "description": "You're about to create a transaction and will have to confirm it with your currently connected wallet."
+        },
+        "signTransaction": {
+          "description": "You're about to sign a transaction and will have to confirm it with your currently connected wallet."
+        },
+        "connect": {
+          "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
+          "howTo": "How to connect to a dApp?",
+          "linkPlaceholder": "QR code or connection link",
+          "connect": "Connect",
+          "connectionError": "Can't connect to provided URI."
         }
       },
       "registry": {
@@ -1548,5 +1627,26 @@
       "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
     },
     "custom": "Custom"
+  },
+  "idle": {
+    "bestYield": {
+      "title": "What is Best Yield?",
+      "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
+    },
+    "seniorTranche": {
+      "title": "What is a Senior Tranche?",
+      "body": "Enjoy DeFi yields across multiple protocols while keeping your deposit protected. Senior Tranches offer built-in protection on funds and provide full-spectrum coverage thanks to their Junior counterparty."
+    }, 
+    "juniorTranche": {
+      "title": "What is a Junior Tranche?",
+      "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
+    }
+  },
+  "promo": {
+    "onRamper": {
+      "title": "Buy Crypto with NO KYC",
+      "body": "Purchase up to $1,000 with Apple Pay",
+      "cta": "Buy Now"
+    }
   }
 }

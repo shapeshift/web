@@ -1,12 +1,12 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -17,8 +17,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'
 
@@ -26,19 +24,8 @@ export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const history = useHistory()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const assetNamespace = 'erc20'
-  const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -87,7 +74,7 @@ export const Status = () => {
       statusBody={statusBody}
       continueText='modals.status.position'
     >
-      <Summary>
+      <Summary mx={4} mb={4}>
         <Row variant='vertical' p={4}>
           <Row.Label>
             <Text translation='modals.confirm.amountToDeposit' />

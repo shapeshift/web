@@ -17,6 +17,7 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
+import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -105,6 +106,7 @@ export const Portfolio = () => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
+      <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
       <Card>
         <Card.Header>
           <Card.Heading>

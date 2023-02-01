@@ -1,18 +1,12 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import {
-  selectAggregatedEarnUserLpOpportunity,
-  selectPortfolioTotalFiatBalanceWithStakingData,
-} from 'state/slices/selectors'
+import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StatCardProps = {
@@ -53,29 +47,11 @@ const BreakdownCard: React.FC<StatCardProps> = ({
 }
 
 export const PortfolioBreakdown = () => {
-  const isDashboardBreakdownEnabled = useFeatureFlag('DashboardBreakdown')
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  //FOX/ETH LP Balance
-
-  const foxEthLpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-    }),
-    [],
-  )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
-  )
-
-  const lpUnderlyingToken1Balance = foxEthLpOpportunity?.underlyingToken1Amount ?? 0
-  // Portfolio including Staking
   const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
-  const totalEarnBalance = bn(balances.totalEarningBalance).plus(lpUnderlyingToken1Balance)
-  const walletBalanceWithoutEarn = bn(netWorth).minus(balances.totalEarningBalance)
-  if (!isDashboardBreakdownEnabled) return null
+  const walletBalanceWithoutEarn = bn(netWorth).minus(bn(balances.totalEarningBalance))
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard
@@ -86,8 +62,8 @@ export const PortfolioBreakdown = () => {
         isLoading={balances.loading}
       />
       <BreakdownCard
-        value={totalEarnBalance.toString()}
-        percentage={totalEarnBalance.div(netWorth).times(100).toNumber()}
+        value={balances.totalEarningBalance}
+        percentage={bnOrZero(balances.totalEarningBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
         onClick={() => history.push('/defi')}

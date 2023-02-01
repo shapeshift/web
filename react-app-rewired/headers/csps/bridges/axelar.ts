@@ -6,5 +6,6 @@ export const csp: Csp = {
     'https://nest-server-mainnet.axelar.dev',
     'wss://nest-server-mainnet.axelar.dev',
     'https://axelar-lcd.quickapi.com/',
+    'https://lcd-axelar.imperator.co/'
   ],
 }

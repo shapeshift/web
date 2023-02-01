@@ -1,5 +1,5 @@
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum WithdrawPath {
   Withdraw = '/',
@@ -25,21 +25,8 @@ type IdleWithdrawValues = WithdrawValues &
     usedGasFee: string
   }
 
-// Redux only stores things that are serializable. Class methods are removed when put in state.
-type SerializableOpportunity = Omit<
-  IdleOpportunity,
-  | 'allowance'
-  | 'prepareApprove'
-  | 'prepareDeposit'
-  | 'prepareWithdrawal'
-  | 'prepareClaimTokens'
-  | 'signAndBroadcast'
-  | 'getClaimableTokens'
->
-
 export type IdleWithdrawState = {
-  opportunity: SerializableOpportunity | undefined
-  userAddress: string | undefined
+  opportunity: StakingEarnOpportunityType | undefined
   approve: EstimatedGas
   withdraw: IdleWithdrawValues
   loading: boolean
@@ -48,7 +35,6 @@ export type IdleWithdrawState = {
 
 export enum IdleWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -57,17 +43,12 @@ export enum IdleWithdrawActionType {
 
 type SetOpportunityAction = {
   type: IdleWithdrawActionType.SET_OPPORTUNITY
-  payload: IdleOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetWithdraw = {
   type: IdleWithdrawActionType.SET_WITHDRAW
   payload: Partial<IdleWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: IdleWithdrawActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -80,9 +61,4 @@ type SetTxid = {
   payload: string
 }
 
-export type IdleWithdrawActions =
-  | SetOpportunityAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type IdleWithdrawActions = SetOpportunityAction | SetWithdraw | SetLoading | SetTxid

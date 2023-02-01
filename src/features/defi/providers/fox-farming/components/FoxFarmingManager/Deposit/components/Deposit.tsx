@@ -19,7 +19,10 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import {
+  assertIsFoxEthStakingContractAddress,
+  foxEthLpAssetId,
+} from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -60,6 +63,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
+
+  assertIsFoxEthStakingContractAddress(contractAddress)
+
   const {
     allowance: foxFarmingAllowance,
     getStakeGasData,
@@ -67,6 +73,8 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useFoxFarming(contractAddress)
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+
   const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
@@ -165,7 +173,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoHumanAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(asset?.precision)),
+    () => bnOrZero(balance).div(bn(10).pow(asset?.precision ?? 1)),
     [asset?.precision, balance],
   )
   const fiatAmountAvailable = useMemo(

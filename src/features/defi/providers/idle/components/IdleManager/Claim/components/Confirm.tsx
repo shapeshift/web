@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -20,11 +20,15 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -42,31 +46,64 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const { state, dispatch } = useContext(ClaimContext)
-  const opportunity = state?.opportunity
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress: vaultAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
+
+  const assets = useAppSelector(selectAssets)
 
   const assetNamespace = 'erc20'
 
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference: vaultAddress,
+    assetReference: contractAddress,
   })
 
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
+  const opportunityId = useMemo(
+    () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
+    [chainId, contractAddress],
+  )
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ stakingId: opportunityId }),
+    [opportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const opportunityDataFilter = useMemo(
+    () => ({
+      userStakingId: serializeUserStakingId(
+        (accountId ?? highestBalanceAccountId)!,
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+    [accountId, chainId, contractAddress, highestBalanceAccountId],
+  )
+
+  const opportunityData = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
 
   // user info
   const { state: walletState } = useWallet()
 
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    () => ({ assetId: feeAsset?.assetId, accountId }),
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
@@ -74,17 +111,15 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   )
 
   useEffect(() => {
-    if (!dispatch || !idleInvestor) return
+    if (!dispatch || !idleInvestor || !userAddress) return
     ;(async () => {
       try {
-        if (!state.userAddress) return
-
         dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
 
         const idleOpportunity = await idleInvestor.findByOpportunityId(assetId)
         if (!idleOpportunity) throw new Error('No opportunity')
 
-        const preparedTx = await idleOpportunity.prepareClaimTokens(state.userAddress)
+        const preparedTx = await idleOpportunity.prepareClaimTokens(userAddress)
         const estimatedGasCrypto = bnOrZero(preparedTx.gasPrice)
           .times(preparedTx.estimatedGas)
           .integerValue()
@@ -96,20 +131,31 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
       }
     })()
-  }, [state.userAddress, dispatch, assetId, idleInvestor])
+  }, [userAddress, dispatch, assetId, idleInvestor])
 
-  const claimableTokensTotalBalance = useMemo(() => {
-    if (!state.claimableTokens) return bnOrZero(0)
-    return state.claimableTokens.reduce((total, token) => {
-      total = total.plus(token.amount)
-      return total
-    }, bnOrZero(0))
-  }, [state.claimableTokens])
+  const hasClaimBalance = useMemo(() => {
+    if (!opportunityData?.rewardAssetIds?.length) return false
 
-  const claimableAssetsToRender = useMemo(() => {
-    if (!state.claimableTokens) return null
-    return state.claimableTokens.map(token => <ClaimableAsset key={token.assetId} token={token} />)
-  }, [state.claimableTokens])
+    return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
+      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+    )
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+
+  const claimableAssets = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+
+    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
+      if (!opportunityData?.rewardAssetIds?.[i]) return null
+
+      const token = {
+        assetId: opportunityData.rewardAssetIds[i],
+        amount: bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
+          .toNumber(),
+      }
+      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+    })
+  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
   const handleCancel = useCallback(() => {
     history.push({
@@ -135,21 +181,19 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     try {
       if (
         !(
-          state.userAddress &&
+          userAddress &&
           assetReference &&
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
-          opportunity &&
+          opportunityData &&
           bip44Params
         )
       )
         return
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: true })
-      const idleOpportunity = await idleInvestor.findByOpportunityId(
-        state.opportunity?.positionAsset.assetId ?? '',
-      )
+      const idleOpportunity = await idleInvestor.findByOpportunityId(opportunityData?.assetId)
       if (!idleOpportunity) throw new Error('No opportunity')
-      const tx = await idleOpportunity.prepareClaimTokens(state.userAddress)
+      const tx = await idleOpportunity.prepareClaimTokens(userAddress)
       const txid = await idleOpportunity.signAndBroadcast({
         wallet: walletState.wallet,
         tx,
@@ -167,11 +211,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   }, [
     dispatch,
     chainAdapter,
-    state.userAddress,
-    state.opportunity?.positionAsset.assetId,
+    userAddress,
     assetReference,
     walletState.wallet,
-    opportunity,
+    opportunityData,
     idleInvestor,
     bip44Params,
     onNext,
@@ -183,7 +226,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     <ReusableConfirm
       onCancel={handleCancel}
       headerText='modals.confirm.claim.header'
-      isDisabled={!hasEnoughBalanceForGas || claimableTokensTotalBalance.lte(0)}
+      isDisabled={!hasEnoughBalanceForGas || !hasClaimBalance}
       loading={state.loading}
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
@@ -201,7 +244,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
               justifyContent='center'
               as='form'
             >
-              {claimableAssetsToRender}
+              {claimableAssets}
             </Stack>
           </Row>
         </Row>

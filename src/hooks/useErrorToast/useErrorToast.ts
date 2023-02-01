@@ -1,29 +1,29 @@
 import { useToast } from '@chakra-ui/react'
-import { SwapErrorTypes } from '@shapeshiftoss/swapper'
+import { SwapErrorType } from '@shapeshiftoss/swapper'
 import { get, isError } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { logger } from 'lib/logger'
 
 // TODO support more error types (non swapper errors)
 export const ErrorTranslationMap: Record<string, string> = {
-  [SwapErrorTypes.ALLOWANCE_REQUIRED_FAILED]: 'trade.errors.allowanceRequiredFailed',
-  [SwapErrorTypes.CHECK_APPROVAL_FAILED]: 'trade.errors.checkApprovalNeededFailed',
-  [SwapErrorTypes.APPROVE_INFINITE_FAILED]: 'trade.errors.approveInfiniteFailed',
-  [SwapErrorTypes.BUILD_TRADE_FAILED]: 'trade.errors.buildTradeFailed',
-  [SwapErrorTypes.EXECUTE_TRADE_FAILED]: 'trade.errors.executeTradeFailed',
-  [SwapErrorTypes.GRANT_ALLOWANCE_FAILED]: 'trade.errors.grantAllowanceFailed',
-  [SwapErrorTypes.MANAGER_ERROR]: 'trade.errors.generalError',
-  [SwapErrorTypes.MIN_MAX_FAILED]: 'trade.errors.minMaxError',
-  [SwapErrorTypes.SIGN_AND_BROADCAST_FAILED]: 'trade.errors.broadcastFailed',
-  [SwapErrorTypes.TRADE_QUOTE_FAILED]: 'trade.errors.quoteFailed',
-  [SwapErrorTypes.TRADE_QUOTE_AMOUNT_TOO_SMALL]: 'trade.errors.amountTooSmall',
-  [SwapErrorTypes.TRADE_QUOTE_INPUT_LOWER_THAN_FEES]: 'trade.errors.sellAmountDoesNotCoverFee',
-  [SwapErrorTypes.UNSUPPORTED_PAIR]: 'trade.errors.unsupportedPair',
-  [SwapErrorTypes.USD_RATE_FAILED]: 'trade.errors.rateError',
-  [SwapErrorTypes.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedChain',
-  [SwapErrorTypes.VALIDATION_FAILED]: 'trade.errors.generalError',
-  [SwapErrorTypes.RESPONSE_ERROR]: 'trade.errors.generalError',
-  [SwapErrorTypes.TRADE_FAILED]: 'trade.errors.tradeFailed',
+  [SwapErrorType.ALLOWANCE_REQUIRED_FAILED]: 'trade.errors.allowanceRequiredFailed',
+  [SwapErrorType.CHECK_APPROVAL_FAILED]: 'trade.errors.checkApprovalNeededFailed',
+  [SwapErrorType.APPROVE_INFINITE_FAILED]: 'trade.errors.approveInfiniteFailed',
+  [SwapErrorType.BUILD_TRADE_FAILED]: 'trade.errors.buildTradeFailed',
+  [SwapErrorType.EXECUTE_TRADE_FAILED]: 'trade.errors.executeTradeFailed',
+  [SwapErrorType.GRANT_ALLOWANCE_FAILED]: 'trade.errors.grantAllowanceFailed',
+  [SwapErrorType.MANAGER_ERROR]: 'trade.errors.generalError',
+  [SwapErrorType.MIN_MAX_FAILED]: 'trade.errors.minMaxError',
+  [SwapErrorType.SIGN_AND_BROADCAST_FAILED]: 'trade.errors.broadcastFailed',
+  [SwapErrorType.TRADE_QUOTE_FAILED]: 'trade.errors.quoteFailed',
+  [SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL]: 'trade.errors.amountTooSmall',
+  [SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES]: 'trade.errors.sellAmountDoesNotCoverFee',
+  [SwapErrorType.UNSUPPORTED_PAIR]: 'trade.errors.unsupportedPair',
+  [SwapErrorType.USD_RATE_FAILED]: 'trade.errors.rateError',
+  [SwapErrorType.UNSUPPORTED_CHAIN]: 'trade.errors.unsupportedChain',
+  [SwapErrorType.VALIDATION_FAILED]: 'trade.errors.generalError',
+  [SwapErrorType.RESPONSE_ERROR]: 'trade.errors.generalError',
+  [SwapErrorType.TRADE_FAILED]: 'trade.errors.tradeFailed',
 }
 
 const getTranslationFromError = (error: unknown) => {

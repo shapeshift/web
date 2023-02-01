@@ -11,7 +11,6 @@ import {
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
@@ -20,7 +19,6 @@ import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
-  selectFeatureFlags,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceWithStakingData,
@@ -31,7 +29,6 @@ import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
 
 export const Portfolio = () => {
-  const { EligibleEarn } = useSelector(selectFeatureFlags)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
 
@@ -109,7 +106,7 @@ export const Portfolio = () => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      {EligibleEarn && <EligibleCarousel display={{ base: 'flex', md: 'none' }} />}
+      <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
       <Card>
         <Card.Header>
           <Card.Heading>

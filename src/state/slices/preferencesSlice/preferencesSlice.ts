@@ -18,13 +18,9 @@ export type FeatureFlags = {
   Pendo: boolean
   IdleFinance: boolean
   Axelar: boolean
-  Zendesk: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
-  DashboardBreakdown: boolean
   Wherever: boolean
-  FiatPopup: boolean
-  EligibleEarn: boolean
   SaversVaults: boolean
   Yearn: boolean
 }
@@ -57,13 +53,9 @@ const initialState: Preferences = {
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
-    Zendesk: getConfig().REACT_APP_FEATURE_ZENDESK,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    DashboardBreakdown: getConfig().REACT_APP_DASHBOARD_BREAKDOWN,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
-    FiatPopup: getConfig().REACT_APP_FEATURE_FIAT_POPUP,
-    EligibleEarn: getConfig().REACT_APP_FEATURE_ELIGIBLE_EARN,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
   },

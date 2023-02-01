@@ -59,7 +59,6 @@ export const mockStore: ReduxState = {
       Pendo: false,
       IdleFinance: false,
       Axelar: false,
-      Zendesk: false,
       Yat: false,
       WalletConnectToDapps: false,
       DashboardBreakdown: false,

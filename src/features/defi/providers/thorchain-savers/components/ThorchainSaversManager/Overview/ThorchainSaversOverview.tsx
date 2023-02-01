@@ -11,18 +11,24 @@ import {
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProvider,
+  DefiType,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -42,30 +48,14 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectOpportunitiesApiQueriesByFilter,
   selectStakingOpportunitiesById,
+  selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
-
-const makeDefaultMenu = (isFull?: boolean): DefiButtonProps[] => [
-  ...(isFull
-    ? []
-    : [
-        {
-          label: 'common.deposit',
-          icon: <ArrowUpIcon />,
-          action: DefiAction.Deposit,
-          isDisabled: isFull,
-        },
-      ]),
-  {
-    label: 'common.withdraw',
-    icon: <ArrowDownIcon />,
-    action: DefiAction.Withdraw,
-  },
-]
 
 type OverviewProps = {
   accountId: AccountId | undefined
@@ -141,7 +131,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [assetId, opportunitiesMetadata],
   ) as ThorchainSaversStakingSpecificMetadata | undefined
 
-  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.saversSupplyIncludeAccruedFiat)
+  const currentCapFillPercentage = bnOrZero(opportunityMetadata?.tvl)
     .div(bnOrZero(opportunityMetadata?.saversMaxSupplyFiat))
     .times(100)
     .toNumber()
@@ -175,11 +165,82 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       : undefined,
   )
 
+  const hasPendingTxsFilter = useMemo(
+    () => ({
+      accountId,
+      assetId,
+    }),
+    [accountId, assetId],
+  )
+  const hasPendingTxs = useAppSelector(state => selectTxsByFilter(state, hasPendingTxsFilter)).some(
+    tx => tx.status === TxStatus.Pending,
+  )
+
+  const pendingQueriesFilter = useMemo(
+    () => ({
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+      queryStatus: QueryStatus.pending,
+    }),
+    [],
+  )
+  const hasPendingQueries = Boolean(
+    useAppSelector(state => selectOpportunitiesApiQueriesByFilter(state, pendingQueriesFilter))
+      .length,
+  )
+
+  const makeDefaultMenu = useCallback(
+    ({
+      isFull,
+      hasPendingTxs,
+      hasPendingQueries,
+    }: {
+      isFull?: boolean
+      hasPendingTxs?: boolean
+      hasPendingQueries?: boolean
+    } = {}): DefiButtonProps[] => [
+      ...(isFull
+        ? []
+        : [
+            {
+              label: 'common.deposit',
+              icon: <ArrowUpIcon />,
+              action: DefiAction.Deposit,
+              isDisabled: isFull || hasPendingTxs || hasPendingQueries,
+              toolTip:
+                hasPendingTxs || hasPendingQueries
+                  ? translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
+                  : undefined,
+            },
+          ]),
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+        isDisabled: hasPendingTxs || hasPendingQueries,
+        toolTip:
+          hasPendingTxs || hasPendingQueries
+            ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+            : undefined,
+      },
+    ],
+    [translate],
+  )
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
-    return makeDefaultMenu(opportunityMetadata?.isFull)
-  }, [earnOpportunityData, opportunityMetadata?.isFull])
+    return makeDefaultMenu({
+      isFull: opportunityMetadata?.isFull,
+      hasPendingTxs,
+      hasPendingQueries,
+    })
+  }, [
+    earnOpportunityData,
+    makeDefaultMenu,
+    opportunityMetadata?.isFull,
+    hasPendingTxs,
+    hasPendingQueries,
+  ])
 
   const renderVaultCap = useMemo(() => {
     return (
@@ -189,7 +250,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             <Text fontWeight='medium' translation='defi.modals.saversVaults.vaultCap' />
           </HelperTooltip>
           <Flex gap={1}>
-            <Amount.Fiat value={opportunityMetadata?.saversSupplyIncludeAccruedFiat ?? 0} />
+            <Amount.Fiat value={opportunityMetadata?.tvl ?? 0} />
             <Amount.Fiat
               value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
               prefix='/'
@@ -229,7 +290,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     alertBg,
     currentCapFillPercentage,
     opportunityMetadata?.saversMaxSupplyFiat,
-    opportunityMetadata?.saversSupplyIncludeAccruedFiat,
+    opportunityMetadata?.tvl,
     translate,
     underlyingAsset?.symbol,
   ])

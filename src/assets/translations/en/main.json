@@ -313,7 +313,9 @@
         "timeToBreakEven": {
           "title": "Time to break even",
           "tooltip": "Estimated time to cover deposit fees and earnings."
-        }
+        },
+        "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
+        "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
       }
     },
     "memoNote": {

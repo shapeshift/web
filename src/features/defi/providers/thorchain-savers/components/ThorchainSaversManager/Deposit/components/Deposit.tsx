@@ -3,7 +3,8 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { getInboundAddressDataForChain, SwapperName } from '@shapeshiftoss/swapper'
+import { getConfig } from 'config'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -25,6 +26,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -58,6 +60,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const appDispatch = useAppDispatch()
   const history = useHistory()
@@ -116,6 +119,33 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
+  const getOutboundFeeCryptoBaseUnit = useCallback(async (): Promise<string> => {
+    if (!assetId) return '0'
+
+    // We only want to display the outbound fee as a minimum for assets which have a zero dust threshold i.e EVM and Cosmos assets
+    if (!bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).isZero()) return '0'
+    const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+    const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+
+    if (!inboundAddressData) return '0'
+
+    const { outbound_fee } = inboundAddressData
+
+    const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
+
+    return outboundFeeCryptoBaseUnit
+  }, [asset.precision, assetId])
+
+  useEffect(() => {
+    ;(async () => {
+      if (outboundFeeCryptoBaseUnit) return
+
+      const outboundFee = await getOutboundFeeCryptoBaseUnit()
+      if (!outboundFee) return
+
+      setOutboundFeeCryptoBaseUnit(outboundFee)
+    })()
+  }, [getOutboundFeeCryptoBaseUnit, outboundFeeCryptoBaseUnit])
   // notify
   const toast = useToast()
 
@@ -229,13 +259,22 @@ export const Deposit: React.FC<DepositProps> = ({
     (value: string) => {
       const valueCryptoBaseUnit = bnOrZero(value).times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+      const isBelowOutboundFee =
+        bn(outboundFeeCryptoBaseUnit).gt(0) &&
+        bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
 
       const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
       )
+      const outboundFeeCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+        bn(10).pow(asset.precision),
+      )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+      const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
       if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+      if (isBelowOutboundFee)
+        return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
       const cryptoBalancePrecision = bnOrZero(balance).div(bn(10).pow(asset.precision))
       const valueCryptoPrecision = bnOrZero(value)
@@ -246,7 +285,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (valueCryptoPrecision.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, asset.symbol, assetId, translate, balance],
+    [asset.precision, asset.symbol, assetId, outboundFeeCryptoBaseUnit, translate, balance],
   )
 
   const validateFiatAmount = useCallback(
@@ -257,13 +296,20 @@ export const Deposit: React.FC<DepositProps> = ({
         .div(marketData.price)
         .times(bn(10).pow(asset.precision))
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
+      const isBelowOutboundFee = bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
 
       const minLimitCryptoPrecision = bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).div(
         bn(10).pow(asset.precision),
       )
+      const outboundFeeCryptoPrecision = bn(outboundFeeCryptoBaseUnit).div(
+        bn(10).pow(asset.precision),
+      )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
+      const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
       if (isBelowMinSellAmount) return translate('trade.errors.amountTooSmall', { minLimit })
+      if (isBelowOutboundFee)
+        return translate('trade.errors.amountTooSmall', { minLimit: outboundFeeLimit })
 
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
@@ -271,7 +317,15 @@ export const Deposit: React.FC<DepositProps> = ({
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, asset.precision, asset.symbol, marketData.price, assetId, translate],
+    [
+      balance,
+      asset.precision,
+      asset.symbol,
+      marketData.price,
+      assetId,
+      outboundFeeCryptoBaseUnit,
+      translate,
+    ],
   )
 
   const cryptoAmountAvailable = useMemo(

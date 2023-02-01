@@ -4,7 +4,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { logger } from 'lib/logger'
 import { isFulfilled, isRejected, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
-import { selectFeatureFlags, selectPortfolioAccounts } from 'state/slices/selectors'
+import { selectFeatureFlags, selectWalletAccountIds } from 'state/slices/selectors'
 
 import type { GetOpportunityIdsOutput } from '../../types'
 import type { OpportunityIdsResolverInput } from '../types'
@@ -25,7 +25,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   }
 
   const chainAdapters = getChainAdapterManager()
-  const portfolioAccountIds = Object.keys(selectPortfolioAccounts(state))
+  const portfolioAccountIds = selectWalletAccountIds(state)
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
     [cosmosChainId || osmosisChainId].includes(fromAccountId(accountId).chainId),
   )

@@ -3,6 +3,7 @@ import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import flatMapDeep from 'lodash/flatMapDeep'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
+import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
 import type {
@@ -50,7 +51,7 @@ export const makeAccountUserData = ({
 }): OpportunitiesState['userStaking']['byId'] => {
   const delegations = cosmosAccount.chainSpecific.delegations
   // const undelegations = cosmosAccount.chainSpecific.delegations
-  const rewards = cosmosAccount.chainSpecific.delegations
+  const rewards = cosmosAccount.chainSpecific.rewards
 
   const delegationsByValidator = groupBy(delegations, delegation => delegation.validator.address)
   // TODO(gomes): handle me in a separate PR, we will need chain-specific userData similar to the savers-specific-metadata
@@ -68,11 +69,14 @@ export const makeAccountUserData = ({
     )
 
     const maybeValidatorDelegations = delegationsByValidator[validatorAddress][0]
-    const maybeValidatorRewards = rewardsByValidator[validatorAddress][0]
+    const maybeValidatorRewards = rewardsByValidator[validatorAddress]?.[0]?.rewards
+    const maybeValidatorRewardsAggregated = maybeValidatorRewards
+      ? maybeValidatorRewards.reduce((a, b) => a.plus(b.amount), bn(0)).toFixed()
+      : '0'
 
     acc[userStakingId] = {
       stakedAmountCryptoBaseUnit: maybeValidatorDelegations?.amount ?? '0',
-      rewardsAmountsCryptoBaseUnit: [maybeValidatorRewards?.amount ?? '0'],
+      rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated ?? '0'],
     }
 
     return acc

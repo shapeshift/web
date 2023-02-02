@@ -1,12 +1,18 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from 'lib/math'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import type { OpportunityId, OpportunityMetadataBase, StakingId, UserStakingId } from './types'
+import type {
+  OpportunityId,
+  OpportunityMetadataBase,
+  StakingId,
+  UserStakingId,
+  ValidatorId,
+} from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -34,6 +40,8 @@ export const filterUserStakingIdByStakingIdCompareFn = (
   return deserializedStakingId === stakingId
 }
 
+// An OpportunityId as an AssetId, i.e any chain where the opportunity is an Asset
+// That may be a L1 AssetId (THOR savers), or a smart contract account, which for all intent and purposes is an ERC20 i.e an asset
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
 
@@ -76,3 +84,8 @@ export const getUnderlyingAssetIdsBalances = ({
     {},
   )
 }
+// An OpportunityId as a ValidatorId
+// Currently used with Cosmos SDK opportunities, where the opportunity is a validator, e.g an Address
+// Since AccountId is generally used to represent portfolio accounts and not other, arbitrary on-chain accounts, we give this some flavour
+export const toValidatorId = (...[args]: Parameters<typeof toAccountId>) =>
+  toAccountId(args) as ValidatorId

@@ -29,7 +29,6 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
@@ -73,7 +72,6 @@ export const Overview: React.FC<OverviewProps> = ({
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
-  const isPopupEnabled = useFeatureFlag('FiatPopup')
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
@@ -155,11 +153,9 @@ export const Overview: React.FC<OverviewProps> = ({
           currentUrl: window.location.href,
         },
       })
-      if (url) {
-        isPopupEnabled ? popup.open({ url, title: 'Buy' }) : window.open(url, '_blank')?.focus()
-      }
+      if (url) popup.open({ url, title: 'Buy' })
     },
-    [assetId, colorMode, fiatRampAction, isPopupEnabled, popup, selectedLocale],
+    [assetId, colorMode, fiatRampAction, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {

@@ -1,0 +1,164 @@
+import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
+import { isFulfilled, isRejected, isSome } from 'lib/utils'
+import type { ReduxState } from 'state/reducer'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAssetById,
+  selectFeatureFlags,
+  selectMarketDataById,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
+
+import type {
+  GetOpportunityIdsOutput,
+  GetOpportunityMetadataOutput,
+  OpportunityMetadata,
+  StakingId,
+} from '../../types'
+import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } from '../types'
+import { makeUniqueValidatorAccountIds } from './utils'
+
+const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'cosmosSdk'] })
+
+export const cosmosSdkOpportunityIdsResolver = async ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
+  data: GetOpportunityIdsOutput
+}> => {
+  const state = reduxApi.getState() as ReduxState
+
+  const { CosmosSdkOpportunitiesAbstraction } = selectFeatureFlags(state)
+  if (!CosmosSdkOpportunitiesAbstraction) {
+    return { data: [] }
+  }
+
+  const chainAdapters = getChainAdapterManager()
+  const portfolioAccountIds = selectWalletAccountIds(state)
+
+  // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
+  // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
+  const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
+    [cosmosChainId || osmosisChainId].includes(fromAccountId(accountId).chainId),
+  )
+  const cosmosSdkAccounts = await Promise.allSettled(
+    cosmosSdkAccountIds.map(accountId => {
+      const { account: pubKey, chainId } = fromAccountId(accountId)
+      const adapter = chainAdapters.get(
+        chainId,
+      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+      return adapter.getAccount(pubKey)
+    }),
+  ).then(settledAccountsPromises =>
+    settledAccountsPromises
+      .map(settledAccount => {
+        if (isRejected(settledAccount)) {
+          moduleLogger.error(settledAccount.reason, 'Error fetching Cosmos SDK account')
+          return undefined
+        }
+        if (isFulfilled(settledAccount)) return settledAccount.value
+
+        return undefined // This will never happen, a Promise is either rejected or fullfilled
+      })
+      .filter(isSome),
+  )
+
+  const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds(cosmosSdkAccounts)
+
+  return {
+    data: uniqueValidatorAccountIds,
+  }
+}
+
+export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
+  opportunityIds: validatorIds,
+  opportunityType,
+  reduxApi,
+}: OpportunitiesMetadataResolverInput): Promise<{
+  data: GetOpportunityMetadataOutput
+}> => {
+  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
+
+  const state = reduxApi.getState() as ReduxState
+
+  const { CosmosSdkOpportunitiesAbstraction } = selectFeatureFlags(state)
+
+  // TODO(gomes): default validatorIds
+  if (!(CosmosSdkOpportunitiesAbstraction && validatorIds?.length)) {
+    return { data: { byId: stakingOpportunitiesById, type: DefiType.Staking } }
+  }
+
+  const metadataByValidatorId = await Promise.allSettled(
+    validatorIds.map(async validatorId => {
+      const { account: validatorAddress, chainId } = fromAccountId(validatorId)
+
+      try {
+        const chainAdapters = getChainAdapterManager()
+        const adapter = chainAdapters.get(
+          chainId,
+        ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+
+        const data = await adapter.getValidator(validatorAddress)
+
+        if (!data) throw new Error(`No validator data for address: ${validatorAddress}`)
+
+        const assetId = accountIdToFeeAssetId(validatorId)
+        if (!assetId) throw new Error(`No feeAssetId found for ValidatorAddress: ${validatorId}`)
+
+        const asset = selectAssetById(state, assetId)
+        if (!asset) throw new Error(`No asset found for AssetId: ${assetId}`)
+        const marketData = selectMarketDataById(state, assetId)
+
+        const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
+
+        return {
+          validatorId,
+          apy: data.apr,
+          tvl: bnOrZero(data.tokens)
+            .div(bn(10).pow(asset.precision))
+            .times(bnOrZero(marketData?.price))
+            .toString(),
+
+          name: data.moniker,
+          type: DefiType.Staking,
+          provider: DefiProvider.Cosmos,
+          assetId,
+          underlyingAssetId: assetId,
+          underlyingAssetIds: [assetId] as const,
+          underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit] as const,
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          throw new Error(`failed to get data for validator: ${validatorAddress}: ${err.message}`)
+        }
+      }
+    }),
+  ).then(settledValidatorPromises =>
+    settledValidatorPromises.reduce<Record<StakingId, OpportunityMetadata>>(
+      (acc, settledValidatorPromise) => {
+        if (isRejected(settledValidatorPromise)) {
+          moduleLogger.error(settledValidatorPromise.reason, 'Error fetching Cosmos SDK validator')
+        }
+        if (isFulfilled(settledValidatorPromise) && settledValidatorPromise.value) {
+          const { validatorId, ...opportunityMetadata } = settledValidatorPromise.value
+
+          acc[validatorId] = opportunityMetadata
+        }
+
+        return acc
+      },
+      {},
+    ),
+  )
+
+  const data = {
+    byId: metadataByValidatorId,
+    type: opportunityType,
+  }
+
+  return { data }
+}

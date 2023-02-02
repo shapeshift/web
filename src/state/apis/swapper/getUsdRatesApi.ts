@@ -3,7 +3,7 @@ import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { isFulfilled } from 'lib/utils'
-import { getBestSwapperApi } from 'state/apis/swapper/getBestSwapperApi'
+import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
@@ -22,7 +22,7 @@ type GetUsdRatesReturn = {
   feeAssetUsdRate: string
 }
 
-const getBestSwapperType = getBestSwapperApi.endpoints.getBestSwapperType
+const getAvailableSwappers = getSwappersApi.endpoints.getAvailableSwappers
 const getUsdRate = getUsdRateApi.endpoints.getUsdRate
 
 const getUsdRatesErrorHandler = apiErrorHandler('getUsdRates: error fetching USD rates')
@@ -54,19 +54,23 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
               message: `getUsdRates: Asset not found for AssetId ${feeAssetId}`,
             })
 
-          const swapperType = await dispatch(
-            getBestSwapperType.initiate({
+          const availableSwappers = await dispatch(
+            getAvailableSwappers.initiate({
               ...tradeQuoteArgs,
               feeAsset,
             }),
           ).then(r => r.data)
 
-          if (!swapperType)
+          const bestSwapperType = availableSwappers?.[0].swapperType
+
+          if (!bestSwapperType)
             return getUsdRatesErrorHandler({ message: 'getUsdRates: Swapper type not found' })
 
           const assetIds = [feeAssetId, buyAssetId, sellAssetId]
           const usdRatePromises = await Promise.allSettled(
-            assetIds.map(assetId => dispatch(getUsdRate.initiate({ assetId, swapperType }))),
+            assetIds.map(assetId =>
+              dispatch(getUsdRate.initiate({ assetId, swapperType: bestSwapperType })),
+            ),
           )
           const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = usdRatePromises
             .filter(isFulfilled)

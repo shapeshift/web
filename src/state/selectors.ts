@@ -1,6 +1,8 @@
 // Utility selectors, which are only used for params selecting and do NOT select from the store
 
+import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 
@@ -29,6 +31,9 @@ type ParamFilter = Partial<{
   stakingId: StakingId
   lpId: LpId
   fiatRampAction: FiatRampAction
+  defiProvider: DefiProvider
+  defiType: DefiType
+  queryStatus: QueryStatus
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -53,3 +58,6 @@ export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userSta
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
 export const selectFiatRampActionFromFilter = selectParamFromFilter('fiatRampAction')
+export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
+export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
+export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')

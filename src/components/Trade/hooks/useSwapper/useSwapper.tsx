@@ -10,7 +10,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { useBestSwapper } from 'components/Trade/hooks/useBestSwapper'
+import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
@@ -67,7 +67,8 @@ export const useSwapper = () => {
   const { tradeQuoteArgs } = useTradeQuoteService()
   const { receiveAddress } = useReceiveAddress()
   const dispatch = useAppDispatch()
-  const { bestSwapper } = useBestSwapper({ feeAsset })
+  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
+  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(

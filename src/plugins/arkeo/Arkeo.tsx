@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -47,6 +48,7 @@ export const ArkeoPage = () => {
   }
   return (
     <Main backgroundImage={bgImage} backgroundSize='cover' px={8}>
+      <SEO title={translate('navBar.arkeo')} />
       <Flex flexDir={{ base: 'column-reverse', lg: 'row' }} gap={8}>
         <Flex flexDir='column' gap={8} flexBasis={{ base: 'auto', lg: '583px' }}>
           <Flex flexDir='column' gap={4}>

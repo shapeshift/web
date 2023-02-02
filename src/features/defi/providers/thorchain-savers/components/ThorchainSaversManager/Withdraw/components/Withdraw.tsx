@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Skeleton, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
@@ -12,16 +12,21 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import debounce from 'lodash/debounce'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import {
+  BASE_BPS_POINTS,
   fromThorBaseUnit,
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
@@ -46,6 +51,15 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
+  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
+    null,
+  )
+  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
+  const [inputValues, setInputValues] = useState<{
+    fiatAmount: string
+    cryptoAmount: string
+  } | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const toast = useToast()
@@ -228,6 +242,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(), { shouldValidate: true })
+      handleInputChange(fiatAmount.toString(), cryptoAmount.toString())
     },
     [amountAvailableCryptoPrecision, assetMarketData, setValue],
   )
@@ -307,6 +322,60 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     ],
   )
 
+  useEffect(() => {
+    if (!(accountId && inputValues && asset && opportunityData?.stakedAmountCryptoBaseUnit)) return
+    const { cryptoAmount } = inputValues
+    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+
+    if (amountCryptoBaseUnit.isZero()) return
+
+    const debounced = debounce(async () => {
+      setQuoteLoading(true)
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      })
+
+      const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
+      const { slippage_bps, expected_amount_out } = quote
+      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+
+      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
+      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+      // daily upside
+      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
+        .times(opportunityData?.apy ?? 0)
+        .div(365)
+
+      const daysToBreakEven = cryptoSlippageAmountPrecision
+        .div(dailyEarnAmount)
+        .toFixed(0)
+        .toString()
+      setDaysToBreakEven(daysToBreakEven)
+      setQuoteLoading(false)
+    })
+
+    debounced()
+
+    // cancel the previous debounce when inputValues changes to avoid race conditions
+    // and always ensure the latest value is used
+    return debounced.cancel
+  }, [
+    accountId,
+    asset,
+    inputValues,
+    opportunityData?.apy,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+  ])
+
+  const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
+    setInputValues({ fiatAmount, cryptoAmount })
+  }
+
   if (!state) return null
 
   return (
@@ -337,7 +406,32 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
-      />
+        onChange={handleInputChange}
+      >
+        <Row>
+          <Row.Label>{translate('common.slippage')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!quoteLoading}>
+              <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
+        <Row>
+          <Row.Label>
+            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!quoteLoading}>
+              {translate(
+                `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+                { amount: daysToBreakEven ?? '0' },
+              )}
+            </Skeleton>
+          </Row.Value>
+        </Row>
+      </ReusableWithdraw>
     </FormProvider>
   )
 }

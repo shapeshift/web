@@ -6,5 +6,4 @@ export {
   PendoGuideRequestError,
   PendoGuideResponseError,
 } from './errors'
-export { PendoAgentValidationError } from './parse'
 export type { Pendo, PendoConfig, PendoEnv, PendoInitializeParams, Window } from './types'

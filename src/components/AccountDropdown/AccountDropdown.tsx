@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuList,
   MenuOptionGroup,
+  Portal,
   Stack,
   Text,
   useColorModeValue,
@@ -303,11 +304,13 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             </Text>
           </Stack>
         </MenuButton>
-        <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
-          <MenuOptionGroup defaultValue='asc' type='radio'>
-            {menuOptions}
-          </MenuOptionGroup>
-        </MenuList>
+        <Portal>
+          <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+            <MenuOptionGroup defaultValue='asc' type='radio'>
+              {menuOptions}
+            </MenuOptionGroup>
+          </MenuList>
+        </Portal>
       </Menu>
     </Box>
   )

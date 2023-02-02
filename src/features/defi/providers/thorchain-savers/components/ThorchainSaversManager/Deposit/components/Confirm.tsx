@@ -2,7 +2,12 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { FeeData, FeeDataEstimate, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  FeeData,
+  FeeDataEstimate,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper/dist/api'
@@ -34,8 +39,8 @@ import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
+  BASE_BPS_POINTS,
   fromThorBaseUnit,
-  getAccountAddressesWithBalances,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
   toThorBaseUnit,
@@ -43,8 +48,8 @@ import {
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -63,18 +68,26 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 // Or even a bit less
 const TXS_BUFFER = 8
 
-const supportedEvmChainIds = getSupportedEvmChainIds()
-
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
+  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
+    null,
+  )
+  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
   // TODO: Allow user to set fee priority
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
-  const chainAdapter = getChainAdapterManager().get(chainId)
+
+  // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
+  const chainAdapter = getChainAdapterManager().get(
+    chainId,
+  ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
   const assetId = toAssetId({
     chainId,
@@ -89,7 +102,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  )
+  const accountType = accountMetadata?.accountType
+  const bip44Params = accountMetadata?.bip44Params
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   // user info
@@ -127,7 +144,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
-      const { expected_amount_out } = quote
+      const { expected_amount_out, slippage_bps } = quote
 
       setDepositFeeCryptoBaseUnit(
         toBaseUnit(
@@ -135,8 +152,26 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           asset.precision,
         ),
       )
+      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+
+      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+      const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
+        .times(percentage)
+        .div(100)
+      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+      // daily upside
+      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
+        .times(opportunity?.apy ?? 0)
+        .div(365)
+
+      const daysToBreakEven = cryptoSlippageAmountPrecision
+        .div(dailyEarnAmount)
+        .toFixed(0)
+        .toString()
+      setDaysToBreakEven(daysToBreakEven)
     })()
-  }, [accountId, asset, depositFeeCryptoBaseUnit, state?.deposit.cryptoAmount])
+  }, [accountId, asset, depositFeeCryptoBaseUnit, opportunity?.apy, state?.deposit.cryptoAmount])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!accountId) throw new Error('accountId required')
@@ -185,6 +220,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     maybeFromUTXOAccountAddress,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
+    supportedEvmChainIds,
   ])
 
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
@@ -290,6 +326,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
+    supportedEvmChainIds,
     selectedCurrency,
     assetBalanceFilter,
   ])
@@ -394,7 +431,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [chainId, getDepositInput, getPreDepositInput, walletState.wallet])
 
   useEffect(() => {
-    if (!accountId) return
+    if (!(accountId && chainAdapter && walletState?.wallet && bip44Params && accountType)) return
     ;(async () => {
       const accountAddress = isUtxoChainId(chainId)
         ? await getThorchainSaversPosition({ accountId, assetId })
@@ -402,19 +439,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
             )
             .catch(async () => {
-              const addressesWithBalances = await getAccountAddressesWithBalances(accountId)
-              const highestBalanceAccount = addressesWithBalances.sort((a, b) =>
-                bnOrZero(a.balance).gte(bnOrZero(b.balance)) ? -1 : 1,
-              )[0].address
+              const firstReceiveAddress = await chainAdapter.getAddress({
+                wallet: walletState.wallet!,
+                accountNumber: bip44Params.accountNumber,
+                accountType,
+                index: 0,
+              })
 
-              return chainId === bchChainId
-                ? `bitcoincash:${highestBalanceAccount}`
-                : highestBalanceAccount
+              return firstReceiveAddress
             })
         : ''
+
       setMaybeFromUTXOAccountAddress(accountAddress)
     })()
-  }, [chainId, accountId, assetId])
+  }, [chainId, accountId, assetId, chainAdapter, walletState.wallet, bip44Params, accountType])
 
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
@@ -537,6 +575,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
             </Row.Value>
           </Row>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>{translate('common.slippage')}</Row.Label>
+          <Row.Value>
+            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            {translate(
+              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+              { amount: daysToBreakEven ?? '0' },
+            )}
+          </Row.Value>
         </Row>
         <Row variant='gutter'>
           <Row.Label>

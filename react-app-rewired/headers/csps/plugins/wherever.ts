@@ -2,6 +2,7 @@ import type { Csp } from '../../types'
 
 const agentCsp: Csp = {
   'connect-src': [
+    'https://api.rudderlabs.com',
     'https://wherevernntiw.dataplane.rudderstack.com',
     'https://api.wherever.to',
     'https://backend.epns.io',

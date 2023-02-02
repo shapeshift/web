@@ -396,7 +396,7 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     {defaultFeeAsset &&
-                      `${bnOrZero(fees?.networkFeeCryptoHuman).toNumber()} ${
+                      `${bnOrZero(fees?.networkFeeCryptoHuman).toFixed()} ${
                         defaultFeeAsset.symbol
                       } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
                   </Row.Value>

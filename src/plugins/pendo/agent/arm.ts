@@ -2,8 +2,6 @@ import * as ssri from 'ssri'
 import { logger } from 'lib/logger'
 
 import { deferred } from '../utils'
-import { fixupTables } from './fixups'
-import { parseAgent } from './parse'
 import type { PendoEnv, PendoInitializeParams, Window } from './types'
 
 declare const window: Window & typeof globalThis
@@ -11,7 +9,7 @@ declare const window: Window & typeof globalThis
 const moduleLogger = logger.child({ namespace: ['Plugin', 'Pendo', 'Agent', 'Arm'] })
 
 /**
- * Downloads the Pendo agent, applies fixups to make it safe, and then loads it
+ * Downloads the Pendo agent, doesn't do any molestation, and then loads it
  * into the document. This will initiate a (potentially cached) request to Pendo
  * servers for the agent and start to run the returned code, but the agent will
  * not start transmitting telemetry or load guides until initialized.
@@ -61,34 +59,21 @@ export function armPendoAgent(
   ;(async () => {
     const agentUrl = `https://cdn.pendo.io/agent/static/${pendoConfig.apiKey}/pendo.js`
     moduleLogger.trace({ fn: 'armPendoAgent', agentUrl }, 'fetching agent')
-    const agentSrc = await (
-      await fetch(agentUrl, {
-        credentials: 'omit',
-      })
-    ).text()
+    const originalAgent = await fetch(agentUrl, {
+      credentials: 'omit',
+    })
+
+    const agentSrc = await originalAgent.text()
+
     const agentIntegrity = (await ssri.fromData(agentSrc, { algorithms: ['sha256'] })).toString()
     moduleLogger.trace({ fn: 'armPendoAgent', agentIntegrity }, 'parsing agent')
-    const parsedAgent = await parseAgent(agentSrc, pendoConfig, fixupTables)
-    pendoEnv.PendoConfig = parsedAgent.PendoConfig
+    pendoEnv.PendoConfig = pendoConfig
     Object.freeze(pendoEnv)
-
-    const pendoFixupHelpers = parsedAgent.makeFixupHelpers(pendoEnv)
-    Object.defineProperty(window, 'pendoFixupHelpers', {
-      enumerable: true,
-      get() {
-        return pendoFixupHelpers
-      },
-      set(value: unknown) {
-        if (value !== pendoFixupHelpers) {
-          throw new Error('overwriting window.pendoFixupHelpers is not allowed')
-        }
-      },
-    })
 
     moduleLogger.trace(
       {
         fn: 'armPendoAgent',
-        parsedAgentIntegrity: parsedAgent.integrity,
+        parsedAgentIntegrity: agentIntegrity,
         PendoConfig: pendoEnv.PendoConfig,
       },
       'loading parsed agent',
@@ -96,8 +81,9 @@ export function armPendoAgent(
 
     const agentScriptNode = document.createElement('script')
     agentScriptNode.async = true
-    agentScriptNode.src = parsedAgent.src
-    agentScriptNode.integrity = parsedAgent.integrity
+    agentScriptNode.src = URL.createObjectURL(new Blob([agentSrc], { type: 'text/javascript' }))
+
+    agentScriptNode.integrity = agentIntegrity
     agentScriptNode.crossOrigin = 'anonymous'
     document.body.appendChild(agentScriptNode)
   })().then(

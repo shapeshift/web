@@ -140,6 +140,10 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.ShapeShift,
     },
+    {
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.Cosmos,
+    },
   ]
 
   for (const query of queries) {

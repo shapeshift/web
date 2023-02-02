@@ -61,6 +61,7 @@ type WithdrawProps = {
   onContinue(values: FieldValues): void
   onCancel(): void
   onInputChange?: (value: string, isFiat?: boolean) => void
+  onChange?: (fiatAmount: string, cryptoAmount: string) => void
   icons?: string[]
   inputDefaultValue?: InputDefaultValue
   inputChildren?: ReactNode
@@ -98,6 +99,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   percentOptions,
   children,
   onInputChange,
+  onChange,
   icons,
   inputDefaultValue,
   inputChildren,
@@ -136,17 +138,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
+      const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
       setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+      setValue(Field.CryptoAmount, cryptoAmount, {
         shouldValidate: true,
       })
+      onChange && onChange(value, cryptoAmount)
     } else {
-      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+      const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+      setValue(Field.FiatAmount, fiatAmount, {
         shouldValidate: true,
       })
       setValue(Field.CryptoAmount, value, {
         shouldValidate: true,
       })
+      onChange && onChange(fiatAmount, value)
     }
     if (onInputChange) onInputChange(value, isFiat)
   }

@@ -8,7 +8,6 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -20,6 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -63,29 +63,17 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       ;(async () => {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
-        await new Promise(resolve => setTimeout(resolve, 17000))
-        if (confirmedTransaction.status === 'Confirmed') {
-          // Await the RTK query thunk to ensure we've finishsed fetching
-          await appDispatch(
-            getOpportunitiesUserData.initiate(
-              {
-                accountId,
-                defiType: DefiType.Staking,
-                defiProvider: DefiProvider.ThorchainSavers,
-                opportunityType: DefiType.Staking,
-              },
-              { forceRefetch: true },
-            ),
-          )
-        }
+        await waitForSaversUpdate()
 
-        contextDispatch({
-          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-          payload: {
-            txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-            usedGasFee: confirmedTransaction.fee?.value,
-          },
-        })
+        if (confirmedTransaction.status === 'Confirmed') {
+          contextDispatch({
+            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+            payload: {
+              txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
+              usedGasFee: confirmedTransaction.fee?.value,
+            },
+          })
+        }
       })()
     }
   }, [accountId, appDispatch, confirmedTransaction, contextDispatch, getOpportunitiesUserData])

@@ -168,7 +168,6 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
   return { data }
 }
-
 export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
   opportunityIds: validatorIds,
   opportunityType,

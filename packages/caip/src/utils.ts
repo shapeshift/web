@@ -35,6 +35,14 @@ export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
     })
   }
 
+  if (denom.startsWith('gamm')) {
+    return toAssetId({
+      assetNamespace: constants.ASSET_NAMESPACE.ibc,
+      assetReference: denom,
+      chainId: constants.osmosisChainId,
+    })
+  }
+
   return toAssetId({
     assetNamespace: constants.ASSET_NAMESPACE.slip44,
     assetReference: constants.ASSET_REFERENCE.Osmosis,

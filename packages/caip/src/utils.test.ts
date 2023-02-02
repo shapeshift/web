@@ -1,3 +1,4 @@
+import { toAssetId } from './assetId/assetId'
 import { ChainNamespace, ChainReference } from './chainId/chainId'
 import {
   ASSET_NAMESPACE,
@@ -27,7 +28,12 @@ import {
   isChainNamespace,
   isChainReference,
 } from './typeGuards'
-import { accountIdToChainId, accountIdToSpecifier, isValidChainPartsPair } from './utils'
+import {
+  accountIdToChainId,
+  accountIdToSpecifier,
+  generateAssetIdFromOsmosisDenom,
+  isValidChainPartsPair,
+} from './utils'
 
 describe('accountIdToChainId', () => {
   it('can get eth chainId from accountId', () => {
@@ -196,6 +202,38 @@ describe('type guard assertion', () => {
       expect(() =>
         assertValidChainPartsPair(CHAIN_NAMESPACE.Evm, 'invalid' as ChainReference),
       ).toThrow()
+    })
+  })
+
+  describe('generateAssetIdFromOsmosisDenom', () => {
+    it('correctly generates osmosis native asset id', () => {
+      const nativeAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.slip44,
+        assetReference: ASSET_REFERENCE.Osmosis,
+        chainId: osmosisChainId,
+      })
+      const result = generateAssetIdFromOsmosisDenom('uosmo')
+      expect(result).toEqual(nativeAssetId)
+    })
+    it('correctly generates osmosis ibc asset id', () => {
+      const ibcAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.ibc,
+        assetReference: '27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+        chainId: osmosisChainId,
+      })
+      const result = generateAssetIdFromOsmosisDenom(
+        'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+      )
+      expect(result).toEqual(ibcAssetId)
+    })
+    it('correctly generates osmosis lp asset id', () => {
+      const gammAssetId = toAssetId({
+        assetNamespace: ASSET_NAMESPACE.ibc,
+        assetReference: 'gamm/pool/1',
+        chainId: osmosisChainId,
+      })
+      const result = generateAssetIdFromOsmosisDenom('gamm/pool/1')
+      expect(result).toEqual(gammAssetId)
     })
   })
 })

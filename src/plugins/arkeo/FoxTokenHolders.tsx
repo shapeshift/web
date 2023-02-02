@@ -9,6 +9,8 @@ import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
+import { ArkeoCard } from './ArkeoCard'
+
 //trade/eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d
 export const FoxTokenHolders = () => {
   const history = useHistory()
@@ -27,7 +29,7 @@ export const FoxTokenHolders = () => {
   }, [fiatRamps])
 
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100'>
+    <ArkeoCard>
       <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
         <Flex>
           <AssetIcon assetId={foxAssetId} />
@@ -43,6 +45,6 @@ export const FoxTokenHolders = () => {
           </Button>
         </Flex>
       </Card.Body>
-    </Card>
+    </ArkeoCard>
   )
 }

@@ -39,13 +39,14 @@ export const ArkeoPage = () => {
   const translate = useTranslate()
   const linkColor = useColorModeValue('blue.500', 'blue.200')
   const { create, dispatch } = useWallet()
+  const bgImage = useColorModeValue('none', ArkeoBg)
 
   const handleCreateClick = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)
   }
   return (
-    <Main backgroundImage={ArkeoBg} backgroundSize='cover' px={8}>
+    <Main backgroundImage={bgImage} backgroundSize='cover' px={8}>
       <Flex flexDir={{ base: 'column-reverse', lg: 'row' }} gap={8}>
         <Flex flexDir='column' gap={8} flexBasis={{ base: 'auto', lg: '583px' }}>
           <Flex flexDir='column' gap={4}>

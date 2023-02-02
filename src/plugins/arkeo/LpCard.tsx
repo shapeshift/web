@@ -9,6 +9,8 @@ import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/type
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ArkeoCard } from './ArkeoCard'
+
 type LpCardProps = {
   onClick: (arg: LpEarnOpportunityType) => void
 } & LpEarnOpportunityType
@@ -26,7 +28,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
     return underlyingAssetIds.map(assetId => <AssetIcon _last={{ ml: -4 }} assetId={assetId} />)
   }, [underlyingAssetIds])
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100' onClick={() => onClick(rest)}>
+    <ArkeoCard>
       <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
         <Flex>{renderPairIcons}</Flex>
         <Text
@@ -41,10 +43,10 @@ export const LpCard: React.FC<LpCardProps> = props => {
             { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: opportunityApy },
           ]}
         />
-        <Button width='full' colorScheme='blue' mt='auto'>
+        <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(rest)}>
           {translate('arkeo.lp.cta')}
         </Button>
       </Card.Body>
-    </Card>
+    </ArkeoCard>
   )
 }

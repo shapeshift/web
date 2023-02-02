@@ -9,6 +9,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ArkeoCard } from './ArkeoCard'
+
 type StakingCardProps = {
   onClick: (arg: EarnOpportunityType) => void
 } & EarnOpportunityType
@@ -24,7 +26,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
     provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? moniker : provider
 
   return (
-    <Card bg='whiteAlpha.50' borderColor='whiteAlpha.100'>
+    <ArkeoCard>
       <Card.Body display='flex' flexDir='column' gap={4}>
         <AssetIcon assetId={currentAssetId} />
         <Text
@@ -43,6 +45,6 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
           {translate('arkeo.staking.cta', { asset: asset?.name })}
         </Button>
       </Card.Body>
-    </Card>
+    </ArkeoCard>
   )
 }

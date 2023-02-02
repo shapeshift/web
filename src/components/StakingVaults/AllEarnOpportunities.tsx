@@ -95,7 +95,6 @@ export const AllEarnOpportunities = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      console.info('assetId', assetId)
 
       history.push({
         pathname: `/defi/earn`,

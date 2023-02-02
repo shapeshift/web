@@ -84,7 +84,8 @@
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "slippage": "Slippage"
   },
   "errorPage": {
     "title": "Oops!",
@@ -300,6 +301,19 @@
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
         "sendDust": "Send Dust",
         "addressToSendTo": "Address to Send To",
+        "introducingSaversVaults": "Introducing Savers Vaults",
+        "risksBody": {
+          "1": "Refer to",
+          "2": "this article",
+          "3": "for risks involved with savers vaults."
+        },
+        "understand": "I understand",
+        "days": "%{amount} days",
+        "day": "%{amount} day",
+        "timeToBreakEven": {
+          "title": "Time to break even",
+          "tooltip": "Estimated time to cover deposit fees and earnings."
+        },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending"
       }

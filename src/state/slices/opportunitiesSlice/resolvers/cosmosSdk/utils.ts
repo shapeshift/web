@@ -5,7 +5,12 @@ import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
 import { isSome } from 'lib/utils'
 
-import type { OpportunitiesState, ValidatorId } from '../../types'
+import type {
+  OpportunitiesState,
+  UserStakingId,
+  UserStakingOpportunity,
+  ValidatorId,
+} from '../../types'
 import { serializeUserStakingId, toValidatorId } from '../../utils'
 
 export const makeUniqueValidatorAccountIds = (
@@ -54,6 +59,7 @@ export const makeAccountUserData = ({
   )
   const rewardsByValidator = groupBy(rewards, reward => reward.validator.address)
 
+  debugger
   return validatorIds.reduce((acc, validatorId) => {
     debugger
     const validatorAddress = fromAccountId(validatorId).account
@@ -65,7 +71,7 @@ export const makeAccountUserData = ({
 
     acc[userStakingId] = {}
     return acc
-  }, {})
+  }, {} as Record<UserStakingId, UserStakingOpportunity>)
 
   // Use this to key by validatorId
   // const validatorId = toValidatorId(toValidatorIdParts)

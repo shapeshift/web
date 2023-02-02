@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.11.0...@shapeshiftoss/caip-v8.12.0) (2023-02-02)
+
+
+### Features
+
+* **caip:** generate asset ids from osmosis lp token denoms ([#1189](https://github.com/shapeshift/lib/issues/1189)) ([7efb75e](https://github.com/shapeshift/lib/commit/7efb75ee63a55a8ff1ab94e8e053736f8a6b07ad))
+
 # [@shapeshiftoss/caip-v8.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.10.0...@shapeshiftoss/caip-v8.11.0) (2023-02-01)
 
 

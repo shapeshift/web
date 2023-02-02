@@ -37,6 +37,7 @@ export const routes: NestedRoute[] = [
     icon: <DashboardIcon />,
     main: Dashboard,
     category: RouteCategory.Wallet,
+    mobileNav: true,
   },
   {
     path: '/assets',
@@ -70,6 +71,7 @@ export const routes: NestedRoute[] = [
     main: Accounts,
     icon: <AccountsIcon />,
     category: RouteCategory.Wallet,
+    mobileNav: true,
     routes: [
       {
         path: '/:accountId',
@@ -115,6 +117,7 @@ export const routes: NestedRoute[] = [
     icon: <DefiIcon />,
     main: null,
     category: RouteCategory.Explore,
+    mobileNav: true,
     routes: [
       {
         path: '/',
@@ -155,6 +158,7 @@ export const routes: NestedRoute[] = [
     path: '/trade',
     label: 'navBar.trade',
     icon: <IoSwapVertical />,
+    mobileNav: true,
     main: Trade,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({
@@ -170,6 +174,7 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
+    mobileNav: true,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',
       path: assetIdPath,

@@ -1,10 +1,12 @@
+import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import flatMapDeep from 'lodash/flatMapDeep'
+import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
 import { isSome } from 'lib/utils'
 
-import type { ValidatorId } from '../../types'
-import { toValidatorId } from '../../utils'
+import type { OpportunitiesState, ValidatorId } from '../../types'
+import { serializeUserStakingId, toValidatorId } from '../../utils'
 
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
@@ -33,3 +35,38 @@ export const makeUniqueValidatorAccountIds = (
       ),
     ]),
   )
+
+export const makeAccountUserData = ({
+  cosmosAccount,
+  validatorIds,
+}: {
+  cosmosAccount: Account<CosmosSdkChainId>
+  validatorIds: ValidatorId[]
+}): OpportunitiesState['userStaking']['byId'] => {
+  const delegations = cosmosAccount.chainSpecific.delegations
+  const undelegations = cosmosAccount.chainSpecific.delegations
+  const rewards = cosmosAccount.chainSpecific.delegations
+
+  const delegationsByValidator = groupBy(delegations, delegation => delegation.validator.address)
+  const undelegationsByValidator = groupBy(
+    undelegations,
+    undelegation => undelegation.validator.address,
+  )
+  const rewardsByValidator = groupBy(rewards, reward => reward.validator.address)
+
+  return validatorIds.reduce((acc, validatorId) => {
+    debugger
+    const validatorAddress = fromAccountId(validatorId).account
+    const userStakingId = serializeUserStakingId(
+      toAccountId({ account: cosmosAccount.pubkey, chainId: cosmosAccount.chainId }),
+      validatorId,
+    )
+    debugger
+
+    acc[userStakingId] = {}
+    return acc
+  }, {})
+
+  // Use this to key by validatorId
+  // const validatorId = toValidatorId(toValidatorIdParts)
+}

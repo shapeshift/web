@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.7.0...@shapeshiftoss/asset-service-v8.8.0) (2023-02-02)
+
+
+### Features
+
+* **asset-service:** regenerate asset data ([#1188](https://github.com/shapeshift/lib/issues/1188)) ([15c0b08](https://github.com/shapeshift/lib/commit/15c0b088866d4b689bd20ebc324e5cdaa1eb048d))
+
 # [@shapeshiftoss/asset-service-v8.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.6.3...@shapeshiftoss/asset-service-v8.7.0) (2023-01-23)
 
 

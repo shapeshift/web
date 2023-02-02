@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react'
 
 export const useWalletConnectWallet = () => {
   const [core, setCore] = useState<ICore>()
-  const [wallet, setWallet] = useState<IWeb3Wallet>()
+  const [web3wallet, setWeb3wallet] = useState<IWeb3Wallet>()
   useEffect(() => {
     ;(async () => {
       setCore(getWalletConnectCore())
-      setWallet(await getWalletConnectWallet())
+      setWeb3wallet(await getWalletConnectWallet())
     })()
   }, [])
 
-  return { core, wallet }
+  return { core, web3wallet }
 }

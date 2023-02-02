@@ -4,7 +4,6 @@ import { OsmosisWithdrawActionType } from './WithdrawCommon'
 export const initialState: OsmosisWithdrawState = {
   txid: null,
   opportunity: null,
-  poolData: null,
   userAddress: null,
   loading: false,
   withdraw: {
@@ -30,8 +29,6 @@ export const reducer = (
   switch (action.type) {
     case OsmosisWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
-    case OsmosisWithdrawActionType.SET_POOL_DATA:
-      return { ...state, poolData: { ...state.poolData, ...action.payload } }
     case OsmosisWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case OsmosisWithdrawActionType.SET_USER_ADDRESS:

@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
 import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -23,6 +23,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
+  getPool,
+  getPoolIdFromAssetReference,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
@@ -44,17 +48,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
-  const opportunity = state?.opportunity
+  const osmosisOpportunity = state?.opportunity
 
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
 
   const underlyingAsset0 = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetIds[0] || ''),
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] || ''),
   )
   const underlyingAsset1 = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetIds[1] || ''),
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] || ''),
   )
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, osmosisAssetId))
@@ -73,8 +77,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
     [accountId, feeAsset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, feeAssetBalanceFilter),
   )
 
   const handleWithdraw = useCallback(async () => {
@@ -82,12 +86,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       !(
         contextDispatch &&
         state &&
-        state.poolData &&
+        state.withdraw.underlyingAsset0 &&
+        state.withdraw.underlyingAsset1 &&
         userAddress &&
         walletState &&
         walletState.wallet &&
         supportsOsmosis(walletState.wallet) &&
-        opportunity &&
+        osmosisOpportunity &&
         chainAdapter &&
         bip44Params
       )
@@ -95,8 +100,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return
     }
     try {
+      const { assetReference: poolAssetReference } = fromAssetId(osmosisOpportunity.assetId)
+      const id = getPoolIdFromAssetReference(poolAssetReference)
+      if (!id) return
+
+      const poolData = await getPool(id)
+      if (!poolData) return
+
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
 
+      if (!(poolData && poolData.id && walletState && walletState.wallet)) return
       const estimatedFees = await chainAdapter.getFeeData({ sendMax: false })
       const result = await (async () => {
         const fees = estimatedFees.average as FeeData<CosmosSdkChainId>
@@ -105,11 +118,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           txFee,
         } = fees
 
-        if (!state.poolData || !state.poolData.id || !walletState.wallet) return
         const { accountNumber } = bip44Params
 
+        if (!(walletState && walletState.wallet)) return
         return await chainAdapter.buildLPRemoveTransaction({
-          poolId: state.poolData.id,
+          poolId: poolData.id,
           shareOutAmount: state.withdraw.shareInAmount,
           tokenOutMins: [
             {
@@ -185,7 +198,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state,
     userAddress,
     walletState,
-    opportunity,
+    osmosisOpportunity,
     chainAdapter,
     bip44Params,
     onNext,

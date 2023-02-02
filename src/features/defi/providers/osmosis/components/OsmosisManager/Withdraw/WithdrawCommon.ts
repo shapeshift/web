@@ -1,7 +1,4 @@
-import type {
-  OsmosisPool,
-  OsmosisToken,
-} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import type { OsmosisToken } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedFee = {
@@ -22,7 +19,6 @@ type OsmosisWithdrawValues = WithdrawValues &
 
 export type OsmosisWithdrawState = {
   opportunity: LpEarnOpportunityType | null
-  poolData: Partial<OsmosisPool> | null
   userAddress: string | null
   withdraw: OsmosisWithdrawValues
   loading: boolean
@@ -31,7 +27,6 @@ export type OsmosisWithdrawState = {
 
 export enum OsmosisWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_POOL_DATA = 'SET_POOL_DATA',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
@@ -42,11 +37,6 @@ export enum OsmosisWithdrawActionType {
 type SetOpportunityAction = {
   type: OsmosisWithdrawActionType.SET_OPPORTUNITY
   payload: LpEarnOpportunityType
-}
-
-type SetPoolData = {
-  type: OsmosisWithdrawActionType.SET_POOL_DATA
-  payload: OsmosisPool
 }
 
 type SetUserAddress = {
@@ -76,7 +66,6 @@ type SetTxStatus = {
 
 export type OsmosisWithdrawActions =
   | SetOpportunityAction
-  | SetPoolData
   | SetUserAddress
   | SetWithdraw
   | SetUserAddress

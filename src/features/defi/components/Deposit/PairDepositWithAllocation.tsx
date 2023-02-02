@@ -1,7 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
-import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { calculateYearlyYield } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import type { ControllerProps } from 'react-hook-form'
@@ -16,6 +15,8 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
@@ -30,25 +31,19 @@ type DepositProps = {
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): { allocationFraction: string; shareOutAmount: string }
+  ): Promise<{ allocationFraction: string; shareOutAmount: string } | undefined>
   // Users available amount
   cryptoAmountAvailable1: string
   cryptoAmountAvailable2: string
   // Validation rules for the crypto input
   cryptoInputValidation1?: ControllerProps['rules']
   cryptoInputValidation2?: ControllerProps['rules']
-  // Users available amount
-  fiatAmountAvailable1: string
-  fiatAmountAvailable2: string
+
   // Validation rules for the fiat input
   fiatInputValidation1?: ControllerProps['rules']
   fiatInputValidation2?: ControllerProps['rules']
   // enables slippage UI (defaults to true)
   enableSlippage?: boolean
-  // Asset1 market data
-  marketData1: MarketData
-  // Asset2 market data
-  marketData2: MarketData
   // Array of the % options
   percentOptions: number[]
   isLoading: boolean
@@ -89,14 +84,10 @@ export const PairDepositWithAllocation = ({
   cryptoInputValidation1,
   cryptoInputValidation2,
   destAsset,
-  fiatAmountAvailable1,
-  fiatAmountAvailable2,
   fiatInputValidation1,
   fiatInputValidation2,
   icons,
   isLoading,
-  marketData1,
-  marketData2,
   onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
@@ -158,8 +149,11 @@ export const PairDepositWithAllocation = ({
   const fiatError2 = get(errors, 'fiatAmount2.message', null)
   const fieldError = cryptoError1 || cryptoError2 || fiatError1 || fiatError2
 
-  const handleInputChange = (value: string, isForAsset1: boolean, isFiat?: boolean) => {
-    const assetMarketData = isForAsset1 ? marketData1 : marketData2
+  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, asset1.assetId))
+  const asset2MarketData = useAppSelector(state => selectMarketDataById(state, asset2.assetId))
+
+  const handleInputChange = async (value: string, isForAsset1: boolean, isFiat?: boolean) => {
+    const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
     const selectedAsset = isForAsset1 ? asset1 : asset2
@@ -167,7 +161,7 @@ export const PairDepositWithAllocation = ({
     // for keeping inputs synced
     const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const otherCryptoInput = !isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-    const otherAssetMarketData = !isForAsset1 ? marketData1 : marketData2
+    const otherAssetMarketData = !isForAsset1 ? asset1MarketData : asset2MarketData
     if (isFiat) {
       setValue(fiatField, value, { shouldValidate: true })
       setValue(cryptoField, bnOrZero(value).div(assetMarketData.price).toString(), {
@@ -197,13 +191,16 @@ export const PairDepositWithAllocation = ({
       }
     }
     if (!calculateAllocations) return
-    const allocations = calculateAllocations(selectedAsset, value)
+
+    const allocations = await calculateAllocations(selectedAsset, value)
+    if (!allocations) return
+
     setValue(Field.AllocationFraction, allocations.allocationFraction)
     setValue(Field.ShareOutAmount, allocations.shareOutAmount)
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {
-    const assetMarketData = isForAsset1 ? marketData1 : marketData2
+    const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
     const cryptoAmount = bnOrZero(
@@ -220,7 +217,7 @@ export const PairDepositWithAllocation = ({
       // for keeping inputs synced
       const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
       const otherCryptoInput = !isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-      const otherAssetMarketData = !isForAsset1 ? marketData1 : marketData2
+      const otherAssetMarketData = !isForAsset1 ? asset1MarketData : asset2MarketData
       setValue(otherFiatInput, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -231,7 +228,13 @@ export const PairDepositWithAllocation = ({
   }
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData1.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield).times(asset1MarketData.price).toFixed(2)
+  const fiatAmountAvailable1 = bnOrZero(cryptoAmountAvailable1)
+    .times(asset1MarketData.price)
+    .toString()
+  const fiatAmountAvailable2 = bnOrZero(cryptoAmountAvailable2)
+    .times(asset1MarketData.price)
+    .toString()
 
   return (
     <>

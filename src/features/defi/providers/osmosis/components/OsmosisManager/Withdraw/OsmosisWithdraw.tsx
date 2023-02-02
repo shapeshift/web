@@ -1,7 +1,6 @@
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -19,11 +18,6 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import {
-  getPool,
-  getPoolIdFromAssetReference,
-} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -71,7 +65,7 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
     [assetId, assetNamespace, assetReference, chainId],
   )
 
-  const OsmosisLpOpportunityFilter = useMemo(
+  const osmosisLpOpportunityFilter = useMemo(
     () => ({
       lpId: opportunityId,
       assetId,
@@ -79,24 +73,15 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
     }),
     [accountId, assetId, opportunityId],
   )
-  const opportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
+  const osmosisOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, osmosisLpOpportunityFilter),
   )
 
-  const underlyingAsset0Id = useMemo(
-    () => opportunity?.underlyingAssetIds[0] ?? '',
-    [opportunity?.underlyingAssetIds],
+  const underlyingAsset0 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
   )
-  const underlyingAsset1Id = useMemo(
-    () => opportunity?.underlyingAssetIds[1] ?? '',
-    [opportunity?.underlyingAssetIds],
-  )
-
-  const underlyingAsset0: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, underlyingAsset0Id),
-  )
-  const underlyingAsset1: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, underlyingAsset1Id),
+  const underlyingAsset1 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
 
   const handleBack = () => {
@@ -128,7 +113,7 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [underlyingAsset0, underlyingAsset1, translate, accountId, handleAccountIdChange])
@@ -139,25 +124,11 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
       payload: userAddress ?? '',
     })
 
-    if (!opportunity) return
-    dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: opportunity })
+    if (!osmosisOpportunity) return
+    dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
+  }, [osmosisOpportunity, userAddress])
 
-    const getPoolData = async (): Promise<OsmosisPool | undefined> => {
-      const opportunityAssetId = opportunity.assetId
-      if (!opportunityAssetId) return
-      const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
-      if (!poolAssetReference) return
-      const id = getPoolIdFromAssetReference(poolAssetReference)
-      if (!id) return
-      return await getPool(id)
-    }
-    getPoolData().then(data => {
-      if (!data) return
-      dispatch({ type: OsmosisWithdrawActionType.SET_POOL_DATA, payload: data })
-    })
-  }, [opportunity, userAddress])
-
-  if (loading || !asset || !marketData || !opportunity || !StepConfig) {
+  if (loading || !asset || !marketData || !osmosisOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -170,7 +141,7 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: opportunity.opportunityName!,
+            opportunity: osmosisOpportunity.opportunityName!,
           })}
           onBack={handleBack}
         />

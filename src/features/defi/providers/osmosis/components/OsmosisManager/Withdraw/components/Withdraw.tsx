@@ -1,7 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  fromAccountId,
+  fromAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -11,7 +17,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -24,6 +30,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  getPool,
+  getPoolIdFromAssetReference,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -52,7 +62,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const opportunity = state?.opportunity
+  const osmosisOpportunity = state?.opportunity
+
+  const [poolAssetMarketData, setPoolAssetMarketData] = useState<MarketData | undefined>(undefined)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -67,28 +79,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
 
-  const underlyingAsset0Id = opportunity?.underlyingAssetIds[0] || ''
-  const underlyingAsset1Id = opportunity?.underlyingAssetIds[1] || ''
-  const underlyingAsset0 = useAppSelector(state => selectAssetById(state, underlyingAsset0Id))
-  const underlyingAsset1 = useAppSelector(state => selectAssetById(state, underlyingAsset1Id))
+  const underlyingAsset0 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
+  )
+  const underlyingAsset1 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
+  )
 
   const [underlyingAsset0AmountCryptoBaseUnit, setUnderlyingAsset0AmountCryptoBaseUnit] =
     useState('0')
   const [underlyingAsset1AmountCryptoBaseUnit, setUnderlyingAsset1AmountCryptoBaseUnit] =
     useState('0')
-
-  /* No market exists for Osmosis pool assets, but we can calculate the 'price' of each pool token
-  by dividing the pool TVL by the total number of pool tokens. */
-  const poolAssetMarketData: MarketData = {
-    price: bnOrZero(state?.poolData?.tvl)
-      .dividedBy(bnOrZero(state?.poolData?.total_shares?.amount))
-      .toString(),
-    marketCap: bnOrZero(state?.poolData?.tvl).toString(),
-    volume: bn(0).toString(),
-    changePercent24Hr: bn(0).toNumber(),
-    supply: bnOrZero(state?.poolData?.total_shares?.amount).toString(),
-    maxSupply: bnOrZero(state?.poolData?.total_shares?.amount).toString(),
-  }
 
   const { data: underlyingAsset0Data } = useFindByAssetIdQuery(underlyingAsset0?.assetId || '')
   const underlyingAsset0MarketData = underlyingAsset0Data?.[underlyingAsset0?.assetId || '']
@@ -101,7 +102,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const toast = useToast()
 
   const getWithdrawFeeEstimate = useCallback(async (): Promise<string | undefined> => {
-    if (!(userAddress && assetReference && accountId && opportunity)) return
+    if (!(userAddress && assetReference && accountId && osmosisOpportunity)) return
     try {
       const chainAdapters = getChainAdapterManager()
       const adapter = chainAdapters.get(
@@ -129,7 +130,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         status: 'error',
       })
     }
-  }, [userAddress, assetReference, accountId, opportunity, asset, chainId, toast, translate])
+  }, [userAddress, assetReference, accountId, osmosisOpportunity, asset, chainId, toast, translate])
 
   const underlyingAsset0AmountCryptoPrecision = bnOrZero(underlyingAsset0AmountCryptoBaseUnit)
     .dividedBy(bn(10).pow(underlyingAsset0?.precision ?? 0))
@@ -139,92 +140,104 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     .dividedBy(bn(10).pow(underlyingAsset0?.precision ?? 0))
     .toString()
 
-  const fiatAmountAvailable = bnOrZero(opportunity?.cryptoAmountBaseUnit)
+  const fiatAmountAvailable = bnOrZero(osmosisOpportunity?.cryptoAmountBaseUnit)
     .div(bn(10).pow(asset?.precision ?? 0))
-    .times(poolAssetMarketData?.price ?? '0')
+    .times(poolAssetMarketData ? poolAssetMarketData?.price ?? '0' : '0')
     .toString()
 
   // user info
 
-  const filter = useMemo(
-    () => ({ assetId: opportunity?.assetId ?? '', accountId: accountId ?? '' }),
-    [opportunity?.assetId, accountId],
+  const lpAsset = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: osmosisOpportunity?.assetId,
+      accountId: accountId ?? '',
+    }),
+  )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision ?? 0))
+  const cryptoAmountAvailable = bnOrZero(lpAssetBalance).div(bn(10).pow(asset?.precision ?? 0))
 
   const calculateTokenOutMins = useCallback(
-    (inputPoolSharesBaseUnits: string): { amount: string; denom: string }[] => {
-      const defaultReturn = [
-        {
-          amount: '',
-          denom: '',
-        },
-        {
-          amount: '',
-          denom: '',
-        },
-      ]
+    async (
+      inputPoolSharesBaseUnit: string,
+    ): Promise<{ amount: string; denom: string }[] | undefined> => {
+      if (
+        !(osmosisOpportunity && state && state.opportunity && underlyingAsset0 && underlyingAsset1)
+      ) {
+        return undefined
+      }
+
+      const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
+      const id = getPoolIdFromAssetReference(poolAssetReference)
+      if (!id) return undefined
+
+      const poolData = await getPool(id)
+
       if (
         !(
-          opportunity &&
-          state &&
-          state.poolData &&
-          state.poolData.pool_assets &&
-          state.poolData.total_shares &&
-          underlyingAsset0 &&
-          underlyingAsset1 &&
-          !(state.poolData.total_weight === '0')
+          poolData &&
+          poolData.pool_assets &&
+          poolData.total_shares &&
+          poolData.total_weight !== '0'
         )
       ) {
-        return defaultReturn
+        return undefined
       }
 
       /** asset_n_proportional_weight = asset_n_weight / total_pool_weight
        * This represents the proportional weight (think partial pressure from chemistry ) of asset n in the liquidity pool */
-      const asset0ProportionalWeight = bnOrZero(state.poolData.pool_assets[0].weight)
-        .dividedBy(bnOrZero(state.poolData.total_weight))
+      const asset0ProportionalWeight = bnOrZero(poolData.pool_assets[0].weight)
+        .dividedBy(bnOrZero(poolData.total_weight))
         .toString()
-      const asset1ProportionalWeight = bnOrZero(state.poolData.pool_assets[1].weight)
-        .dividedBy(bnOrZero(state.poolData.total_weight))
+      const asset1ProportionalWeight = bnOrZero(poolData.pool_assets[1].weight)
+        .dividedBy(bnOrZero(poolData.total_weight))
         .toString()
 
       /**
        * pool_share_fraction = input_pool_shares / total_pool_shares
        * This represents the fraction of the total number of pool LP tokens being redeemed
        */
-      if (bnOrZero(state.poolData.total_shares.amount).eq(bn(0))) return defaultReturn
-      const poolShareFraction = bnOrZero(inputPoolSharesBaseUnits)
-        .dividedBy(state.poolData.total_shares.amount)
+      if (bnOrZero(poolData.total_shares.amount).eq(bn(0))) return undefined
+      const poolShareFraction = bnOrZero(inputPoolSharesBaseUnit)
+        .dividedBy(poolData.total_shares.amount)
         .toString()
 
       /**
        * token_out_n_amount = token_n_amount * pool_share_fraction * asset_n_proportional_weight
        * This represents the number of each underlying token being returned to the user
        */
-
-      const tokenOut0AmountBaseUnits = bnOrZero(state.poolData.pool_assets[0].token.amount)
+      const tokenOut0AmountBaseUnit = bnOrZero(poolData.pool_assets[0].token.amount)
         .multipliedBy(poolShareFraction)
         .multipliedBy(asset0ProportionalWeight)
         .toString()
-      const tokenOut1AmountBaseUnits = bnOrZero(state.poolData.pool_assets[1].token.amount)
+      const tokenOut1AmountBaseUnit = bnOrZero(poolData.pool_assets[1].token.amount)
         .multipliedBy(poolShareFraction)
         .multipliedBy(asset1ProportionalWeight)
         .toString()
 
+      const asset0Reference = fromAssetId(underlyingAsset0.assetId).assetReference
+      const asset1Reference = fromAssetId(underlyingAsset1.assetId).assetReference
+
       return [
         {
-          amount: tokenOut0AmountBaseUnits,
-          denom: fromAssetId(underlyingAsset0.assetId).assetReference,
+          amount: tokenOut0AmountBaseUnit,
+          denom:
+            asset0Reference === ASSET_REFERENCE.Osmosis
+              ? 'uosmo'
+              : `${ASSET_NAMESPACE.ibc}/${asset0Reference}`,
         },
         {
-          amount: tokenOut1AmountBaseUnits,
-          denom: fromAssetId(underlyingAsset1.assetId).assetReference,
+          amount: tokenOut1AmountBaseUnit,
+          denom:
+            asset1Reference === ASSET_REFERENCE.Osmosis
+              ? 'uosmo'
+              : `${ASSET_NAMESPACE.ibc}/${asset1Reference}`,
         },
       ]
     },
-    [opportunity, state, underlyingAsset0, underlyingAsset1],
+    [osmosisOpportunity, state, underlyingAsset0, underlyingAsset1],
   )
 
   const handleContinue = useCallback(
@@ -235,7 +248,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           state &&
           contextDispatch &&
           userAddress &&
-          opportunity &&
+          osmosisOpportunity &&
           underlyingAsset0 &&
           underlyingAsset1
         )
@@ -243,7 +256,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         return
       // set withdraw state for future use
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
-      const tokenOutMins = calculateTokenOutMins(formValues.cryptoAmount)
+      const tokenOutMins = await calculateTokenOutMins(formValues.cryptoAmount)
+      if (!tokenOutMins) return
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
         payload: {
@@ -270,7 +284,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       state,
       contextDispatch,
       userAddress,
-      opportunity,
+      osmosisOpportunity,
       underlyingAsset0,
       underlyingAsset1,
       calculateTokenOutMins,
@@ -279,9 +293,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     ],
   )
 
-  const handleCancel = useCallback(() => {
-    browserHistory.goBack()
-  }, [browserHistory])
+  const handleCancel = browserHistory.goBack
 
   const handlePercentClick = (percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toString()
@@ -290,14 +302,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
     if (
-      opportunity?.underlyingToken1AmountCryptoBaseUnit &&
-      opportunity?.underlyingToken0AmountCryptoBaseUnit
+      osmosisOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
+      osmosisOpportunity?.underlyingToken0AmountCryptoBaseUnit
     ) {
       setUnderlyingAsset1AmountCryptoBaseUnit(
-        bnOrZero(percent).times(opportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(),
+        bnOrZero(percent).times(osmosisOpportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(),
       )
       setUnderlyingAsset0AmountCryptoBaseUnit(
-        bnOrZero(percent).times(opportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(),
+        bnOrZero(percent).times(osmosisOpportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(),
       )
     }
   }
@@ -306,29 +318,54 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       bnOrZero(isFiat ? fiatAmountAvailable : cryptoAmountAvailable),
     )
     if (
-      opportunity?.underlyingToken1AmountCryptoBaseUnit &&
-      opportunity?.underlyingToken0AmountCryptoBaseUnit
+      osmosisOpportunity?.underlyingToken1AmountCryptoBaseUnit &&
+      osmosisOpportunity?.underlyingToken0AmountCryptoBaseUnit
     ) {
       setUnderlyingAsset1AmountCryptoBaseUnit(
-        percentage.times(opportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(8),
+        percentage.times(osmosisOpportunity.underlyingToken1AmountCryptoBaseUnit).toFixed(8),
       )
       setUnderlyingAsset0AmountCryptoBaseUnit(
-        percentage.times(opportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(8),
+        percentage.times(osmosisOpportunity.underlyingToken0AmountCryptoBaseUnit).toFixed(8),
       )
     }
   }
+
+  useEffect(() => {
+    const getPoolAssetMarketData = async () => {
+      /* No market exists for Osmosis pool assets, but we can calculate the 'price' of each pool token
+    by dividing the pool TVL by the total number of pool tokens. */
+      if (!(state && state.opportunity)) return undefined
+
+      const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
+      const id = getPoolIdFromAssetReference(poolAssetReference)
+      if (!id) return undefined
+
+      const poolData = await getPool(id)
+      if (!(poolData && poolData.total_shares)) return undefined
+
+      setPoolAssetMarketData({
+        price: bnOrZero(poolData.tvl).dividedBy(bnOrZero(poolData.total_shares.amount)).toString(),
+        marketCap: bnOrZero(poolData.tvl).toString(),
+        volume: bn(0).toString(),
+        changePercent24Hr: bn(0).toNumber(),
+        supply: bnOrZero(poolData.total_shares.amount).toString(),
+        maxSupply: bnOrZero(poolData.total_shares.amount).toString(),
+      })
+    }
+    getPoolAssetMarketData()
+  }, [state])
 
   if (
     !(
       asset &&
       state &&
-      opportunity &&
+      osmosisOpportunity &&
       underlyingAsset0 &&
       underlyingAsset1 &&
       poolAssetMarketData &&
       underlyingAsset0MarketData &&
       underlyingAsset1MarketData &&
-      opportunity?.icons
+      osmosisOpportunity?.icons
     )
   ) {
     return null
@@ -355,7 +392,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       <ReusableWithdraw
         accountId={accountId}
         asset={asset}
-        icons={opportunity?.icons}
+        icons={osmosisOpportunity?.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{
           required: true,
@@ -370,7 +407,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}
-        isLoading={state.loading || !opportunity}
+        isLoading={state.loading || !osmosisOpportunity}
         percentOptions={[0.25, 0.5, 0.75, 1]}
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
@@ -388,12 +425,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetId={underlyingAsset0.assetId}
             assetIcon={underlyingAsset0.icon}
             assetSymbol={underlyingAsset0.symbol}
-            balance={bnOrZero(opportunity.underlyingToken0AmountCryptoBaseUnit)
-              .div(bn(10).pow(assets[opportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0'))
+            balance={bnOrZero(osmosisOpportunity.underlyingToken0AmountCryptoBaseUnit)
+              .div(
+                bn(10).pow(
+                  assets[osmosisOpportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
+                ),
+              )
               .toFixed()}
             fiatBalance={bnOrZero(
               fromBaseUnit(
-                opportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
+                osmosisOpportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
                 underlyingAsset0?.precision,
               ),
             )
@@ -412,12 +453,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetId={underlyingAsset1.assetId}
             assetIcon={underlyingAsset1.icon}
             assetSymbol={underlyingAsset1.symbol}
-            balance={bnOrZero(opportunity.underlyingToken1AmountCryptoBaseUnit)
-              .div(bn(10).pow(assets[opportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0'))
+            balance={bnOrZero(osmosisOpportunity.underlyingToken1AmountCryptoBaseUnit)
+              .div(
+                bn(10).pow(
+                  assets[osmosisOpportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
+                ),
+              )
               .toFixed()}
             fiatBalance={bnOrZero(
               fromBaseUnit(
-                opportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
+                osmosisOpportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
                 underlyingAsset1?.precision,
               ),
             )

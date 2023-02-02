@@ -1,7 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -18,11 +18,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import {
-  getPool,
-  getPoolIdFromAssetReference,
-} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -77,44 +72,24 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
     selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
 
-  const OsmosisLpOpportunityFilter = useMemo(
+  const osmosisLpOpportunityFilter = useMemo(
     () => ({
       lpId: opportunityId ?? '',
       assetId,
-      accountId: highestBalanceAccountId ?? '',
+      accountId: accountId ?? highestBalanceAccountId ?? '',
     }),
-    [assetId, highestBalanceAccountId, opportunityId],
+    [accountId, assetId, highestBalanceAccountId, opportunityId],
   )
-  const opportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, OsmosisLpOpportunityFilter),
-  )
-
-  const underlyingAsset0Id = useMemo(
-    () => opportunity?.underlyingAssetIds[0] ?? '',
-    [opportunity?.underlyingAssetIds],
-  )
-  const underlyingAsset1Id = useMemo(
-    () => opportunity?.underlyingAssetIds[1] ?? '',
-    [opportunity?.underlyingAssetIds],
+  const osmosisOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, osmosisLpOpportunityFilter),
   )
 
   const underlyingAsset0: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, underlyingAsset0Id),
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
   )
   const underlyingAsset1: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, underlyingAsset1Id),
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
-
-  const getPoolData = useCallback(async (): Promise<OsmosisPool | undefined> => {
-    if (!opportunity) return undefined
-    const opportunityAssetId = opportunity.assetId
-    if (!opportunityAssetId) return
-    const { assetReference: poolAssetReference } = fromAssetId(opportunityAssetId)
-    if (!poolAssetReference) return
-    const id = getPoolIdFromAssetReference(poolAssetReference)
-    if (!id) return
-    return await getPool(id)
-  }, [opportunity])
 
   useEffect(() => {
     ;(() => {
@@ -123,15 +98,10 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
         payload: userAddress ?? '',
       })
 
-      if (!opportunity) return
-      dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: opportunity })
-
-      getPoolData().then(data => {
-        if (!data) return
-        dispatch({ type: OsmosisDepositActionType.SET_POOL_DATA, payload: data })
-      })
+      if (!osmosisOpportunity) return
+      dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
     })()
-  }, [getPoolData, opportunity, userAddress])
+  }, [osmosisOpportunity, userAddress])
 
   const handleBack = () => {
     history.push({
@@ -169,7 +139,7 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !opportunity || !StepConfig) {
+  if (loading || !asset || !osmosisOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -182,7 +152,7 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', {
-            opportunity: opportunity.opportunityName!,
+            opportunity: osmosisOpportunity.opportunityName!,
           })}
           onBack={handleBack}
         />

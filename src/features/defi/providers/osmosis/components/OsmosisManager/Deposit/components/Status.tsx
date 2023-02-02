@@ -15,7 +15,8 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -136,7 +137,9 @@ export const Status = () => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.deposit.underlyingAsset0.amount}
+                value={bnOrZero(state.deposit.underlyingAsset0.amount)
+                  .dividedBy(bn(10).pow(underlyingAsset0.precision))
+                  .toString()}
                 symbol={underlyingAsset0.symbol}
               />
             </Row.Value>
@@ -148,7 +151,9 @@ export const Status = () => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.deposit.underlyingAsset1.amount}
+                value={bnOrZero(state.deposit.underlyingAsset1.amount)
+                  .dividedBy(bn(10).pow(underlyingAsset1.precision))
+                  .toString()}
                 symbol={underlyingAsset1.symbol}
               />
             </Row.Value>
@@ -170,8 +175,12 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedFeeCrypto
-                    : state.deposit.usedGasFee,
+                    ? bnOrZero(state?.deposit?.estimatedFeeCrypto)
+                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                        .toString()
+                    : bnOrZero(state?.deposit?.usedGasFee)
+                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                        .toString(),
                 )
                   .times(feeAssetMarketData.price)
                   .toFixed(2)}
@@ -180,8 +189,12 @@ export const Status = () => {
                 color='gray.500'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedFeeCrypto
-                    : state.deposit.usedGasFee,
+                    ? bnOrZero(state?.deposit?.estimatedFeeCrypto)
+                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                        .toString()
+                    : bnOrZero(state?.deposit?.usedGasFee)
+                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                        .toString(),
                 ).toFixed(5)}
                 symbol='ETH'
               />

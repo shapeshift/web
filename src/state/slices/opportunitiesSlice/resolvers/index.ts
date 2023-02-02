@@ -1,6 +1,9 @@
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
-import { cosmosSdkOpportunityIdsResolver } from './cosmosSdk'
+import {
+  cosmosSdkOpportunityIdsResolver,
+  cosmosSdkStakingOpportunitiesMetadataResolver,
+} from './cosmosSdk'
 import {
   foxFarmingLpMetadataResolver,
   foxFarmingLpOpportunityIdsResolver,
@@ -45,6 +48,9 @@ export const DefiProviderToMetadataResolverByDeFiType = {
 export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
+  },
+  [`${DefiProvider.Cosmos}`]: {
+    [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunitiesMetadataResolver,

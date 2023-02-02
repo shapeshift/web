@@ -114,6 +114,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
         const marketData = selectMarketDataById(state, assetId)
 
         const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
+
         return {
           validatorId,
           apy: data.apr,
@@ -138,12 +139,12 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
     }),
   ).then(settledValidatorPromises =>
     settledValidatorPromises.reduce<Record<StakingId, OpportunityMetadata>>(
-      (acc, settledValidator) => {
-        if (isRejected(settledValidator)) {
-          moduleLogger.error(settledValidator.reason, 'Error fetching Cosmos SDK validator')
+      (acc, settledValidatorPromise) => {
+        if (isRejected(settledValidatorPromise)) {
+          moduleLogger.error(settledValidatorPromise.reason, 'Error fetching Cosmos SDK validator')
         }
-        if (isFulfilled(settledValidator) && settledValidator.value) {
-          const { validatorId, ...opportunityMetadata } = settledValidator.value
+        if (isFulfilled(settledValidatorPromise) && settledValidatorPromise.value) {
+          const { validatorId, ...opportunityMetadata } = settledValidatorPromise.value
 
           acc[validatorId] = opportunityMetadata
         }

@@ -47,6 +47,17 @@ export const fetchAllStakingOpportunitiesMetadata = async (
       opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
         {
           defiType: DefiType.Staking,
+          defiProvider: DefiProvider.Cosmos,
+          opportunityType: DefiType.Staking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
+    store.dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+        {
+          defiType: DefiType.Staking,
           defiProvider: DefiProvider.ThorchainSavers,
           opportunityType: DefiType.Staking,
         },

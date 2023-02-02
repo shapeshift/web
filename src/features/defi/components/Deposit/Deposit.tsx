@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
+import type { PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 import type { ControllerProps, UseFormSetValue } from 'react-hook-form'
 import { useController, useForm, useWatch } from 'react-hook-form'
@@ -43,8 +44,9 @@ type DepositProps = {
   onContinue(values: DepositValues): void
   onBack?(): void
   onCancel(): void
+  onChange?(fiatAmount: string, cryptoAmount: string): void
   inputIcons?: string[]
-}
+} & PropsWithChildren
 
 export enum Field {
   FiatAmount = 'fiatAmount',
@@ -78,9 +80,11 @@ export const Deposit = ({
   onContinue,
   onMaxClick,
   onPercentClick,
+  onChange,
   percentOptions,
   inputIcons,
   rewardAsset,
+  children,
 }: DepositProps) => {
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
@@ -118,17 +122,21 @@ export const Deposit = ({
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (isFiat) {
+      const cryptoAmount = bnOrZero(value).div(marketData.price).toString()
       setValue(Field.FiatAmount, value, { shouldValidate: true })
-      setValue(Field.CryptoAmount, bnOrZero(value).div(marketData.price).toString(), {
+      setValue(Field.CryptoAmount, cryptoAmount, {
         shouldValidate: true,
       })
+      onChange && onChange(value, cryptoAmount)
     } else {
-      setValue(Field.FiatAmount, bnOrZero(value).times(marketData.price).toString(), {
+      const fiatAmount = bnOrZero(value).times(marketData.price).toString()
+      setValue(Field.FiatAmount, fiatAmount, {
         shouldValidate: true,
       })
       setValue(Field.CryptoAmount, value, {
         shouldValidate: true,
       })
+      onChange && onChange(fiatAmount, value)
     }
   }
 
@@ -149,8 +157,9 @@ export const Deposit = ({
       setValue(Field.CryptoAmount, percentageCryptoAmountHuman, {
         shouldValidate: true,
       })
+      onChange && onChange(percentageFiatAmount.toString(), percentageCryptoAmountHuman)
     },
-    [asset.precision, cryptoAmountAvailable, marketData.price, onPercentClick, setValue],
+    [asset.precision, cryptoAmountAvailable, marketData.price, onChange, onPercentClick, setValue],
   )
 
   const onSubmit = (values: DepositValues) => {
@@ -196,6 +205,7 @@ export const Deposit = ({
             </Row.Value>
           </Row>
         </FormField>
+        {children}
         <Button
           size='lg'
           width='full'

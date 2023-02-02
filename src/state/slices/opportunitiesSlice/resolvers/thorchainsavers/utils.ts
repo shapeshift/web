@@ -34,7 +34,7 @@ import type {
 } from './types'
 
 const THOR_PRECISION = '8'
-const BASE_BPS_POINTS = '10000'
+export const BASE_BPS_POINTS = '10000'
 const SAVERS_UPDATE_TIME = 25000 // The time it takes for savers to be updated (currently ~15s + some 10s buffer)
 
 export const THORCHAIN_AFFILIATE_NAME = 'ss'

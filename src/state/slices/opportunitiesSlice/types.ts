@@ -62,6 +62,7 @@ export type StakingId = Nominal<string, 'StakingId'> & AssetId
 export type LpId = Nominal<string, 'LpId'> & AssetId
 
 export type OpportunityId = LpId | StakingId
+export type ValidatorId = Nominal<string, 'ValidatorId'> & AccountId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 

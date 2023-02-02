@@ -3,7 +3,7 @@ import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import flatMapDeep from 'lodash/flatMapDeep'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
 import type {
@@ -68,15 +68,20 @@ export const makeAccountUserData = ({
       validatorId,
     )
 
-    const maybeValidatorDelegations = delegationsByValidator[validatorAddress][0]
+    const maybeValidatorDelegations = bnOrZero(
+      delegationsByValidator[validatorAddress]?.[0]?.amount,
+    )
     const maybeValidatorRewards = rewardsByValidator[validatorAddress]?.[0]?.rewards
-    const maybeValidatorRewardsAggregated = maybeValidatorRewards
-      ? maybeValidatorRewards.reduce((a, b) => a.plus(b.amount), bn(0)).toFixed()
-      : '0'
+    const maybeValidatorRewardsAggregated = (maybeValidatorRewards ?? []).reduce(
+      (a, b) => a.plus(b.amount),
+      bn(0),
+    )
 
-    acc[userStakingId] = {
-      stakedAmountCryptoBaseUnit: maybeValidatorDelegations?.amount ?? '0',
-      rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated ?? '0'],
+    if (maybeValidatorDelegations.gt(0) || maybeValidatorRewardsAggregated.gt(0)) {
+      acc[userStakingId] = {
+        stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
+        rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
+      }
     }
 
     return acc

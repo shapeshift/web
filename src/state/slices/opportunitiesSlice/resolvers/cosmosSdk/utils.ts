@@ -49,30 +49,32 @@ export const makeAccountUserData = ({
   validatorIds: ValidatorId[]
 }): OpportunitiesState['userStaking']['byId'] => {
   const delegations = cosmosAccount.chainSpecific.delegations
-  const undelegations = cosmosAccount.chainSpecific.delegations
+  // const undelegations = cosmosAccount.chainSpecific.delegations
   const rewards = cosmosAccount.chainSpecific.delegations
 
   const delegationsByValidator = groupBy(delegations, delegation => delegation.validator.address)
-  const undelegationsByValidator = groupBy(
-    undelegations,
-    undelegation => undelegation.validator.address,
-  )
+  // TODO(gomes): handle me in a separate PR, we will need chain-specific userData similar to the savers-specific-metadata
+  // const undelegationsByValidator = groupBy(
+  // undelegations,
+  // undelegation => undelegation.validator.address,
+  // )
   const rewardsByValidator = groupBy(rewards, reward => reward.validator.address)
 
-  debugger
   return validatorIds.reduce((acc, validatorId) => {
-    debugger
     const validatorAddress = fromAccountId(validatorId).account
     const userStakingId = serializeUserStakingId(
       toAccountId({ account: cosmosAccount.pubkey, chainId: cosmosAccount.chainId }),
       validatorId,
     )
-    debugger
 
-    acc[userStakingId] = {}
+    const maybeValidatorDelegations = delegationsByValidator[validatorAddress][0]
+    const maybeValidatorRewards = rewardsByValidator[validatorAddress][0]
+
+    acc[userStakingId] = {
+      stakedAmountCryptoBaseUnit: maybeValidatorDelegations?.amount ?? '0',
+      rewardsAmountsCryptoBaseUnit: [maybeValidatorRewards?.amount ?? '0'],
+    }
+
     return acc
   }, {} as Record<UserStakingId, UserStakingOpportunity>)
-
-  // Use this to key by validatorId
-  // const validatorId = toValidatorId(toValidatorIdParts)
 }

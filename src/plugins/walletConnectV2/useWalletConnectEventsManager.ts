@@ -12,13 +12,16 @@ export const useWalletConnectEventsManager = (
    *****************************************************************************/
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
-      console.log('session_proposal', proposal)
+      // Get required proposal data
+      const { id, params } = proposal
+      const { proposer, requiredNamespaces, relays } = params
+      console.log('[debug] session_proposal', proposal)
     },
     [],
   )
 
   const onAuthRequest = useCallback((request: Web3WalletTypes.AuthRequest) => {
-    console.log('auth_request', request)
+    console.log('[debug] auth_request', request)
   }, [])
 
   /******************************************************************************
@@ -26,7 +29,7 @@ export const useWalletConnectEventsManager = (
    *****************************************************************************/
   const onSessionRequest = useCallback(
     async (requestEvent: SignClientTypes.EventArguments['session_request']) => {
-      console.log('session_request', requestEvent)
+      console.log('[debug] session_request', requestEvent)
       const { topic, params } = requestEvent
       const { request } = params
       // const requestSession = signClient.session.get(topic)
@@ -35,27 +38,27 @@ export const useWalletConnectEventsManager = (
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
         case EIP155_SigningMethod.PERSONAL_SIGN:
-          console.log('SessionSignPersonalModal', { requestEvent, requestSession })
+          console.log('[debug] SessionSignPersonalModal', { requestEvent, requestSession })
           return undefined
 
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA:
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3:
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4:
-          console.log('SessionSignTypedDataModal', { requestEvent, requestSession })
+          console.log('[debug] SessionSignTypedDataModal', { requestEvent, requestSession })
           return
 
         case EIP155_SigningMethod.ETH_SEND_TRANSACTION:
         case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
-          console.log('SessionSendTransactionModal', { requestEvent, requestSession })
+          console.log('[debug] SessionSendTransactionModal', { requestEvent, requestSession })
           return
 
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
-          console.log('SessionSignCosmosModal', { requestEvent, requestSession })
+          console.log('[debug] SessionSignCosmosModal', { requestEvent, requestSession })
           return
 
         default:
-          console.log('SessionUnsuportedMethodModal', { requestEvent, requestSession })
+          console.log('[debug] SessionUnsuportedMethodModal', { requestEvent, requestSession })
           return
       }
     },

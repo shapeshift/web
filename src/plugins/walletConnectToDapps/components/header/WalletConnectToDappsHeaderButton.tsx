@@ -1,22 +1,21 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
-import { Button } from '@chakra-ui/react'
+import { Button, useDisclosure } from '@chakra-ui/react'
+import { ConnectModal as ConnectModalV1 } from 'plugins/walletConnectToDapps/components/modal/connect/Connect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
-import { useCallback, useState } from 'react'
+import { ConnectModal } from 'plugins/walletConnectV2/components/modal/Connect'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 
 import { useIsWalletConnectToDappsSupportedWallet } from '../../hooks/useIsWalletConnectToDappsSupportedWallet'
-import { ConnectModal } from '../modal/connect/Connect'
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton = () => {
-  const [isOpen, setOpen] = useState(false)
-  const handleOpen = useCallback(() => setOpen(true), [])
-  const handleClose = useCallback(() => setOpen(false), [])
+  const { isOpen: isOpenV1, onClose: handleCloseV1, onOpen: handleOpenV1 } = useDisclosure()
+  const { isOpen, onClose: handleClose, onOpen: handleOpen } = useDisclosure()
   const translate = useTranslate()
   const walletConnect = useWalletConnect()
 
@@ -29,11 +28,20 @@ export const WalletConnectToDappsHeaderButton = () => {
         <Button
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
+          onClick={handleOpenV1}
+          isLoading={!!walletConnect.connector}
+        >
+          deprecated WalletConnect
+        </Button>
+        <Button
+          leftIcon={<WalletConnectIcon />}
+          rightIcon={<ChevronRightIcon />}
           onClick={handleOpen}
           isLoading={!!walletConnect.connector}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>
+        <ConnectModalV1 isOpen={isOpenV1} onClose={handleCloseV1} />
         <ConnectModal isOpen={isOpen} onClose={handleClose} />
       </>
     )

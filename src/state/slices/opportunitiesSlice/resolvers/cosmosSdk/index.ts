@@ -183,7 +183,9 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
   try {
     const { account: pubKey, chainId } = fromAccountId(accountId)
     if (![cosmosChainId || osmosisChainId].includes(chainId)) {
-      return { data: { byId: {} } }
+      return Promise.resolve({
+        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
+      })
     }
     const chainAdapters = getChainAdapterManager()
     const adapter = chainAdapters.get(chainId) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>

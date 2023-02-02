@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { Skeleton, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
@@ -12,12 +12,16 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import debounce from 'lodash/debounce'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -25,6 +29,7 @@ import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
+  BASE_BPS_POINTS,
   fromThorBaseUnit,
   getThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
@@ -60,6 +65,15 @@ export const Deposit: React.FC<DepositProps> = ({
   const appDispatch = useAppDispatch()
   const history = useHistory()
   const translate = useTranslate()
+  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
+    null,
+  )
+  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
+  const [inputValues, setInputValues] = useState<{
+    fiatAmount: string
+    cryptoAmount: string
+  } | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -338,6 +352,51 @@ export const Deposit: React.FC<DepositProps> = ({
     (percent: number) => handleSendMax(percent === 1),
     [handleSendMax],
   )
+
+  useEffect(() => {
+    if (!(accountId && inputValues && asset)) return
+    const { cryptoAmount } = inputValues
+    const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
+
+    if (amountCryptoBaseUnit.isZero()) return
+
+    const debounced = debounce(async () => {
+      setQuoteLoading(true)
+      const quote = await getThorchainSaversDepositQuote({
+        asset,
+        amountCryptoBaseUnit,
+      })
+      const { slippage_bps, expected_amount_out } = quote
+      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+
+      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
+      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+
+      // daily upside
+      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
+        .times(opportunityData?.apy ?? 0)
+        .div(365)
+
+      const daysToBreakEven = cryptoSlippageAmountPrecision
+        .div(dailyEarnAmount)
+        .toFixed(0)
+        .toString()
+      setDaysToBreakEven(daysToBreakEven)
+      setQuoteLoading(false)
+    })
+
+    debounced()
+
+    // cancel the previous debounce when inputValues changes to avoid race conditions
+    // and always ensure the latest value is used
+    return debounced.cancel
+  }, [accountId, asset, inputValues, opportunityData?.apy])
+
+  const handleInputChange = (fiatAmount: string, cryptoAmount: string) => {
+    setInputValues({ fiatAmount, cryptoAmount })
+  }
+
   const handleBack = useCallback(() => {
     history.push({
       pathname: `/defi/earn`,
@@ -371,9 +430,34 @@ export const Deposit: React.FC<DepositProps> = ({
       onPercentClick={handlePercentClick}
       onContinue={handleContinue}
       onBack={handleBack}
+      onChange={handleInputChange}
       percentOptions={[0.25, 0.5, 0.75, 1]}
       enableSlippage={false}
       isLoading={state.loading}
-    />
+    >
+      <Row>
+        <Row.Label>{translate('common.slippage')}</Row.Label>
+        <Row.Value>
+          <Skeleton isLoaded={!quoteLoading}>
+            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+          </Skeleton>
+        </Row.Value>
+      </Row>
+      <Row>
+        <Row.Label>
+          <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+            {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+          </HelperTooltip>
+        </Row.Label>
+        <Row.Value>
+          <Skeleton isLoaded={!quoteLoading}>
+            {translate(
+              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+              { amount: daysToBreakEven ?? '0' },
+            )}
+          </Skeleton>
+        </Row.Value>
+      </Row>
+    </ReusableDeposit>
   )
 }

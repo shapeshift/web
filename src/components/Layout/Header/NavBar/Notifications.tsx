@@ -13,9 +13,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { logger } from 'lib/logger'
 import { breakpoints, theme } from 'theme/theme'
 
 const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native]
+const moduleLogger = logger.child({ namespace: ['wherever'] })
 
 export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
@@ -72,12 +74,17 @@ export const Notifications = () => {
         return
       }
 
-      const signedMsg = await wallet.ethSignMessage({
-        addressNList,
-        message,
-      })
+      try {
+        moduleLogger.info({ messageToSign: message }, 'Signing message')
+        const signedMsg = await wallet.ethSignMessage({
+          addressNList,
+          message,
+        })
 
-      return signedMsg?.signature
+        return signedMsg?.signature
+      } catch (e) {
+        moduleLogger.error(e, 'Error signing message')
+      }
     },
     [wallet, addressNList],
   )
@@ -88,12 +95,17 @@ export const Notifications = () => {
         return
       }
 
-      const signedMsg = await wallet.ethSignTypedData?.({
-        addressNList,
-        typedData,
-      })
+      try {
+        moduleLogger.info({ typedData }, 'Signing typed data')
+        const signedMsg = await wallet.ethSignTypedData?.({
+          addressNList,
+          typedData,
+        })
 
-      return signedMsg?.signature
+        return signedMsg?.signature
+      } catch (e) {
+        moduleLogger.error(e, 'Error signing typed data')
+      }
     },
     [wallet, addressNList],
   )

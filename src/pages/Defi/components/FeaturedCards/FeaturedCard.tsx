@@ -37,7 +37,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   }, [underlyingAssetIds])
 
   const handleClick = useCallback(() => {
-    const assetReference = fromAssetId(assetId).assetReference
+    const { assetNamespace, assetReference } = fromAssetId(assetId)
 
     history.push({
       pathname: location.pathname,
@@ -46,6 +46,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
         provider,
         chainId,
         contractAddress,
+        assetNamespace,
         assetReference,
         rewardId: rewardAddress,
         modal: 'overview',

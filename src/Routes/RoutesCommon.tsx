@@ -38,6 +38,7 @@ export const routes: NestedRoute[] = [
     main: Dashboard,
     category: RouteCategory.Wallet,
     mobileNav: true,
+    priority: 0,
   },
   {
     path: '/assets',
@@ -72,6 +73,7 @@ export const routes: NestedRoute[] = [
     icon: <AccountsIcon />,
     category: RouteCategory.Wallet,
     mobileNav: true,
+    priority: 5,
     routes: [
       {
         path: '/:accountId',
@@ -118,6 +120,7 @@ export const routes: NestedRoute[] = [
     main: null,
     category: RouteCategory.Explore,
     mobileNav: true,
+    priority: 2,
     routes: [
       {
         path: '/',
@@ -159,6 +162,7 @@ export const routes: NestedRoute[] = [
     label: 'navBar.trade',
     icon: <IoSwapVertical />,
     mobileNav: true,
+    priority: 2,
     main: Trade,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({
@@ -171,10 +175,12 @@ export const routes: NestedRoute[] = [
   {
     path: '/buy-crypto',
     label: 'navBar.buyCrypto',
+    shortLabel: 'navBar.buySell',
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,
     mobileNav: true,
+    priority: 3,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',
       path: assetIdPath,

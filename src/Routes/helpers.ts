@@ -20,6 +20,7 @@ export enum RouteCategory {
 export type Route = {
   path: string
   label: string
+  shortLabel?: string
   main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]
@@ -29,6 +30,7 @@ export type Route = {
   breadcrumb?: string | React.ReactNode
   category?: RouteCategory
   mobileNav?: boolean
+  priority?: number
 }
 
 const combinePaths = (parent: string, child: string): string =>

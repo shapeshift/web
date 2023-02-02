@@ -463,7 +463,8 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "trade": "Trade",
-    "buyCrypto": "Buy/Sell Crypto"
+    "buyCrypto": "Buy/Sell Crypto",
+    "buySell": "Buy/Sell"
   },
   "transactionRow": {
     "send": "Sent",

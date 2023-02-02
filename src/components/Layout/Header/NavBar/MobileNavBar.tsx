@@ -1,5 +1,5 @@
-import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,9 +10,13 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 export const MobileNavBar = () => {
   const { routes: pluginRoutes } = usePlugins()
   const translate = useTranslate()
-  const allRoutes = union(routes, pluginRoutes).filter(
-    route => !route.disable && !route.hide && route.mobileNav,
-  )
+  const allRoutes = union(routes, pluginRoutes)
+    .filter(route => !route.disable && !route.hide && route.mobileNav)
+    .sort((a, b) =>
+      bnOrZero(a?.priority ?? 0)
+        .minus(b?.priority ?? 0)
+        .toNumber(),
+    )
   const location = useLocation()
 
   const renderMenu = useMemo(() => {
@@ -33,7 +37,7 @@ export const MobileNavBar = () => {
         >
           {route.icon}
           <Flex flexDir='column' fontSize='xs'>
-            {translate(route.label)}
+            {translate(route.shortLabel ?? route.label)}
           </Flex>
         </Button>
       )

@@ -7646,10 +7646,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@0.3.8":
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.8.tgz#d44c2b9d1473776d04fe996b8bbceee788229924"
-  integrity sha512-R8q2YcxS9tJUT+YlP1UMiXSJnqJ6Zim1Isprx+8Usvf5UG0PQvOerxtAJ90u14sO/oP7NEm7zNL5FLFaofkZpQ==
+"@wherever/react-notification-feed@0.3.9":
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.9.tgz#9f8804dec753333f3dbf6da54c27c973422c75dc"
+  integrity sha512-/f7CrcnSVN6qFGxdjd+n0OEdKTco7T+3RUoWQVxbzAdfKRXuNWQnNp3ITRKkOlCZ1ask5KDxxc6hFJUNnKimpw==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@epnsproject/sdk-restapi" "^0.1.20"
@@ -14223,9 +14223,9 @@ htmlparser2@^6.1.0:
     entities "^2.0.0"
 
 http-cache-semantics@^4.0.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/http-cache-semantics/-/http-cache-semantics-4.1.0.tgz#49e91c5cbf36c9b94bcfcd71c23d5249ec74e390"
-  integrity sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/http-cache-semantics/-/http-cache-semantics-4.1.1.tgz#abe02fcb2985460bf0323be664436ec3476a6d5a"
+  integrity sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ==
 
 http-deceiver@^1.2.7:
   version "1.2.7"

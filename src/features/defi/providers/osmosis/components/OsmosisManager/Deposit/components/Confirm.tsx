@@ -20,7 +20,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   getPool,
@@ -125,11 +125,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           shareOutAmount: state.deposit.shareOutAmount,
           tokenInMaxs: [
             {
-              amount: bnOrZero(state.deposit.underlyingAsset0.amount).toFixed(0),
+              amount: bnOrZero(state.deposit.underlyingAsset0.amount).toFixed(
+                0,
+                BigNumber.ROUND_DOWN,
+              ),
               denom: state.deposit.underlyingAsset0.denom,
             },
             {
-              amount: bnOrZero(state.deposit.underlyingAsset1.amount).toFixed(0),
+              amount: bnOrZero(state.deposit.underlyingAsset1.amount).toFixed(
+                0,
+                BigNumber.ROUND_DOWN,
+              ),
               denom: state.deposit.underlyingAsset1.denom,
             },
           ],

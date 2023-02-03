@@ -22,6 +22,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
@@ -139,6 +140,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     return outboundFeeCryptoBaseUnit
   }, [asset.precision, assetId])
 
+  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
+
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
       if (
@@ -164,7 +167,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           await adapter.getFeeData({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
-            chainSpecific: { pubkey: userAddress, from: '' },
+            // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
+            // UTXOs simply call /api/v1/fees (common for all acocunts), and Cosmos assets fees are hardcoded
+            chainSpecific: {
+              pubkey: userAddress,
+              from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+            },
             sendMax: false,
           })
         ).fast.txFee
@@ -186,7 +194,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
       }
     },
-    [userAddress, assetReference, accountId, opportunityData, asset, chainId, toast, translate],
+    [
+      userAddress,
+      assetReference,
+      accountId,
+      opportunityData?.stakedAmountCryptoBaseUnit,
+      opportunityData?.rewardsAmountsCryptoBaseUnit,
+      asset,
+      chainId,
+      supportedEvmChainIds,
+      toast,
+      translate,
+    ],
   )
 
   useEffect(() => {

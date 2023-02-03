@@ -21,7 +21,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
   const { assetId, underlyingAssetId, provider, apy, moniker } = rest
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
-  const opportunityApy = `${bnOrZero(apy).times(100).toFixed(2)}%`
+  const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
   const providerName =
     provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? moniker : provider
 
@@ -38,7 +38,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
           color='gray.500'
           translation={[
             'arkeo.staking.body',
-            { asset: asset?.name, apy: opportunityApy, provider: providerName },
+            { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },
           ]}
         />
         <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(rest)}>

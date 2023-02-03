@@ -23,7 +23,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
   const asset2Id = underlyingAssetIds[1]
   const asset1 = useAppSelector(state => selectAssetById(state, asset1Id ?? ''))
   const asset2 = useAppSelector(state => selectAssetById(state, asset2Id ?? ''))
-  const opportunityApy = `${bnOrZero(apy).times(100).toFixed(2)}%`
+  const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
   const renderPairIcons = useMemo(() => {
     return underlyingAssetIds.map(assetId => <AssetIcon _last={{ ml: -4 }} assetId={assetId} />)
   }, [underlyingAssetIds])
@@ -40,7 +40,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
           color='gray.500'
           translation={[
             'arkeo.lp.body',
-            { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: opportunityApy },
+            { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: `${opportunityApy}%` },
           ]}
         />
         <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(rest)}>

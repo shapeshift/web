@@ -61,8 +61,8 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     [cosmosStakingOpportunities, osmosisStakingOpportunities],
   )
 
-  const combined = [...stakingOpportunities, ...useTransformCosmosStaking(cosmos)]
-  const filteredDown = combined
+  const allOpportunities = [...stakingOpportunities, ...useTransformCosmosStaking(cosmos)]
+  const filteredOpportunities = allOpportunities
     .filter(e => ids.includes(e.assetId as OpportunityId))
     .filter(e => e.provider !== DefiProvider.ThorchainSavers)
 
@@ -99,7 +99,9 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
   )
 
   const renderItems = useMemo(() => {
-    return filteredDown.map(e => <StakingCard onClick={handleClick} key={e.assetId} {...e} />)
-  }, [filteredDown, handleClick])
+    return filteredOpportunities.map(e => (
+      <StakingCard onClick={handleClick} key={e.assetId} {...e} />
+    ))
+  }, [filteredOpportunities, handleClick])
   return <>{renderItems}</>
 }

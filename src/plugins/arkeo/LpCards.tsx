@@ -25,7 +25,9 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
     dispatch,
   } = useWallet()
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const filtered = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredLpOpportunities = lpOpportunities.filter(e =>
+    ids.includes(e.assetId as OpportunityId),
+  )
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
   )
@@ -65,7 +67,7 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   )
 
   const renderCards = useMemo(() => {
-    return filtered.map(e => <LpCard key={e.assetId} onClick={handleClick} {...e} />)
-  }, [filtered, handleClick])
+    return filteredLpOpportunities.map(e => <LpCard key={e.assetId} onClick={handleClick} {...e} />)
+  }, [filteredLpOpportunities, handleClick])
   return <>{renderCards}</>
 }

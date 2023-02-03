@@ -153,7 +153,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!txToSign) {
         throw new Error('Error generating unsigned transaction')
       }
-      moduleLogger.info(JSON.stringify(txToSign, null, 2))
       const txid = await (async () => {
         if (walletState.wallet?.supportsOfflineSigning()) {
           const signedTx = await chainAdapter.signTransaction({

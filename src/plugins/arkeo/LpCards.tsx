@@ -67,7 +67,9 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   )
 
   const renderCards = useMemo(() => {
-    return filteredLpOpportunities.map(e => <LpCard key={e.assetId} onClick={handleClick} {...e} />)
+    return filteredLpOpportunities.map(lpOpportunity => (
+      <LpCard key={lpOpportunity.assetId} onClick={handleClick} {...lpOpportunity} />
+    ))
   }, [filteredLpOpportunities, handleClick])
   return <>{renderCards}</>
 }

@@ -99,8 +99,8 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
   )
 
   const renderItems = useMemo(() => {
-    return filteredOpportunities.map(e => (
-      <StakingCard onClick={handleClick} key={e.assetId} {...e} />
+    return filteredOpportunities.map(opportunity => (
+      <StakingCard onClick={handleClick} key={opportunity.assetId} {...opportunity} />
     ))
   }, [filteredOpportunities, handleClick])
   return <>{renderItems}</>

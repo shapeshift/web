@@ -42,7 +42,7 @@ export const ArkeoPage = () => {
   const { create, dispatch } = useWallet()
   const bgImage = useColorModeValue('none', ArkeoBg)
 
-  const handleCreateClick = () => {
+  const handleCreateCtaClick = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     create(isMobileApp ? KeyManager.Mobile : KeyManager.Native)
   }
@@ -134,7 +134,7 @@ export const ArkeoPage = () => {
             alignItems='flex-start'
           >
             <Text translation='arkeo.footer.disclaimer.body' color='gray.500' />
-            <Button variant='link' colorScheme='blue' size='sm' onClick={handleCreateClick}>
+            <Button variant='link' colorScheme='blue' size='sm' onClick={handleCreateCtaClick}>
               {translate('arkeo.footer.disclaimer.cta')}
             </Button>
           </Flex>

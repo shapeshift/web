@@ -232,22 +232,28 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       // Estimated fees tend to produce too low fees on e.g Dogecoin
       // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
-      const estimatedFees = Object.fromEntries(
-        Object.entries(await estimateFees(await getEstimateFeesArgs())).map(
-          ([feeType, feeData]) => [
-            feeType as FeeDataKey,
-            {
-              ...feeData,
-              txFee: bn(feeData.txFee).times(2).toString(),
-              chainSpecific: {
-                ...(feeData as FeeData<UtxoChainId>).chainSpecific,
-                satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
-                  .times(2)
-                  .toString(),
-              },
-            },
-          ],
-        ),
+      const estimatedFees = (
+        isUtxoChainId(chainId)
+          ? Object.fromEntries(
+              Object.entries(await estimateFees(await getEstimateFeesArgs())).map(
+                ([feeType, feeData]) => [
+                  feeType as FeeDataKey,
+                  {
+                    ...feeData,
+                    txFee: bn(feeData.txFee).times(2).toString(),
+                    chainSpecific: {
+                      ...(feeData as FeeData<UtxoChainId>).chainSpecific,
+                      satoshiPerByte: bn(
+                        (feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte,
+                      )
+                        .times(2)
+                        .toString(),
+                    },
+                  },
+                ],
+              ),
+            )
+          : await estimateFees(await getEstimateFeesArgs())
       ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),

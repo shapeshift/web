@@ -4,7 +4,7 @@ import { CosmosSigningMethod, EIP155_SigningMethod } from 'plugins/walletConnect
 import { useCallback, useEffect } from 'react'
 
 export const useWalletConnectEventsManager = (
-  initialized: boolean,
+  isInitialized: boolean,
   web3wallet: IWeb3Wallet | undefined,
 ) => {
   /******************************************************************************
@@ -12,9 +12,6 @@ export const useWalletConnectEventsManager = (
    *****************************************************************************/
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
-      // Get required proposal data
-      const { id, params } = proposal
-      const { proposer, requiredNamespaces, relays } = params
       console.log('[debug] session_proposal', proposal)
     },
     [],
@@ -28,7 +25,7 @@ export const useWalletConnectEventsManager = (
    * 3. Open request handling modal based on method that was used
    *****************************************************************************/
   const onSessionRequest = useCallback(
-    async (requestEvent: SignClientTypes.EventArguments['session_request']) => {
+    (requestEvent: SignClientTypes.EventArguments['session_request']) => {
       console.log('[debug] session_request', requestEvent)
       const { topic, params } = requestEvent
       const { request } = params
@@ -58,7 +55,7 @@ export const useWalletConnectEventsManager = (
           return
 
         default:
-          console.log('[debug] SessionUnsuportedMethodModal', { requestEvent, requestSession })
+          console.log('[debug] SessionUnsupportedMethodModal', { requestEvent, requestSession })
           return
       }
     },
@@ -69,12 +66,22 @@ export const useWalletConnectEventsManager = (
    * Set up WalletConnect event listeners
    *****************************************************************************/
   useEffect(() => {
-    if (initialized) {
+    if (isInitialized && web3wallet) {
+      console.log('[debug] useWalletConnectEventsManager registering ons', { web3wallet })
       // sign
-      web3wallet?.on('session_proposal', onSessionProposal)
-      web3wallet?.on('session_request', onSessionRequest)
+      web3wallet.on('session_proposal', onSessionProposal)
+      web3wallet.on('session_request', onSessionRequest)
       // auth
-      web3wallet?.on('auth_request', onAuthRequest)
+      web3wallet.on('auth_request', onAuthRequest)
+
+      return () => {
+        console.log('[debug] useWalletConnectEventsManager unregistering ons', { web3wallet })
+        // sign
+        web3wallet.off('session_proposal', onSessionProposal)
+        web3wallet.off('session_request', onSessionRequest)
+        // auth
+        web3wallet.off('auth_request', onAuthRequest)
+      }
 
       // TODOs
       // signClient.on('session_ping', data => console.log('ping', data))
@@ -82,5 +89,5 @@ export const useWalletConnectEventsManager = (
       // signClient.on('session_update', data => console.log('update', data))
       // signClient.on('session_delete', data => console.log('delete', data))
     }
-  }, [initialized, onSessionProposal, onSessionRequest, onAuthRequest, web3wallet])
+  }, [onSessionProposal, onSessionRequest, onAuthRequest, web3wallet, isInitialized])
 }

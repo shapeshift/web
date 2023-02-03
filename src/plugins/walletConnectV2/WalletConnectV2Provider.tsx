@@ -17,7 +17,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     )
 
   const pair = async (params: { uri: string }) => {
-    return await core!.pairing.pair({ uri: params.uri })
+    return await core.pairing.pair({ uri: params.uri })
   }
 
   return (

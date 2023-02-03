@@ -366,11 +366,9 @@ export const Deposit: React.FC<DepositProps> = ({
   return (
     <PairDepositWithAllocation
       accountId={accountId}
-      asset1={underlyingAsset0}
-      asset2={underlyingAsset1}
-      icons={osmosisOpportunity?.icons}
+      assets={[underlyingAsset0, underlyingAsset1]}
+      opportunity={osmosisOpportunity}
       destAsset={asset}
-      apy={osmosisOpportunity?.apy?.toString() ?? ''}
       calculateAllocations={calculateAllocations}
       cryptoAmountAvailable1Precision={underlyingAsset0CryptoAmountAvailable.toPrecision()}
       cryptoAmountAvailable2Precision={underlyingAsset1CryptoAmountAvailable.toPrecision()}

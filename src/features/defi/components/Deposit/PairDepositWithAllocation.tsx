@@ -15,6 +15,10 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -22,11 +26,10 @@ import { PairIcons } from '../PairIcons/PairIcons'
 
 type DepositProps = {
   accountId?: AccountId | undefined
-  asset1: Asset
-  asset2: Asset
+  assets: [Asset, Asset]
+  opportunity: LpEarnOpportunityType | StakingEarnOpportunityType
   destAsset: Asset
-  // Estimated apy (Deposit Only)
-  apy: string
+
   // Use form values to calculate allocation fraction
   calculateAllocations?(
     asset: Asset,
@@ -52,7 +55,6 @@ type DepositProps = {
   onBack?(): void
   onCancel(): void
   syncPair?: boolean
-  icons?: string[]
 }
 
 enum Field {
@@ -75,9 +77,7 @@ export type DepositValues = {
 
 export const PairDepositWithAllocation = ({
   accountId,
-  apy,
-  asset1,
-  asset2,
+  assets,
   calculateAllocations,
   cryptoAmountAvailable1Precision,
   cryptoAmountAvailable2Precision,
@@ -86,8 +86,8 @@ export const PairDepositWithAllocation = ({
   destAsset,
   fiatInputValidation1,
   fiatInputValidation2,
-  icons,
   isLoading,
+  opportunity,
   onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
@@ -112,6 +112,11 @@ export const PairDepositWithAllocation = ({
       [Field.ShareOutAmount]: '',
     },
   })
+
+  const apy = opportunity.apy?.toString() ?? ''
+  const asset1 = assets[0]
+  const asset2 = assets[1]
+  const icons = opportunity.icons
 
   const values = useWatch({ control })
   const { field: cryptoAmount1 } = useController({

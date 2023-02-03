@@ -68,9 +68,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const osmosisOpportunity = state?.opportunity
-
   const [opportunityBalances, setOpportunityBalances] = useState<
     opportunityBalanceData | undefined
   >(undefined)
@@ -80,6 +77,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   ])
   const [poolData, setPoolData] = useState<OsmosisPool | undefined>(undefined)
   const [poolAssetMarketData, setPoolAssetMarketData] = useState<MarketData | undefined>(undefined)
+
+  const { chainId, assetReference } = query
+  const osmosisOpportunity = state?.opportunity
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods

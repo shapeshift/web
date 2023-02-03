@@ -68,10 +68,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
-  // user info
   const { state: walletState } = useWallet()
 
-  // notify
   const toast = useToast()
 
   const feeAssetBalanceFilter = useMemo(
@@ -201,7 +199,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.deposit.estimatedFeeCrypto).div(`1e+${feeAsset?.precision}`))
+        .minus(
+          bnOrZero(state?.deposit.estimatedFeeCrypto).div(bn(10).pow(feeAsset?.precision ?? '0')),
+        )
         .gte(0),
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
   )

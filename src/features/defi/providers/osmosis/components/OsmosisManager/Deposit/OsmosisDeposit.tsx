@@ -23,7 +23,6 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
-  selectHighestBalanceAccountIdByStakingId,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -64,22 +63,15 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
     [assetId, assetNamespace, assetReference, chainId],
   )
 
-  const highestBalanceAccountIdFilter = useMemo(
-    () => ({ stakingId: opportunityId }),
-    [opportunityId],
-  )
-  const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
-  )
-
   const osmosisLpOpportunityFilter = useMemo(
     () => ({
-      lpId: opportunityId ?? '',
+      lpId: opportunityId,
       assetId,
-      accountId: accountId ?? highestBalanceAccountId ?? '',
+      accountId,
     }),
-    [accountId, assetId, highestBalanceAccountId, opportunityId],
+    [accountId, assetId, opportunityId],
   )
+
   const osmosisOpportunity = useAppSelector(state =>
     selectEarnUserLpOpportunity(state, osmosisLpOpportunityFilter),
   )

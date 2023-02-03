@@ -96,8 +96,7 @@ export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
       lpAsset: Asset,
       lpAssetBalanceBaseUnit: string,
     ): Promise<opportunityBalances | undefined> => {
-      if (!(lpAssetBalance && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
-        return undefined
+      if (!(osmosisOpportunity && underlyingAsset0 && underlyingAsset1)) return undefined
 
       const id = getPoolIdFromAssetReference(fromAssetId(lpAsset.assetId).assetReference)
       if (!id) return undefined
@@ -160,17 +159,17 @@ export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
           .toString(),
       }
     },
-    [lpAssetBalance, osmosisOpportunity, underlyingAsset0, underlyingAsset1],
+    [osmosisOpportunity, underlyingAsset0, underlyingAsset1],
   )
 
   useEffect(() => {
-    if (!(lpAsset && lpAssetBalance)) return
+    if (!lpAsset) return
+    if (opportunityBalances) return
     ;(async () => {
       const balances = await calculateBalances(lpAsset, lpAssetBalance)
-      if (!balances) return
       setOpportunityBalances(balances)
     })()
-  }, [calculateBalances, lpAsset, lpAssetBalance])
+  })
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({

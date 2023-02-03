@@ -53,7 +53,6 @@ export const Status = () => {
   if (!underlyingAsset1)
     throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
 
-  // user info
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 

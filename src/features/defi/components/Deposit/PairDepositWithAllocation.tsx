@@ -33,8 +33,8 @@ type DepositProps = {
     amount: string,
   ): { allocationFraction: string; shareOutAmount: string } | undefined
   // Users available amount
-  cryptoAmountAvailable1: string
-  cryptoAmountAvailable2: string
+  cryptoAmountAvailable1Precision: string
+  cryptoAmountAvailable2Precision: string
   // Validation rules for the crypto input
   cryptoInputValidation1?: ControllerProps['rules']
   cryptoInputValidation2?: ControllerProps['rules']
@@ -79,8 +79,8 @@ export const PairDepositWithAllocation = ({
   asset1,
   asset2,
   calculateAllocations,
-  cryptoAmountAvailable1,
-  cryptoAmountAvailable2,
+  cryptoAmountAvailable1Precision,
+  cryptoAmountAvailable2Precision,
   cryptoInputValidation1,
   cryptoInputValidation2,
   destAsset,
@@ -206,7 +206,7 @@ export const PairDepositWithAllocation = ({
     const selectedAsset = isForAsset1 ? asset1 : asset2
 
     const cryptoAmount = bnOrZero(
-      isForAsset1 ? cryptoAmountAvailable1 : cryptoAmountAvailable2,
+      isForAsset1 ? cryptoAmountAvailable1Precision : cryptoAmountAvailable2Precision,
     ).times(percent)
     const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
     setValue(fiatField, fiatAmount.toString(), {
@@ -239,10 +239,10 @@ export const PairDepositWithAllocation = ({
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
   const fiatYield = bnOrZero(cryptoYield).times(asset1MarketData.price).toFixed(2)
-  const fiatAmountAvailable1 = bnOrZero(cryptoAmountAvailable1)
+  const fiatAmountAvailable1 = bnOrZero(cryptoAmountAvailable1Precision)
     .times(asset1MarketData.price)
     .toString()
-  const fiatAmountAvailable2 = bnOrZero(cryptoAmountAvailable2)
+  const fiatAmountAvailable2 = bnOrZero(cryptoAmountAvailable2Precision)
     .times(asset1MarketData.price)
     .toString()
 
@@ -259,7 +259,7 @@ export const PairDepositWithAllocation = ({
             assetId={asset1.assetId}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
-            balance={cryptoAmountAvailable1}
+            balance={cryptoAmountAvailable1Precision}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, true)}
@@ -275,7 +275,7 @@ export const PairDepositWithAllocation = ({
             assetId={asset2.assetId}
             assetIcon={asset2.icon}
             assetSymbol={asset2.symbol}
-            balance={cryptoAmountAvailable2}
+            balance={cryptoAmountAvailable2Precision}
             fiatBalance={fiatAmountAvailable2}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, false)}

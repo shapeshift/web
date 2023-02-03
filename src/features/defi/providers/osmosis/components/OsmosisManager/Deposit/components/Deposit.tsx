@@ -372,8 +372,8 @@ export const Deposit: React.FC<DepositProps> = ({
       destAsset={asset}
       apy={osmosisOpportunity?.apy?.toString() ?? ''}
       calculateAllocations={calculateAllocations}
-      cryptoAmountAvailable1={underlyingAsset0CryptoAmountAvailable.toPrecision()}
-      cryptoAmountAvailable2={underlyingAsset1CryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable1Precision={underlyingAsset0CryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable2Precision={underlyingAsset1CryptoAmountAvailable.toPrecision()}
       cryptoInputValidation1={{
         required: true,
         validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, true) },

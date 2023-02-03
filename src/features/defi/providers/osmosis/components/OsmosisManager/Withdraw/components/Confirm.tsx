@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
 import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -71,12 +71,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
-  // user info
   const { state: walletState } = useWallet()
 
-  // notify
   const toast = useToast()
 
   const feeAssetBalanceFilter = useMemo(
@@ -94,7 +91,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         state &&
         state.withdraw.underlyingAsset0 &&
         state.withdraw.underlyingAsset1 &&
-        userAddress &&
         walletState &&
         walletState.wallet &&
         supportsOsmosis(walletState.wallet) &&
@@ -202,7 +198,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     contextDispatch,
     state,
-    userAddress,
     walletState,
     osmosisOpportunity,
     chainAdapter,

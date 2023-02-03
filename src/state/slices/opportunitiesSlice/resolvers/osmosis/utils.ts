@@ -241,7 +241,6 @@ export const getPoolIdFromAssetReference = (
     const id = segments[2]
     if (!isNumeric(id)) throw new Error(`Asset reference contains invalid pool ID ${id}`)
 
-    moduleLogger.debug({ fn: 'getPools', id }, `Returning ID for reference ${reference}`)
     return id
   } catch (error) {
     moduleLogger.error(

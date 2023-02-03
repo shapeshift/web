@@ -146,8 +146,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       lpAsset: Asset,
       lpAssetBalanceBaseUnit: string,
     ): Promise<opportunityBalanceData | undefined> => {
-      if (!(lpAssetBalance && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
-        return undefined
+      if (!(osmosisOpportunity && underlyingAsset0 && underlyingAsset1)) return undefined
 
       const id = getPoolIdFromAssetReference(fromAssetId(lpAsset.assetId).assetReference)
       if (!id) return undefined
@@ -200,7 +199,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           .toString(),
       }
     },
-    [lpAssetBalance, osmosisOpportunity, poolData, underlyingAsset0, underlyingAsset1],
+    [osmosisOpportunity, poolData, underlyingAsset0, underlyingAsset1],
   )
 
   const calculateTokenOutMins = useCallback(
@@ -376,7 +375,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   useEffect(() => {
     // Calculate underlying token balances
-    if (!(lpAsset && lpAssetBalance)) return
+    if (!lpAsset) return
     ;(async () => {
       const balances = await calculateBalances(lpAsset, lpAssetBalance)
       if (!balances) return

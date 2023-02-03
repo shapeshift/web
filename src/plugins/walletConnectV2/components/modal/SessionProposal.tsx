@@ -1,5 +1,6 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { SignClientTypes } from '@walletconnect/types'
+import type { FC } from 'react'
 
 type Props = {
   isOpen: boolean
@@ -7,7 +8,7 @@ type Props = {
   proposal: SignClientTypes.EventArguments['session_proposal']
 }
 
-const SessionProposal = ({ isOpen, onClose: handleClose, proposal }: Props) => {
+const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) => {
   // Get required proposal data
   const { id, params } = proposal
   const { proposer, requiredNamespaces, relays } = params

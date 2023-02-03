@@ -31,7 +31,7 @@ export const WalletConnectToDappsHeaderButton = () => {
           onClick={handleOpenV1}
           isLoading={!!walletConnect.connector}
         >
-          deprecated WalletConnect
+          WC V1
         </Button>
         <Button
           leftIcon={<WalletConnectIcon />}

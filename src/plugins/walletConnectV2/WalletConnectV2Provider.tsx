@@ -1,6 +1,7 @@
 import type { WalletConnectContextType } from 'plugins/walletConnectV2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
 import { useWalletConnectEventsManager } from 'plugins/walletConnectV2/useWalletConnectEventsManager'
+import { WalletConnectModalManager } from 'plugins/walletConnectV2/WalletConnectModalManager'
 import { walletConnectReducer } from 'plugins/walletConnectV2/walletConnectReducer'
 import { getWalletConnectCore, getWalletConnectWallet } from 'plugins/walletConnectV2/walletUtils'
 import type { FC, PropsWithChildren } from 'react'
@@ -36,7 +37,12 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   useWalletConnectEventsManager(isInitialized, state.web3wallet, dispatch)
 
   const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
-  return <WalletConnectContext.Provider value={value}>{children}</WalletConnectContext.Provider>
+  return (
+    <WalletConnectContext.Provider value={value}>
+      {children}
+      <WalletConnectModalManager state={state} dispatch={dispatch} />
+    </WalletConnectContext.Provider>
+  )
 }
 
 export function useWalletConnectV2() {

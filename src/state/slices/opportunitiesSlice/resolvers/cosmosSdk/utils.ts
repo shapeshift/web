@@ -61,7 +61,7 @@ export const makeAccountUserData = ({
   // )
   const rewardsByValidator = groupBy(rewards, reward => reward.validator.address)
 
-  return validatorIds.reduce((acc, validatorId) => {
+  return validatorIds.reduce<Record<UserStakingId, UserStakingOpportunity>>((acc, validatorId) => {
     const validatorAddress = fromAccountId(validatorId).account
     const userStakingId = serializeUserStakingId(
       toAccountId({ account: cosmosAccount.pubkey, chainId: cosmosAccount.chainId }),
@@ -85,5 +85,5 @@ export const makeAccountUserData = ({
     }
 
     return acc
-  }, {} as Record<UserStakingId, UserStakingOpportunity>)
+  }, {})
 }

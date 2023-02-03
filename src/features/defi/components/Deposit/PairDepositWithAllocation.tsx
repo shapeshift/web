@@ -31,7 +31,7 @@ type DepositProps = {
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): Promise<{ allocationFraction: string; shareOutAmount: string } | undefined>
+  ): { allocationFraction: string; shareOutAmount: string } | undefined
   // Users available amount
   cryptoAmountAvailable1: string
   cryptoAmountAvailable2: string
@@ -152,7 +152,7 @@ export const PairDepositWithAllocation = ({
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, asset1.assetId))
   const asset2MarketData = useAppSelector(state => selectMarketDataById(state, asset2.assetId))
 
-  const handleInputChange = async (value: string, isForAsset1: boolean, isFiat?: boolean) => {
+  const handleInputChange = (value: string, isForAsset1: boolean, isFiat?: boolean) => {
     const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
@@ -192,7 +192,7 @@ export const PairDepositWithAllocation = ({
     }
     if (!calculateAllocations) return
 
-    const allocations = await calculateAllocations(selectedAsset, value)
+    const allocations = calculateAllocations(selectedAsset, value)
     if (!allocations) return
 
     setValue(Field.AllocationFraction, allocations.allocationFraction)
@@ -203,6 +203,8 @@ export const PairDepositWithAllocation = ({
     const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
     const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
+    const selectedAsset = isForAsset1 ? asset1 : asset2
+
     const cryptoAmount = bnOrZero(
       isForAsset1 ? cryptoAmountAvailable1 : cryptoAmountAvailable2,
     ).times(percent)
@@ -225,6 +227,14 @@ export const PairDepositWithAllocation = ({
         shouldValidate: true,
       })
     }
+    if (!calculateAllocations) return
+    ;(async () => {
+      const allocations = await calculateAllocations(selectedAsset, cryptoAmount.toString())
+      if (!allocations) return
+
+      setValue(Field.AllocationFraction, allocations.allocationFraction)
+      setValue(Field.ShareOutAmount, allocations.shareOutAmount)
+    })()
   }
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
@@ -280,7 +290,7 @@ export const PairDepositWithAllocation = ({
           assetSymbol={`${asset1.symbol}-${asset2.symbol}`}
           cryptoAmount={shareOutAmount.value}
           errors={cryptoError2 || fiatError2}
-          fiatAmount={fiatAmount2?.value}
+          fiatAmount={bnOrZero(fiatAmount1?.value).plus(bnOrZero(fiatAmount2?.value)).toString()}
           icons={icons}
           isReadOnly={true}
           onAccountIdChange={handleAccountIdChange}

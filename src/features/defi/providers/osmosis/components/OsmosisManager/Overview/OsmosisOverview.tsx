@@ -1,31 +1,39 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
+import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  getPool,
+  getPoolIdFromAssetReference,
+} from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectAssets,
+  selectAssetById,
   selectEarnUserLpOpportunity,
-  selectHighestBalanceAccountIdByLpId,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
-  selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+type opportunityBalances =
+  | { underlyingAssetBalances: AssetWithBalance[]; fiatBalance: string }
+  | undefined
 
 type OsmosisOverviewProps = {
   accountId: AccountId | undefined
@@ -36,80 +44,133 @@ export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const [opportunityBalances, setOpportunityBalances] = useState<opportunityBalances>(undefined)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const assets = useAppSelector(selectAssets)
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : ''),
-    [accountId],
-  )
 
-  const opportunityId: LpId | undefined = useMemo(
+  const osmosisOpportunityId: LpId | undefined = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
     [assetId, assetNamespace, assetReference, chainId],
   )
 
-  const highestBalanceAccountIdFilter = useMemo(() => ({ lpId: opportunityId }), [opportunityId])
-  const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
-  )
-
   const opportunityDataFilter = useMemo(
     () => ({
-      lpId: opportunityId,
+      lpId: osmosisOpportunityId,
       assetId,
       accountId,
     }),
-    [accountId, assetId, opportunityId],
+    [accountId, assetId, osmosisOpportunityId],
   )
 
-  const opportunity = useAppSelector(state =>
+  const osmosisOpportunity = useAppSelector(state =>
     selectEarnUserLpOpportunity(state, opportunityDataFilter),
   )
 
-  const lpAssetBalanceFilter = useMemo(
-    () => ({
-      assetId: opportunityId,
-      accountId,
-      lpId: opportunityId,
+  const lpAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+
+  const lpAsset: Asset | undefined = useAppSelector(state => selectAssetById(state, lpAssetId))
+
+  const lpAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId: lpAsset?.assetId,
+      accountId: accountId ?? '',
     }),
-    [accountId, opportunityId],
-  )
-  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
-    selectUnderlyingLpAssetsWithBalancesAndIcons(state, lpAssetBalanceFilter),
   )
 
-  const lpAsset = useMemo(
-    () => opportunity?.underlyingAssetId && assets[opportunity?.underlyingAssetId],
-    [assets, opportunity?.underlyingAssetId],
+  const underlyingAsset0 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
   )
 
-  const underlyingAssetsFiatBalanceFilter = useMemo(
-    () => ({
-      assetId: opportunityId,
-      accountId,
-    }),
-    [accountId, opportunityId],
+  const underlyingAsset1 = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
 
-  const underlyingAssetsFiatBalance = useAppSelector(state =>
-    selectPortfolioFiatBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
-  )
+  const calculateBalances = useCallback(
+    async (
+      lpAsset: Asset,
+      lpAssetBalanceBaseUnit: string,
+    ): Promise<opportunityBalances | undefined> => {
+      if (!(lpAssetBalance && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
+        return undefined
 
-  const highestBalanceAccountAddress = useMemo(
-    () => (highestBalanceAccountId ? fromAccountId(highestBalanceAccountId).account : ''),
-    [highestBalanceAccountId],
+      const id = getPoolIdFromAssetReference(fromAssetId(lpAsset.assetId).assetReference)
+      if (!id) return undefined
+      const poolData = await getPool(id)
+
+      if (
+        !(
+          poolData &&
+          poolData.pool_assets &&
+          poolData.total_shares &&
+          poolData.total_weight !== '0'
+        )
+      ) {
+        return undefined
+      }
+
+      const poolOwnershipFraction = bnOrZero(lpAssetBalanceBaseUnit)
+        .dividedBy(bnOrZero(poolData.total_shares.amount))
+        .toString()
+
+      const underlyingAsset0AllocationPercentage = bnOrZero(poolData.pool_assets[0].weight)
+        .dividedBy(bnOrZero(poolData.total_weight))
+        .toString()
+      const underlyingAsset1AllocationPercentage = bnOrZero(poolData.pool_assets[1].weight)
+        .dividedBy(bnOrZero(poolData.total_weight))
+        .toString()
+
+      const underlyingAsset0Balance = bnOrZero(poolOwnershipFraction)
+        .multipliedBy(poolData.pool_assets[0].token.amount)
+        .toString()
+      const underlyingAsset1Balance = bnOrZero(poolOwnershipFraction)
+        .multipliedBy(poolData.pool_assets[1].token.amount)
+        .toString()
+
+      const underlyingAsset0CryptoBalancePrecision = bnOrZero(underlyingAsset0Balance)
+        .dividedBy(bn(10).pow(bnOrZero(underlyingAsset0?.precision)))
+        .toFixed(2)
+        .toString()
+
+      const underlyingAsset1CryptoBalancePrecision = bnOrZero(underlyingAsset1Balance)
+        .dividedBy(bn(10).pow(bnOrZero(underlyingAsset1?.precision)))
+        .toFixed(2)
+        .toString()
+
+      return {
+        underlyingAssetBalances: [
+          {
+            ...underlyingAsset0,
+            allocationPercentage: underlyingAsset0AllocationPercentage,
+            cryptoBalancePrecision: underlyingAsset0CryptoBalancePrecision,
+          },
+          {
+            ...underlyingAsset1,
+            allocationPercentage: underlyingAsset1AllocationPercentage,
+            cryptoBalancePrecision: underlyingAsset1CryptoBalancePrecision,
+          },
+        ],
+        fiatBalance: bnOrZero(poolOwnershipFraction)
+          .multipliedBy(bnOrZero(osmosisOpportunity.tvl))
+          .toString(),
+      }
+    },
+    [lpAssetBalance, osmosisOpportunity, underlyingAsset0, underlyingAsset1],
   )
 
   useEffect(() => {
-    if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
-      handleAccountIdChange(highestBalanceAccountId)
-    }
-    // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highestBalanceAccountId])
+    if (!(lpAsset && lpAssetBalance)) return
+    ;(async () => {
+      const balances = await calculateBalances(lpAsset, lpAssetBalance)
+      if (!balances) return
+      setOpportunityBalances(balances)
+    })()
+  }, [calculateBalances, lpAsset, lpAssetBalance])
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({
@@ -117,7 +178,7 @@ export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
     selectedLocale,
   })
 
-  if (!lpAsset || !opportunity?.opportunityName || !underlyingAssetsWithBalancesAndIcons)
+  if (!(lpAsset && osmosisOpportunity?.opportunityName && opportunityBalances))
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -131,18 +192,18 @@ export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={lpAsset}
-      icons={opportunity.icons}
-      name={opportunity.opportunityName}
-      opportunityFiatBalance={underlyingAssetsFiatBalance}
-      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
-      provider={opportunity.provider}
+      icons={osmosisOpportunity.icons}
+      name={osmosisOpportunity.opportunityName}
+      opportunityFiatBalance={opportunityBalances.fiatBalance}
+      underlyingAssetsCryptoPrecision={opportunityBalances.underlyingAssetBalances}
+      provider={osmosisOpportunity.provider}
       description={{
         description: lpAsset?.description,
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: lpAsset?.isTrustedDescription,
       }}
-      tvl={bnOrZero(opportunity.tvl).toFixed(2)}
-      apy={opportunity.apy}
+      tvl={bnOrZero(osmosisOpportunity.tvl).toFixed(2)}
+      apy={osmosisOpportunity.apy}
       menu={[
         {
           label: 'common.deposit',

@@ -537,7 +537,9 @@
       },
       "lp": {
         "deposit": "Add Liquidity",
-        "withdraw": "Remove Liquidity"
+        "withdraw": "Remove Liquidity",
+        "join_pool": "Join Pool",
+        "exit_pool": "Exit Pool"
       }
     },
     "unknown": "Transaction"

@@ -174,13 +174,9 @@ export const Status = () => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? bnOrZero(state?.deposit?.estimatedFeeCrypto)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString()
-                    : bnOrZero(state?.deposit?.usedGasFee)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString(),
+                  bnOrZero(state?.deposit?.estimatedFeeCrypto)
+                    .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                    .toString(),
                 )
                   .times(feeAssetMarketData.price)
                   .toFixed(2)}
@@ -188,13 +184,9 @@ export const Status = () => {
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? bnOrZero(state?.deposit?.estimatedFeeCrypto)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString()
-                    : bnOrZero(state?.deposit?.usedGasFee)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString(),
+                  bnOrZero(state?.deposit?.estimatedFeeCrypto)
+                    .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                    .toString(),
                 ).toFixed(5)}
                 symbol='ETH'
               />

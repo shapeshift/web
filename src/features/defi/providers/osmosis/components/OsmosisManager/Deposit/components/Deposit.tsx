@@ -17,16 +17,17 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   getPool,
   getPoolIdFromAssetReference,
@@ -36,6 +37,8 @@ import { useAppSelector } from 'state/store'
 
 import { OsmosisDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
+
+const DEFAULT_SLIPPAGE = 0.001 // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
 
 const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Osmosis', 'Deposit', 'Deposit'],
@@ -55,6 +58,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const [poolData, setPoolData] = useState<OsmosisPool | undefined>(undefined)
   const { chainId, assetNamespace, assetReference } = query
   const osmosisOpportunity = state?.opportunity
 
@@ -143,19 +147,14 @@ export const Deposit: React.FC<DepositProps> = ({
    * NOTE: This calculation may need to be modified to support pools with unequal weights at a later date. The Osmosis frontend does not currently do this.
    */
   const calculateAllocations = useCallback(
-    async (
+    (
       inputAsset: Asset,
-      inputAssetAmount: string,
-    ): Promise<{ allocationFraction: string; shareOutAmount: string } | undefined> => {
+      inputAssetAmountPrecision: string,
+    ): { allocationFraction: string; shareOutAmount: string } | undefined => {
       if (!(state && state.opportunity?.assetId)) {
         return undefined
       }
 
-      const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
-      const id = getPoolIdFromAssetReference(poolAssetReference)
-      if (!id) return undefined
-
-      const poolData = await getPool(id)
       if (!poolData) return undefined
 
       const poolTotalSharesBaseUnit = poolData.total_shares?.amount
@@ -175,7 +174,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       if (poolAssetIndex < 0) return undefined
 
-      const inputAssetAmountBaseUnit = bnOrZero(inputAssetAmount)
+      const inputAssetAmountBaseUnit = bnOrZero(inputAssetAmountPrecision)
         .multipliedBy(bn(10).pow(bnOrZero(inputAsset.precision)))
         .toString()
 
@@ -199,12 +198,13 @@ export const Deposit: React.FC<DepositProps> = ({
         .multipliedBy(
           bnOrZero(inputAssetAmountBaseUnit).dividedBy(bnOrZero(poolAssetAmountBaseUnit)),
         )
-        .toFixed(0)
+        .multipliedBy(bn(1).minus(bnOrZero(DEFAULT_SLIPPAGE)))
+        .toFixed(0, BigNumber.ROUND_DOWN)
         .toString()
 
       return { allocationFraction, shareOutAmount: shareOutAmountBaseUnit }
     },
-    [state],
+    [poolData, state],
   )
 
   const handleContinue = useCallback(
@@ -292,6 +292,19 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
+  useEffect(() => {
+    // Fetch pool data
+    ;(async () => {
+      if (!(state && state.opportunity)) return undefined
+
+      const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
+      const id = getPoolIdFromAssetReference(poolAssetReference)
+      if (!id) return undefined
+
+      if (!poolData) setPoolData(await getPool(id))
+    })()
+  }, [poolData, state])
+
   const handleCancel = browserHistory.goBack
 
   const handleBack = useCallback(() => {
@@ -320,10 +333,9 @@ export const Deposit: React.FC<DepositProps> = ({
   }
 
   const validateCryptoAmount = (value: string, isForAsset1: boolean) => {
-    const crypto = bnOrZero(isForAsset1 ? underlyingAsset0Balance : underlyingAsset1Balance).pow(
-      10,
-      (isForAsset1 ? underlyingAsset1 : underlyingAsset0).precision,
-    )
+    const crypto = bnOrZero(
+      isForAsset1 ? underlyingAsset0Balance : underlyingAsset1Balance,
+    ).dividedBy(bn(10).pow((isForAsset1 ? underlyingAsset0 : underlyingAsset1).precision ?? '0'))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''

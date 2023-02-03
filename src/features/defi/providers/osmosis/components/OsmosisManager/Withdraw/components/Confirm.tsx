@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
@@ -20,7 +21,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   getPool,
@@ -37,6 +38,8 @@ import { useAppSelector } from 'state/store'
 import { OsmosisWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
+const DEFAULT_SLIPPAGE = 0.001 // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
+
 const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
 })
@@ -52,6 +55,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
+  const lpAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
+  )
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
 
   const underlyingAsset0 = useAppSelector(state =>
@@ -127,14 +133,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           tokenOutMins: [
             {
               amount: bnOrZero(state.withdraw.underlyingAsset0.amount)
-                .pow(10, underlyingAsset0?.precision ?? '0')
-                .toFixed(0),
+                .multipliedBy(bn(1).minus(bnOrZero(DEFAULT_SLIPPAGE)))
+                .toFixed(0, BigNumber.ROUND_DOWN),
               denom: state.withdraw.underlyingAsset0.denom,
             },
             {
               amount: bnOrZero(state.withdraw.underlyingAsset1.amount)
-                .pow(10, underlyingAsset0?.precision ?? '0')
-                .toFixed(0),
+                .multipliedBy(bn(1).minus(bnOrZero(DEFAULT_SLIPPAGE)))
+                .toFixed(0, BigNumber.ROUND_DOWN),
               denom: state.withdraw.underlyingAsset1.denom,
             },
           ],
@@ -202,7 +208,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainAdapter,
     bip44Params,
     onNext,
-    underlyingAsset0?.precision,
     toast,
     translate,
   ])
@@ -214,12 +219,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.withdraw.estimatedFeeCrypto).div(`1e+${feeAsset?.precision}`))
+        .minus(
+          bnOrZero(state?.withdraw.estimatedFeeCrypto).div(bn(10).pow(feeAsset?.precision ?? '0')),
+        )
         .gte(0),
     [feeAssetBalance, state?.withdraw, feeAsset?.precision],
   )
 
-  if (!(state && contextDispatch && underlyingAsset0 && underlyingAsset1 && feeAsset)) return null
+  if (!(state && contextDispatch && lpAsset && underlyingAsset0 && underlyingAsset1 && feeAsset))
+    return null
+
+  const underlyingAsset0AmountPrecision = bnOrZero(state.withdraw.underlyingAsset0.amount)
+    .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
+    .toString()
+  const underlyingAsset1AmountPrecision = bnOrZero(state.withdraw.underlyingAsset1.amount)
+    .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
+    .toString()
 
   return (
     <ReusableConfirm
@@ -242,7 +257,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.withdraw.underlyingAsset0.amount}
+                value={underlyingAsset0AmountPrecision}
                 symbol={underlyingAsset0.symbol}
               />
             </Row.Value>
@@ -254,7 +269,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.withdraw.underlyingAsset1.amount}
+                value={underlyingAsset1AmountPrecision}
                 symbol={underlyingAsset1.symbol}
               />
             </Row.Value>

@@ -133,7 +133,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.withdraw.underlyingAsset0.amount}
+                value={bnOrZero(state.withdraw.underlyingAsset0.amount)
+                  .dividedBy(bn(10).pow(underlyingAsset0.precision))
+                  .toString()}
                 symbol={underlyingAsset0.symbol}
               />
             </Row.Value>
@@ -145,7 +147,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             </Stack>
             <Row.Value>
               <Amount.Crypto
-                value={state.withdraw.underlyingAsset1.amount}
+                value={bnOrZero(state.withdraw.underlyingAsset1.amount)
+                  .dividedBy(bn(10).pow(underlyingAsset1.precision))
+                  .toString()}
                 symbol={underlyingAsset1.symbol}
               />
             </Row.Value>
@@ -166,13 +170,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? bnOrZero(state?.withdraw?.estimatedFeeCrypto)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString()
-                    : bnOrZero(state?.withdraw?.usedGasFee)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString(),
+                  bnOrZero(state?.withdraw?.estimatedFeeCrypto)
+                    .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                    .toString(),
                 )
                   .times(feeAssetMarketData.price)
                   .toFixed(2)}
@@ -180,13 +180,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? bnOrZero(state?.withdraw?.estimatedFeeCrypto)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString()
-                    : bnOrZero(state?.withdraw?.usedGasFee)
-                        .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
-                        .toString(),
+                  bnOrZero(state?.withdraw?.estimatedFeeCrypto)
+                    .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
+                    .toString(),
                 ).toFixed(5)}
                 symbol='ETH'
               />

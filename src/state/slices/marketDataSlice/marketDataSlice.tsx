@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -10,6 +11,7 @@ import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/m
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { logger } from 'lib/logger'
+import { isOsmosisLpAsset } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
 import type {
@@ -34,10 +36,13 @@ const initialState: MarketDataState = {
   },
 }
 
-// TODO: remove this once single and multi sided delegation abstraction is implemented
-// since foxEthLpAsset market data is monkey-patched, requesting its price history
-// will return an empty array which overrides the patch.
-const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
+const shouldIgnoreAsset = (assetId: AssetId | string): boolean => {
+  // TODO: remove this once single and multi sided delegation abstraction is implemented
+  // since foxEthLpAsset market data is monkey-patched, requesting its price history
+  // will return an empty array which overrides the patch.
+  const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
+  return ignoreAssetIds.includes(assetId) || isOsmosisLpAsset(fromAssetId(assetId).assetReference)
+}
 
 export const defaultMarketData: MarketData = {
   price: '0',
@@ -138,7 +143,7 @@ export const marketApi = createApi({
     findPriceHistoryByAssetId: build.query<HistoryData[] | null, FindPriceHistoryByAssetIdArgs>({
       queryFn: async (args, { dispatch }) => {
         const { assetId, timeframe } = args
-        if (ignoreAssetIds.includes(assetId)) return { data: [] }
+        if (shouldIgnoreAsset(assetId)) return { data: [] }
         try {
           const data = await getMarketServiceManager().findPriceHistoryByAssetId({
             timeframe,

@@ -50,15 +50,14 @@ export const makeAccountUserData = ({
   validatorIds: ValidatorId[]
 }): OpportunitiesState['userStaking']['byId'] => {
   const delegations = cosmosAccount.chainSpecific.delegations
-  // const undelegations = cosmosAccount.chainSpecific.delegations
+  const undelegations = cosmosAccount.chainSpecific.undelegations
   const rewards = cosmosAccount.chainSpecific.rewards
 
   const delegationsByValidator = groupBy(delegations, delegation => delegation.validator.address)
-  // TODO(gomes): handle me in a separate PR, we will need chain-specific userData similar to the savers-specific-metadata
-  // const undelegationsByValidator = groupBy(
-  // undelegations,
-  // undelegation => undelegation.validator.address,
-  // )
+  const undelegationsByValidator = groupBy(
+    undelegations,
+    undelegation => undelegation.validator.address,
+  )
   const rewardsByValidator = groupBy(rewards, reward => reward.validator.address)
 
   return validatorIds.reduce<Record<UserStakingId, UserStakingOpportunity>>((acc, validatorId) => {
@@ -77,10 +76,24 @@ export const makeAccountUserData = ({
       bn(0),
     )
 
-    if (maybeValidatorDelegations.gt(0) || maybeValidatorRewardsAggregated.gt(0)) {
+    const maybeValidatorUndelegationsEntries =
+      undelegationsByValidator[validatorAddress]?.[0]?.entries
+    const maybeValidatorUndelegations = maybeValidatorUndelegationsEntries?.map(
+      ({ amount, completionTime }) => ({
+        undelegationAmountCryptoBaseUnit: amount,
+        completionTime,
+      }),
+    )
+
+    if (
+      maybeValidatorDelegations.gt(0) ||
+      maybeValidatorRewardsAggregated.gt(0) ||
+      maybeValidatorUndelegations?.length
+    ) {
       acc[userStakingId] = {
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
         rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
+        undelegations: maybeValidatorUndelegations,
       }
     }
 

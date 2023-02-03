@@ -2,9 +2,9 @@ import type { UserStakingOpportunityBase } from '../../types'
 
 type UnstakedAmount = {
   completionTime: number
-  pendingUnstakedAmountCryptoBaseUnit: string
+  undelegationAmountCryptoBaseUnit: string
 }
 
 export type CosmosSdkStakingSpecificUserStakingOpportunity = UserStakingOpportunityBase & {
-  unstakedAmounts: UnstakedAmount[]
+  undelegations: UnstakedAmount[]
 }

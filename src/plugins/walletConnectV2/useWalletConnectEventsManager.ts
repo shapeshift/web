@@ -1,11 +1,18 @@
 import type { SignClientTypes } from '@walletconnect/types'
-import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
-import { CosmosSigningMethod, EIP155_SigningMethod } from 'plugins/walletConnectV2/types'
+import type { Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { WalletConnectContextType, WalletConnectState } from 'plugins/walletConnectV2/types'
+import {
+  CosmosSigningMethod,
+  EIP155_SigningMethod,
+  WalletConnectActionType,
+  WalletConnectModal,
+} from 'plugins/walletConnectV2/types'
 import { useCallback, useEffect } from 'react'
 
 export const useWalletConnectEventsManager = (
   isInitialized: boolean,
-  web3wallet: IWeb3Wallet | undefined,
+  web3wallet: WalletConnectState['web3wallet'],
+  dispatch: WalletConnectContextType['dispatch'],
 ) => {
   /******************************************************************************
    * 1. Open session proposal modal for confirmation / rejection
@@ -13,8 +20,12 @@ export const useWalletConnectEventsManager = (
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       console.log('[debug] session_proposal', proposal)
+      dispatch({
+        type: WalletConnectActionType.SET_MODAL,
+        payload: { modal: WalletConnectModal.sessionProposal, data: { proposal } },
+      })
     },
-    [],
+    [dispatch],
   )
 
   const onAuthRequest = useCallback((request: Web3WalletTypes.AuthRequest) => {

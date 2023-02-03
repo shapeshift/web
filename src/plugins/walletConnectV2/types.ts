@@ -1,6 +1,7 @@
 import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
 import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { Dispatch } from 'react'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -24,9 +25,38 @@ interface ModalData {
   request?: Web3WalletTypes.AuthRequest
 }
 
-export interface WalletConnect {
-  core: ICore
-  web3wallet: IWeb3Wallet
-  pair: (params: { uri: string }) => Promise<PairingTypes.Struct>
-  data?: ModalData
+export interface WalletConnectState {
+  core: ICore | undefined
+  web3wallet: IWeb3Wallet | undefined
+  pair: ((params: { uri: string }) => Promise<PairingTypes.Struct>) | undefined
+  modalData?: ModalData
+  activeModal: WalletConnectModal | undefined
+}
+
+export enum WalletConnectActionType {
+  SET_MODAL = 'SET_MODAL',
+  CLEAR_MODAL = 'CLEAR_MODAL',
+  INITIALIZE = 'INITIALIZE',
+}
+
+export type WalletConnectAction =
+  | {
+      type: WalletConnectActionType.SET_MODAL
+      payload: { modal: WalletConnectModal; data: ModalData }
+    }
+  | {
+      type: WalletConnectActionType.CLEAR_MODAL
+    }
+  | {
+      type: WalletConnectActionType.INITIALIZE
+      payload: { core: ICore; web3wallet: IWeb3Wallet; pair: WalletConnectState['pair'] }
+    }
+
+export type WalletConnectContextType = {
+  state: WalletConnectState
+  dispatch: Dispatch<WalletConnectAction>
+}
+
+export enum WalletConnectModal {
+  sessionProposal = 'sessionProposal',
 }

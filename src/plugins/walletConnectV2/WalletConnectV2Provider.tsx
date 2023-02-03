@@ -1,36 +1,42 @@
-import type { WalletConnect } from 'plugins/walletConnectV2/types'
+import type { WalletConnectContextType } from 'plugins/walletConnectV2/types'
+import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
 import { useWalletConnectEventsManager } from 'plugins/walletConnectV2/useWalletConnectEventsManager'
-import { useWalletConnectWallet } from 'plugins/walletConnectV2/useWalletConnectWallet'
+import { walletConnectReducer } from 'plugins/walletConnectV2/walletConnectReducer'
+import { getWalletConnectCore, getWalletConnectWallet } from 'plugins/walletConnectV2/walletUtils'
 import type { FC, PropsWithChildren } from 'react'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
 
-const WalletConnectContext = createContext<WalletConnect | undefined>(undefined)
+const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
 
 export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => {
-  const { core, web3wallet } = useWalletConnectWallet()
-  const isInitialized = !!core && !!web3wallet
-  useWalletConnectEventsManager(isInitialized, web3wallet)
+  console.log('[debug] WalletConnectV2Provider')
 
-  if (!isInitialized)
-    return (
-      <WalletConnectContext.Provider value={undefined}>{children}</WalletConnectContext.Provider>
-    )
-
-  const pair = async (params: { uri: string }) => {
-    return await core.pairing.pair({ uri: params.uri })
+  const initialState = {
+    core: undefined,
+    web3wallet: undefined,
+    pair: undefined,
+    modalData: undefined,
+    activeModal: undefined,
   }
 
-  return (
-    <WalletConnectContext.Provider
-      value={{
-        core,
-        web3wallet,
-        pair,
-      }}
-    >
-      {children}
-    </WalletConnectContext.Provider>
-  )
+  const [state, dispatch] = useReducer(walletConnectReducer, initialState)
+
+  useEffect(() => {
+    ;(async () => {
+      const core = getWalletConnectCore()
+      const web3wallet = await getWalletConnectWallet()
+      const pair = async (params: { uri: string }) => {
+        return await core.pairing.pair({ uri: params.uri })
+      }
+      dispatch({ type: WalletConnectActionType.INITIALIZE, payload: { core, web3wallet, pair } })
+    })()
+  }, [])
+
+  const isInitialized = !!state.core && !!state.web3wallet
+  useWalletConnectEventsManager(isInitialized, state.web3wallet, dispatch)
+
+  const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
+  return <WalletConnectContext.Provider value={value}>{children}</WalletConnectContext.Provider>
 }
 
 export function useWalletConnectV2() {
@@ -39,5 +45,7 @@ export function useWalletConnectV2() {
     throw new Error('useWalletConnectV2 must be used within a WalletConnectV2Provider')
   }
 
-  return context
+  console.log('[debug] context', context)
+
+  return { ...context.state, dispatch: context.dispatch }
 }

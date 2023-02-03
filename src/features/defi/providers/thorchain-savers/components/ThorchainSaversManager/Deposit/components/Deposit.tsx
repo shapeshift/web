@@ -168,7 +168,7 @@ export const Deposit: React.FC<DepositProps> = ({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
             // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
-            // UTXOs simply call /api/v1/fees (common for all acocunts), and Cosmos assets fees are hardcoded
+            // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
             chainSpecific: {
               pubkey: userAddress,
               from: supportedEvmChainIds.includes(chainId) ? userAddress : '',

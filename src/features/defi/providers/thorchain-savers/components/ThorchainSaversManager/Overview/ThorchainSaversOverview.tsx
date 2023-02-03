@@ -27,8 +27,7 @@ import {
   DefiProvider,
   DefiType,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import qs from 'qs'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -67,7 +66,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
 
@@ -307,21 +307,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
 
-  if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0)) {
-    return (
-      <ThorchainSaversEmpty
-        assetId={assetId}
-        onClick={() =>
-          history.push({
-            pathname: location.pathname,
-            search: qs.stringify({
-              ...query,
-              modal: DefiAction.Deposit,
-            }),
-          })
-        }
-      />
-    )
+  if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
+    return <ThorchainSaversEmpty assetId={assetId} onClick={() => setHideEmptyState(true)} />
   }
 
   return (

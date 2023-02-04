@@ -1,7 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -47,7 +47,6 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const assetId = toAssetId({
     chainId,
@@ -86,14 +85,14 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
   useEffect(() => {
     ;(() => {
       dispatch({
-        type: OsmosisDepositActionType.SET_USER_ADDRESS,
-        payload: userAddress ?? '',
+        type: OsmosisDepositActionType.SET_ACCOUNT_ID,
+        payload: accountId ?? '',
       })
 
       if (!osmosisOpportunity) return
       dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
     })()
-  }, [osmosisOpportunity, userAddress])
+  }, [accountId, osmosisOpportunity])
 
   const handleBack = () => {
     history.push({

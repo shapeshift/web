@@ -249,7 +249,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchMarketData = () =>
       portfolioAssetIds
-        .filter(assetId => !isOsmosisLpAsset(fromAssetId(assetId).assetReference))
+        .filter(assetId => !isOsmosisLpAsset(fromAssetId(assetId).assetReference)) //TODO(pastaghost): find a better way to do this
         .forEach(assetId => {
           dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
           const timeframe = DEFAULT_HISTORY_TIMEFRAME

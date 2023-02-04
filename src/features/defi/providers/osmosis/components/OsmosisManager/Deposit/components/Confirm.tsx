@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
 import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -66,7 +66,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const { state: walletState } = useWallet()
 
@@ -86,7 +85,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         contextDispatch &&
         state &&
         state.opportunity &&
-        userAddress &&
         walletState &&
         walletState.wallet &&
         supportsOsmosis(walletState.wallet) &&
@@ -120,7 +118,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
         return await chainAdapter.buildLPAddTransaction({
           poolId: poolData.id,
-          shareOutAmount: state.deposit.shareOutAmount,
+          shareOutAmount: state.deposit.shareOutAmountBaseUnit,
           tokenInMaxs: [
             {
               amount: bnOrZero(state.deposit.underlyingAsset0.amount).toFixed(
@@ -200,7 +198,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     () =>
       bnOrZero(feeAssetBalance)
         .minus(
-          bnOrZero(state?.deposit.estimatedFeeCrypto).div(bn(10).pow(feeAsset?.precision ?? '0')),
+          bnOrZero(state?.deposit.estimatedFeeCryptoBaseUnit).div(
+            bn(10).pow(feeAsset?.precision ?? '0'),
+          ),
         )
         .gte(0),
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
@@ -215,7 +215,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     .dividedBy(bn(10).pow(underlyingAsset1.precision))
     .toString()
 
-  const estimatedFeeCryptoPrecision = bnOrZero(state.deposit.estimatedFeeCrypto)
+  const estimatedFeeCryptoPrecision = bnOrZero(state.deposit.estimatedFeeCryptoBaseUnit)
     .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
     .toString()
 

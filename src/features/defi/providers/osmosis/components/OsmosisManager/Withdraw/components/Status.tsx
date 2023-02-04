@@ -54,6 +54,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
+    // TODO:pastaghost): refactor to eliminate userAddress parameter
     if (!(state?.txid && userAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, userAddress)
   }, [state?.txid, userAddress, accountId])
@@ -170,7 +171,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  bnOrZero(state?.withdraw?.estimatedFeeCrypto)
+                  bnOrZero(state?.withdraw?.estimatedFeeCryptoBaseUnit)
                     .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
                     .toString(),
                 )
@@ -180,7 +181,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(
-                  bnOrZero(state?.withdraw?.estimatedFeeCrypto)
+                  bnOrZero(state?.withdraw?.estimatedFeeCryptoBaseUnit)
                     .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
                     .toString(),
                 ).toFixed(5)}

@@ -4,7 +4,7 @@ import { OsmosisWithdrawActionType } from './WithdrawCommon'
 export const initialState: OsmosisWithdrawState = {
   txid: null,
   opportunity: null,
-  userAddress: null,
+  accountId: null,
   loading: false,
   withdraw: {
     underlyingAsset0: {
@@ -15,8 +15,8 @@ export const initialState: OsmosisWithdrawState = {
       amount: '',
       denom: '',
     },
-    estimatedFeeCrypto: '',
-    shareInAmount: '',
+    estimatedFeeCryptoBaseUnit: '',
+    shareOutAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
   },
@@ -31,8 +31,8 @@ export const reducer = (
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case OsmosisWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case OsmosisWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
+    case OsmosisWithdrawActionType.SET_ACCOUNT_ID:
+      return { ...state, accountId: action.payload }
     case OsmosisWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case OsmosisWithdrawActionType.SET_TXID:

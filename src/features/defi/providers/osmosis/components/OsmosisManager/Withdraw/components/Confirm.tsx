@@ -38,7 +38,7 @@ import { useAppSelector } from 'state/store'
 import { OsmosisWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-const DEFAULT_SLIPPAGE = 0.001 // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
+const DEFAULT_SLIPPAGE = '0.001' // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
 
 const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
@@ -125,7 +125,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (!(walletState && walletState.wallet)) return
         return await chainAdapter.buildLPRemoveTransaction({
           poolId: poolData.id,
-          shareOutAmount: state.withdraw.shareInAmount,
+          shareOutAmount: state.withdraw.shareOutAmountBaseUnit,
           tokenOutMins: [
             {
               amount: bnOrZero(state.withdraw.underlyingAsset0.amount)
@@ -214,7 +214,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     () =>
       bnOrZero(feeAssetBalance)
         .minus(
-          bnOrZero(state?.withdraw.estimatedFeeCrypto).div(bn(10).pow(feeAsset?.precision ?? '0')),
+          bnOrZero(state?.withdraw.estimatedFeeCryptoBaseUnit).div(
+            bn(10).pow(feeAsset?.precision ?? '0'),
+          ),
         )
         .gte(0),
     [feeAssetBalance, state?.withdraw, feeAsset?.precision],
@@ -277,13 +279,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedFeeCrypto)
+                value={bnOrZero(state.withdraw.estimatedFeeCryptoBaseUnit)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedFeeCrypto).toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedFeeCryptoBaseUnit).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

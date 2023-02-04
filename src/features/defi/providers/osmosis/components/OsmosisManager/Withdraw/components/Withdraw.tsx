@@ -278,16 +278,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     if (!(poolAssetMarketData && lpAsset)) return
     const divisor = bnOrZero(poolAssetMarketData.price)
 
-    /**
-     * Lol at this double-ternary operation.
-     * If this is a fiat value, we can get the crypto amount by diving value by price,
-     * but we have to check first if the price is zero so we don't divide by zero.
-     * If price is zero, just set _value to '0'. Otherwise, set _value to value/price.
-     */
     const _value = isFiat
-      ? divisor.isGreaterThan(0)
-        ? bnOrZero(value).dividedBy(divisor).toString()
-        : '0'
+      ? bnOrZero(value)
+          .dividedBy(divisor.toFixed() ?? 1)
+          .toString()
       : value
     ;(async () => {
       const amounts = await calculateBalances(lpAsset, _value)
@@ -327,20 +321,20 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         payload: {
           underlyingAsset0: tokenOutMins[0],
           underlyingAsset1: tokenOutMins[1],
-          shareInAmount: bnOrZero(formValues.cryptoAmount)
+          shareOutAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
             .multipliedBy(bn(10).pow(lpAsset?.precision ?? '0'))
             .toString(),
         },
       })
 
-      const estimatedFeeCrypto = await getWithdrawFeeEstimate()
-      if (!estimatedFeeCrypto) {
+      const estimatedFeeCryptoBaseUnit = await getWithdrawFeeEstimate()
+      if (!estimatedFeeCryptoBaseUnit) {
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
         return
       }
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedFeeCrypto },
+        payload: { estimatedFeeCryptoBaseUnit },
       })
       onNext(DefiStep.Confirm)
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
@@ -373,6 +367,29 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     handleInputChange(cryptoAmountBaseUnit, false)
   }
 
+  // Fetch pool data and calculate "price" of LP asset
+  const getPoolAssetMarketData = useCallback(async () => {
+    /* No market exists for Osmosis pool assets, but we can calculate the 'price' of each pool token
+      by dividing the pool TVL by the total number of pool tokens. */
+    if (!(state && state.opportunity)) return undefined
+
+    const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
+    const id = getPoolIdFromAssetReference(poolAssetReference)
+    if (!id) return undefined
+
+    if (!poolData) setPoolData(await getPool(id))
+    if (!(poolData && poolData.total_shares)) return undefined
+
+    setPoolAssetMarketData({
+      price: bnOrZero(poolData.tvl).dividedBy(bnOrZero(poolData.total_shares.amount)).toString(),
+      marketCap: bnOrZero(poolData.tvl).toString(),
+      volume: bn(0).toString(),
+      changePercent24Hr: bn(0).toNumber(),
+      supply: bnOrZero(poolData.total_shares.amount).toString(),
+      maxSupply: bnOrZero(poolData.total_shares.amount).toString(),
+    })
+  }, [poolData, state])
+
   useEffect(() => {
     // Calculate underlying token balances
     if (!lpAsset) return
@@ -382,31 +399,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setOpportunityBalances(balances)
     })()
 
-    // Fetch pool data and calculate "price" of LP asset
-    const getPoolAssetMarketData = async () => {
-      /* No market exists for Osmosis pool assets, but we can calculate the 'price' of each pool token
-    by dividing the pool TVL by the total number of pool tokens. */
-      if (!(state && state.opportunity)) return undefined
-
-      const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
-      const id = getPoolIdFromAssetReference(poolAssetReference)
-      if (!id) return undefined
-
-      if (!poolData) setPoolData(await getPool(id))
-      if (!(poolData && poolData.total_shares)) return undefined
-
-      setPoolAssetMarketData({
-        price: bnOrZero(poolData.tvl).dividedBy(bnOrZero(poolData.total_shares.amount)).toString(),
-        marketCap: bnOrZero(poolData.tvl).toString(),
-        volume: bn(0).toString(),
-        changePercent24Hr: bn(0).toNumber(),
-        supply: bnOrZero(poolData.total_shares.amount).toString(),
-        maxSupply: bnOrZero(poolData.total_shares.amount).toString(),
-      })
-    }
     if (poolAssetMarketData) return // Only fetch market data on component load
     getPoolAssetMarketData()
-  }, [calculateBalances, lpAsset, lpAssetBalance, poolData, poolAssetMarketData, state])
+  }, [
+    calculateBalances,
+    lpAsset,
+    lpAssetBalance,
+    poolData,
+    poolAssetMarketData,
+    state,
+    getPoolAssetMarketData,
+  ])
 
   if (
     !(

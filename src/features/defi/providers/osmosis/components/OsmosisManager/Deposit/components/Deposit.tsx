@@ -38,7 +38,7 @@ import { useAppSelector } from 'state/store'
 import { OsmosisDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const DEFAULT_SLIPPAGE = 0.001 // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
+const DEFAULT_SLIPPAGE = '0.001' // Allow for 0.1% slippage. TODO(pastaghost): is there a better way to do this?
 
 const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Osmosis', 'Deposit', 'Deposit'],
@@ -150,7 +150,7 @@ export const Deposit: React.FC<DepositProps> = ({
     (
       inputAsset: Asset,
       inputAssetAmountPrecision: string,
-    ): { allocationFraction: string; shareOutAmount: string } | undefined => {
+    ): { allocationFraction: string; shareOutAmountBaseUnit: string } | undefined => {
       if (!(state && state.opportunity?.assetId)) {
         return undefined
       }
@@ -202,23 +202,14 @@ export const Deposit: React.FC<DepositProps> = ({
         .toFixed(0, BigNumber.ROUND_DOWN)
         .toString()
 
-      return { allocationFraction, shareOutAmount: shareOutAmountBaseUnit }
+      return { allocationFraction, shareOutAmountBaseUnit }
     },
     [poolData, state],
   )
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (
-        !(
-          state &&
-          contextDispatch &&
-          userAddress &&
-          osmosisOpportunity &&
-          underlyingAsset0 &&
-          underlyingAsset1
-        )
-      )
+      if (!(state && contextDispatch && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
         return
 
       const allocations = await calculateAllocations(underlyingAsset0, formValues.cryptoAmount1)
@@ -253,16 +244,16 @@ export const Deposit: React.FC<DepositProps> = ({
                 ? 'uosmo'
                 : `${ASSET_NAMESPACE.ibc}/${asset1Reference}`,
           },
-          shareOutAmount: allocations.shareOutAmount,
+          shareOutAmountBaseUnit: allocations.shareOutAmountBaseUnit,
         },
       })
       contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: true })
       try {
-        const estimatedFeeCrypto = await getDepositFeeEstimate()
-        if (!estimatedFeeCrypto) return
+        const estimatedFeeCryptoBaseUnit = await getDepositFeeEstimate()
+        if (!estimatedFeeCryptoBaseUnit) return
         contextDispatch({
           type: OsmosisDepositActionType.SET_DEPOSIT,
-          payload: { estimatedFeeCrypto },
+          payload: { estimatedFeeCryptoBaseUnit },
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: false })
@@ -280,7 +271,6 @@ export const Deposit: React.FC<DepositProps> = ({
     [
       state,
       contextDispatch,
-      userAddress,
       osmosisOpportunity,
       underlyingAsset0,
       underlyingAsset1,
@@ -366,7 +356,6 @@ export const Deposit: React.FC<DepositProps> = ({
   return (
     <PairDepositWithAllocation
       accountId={accountId}
-      assets={[underlyingAsset0, underlyingAsset1]}
       opportunity={osmosisOpportunity}
       destAsset={asset}
       calculateAllocations={calculateAllocations}

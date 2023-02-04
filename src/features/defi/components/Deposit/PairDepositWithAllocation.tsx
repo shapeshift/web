@@ -19,29 +19,26 @@ import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
 type DepositProps = {
   accountId?: AccountId | undefined
-  assets: [Asset, Asset]
   opportunity: LpEarnOpportunityType | StakingEarnOpportunityType
   destAsset: Asset
-
   // Use form values to calculate allocation fraction
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): { allocationFraction: string; shareOutAmount: string } | undefined
+  ): { allocationFraction: string; shareOutAmountBaseUnit: string } | undefined
   // Users available amount
   cryptoAmountAvailable1Precision: string
   cryptoAmountAvailable2Precision: string
   // Validation rules for the crypto input
   cryptoInputValidation1?: ControllerProps['rules']
   cryptoInputValidation2?: ControllerProps['rules']
-
   // Validation rules for the fiat input
   fiatInputValidation1?: ControllerProps['rules']
   fiatInputValidation2?: ControllerProps['rules']
@@ -77,7 +74,6 @@ export type DepositValues = {
 
 export const PairDepositWithAllocation = ({
   accountId,
-  assets,
   calculateAllocations,
   cryptoAmountAvailable1Precision,
   cryptoAmountAvailable2Precision,
@@ -114,8 +110,20 @@ export const PairDepositWithAllocation = ({
   })
 
   const apy = opportunity.apy?.toString() ?? ''
-  const asset1 = assets[0]
-  const asset2 = assets[1]
+  const asset1 = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
+  )
+  const asset2 = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetIds[1] ?? ''),
+  )
+
+  const asset1MarketData = useAppSelector(state =>
+    selectMarketDataById(state, asset1?.assetId ?? ''),
+  )
+  const asset2MarketData = useAppSelector(state =>
+    selectMarketDataById(state, asset2?.assetId ?? ''),
+  )
+
   const icons = opportunity.icons
 
   const values = useWatch({ control })
@@ -148,14 +156,14 @@ export const PairDepositWithAllocation = ({
     name: 'shareOutAmount',
     control,
   })
+
+  if (!(asset1 && asset2)) return null
+
   const cryptoError1 = get(errors, 'cryptoAmount1.message', null)
   const cryptoError2 = get(errors, 'cryptoAmount2.message', null)
   const fiatError1 = get(errors, 'fiatAmount1.message', null)
   const fiatError2 = get(errors, 'fiatAmount2.message', null)
   const fieldError = cryptoError1 || cryptoError2 || fiatError1 || fiatError2
-
-  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, asset1.assetId))
-  const asset2MarketData = useAppSelector(state => selectMarketDataById(state, asset2.assetId))
 
   const handleInputChange = (value: string, isForAsset1: boolean, isFiat?: boolean) => {
     const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
@@ -201,7 +209,7 @@ export const PairDepositWithAllocation = ({
     if (!allocations) return
 
     setValue(Field.AllocationFraction, allocations.allocationFraction)
-    setValue(Field.ShareOutAmount, allocations.shareOutAmount)
+    setValue(Field.ShareOutAmount, allocations.shareOutAmountBaseUnit)
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {
@@ -238,7 +246,7 @@ export const PairDepositWithAllocation = ({
       if (!allocations) return
 
       setValue(Field.AllocationFraction, allocations.allocationFraction)
-      setValue(Field.ShareOutAmount, allocations.shareOutAmount)
+      setValue(Field.ShareOutAmount, allocations.shareOutAmountBaseUnit)
     })()
   }
 

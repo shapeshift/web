@@ -5,7 +5,7 @@ export const initialState: OsmosisDepositState = {
   txid: null,
   opportunity: null,
   poolData: null,
-  userAddress: null,
+  accountId: null,
   loading: false,
   deposit: {
     underlyingAsset0: {
@@ -16,8 +16,8 @@ export const initialState: OsmosisDepositState = {
       amount: '',
       denom: '',
     },
-    estimatedFeeCrypto: '',
-    shareOutAmount: '',
+    estimatedFeeCryptoBaseUnit: '',
+    shareOutAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
   },
@@ -34,8 +34,8 @@ export const reducer = (
       return { ...state, poolData: { ...state.poolData, ...action.payload } }
     case OsmosisDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case OsmosisDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
+    case OsmosisDepositActionType.SET_ACCOUNT_ID:
+      return { ...state, accountId: action.payload }
     case OsmosisDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case OsmosisDepositActionType.SET_TXID:

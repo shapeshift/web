@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type {
   OsmosisPool,
   OsmosisToken,
@@ -5,13 +6,13 @@ import type {
 import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedFee = {
-  estimatedFeeCrypto?: string
+  estimatedFeeCryptoBaseUnit?: string
 }
 
 type DepositValues = {
   underlyingAsset0: OsmosisToken
   underlyingAsset1: OsmosisToken
-  shareOutAmount: string
+  shareOutAmountBaseUnit: string
 }
 
 type OsmosisDepositValues = DepositValues &
@@ -23,7 +24,7 @@ type OsmosisDepositValues = DepositValues &
 export type OsmosisDepositState = {
   opportunity: LpEarnOpportunityType | null
   poolData: Partial<OsmosisPool> | null
-  userAddress: string | null
+  accountId: AccountId | null
   deposit: OsmosisDepositValues
   loading: boolean
   txid: string | null
@@ -32,7 +33,7 @@ export type OsmosisDepositState = {
 export enum OsmosisDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_POOL_DATA = 'SET_POOL_DATA',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
+  SET_ACCOUNT_ID = 'SET_ACCOUNT_ID',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -54,9 +55,9 @@ type SetDeposit = {
   payload: Partial<OsmosisDepositValues>
 }
 
-type SetUserAddress = {
-  type: OsmosisDepositActionType.SET_USER_ADDRESS
-  payload: string
+type SetAccountId = {
+  type: OsmosisDepositActionType.SET_ACCOUNT_ID
+  payload: AccountId | null
 }
 
 type SetLoading = {
@@ -78,7 +79,7 @@ export type OsmosisDepositActions =
   | SetOpportunityAction
   | SetPoolData
   | SetDeposit
-  | SetUserAddress
+  | SetAccountId
   | SetLoading
   | SetTxid
   | SetTxStatus

@@ -68,8 +68,6 @@ export const Deposit: React.FC<DepositProps> = ({
     assetReference,
   })
 
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
-
   const underlyingAsset0 = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
   )
@@ -309,7 +307,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   if (
     !(
-      asset &&
+      assetId &&
       state &&
       contextDispatch &&
       osmosisOpportunity &&
@@ -345,22 +343,12 @@ export const Deposit: React.FC<DepositProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const underlyingAsset0CryptoAmountAvailable = bnOrZero(underlyingAsset0Balance).div(
-    bn(10).pow(underlyingAsset0.precision),
-  )
-
-  const underlyingAsset1CryptoAmountAvailable = bnOrZero(underlyingAsset1Balance).div(
-    bn(10).pow(underlyingAsset1.precision),
-  )
-
   return (
     <PairDepositWithAllocation
       accountId={accountId}
       opportunity={osmosisOpportunity}
-      destAsset={asset}
+      destAssetId={assetId}
       calculateAllocations={calculateAllocations}
-      cryptoAmountAvailable1Precision={underlyingAsset0CryptoAmountAvailable.toPrecision()}
-      cryptoAmountAvailable2Precision={underlyingAsset1CryptoAmountAvailable.toPrecision()}
       cryptoInputValidation1={{
         required: true,
         validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, true) },

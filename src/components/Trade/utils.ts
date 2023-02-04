@@ -15,10 +15,8 @@ export const isTradingActive = async (
       const inboundAddressData = sellAssetIsRune
         ? undefined
         : await getInboundAddressDataForChain(daemonUrl, assetId, false)
-      /*
-      Unless we are trading from RUNE, which has no inbound address data, we MUST
-      get confirmation that trading is not halted. We fail-closed for safety.
-       */
+
+      // We MUST get confirmation that trading is not halted. We fail-closed for safety.
       switch (true) {
         // The sell asset is RUNE, there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead

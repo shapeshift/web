@@ -932,6 +932,7 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
+      "missingFundsForGas": "Not enough funds, you need %{cryptoAmountHuman} %{assetSymbol} more to complete transaction",
       "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"

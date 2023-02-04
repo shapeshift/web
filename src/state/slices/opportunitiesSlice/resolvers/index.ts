@@ -3,6 +3,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import {
   cosmosSdkOpportunityIdsResolver,
   cosmosSdkStakingOpportunitiesMetadataResolver,
+  cosmosSdkStakingOpportunitiesUserDataResolver,
 } from './cosmosSdk'
 import {
   foxFarmingLpMetadataResolver,
@@ -78,6 +79,9 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
   },
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
+  },
+  [`${DefiProvider.Cosmos}`]: {
+    [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
   },
 }
 

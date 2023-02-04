@@ -4,3 +4,4 @@ export { getInboundAddressDataForChain } from './thorchain/utils/getInboundAddre
 export * from './test/TestSwapper'
 export * from './osmosis/OsmosisSwapper'
 export * from './cow/CowSwapper'
+export { isRune } from './thorchain/utils/isRune/isRune'

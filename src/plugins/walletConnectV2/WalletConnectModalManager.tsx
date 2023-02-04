@@ -12,12 +12,12 @@ export const WalletConnectModalManager: FC<Props> = ({
   state: { activeModal, modalData },
   dispatch,
 }) => {
-  const handleClose = () => {
-    dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
-  }
+  const handleClose = () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
+
+  const proposal = modalData?.proposal
+
   switch (activeModal) {
     case WalletConnectModal.sessionProposal:
-      const proposal = modalData?.proposal
       return proposal ? (
         <SessionProposalModal isOpen={true} onClose={handleClose} proposal={proposal} />
       ) : null

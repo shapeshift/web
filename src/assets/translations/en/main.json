@@ -1611,6 +1611,10 @@
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
           "connectionError": "Can't connect to provided URI."
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Info",
+          "permissions": "Permissions"
         }
       },
       "registry": {

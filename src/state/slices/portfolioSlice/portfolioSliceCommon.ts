@@ -4,8 +4,6 @@ import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
-import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
-
 export type Staking = {
   delegations: cosmossdk.Delegation[]
   redelegations: cosmossdk.Redelegation[]
@@ -13,16 +11,9 @@ export type Staking = {
   rewards: cosmossdk.Reward[]
 }
 
-type StakingDataParsedByAccountId = Record<AssetId, Staking>
-export type StakingDataByValidatorId = Record<PubKey, StakingDataParsedByAccountId>
-
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
-  /** The list of validators this account is delegated to */
-  validatorIds?: PubKey[]
-  /** The staking data for per validator, so we can do a join from validatorDataSlice */
-  stakingDataByValidatorId?: StakingDataByValidatorId
 }
 
 export type PortfolioAccounts = {

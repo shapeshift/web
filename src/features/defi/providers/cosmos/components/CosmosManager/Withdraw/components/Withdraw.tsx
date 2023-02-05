@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -18,11 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import {
-  selectAssetById,
-  selectDelegationCryptoAmountByAssetIdAndValidator,
-  selectMarketDataById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
@@ -46,7 +42,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference } = query
   const toast = useToast()
 
   const methods = useForm<CosmosWithdrawValues>({ mode: 'onChange' })
@@ -75,17 +71,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  const filter = useMemo(
-    () => ({
-      accountId: accountId ?? '',
-      validatorAddress: contractAddress,
-      assetId,
-    }),
-    [accountId, assetId, contractAddress],
-  )
-  const cryptoStakeBalance = useAppSelector(s =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
-  )
+  // TODO
+  // const filter = useMemo(
+  // () => ({
+  // accountId: accountId ?? '',
+  // validatorAddress: contractAddress,
+  // assetId,
+  // }),
+  // [accountId, assetId, contractAddress],
+  // )
+  const cryptoStakeBalance = '0' // TODO: select opportunity userData
   const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()

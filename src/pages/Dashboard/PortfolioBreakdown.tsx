@@ -6,7 +6,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
-import { selectPortfolioTotalFiatBalanceWithStakingData } from 'state/slices/selectors'
+import { selectPortfolioTotalFiatBalance } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StatCardProps = {
@@ -50,7 +50,7 @@ export const PortfolioBreakdown = () => {
   const history = useHistory()
   //FOXY, OSMO, COSMO, Yarn Vaults
   const balances = useEarnBalances()
-  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceWithStakingData)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalance)
   const walletBalanceWithoutEarn = bn(netWorth).minus(bn(balances.totalEarningBalance))
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>

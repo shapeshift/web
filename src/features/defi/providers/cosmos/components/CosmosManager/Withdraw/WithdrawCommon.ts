@@ -6,7 +6,7 @@ import type {
 } from 'features/defi/components/Withdraw/Withdraw'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type SupportedCosmosOpportunity = {
   type: DefiType
@@ -48,7 +48,7 @@ export enum CosmosWithdrawActionType {
 
 type SetVaultAction = {
   type: CosmosWithdrawActionType.SET_OPPORTUNITY
-  payload: MergedActiveStakingOpportunity
+  payload: StakingEarnOpportunityType
 }
 
 type SetWithdraw = {

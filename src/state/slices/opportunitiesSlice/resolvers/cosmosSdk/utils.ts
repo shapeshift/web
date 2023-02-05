@@ -1,6 +1,14 @@
-import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  cosmosChainId,
+  fromAccountId,
+  fromAssetId,
+  osmosisChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import flatMapDeep from 'lodash/flatMapDeep'
+import flow from 'lodash/flow'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -13,6 +21,10 @@ import type {
   ValidatorId,
 } from '../../types'
 import { serializeUserStakingId, toValidatorId } from '../../utils'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+} from './constants'
 
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
@@ -100,3 +112,23 @@ export const makeAccountUserData = ({
     return acc
   }, {})
 }
+
+export const getDefaultValidatorAddressFromChainId = (chainId: ChainId) => {
+  switch (chainId) {
+    case cosmosChainId:
+      return SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS
+    case osmosisChainId:
+      return SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS
+    default:
+      throw new Error(`chainId ${chainId} is not a valid Cosmos SDK chainId`)
+  }
+}
+export const getDefaultValidatorAddressFromAssetId = flow([
+  (assetId: AssetId) => fromAssetId(assetId).chainId,
+  getDefaultValidatorAddressFromChainId,
+])
+
+export const getDefaultValidatorAddressFromAccountId = flow(
+  (accountId: AccountId) => fromAccountId(accountId).chainId,
+  getDefaultValidatorAddressFromChainId,
+)

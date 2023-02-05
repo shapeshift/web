@@ -33,6 +33,10 @@ import {
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  EMPTY_COSMOS_ADDRESS,
+  EMPTY_OSMOSIS_ADDRESS,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
+import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
   fetchAllOpportunitiesUserData,
@@ -49,11 +53,6 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import {
-  EMPTY_COSMOS_ADDRESS,
-  EMPTY_OSMOSIS_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
-import { validatorDataApi } from 'state/slices/validatorDataSlice/validatorDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
@@ -168,23 +167,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-      const { getValidatorData } = validatorDataApi.endpoints
 
       // forceRefetch is enabled here to make sure that we always have the latest state from chain
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
+      // TODO(gomes): We shouldn't need this hack anymore, we will always insert the two default validators no matter what
+      // TBD in an --insert ed branch under this one
       // Sneaky hack to fetch cosmos SDK default opportunities for wallets that don't support Cosmos SDK
       // We only store the validator data for these and don't actually store them in portfolio.accounts.byId[accountId].stakingDataByValidatorId
       // Since the accountId is an empty address (generated and private keys burned) and isn't actually in state
-      if (wallet && !supportsCosmos(wallet)) {
-        const accountId = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
-        dispatch(getValidatorData.initiate(accountId, options))
-      }
-      if (wallet && !supportsOsmosis(wallet)) {
-        const accountId = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
-        dispatch(getValidatorData.initiate(accountId, options))
-      }
+      // if (wallet && !supportsCosmos(wallet)) {
+      // const accountId = `${cosmosChainId}:${EMPTY_COSMOS_ADDRESS}`
+      // dispatch(getValidatorData.initiate(accountId, options))
+      // }
+      // if (wallet && !supportsOsmosis(wallet)) {
+      // const accountId = `${osmosisChainId}:${EMPTY_OSMOSIS_ADDRESS}`
+      // dispatch(getValidatorData.initiate(accountId, options))
+      // }
 
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
@@ -202,7 +202,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case osmosisChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
-            dispatch(getValidatorData.initiate(accountId, options))
             fetchAllOpportunitiesUserData(accountId)
             break
           case avalancheChainId:

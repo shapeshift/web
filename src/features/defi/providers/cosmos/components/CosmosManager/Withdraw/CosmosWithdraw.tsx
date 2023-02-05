@@ -19,8 +19,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -84,14 +82,13 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
   const cosmosOpportunity = useMemo(
     () =>
       opportunities?.cosmosSdkStakingOpportunities?.find(
         opportunity => opportunity.address === contractAddress,
       ) ?? {},
-    [opportunities, contractAddress],
-  ) as unknown as MergedActiveStakingOpportunity // TODO: remove casting
+    [contractAddress],
+  )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))

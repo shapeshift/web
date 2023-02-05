@@ -17,17 +17,13 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectTotalBondingsBalanceByAssetId,
-  selectValidatorByAddress,
 } from 'state/slices/selectors'
-import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosEmpty } from './CosmosEmpty'
@@ -98,15 +94,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const defaultValidatorAddress = useMemo(
-    () => getDefaultValidatorAddressFromAssetId(stakingAssetId),
-    [stakingAssetId],
-  )
   const validatorData = useAppSelector(state =>
     selectValidatorByAddress(state, defaultValidatorAddress),
   )
-
-  const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
 
   if (!opportunity) return null
 

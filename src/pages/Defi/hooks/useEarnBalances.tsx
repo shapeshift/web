@@ -1,9 +1,7 @@
-import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -22,16 +20,6 @@ export type UseEarnBalancesReturn = {
 
 export function useEarnBalances(): UseEarnBalancesReturn {
   const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
-  const { cosmosSdkStakingOpportunities, totalBalance: totalCosmosStakingBalance } =
-    useCosmosSdkStakingBalances({
-      assetId: cosmosAssetId,
-    })
-  const {
-    cosmosSdkStakingOpportunities: osmosisStakingOpportunities,
-    totalBalance: totalOsmosisStakingBalance,
-  } = useCosmosSdkStakingBalances({
-    assetId: osmosisAssetId,
-  })
 
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
 
@@ -62,9 +50,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   )
 
   const opportunities = useNormalizeOpportunities({
-    cosmosSdkStakingOpportunities: cosmosSdkStakingOpportunities.concat(
-      osmosisStakingOpportunities,
-    ),
     lpOpportunities,
     stakingOpportunities,
   })
@@ -72,8 +57,6 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   // When staking, farming, lp, etc are added sum up the balances here
   const totalEarningBalance = bnOrZero(farmContractsFiatBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')
-    .plus(totalCosmosStakingBalance)
-    .plus(totalOsmosisStakingBalance)
     .plus(foxEthLpFiatBalance ?? 0)
     .toString()
 

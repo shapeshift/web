@@ -57,7 +57,6 @@ export const OpportunityCard = ({
   cryptoAmountPrecision,
   fiatAmount,
   expired,
-  moniker,
   assetId,
   icons,
   opportunityName,
@@ -126,12 +125,12 @@ export const OpportunityCard = ({
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
 
-    if (chainId === cosmosChainId || chainId === osmosisChainId) return moniker
+    if (chainId === cosmosChainId || chainId === osmosisChainId) return opportunityName
 
     if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
     }
-  }, [asset, assetId, chainId, getVaultName, moniker, opportunityName, provider, version])
+  }, [asset, assetId, chainId, getVaultName, opportunityName, provider, version])
 
   if (!asset) return null
 

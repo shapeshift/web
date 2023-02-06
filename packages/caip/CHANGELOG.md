@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.12.0...@shapeshiftoss/caip-v8.13.0) (2023-02-06)
+
+
+### Features
+
+* **market-service:** return market data for osmosis liquidity pools ([#1192](https://github.com/shapeshift/lib/issues/1192)) ([560a5ac](https://github.com/shapeshift/lib/commit/560a5ac8248df712eab156593b09e38ba184eebc))
+
 # [@shapeshiftoss/caip-v8.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.11.0...@shapeshiftoss/caip-v8.12.0) (2023-02-02)
 
 

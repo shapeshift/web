@@ -84,7 +84,8 @@
     "pageNotFound": "La page que vous recherchez est introuvable",
     "buySell": "Acheter/Vendre",
     "all": "Tout",
-    "viewAll": "Tout voir"
+    "viewAll": "Tout voir",
+    "slippage": "Glissement/Slippage"
   },
   "errorPage": {
     "title": "Oups !",
@@ -162,6 +163,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Bientôt disponible ...",
     "buy": "Acheter",
     "sell": "Vendre",
@@ -298,7 +300,22 @@
         "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
         "sendDustBody": "Vous devez envoyer un peu de poussière à cette adresse pour pouvoir effectuer un retrait.",
         "sendDust": "Envoyer de la poussière",
-        "addressToSendTo": "Adresse à laquelle envoyer"
+        "addressToSendTo": "Adresse à laquelle envoyer",
+        "introducingSaversVaults": "Présentation des Savers Vaults",
+        "risksBody": {
+          "1": "Référez-vous à",
+          "2": "cet article",
+          "3": "pour les risques liés aux Savers Vaults."
+        },
+        "understand": "Je comprends",
+        "days": "%{amount} jours",
+        "day": "%{amount} jour",
+        "timeToBreakEven": {
+          "title": "Temps avant le seuil de rentabilité",
+          "tooltip": "Temps estimé pour couvrir les frais de dépôt et les gains."
+        },
+        "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
+        "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente"
       }
     },
     "memoNote": {
@@ -608,6 +625,7 @@
       "balanceToLow": "Le solde est trop bas. Le montant minimum de transaction pour cette paire est de %{minLimit}",
       "dexTradeFailed": "Échec de l'échange, jetons restitués",
       "quoteFailed": "Une erreur s'est produite lors de l'obtention d'un devis pour votre échange.",
+      "quoteExpired": "Devis expiré, réessayez.",
       "failedQuoteExecuted": "Impossible d'exécuter un devis qui a échoué",
       "sellAssetRequired": "Impossible d'exécuter un devis sans un actif à vendre",
       "sellAmountRequired": "Impossible d'exécuter un devis sans un montant à vendre",
@@ -907,6 +925,7 @@
       "estimatedReturns": "Rendements annuels estimés*",
       "estimatedGas": "Frais de carburant estimés",
       "notEnoughGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
+      "missingFundsForGas": "Fonds insuffisants, vous avez besoin de %{cryptoAmountHuman} %{assetSymbol} en plus pour terminer la transaction",
       "preFooter": "Les récompenses s'accumulent automatiquement",
       "signBroadcast": "Signer & diffuser",
       "cancel": "Annuler"

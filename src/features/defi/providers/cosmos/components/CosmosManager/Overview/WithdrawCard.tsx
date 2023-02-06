@@ -13,10 +13,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectFirstAccountIdByChainId,
-  selectUnbondingEntriesByAccountId,
-} from 'state/slices/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type WithdrawCardProps = {
@@ -30,15 +27,15 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset.chainId))
 
-  const filter = useMemo(
-    () => ({
-      accountId: routeAccountId ?? accountId,
-      validatorAddress: contractAddress,
-      assetId: asset.assetId,
-    }),
-    [accountId, asset.assetId, contractAddress, routeAccountId],
-  )
-  const undelegationEntries = useAppSelector(s => selectUnbondingEntriesByAccountId(s, filter))
+  // const filter = useMemo(
+  // () => ({
+  // accountId: routeAccountId ?? accountId,
+  // validatorAddress: contractAddress,
+  // assetId: asset.assetId,
+  // }),
+  // [accountId, asset.assetId, contractAddress, routeAccountId],
+  // )
+  const undelegationEntries = [] // TODO
 
   const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
   const textColor = useColorModeValue('black', 'white')

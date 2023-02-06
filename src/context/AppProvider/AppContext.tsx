@@ -11,7 +11,7 @@ import {
   ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
-import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
+// import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
@@ -32,10 +32,10 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  EMPTY_COSMOS_ADDRESS,
-  EMPTY_OSMOSIS_ADDRESS,
-} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
+// import {
+// EMPTY_COSMOS_ADDRESS,
+// EMPTY_OSMOSIS_ADDRESS,
+// } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,

@@ -14,13 +14,7 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { OpportunitiesDataFull } from 'state/slices/selectors'
-import {
-  selectAssetById,
-  selectHasActiveStakingOpportunity,
-  selectMarketDataById,
-  selectStakingOpportunitiesDataFullByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -89,13 +83,14 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   // this is returning data grouped by validator, not by account
-  const stakingOpportunitiesData = useAppSelector(s =>
-    selectStakingOpportunitiesDataFullByFilter(s, filter),
-  )
-  const hasActiveStaking = useAppSelector(state => selectHasActiveStakingOpportunity(state, filter))
+  // const stakingOpportunitiesData = [] // TODO
+  // useAppSelector(s =>
+  // selectStakingOpportunitiesDataFullByFilter(s, filter),
+  // )
+  const hasActiveStaking = false // TODO
 
   const handleClick = useCallback(
-    (values: Row<OpportunitiesDataFull>) => {
+    (values: Row<any>) => {
       const { chainId, assetReference } = fromAssetId(assetId)
       const provider = chainIdToLabel(chainId)
       history.push({
@@ -118,7 +113,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+        Cell: ({ row }: { row: { original: any } }) => {
           const validator = row.original
 
           return (
@@ -139,7 +134,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.apr' />,
         id: 'apr',
         display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+        Cell: ({ row }: { row: { original: any } }) => {
           const validator = row.original
           return (
             <Skeleton isLoaded={validator.isLoaded}>
@@ -154,7 +149,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         id: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+        Cell: ({ row }: { row: { original: any } }) => {
           const { isLoaded, totalDelegations } = row.original
 
           return (
@@ -181,7 +176,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
+        Cell: ({ row }: { row: { original: any } }) => {
           const { totalDelegations, rewards: validatorRewards, isLoaded } = row.original
           const rewards = bnOrZero(validatorRewards)
 

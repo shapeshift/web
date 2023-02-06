@@ -82,13 +82,14 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ) ?? {},
-    [contractAddress],
-  )
+  // const cosmosOpportunity = useMemo(
+  // () =>
+  // opportunities?.cosmosSdkStakingOpportunities?.find(
+  // opportunity => opportunity.address === contractAddress,
+  // ) ?? {},
+  // [contractAddress],
+  // )
+  const cosmosOpportunity = [] // TODO
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))

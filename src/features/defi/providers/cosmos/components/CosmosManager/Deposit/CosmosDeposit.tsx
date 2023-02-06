@@ -21,13 +21,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
-  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -72,13 +70,14 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
 
   const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
-  )
+  const cosmosOpportunity = {} // TODO
+  // useMemo(
+  // () =>
+  // opportunities?.cosmosSdkStakingOpportunities?.find(
+  // opportunity => opportunity.address === contractAddress,
+  // ),
+  // [opportunities, contractAddress],
+  // )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))

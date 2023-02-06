@@ -1,11 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import {
-  cosmosAssetId,
-  cosmosChainId,
-  fromAssetId,
-  osmosisAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
@@ -16,7 +10,6 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -40,6 +33,8 @@ export const AllEarnOpportunities = () => {
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
+  console.log({ stakingOpportunities })
+
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
   )
@@ -47,26 +42,9 @@ export const AllEarnOpportunities = () => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
 
-  const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
-    {
-      assetId: cosmosAssetId,
-      accountId: cosmosAccountId,
-    },
-  )
-
-  const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
-    useCosmosSdkStakingBalances({
-      assetId: osmosisAssetId,
-      accountId: osmosisAccountId,
-    })
-
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const allRows = useNormalizeOpportunities({
-    cosmosSdkStakingOpportunities: useMemo(
-      () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
-      [cosmosStakingOpportunities, osmosisStakingOpportunities],
-    ),
     stakingOpportunities: stakingOpportunities.filter(
       opportunity =>
         !opportunity.expired ||

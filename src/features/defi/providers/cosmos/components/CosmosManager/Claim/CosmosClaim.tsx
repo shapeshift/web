@@ -18,7 +18,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -49,14 +48,14 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
-  )
+  const cosmosOpportunity = {} // TODO
+  // useMemo(
+  // () =>
+  // opportunities?.cosmosSdkStakingOpportunities?.find(
+  // opportunity => opportunity.address === contractAddress,
+  // ),
+  // [opportunities, contractAddress],
+  // )
   useEffect(() => {
     ;(async () => {
       try {

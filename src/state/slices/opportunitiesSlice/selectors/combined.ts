@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -38,15 +39,15 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     assets,
   ): GroupedEligibleOpportunityReturnType[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
-    const grouped = combined.reduce<{ [key: string]: GroupedEligibleOpportunityReturnType }>(
-      (acc, curr) => {
-        const depositKey = getOpportunityAccessor({ provider: curr.provider, type: curr.type })
-        const underlyingAssetIds = [curr[depositKey]].flat()
+    const byAssetId = combined.reduce<Record<AssetId, GroupedEligibleOpportunityReturnType>>(
+      (acc, cur) => {
+        const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
+        const underlyingAssetIds = [cur[depositKey]].flat()
         underlyingAssetIds.forEach(assetId => {
           if (!acc[assetId]) {
             acc[assetId] = {
               assetId,
-              underlyingAssetIds: curr.underlyingAssetIds,
+              underlyingAssetIds: cur.underlyingAssetIds,
               netApy: 0,
               fiatAmount: 0,
               cryptoBalancePrecision: 0,
@@ -61,12 +62,12 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
           const asset = assets[assetId]
           if (!asset) return acc
-          acc[assetId].netApy = bnOrZero(acc[assetId].netApy).plus(curr.apy).toNumber()
-          acc[assetId].opportunities[curr.type].push(curr.assetId as OpportunityId)
+          acc[assetId].netApy = bnOrZero(acc[assetId].netApy).plus(cur.apy).toNumber()
+          acc[assetId].opportunities[cur.type].push(cur.assetId as OpportunityId)
           acc[assetId].rewards = 0
-          if (curr.type === DefiType.Staking) {
-            const stakingOpportunity = curr as StakingEarnOpportunityType
-            const rewardsFiatAmount = Object.values(stakingOpportunity.rewardAssetIds ?? []).reduce(
+          if (cur.type === DefiType.Staking) {
+            const stakingOpportunity = cur as StakingEarnOpportunityType
+            const rewardsFiatAmount = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
               (sum, assetId, index) => {
                 const asset = assets[assetId]
                 if (!asset) return sum
@@ -74,39 +75,36 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
                 const cryptoAmountPrecision = bnOrZero(
                   stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
                 ).div(bnOrZero(10).pow(asset?.precision))
-                sum = bnOrZero(cryptoAmountPrecision)
+                return bnOrZero(cryptoAmountPrecision)
                   .times(marketDataPrice ?? 0)
                   .plus(bnOrZero(sum))
                   .toNumber()
-                return sum
               },
               0,
             )
             acc[assetId].rewards = rewardsFiatAmount
           }
           const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-            underlyingAssetIds: curr.underlyingAssetIds,
-            underlyingAssetRatiosBaseUnit: curr.underlyingAssetRatiosBaseUnit,
-            cryptoAmountBaseUnit: curr.cryptoAmountBaseUnit,
+            ...cur,
             assets,
             marketData,
           })
-          const cryptoBalancePrecision = bnOrZero(curr.cryptoAmountBaseUnit).div(
+          const cryptoBalancePrecision = bnOrZero(cur.cryptoAmountBaseUnit).div(
             bnOrZero(10).pow(asset?.precision).toString(),
           )
           acc[assetId].fiatAmount = bnOrZero(acc[assetId].fiatAmount)
             .plus(
               bnOrZero(
-                curr.type === DefiType.LiquidityPool
+                cur.type === DefiType.LiquidityPool
                   ? underlyingAssetBalances[assetId].fiatAmount
-                  : curr.fiatAmount,
+                  : cur.fiatAmount,
               ),
             )
             .toNumber()
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
             .plus(
               bnOrZero(
-                curr.type === DefiType.LiquidityPool
+                cur.type === DefiType.LiquidityPool
                   ? underlyingAssetBalances[assetId].cryptoBalancePrecision
                   : cryptoBalancePrecision,
               ),
@@ -118,7 +116,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       {},
     )
 
-    const result = Object.values(grouped)
-    return result
+    return Object.values(byAssetId)
   },
 )

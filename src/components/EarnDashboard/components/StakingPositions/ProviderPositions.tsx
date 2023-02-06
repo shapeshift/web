@@ -14,6 +14,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn } from 'lib/bignumber/bignumber'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -33,28 +34,28 @@ type ProviderPositionProps = {
 
 export type RowProps = Row<StakingEarnOpportunityType>
 
-type CalculateRewardFiatAmountProps = {
+type CalculateRewardFiatAmountArgs = {
   assets: Partial<Record<AssetId, Asset>>
   marketData: Partial<Record<AssetId, MarketData>>
 } & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsAmountsCryptoBaseUnit'>
 
-const calculateRewardFiatAmount = ({
+type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
+
+const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   rewardsAmountsCryptoBaseUnit,
   rewardAssetIds,
   assets,
   marketData,
-}: CalculateRewardFiatAmountProps) => {
-  return Object.values(rewardAssetIds ?? []).reduce((sum, assetId, index) => {
+}) => {
+  if (!rewardAssetIds) return 0
+  return Object.values(rewardAssetIds).reduce((sum, assetId, index) => {
     const asset = assets[assetId]
     if (!asset) return sum
-    const marketDataPrice = marketData[assetId]?.price
+    const marketDataPrice = bnOrZero(marketData[assetId]?.price)
     const cryptoAmountPrecision = bnOrZero(rewardsAmountsCryptoBaseUnit?.[index]).div(
-      bnOrZero(10).pow(asset?.precision),
+      bn(10).pow(asset?.precision),
     )
-    sum = bnOrZero(cryptoAmountPrecision)
-      .times(marketDataPrice ?? 0)
-      .plus(bnOrZero(sum))
-      .toNumber()
+    sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
     return sum
   }, 0)
 }

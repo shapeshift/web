@@ -8,7 +8,6 @@ import {
   dogeChainId,
   ethChainId,
   fromAccountId,
-  fromAssetId,
   ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
@@ -25,7 +24,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isOsmosisLpAsset } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -248,14 +246,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (portfolioLoadingStatus === 'loading') return
 
     const fetchMarketData = () =>
-      portfolioAssetIds
-        .filter(assetId => !isOsmosisLpAsset(fromAssetId(assetId).assetReference)) //TODO(pastaghost): find a better way to do this
-        .forEach(assetId => {
-          dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-          const timeframe = DEFAULT_HISTORY_TIMEFRAME
-          const payload = { assetId, timeframe }
-          dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
-        })
+      portfolioAssetIds.forEach(assetId => {
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+        const timeframe = DEFAULT_HISTORY_TIMEFRAME
+        const payload = { assetId, timeframe }
+        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
+      })
 
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes

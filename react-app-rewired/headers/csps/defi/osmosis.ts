@@ -5,6 +5,7 @@ export const csp: Csp = {
    process.env.REACT_APP_OSMOSIS_LCD_BASE_URL!,
     process.env.REACT_APP_OSMOSIS_IMPERATOR_BASE_URL!,
     process.env.REACT_APP_OSMOSIS_ICON_BASE_URL!,
+    process.env.REACT_APP_OSMOSIS_NODE_URL!
 
   ]
 }

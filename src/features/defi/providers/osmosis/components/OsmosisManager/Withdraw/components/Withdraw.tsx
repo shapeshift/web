@@ -3,7 +3,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
-import type { MarketData } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -76,7 +75,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     { cryptoAmountBaseUnit: '0', fiatAmount: '0' },
   ])
   const [poolData, setPoolData] = useState<OsmosisPool | undefined>(undefined)
-  const [poolAssetMarketData, setPoolAssetMarketData] = useState<MarketData | undefined>(undefined)
 
   const { chainId, assetReference } = query
   const osmosisOpportunity = state?.opportunity
@@ -101,6 +99,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const underlyingAsset1 = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
+
+  const { data: lpAssetData } = useFindByAssetIdQuery(lpAsset?.assetId || '')
+  const lpAssetMarketData = lpAssetData?.[lpAsset?.assetId || '']
 
   const { data: underlyingAsset0Data } = useFindByAssetIdQuery(underlyingAsset0?.assetId || '')
   const underlyingAsset0MarketData = underlyingAsset0Data?.[underlyingAsset0?.assetId || '']
@@ -275,8 +276,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (!(poolAssetMarketData && lpAsset)) return
-    const divisor = bnOrZero(poolAssetMarketData.price)
+    if (!(lpAsset && lpAssetMarketData)) return
+    const divisor = bnOrZero(lpAssetMarketData.price)
 
     const _value = isFiat
       ? bnOrZero(value)
@@ -367,29 +368,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     handleInputChange(cryptoAmountBaseUnit, false)
   }
 
-  // Fetch pool data and calculate "price" of LP asset
-  const getPoolAssetMarketData = useCallback(async () => {
-    /* No market exists for Osmosis pool assets, but we can calculate the 'price' of each pool token
-      by dividing the pool TVL by the total number of pool tokens. */
-    if (!(state && state.opportunity)) return undefined
-
-    const { assetReference: poolAssetReference } = fromAssetId(state.opportunity.assetId)
-    const id = getPoolIdFromAssetReference(poolAssetReference)
-    if (!id) return undefined
-
-    if (!poolData) setPoolData(await getPool(id))
-    if (!(poolData && poolData.total_shares)) return undefined
-
-    setPoolAssetMarketData({
-      price: bnOrZero(poolData.tvl).dividedBy(bnOrZero(poolData.total_shares.amount)).toString(),
-      marketCap: bnOrZero(poolData.tvl).toString(),
-      volume: bn(0).toString(),
-      changePercent24Hr: bn(0).toNumber(),
-      supply: bnOrZero(poolData.total_shares.amount).toString(),
-      maxSupply: bnOrZero(poolData.total_shares.amount).toString(),
-    })
-  }, [poolData, state])
-
   useEffect(() => {
     // Calculate underlying token balances
     if (!lpAsset) return
@@ -398,18 +376,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       if (!balances) return
       setOpportunityBalances(balances)
     })()
-
-    if (poolAssetMarketData) return // Only fetch market data on component load
-    getPoolAssetMarketData()
-  }, [
-    calculateBalances,
-    lpAsset,
-    lpAssetBalance,
-    poolData,
-    poolAssetMarketData,
-    state,
-    getPoolAssetMarketData,
-  ])
+  }, [calculateBalances, lpAsset, lpAssetBalance, poolData, state])
 
   if (
     !(
@@ -417,10 +384,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       state &&
       osmosisOpportunity &&
       opportunityBalances &&
-      poolAssetMarketData &&
       receiveAmounts &&
       underlyingAsset0 &&
       underlyingAsset1 &&
+      lpAssetMarketData &&
       underlyingAsset0MarketData &&
       underlyingAsset1MarketData &&
       osmosisOpportunity?.icons
@@ -464,7 +431,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           required: true,
           validate: { validateFiatAmount },
         }}
-        marketData={poolAssetMarketData}
+        marketData={lpAssetMarketData}
         onAccountIdChange={handleAccountIdChange}
         onCancel={handleCancel}
         onContinue={handleContinue}

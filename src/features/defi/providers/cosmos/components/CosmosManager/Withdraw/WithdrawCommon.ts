@@ -48,7 +48,7 @@ export enum CosmosWithdrawActionType {
 
 type SetVaultAction = {
   type: CosmosWithdrawActionType.SET_OPPORTUNITY
-  payload: StakingEarnOpportunityType
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetWithdraw = {

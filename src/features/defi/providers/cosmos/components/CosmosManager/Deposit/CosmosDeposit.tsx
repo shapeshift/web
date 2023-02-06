@@ -21,9 +21,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -52,8 +54,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'slip44'
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -65,19 +66,31 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
-  const validatorData = useAppSelector(state => selectValidatorByAddress(state, contractAddress))
+  // TODO
+  const apr = useMemo(() => bnOrZero('0').toString(), [])
 
-  const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
+  const validatorId = useMemo(
+    () =>
+      toValidatorId({
+        chainId,
+        account: validatorAddress,
+      }),
+    [chainId, validatorAddress],
+  )
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = {} // TODO
-  // useMemo(
-  // () =>
-  // opportunities?.cosmosSdkStakingOpportunities?.find(
-  // opportunity => opportunity.address === contractAddress,
-  // ),
-  // [opportunities, contractAddress],
-  // )
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId?.length) return
+
+    return {
+      userStakingId: serializeUserStakingId(accountId, validatorId),
+    }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -85,25 +98,25 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!cosmosOpportunity) return
+        if (!earnOpportunityData) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId)
-        if (!(walletState.wallet && contractAddress && chainAdapter && apr && bip44Params)) return
+        if (!(walletState.wallet && validatorAddress && chainAdapter && apr && bip44Params)) return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: CosmosDepositActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
-  }, [bip44Params, chainId, cosmosOpportunity, apr, contractAddress, walletState.wallet])
+  }, [bip44Params, chainId, apr, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = () => {
     history.push({

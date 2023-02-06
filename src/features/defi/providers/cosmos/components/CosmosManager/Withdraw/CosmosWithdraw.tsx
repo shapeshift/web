@@ -19,9 +19,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,21 +50,15 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
 
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
   const assetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference, // TODO: handle multiple denoms
   })
-  const underlyingAssetId = toAssetId({
-    // TODO: Underlying asset is the same as the staked asset for now, handle multiple denoms
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
+  const underlyingAssetId = assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
 
@@ -82,14 +78,28 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  // const cosmosOpportunity = useMemo(
-  // () =>
-  // opportunities?.cosmosSdkStakingOpportunities?.find(
-  // opportunity => opportunity.address === contractAddress,
-  // ) ?? {},
-  // [contractAddress],
-  // )
-  const cosmosOpportunity = [] // TODO
+  const validatorId = useMemo(
+    () =>
+      toValidatorId({
+        chainId,
+        account: validatorAddress,
+      }),
+    [chainId, validatorAddress],
+  )
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId?.length) return
+
+    return {
+      userStakingId: serializeUserStakingId(accountId, validatorId),
+    }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -98,7 +108,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     if (!bip44Params) return
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
@@ -108,14 +118,14 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
         })
         dispatch({
           type: CosmosWithdrawActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'CosmosWithdraw error')
       }
     })()
-  }, [bip44Params, cosmosOpportunity, chainAdapter, contractAddress, walletState.wallet])
+  }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -149,7 +159,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
     })
   }
 
-  if (!cosmosOpportunity?.isLoaded || !asset || !marketData || !feeMarketData)
+  if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

@@ -62,6 +62,8 @@ export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | CosmosSdkStakingSpecificUserStakingOpportunity
 
+export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
+
 // The AccountId of the staking contract in the form of chainId:accountAddress
 export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress

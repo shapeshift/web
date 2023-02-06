@@ -33,8 +33,6 @@ export const AllEarnOpportunities = () => {
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  console.log({ stakingOpportunities })
-
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
   )

@@ -48,7 +48,8 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const cosmosOpportunity = {} // TODO
+  const cosmosOpportunity = useMemo(() => ({}), []) // TODO
+  // TODO
   // useMemo(
   // () =>
   // opportunities?.cosmosSdkStakingOpportunities?.find(

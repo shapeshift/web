@@ -1,4 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type {
+  LpEarnOpportunityType,
+  OpportunityId,
+  StakingEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 
 export type EarnOpportunityType = {
   type?: string
@@ -10,6 +15,7 @@ export type EarnOpportunityType = {
   tvl: string
   underlyingAssetId?: AssetId
   assetId: AssetId
+  id: OpportunityId
   fiatAmount: string
   /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
   cryptoAmountPrecision: string
@@ -24,9 +30,9 @@ export type EarnOpportunityType = {
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
-type NormalizeOpportunitiesProps = {
-  stakingOpportunities?: EarnOpportunityType[]
-  lpOpportunities?: EarnOpportunityType[]
+export type NormalizeOpportunitiesProps = {
+  stakingOpportunities?: StakingEarnOpportunityType[]
+  lpOpportunities?: LpEarnOpportunityType[]
 }
 
 export const useNormalizeOpportunities = ({

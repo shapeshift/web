@@ -80,13 +80,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  // this is returning data grouped by validator, not by account
-  // const stakingOpportunitiesData = [] // TODO
-  // useAppSelector(s =>
-  // selectStakingOpportunitiesDataFullByFilter(s, filter),
-  // )
   const hasActiveStaking = false // TODO
 
   const handleClick = useCallback(
@@ -222,6 +216,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     [asset?.chainId, asset.precision, asset.symbol, marketData.price],
   )
 
+  const stakingOpportunitiesData = useMemo(() => [], []) // TODO
   if (stakingOpportunitiesData.length === 0) return null
 
   return (

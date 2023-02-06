@@ -49,7 +49,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
-    if ('undelegations' in opportunityData) {
+    if ('undelegations' in opportunityData && opportunityData.undelegations?.length) {
       return opportunityData.undelegations
     }
     return []

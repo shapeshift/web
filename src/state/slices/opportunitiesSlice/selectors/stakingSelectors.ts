@@ -315,6 +315,70 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
     }),
 )
 
+// The same as above, but counts undelegations in the total amount
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations =
+  createDeepEqualOutputSelector(
+    selectAggregatedUserStakingOpportunities,
+    selectMarketDataSortedByMarketCap,
+    selectAssets,
+    (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
+      aggregatedUserStakingOpportunities.map(opportunity => {
+        const _opportunity = Object.assign({}, opportunity)
+        if ('undelegations' in _opportunity && _opportunity.undelegations?.length) {
+          const totalBondings = bnOrZero(_opportunity?.stakedAmountCryptoBaseUnit)
+            .plus(_opportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+            .plus(
+              _opportunity && 'undelegations' in _opportunity
+                ? (_opportunity?.undelegations ?? []).reduce(
+                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+                    bn(0),
+                  )
+                : 0,
+            )
+          _opportunity.stakedAmountCryptoBaseUnit = totalBondings.toFixed()
+        }
+        const asset = assets[_opportunity.assetId]
+        const underlyingAsset = assets[_opportunity.underlyingAssetId]
+
+        return Object.assign(
+          {},
+          (() => {
+            if (_opportunity.provider === DefiProvider.Cosmos) {
+              return { contractAddress: fromAccountId(_opportunity.id).account }
+            }
+
+            if (isToken(fromAssetId(_opportunity.underlyingAssetId).assetReference)) {
+              return {
+                // TODO: The guts of getting contractAddress for Idle
+                // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
+                // Can we generalize this? This is getting messy
+                contractAddress: fromAssetId(_opportunity.underlyingAssetId).assetReference,
+              }
+            }
+            return {}
+          })(),
+          STAKING_EARN_OPPORTUNITIES[_opportunity.assetId],
+          _opportunity,
+          {
+            chainId: fromAssetId(_opportunity.assetId).chainId,
+            cryptoAmountPrecision: bnOrZero(_opportunity.stakedAmountCryptoBaseUnit)
+              .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
+              .toFixed(),
+            cryptoAmountBaseUnit: _opportunity.stakedAmountCryptoBaseUnit,
+            fiatAmount: bnOrZero(_opportunity.stakedAmountCryptoBaseUnit)
+              .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
+              .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
+              .toString(),
+            isLoaded: true,
+            icons: _opportunity.underlyingAssetIds
+              .map(assetId => assets[assetId]?.icon)
+              .map(icon => icon ?? ''),
+            opportunityName: _opportunity.name,
+          },
+        )
+      }),
+  )
+
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingOpportunities,

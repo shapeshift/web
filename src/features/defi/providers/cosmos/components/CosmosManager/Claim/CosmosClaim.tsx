@@ -18,7 +18,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from './ClaimCommon'
@@ -36,51 +41,63 @@ type CosmosClaimProps = { accountId: AccountId | undefined }
 export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
+  const { assetNamespace, contractAddress: validatorAddress, assetReference, chainId } = query
   const { state: walletState } = useWallet()
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
+    assetReference,
   })
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const cosmosOpportunity = useMemo(() => ({}), []) // TODO
-  // TODO
-  // useMemo(
-  // () =>
-  // opportunities?.cosmosSdkStakingOpportunities?.find(
-  // opportunity => opportunity.address === contractAddress,
-  // ),
-  // [opportunities, contractAddress],
-  // )
+  const validatorId = useMemo(
+    () =>
+      toValidatorId({
+        chainId,
+        account: validatorAddress,
+      }),
+    [chainId, validatorAddress],
+  )
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId?.length) return
+
+    return {
+      userStakingId: serializeUserStakingId(accountId, validatorId),
+    }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(cosmosOpportunity && bip44Params)) return
+        if (!(earnOpportunityData && bip44Params)) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(
           chainId,
         ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
 
         dispatch({ type: CosmosClaimActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: CosmosClaimActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'CosmosClaim error')
       }
     })()
-  }, [chainId, cosmosOpportunity, contractAddress, walletState.wallet, bip44Params])
+  }, [chainId, validatorAddress, walletState.wallet, bip44Params, earnOpportunityData])
 
   // Asset info
 

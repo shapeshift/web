@@ -29,8 +29,10 @@ import {
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
 ): ValidatorId[] =>
-  uniq(
-    flatMapDeep(cosmosAccounts, cosmosAccount => [
+  uniq([
+    SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+    SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
+    ...flatMapDeep(cosmosAccounts, cosmosAccount => [
       cosmosAccount.chainSpecific.delegations.map(delegation =>
         toValidatorId({
           account: delegation.validator.address,
@@ -52,7 +54,7 @@ export const makeUniqueValidatorAccountIds = (
         }),
       ),
     ]),
-  )
+  ])
 
 export const makeAccountUserData = ({
   cosmosAccount,

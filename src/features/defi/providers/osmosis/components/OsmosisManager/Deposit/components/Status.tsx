@@ -188,7 +188,7 @@ export const Status = () => {
                     .dividedBy(bn(10).pow(OSMOSIS_PRECISION))
                     .toString(),
                 ).toFixed(5)}
-                symbol='ETH'
+                symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>

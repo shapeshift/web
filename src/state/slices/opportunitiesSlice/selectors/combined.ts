@@ -14,7 +14,11 @@ import { getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import { selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty } from './stakingSelectors'
 
-const getOpportunityAccessor = ({ provider, type }: { provider: DefiProvider; type: DefiType }) => {
+type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
+type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
+type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportunityAccessorReturn
+
+const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
   if (type === DefiType.Staking) {
     if (provider === DefiProvider.FoxFarming) {
       return 'underlyingAssetId'
@@ -35,8 +39,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     assets,
   ): GroupedEligibleOpportunityReturnType[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
-    const grouped = combined.reduce(
-      (acc: { [key: string]: GroupedEligibleOpportunityReturnType }, curr) => {
+    const grouped = combined.reduce<{ [key: string]: GroupedEligibleOpportunityReturnType }>(
+      (acc, curr) => {
         const depositKey = getOpportunityAccessor({ provider: curr.provider, type: curr.type })
         const underlyingAssetIds = [curr[depositKey]].flat()
         underlyingAssetIds.forEach(assetId => {
@@ -114,7 +118,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       },
       {},
     )
-    const result = Array.from(Object.values(grouped))
+
+    const result = Object.values(grouped)
     return result
   },
 )

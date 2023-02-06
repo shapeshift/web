@@ -45,40 +45,41 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
 
-type getUnderlyingAssetIdsBalancesProps = {
+type GetUnderlyingAssetIdsBalancesArgs = {
   cryptoAmountBaseUnit: string
   assets: Partial<Record<AssetId, Asset>>
   marketData: Partial<Record<AssetId, MarketData>>
 } & Pick<OpportunityMetadataBase, 'underlyingAssetRatiosBaseUnit' | 'underlyingAssetIds'>
 
-export const getUnderlyingAssetIdsBalances = ({
+type UnderlyingAssetIdsBalances = { fiatAmount: string; cryptoBalancePrecision: string }
+type GetUnderlyingAssetIdsBalancesReturn = Record<AssetId, UnderlyingAssetIdsBalances>
+
+type GetUnderlyingAssetIdsBalances = (
+  args: GetUnderlyingAssetIdsBalancesArgs,
+) => GetUnderlyingAssetIdsBalancesReturn
+
+export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
   underlyingAssetIds,
   underlyingAssetRatiosBaseUnit,
   cryptoAmountBaseUnit,
   assets,
   marketData,
-}: getUnderlyingAssetIdsBalancesProps) => {
-  return Object.values(underlyingAssetIds).reduce(
-    (
-      acc: { [key: string]: { fiatAmount: string; cryptoBalancePrecision: string } },
-      assetId,
-      index,
-    ) => {
+}) => {
+  return Object.values(underlyingAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
+    (acc, assetId, index) => {
       const asset = assets[assetId]
       const marketDataPrice = marketData[assetId]?.price
-      if (asset) {
-        acc[assetId] = {
-          fiatAmount: bnOrZero(cryptoAmountBaseUnit)
-            .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], asset.precision))
-            .div(bnOrZero(10).pow(asset?.precision))
-            .times(marketDataPrice ?? 0)
-            .toString(),
-          cryptoBalancePrecision: bnOrZero(cryptoAmountBaseUnit)
-            .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], asset.precision))
-            .div(bnOrZero(10).pow(asset?.precision))
-            .toString(),
-        }
-      }
+      if (!asset) return acc
+      const fiatAmount = bnOrZero(cryptoAmountBaseUnit)
+        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], asset.precision))
+        .div(bnOrZero(10).pow(asset?.precision))
+        .times(marketDataPrice ?? 0)
+        .toString()
+      const cryptoBalancePrecision = bnOrZero(cryptoAmountBaseUnit)
+        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], asset.precision))
+        .div(bnOrZero(10).pow(asset?.precision))
+        .toString()
+      acc[assetId] = { fiatAmount, cryptoBalancePrecision }
       return acc
     },
     {},

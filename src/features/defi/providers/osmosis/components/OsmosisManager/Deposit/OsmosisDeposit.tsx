@@ -130,7 +130,14 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !osmosisOpportunity || !StepConfig) {
+  if (
+    loading ||
+    !asset ||
+    !underlyingAsset0 ||
+    !underlyingAsset1 ||
+    !osmosisOpportunity ||
+    !StepConfig
+  ) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -143,7 +150,7 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.deposit.depositInto', {
-            opportunity: osmosisOpportunity.opportunityName!,
+            opportunity: `${underlyingAsset0.symbol}/${underlyingAsset1.symbol} Pool`,
           })}
           onBack={handleBack}
         />

@@ -127,7 +127,15 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
     dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
   }, [osmosisOpportunity, accountId])
 
-  if (loading || !asset || !marketData || !osmosisOpportunity || !StepConfig) {
+  if (
+    loading ||
+    !asset ||
+    !underlyingAsset0 ||
+    !underlyingAsset1 ||
+    !marketData ||
+    !osmosisOpportunity ||
+    !StepConfig
+  ) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -140,7 +148,7 @@ export const OsmosisWithdraw: React.FC<OsmosisWithdrawProps> = ({
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: osmosisOpportunity.opportunityName!,
+            opportunity: `${underlyingAsset0.symbol}/${underlyingAsset1.symbol} Pool`!,
           })}
           onBack={handleBack}
         />

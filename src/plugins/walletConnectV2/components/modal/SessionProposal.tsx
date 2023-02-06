@@ -10,6 +10,7 @@ import {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SignClientTypes } from '@walletconnect/types'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modal/callRequest/methods/components/ModalSection'
+import { AccountSelectionOverview } from 'plugins/walletConnectV2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectV2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectV2/components/Permissions'
 import type { FC } from 'react'
@@ -24,6 +25,7 @@ type Props = {
   proposal: SignClientTypes.EventArguments['session_proposal']
 }
 
+// Filter out namespace chainIds that are not supported by the currently connected wallet
 const filterSupportedNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
   wallet: HDWallet | null,
@@ -41,7 +43,6 @@ const filterSupportedNamespaces = (
 
 const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) => {
   const wallet = useWallet().state.wallet
-  // Only show the user namespaces that are supported by the connect wallet
   // TODO: Show an error if no namespaces are supported by the connect wallet
   const filteredNamespaces = filterSupportedNamespaces(proposal.params.requiredNamespaces, wallet)
 
@@ -79,6 +80,9 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
           </ModalSection>
           <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
             <Permissions requiredNamespaces={filteredNamespaces} />
+          </ModalSection>
+          <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.accountSelection'>
+            <AccountSelectionOverview requiredNamespaces={filteredNamespaces} />
           </ModalSection>
         </VStack>
       </ModalContent>

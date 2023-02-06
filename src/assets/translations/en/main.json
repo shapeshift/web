@@ -1614,7 +1614,8 @@
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",
-          "permissions": "Permissions"
+          "permissions": "Permissions",
+          "accountSelection": "Choose accounts"
         }
       },
       "registry": {

@@ -16,8 +16,6 @@ export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesRet
     bnOrZero(o.cryptoAmountBaseUnit).gt(0),
   )
 
-  console.log({ activeOpportunities })
-
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, xl: 0 }}>

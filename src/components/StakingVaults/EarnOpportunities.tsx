@@ -53,7 +53,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   }, [setLpAccountId, setFarmingAccountId, accountId])
 
   const allRows = useNormalizeOpportunities({
-    cosmosSdkStakingOpportunities: [],
     lpOpportunities,
     stakingOpportunities,
   }).filter(

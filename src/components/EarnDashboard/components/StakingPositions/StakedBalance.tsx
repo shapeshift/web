@@ -1,5 +1,4 @@
 import { Stat, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
@@ -15,8 +14,7 @@ export const StakedBalance: React.FC<StakedBalanceProps> = ({
   cryptoBalancePrecision,
   assetId,
 }) => {
-  const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
-
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const fiatAmountAvailable = useMemo(

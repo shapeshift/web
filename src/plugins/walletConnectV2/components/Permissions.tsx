@@ -1,21 +1,39 @@
-import { VStack } from '@chakra-ui/react'
+import { Flex, VStack } from '@chakra-ui/react'
 import type { ProposalTypes } from '@walletconnect/types'
 import type { FC } from 'react'
 import { Card } from 'components/Card/Card'
+import { RawText } from 'components/Text'
 
 interface IProps {
   requiredNamespaces: ProposalTypes.RequiredNamespaces
 }
 
 export const Permissions: FC<IProps> = ({ requiredNamespaces }) => {
-  const permissionCards: JSX.Element[] = Object.entries(requiredNamespaces).map(
+  // For each chainNamespace (e.g. eip155), return a card showing: chains, methods, events.
+  const chainNamespacePermissions: JSX.Element[] = Object.entries(requiredNamespaces).map(
     ([chainNamespace, value]) => {
       return (
         <Card>
-          <Card.Body></Card.Body>
+          <Card.Header>
+            <Card.Heading>{chainNamespace}</Card.Heading>
+          </Card.Header>
+          <Card.Body>
+            <Flex alignItems='center' gap={4}>
+              <RawText>
+                <b>Chains:</b> {value.chains.join(', ')}
+              </RawText>
+              <RawText>
+                <b>Methods:</b> {value.methods.join(', ')}
+              </RawText>
+              <RawText>
+                <b>Events:</b> {value.events.join(', ')}
+              </RawText>
+            </Flex>
+          </Card.Body>
         </Card>
       )
     },
   )
-  return <VStack>{permissionCards}</VStack>
+  // Return a set of cards per chainNamespace (e.g. eip155)
+  return <VStack>{chainNamespacePermissions}</VStack>
 }

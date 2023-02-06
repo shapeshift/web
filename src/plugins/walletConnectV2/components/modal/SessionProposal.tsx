@@ -7,13 +7,16 @@ import {
   ModalOverlay,
   VStack,
 } from '@chakra-ui/react'
-import type { SignClientTypes } from '@walletconnect/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ProposalTypes, SignClientTypes } from '@walletconnect/types'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modal/callRequest/methods/components/ModalSection'
 import { DAppInfo } from 'plugins/walletConnectV2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectV2/components/Permissions'
 import type { FC } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 
 type Props = {
   isOpen: boolean
@@ -21,8 +24,27 @@ type Props = {
   proposal: SignClientTypes.EventArguments['session_proposal']
 }
 
+const filterSupportedNamespaces = (
+  requiredNamespaces: ProposalTypes.RequiredNamespaces,
+  wallet: HDWallet | null,
+): ProposalTypes.RequiredNamespaces =>
+  Object.entries(requiredNamespaces)
+    .map(([key, value]) => ({
+      key,
+      value: {
+        ...value,
+        chains: value.chains.filter(chainId => walletSupportsChain({ chainId, wallet })),
+      },
+    }))
+    .filter(({ value }) => value.chains.length > 0)
+    .reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {})
+
 const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) => {
-  // Get required proposal data
+  const wallet = useWallet().state.wallet
+  // Only show the user namespaces that are supported by the connect wallet
+  // TODO: Show an error if no namespaces are supported by the connect wallet
+  const filteredNamespaces = filterSupportedNamespaces(proposal.params.requiredNamespaces, wallet)
+
   const { id, params } = proposal
   const { proposer, requiredNamespaces, relays } = params
 
@@ -56,7 +78,7 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
             <DAppInfo metadata={proposer.metadata} />
           </ModalSection>
           <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
-            <Permissions requiredNamespaces={requiredNamespaces} />
+            <Permissions requiredNamespaces={filteredNamespaces} />
           </ModalSection>
         </VStack>
       </ModalContent>

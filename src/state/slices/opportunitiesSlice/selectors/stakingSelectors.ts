@@ -22,6 +22,7 @@ import { selectAssets } from '../../assetsSlice/selectors'
 import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../common-selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
+import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
@@ -216,6 +217,13 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         ).map((amount, i) =>
           bnOrZero(acc?.rewardsAmountsCryptoBaseUnit?.[i]).plus(amount).toString(),
         ) as [string, string] | [string] | [],
+        undelegations: [
+          ...('undelegations' in userStakingOpportunity &&
+          userStakingOpportunity.undelegations?.length
+            ? userStakingOpportunity.undelegations
+            : []),
+          ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
+        ],
       }
     },
     undefined,

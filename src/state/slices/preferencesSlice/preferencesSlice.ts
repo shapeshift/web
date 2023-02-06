@@ -24,6 +24,7 @@ export type FeatureFlags = {
   SaversVaults: boolean
   Yearn: boolean
   CosmosSdkOpportunitiesAbstraction: boolean
+  DefiDashboard: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -61,6 +62,7 @@ const initialState: Preferences = {
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     CosmosSdkOpportunitiesAbstraction:
       getConfig().REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION,
+    DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

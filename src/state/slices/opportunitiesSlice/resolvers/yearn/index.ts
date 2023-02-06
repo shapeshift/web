@@ -66,6 +66,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy: opportunity.apy.toFixed(),
       assetId,
+      id: opportunityId,
       provider: DefiProvider.Yearn,
       tvl: bnOrZero(opportunity.tvl.balanceUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       type: DefiType.Staking,

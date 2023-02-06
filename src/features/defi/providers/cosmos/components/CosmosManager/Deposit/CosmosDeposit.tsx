@@ -19,7 +19,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -66,9 +65,6 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
-  // TODO
-  const apr = useMemo(() => bnOrZero('0').toString(), [])
-
   const validatorId = useMemo(
     () =>
       toValidatorId({
@@ -102,7 +98,16 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId)
-        if (!(walletState.wallet && validatorAddress && chainAdapter && apr && bip44Params)) return
+        if (
+          !(
+            walletState.wallet &&
+            validatorAddress &&
+            chainAdapter &&
+            earnOpportunityData?.apy &&
+            bip44Params
+          )
+        )
+          return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
@@ -116,7 +121,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
         moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
-  }, [bip44Params, chainId, apr, validatorAddress, walletState.wallet, earnOpportunityData])
+  }, [bip44Params, chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = () => {
     history.push({

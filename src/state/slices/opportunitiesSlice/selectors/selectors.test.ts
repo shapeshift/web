@@ -153,6 +153,7 @@ describe('opportunitiesSlice selectors', () => {
     const mockOpportunityMetadata: OpportunityMetadata = {
       // The LP token AssetId
       assetId: foxEthLpAssetId,
+      id: foxEthLpAssetId,
       provider: DefiProvider.FoxFarming,
       tvl: '424242',
       apy: '0.42',
@@ -252,6 +253,7 @@ describe('opportunitiesSlice selectors', () => {
         [mockStakingContractTwo]: {
           apy: '1000',
           assetId: mockStakingContractTwo,
+          id: mockStakingContractTwo,
           provider: DefiProvider.FoxFarming,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,

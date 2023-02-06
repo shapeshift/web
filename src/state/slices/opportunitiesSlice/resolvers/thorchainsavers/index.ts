@@ -123,6 +123,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
+      id: opportunityId,
       provider: DefiProvider.ThorchainSavers,
       tvl,
       type: DefiType.Staking,

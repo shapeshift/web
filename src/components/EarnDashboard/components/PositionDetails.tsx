@@ -7,7 +7,7 @@ import { LpPositions } from './StakingPositions/LpPositions'
 import { ProviderPositions } from './StakingPositions/ProviderPositions'
 import { StakedBalance } from './StakingPositions/StakedBalance'
 
-export const PositionDetails = ({ original }: RowProps) => {
+export const PositionDetails: React.FC<RowProps> = ({ original }) => {
   const assetId = original.underlyingAssetIds[0]
   if (!assetId) return null
   return (

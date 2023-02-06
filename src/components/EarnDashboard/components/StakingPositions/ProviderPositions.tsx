@@ -119,8 +119,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         state: { background: location },
       })
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, history, isConnected, location],
+    [cosmosAccountId, dispatch, history, isConnected, isDemoWallet, location, osmosisAccountId],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

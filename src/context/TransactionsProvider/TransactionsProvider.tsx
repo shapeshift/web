@@ -50,14 +50,29 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
 
   const maybeRefetchOpportunities = useCallback(
-    ({ chainId, transfers, status }: Transaction, accountId: AccountId) => {
+    ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {
       if (status !== TxStatus.Confirmed) return
+
+      const { getOpportunitiesUserData } = opportunitiesApi.endpoints
+
+      if (data?.parser === 'staking') {
+        dispatch(
+          getOpportunitiesUserData.initiate(
+            {
+              accountId,
+              defiType: DefiType.Staking,
+              defiProvider: DefiProvider.Cosmos,
+              opportunityType: DefiType.Staking,
+            },
+            { forceRefetch: true },
+          ),
+        )
+      }
 
       if (
         isSupportedThorchainSaversChainId(chainId) &&
         transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
       ) {
-        const { getOpportunitiesUserData } = opportunitiesApi.endpoints
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
         waitForSaversUpdate().then(() => {
@@ -156,10 +171,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             msg => {
               const { getAccount } = portfolioApi.endpoints
               const { onMessage } = txHistory.actions
-
-              // TODO(gomes): refetch Cosmsos opportunities in maybeRefetchOpportunities
-              // if ([cosmosChainId, osmosisChainId].includes(msg.chainId))
-              // dispatch(getValidatorData.initiate(accountId))
 
               // refetch account on new tx
               dispatch(

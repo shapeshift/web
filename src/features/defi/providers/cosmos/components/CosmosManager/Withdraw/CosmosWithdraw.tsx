@@ -56,7 +56,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
+    assetReference,
   })
   const underlyingAssetId = assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))

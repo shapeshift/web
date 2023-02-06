@@ -162,12 +162,14 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
+  if (!opportunityData) return null
+
   return (
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
-      name={opportunityData?.name ?? ''} // TODO: This should never be undefined since we'll have at least metadata
+      name={opportunityData.name!}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={[
         {

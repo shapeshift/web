@@ -1,4 +1,3 @@
-// Don't use treeshake syntax here -- https://github.com/lodash/lodash/issues/4712
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'

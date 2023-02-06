@@ -22,6 +22,8 @@ export type ProviderUrls = {
   jsonRpcProviderUrl: string
   unchainedEthereumHttpUrl: string
   unchainedEthereumWsUrl: string
+  osmosisMarketDataUrl: string
+  osmosisPoolMetadataUrl: string
 }
 
 export type MarketServiceManagerArgs = {
@@ -51,7 +53,7 @@ export class MarketServiceManager {
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
       new IdleMarketService({ coinGeckoAPIKey, providerUrls }),
-      new OsmosisMarketService(),
+      new OsmosisMarketService(providerUrls),
       new FoxyMarketService({ coinGeckoAPIKey, providerUrls }),
     ]
   }

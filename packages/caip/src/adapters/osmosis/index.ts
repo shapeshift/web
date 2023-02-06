@@ -2,7 +2,7 @@ import * as adapters from './generated'
 
 export const osmosisGetTokensUrl = 'https://api-osmosis.imperator.co/tokens/v2/all'
 export const osmosisGetLpTokensUrl =
-  'https://api-osmosis.imperator.co/pools/v2/all?low_liquidity=false'
+  'https://api-osmosis.imperator.co/pools/v2/all?low_liquidity=true'
 
 const generatedAssetIdToOsmosisMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,

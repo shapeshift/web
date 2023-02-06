@@ -146,6 +146,8 @@ describe('market service', () => {
       jsonRpcProviderUrl: '',
       unchainedEthereumWsUrl: '',
       unchainedEthereumHttpUrl: '',
+      osmosisMarketDataUrl: '',
+      osmosisPoolMetadataUrl: '',
     },
   }
   describe('findAll', () => {

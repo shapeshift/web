@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.6.0...@shapeshiftoss/market-service-v7.7.0) (2023-02-07)
+
+
+### Features
+
+* **market-service:** safe URL construction with URL module ([#1193](https://github.com/shapeshift/lib/issues/1193)) ([4b8931d](https://github.com/shapeshift/lib/commit/4b8931d4b0a28ce1734dba66e9ae0d1b43466e88))
+
 # [@shapeshiftoss/market-service-v7.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.5.0...@shapeshiftoss/market-service-v7.6.0) (2023-02-06)
 
 

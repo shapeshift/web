@@ -81,9 +81,14 @@ export class OsmosisMarketService implements MarketService {
       }
 
       const symbol = adapters.assetIdToOsmosis(assetId)
-      const { data }: { data: OsmosisMarketCap[] } = await axios.get(
-        `${this.providerUrls.osmosisMarketDataUrl}/tokens/v2/${symbol}`,
+
+      const { data } = await axios.get<OsmosisMarketCap[]>(
+        (() => {
+          const url = new URL(`/tokens/v2/${symbol}`, this.providerUrls.osmosisMarketDataUrl)
+          return url.toString()
+        })(),
       )
+
       const marketData = data[0]
 
       if (!marketData) return null
@@ -153,11 +158,18 @@ export class OsmosisMarketService implements MarketService {
     try {
       // Historical timeframe data from the v2 endpoint currently does not support ranges greater than 1 month
       // and v1 doesn't support ranges less than 7 week, so we use both to get all ranges.
-      const url = `${this.providerUrls.osmosisMarketDataUrl}/tokens/${
-        isV1 ? 'v1' : 'v2'
-      }/historical/${symbol}/chart?${isV1 ? 'range' : 'tf'}=${range}`
 
-      const { data } = await axios.get<OsmosisHistoryData[]>(url)
+      const { data } = await axios.get<OsmosisHistoryData[]>(
+        (() => {
+          const url = new URL(
+            `/tokens/${isV1 ? 'v1' : 'v2'}/historical/${symbol}/chart?${
+              isV1 ? 'range' : 'tf'
+            }=${range}`,
+            this.providerUrls.osmosisMarketDataUrl,
+          )
+          return url.toString()
+        })(),
+      )
 
       // return the correct range of data points for each timeframe
       const taperedData = data.slice(-start)

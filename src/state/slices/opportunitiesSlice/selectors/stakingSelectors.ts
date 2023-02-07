@@ -24,6 +24,7 @@ import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../comm
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
+import { makeTotalBondings } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
@@ -371,16 +372,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations =
       aggregatedUserStakingOpportunities.map(opportunity => {
         const _opportunity = Object.assign({}, opportunity)
         if ('undelegations' in _opportunity && _opportunity.undelegations?.length) {
-          const totalBondings = bnOrZero(_opportunity?.stakedAmountCryptoBaseUnit)
-            .plus(_opportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-            .plus(
-              _opportunity && 'undelegations' in _opportunity
-                ? (_opportunity?.undelegations ?? []).reduce(
-                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-                    bn(0),
-                  )
-                : 0,
-            )
+          const totalBondings = makeTotalBondings(_opportunity)
           _opportunity.stakedAmountCryptoBaseUnit = totalBondings.toFixed()
         }
         const asset = assets[_opportunity.assetId]

@@ -18,6 +18,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -99,17 +100,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
   const totalBondings = useMemo(
-    () =>
-      bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-        .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-        .plus(
-          opportunityData && 'undelegations' in opportunityData
-            ? (opportunityData?.undelegations ?? []).reduce(
-                (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-                bn(0),
-              )
-            : 0,
-        ),
+    () => (opportunityData ? makeTotalBondings(opportunityData) : bn(0)),
     [opportunityData],
   )
 

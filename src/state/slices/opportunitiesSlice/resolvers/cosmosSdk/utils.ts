@@ -134,3 +134,15 @@ export const getDefaultValidatorAddressFromAccountId = flow(
   (accountId: AccountId) => fromAccountId(accountId).chainId,
   getDefaultValidatorAddressFromChainId,
 )
+
+export const makeTotalBondings = (opportunityData: UserStakingOpportunity) =>
+  bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+    .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+    .plus(
+      opportunityData && 'undelegations' in opportunityData
+        ? (opportunityData?.undelegations ?? []).reduce(
+            (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+            bn(0),
+          )
+        : 0,
+    )

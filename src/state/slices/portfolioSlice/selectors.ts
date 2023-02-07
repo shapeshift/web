@@ -543,6 +543,20 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
   },
 )
 
+export const selectPortfolioTotalFiatBalanceIncludingStaking = createSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  (portfolioFiatBalancesIncludingStaking): string =>
+    Object.entries(portfolioFiatBalancesIncludingStaking)
+      .reduce((acc, [, accountBalanceByAssetId]) => {
+        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          // use the outer accumulator
+          acc = acc.plus(bnOrZero(assetBalance))
+        })
+        return acc
+      }, bn(0))
+      .toFixed(2),
+)
+
 export const selectFiatBalanceIncludingStakingByFilter = createCachedSelector(
   selectPortfolioAccountsFiatBalancesIncludingStaking,
   selectAssetIdParamFromFilter,

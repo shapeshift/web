@@ -2,7 +2,7 @@ import { Box, Divider, Heading, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectPortfolioTotalFiatBalance } from 'state/slices/selectors'
+import { selectPortfolioTotalFiatBalanceIncludingStaking } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityCardList } from '../components/OpportunityCardList'
@@ -21,7 +21,7 @@ const DefiHeader = () => {
 
 export const Overview = () => {
   const balances = useEarnBalances()
-  const netWorth = useAppSelector(selectPortfolioTotalFiatBalance)
+  const netWorth = useAppSelector(selectPortfolioTotalFiatBalanceIncludingStaking)
   return (
     <Main titleComponent={<DefiHeader />}>
       <OverviewHeader earnBalance={balances} netWorth={netWorth} />

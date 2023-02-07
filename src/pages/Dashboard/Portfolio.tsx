@@ -21,7 +21,7 @@ import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalance,
+  selectPortfolioTotalFiatBalanceIncludingStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,7 +34,7 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const totalBalance = useAppSelector(selectPortfolioTotalFiatBalance)
+  const totalBalance = useAppSelector(selectPortfolioTotalFiatBalanceIncludingStaking)
 
   const loading = useAppSelector(selectPortfolioLoading)
   const isLoaded = !loading

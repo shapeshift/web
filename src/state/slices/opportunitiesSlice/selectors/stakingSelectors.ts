@@ -371,10 +371,8 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations =
       aggregatedUserStakingOpportunities.map(opportunity => {
         const _opportunity = Object.assign({}, opportunity)
 
-        if (_opportunity.provider === DefiProvider.Cosmos) {
-          const totalBondings = makeTotalBondings(_opportunity)
-          _opportunity.stakedAmountCryptoBaseUnit = totalBondings.toFixed()
-        }
+        const totalBondings = makeTotalBondings(_opportunity)
+        _opportunity.stakedAmountCryptoBaseUnit = totalBondings.toFixed()
         const asset = assets[_opportunity.assetId]
         const underlyingAsset = assets[_opportunity.underlyingAssetId]
 

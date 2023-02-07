@@ -5,7 +5,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserStakingOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
@@ -28,17 +27,10 @@ export function useEarnBalances(): UseEarnBalancesReturn {
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const stakingContractsAggregatedOpportunities = useAppSelector(
-    selectAggregatedEarnUserStakingOpportunities,
-  )
-
-  const farmContractsFiatBalance = useMemo(
+  const stakingOpportunitiesFiatBalance = useMemo(
     () =>
-      stakingContractsAggregatedOpportunities.reduce(
-        (acc, opportunity) => acc.plus(opportunity.fiatAmount),
-        bn(0),
-      ),
-    [stakingContractsAggregatedOpportunities],
+      stakingOpportunities.reduce((acc, opportunity) => acc.plus(opportunity.fiatAmount), bn(0)),
+    [stakingOpportunities],
   )
 
   const lpAssetBalanceFilter = useMemo(
@@ -57,8 +49,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     stakingOpportunities,
   })
 
-  // When staking, farming, lp, etc are added sum up the balances here
-  const totalEarningBalance = bnOrZero(farmContractsFiatBalance)
+  const totalEarningBalance = bnOrZero(stakingOpportunitiesFiatBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')
     .plus(foxEthLpFiatBalance ?? 0)
     .toString()

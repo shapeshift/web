@@ -19,7 +19,7 @@ type StakingCardProps = {
 export const StakingCard: React.FC<StakingCardProps> = props => {
   const translate = useTranslate()
   const { onClick, ...opportunity } = props
-  const { assetId, underlyingAssetId, provider, apy, moniker } = opportunity
+  const { assetId, underlyingAssetId, provider, apy, opportunityName } = opportunity
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)

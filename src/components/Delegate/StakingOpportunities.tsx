@@ -113,7 +113,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
 
   const handleClick = useCallback(
     (values: Row<any>) => {
-      const { chainId, assetReference } = fromAssetId(assetId)
+      const { chainId, assetReference, assetNamespace } = fromAssetId(assetId)
       const provider = chainIdToLabel(chainId)
       history.push({
         search: qs.stringify({
@@ -122,6 +122,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
           chainId,
           contractAddress: values.original.address,
           assetReference,
+          assetNamespace,
           modal: 'overview',
         }),
       })

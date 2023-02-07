@@ -1,7 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import chain from 'lodash/chain'
 import pickBy from 'lodash/pickBy'
 import sumBy from 'lodash/sumBy'
@@ -274,14 +275,21 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 
       return Object.assign(
         {},
-        isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
-          ? {
+        (() => {
+          if (opportunity.provider === DefiProvider.Cosmos) {
+            return { contractAddress: fromAccountId(opportunity.id).account }
+          }
+
+          if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)) {
+            return {
               // TODO: The guts of getting contractAddress for Idle
               // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
               // Can we generalize this? This is getting messy
               contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
             }
-          : {},
+          }
+          return {}
+        })(),
         STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
         opportunity,
         {
@@ -319,14 +327,21 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         .reduce((acc, opportunity) => {
           const earnOpportunity = Object.assign(
             {},
-            isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)
-              ? {
+            (() => {
+              if (opportunity.provider === DefiProvider.Cosmos) {
+                return { contractAddress: fromAccountId(opportunity.id).account }
+              }
+
+              if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)) {
+                return {
                   // TODO: The guts of getting contractAddress for Idle
                   // ETH/FOX opportunities contractAddress will be overwritten by STAKING_EARN_OPPORTUNITIES
                   // Can we generalize this? This is getting messy
                   contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
                 }
-              : {},
+              }
+              return {}
+            })(),
             STAKING_EARN_OPPORTUNITIES[opportunity.assetId],
             opportunity,
             {
@@ -349,7 +364,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       // Keep only the version with actual data if it exists, else keep the zero'd out version
       const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
-        ({ contractAddress, assetId }) => contractAddress ?? assetId,
+        ({ contractAddress, assetId, id }) => contractAddress ?? assetId ?? id,
       )
 
       return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {

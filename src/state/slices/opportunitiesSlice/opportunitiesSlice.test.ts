@@ -37,6 +37,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',
@@ -62,6 +63,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',
@@ -85,6 +87,7 @@ describe('opportunitiesSlice', () => {
             [mockLpContractTwo]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',

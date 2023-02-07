@@ -16,6 +16,8 @@ export const getMarketServiceManager: GetMarketServiceManager = () => {
         jsonRpcProviderUrl: config.REACT_APP_ETHEREUM_NODE_URL,
         unchainedEthereumHttpUrl: config.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
         unchainedEthereumWsUrl: config.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
+        osmosisMarketDataUrl: config.REACT_APP_OSMOSIS_IMPERATOR_BASE_URL,
+        osmosisPoolMetadataUrl: config.REACT_APP_OSMOSIS_LCD_BASE_URL,
       },
     })
   }

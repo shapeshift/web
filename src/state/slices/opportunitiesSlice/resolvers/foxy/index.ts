@@ -73,6 +73,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
+      id: opportunityId,
       provider: DefiProvider.ShapeShift as const,
       tvl,
       type: DefiType.Staking as const,

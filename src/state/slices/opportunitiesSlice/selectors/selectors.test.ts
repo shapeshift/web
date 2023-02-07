@@ -153,6 +153,7 @@ describe('opportunitiesSlice selectors', () => {
     const mockOpportunityMetadata: OpportunityMetadata = {
       // The LP token AssetId
       assetId: foxEthLpAssetId,
+      id: foxEthLpAssetId,
       provider: DefiProvider.FoxFarming,
       tvl: '424242',
       apy: '0.42',
@@ -212,6 +213,7 @@ describe('opportunitiesSlice selectors', () => {
       ).toEqual({
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        id: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         provider: DefiProvider.FoxFarming,
         rewardsAmountsCryptoBaseUnit: ['420000000000000000000'],
         stakedAmountCryptoBaseUnit: '1337',
@@ -231,6 +233,7 @@ describe('opportunitiesSlice selectors', () => {
       ).toEqual({
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        id: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         provider: DefiProvider.FoxFarming,
         stakedAmountCryptoBaseUnit: '4',
         rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
@@ -252,6 +255,7 @@ describe('opportunitiesSlice selectors', () => {
         [mockStakingContractTwo]: {
           apy: '1000',
           assetId: mockStakingContractTwo,
+          id: mockStakingContractTwo,
           provider: DefiProvider.FoxFarming,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
@@ -305,6 +309,7 @@ describe('opportunitiesSlice selectors', () => {
           {
             apy: '1000',
             assetId: mockStakingContractTwo,
+            id: mockStakingContractTwo,
             provider: DefiProvider.FoxFarming,
             rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '1337',
@@ -321,6 +326,7 @@ describe('opportunitiesSlice selectors', () => {
           {
             apy: '1000',
             assetId: mockStakingContractTwo,
+            id: mockStakingContractTwo,
             provider: DefiProvider.FoxFarming,
             rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '100',
@@ -345,6 +351,7 @@ describe('opportunitiesSlice selectors', () => {
         expect(result).toEqual({
           apy: '1000',
           assetId: mockStakingContractTwo,
+          id: mockStakingContractTwo,
           provider: DefiProvider.FoxFarming,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,

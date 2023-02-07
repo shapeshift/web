@@ -4,6 +4,7 @@ import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportu
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
+import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -17,6 +18,7 @@ export type AssetIdsTuple =
 export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
+  id: OpportunityId
   provider: DefiProvider
   tvl: string
   type: DefiType
@@ -45,7 +47,7 @@ export type OpportunityMetadataBase = {
 export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
 
 // User-specific values for this opportunity
-export type UserStakingOpportunity = {
+export type UserStakingOpportunityBase = {
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
@@ -56,13 +58,17 @@ export type UserStakingOpportunity = {
     | readonly []
 }
 
+export type UserStakingOpportunity =
+  | UserStakingOpportunityBase
+  | CosmosSdkStakingSpecificUserStakingOpportunity
+
 // The AccountId of the staking contract in the form of chainId:accountAddress
 export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
 export type LpId = Nominal<string, 'LpId'> & AssetId
 
-export type OpportunityId = LpId | StakingId
 export type ValidatorId = Nominal<string, 'ValidatorId'> & AccountId
+export type OpportunityId = LpId | StakingId | ValidatorId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 

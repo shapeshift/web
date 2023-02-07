@@ -303,7 +303,19 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.accounts.ids.push(accountId)
 
+        cosmosAccount.chainSpecific.assets?.forEach(asset => {
+          if (!args.assetIds.includes(asset.assetId)) {
+            return
+          }
+          portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
+
+          portfolio.accountBalances.byId[accountId] = {
+            ...portfolio.accountBalances.byId[accountId],
+            [asset.assetId]: asset.amount,
+          }
+        })
         portfolio.accountBalances.byId[accountId] = {
+          ...portfolio.accountBalances.byId[accountId],
           [assetId]: account.balance,
         }
 

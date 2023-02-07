@@ -17,11 +17,17 @@ import {
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
+  GetOpportunityUserStakingDataOutput,
+  OpportunitiesState,
   OpportunityMetadata,
   StakingId,
 } from '../../types'
-import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } from '../types'
-import { makeUniqueValidatorAccountIds } from './utils'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunitiesUserDataResolverInput,
+  OpportunityIdsResolverInput,
+} from '../types'
+import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'cosmosSdk'] })
 
@@ -117,6 +123,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
         return {
           validatorId,
+          id: validatorId,
           apy: data.apr,
           tvl: bnOrZero(data.tokens)
             .div(bn(10).pow(asset.precision))
@@ -161,4 +168,46 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   }
 
   return { data }
+}
+export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
+  opportunityIds: validatorIds,
+  opportunityType,
+  accountId,
+  reduxApi,
+}: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const emptyStakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] =
+    {}
+
+  try {
+    const { account: pubKey, chainId } = fromAccountId(accountId)
+    if (![cosmosChainId || osmosisChainId].includes(chainId)) {
+      return Promise.resolve({
+        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
+      })
+    }
+    const chainAdapters = getChainAdapterManager()
+    const adapter = chainAdapters.get(chainId) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+
+    const cosmosAccount = await adapter.getAccount(pubKey)
+    const assetId = accountIdToFeeAssetId(accountId)
+
+    if (!assetId) throw new Error(`Cannot get AssetId for AccountId: ${accountId}`)
+
+    const asset = selectAssetById(state, assetId)
+    if (!asset) throw new Error(`Cannot get asset for AssetId: ${assetId}`)
+
+    const byId = makeAccountUserData({ cosmosAccount, validatorIds })
+
+    return Promise.resolve({ data: { byId, type: opportunityType } })
+  } catch (e) {
+    return Promise.resolve({
+      data: {
+        byId: emptyStakingOpportunitiesUserDataByUserStakingId,
+        type: opportunityType,
+      },
+    })
+  }
 }

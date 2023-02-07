@@ -51,6 +51,7 @@ const moduleLogger = logger.child({
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
+  const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
@@ -145,7 +146,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
       if (
-        !(userAddress && assetReference && accountId && opportunityData?.stakedAmountCryptoBaseUnit)
+        !(
+          userAddress &&
+          assetReference &&
+          accountId &&
+          opportunityData?.stakedAmountCryptoBaseUnit &&
+          dustAmountCryptoBaseUnit
+        )
       )
         return
       try {
@@ -166,7 +173,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const fastFeeCryptoBaseUnit = (
           await adapter.getFeeData({
             to: quote.inbound_address,
-            value: amountCryptoBaseUnit.toFixed(0),
+            value: dustAmountCryptoBaseUnit,
             // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
             // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
             chainSpecific: {
@@ -200,6 +207,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       accountId,
       opportunityData?.stakedAmountCryptoBaseUnit,
       opportunityData?.rewardsAmountsCryptoBaseUnit,
+      dustAmountCryptoBaseUnit,
       asset,
       chainId,
       supportedEvmChainIds,
@@ -357,7 +365,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-      const { slippage_bps, expected_amount_out } = quote
+      const { dust_amount, slippage_bps, expected_amount_out } = quote
       const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
       // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
@@ -374,6 +382,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         .toFixed(0)
         .toString()
       setDaysToBreakEven(daysToBreakEven)
+      setDustAmountCryptoBaseUnit(
+        bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
+          asset.precision,
+        ),
+      )
       setQuoteLoading(false)
     })
 

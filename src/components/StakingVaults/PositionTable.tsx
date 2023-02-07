@@ -10,11 +10,11 @@ import { PositionDetails } from 'components/EarnDashboard/components/PositionDet
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GroupedEligibleOpportunityReturnType } from 'state/slices/opportunitiesSlice/types'
+import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnOpportunitiesByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type RowProps = Row<GroupedEligibleOpportunityReturnType>
+export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -36,7 +36,7 @@ export const PositionTable = () => {
   const translate = useTranslate()
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
 
-  const columns: Column<GroupedEligibleOpportunityReturnType>[] = useMemo(
+  const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
     () => [
       {
         Header: '#',

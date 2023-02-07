@@ -6,7 +6,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import type {
-  GroupedEligibleOpportunityReturnType,
+  AggregatedOpportunitiesByAssetIdReturn,
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
@@ -37,9 +37,9 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     userLpOpportunities,
     marketData,
     assets,
-  ): GroupedEligibleOpportunityReturnType[] => {
+  ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
-    const byAssetId = combined.reduce<Record<AssetId, GroupedEligibleOpportunityReturnType>>(
+    const byAssetId = combined.reduce<Record<AssetId, AggregatedOpportunitiesByAssetIdReturn>>(
       (acc, cur) => {
         const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
         const underlyingAssetIds = [cur[depositKey]].flat()

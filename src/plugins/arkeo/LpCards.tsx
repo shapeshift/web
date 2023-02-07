@@ -25,8 +25,8 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
     dispatch,
   } = useWallet()
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const filteredLpOpportunities = lpOpportunities.filter(e =>
-    ids.includes(e.assetId as OpportunityId),
+  const filteredLpOpportunities = lpOpportunities.filter(opportunity =>
+    ids.includes(opportunity.assetId as OpportunityId),
   )
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
@@ -64,6 +64,7 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
         state: { background: location },
       })
     },
+    // This was copied from AllEarnOpportunities
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, history, isConnected, location],
   )

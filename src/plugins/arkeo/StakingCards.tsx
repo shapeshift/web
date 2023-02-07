@@ -62,8 +62,8 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
 
   const allOpportunities = [...stakingOpportunities, ...useTransformCosmosStaking(cosmos)]
   const filteredOpportunities = allOpportunities
-    .filter(e => ids.includes(e.assetId as OpportunityId))
-    .filter(e => e.provider !== DefiProvider.ThorchainSavers)
+    .filter(opportunity => ids.includes(opportunity.assetId as OpportunityId))
+    .filter(opportunity => opportunity.provider !== DefiProvider.ThorchainSavers)
 
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
@@ -97,6 +97,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
         state: { background: location },
       })
     },
+    // This was copied from AllEarnOpportunities
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, history, isConnected, location],
   )

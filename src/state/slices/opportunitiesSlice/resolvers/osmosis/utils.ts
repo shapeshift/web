@@ -126,7 +126,10 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     const { data: poolData } = await memoize(async (): Promise<AxiosResponse<OsmosisPoolList>> => {
       return await axios.get<OsmosisPoolList>(
         (() => {
-          const url = new URL('gamm/v1beta1/pools', getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL)
+          const url = new URL(
+            'lcd/osmosis/gamm/v1beta1/pools',
+            getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL,
+          )
           url.searchParams.set(
             'pagination.limit',
             getConfig().REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT.toString(),
@@ -217,7 +220,7 @@ export const getPool = async (poolId: string): Promise<OsmosisPool | undefined> 
     } = await axios.get<{ pool: OsmosisPool }>(
       (() => {
         const url = new URL(
-          `gamm/v1beta1/pools/${poolId}`,
+          `lcd/osmosis/gamm/v1beta1/pools/${poolId}`,
           getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL,
         )
         return url.toString()

@@ -26,14 +26,12 @@ type OpportunityReturn = {
   [k in DefiType]: OpportunityId[]
 }
 
+const cosmosOsmosLpAssetId = 'cosmos:osmosis-1/ibc:gamm/pool/1'
+const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b'
+
 const opportunities: OpportunityReturn = {
-  staking: [
-    'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b',
-    foxEthStakingContractAddressV5,
-    osmosisAssetId,
-    cosmosAssetId,
-  ],
-  lp: [foxEthLpAssetId, 'cosmos:osmosis-1/ibc:gamm/pool/1'],
+  staking: [FOXY_STAKING_CONTRACT, foxEthStakingContractAddressV5, osmosisAssetId, cosmosAssetId],
+  lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
   vault: [],
   token_staking: [],
 }

@@ -20,6 +20,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -43,7 +44,6 @@ import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
-import { CountDownTimer } from './Components/TradeQuotes/CountdownTimer'
 import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
@@ -57,6 +57,7 @@ export const TradeInput = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showQuotes, setShowQuotes] = useState(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool } = useIsTradingActive()
@@ -499,19 +500,24 @@ export const TradeInput = () => {
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             label={translate('trade.youGet')}
             rightRegion={
-              <IconButton
-                size='sm'
-                icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                aria-label='Expand Quotes'
-                onClick={() => setShowQuotes(!showQuotes)}
-              />
+              isTradeRatesEnabled ? (
+                <IconButton
+                  size='sm'
+                  icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                  aria-label='Expand Quotes'
+                  onClick={() => setShowQuotes(!showQuotes)}
+                />
+              ) : (
+                <></>
+              )
             }
-            labelPostFix={<CountDownTimer time={1} />}
           >
-            <TradeQuotes
-              isOpen={showQuotes}
-              isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
-            />
+            {isTradeRatesEnabled && (
+              <TradeQuotes
+                isOpen={showQuotes}
+                isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+              />
+            )}
           </TradeAssetInput>
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>

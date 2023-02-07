@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
@@ -7,17 +7,19 @@ import memoize from 'lodash/memoize'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 
-type OsmosisToken = {
+export const OSMOSIS_PRECISION = 6
+
+export type OsmosisToken = {
   denom: string
   amount: string
 }
 
-type OsmosisPoolAsset = {
+export type OsmosisPoolAsset = {
   token: OsmosisToken
   weight: string
 }
 
-type OsmosisPool = {
+export type OsmosisPool = {
   '@type': string
   name: string
   address: string
@@ -71,6 +73,12 @@ const moduleLogger = logger.child({
   namespace: ['opportunitySlice', 'resolvers', 'osmosis', 'utils'],
 })
 
+const isNumeric = (s: string) => {
+  if (typeof s !== 'string') return false
+  if (s.trim() === '') return false
+  return !Number.isNaN(Number(s))
+}
+
 /** Somehow, the v1beta1/pools API call returns some (~12/886) objects of a type that doesn't conform
  * to the type defined above (missing certain fields and containing others.)
  * This type guard is used to filter out the invalid pools records. */
@@ -118,7 +126,10 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
     const { data: poolData } = await memoize(async (): Promise<AxiosResponse<OsmosisPoolList>> => {
       return await axios.get<OsmosisPoolList>(
         (() => {
-          const url = new URL('gamm/v1beta1/pools', getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL)
+          const url = new URL(
+            'lcd/osmosis/gamm/v1beta1/pools',
+            getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL,
+          )
           url.searchParams.set(
             'pagination.limit',
             getConfig().REACT_APP_OSMOSIS_POOL_PAGINATION_LIMIT.toString(),
@@ -196,5 +207,49 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
   } catch (error) {
     moduleLogger.error({ fn: 'getPools', error }, `Error fetching Osmosis pools`)
     return []
+  }
+}
+
+export const getPool = async (poolId: string): Promise<OsmosisPool | undefined> => {
+  try {
+    // Don't memoize this call - we need up-to-date pool data for calculations elsewhere.
+    /* Fetch Osmosis pool data */
+    if (!isNumeric(poolId)) throw new Error(`Cannot fetch pool info for invalid pool ID${poolId}`)
+    const {
+      data: { pool: poolData },
+    } = await axios.get<{ pool: OsmosisPool }>(
+      (() => {
+        const url = new URL(
+          `lcd/osmosis/gamm/v1beta1/pools/${poolId}`,
+          getConfig().REACT_APP_OSMOSIS_LCD_BASE_URL,
+        )
+        return url.toString()
+      })(),
+    )
+    return poolData
+  } catch (error) {
+    moduleLogger.error({ fn: 'getPools', error }, `Error fetching data for Osmosis pool ${poolId}`)
+    return undefined
+  }
+}
+
+export const getPoolIdFromAssetReference = (
+  reference: AssetReference | string,
+): string | undefined => {
+  try {
+    const segments = reference.split('/')
+    if (segments.length !== 3)
+      throw new Error(`Cannot get pool ID from invalid Osmosis LP asset reference ${reference}`)
+
+    const id = segments[2]
+    if (!isNumeric(id)) throw new Error(`Asset reference contains invalid pool ID ${id}`)
+
+    return id
+  } catch (error) {
+    moduleLogger.error(
+      { fn: 'getPools', error },
+      `Error fetching data for Osmosis pool ${reference}`,
+    )
+    return undefined
   }
 }

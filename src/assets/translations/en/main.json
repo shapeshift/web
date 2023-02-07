@@ -536,7 +536,10 @@
         "recv_packet": "Received"
       },
       "lp": {
-        "deposit": "Add Liquidity"
+        "deposit": "Add Liquidity",
+        "withdraw": "Remove Liquidity",
+        "join_pool": "Join Pool",
+        "exit_pool": "Exit Pool"
       }
     },
     "unknown": "Transaction"
@@ -832,6 +835,10 @@
       "blockExplorer": "Explorer"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Your Allocation",
+        "fractionDescription":"% of pool"
+      },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",

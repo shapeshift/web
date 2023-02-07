@@ -26,6 +26,7 @@ export type FeatureFlags = {
   CosmosSdkOpportunitiesAbstraction: boolean
   ArkeoAirdrop: boolean
   TradeRates: boolean
+  Cowswap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -65,6 +66,7 @@ const initialState: Preferences = {
       getConfig().REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
+    Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

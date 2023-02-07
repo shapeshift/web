@@ -219,6 +219,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         break
       }
       case CHAIN_NAMESPACE.CosmosSdk: {
+        const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountId)

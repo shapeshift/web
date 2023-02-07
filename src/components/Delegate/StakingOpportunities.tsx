@@ -1,8 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
@@ -14,9 +13,12 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectUserStakingOpportunitiesWithMetadataByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingOpportunitiesProps = {
@@ -83,7 +85,31 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
 
-  const hasActiveStaking = false // TODO
+  const userStakingOpportunitiesFilter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
+    }),
+    [accountId],
+  )
+  const userStakingOpportunities = useAppSelector(state =>
+    selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
+  )
+  const hasActiveStaking = userStakingOpportunities.some(userStakingOpportunity => {
+    if (!userStakingOpportunity) return false
+    const { stakedAmountCryptoBaseUnit, rewardsAmountsCryptoBaseUnit } = userStakingOpportunity
+    const undelegations =
+      'undelegations' in userStakingOpportunity
+        ? (userStakingOpportunity?.undelegations ?? []).reduce(
+            (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+            bn(0),
+          )
+        : bn(0)
+    return (
+      bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ||
+      bnOrZero(rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ||
+      undelegations.gt(0)
+    )
+  })
 
   const handleClick = useCallback(
     (values: Row<any>) => {
@@ -110,16 +136,17 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         id: 'moniker',
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: any } }) => {
-          const validator = row.original
+          const opportunityData = row.original
+          const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
 
           return (
-            <Skeleton isLoaded={validator.isLoaded}>
+            <Skeleton isLoaded={Boolean(opportunityData)}>
               <ValidatorName
-                validatorAddress={validator?.address}
-                moniker={validator?.moniker}
+                validatorAddress={validatorAddress}
+                moniker={opportunityData?.name}
                 isStaking={true}
-                chainId={asset?.chainId}
-                apr={validator?.apr}
+                chainId={chainId}
+                apr={opportunityData?.apy}
               />
             </Skeleton>
           )
@@ -133,8 +160,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Cell: ({ row }: { row: { original: any } }) => {
           const validator = row.original
           return (
-            <Skeleton isLoaded={validator.isLoaded}>
-              <AprTag percentage={validator?.apr} showAprSuffix />
+            <Skeleton isLoaded={Boolean(validator)}>
+              <AprTag percentage={validator?.apy} showAprSuffix />
             </Skeleton>
           )
         },
@@ -146,14 +173,24 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         isNumeric: true,
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: any } }) => {
-          const { isLoaded, totalDelegations } = row.original
+          const opportunityData = row.original
+          const totalBondings = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+            .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+            .plus(
+              opportunityData && 'undelegations' in opportunityData
+                ? (opportunityData?.undelegations ?? []).reduce(
+                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+                    bn(0),
+                  )
+                : 0,
+            )
 
           return (
-            <Skeleton isLoaded={isLoaded}>
-              {bnOrZero(totalDelegations).gt(0) ? (
+            <Skeleton isLoaded={Boolean(opportunityData)}>
+              {bnOrZero(totalBondings).gt(0) ? (
                 <Amount.Crypto
-                  value={bnOrZero(totalDelegations)
-                    .div(`1e+${asset.precision}`)
+                  value={bnOrZero(totalBondings)
+                    .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
                   symbol={asset.symbol}
@@ -173,23 +210,32 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         id: 'rewards',
         display: { base: 'table-cell' },
         Cell: ({ row }: { row: { original: any } }) => {
-          const { totalDelegations, rewards: validatorRewards, isLoaded } = row.original
-          const rewards = bnOrZero(validatorRewards)
+          const opportunityData = row.original
+          const totalBondings = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+            .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+            .plus(
+              opportunityData && 'undelegations' in opportunityData
+                ? (opportunityData?.undelegations ?? []).reduce(
+                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+                    bn(0),
+                  )
+                : 0,
+            )
 
           return (
-            <Skeleton isLoaded={isLoaded}>
-              {bnOrZero(totalDelegations).gt(0) ? (
+            <Skeleton isLoaded={Boolean(opportunityData)}>
+              {totalBondings.gt(0) ? (
                 <HStack fontWeight={'normal'}>
                   <Amount.Crypto
-                    value={bnOrZero(rewards)
-                      .div(`1e+${asset.precision}`)
+                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                      .div(bn(10).pow(asset.precision))
                       .decimalPlaces(asset.precision)
                       .toString()}
                     symbol={asset.symbol}
                   />
                   <Amount.Fiat
-                    value={bnOrZero(rewards)
-                      .div(`1e+${asset.precision}`)
+                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                      .div(bn(10).pow(asset.precision))
                       .times(bnOrZero(marketData.price))
                       .toPrecision()}
                     color='green.500'
@@ -215,11 +261,10 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         disableSortBy: true,
       },
     ],
-    [asset?.chainId, asset.precision, asset.symbol, marketData.price],
+    [asset.precision, asset.symbol, marketData.price],
   )
 
-  const stakingOpportunitiesData = useMemo(() => [], []) // TODO
-  if (stakingOpportunitiesData.length === 0) return null
+  if (userStakingOpportunities.length === 0) return null
 
   return (
     <Card>
@@ -243,7 +288,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       </Card.Header>
       <Card.Body pt={0} px={2}>
         <ReactTable
-          data={stakingOpportunitiesData}
+          data={userStakingOpportunities}
           columns={columns}
           displayHeaders={hasActiveStaking}
           onRowClick={handleClick}

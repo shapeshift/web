@@ -57,12 +57,42 @@ export const selectUserStakingOpportunitiesById = createSelector(
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
     ),
 )
+
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),
+)
+
+export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector(
+  selectUserStakingOpportunitiesById,
+  selectStakingOpportunitiesById,
+  selectAccountIdParamFromFilter,
+  (
+    userStakingOpportunitiesById,
+    stakingOpportunitiesById,
+    accountId,
+  ): UserStakingOpportunityWithMetadata[] =>
+    Object.entries(userStakingOpportunitiesById)
+      .filter(([userStakingId]) => {
+        const [userStakingAccountId] = deserializeUserStakingId(userStakingId as UserStakingId)
+
+        return accountId === userStakingAccountId
+      })
+      .map(([userStakingId, userStakingOpportunity]) => {
+        const [, stakingId] = deserializeUserStakingId(userStakingId as UserStakingId)
+        if (!stakingOpportunitiesById[stakingId] || !userStakingOpportunity) return undefined
+
+        const userStakingOpportunityWithMetadata = {
+          ...stakingOpportunitiesById[stakingId],
+          ...userStakingOpportunity,
+        } as UserStakingOpportunityWithMetadata
+
+        return userStakingOpportunityWithMetadata
+      })
+      .filter(isSome),
 )
 
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice

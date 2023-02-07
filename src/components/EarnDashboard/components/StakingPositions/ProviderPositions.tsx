@@ -48,7 +48,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   marketData,
 }) => {
   if (!rewardAssetIds) return 0
-  return Object.values(rewardAssetIds).reduce((sum, assetId, index) => {
+  return Array.from(rewardAssetIds).reduce((sum, assetId, index) => {
     const asset = assets[assetId]
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketData[assetId]?.price)

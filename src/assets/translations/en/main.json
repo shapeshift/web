@@ -488,14 +488,18 @@
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
         "infinite": "Infinite ∞",
         "withdraw": "Withdraw",
         "receive": "Receive"
@@ -517,7 +521,9 @@
       },
       "erc20": {
         "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
         "infinite": "Infinite ∞"
       },
       "staking": {

@@ -39,7 +39,11 @@ import {
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
-import { selectAggregatedEarnUserStakingOpportunities } from 'state/slices/opportunitiesSlice/selectors'
+import {
+  selectAggregatedEarnUserStakingOpportunities,
+  selectStakingOpportunitiesById,
+  selectUserStakingOpportunitiesById,
+} from 'state/slices/opportunitiesSlice/selectors'
 import { genericBalanceIncludingStakingByFilter } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
@@ -49,7 +53,9 @@ import {
   selectWalletAccountIds,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
-import type { StakingId } from '../opportunitiesSlice/types'
+import { makeTotalBondings } from '../opportunitiesSlice/resolvers/cosmosSdk/utils'
+import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
+import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import type {
   AccountMetadata,
   AccountMetadataById,
@@ -415,43 +421,36 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-/**
- * shape of PortfolioAccountBalancesById, but just delegation/undelegation/redelagation
- * amounts in base units
- */
 export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
-  (accounts): PortfolioAccountBalancesById => {
-    return Object.entries(accounts).reduce<PortfolioAccountBalancesById>(acc => {
+  selectUserStakingOpportunitiesById,
+  selectStakingOpportunitiesById,
+  (accounts, userStakingOpportunities, stakingOpportunitiesById): PortfolioAccountBalancesById => {
+    return Object.entries(accounts).reduce<PortfolioAccountBalancesById>((acc, [accountId]) => {
+      Object.entries(userStakingOpportunities)
+        .filter(([userStakingId]) => {
+          // TODO: This will only work for native assets staking currently, which is not better, not worse than previously
+          // Find the right heuristics for this, and make this support staking for all opportunities
+          const [opportunityAccountId] = deserializeUserStakingId(userStakingId as UserStakingId)
+          return opportunityAccountId === accountId
+        })
+        .forEach(([userStakingId, userStakingOpportunity]) => {
+          const [, stakingId] = deserializeUserStakingId(userStakingId as UserStakingId)
+          const assetId = stakingOpportunitiesById[stakingId]?.assetId
+          if (!assetId || !userStakingOpportunity) return acc
+          const totalBondings = makeTotalBondings(userStakingOpportunity)
+          if (!acc[accountId]) {
+            acc[accountId] = {}
+          }
+          // Handle staking over multiple opportunities for a given AssetId e.g
+          // - savers and native ATOM staking
+          // - staking over different validators for the same AssetId
+          acc[accountId][assetId] = totalBondings.plus(bnOrZero(acc[accountId][assetId])).toFixed()
+        })
       return acc
     }, {})
   },
 )
-
-/**
- * returns crypto human staking amount by assetId and accountId filter
- */
-export const selectPortfolioStakingCryptoHumanBalanceByFilter = createCachedSelector(
-  selectAssets,
-  selectPortfolioStakingCryptoBalances,
-  selectAssetIdParamFromFilter,
-  selectAccountIdParamFromFilter,
-  (assets, stakingBalances, assetIdFilter, accountIdFilter): string => {
-    return Object.entries(stakingBalances)
-      .filter(([accountId]) => (accountIdFilter ? accountId === accountIdFilter : true))
-      .reduce<BigNumber>((acc, [, account]) => {
-        Object.entries(account)
-          .filter(([assetId]) => (assetIdFilter ? assetId === assetIdFilter : true))
-          .forEach(([assetId, balance]) => {
-            const asset = assets[assetId]
-            if (asset) acc = acc.plus(bnOrZero(fromBaseUnit(bnOrZero(balance), asset.precision)))
-          })
-
-        return acc
-      }, bn(0))
-      .toString()
-  },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 /**
  * selects all accounts in PortfolioAccountBalancesById form, including all

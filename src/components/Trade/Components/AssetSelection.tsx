@@ -25,8 +25,8 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   assetId,
   label,
 }) => {
-  const focusBg = useColorModeValue('gray.100', 'gray.750')
-  const hoverBg = useColorModeValue('gray.50', 'gray.900')
+  const hoverBg = useColorModeValue('gray.100', 'gray.750')
+  const focusBg = useColorModeValue('gray.50', 'gray.900')
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const handleChange = () => {

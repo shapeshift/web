@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectFirstAccountIdByChainId,
@@ -35,7 +35,9 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
   const handleClick = useCallback(
-    (opportunity: LpEarnOpportunityType) => {
+    (opportunityId: OpportunityId) => {
+      const opportunity = lpOpportunities.find(opportunity => opportunity.assetId === opportunityId)
+      if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId

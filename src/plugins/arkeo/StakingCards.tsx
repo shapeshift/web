@@ -6,7 +6,6 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useTransformCosmosStaking } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -67,7 +66,11 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     .filter(e => e.provider !== DefiProvider.ThorchainSavers)
 
   const handleClick = useCallback(
-    (opportunity: EarnOpportunityType) => {
+    (opportunityId: OpportunityId) => {
+      const opportunity = allOpportunities.find(
+        opportunity => opportunity.assetId === opportunityId,
+      )
+      if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId

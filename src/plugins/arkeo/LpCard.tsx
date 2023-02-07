@@ -5,20 +5,20 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ArkeoCard } from './ArkeoCard'
 
 type LpCardProps = {
-  onClick: (arg: LpEarnOpportunityType) => void
+  onClick: (opportunityId: OpportunityId) => void
 } & LpEarnOpportunityType
 
 export const LpCard: React.FC<LpCardProps> = props => {
   const translate = useTranslate()
-  const { onClick, ...rest } = props
-  const { apy, underlyingAssetIds } = rest
+  const { onClick, ...opportunity } = props
+  const { apy, underlyingAssetIds } = opportunity
   const asset1Id = underlyingAssetIds[0]
   const asset2Id = underlyingAssetIds[1]
   const asset1 = useAppSelector(state => selectAssetById(state, asset1Id ?? ''))
@@ -43,7 +43,12 @@ export const LpCard: React.FC<LpCardProps> = props => {
             { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: `${opportunityApy}%` },
           ]}
         />
-        <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(rest)}>
+        <Button
+          width='full'
+          colorScheme='blue'
+          mt='auto'
+          onClick={() => onClick(opportunity.assetId as OpportunityId)}
+        >
           {translate('arkeo.lp.cta')}
         </Button>
       </Card.Body>

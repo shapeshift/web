@@ -52,7 +52,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     lpAssetBalanceCryptoBaseUnit,
     assets,
     marketData,
-  ): StakingEarnOpportunityType | undefined => {
+  ): LpEarnOpportunityType | undefined => {
     if (!lpId) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price

@@ -52,6 +52,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     lpOpportunitiesById[opportunityId] = {
       apy: pool.apy,
       assetId,
+      id: opportunityId,
       provider: DefiProvider.Osmosis,
       tvl: pool.tvl,
       type: DefiType.LiquidityPool,

@@ -18,6 +18,7 @@ export type AssetIdsTuple =
 export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
+  id: OpportunityId
   provider: DefiProvider
   tvl: string
   type: DefiType
@@ -66,8 +67,8 @@ export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
 export type LpId = Nominal<string, 'LpId'> & AssetId
 
-export type OpportunityId = LpId | StakingId
 export type ValidatorId = Nominal<string, 'ValidatorId'> & AccountId
+export type OpportunityId = LpId | StakingId | ValidatorId
 // The unique identifier of an lp opportunity in the form of UserAccountId*StakingId
 export type UserStakingId = `${AccountId}*${StakingId}`
 

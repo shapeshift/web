@@ -112,15 +112,16 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   })
 
   const handleClick = useCallback(
-    (values: Row<any>) => {
+    (values: Row<UserStakingOpportunityWithMetadata>) => {
       const { chainId, assetReference, assetNamespace } = fromAssetId(assetId)
       const provider = chainIdToLabel(chainId)
+      const { account: validatorAddress } = fromAccountId(values.original.id)
       history.push({
         search: qs.stringify({
           defaultAccountId: accountId,
           provider,
           chainId,
-          contractAddress: values.original.address,
+          contractAddress: validatorAddress,
           assetReference,
           assetNamespace,
           modal: 'overview',

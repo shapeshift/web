@@ -1,3 +1,4 @@
+import arkeoAirdrop from 'plugins/arkeo'
 import avalanche from 'plugins/avalanche'
 import bitcoin from 'plugins/bitcoin'
 import bitcoincash from 'plugins/bitcoincash'
@@ -28,4 +29,5 @@ export const activePlugins = [
   thorchain,
   mobile,
   optimism,
+  arkeoAirdrop,
 ]

@@ -40,24 +40,20 @@ export const TransactionMethod = ({
     [txDetails.transfers],
   )
 
-  const titlePrefix = translate(
-    txMetadata.parser
-      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
-      : 'transactionRow.unknown',
-  )
-
   const title = useMemo(() => {
     const symbol = asset?.symbol
-
+    const titlePrefix = txMetadata.parser
+      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
+      : 'transactionRow.unknown'
     switch (txMetadata.method) {
       case 'approve':
-        return `${titlePrefix} ${symbol}`
       case 'revoke':
-        return `${titlePrefix} ${symbol} approval`
+        // add symbol if available
+        return symbol ? translate(`${titlePrefix}Symbol`, { symbol }) : translate(titlePrefix)
       default:
-        return titlePrefix
+        return translate(titlePrefix)
     }
-  }, [asset?.symbol, titlePrefix, txMetadata.method])
+  }, [asset?.symbol, txMetadata.parser, txMetadata.method, translate])
 
   const type = useMemo(() => {
     switch (txMetadata.method) {

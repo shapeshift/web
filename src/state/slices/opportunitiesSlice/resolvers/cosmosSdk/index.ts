@@ -123,6 +123,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
         return {
           validatorId,
+          id: validatorId,
           apy: data.apr,
           tvl: bnOrZero(data.tokens)
             .div(bn(10).pow(asset.precision))

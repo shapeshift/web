@@ -25,6 +25,7 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from './constants'
+import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './types'
 
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
@@ -135,14 +136,20 @@ export const getDefaultValidatorAddressFromAccountId = flow(
   getDefaultValidatorAddressFromChainId,
 )
 
-export const makeTotalBondings = (opportunityData: UserStakingOpportunity) =>
-  bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-    .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-    .plus(
-      opportunityData && 'undelegations' in opportunityData
-        ? (opportunityData?.undelegations ?? []).reduce(
-            (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-            bn(0),
-          )
-        : 0,
-    )
+export const isCosmosUserStaking = (
+  userStakingOpportunity: UserStakingOpportunity,
+): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
+  'undelegations' in userStakingOpportunity
+
+export const makeTotalUndelegations = (userStakingOpportunity: UserStakingOpportunity) =>
+  isCosmosUserStaking(userStakingOpportunity)
+    ? (userStakingOpportunity?.undelegations ?? []).reduce(
+        (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+        bn(0),
+      )
+    : bn(0)
+
+export const makeTotalBondings = (userStakingOpportunity: UserStakingOpportunity) =>
+  bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
+    .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+    .plus(makeTotalUndelegations(userStakingOpportunity))

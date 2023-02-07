@@ -14,7 +14,10 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import {
+  makeTotalBondings,
+  makeTotalUndelegations,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -99,13 +102,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const hasActiveStaking = userStakingOpportunities.some(userStakingOpportunity => {
     if (!userStakingOpportunity) return false
     const { stakedAmountCryptoBaseUnit, rewardsAmountsCryptoBaseUnit } = userStakingOpportunity
-    const undelegations =
-      'undelegations' in userStakingOpportunity
-        ? (userStakingOpportunity?.undelegations ?? []).reduce(
-            (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-            bn(0),
-          )
-        : bn(0)
+    const undelegations = makeTotalUndelegations(userStakingOpportunity)
+
     return (
       bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ||
       bnOrZero(rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ||

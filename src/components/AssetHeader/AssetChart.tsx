@@ -30,6 +30,7 @@ import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -85,18 +86,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const stakingBalanceCryptoBaseUnit = useMemo(
     () =>
       userStakingOpportunities.reduce(
-        (acc, currentOpportunity) =>
-          acc
-            .plus(currentOpportunity.stakedAmountCryptoBaseUnit)
-            .plus(currentOpportunity.rewardsAmountsCryptoBaseUnit[0] ?? 0)
-            .plus(
-              'undelegations' in currentOpportunity
-                ? (currentOpportunity?.undelegations ?? []).reduce(
-                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-                    bn(0),
-                  )
-                : 0,
-            ),
+        (acc, currentOpportunity) => acc.plus(makeTotalBondings(currentOpportunity)),
         bn(0),
       ),
     [userStakingOpportunities],

@@ -14,6 +14,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
@@ -70,16 +71,23 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
   selectUserStakingOpportunitiesById,
   selectStakingOpportunitiesById,
   selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
   (
     userStakingOpportunitiesById,
     stakingOpportunitiesById,
     accountId,
+    assetId,
   ): UserStakingOpportunityWithMetadata[] =>
     Object.entries(userStakingOpportunitiesById)
       .filter(([userStakingId]) => {
-        const [userStakingAccountId] = deserializeUserStakingId(userStakingId as UserStakingId)
+        const [userStakingAccountId, stakingId] = deserializeUserStakingId(
+          userStakingId as UserStakingId,
+        )
 
-        return accountId === userStakingAccountId
+        return (
+          (!accountId || accountId === userStakingAccountId) &&
+          (!assetId || assetId === (stakingOpportunitiesById[stakingId]?.assetId ?? ''))
+        )
       })
       .map(([userStakingId, userStakingOpportunity]) => {
         const [, stakingId] = deserializeUserStakingId(userStakingId as UserStakingId)

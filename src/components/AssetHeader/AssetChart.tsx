@@ -28,14 +28,14 @@ import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
-  selectPortfolioStakingCryptoHumanBalanceByFilter,
+  selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -69,16 +69,43 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const defaultView = accountId && !isBalanceChartDataUnavailable ? View.Balance : View.Price
   const [view, setView] = useState(defaultView)
 
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const translate = useTranslate()
+  const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const fiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const fiatBalance = useAppSelector(s =>
+    selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+  )
   const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+  )
+  const userStakingOpportunities = useAppSelector(state =>
+    selectUserStakingOpportunitiesWithMetadataByFilter(state, opportunitiesFilter),
   )
 
-  const stakingFiatBalance = useAppSelector(s =>
-    selectPortfolioStakingCryptoHumanBalanceByFilter(s, filter),
+  const stakingBalanceCryptoBaseUnit = useMemo(
+    () =>
+      userStakingOpportunities.reduce(
+        (acc, currentOpportunity) =>
+          acc
+            .plus(currentOpportunity.stakedAmountCryptoBaseUnit)
+            .plus(currentOpportunity.rewardsAmountsCryptoBaseUnit[0] ?? 0)
+            .plus(
+              'undelegations' in currentOpportunity
+                ? (currentOpportunity?.undelegations ?? []).reduce(
+                    (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
+                    bn(0),
+                  )
+                : 0,
+            ),
+        bn(0),
+      ),
+    [userStakingOpportunities],
+  )
+
+  const stakingBalanceFiat = useMemo(
+    () =>
+      stakingBalanceCryptoBaseUnit.div(bn(10).pow(asset?.precision ?? 1)).times(marketData.price),
+    [asset?.precision, marketData.price, stakingBalanceCryptoBaseUnit],
   )
 
   useEffect(() => {
@@ -144,7 +171,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(stakingFiatBalance).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingBalanceFiat).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}
@@ -161,7 +188,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
                 <AlertDescription maxWidth='sm'>
                   <Amount.Crypto
-                    value={stakingFiatBalance}
+                    value={stakingBalanceCryptoBaseUnit
+                      .div(bn(10).pow(asset?.precision ?? 1))
+                      .toFixed()}
                     symbol={asset?.symbol ?? ''}
                     suffix={translate('defi.staked')}
                   />

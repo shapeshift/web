@@ -68,6 +68,8 @@ export type TradeAmountInputProps = {
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
   label?: string
+  rightRegion?: JSX.Element
+  labelPostFix?: JSX.Element
 } & PropsWithChildren
 
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
@@ -91,6 +93,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
   showFiatSkeleton,
   formControlProps,
   label,
+  rightRegion,
+  labelPostFix,
 }) => {
   const {
     number: { localeParts },
@@ -99,7 +103,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
   const amountRef = useRef<string | null>(null)
   const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const bgColor = useColorModeValue('white', 'gray.850')
   const focusBg = useColorModeValue('gray.50', 'gray.900')
   const focusBorder = useColorModeValue('blue.500', 'blue.400')
@@ -124,9 +128,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
     >
       <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={2}>
         {label && (
-          <FormLabel mb={0} fontSize='sm'>
-            {label}
-          </FormLabel>
+          <Flex alignItems='center'>
+            <FormLabel mb={0} fontSize='sm'>
+              {label}
+            </FormLabel>
+            {labelPostFix}
+          </Flex>
         )}
 
         {showFiatAmount && (
@@ -154,7 +161,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
         ) : (
           <AssetIcon assetId={assetId} size='sm' />
         )}
-        <Stack spacing={0} flex={1} alignItems='flex-start'>
+        <Flex gap={2} flex={1} alignItems='center'>
           <Skeleton isLoaded={!showInputSkeleton} width='full'>
             <NumberFormat
               customInput={CryptoInput}
@@ -184,7 +191,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
               }}
             />
           </Skeleton>
-        </Stack>
+          {rightRegion}
+        </Flex>
       </Stack>
       <Flex
         direction='row'
@@ -213,11 +221,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
         )}
       </Flex>
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
-      {children && (
-        <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>
-          {children}
-        </Stack>
-      )}
+      {children}
     </FormControl>
   )
 }

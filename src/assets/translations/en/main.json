@@ -85,7 +85,9 @@
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
-    "slippage": "Slippage"
+    "slippage": "Slippage",
+    "best": "Best",
+    "alternative": "Alternative"
   },
   "errorPage": {
     "title": "Oops!",

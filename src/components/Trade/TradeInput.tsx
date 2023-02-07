@@ -1,5 +1,5 @@
-import { ArrowDownIcon, ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -37,11 +37,14 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
+import { CountDownTimer } from './Components/TradeQuotes/CountdownTimer'
+import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import type { TS } from './types'
@@ -52,6 +55,8 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+  const [showQuotes, setShowQuotes] = useState(false)
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool } = useIsTradingActive()
@@ -432,7 +437,7 @@ export const TradeInput = () => {
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
-          <Flex alignItems='center'>
+          <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
             <TradeAssetSelect
               accountId={sellAssetAccountId}
               onAccountIdChange={handleSellAccountIdChange}
@@ -443,7 +448,8 @@ export const TradeInput = () => {
             <IconButton
               onClick={handleToggle}
               isRound
-              mx={-3}
+              mx={{ base: 0, md: -3 }}
+              my={{ base: -3, md: 0 }}
               size='sm'
               position='relative'
               borderColor={useColorModeValue('gray.100', 'gray.750')}
@@ -455,7 +461,7 @@ export const TradeInput = () => {
               bg={useColorModeValue('white', 'gray.850')}
               zIndex={1}
               aria-label='Switch Assets'
-              icon={<ArrowForwardIcon />}
+              icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
             />
             <TradeAssetSelect
               accountId={buyAssetAccountId}
@@ -492,7 +498,21 @@ export const TradeInput = () => {
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             label={translate('trade.youGet')}
-          />
+            rightRegion={
+              <IconButton
+                size='sm'
+                icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                aria-label='Expand Quotes'
+                onClick={() => setShowQuotes(!showQuotes)}
+              />
+            }
+            labelPostFix={<CountDownTimer time={1} />}
+          >
+            <TradeQuotes
+              isOpen={showQuotes}
+              isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+            />
+          </TradeAssetInput>
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
           <RateGasRow

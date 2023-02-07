@@ -1,4 +1,11 @@
-import { Flex, FormLabel, useColorModeValue } from '@chakra-ui/react'
+import {
+  Flex,
+  FormLabel,
+  Skeleton,
+  SkeletonCircle,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -7,6 +14,20 @@ import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
 import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const TradeAssetAwaitingAsset = () => {
+  const bgColor = useColorModeValue('white', 'gray.850')
+  return (
+    <Stack bgColor={bgColor} py={2} px={4} borderRadius='xl' spacing={0} flex={1}>
+      <Stack direction='row' justifyContent='space-between' alignItems='center'>
+        <Stack direction='row' alignItems='center'>
+          <SkeletonCircle height='32px' />
+          <Skeleton height='21px' width='50px' />
+        </Stack>
+      </Stack>
+    </Stack>
+  )
+}
 
 type TradeAssetSelectProps = {
   assetId?: AssetId
@@ -17,7 +38,7 @@ type TradeAssetSelectProps = {
   label: string
 }
 
-export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
+export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAccountIdChange: handleAccountIdChange,
   accountId,
   accountSelectionDisabled,
@@ -25,15 +46,23 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   assetId,
   label,
 }) => {
-  const hoverBg = useColorModeValue('gray.100', 'gray.750')
-  const focusBg = useColorModeValue('gray.50', 'gray.900')
+  const hoverBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+  const focusBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const handleChange = () => {
     return null
   }
   return (
-    <Card bg='gray.850' flex={1}>
+    <Card
+      bg={useColorModeValue('white', 'gray.850')}
+      flex={1}
+      borderColor={borderColor}
+      borderRadius={{ base: 'xl' }}
+      width='full'
+      overflow='hidden'
+    >
       <Card.Body
         display='flex'
         gap={1}
@@ -41,7 +70,6 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
         _hover={{ bg: hoverBg }}
         _active={{ bg: focusBg }}
         cursor='pointer'
-        borderTopRadius='xl'
         py={2}
         px={4}
         onClick={onAssetClick}
@@ -60,7 +88,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
         </Flex>
       </Card.Body>
       {handleAccountIdChange && assetId && (
-        <Card.Footer p={0} borderTopWidth={1} borderColor='gray.750'>
+        <Card.Footer p={0} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}
@@ -74,5 +102,17 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
         </Card.Footer>
       )}
     </Card>
+  )
+}
+
+export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
+  assetId,
+  accountId,
+  ...restAssetInputProps
+}) => {
+  return assetId ? (
+    <TradeAssetSelectWithAsset assetId={assetId} accountId={accountId} {...restAssetInputProps} />
+  ) : (
+    <TradeAssetAwaitingAsset />
   )
 }

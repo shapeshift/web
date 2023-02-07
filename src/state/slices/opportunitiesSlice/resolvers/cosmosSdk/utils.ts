@@ -93,7 +93,7 @@ export const makeAccountUserData = ({
 
     const maybeValidatorUndelegationsEntries =
       undelegationsByValidator[validatorAddress]?.[0]?.entries
-    const maybeValidatorUndelegations = maybeValidatorUndelegationsEntries?.map(
+    const maybeValidatorUndelegations = (maybeValidatorUndelegationsEntries ?? []).map(
       ({ amount, completionTime }) => ({
         undelegationAmountCryptoBaseUnit: amount,
         completionTime,

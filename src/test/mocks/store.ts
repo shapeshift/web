@@ -64,7 +64,6 @@ export const mockStore: ReduxState = {
       Wherever: false,
       SaversVaults: false,
       Yearn: false,
-      CosmosSdkOpportunitiesAbstraction: false,
       ArkeoAirdrop: false,
     },
     selectedLocale: 'en',

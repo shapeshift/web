@@ -1,6 +1,7 @@
 import type { FormControlProps, InputProps } from '@chakra-ui/react'
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -11,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import type { PropsWithChildren } from 'react'
+import type { FocusEvent, PropsWithChildren } from 'react'
 import React, { useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
@@ -47,6 +48,7 @@ const CryptoInput = (props: InputProps) => {
 
 export type TradeAmountInputProps = {
   assetId?: AssetId
+  accountId?: AccountId
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
@@ -65,6 +67,7 @@ export type TradeAmountInputProps = {
   showInputSkeleton?: boolean
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
+  label?: string
 } & PropsWithChildren
 
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
@@ -87,6 +90,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
   showInputSkeleton,
   showFiatSkeleton,
   formControlProps,
+  label,
 }) => {
   const {
     number: { localeParts },
@@ -118,9 +122,32 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
       pb={2}
       {...formControlProps}
     >
-      <FormLabel px={4} fontSize='sm'>
-        You Pay
-      </FormLabel>
+      <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={2}>
+        {label && (
+          <FormLabel mb={0} fontSize='sm'>
+            {label}
+          </FormLabel>
+        )}
+
+        {showFiatAmount && (
+          <Button
+            onClick={toggleIsFiat}
+            size='sm'
+            disabled={showFiatSkeleton}
+            fontWeight='medium'
+            variant='link'
+            color='gray.500'
+          >
+            <Skeleton isLoaded={!showFiatSkeleton}>
+              {isFiat ? (
+                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+              ) : (
+                <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+              )}
+            </Skeleton>
+          </Button>
+        )}
+      </Flex>
       <Stack direction='row' alignItems='center' px={4}>
         {icons ? (
           <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
@@ -151,53 +178,40 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = ({
                 onChange(amountRef.current ?? '', isFiat)
               }}
               onBlur={() => setIsFocused(false)}
-              onFocus={() => setIsFocused(true)}
+              onFocus={(e: FocusEvent<HTMLInputElement>) => {
+                setIsFocused(true)
+                e.target.select()
+              }}
             />
           </Skeleton>
         </Stack>
       </Stack>
-
-      {showFiatAmount && (
-        <Stack width='full' alignItems='flex-end' px={4} pb={2} mt={1}>
-          <Button
-            onClick={toggleIsFiat}
-            size='xs'
-            disabled={showFiatSkeleton}
-            fontWeight='medium'
-            variant='link'
-            color='gray.500'
-          >
-            <Skeleton isLoaded={!showFiatSkeleton}>
-              {isFiat ? (
-                <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-              ) : (
-                <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-              )}
-            </Skeleton>
-          </Button>
-        </Stack>
-      )}
-      {(onPercentOptionClick || balance) && (
-        <Stack direction='row' py={2} px={4} justifyContent='space-between' alignItems='center'>
-          {balance && (
-            <Balance
-              cryptoBalance={balance}
-              fiatBalance={fiatBalance ?? ''}
-              symbol={assetSymbol}
-              isFiat={isFiat}
-              label={translate('common.balance')}
-            />
-          )}
-          {onPercentOptionClick && (
-            <PercentOptionsButtonGroup
-              options={percentOptions}
-              isDisabled={isReadOnly || isSendMaxDisabled}
-              onMaxClick={onMaxClick}
-              onClick={onPercentOptionClick}
-            />
-          )}
-        </Stack>
-      )}
+      <Flex
+        direction='row'
+        gap={2}
+        py={2}
+        px={4}
+        justifyContent='space-between'
+        alignItems='center'
+      >
+        {balance && (
+          <Balance
+            cryptoBalance={balance}
+            fiatBalance={fiatBalance ?? ''}
+            symbol={assetSymbol}
+            isFiat={isFiat}
+            label={translate('common.balance')}
+          />
+        )}
+        {onPercentOptionClick && (
+          <PercentOptionsButtonGroup
+            options={percentOptions}
+            isDisabled={isReadOnly || isSendMaxDisabled}
+            onMaxClick={onMaxClick}
+            onClick={onPercentOptionClick}
+          />
+        )}
+      </Flex>
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
         <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>

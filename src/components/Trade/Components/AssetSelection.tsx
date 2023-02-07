@@ -1,4 +1,4 @@
-import { Flex, useColorModeValue } from '@chakra-ui/react'
+import { Flex, FormLabel, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -14,6 +14,7 @@ type TradeAssetSelectProps = {
   accountId?: AccountId | undefined
   accountSelectionDisabled?: boolean
   onAssetClick?: () => void
+  label: string
 }
 
 export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
@@ -22,6 +23,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   accountSelectionDisabled,
   onAssetClick,
   assetId,
+  label,
 }) => {
   const focusBg = useColorModeValue('gray.100', 'gray.750')
   const hoverBg = useColorModeValue('gray.50', 'gray.900')
@@ -44,9 +46,9 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
         px={4}
         onClick={onAssetClick}
       >
-        <RawText fontSize='xs' fontWeight='medium'>
-          From
-        </RawText>
+        <FormLabel mb={0} fontSize='sm'>
+          {label}
+        </FormLabel>
         <Flex gap={2} alignItems='center'>
           <AssetIcon assetId={assetId} size='sm' />
           <Flex flexDir='column' fontWeight='medium'>

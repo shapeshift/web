@@ -40,7 +40,6 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
-import { TradeAmountInput } from './Components/TradeAmountInput'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
@@ -432,55 +431,19 @@ export const TradeInput = () => {
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={0}>
+        <Stack spacing={2}>
           <Flex alignItems='center'>
             <TradeAssetSelect
               accountId={sellAssetAccountId}
               onAccountIdChange={handleSellAccountIdChange}
               assetId={sellTradeAsset?.asset?.assetId}
               onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
+              label={translate('trade.from')}
             />
-            <IconButton size='sm' isRound icon={<ArrowForwardIcon />} aria-label='swap' mx={-2} />
-            <TradeAssetSelect
-              accountId={buyAssetAccountId}
-              assetId={buyTradeAsset?.asset?.assetId}
-              onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
-              onAccountIdChange={handleBuyAccountIdChange}
-              accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-            />
-          </Flex>
-          <TradeAmountInput
-            assetId={sellTradeAsset?.asset?.assetId}
-            assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
-            assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(sellTradeAsset?.amountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
-            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
-            onChange={onSellAssetInputChange}
-            percentOptions={[1]}
-            onPercentOptionClick={handleSendMax}
-            showFiatSkeleton={isUsdRatesPending}
-          />
-          <TradeAssetInput
-            accountId={sellAssetAccountId}
-            assetId={sellTradeAsset?.asset?.assetId}
-            assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
-            assetIcon={sellTradeAsset?.asset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(sellTradeAsset?.amountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
-            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
-            onChange={onSellAssetInputChange}
-            percentOptions={[1]}
-            onPercentOptionClick={handleSendMax}
-            onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
-            onAccountIdChange={handleSellAccountIdChange}
-            showFiatSkeleton={isUsdRatesPending}
-          />
-          <Stack justifyContent='center' alignItems='center'>
             <IconButton
               onClick={handleToggle}
               isRound
-              my={-3}
+              mx={-3}
               size='sm'
               position='relative'
               borderColor={useColorModeValue('gray.100', 'gray.750')}
@@ -492,9 +455,31 @@ export const TradeInput = () => {
               bg={useColorModeValue('white', 'gray.850')}
               zIndex={1}
               aria-label='Switch Assets'
-              icon={<ArrowDownIcon />}
+              icon={<ArrowForwardIcon />}
             />
-          </Stack>
+            <TradeAssetSelect
+              accountId={buyAssetAccountId}
+              assetId={buyTradeAsset?.asset?.assetId}
+              onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
+              onAccountIdChange={handleBuyAccountIdChange}
+              accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+              label={translate('trade.to')}
+            />
+          </Flex>
+          <TradeAssetInput
+            accountId={sellAssetAccountId}
+            assetId={sellTradeAsset?.asset?.assetId}
+            assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
+            assetIcon={sellTradeAsset?.asset?.icon ?? ''}
+            cryptoAmount={positiveOrZero(sellTradeAsset?.amountCryptoPrecision).toString()}
+            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
+            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
+            onChange={onSellAssetInputChange}
+            percentOptions={[1]}
+            onPercentOptionClick={handleSendMax}
+            showFiatSkeleton={isUsdRatesPending}
+            label={translate('trade.youPay')}
+          />
           <TradeAssetInput
             accountId={buyAssetAccountId}
             assetId={buyTradeAsset?.asset?.assetId}
@@ -504,11 +489,9 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
-            onAccountIdChange={handleBuyAccountIdChange}
-            accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+            label={translate('trade.youGet')}
           />
         </Stack>
         <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>

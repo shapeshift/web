@@ -1,3 +1,4 @@
+import type { TextProps } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 type AssetBalanceProps = {
   symbol: string
@@ -5,6 +6,7 @@ type AssetBalanceProps = {
   fiatBalance: string
   isFiat?: boolean
   label: string
+  textAlign?: TextProps['textAlign']
 }
 export const Balance: React.FC<AssetBalanceProps> = ({
   symbol,
@@ -12,20 +14,20 @@ export const Balance: React.FC<AssetBalanceProps> = ({
   fiatBalance,
   label,
   isFiat,
+  textAlign = 'left',
 }) => {
   return isFiat ? (
     <Amount.Fiat
       flex={1}
-      lineHeight={1}
       color='gray.500'
       fontSize='sm'
       fontWeight='medium'
       prefix={label}
       value={fiatBalance}
+      textAlign={textAlign}
     />
   ) : (
     <Amount.Crypto
-      lineHeight={1}
       color='gray.500'
       fontWeight='medium'
       fontSize='sm'
@@ -33,6 +35,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       symbol={symbol}
       prefix={label}
       value={cryptoBalance}
+      textAlign={textAlign}
     />
   )
 }

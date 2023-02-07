@@ -40,6 +40,7 @@ import { useAppSelector } from 'state/store'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
+import { TradeAmountInput } from './Components/TradeAmountInput'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
@@ -432,11 +433,34 @@ export const TradeInput = () => {
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={0}>
-          <Flex gap={2} alignItems='center'>
-            <TradeAssetSelect />
-            <IconButton size='sm' isRound icon={<ArrowForwardIcon />} aria-label='swap' />
-            <TradeAssetSelect />
+          <Flex alignItems='center'>
+            <TradeAssetSelect
+              accountId={sellAssetAccountId}
+              onAccountIdChange={handleSellAccountIdChange}
+              assetId={sellTradeAsset?.asset?.assetId}
+              onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
+            />
+            <IconButton size='sm' isRound icon={<ArrowForwardIcon />} aria-label='swap' mx={-2} />
+            <TradeAssetSelect
+              accountId={buyAssetAccountId}
+              assetId={buyTradeAsset?.asset?.assetId}
+              onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
+              onAccountIdChange={handleBuyAccountIdChange}
+              accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+            />
           </Flex>
+          <TradeAmountInput
+            assetId={sellTradeAsset?.asset?.assetId}
+            assetSymbol={sellTradeAsset?.asset?.symbol ?? ''}
+            assetIcon={sellTradeAsset?.asset?.icon ?? ''}
+            cryptoAmount={positiveOrZero(sellTradeAsset?.amountCryptoPrecision).toString()}
+            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
+            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
+            onChange={onSellAssetInputChange}
+            percentOptions={[1]}
+            onPercentOptionClick={handleSendMax}
+            showFiatSkeleton={isUsdRatesPending}
+          />
           <TradeAssetInput
             accountId={sellAssetAccountId}
             assetId={sellTradeAsset?.asset?.assetId}

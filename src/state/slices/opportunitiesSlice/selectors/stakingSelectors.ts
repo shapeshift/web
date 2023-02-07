@@ -325,7 +325,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       return Object.assign(
         {},
         (() => {
-          if (opportunity.provider === DefiProvider.Cosmos) {
+          if (opportunity.provider === DefiProvider.Cosmos && opportunity.id) {
             return { contractAddress: fromAccountId(opportunity.id).account }
           }
 
@@ -381,7 +381,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations =
         return Object.assign(
           {},
           (() => {
-            if (_opportunity.provider === DefiProvider.Cosmos) {
+            if (_opportunity.provider === DefiProvider.Cosmos && _opportunity.id) {
               return { contractAddress: fromAccountId(_opportunity.id).account }
             }
 

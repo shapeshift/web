@@ -14,6 +14,7 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -135,7 +136,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: any } }) => {
+        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
           const opportunityData = row.original
           const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
 
@@ -143,7 +144,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
             <Skeleton isLoaded={Boolean(opportunityData)}>
               <ValidatorName
                 validatorAddress={validatorAddress}
-                moniker={opportunityData?.name}
+                moniker={opportunityData?.name!}
                 isStaking={true}
                 chainId={chainId}
                 apr={opportunityData?.apy}
@@ -157,11 +158,11 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.apr' />,
         id: 'apr',
         display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: { original: any } }) => {
-          const validator = row.original
+        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
+          const opportunityData = row.original
           return (
-            <Skeleton isLoaded={Boolean(validator)}>
-              <AprTag percentage={validator?.apy} showAprSuffix />
+            <Skeleton isLoaded={Boolean(opportunityData)}>
+              <AprTag percentage={opportunityData?.apy} showAprSuffix />
             </Skeleton>
           )
         },
@@ -172,7 +173,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         id: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: any } }) => {
+        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
           const opportunityData = row.original
           const totalBondings = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
             .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
@@ -209,7 +210,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: any } }) => {
+        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
           const opportunityData = row.original
           const totalBondings = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
             .plus(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)

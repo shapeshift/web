@@ -24,6 +24,7 @@ export type FeatureFlags = {
   SaversVaults: boolean
   Yearn: boolean
   CosmosSdkOpportunitiesAbstraction: boolean
+  ArkeoAirdrop: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -61,6 +62,7 @@ const initialState: Preferences = {
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     CosmosSdkOpportunitiesAbstraction:
       getConfig().REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION,
+    ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

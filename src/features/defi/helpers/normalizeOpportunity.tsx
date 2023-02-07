@@ -31,7 +31,7 @@ export type EarnOpportunityType = {
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
-const useTransformCosmosStaking = (
+export const useTransformCosmosStaking = (
   cosmosStakingOpportunities: MergedActiveStakingOpportunity[],
 ): EarnOpportunityType[] => {
   const translate = useTranslate()

@@ -62,6 +62,7 @@ export type AccountDropdownProps = {
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps
+  showLabel?: boolean
 }
 
 const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
@@ -87,6 +88,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   listProps,
   autoSelectHighestBalance,
   boxProps,
+  showLabel = true,
 }) => {
   const { chainId } = fromAssetId(assetId)
 
@@ -299,9 +301,11 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color={labelColor}>
-              {accountLabel}
-            </Text>
+            {showLabel && (
+              <Text fontWeight='medium' color={labelColor}>
+                {accountLabel}
+              </Text>
+            )}
           </Stack>
         </MenuButton>
         <Portal>

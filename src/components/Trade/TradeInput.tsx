@@ -1,5 +1,5 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Button, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button, Flex, IconButton, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -38,6 +38,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
@@ -431,6 +432,11 @@ export const TradeInput = () => {
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={0}>
+          <Flex gap={2} alignItems='center'>
+            <TradeAssetSelect />
+            <IconButton size='sm' isRound icon={<ArrowForwardIcon />} aria-label='swap' />
+            <TradeAssetSelect />
+          </Flex>
           <TradeAssetInput
             accountId={sellAssetAccountId}
             assetId={sellTradeAsset?.asset?.assetId}

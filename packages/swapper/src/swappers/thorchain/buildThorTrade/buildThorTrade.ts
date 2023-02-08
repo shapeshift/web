@@ -1,23 +1,28 @@
 import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { cosmos, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import {
+  CosmosSdkBaseAdapter,
+  EvmBaseAdapter,
+  UtxoBaseAdapter,
+} from '@shapeshiftoss/chain-adapters'
 
 import {
   BuildTradeInput,
-  EvmSupportedChainAdapter,
-  EvmSupportedChainIds,
   GetUtxoTradeQuoteInput,
   SwapError,
   SwapErrorType,
   TradeQuote,
-  UtxoSupportedChainIds,
 } from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
+import { getCosmosTxData } from '../cosmossdk/getCosmosTxData'
+import { makeTradeTx } from '../evm/makeTradeTx'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import {
+  ThorCosmosSdkSupportedChainId,
+  ThorEvmSupportedChainId,
+  ThorUtxoSupportedChainId,
+} from '../ThorchainSwapper'
 import { ThorchainSwapperDeps, ThorTrade } from '../types'
-import { getThorTxInfo as getBtcThorTxInfo } from '../utils/bitcoin/utils/getThorTxData'
-import { getCosmosTxData } from '../utils/cosmos/getCosmosTxData'
-import { makeTradeTx } from '../utils/evm/makeTradeTx'
+import { getThorTxInfo } from '../utxo/utils/getThorTxData'
 
 type BuildTradeArgs = {
   deps: ThorchainSwapperDeps
@@ -56,26 +61,26 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         accountNumber,
         sellAsset,
         buyAsset,
-        adapter: sellAdapter as unknown as EvmSupportedChainAdapter,
+        adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
         sellAmountCryptoBaseUnit,
         destinationAddress,
         deps,
         gasPriceCryptoBaseUnit:
-          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific
+          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
             ?.gasPriceCryptoBaseUnit ?? '0',
         gasLimit:
-          (quote as TradeQuote<EvmSupportedChainIds>).feeData.chainSpecific?.estimatedGas ?? '0',
+          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific?.estimatedGas ?? '0',
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
 
       return {
-        chainId: sellAsset.chainId as EvmSupportedChainIds,
+        chainId: sellAsset.chainId as ThorEvmSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
       }
     } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      const { vault, opReturnData } = await getBtcThorTxInfo({
+      const { vault, opReturnData } = await getThorTxInfo({
         deps,
         sellAsset,
         buyAsset,
@@ -87,7 +92,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       })
 
       const buildTxResponse = await (
-        sellAdapter as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+        sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       ).buildSendTransaction({
         value: sellAmountCryptoBaseUnit,
         wallet,
@@ -95,7 +100,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         accountNumber,
         chainSpecific: {
           accountType: (input as GetUtxoTradeQuoteInput).accountType,
-          satoshiPerByte: (quote as TradeQuote<UtxoSupportedChainIds>).feeData.chainSpecific
+          satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).feeData.chainSpecific
             .satsPerByte,
           opReturnData,
         },
@@ -103,7 +108,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       })
 
       return {
-        chainId: sellAsset.chainId as UtxoSupportedChainIds,
+        chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign,
@@ -112,7 +117,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       const txData = await getCosmosTxData({
         accountNumber,
         deps,
-        sellAdapter: sellAdapter as unknown as cosmos.ChainAdapter,
+        sellAdapter: sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>,
         sellAmountCryptoBaseUnit,
         sellAsset,
         slippageTolerance,
@@ -120,11 +125,11 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         buyAsset,
         wallet,
         destinationAddress,
-        quote: quote as TradeQuote<KnownChainIds.CosmosMainnet>,
+        quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
       })
 
       return {
-        chainId: KnownChainIds.CosmosMainnet,
+        chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData,

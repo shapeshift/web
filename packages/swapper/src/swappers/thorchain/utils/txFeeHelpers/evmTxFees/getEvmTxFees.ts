@@ -1,19 +1,14 @@
 import { AssetReference } from '@shapeshiftoss/caip'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { EvmBaseAdapter, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
-import {
-  EvmSupportedChainAdapter,
-  EvmSupportedChainIds,
-  QuoteFeeData,
-  SwapError,
-  SwapErrorType,
-} from '../../../../../api'
+import { QuoteFeeData, SwapError, SwapErrorType } from '../../../../../api'
 import { bn, bnOrZero } from '../../../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../../../utils/constants'
+import { ThorEvmSupportedChainId } from '../../../ThorchainSwapper'
 import { THOR_EVM_GAS_LIMIT } from '../../constants'
 
 type GetEvmTxFeesArgs = {
-  adapter: EvmSupportedChainAdapter
+  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   sellAssetReference: AssetReference | string
   buyAssetTradeFeeUsd: string
 }
@@ -22,7 +17,7 @@ export const getEvmTxFees = async ({
   adapter,
   sellAssetReference,
   buyAssetTradeFeeUsd,
-}: GetEvmTxFeesArgs): Promise<QuoteFeeData<EvmSupportedChainIds>> => {
+}: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
     const gasFeeData = await adapter.getGasFeeData()
 

@@ -1,10 +1,13 @@
 import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, CosmosSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { ChainAdapterManager, SignTx } from '@shapeshiftoss/chain-adapters'
 import type Web3 from 'web3'
 
-import type { Trade, UtxoSupportedChainIds } from '../../api'
+import type { Trade } from '../../api'
+import {
+  ThorCosmosSdkSupportedChainId,
+  ThorEvmSupportedChainId,
+  ThorUtxoSupportedChainId,
+} from './ThorchainSwapper'
 
 export type ThornodePoolResponse = {
   LP_units: string
@@ -66,22 +69,22 @@ export type ThorchainSwapperDeps = {
   web3: Web3
 }
 
-export interface BtcThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: UtxoSupportedChainIds
-  txData: BTCSignTx
+export interface UtxoThorTrade<C extends ChainId> extends Trade<C> {
+  chainId: ThorUtxoSupportedChainId
+  txData: SignTx<ThorUtxoSupportedChainId>
 }
 
 export interface EvmThorTrade<C extends ChainId> extends Trade<C> {
-  chainId:
-    | KnownChainIds.EthereumMainnet
-    | KnownChainIds.AvalancheMainnet
-    | KnownChainIds.OptimismMainnet
-  txData: ETHSignTx
+  chainId: ThorEvmSupportedChainId
+  txData: SignTx<ThorEvmSupportedChainId>
 }
 
-export interface CosmosThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: KnownChainIds.CosmosMainnet
-  txData: CosmosSignTx
+export interface CosmosSdkThorTrade<C extends ChainId> extends Trade<C> {
+  chainId: ThorCosmosSdkSupportedChainId
+  txData: SignTx<ThorCosmosSdkSupportedChainId>
 }
 
-export type ThorTrade<C extends ChainId> = BtcThorTrade<C> | EvmThorTrade<C> | CosmosThorTrade<C>
+export type ThorTrade<C extends ChainId> =
+  | UtxoThorTrade<C>
+  | EvmThorTrade<C>
+  | CosmosSdkThorTrade<C>

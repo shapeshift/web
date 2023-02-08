@@ -39,6 +39,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import { GetAddressInput } from './types'
 import { utxoSelect } from './utxoSelect'
 
@@ -50,6 +51,12 @@ export const utxoChainIds = [
 ] as const
 
 export type UtxoChainId = typeof utxoChainIds[number]
+
+export type UtxoChainAdapter =
+  | bitcoin.ChainAdapter
+  | bitcoincash.ChainAdapter
+  | dogecoin.ChainAdapter
+  | litecoin.ChainAdapter
 
 export interface ChainAdapterArgs {
   chainId?: UtxoChainId

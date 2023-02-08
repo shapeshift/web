@@ -2,7 +2,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 
 import {
-  EvmSupportedChainIds,
   GetEvmTradeQuoteInput,
   SwapError,
   SwapErrorType,
@@ -17,8 +16,9 @@ import { ZrxPriceResponse } from '../types'
 import { DEFAULT_SOURCE } from '../utils/constants'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
+import { ZrxSupportedChainId } from '../ZrxSwapper'
 
-export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
+export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
 ): Promise<TradeQuote<T>> {
   try {
@@ -102,7 +102,7 @@ export async function getZrxTradeQuote<T extends EvmSupportedChainIds>(
       sellAssetErc20Address &&
       bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
 
-    const tradeQuote: TradeQuote<EvmSupportedChainIds> = {
+    const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       rate,
       minimumCryptoHuman: minimum,
       maximum,

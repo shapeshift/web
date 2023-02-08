@@ -4,13 +4,9 @@ import { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import axios from 'axios'
 import { find } from 'lodash'
 
-import {
-  CosmosSdkSupportedChainAdapters,
-  SwapError,
-  SwapErrorType,
-  TradeResult,
-} from '../../../api'
+import { SwapError, SwapErrorType, TradeResult } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
+import { OsmosisSupportedChainAdapter } from '../OsmosisSwapper'
 import { OSMOSIS_PRECISION } from './constants'
 import { osmoService } from './osmoService'
 import { IbcTransferInput, PoolInfo } from './types'
@@ -199,7 +195,7 @@ export const getRateInfo = async (
 // TODO: move to chain adapters
 export const performIbcTransfer = async (
   input: IbcTransferInput,
-  adapter: CosmosSdkSupportedChainAdapters,
+  adapter: OsmosisSupportedChainAdapter,
   wallet: HDWallet,
   blockBaseUrl: string,
   denom: string,

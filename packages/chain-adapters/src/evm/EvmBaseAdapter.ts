@@ -39,6 +39,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { avalanche, ethereum, optimism } from '.'
 import { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data, getGeneratedAssetData } from './utils'
 
@@ -49,6 +50,8 @@ export const evmChainIds = [
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
+
+export type EvmChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter | optimism.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,

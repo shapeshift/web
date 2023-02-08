@@ -1,4 +1,9 @@
-export { CosmosSdkChainId, cosmosSdkChainIds, CosmosSdkBaseAdapter } from './CosmosSdkBaseAdapter'
+export {
+  CosmosSdkChainId,
+  CosmosSdkChainAdapter,
+  cosmosSdkChainIds,
+  CosmosSdkBaseAdapter,
+} from './CosmosSdkBaseAdapter'
 
 export * as cosmossdk from './types'
 

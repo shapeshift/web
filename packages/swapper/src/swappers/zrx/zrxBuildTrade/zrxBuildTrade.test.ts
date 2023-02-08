@@ -5,12 +5,13 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
-import { BuildTradeInput, EvmSupportedChainIds, QuoteFeeData } from '../../../api'
+import { BuildTradeInput, QuoteFeeData } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
+import { ZrxSupportedChainId } from '../ZrxSwapper'
 import { zrxBuildTrade } from './zrxBuildTrade'
 
 jest.mock('web3')
@@ -78,7 +79,7 @@ describe('zrxBuildTrade', () => {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   }
 
-  const buildTradeResponse: ZrxTrade<EvmSupportedChainIds> = {
+  const buildTradeResponse: ZrxTrade<ZrxSupportedChainId> = {
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: quoteResponse.sellAmount,
@@ -157,7 +158,7 @@ describe('zrxBuildTrade', () => {
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    const expectedFeeData: QuoteFeeData<EvmSupportedChainIds> = {
+    const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
       chainSpecific: {
         approvalFeeCryptoBaseUnit: bnOrZero(APPROVAL_GAS_LIMIT)
           .multipliedBy(gasPriceCryptoBaseUnit)

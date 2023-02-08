@@ -8,7 +8,6 @@ import dotenv from 'dotenv'
 import readline from 'readline-sync'
 import Web3 from 'web3'
 
-import { UtxoSupportedChainIds } from '.'
 import { getAdapterManager } from './adapters'
 import { SwapperManager } from './manager'
 import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper } from './swappers'
@@ -188,7 +187,7 @@ const main = async (): Promise<void> => {
   let quote
   try {
     quote = await swapper.getTradeQuote({
-      chainId: sellAsset.chainId as UtxoSupportedChainIds,
+      chainId: sellAsset.chainId as UtxoChainId,
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,

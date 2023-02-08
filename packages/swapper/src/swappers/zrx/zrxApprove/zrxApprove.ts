@@ -1,7 +1,6 @@
 import {
   ApproveAmountInput,
   ApproveInfiniteInput,
-  EvmSupportedChainIds,
   SwapError,
   SwapErrorType,
   TradeQuote,
@@ -11,8 +10,9 @@ import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { grantAllowance } from '../../utils/helpers/helpers'
 import { ZrxSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
+import { ZrxSupportedChainId } from '../ZrxSwapper'
 
-const grantAllowanceForAmount = async <T extends EvmSupportedChainIds>(
+const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<T>,
   approvalAmount: string,
@@ -39,7 +39,7 @@ const grantAllowanceForAmount = async <T extends EvmSupportedChainIds>(
   })
 }
 
-export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
+export async function zrxApproveAmount<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveAmountInput<T>,
 ) {
@@ -56,7 +56,7 @@ export async function zrxApproveAmount<T extends EvmSupportedChainIds>(
   }
 }
 
-export async function zrxApproveInfinite<T extends EvmSupportedChainIds>(
+export async function zrxApproveInfinite<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveInfiniteInput<T>,
 ) {

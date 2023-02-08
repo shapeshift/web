@@ -8,6 +8,7 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import {
   ApprovalNeededOutput,
@@ -42,6 +43,10 @@ import {
   symbolDenomMapping,
 } from './utils/helpers'
 import { OsmosisTradeResult, OsmoSwapperDeps } from './utils/types'
+
+export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
+
+export type OsmosisSupportedChainAdapter = cosmos.ChainAdapter | osmosis.ChainAdapter
 
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis

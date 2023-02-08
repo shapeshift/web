@@ -1,4 +1,10 @@
-export { EvmChainId, isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBaseAdapter'
+export {
+  EvmChainId,
+  EvmChainAdapter,
+  isEvmChainId,
+  evmChainIds,
+  EvmBaseAdapter,
+} from './EvmBaseAdapter'
 
 export * as evm from './types'
 

@@ -1,10 +1,12 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { numberToHex } from 'web3-utils'
 
-import { EvmSupportedChainAdapter, SwapError, SwapErrorType } from '../../../../api'
-import type { ThorchainSwapperDeps } from '../../types'
+import { SwapError, SwapErrorType } from '../../../api'
+import { ThorEvmSupportedChainId } from '../ThorchainSwapper'
+import type { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo } from './utils/getThorTxData'
 
 type MakeTradeTxArgs = {
@@ -14,7 +16,7 @@ type MakeTradeTxArgs = {
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
-  adapter: EvmSupportedChainAdapter
+  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   slippageTolerance: string
   deps: ThorchainSwapperDeps
   gasLimit: string

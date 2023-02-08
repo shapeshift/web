@@ -24,6 +24,7 @@ import {
 } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
+import { cosmos, osmosis, thorchain } from './'
 import {
   BuildTransactionInput,
   CosmosSDKToken,
@@ -82,6 +83,11 @@ export const cosmosSdkChainIds = [
 ] as const
 
 export type CosmosSdkChainId = typeof cosmosSdkChainIds[number]
+
+export type CosmosSdkChainAdapter =
+  | cosmos.ChainAdapter
+  | osmosis.ChainAdapter
+  | thorchain.ChainAdapter
 
 type Denom = 'uatom' | 'uosmo' | 'rune'
 

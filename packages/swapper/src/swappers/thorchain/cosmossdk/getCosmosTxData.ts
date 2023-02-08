@@ -1,14 +1,15 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { ChainId, cosmosAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, cosmos, thorchain } from '@shapeshiftoss/chain-adapters'
+import { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorType, TradeQuote } from '../../../../api'
-import type { ThorchainSwapperDeps } from '../../types'
-import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
-import { getLimit } from '../getLimit/getLimit'
-import { makeSwapMemo } from '../makeSwapMemo/makeSwapMemo'
+import { SwapError, SwapErrorType, TradeQuote } from '../../../api'
+import { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
+import type { ThorchainSwapperDeps } from '../types'
+import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
+import { getLimit } from '../utils/getLimit/getLimit'
+import { makeSwapMemo } from '../utils/makeSwapMemo/makeSwapMemo'
 
 type GetCosmosTxDataInput = {
   accountNumber: number
@@ -19,9 +20,9 @@ type GetCosmosTxDataInput = {
   buyAsset: Asset
   slippageTolerance: string
   wallet: HDWallet
-  quote: TradeQuote<KnownChainIds.CosmosMainnet>
+  quote: TradeQuote<ThorCosmosSdkSupportedChainId>
   chainId: ChainId
-  sellAdapter: ChainAdapter<KnownChainIds.CosmosMainnet>
+  sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
 }
 
 export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
@@ -83,14 +84,16 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
             fn: 'buildTrade',
             details: { chainId: input.chainId },
           })
-        return await (sellAdapter as unknown as cosmos.ChainAdapter).buildSendTransaction({
+        return await (
+          sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
+        ).buildSendTransaction({
           accountNumber,
           value: sellAmountCryptoBaseUnit,
           wallet,
           to: vault,
           memo,
           chainSpecific: {
-            gas: (quote as TradeQuote<KnownChainIds.CosmosMainnet>).feeData.chainSpecific
+            gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).feeData.chainSpecific
               .estimatedGas,
             fee: quote.feeData.networkFeeCryptoBaseUnit,
           },

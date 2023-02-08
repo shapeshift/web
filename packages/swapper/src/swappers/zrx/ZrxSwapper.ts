@@ -1,5 +1,6 @@
 import { Asset } from '@shapeshiftoss/asset-service'
 import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { avalanche, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import {
@@ -9,7 +10,6 @@ import {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
-  EvmSupportedChainIds,
   GetEvmTradeQuoteInput,
   SwapError,
   SwapErrorType,
@@ -29,7 +29,17 @@ import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove/zrxApprove'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 
-export class ZrxSwapper<T extends EvmSupportedChainIds> implements Swapper<T> {
+export type ZrxSupportedChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.OptimismMainnet
+
+export type ZrxSupportedChainAdapter =
+  | ethereum.ChainAdapter
+  | avalanche.ChainAdapter
+  | optimism.ChainAdapter
+
+export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
   readonly name = SwapperName.Zrx
   deps: ZrxSwapperDeps
   chainId: ChainId

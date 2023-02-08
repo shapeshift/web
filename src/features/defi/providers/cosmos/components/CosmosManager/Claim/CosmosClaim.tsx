@@ -51,15 +51,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
-  const validatorId = useMemo(
-    () =>
-      toValidatorId({
-        chainId,
-        account: validatorAddress,
-      }),
-    [chainId, validatorAddress],
-  )
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
     if (!accountId?.length) return

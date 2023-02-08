@@ -27,14 +27,7 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress: validatorAddress } = query
 
-  const validatorId = useMemo(
-    () =>
-      toValidatorId({
-        chainId,
-        account: validatorAddress,
-      }),
-    [chainId, validatorAddress],
-  )
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
     if (!routeAccountId?.length) return {}

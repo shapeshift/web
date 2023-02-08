@@ -45,21 +45,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
-
-  const stakingAssetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-
-  const validatorId = useMemo(
-    () =>
-      toValidatorId({
-        chainId,
-        account: validatorAddress,
-      }),
-    [chainId, validatorAddress],
-  )
+  const stakingAssetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const highestBalanceAccountIdFilter = useMemo(() => ({ stakingId: validatorId }), [validatorId])
   const highestBalanceAccountId = useAppSelector(state =>

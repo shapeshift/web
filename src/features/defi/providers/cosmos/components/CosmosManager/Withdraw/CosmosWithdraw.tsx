@@ -78,14 +78,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const validatorId = useMemo(
-    () =>
-      toValidatorId({
-        chainId,
-        account: validatorAddress,
-      }),
-    [chainId, validatorAddress],
-  )
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
     if (!accountId?.length) return

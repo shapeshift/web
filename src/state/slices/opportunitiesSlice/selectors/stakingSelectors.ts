@@ -113,7 +113,7 @@ export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = cr
   selectUserStakingOpportunitiesWithMetadataByFilter,
   (userStakingOpportunities): BN =>
     userStakingOpportunities.reduce(
-      (acc, currentOpportunity) => acc.plus(makeTotalBondings(currentOpportunity)),
+      (acc, currentOpportunity) => acc.plus(currentOpportunity.totalAmountCryptoBaseUnit),
       bn(0),
     ),
 )
@@ -187,9 +187,8 @@ export const selectHasActiveStakingByFilter = createSelector(
   (userStakingOpportunities): boolean =>
     userStakingOpportunities.some(userStakingOpportunity => {
       if (!userStakingOpportunity) return false
-      const totalBondings = makeTotalBondings(userStakingOpportunity)
 
-      return totalBondings.gt(0)
+      return bn(userStakingOpportunity.totalAmountCryptoBaseUnit).gt(0)
     }),
 )
 
@@ -205,8 +204,7 @@ export const selectHasClaimByUserStakingId = createSelector(
 
 export const selectTotalBondingsByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
-  (userStakingOpportunity): BN =>
-    userStakingOpportunity ? makeTotalBondings(userStakingOpportunity) : bn(0),
+  (userStakingOpportunity): BN => bnOrZero(userStakingOpportunity?.totalAmountCryptoBaseUnit),
 )
 
 // "Give me the staking values of all my accounts for that specific opportunity"
@@ -311,7 +309,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
       ]
       const totalAmountCryptoBaseUnit = bnOrZero(acc?.totalAmountCryptoBaseUnit)
-        .plus(makeTotalBondings(userStakingOpportunity))
+        .plus(userStakingOpportunity.totalAmountCryptoBaseUnit)
         .toFixed()
 
       return {
@@ -420,7 +418,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 )
 
 // The same as above, but counts undelegations in the total amount
-export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations =
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegationsAndRewards =
   createDeepEqualOutputSelector(
     selectAggregatedUserStakingOpportunities,
     selectMarketDataSortedByMarketCap,

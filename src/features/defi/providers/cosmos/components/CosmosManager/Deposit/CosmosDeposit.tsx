@@ -19,15 +19,14 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
-  selectValidatorByAddress,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,8 +53,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'slip44'
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -67,17 +65,18 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
-  const validatorData = useAppSelector(state => selectValidatorByAddress(state, contractAddress))
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
-  const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const cosmosOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -86,25 +85,34 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   useEffect(() => {
     ;(async () => {
       try {
-        if (!cosmosOpportunity) return
+        if (!earnOpportunityData) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId)
-        if (!(walletState.wallet && contractAddress && chainAdapter && apr && bip44Params)) return
+        if (
+          !(
+            walletState.wallet &&
+            validatorAddress &&
+            chainAdapter &&
+            earnOpportunityData?.apy &&
+            bip44Params
+          )
+        )
+          return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: CosmosDepositActionType.SET_OPPORTUNITY,
-          payload: { ...cosmosOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
-  }, [bip44Params, chainId, cosmosOpportunity, apr, contractAddress, walletState.wallet])
+  }, [bip44Params, chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = () => {
     history.push({

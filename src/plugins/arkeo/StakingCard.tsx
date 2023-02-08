@@ -1,12 +1,11 @@
 import { Button, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import type { EarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -19,14 +18,14 @@ type StakingCardProps = {
 export const StakingCard: React.FC<StakingCardProps> = props => {
   const translate = useTranslate()
   const { onClick, ...opportunity } = props
-  const { assetId, underlyingAssetId, provider, apy, moniker } = opportunity
+  const { assetId, underlyingAssetId, provider, apy, opportunityName } = opportunity
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
   const providerName = [DefiProvider.Cosmos, DefiProvider.Osmosis].includes(
     provider as DefiProvider,
   )
-    ? translate('common.validator', { name: moniker })
+    ? translate('common.validator', { name: opportunityName })
     : provider
 
   const { title, body, cta } = (() => {

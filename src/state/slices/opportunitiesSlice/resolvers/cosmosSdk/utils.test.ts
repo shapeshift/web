@@ -19,7 +19,7 @@ import {
   getDefaultValidatorAddressFromChainId,
 } from './utils'
 
-describe('validatorDataSlice/utils', () => {
+describe('resolvers/cosmosSdk/utils', () => {
   describe('getDefaultValidatorAddressFromChainId', () => {
     it('gets default Cosmos ShapeShift Validator address from cosmosChainId', () => {
       const actual = getDefaultValidatorAddressFromChainId(cosmosChainId)

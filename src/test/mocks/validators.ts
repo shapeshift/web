@@ -1,5 +1,5 @@
 import merge from 'lodash/merge'
-import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/validatorDataSlice/constants'
+import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
 export const SHAPESHIFT_OPPORTUNITY = {
   address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,

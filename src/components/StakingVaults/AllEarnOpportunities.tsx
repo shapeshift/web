@@ -1,7 +1,5 @@
 import { Box } from '@chakra-ui/react'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -11,7 +9,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import type { EarnOpportunityType, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -42,14 +40,17 @@ export const AllEarnOpportunities = () => {
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const allRows = useNormalizeOpportunities({
-    stakingOpportunities: stakingOpportunities.filter(
-      opportunity =>
-        !opportunity.expired ||
-        (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
-    ),
-    lpOpportunities,
-  })
+  const allRows = useMemo(
+    () => [
+      ...stakingOpportunities.filter(
+        opportunity =>
+          !opportunity.expired ||
+          (opportunity.expired && bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0)),
+      ),
+      ...lpOpportunities,
+    ],
+    [lpOpportunities, stakingOpportunities],
+  )
 
   const filteredRows = useMemo(
     () =>

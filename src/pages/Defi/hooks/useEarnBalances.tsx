@@ -1,8 +1,7 @@
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegations,
@@ -44,10 +43,10 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
   )
 
-  const opportunities = useNormalizeOpportunities({
-    lpOpportunities,
-    stakingOpportunities,
-  })
+  const opportunities = useMemo(
+    () => [...lpOpportunities, ...stakingOpportunities],
+    [lpOpportunities, stakingOpportunities],
+  )
 
   const totalEarningBalance = bnOrZero(stakingOpportunitiesFiatBalance)
     .plus(foxyBalancesData?.totalBalance ?? '0')

@@ -7,15 +7,15 @@ import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAggregatedEarnUserStakingOpportunities } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { OpportunityCard } from './OpportunityCard'
 
-export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  const activeOpportunities = balances.opportunities.filter(o =>
-    bnOrZero(o.cryptoAmountBaseUnit).gt(0),
+export const OpportunityCardList = () => {
+  const activeOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities).filter(
+    opportunity => bnOrZero(opportunity.totalAmountCryptoBaseUnit).gt(0),
   )
-
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, xl: 0 }}>

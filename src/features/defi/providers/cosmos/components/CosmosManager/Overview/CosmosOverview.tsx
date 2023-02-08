@@ -18,7 +18,6 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -27,6 +26,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
+  selectTotalBondingsByUserStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -83,9 +83,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  const totalBondings = useMemo(
-    () => (opportunityData ? makeTotalBondings(opportunityData) : bn(0)),
-    [opportunityData],
+  const totalBondings = useAppSelector(state =>
+    selectTotalBondingsByUserStakingId(state, opportunityDataFilter),
   )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))

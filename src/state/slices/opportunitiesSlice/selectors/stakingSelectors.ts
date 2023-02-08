@@ -194,10 +194,18 @@ export const selectHasActiveStakingByFilter = createSelector(
 
 export const selectHasClaimByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
-  userStakingOpportunity =>
-    userStakingOpportunity?.rewardsAmountsCryptoBaseUnit.some(rewardAmount =>
-      bnOrZero(rewardAmount).gt(0),
+  (userStakingOpportunity): boolean =>
+    Boolean(
+      userStakingOpportunity?.rewardsAmountsCryptoBaseUnit.some(rewardAmount =>
+        bnOrZero(rewardAmount).gt(0),
+      ),
     ),
+)
+
+export const selectTotalBondingsByUserStakingId = createSelector(
+  selectUserStakingOpportunityByUserStakingId,
+  (userStakingOpportunity): BN =>
+    userStakingOpportunity ? makeTotalBondings(userStakingOpportunity) : bn(0),
 )
 
 // "Give me the staking values of all my accounts for that specific opportunity"

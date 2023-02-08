@@ -184,7 +184,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case osmosisChainId:
             // Don't await me, we don't want to block execution while this resolves and populates the store
             fetchAllOpportunitiesUserData(accountId)
-            fetchAllOpportunitiesUserData(accountId)
             break
           case avalancheChainId:
             fetchAllOpportunitiesUserData(accountId)

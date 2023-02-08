@@ -1,3 +1,15 @@
+# [@shapeshiftoss/chain-adapters-v11.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.14.0...@shapeshiftoss/chain-adapters-v11.0.0) (2023-02-08)
+
+
+### Features
+
+* improve swapper types ([#1181](https://github.com/shapeshift/lib/issues/1181)) ([5f455d2](https://github.com/shapeshift/lib/commit/5f455d2883c0efd6f423588f81b86189d07ad5e4))
+
+
+### BREAKING CHANGES
+
+* explicit supported chain ids by swapper
+
 # [@shapeshiftoss/chain-adapters-v10.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.13.0...@shapeshiftoss/chain-adapters-v10.14.0) (2023-01-31)
 
 

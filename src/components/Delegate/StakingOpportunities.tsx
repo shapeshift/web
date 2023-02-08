@@ -14,14 +14,11 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  isCosmosUserStaking,
-  makeTotalBondings,
-  makeTotalUndelegations,
-} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
+  selectHasActiveStakingByFilter,
   selectMarketDataById,
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
@@ -100,17 +97,9 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const userStakingOpportunities = useAppSelector(state =>
     selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
   )
-  const hasActiveStaking = userStakingOpportunities.some(userStakingOpportunity => {
-    if (!(userStakingOpportunity && isCosmosUserStaking(userStakingOpportunity))) return false
-    const { stakedAmountCryptoBaseUnit, rewardsAmountsCryptoBaseUnit } = userStakingOpportunity
-    const undelegations = makeTotalUndelegations(userStakingOpportunity.undelegations)
-
-    return (
-      bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ||
-      bnOrZero(rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ||
-      undelegations.gt(0)
-    )
-  })
+  const hasActiveStaking = useAppSelector(state =>
+    selectHasActiveStakingByFilter(state, userStakingOpportunitiesFilter),
+  )
 
   const handleClick = useCallback(
     (values: Row<UserStakingOpportunityWithMetadata>) => {

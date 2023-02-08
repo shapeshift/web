@@ -23,6 +23,7 @@ import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitie
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
+  selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
@@ -73,6 +74,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const hasClaim = useAppSelector(state =>
+    selectHasClaimByUserStakingId(state, opportunityDataFilter),
+  )
+
   const loaded = useMemo(() => Boolean(opportunityData), [opportunityData])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -92,7 +97,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   if (!opportunityData) return null
 
-  const hasClaim = bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0]).gt(0)
   const claimDisabled = !hasClaim
 
   if (!loaded || !opportunityData) {

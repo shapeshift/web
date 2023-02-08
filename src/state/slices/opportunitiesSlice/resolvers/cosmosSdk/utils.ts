@@ -103,7 +103,7 @@ export const makeAccountUserData = ({
     if (
       maybeValidatorDelegations.gt(0) ||
       maybeValidatorRewardsAggregated.gt(0) ||
-      maybeValidatorUndelegations?.length
+      maybeValidatorUndelegations.length
     ) {
       acc[userStakingId] = {
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),

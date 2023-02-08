@@ -103,7 +103,6 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
       })
       .filter(isSome),
 )
-
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
 export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
@@ -157,6 +156,25 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
       ...opportunityMetadata,
     }
   },
+)
+
+export const selectHasActiveStakingByFilter = createSelector(
+  selectUserStakingOpportunitiesWithMetadataByFilter,
+  (userStakingOpportunities): boolean =>
+    userStakingOpportunities.some(userStakingOpportunity => {
+      if (!userStakingOpportunity) return false
+      const totalBondings = makeTotalBondings(userStakingOpportunity)
+
+      return totalBondings.gt(0)
+    }),
+)
+
+export const selectHasClaimByUserStakingId = createSelector(
+  selectUserStakingOpportunityByUserStakingId,
+  userStakingOpportunity =>
+    userStakingOpportunity?.rewardsAmountsCryptoBaseUnit.some(rewardAmount =>
+      bnOrZero(rewardAmount).gt(0),
+    ),
 )
 
 // "Give me the staking values of all my accounts for that specific opportunity"

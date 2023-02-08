@@ -15,7 +15,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isCosmosUserStaking } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
-import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
+import {
+  selectHasClaimByUserStakingId,
+  selectUserStakingOpportunityByUserStakingId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type WithdrawCardProps = {
@@ -39,21 +42,18 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const hasClaim = useAppSelector(state =>
+    selectHasClaimByUserStakingId(state, opportunityDataFilter),
+  )
+
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
-    if (isCosmosUserStaking(opportunityData) && opportunityData.undelegations?.length) {
+    if (isCosmosUserStaking(opportunityData) && opportunityData.undelegations.length) {
       return opportunityData.undelegations
     }
     return []
   }, [opportunityData])
 
-  const hasClaim = useMemo(
-    () =>
-      undelegationEntries.some(undelegation =>
-        bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
-      ),
-    [undelegationEntries],
-  )
   const textColor = useColorModeValue('black', 'white')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 

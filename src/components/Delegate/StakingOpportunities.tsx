@@ -15,6 +15,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
+  isCosmosUserStaking,
   makeTotalBondings,
   makeTotalUndelegations,
 } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
@@ -100,9 +101,9 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
   )
   const hasActiveStaking = userStakingOpportunities.some(userStakingOpportunity => {
-    if (!userStakingOpportunity) return false
+    if (!(userStakingOpportunity && isCosmosUserStaking(userStakingOpportunity))) return false
     const { stakedAmountCryptoBaseUnit, rewardsAmountsCryptoBaseUnit } = userStakingOpportunity
-    const undelegations = makeTotalUndelegations(userStakingOpportunity)
+    const undelegations = makeTotalUndelegations(userStakingOpportunity.undelegations)
 
     return (
       bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ||

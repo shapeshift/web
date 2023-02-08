@@ -25,7 +25,7 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from './constants'
-import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './types'
+import type { CosmosSdkStakingSpecificUserStakingOpportunity, UserUndelegation } from './types'
 
 export const makeUniqueValidatorAccountIds = (
   cosmosAccounts: Account<CosmosSdkChainId>[],
@@ -141,15 +141,16 @@ export const isCosmosUserStaking = (
 ): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
   'undelegations' in userStakingOpportunity
 
-export const makeTotalUndelegations = (userStakingOpportunity: UserStakingOpportunity) =>
-  isCosmosUserStaking(userStakingOpportunity)
-    ? (userStakingOpportunity?.undelegations ?? []).reduce(
-        (a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b),
-        bn(0),
-      )
-    : bn(0)
+export const makeTotalUndelegations = (undelegations: UserUndelegation[]) =>
+  undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 
 export const makeTotalBondings = (userStakingOpportunity: UserStakingOpportunity) =>
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
     .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-    .plus(makeTotalUndelegations(userStakingOpportunity))
+    .plus(
+      makeTotalUndelegations([
+        ...(isCosmosUserStaking(userStakingOpportunity)
+          ? userStakingOpportunity.undelegations
+          : []),
+      ]),
+    )

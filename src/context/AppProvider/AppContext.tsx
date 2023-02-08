@@ -11,7 +11,6 @@ import {
   ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
-// import { supportsCosmos, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'

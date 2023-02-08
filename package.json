@@ -146,6 +146,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
+    "mixpanel-browser": "^2.45.0",
     "node-polyglot": "^2.4.0",
     "numeral": "^2.0.6",
     "process": "^0.11.10",

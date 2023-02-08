@@ -69,7 +69,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-
   const assetsBySelectedChain = useMemo(
     () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
     [activeChain, assets],

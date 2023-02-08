@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react'
+import { Button, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useTranslate } from 'react-polyglot'
@@ -23,33 +23,58 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
   const currentAssetId = underlyingAssetId ?? assetId
   const asset = useAppSelector(state => selectAssetById(state, currentAssetId ?? ''))
   const opportunityApy = bnOrZero(apy).times(100).toFixed(2)
-  const providerName =
-    provider === (DefiProvider.Cosmos || DefiProvider.Osmosis) ? moniker : provider
+  const providerName = [DefiProvider.Cosmos, DefiProvider.Osmosis].includes(
+    provider as DefiProvider,
+  )
+    ? `the ${moniker} validator`
+    : provider
+
+  const { title, body, cta } = (() => {
+    switch (provider) {
+      case DefiProvider.ShapeShift:
+        return {
+          title: 'arkeo.foxyTokenHolders.title',
+          body: 'arkeo.foxyTokenHolders.body',
+          cta: 'arkeo.foxyTokenHolders.cta',
+        }
+      case DefiProvider.FoxFarming:
+        return {
+          title: 'arkeo.foxFarmers.title',
+          body: 'arkeo.foxFarmers.body',
+          cta: 'arkeo.foxFarmers.cta',
+        }
+      default:
+        return {
+          title: 'arkeo.staking.title',
+          body: 'arkeo.staking.body',
+          cta: 'arkeo.staking.cta',
+        }
+    }
+  })()
 
   return (
     <ArkeoCard>
-      <Card.Body display='flex' flexDir='column' gap={4}>
+      <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
         <AssetIcon assetId={currentAssetId} />
-        <Text
-          fontSize='xl'
-          fontWeight='bold'
-          translation={['arkeo.staking.title', { asset: asset?.name }]}
-        />
-        <Text
-          color='gray.500'
-          translation={[
-            'arkeo.staking.body',
-            { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },
-          ]}
-        />
-        <Button
-          width='full'
-          colorScheme='blue'
-          mt='auto'
-          onClick={() => onClick(opportunity.assetId as OpportunityId)}
-        >
-          {translate('arkeo.staking.cta', { asset: asset?.name })}
-        </Button>
+        <Text fontSize='xl' fontWeight='bold' translation={[title, { asset: asset?.name }]} />
+        <SkeletonText noOfLines={4} isLoaded={bnOrZero(opportunityApy).gt(0)}>
+          <Text
+            color='gray.500'
+            translation={[
+              body,
+              { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },
+            ]}
+          />
+        </SkeletonText>
+        <Skeleton isLoaded={bnOrZero(opportunityApy).gt(0)} mt='auto'>
+          <Button
+            width='full'
+            colorScheme='blue'
+            onClick={() => onClick(opportunity.assetId as OpportunityId)}
+          >
+            {translate(cta, { asset: asset?.name })}
+          </Button>
+        </Skeleton>
       </Card.Body>
     </ArkeoCard>
   )

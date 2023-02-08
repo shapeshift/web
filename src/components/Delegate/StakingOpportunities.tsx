@@ -7,14 +7,13 @@ import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import type { Row } from 'react-table'
+import type { CellProps, ColumnGroup, Renderer, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -121,14 +120,15 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     [accountId, assetId, history],
   )
 
-  const columns = useMemo(
+  const columns: (ColumnGroup<UserStakingOpportunityWithMetadata> & {
+    Cell: Renderer<CellProps<UserStakingOpportunityWithMetadata>>
+  })[] = useMemo(
     () => [
       {
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
+        Cell: ({ row: { original: opportunityData } }) => {
           const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
 
           return (
@@ -164,15 +164,14 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         id: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
-          const totalBondings = makeTotalBondings(opportunityData)
+        Cell: ({ row: { original: opportunityData } }) => {
+          const { totalAmountCryptoBaseUnit } = opportunityData
 
           return (
             <Skeleton isLoaded={Boolean(opportunityData)}>
-              {bnOrZero(totalBondings).gt(0) ? (
+              {bnOrZero(totalAmountCryptoBaseUnit).gt(0) ? (
                 <Amount.Crypto
-                  value={bnOrZero(totalBondings)
+                  value={bnOrZero(totalAmountCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
@@ -192,46 +191,41 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
-          const totalBondings = makeTotalBondings(opportunityData)
-
-          return (
-            <Skeleton isLoaded={Boolean(opportunityData)}>
-              {totalBondings.gt(0) ? (
-                <HStack fontWeight={'normal'}>
-                  <Amount.Crypto
-                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-                      .div(bn(10).pow(asset.precision))
-                      .decimalPlaces(asset.precision)
-                      .toString()}
-                    symbol={asset.symbol}
-                  />
-                  <Amount.Fiat
-                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-                      .div(bn(10).pow(asset.precision))
-                      .times(bnOrZero(marketData.price))
-                      .toPrecision()}
-                    color='green.500'
-                    prefix='≈'
-                  />
-                </HStack>
-              ) : (
-                <Box width='100%' textAlign={'right'}>
-                  <Button
-                    as='span'
-                    colorScheme='blue'
-                    variant='ghost-filled'
-                    size='sm'
-                    cursor='pointer'
-                  >
-                    <Text translation='common.getStarted' />
-                  </Button>
-                </Box>
-              )}
-            </Skeleton>
-          )
-        },
+        Cell: ({ row: { original: opportunityData } }) => (
+          <Skeleton isLoaded={Boolean(opportunityData)}>
+            {bn(opportunityData.totalAmountCryptoBaseUnit).gt(0) ? (
+              <HStack fontWeight={'normal'}>
+                <Amount.Crypto
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .decimalPlaces(asset.precision)
+                    .toString()}
+                  symbol={asset.symbol}
+                />
+                <Amount.Fiat
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .times(bnOrZero(marketData.price))
+                    .toPrecision()}
+                  color='green.500'
+                  prefix='≈'
+                />
+              </HStack>
+            ) : (
+              <Box width='100%' textAlign={'right'}>
+                <Button
+                  as='span'
+                  colorScheme='blue'
+                  variant='ghost-filled'
+                  size='sm'
+                  cursor='pointer'
+                >
+                  <Text translation='common.getStarted' />
+                </Button>
+              </Box>
+            )}
+          </Skeleton>
+        ),
         disableSortBy: true,
       },
     ],

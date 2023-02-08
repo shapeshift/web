@@ -65,14 +65,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const { state: walletState } = useWallet()
   const loading = useSelector(selectPortfolioLoading)
 
-  const validatorId = useMemo(
-    () =>
-      toValidatorId({
-        chainId,
-        account: validatorAddress,
-      }),
-    [chainId, validatorAddress],
-  )
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
     if (!accountId) return

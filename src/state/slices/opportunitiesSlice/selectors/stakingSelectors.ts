@@ -28,7 +28,7 @@ import {
 } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
-import { isCosmosUserStaking, makeTotalBondings } from '../resolvers/cosmosSdk/utils'
+import { isCosmosUserStaking } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
@@ -427,8 +427,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeUndelegationsAnd
       aggregatedUserStakingOpportunities.map(opportunity => {
         const _opportunity = Object.assign({}, opportunity)
 
-        const totalBondings = makeTotalBondings(_opportunity)
-        _opportunity.stakedAmountCryptoBaseUnit = totalBondings.toFixed()
+        _opportunity.stakedAmountCryptoBaseUnit = opportunity.stakedAmountCryptoBaseUnit
         const asset = assets[_opportunity.assetId]
         const underlyingAsset = assets[_opportunity.underlyingAssetId]
 

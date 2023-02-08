@@ -213,6 +213,7 @@
     "@types/history": "^4.7.11",
     "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.178",
+    "@types/mixpanel-browser": "^2.38.1",
     "@types/node": "^16.11.12",
     "@types/node-polyglot": "^2.4.2",
     "@types/numeral": "^2.0.1",

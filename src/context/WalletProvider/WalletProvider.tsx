@@ -22,6 +22,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixPanelSingleton'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -349,6 +350,7 @@ const getInitialState = () => {
 }
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+  const mixPanel = getMixPanel()
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
   // Internal state, for memoization purposes only
@@ -826,7 +828,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-  }, [state.keyring])
+    //fire off event here
+    mixPanel.identify('1234beard')
+    mixPanel.track('connectDemo', { name, deviceId })
+  }, [mixPanel, state.keyring])
 
   const create = useCallback((type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })

@@ -1,3 +1,15 @@
+# [@shapeshiftoss/swapper-v17.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v16.0.2...@shapeshiftoss/swapper-v17.0.0) (2023-02-08)
+
+
+### Features
+
+* improve swapper types ([#1181](https://github.com/shapeshift/lib/issues/1181)) ([5f455d2](https://github.com/shapeshift/lib/commit/5f455d2883c0efd6f423588f81b86189d07ad5e4))
+
+
+### BREAKING CHANGES
+
+* explicit supported chain ids by swapper
+
 # [@shapeshiftoss/swapper-v16.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v16.0.1...@shapeshiftoss/swapper-v16.0.2) (2023-02-04)
 
 # [@shapeshiftoss/swapper-v16.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v16.0.0...@shapeshiftoss/swapper-v16.0.1) (2023-01-31)

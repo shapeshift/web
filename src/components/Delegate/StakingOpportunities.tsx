@@ -127,6 +127,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => {
           const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
@@ -148,6 +150,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.apr' />,
         id: 'apr',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
           const opportunityData = row.original
@@ -162,6 +166,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.stakedAmount' />,
         id: 'cryptoAmount',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         isNumeric: true,
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => {
@@ -190,6 +196,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => (
           <Skeleton isLoaded={Boolean(opportunityData)}>

@@ -30,14 +30,11 @@ import {
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import groupBy from 'lodash/groupBy'
 import last from 'lodash/last'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 
-import type { PubKey } from '../validatorDataSlice/validatorDataSlice'
 import type {
   Portfolio,
   PortfolioAccountBalancesById,
@@ -229,77 +226,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.accounts.byId[accountId] = {
           assetIds: [],
-          validatorIds: [],
-          stakingDataByValidatorId: {},
         }
 
         portfolio.accounts.byId[accountId].assetIds.push(assetId)
-        const uniqueValidatorAddresses: PubKey[] = Array.from(
-          new Set(
-            [
-              cosmosAccount.chainSpecific.delegations.map(
-                delegation => delegation.validator.address,
-              ),
-              cosmosAccount.chainSpecific.undelegations
-                .map(undelegation => {
-                  return undelegation?.validator?.address
-                })
-                .filter(isSome),
-              cosmosAccount.chainSpecific.rewards.map(reward => reward.validator.address),
-            ].flat(),
-          ),
-        )
-
-        portfolio.accounts.byId[accountId].validatorIds = uniqueValidatorAddresses
-        portfolio.accounts.byId[accountId].stakingDataByValidatorId = {}
-
-        // This block loads staking data at validator into the portfolio state
-        // This is only ran once on portfolio load and after caching ends so the addditional time complexity isn't so relevant, but it can probably be simplified
-        uniqueValidatorAddresses.forEach(validatorAddress => {
-          const validatorRewards = cosmosAccount.chainSpecific.rewards.find(
-            validatorRewards => validatorRewards.validator.address === validatorAddress,
-          )
-          const rewards = groupBy(validatorRewards?.rewards, rewardEntry => rewardEntry.assetId)
-          // TODO: Do we need this? There might only be one entry per validator address actually
-          const delegationEntries = cosmosAccount.chainSpecific.delegations.filter(
-            delegation => delegation.validator.address === validatorAddress,
-          )
-          // TODO: Do we need this? There might only be one entry per validator address actually
-          const undelegationEntries = cosmosAccount.chainSpecific.undelegations.find(
-            undelegation => undelegation.validator.address === validatorAddress,
-          )
-          const delegations = groupBy(delegationEntries, delegationEntry => delegationEntry.assetId)
-          const undelegations = groupBy(
-            undelegationEntries?.entries,
-            undelegationEntry => undelegationEntry.assetId,
-          )
-
-          const uniqueAssetIds = Array.from(
-            new Set([
-              ...Object.keys(delegations),
-              ...Object.keys(undelegations),
-              ...Object.keys(rewards),
-            ]),
-          )
-
-          let portfolioAccount = portfolio.accounts.byId[accountId]
-          if (portfolioAccount.stakingDataByValidatorId) {
-            portfolioAccount.stakingDataByValidatorId[validatorAddress] = {}
-
-            uniqueAssetIds.forEach(assetId => {
-              // Useless check just to make TS happy, we are sure this is defined because of the assignment before the forEach
-              // However, forEach being its own scope loses the narrowing
-              if (portfolioAccount?.stakingDataByValidatorId?.[validatorAddress]) {
-                portfolioAccount.stakingDataByValidatorId[validatorAddress][assetId] = {
-                  delegations: delegations[assetId] ?? [],
-                  undelegations: undelegations[assetId] ?? [],
-                  rewards: rewards[assetId] ?? [],
-                  redelegations: [], // We don't need redelegations in web, let's not store them in store but keep them for unchained/chain-adapters parity
-                }
-              }
-            })
-          }
-        })
 
         portfolio.accounts.ids.push(accountId)
 

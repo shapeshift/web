@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { getTypeGuardAssertion } from 'lib/utils'
 
-import type { LpId, StakingId } from './types'
+import type { LpEarnOpportunityType, LpId, StakingEarnOpportunityType, StakingId } from './types'
 
 // Exported as a string literal for contract address discrimination purposes
 export const uniswapV2Router02ContractAddress =
@@ -80,11 +79,11 @@ export const STAKING_ID_TO_VERSION = {
 export const STAKING_ID_DELIMITER = '*'
 
 // Earn opportunity types - everyting after this comment is here for backwards compatibility
-// with the expected EarnOpportunityType the DeFi hooks / normalizeOpportunity expect
+// with the expected EarnOpportunityType the DeFi hooks expect
 // The current abstraction just forces us to pass a lot of fluff that could be derived / we don't need
 // This will go away in a follow-up PR as we remove those hooks
 
-export const earnLpOpportunity: EarnOpportunityType = {
+export const earnLpOpportunity = {
   assetId: foxEthLpAssetId,
   opportunityName: 'ETH/FOX Pool',
   provider: DefiProvider.FoxFarming,
@@ -98,7 +97,7 @@ export const earnLpOpportunity: EarnOpportunityType = {
   cryptoAmountPrecision: '',
   isLoaded: false,
   type: DefiType.LiquidityPool,
-}
+} as LpEarnOpportunityType
 
 export const baseEarnFarmingOpportunity = {
   provider: DefiProvider.FoxFarming,
@@ -114,40 +113,40 @@ export const baseEarnFarmingOpportunity = {
   type: DefiType.Staking,
 }
 
-export const v5EarnFarmingOpportunity: EarnOpportunityType = {
+export const v5EarnFarmingOpportunity = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV5,
   contractAddress: fromAssetId(foxEthStakingAssetIdV5).assetReference,
   opportunityName: 'FOX Farming',
-}
+} as StakingEarnOpportunityType
 
-export const v4EarnFarmingOpportunity: EarnOpportunityType = {
+export const v4EarnFarmingOpportunity = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV4,
   contractAddress: fromAssetId(foxEthStakingAssetIdV4).assetReference,
   opportunityName: 'FOX Farming',
-}
+} as StakingEarnOpportunityType
 
-export const v3EarnFarmingOpportunity: EarnOpportunityType = {
+export const v3EarnFarmingOpportunity = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV3,
   contractAddress: fromAssetId(foxEthStakingAssetIdV3).assetReference,
   opportunityName: 'FOX Farming',
-}
+} as StakingEarnOpportunityType
 
-export const v2EarnFarmingOpportunity: EarnOpportunityType = {
+export const v2EarnFarmingOpportunity = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV2,
   contractAddress: fromAssetId(foxEthStakingAssetIdV2).assetReference,
   opportunityName: 'FOX Farming',
-}
+} as StakingEarnOpportunityType
 
-export const v1EarnFarmingOpportunity: EarnOpportunityType = {
+export const v1EarnFarmingOpportunity = {
   ...baseEarnFarmingOpportunity,
   assetId: foxEthStakingAssetIdV1,
   contractAddress: fromAssetId(foxEthStakingAssetIdV1).assetReference,
   opportunityName: 'FOX Farming',
-}
+} as StakingEarnOpportunityType
 
 export const STAKING_EARN_OPPORTUNITIES = {
   [foxEthStakingAssetIdV1]: v1EarnFarmingOpportunity,

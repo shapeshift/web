@@ -1,6 +1,6 @@
 import type { UserStakingOpportunityBase } from '../../types'
 
-type UserUndelegation = {
+export type UserUndelegation = {
   completionTime: number
   undelegationAmountCryptoBaseUnit: string
 }

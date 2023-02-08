@@ -6,6 +6,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixPanelSingleton'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
@@ -29,6 +30,7 @@ export const portfolio = createSlice({
       state.walletId = payload
       if (!payload) return
       state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
+      getMixPanel().identify(state.walletId)
     },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')

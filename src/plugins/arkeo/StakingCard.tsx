@@ -25,7 +25,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
   const providerName = [DefiProvider.Cosmos, DefiProvider.Osmosis].includes(
     provider as DefiProvider,
   )
-    ? translate('common.validator', { name: moniker })
+    ? translate('common.validator', { name: opportunityName })
     : provider
 
   const { title, body, cta } = (() => {

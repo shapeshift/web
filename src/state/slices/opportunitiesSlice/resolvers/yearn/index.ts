@@ -19,6 +19,7 @@ import type {
   StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import { makeTotalBondings } from '../cosmosSdk/utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -127,6 +128,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     //Yearn doesn't have rewards so we set this to 0 and an empty array
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        totalAmountCryptoBaseUnit: '0',
         stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoBaseUnit: [],
       }
@@ -147,6 +149,10 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     let rewardsAmountsCryptoBaseUnit = [] as []
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      totalAmountCryptoBaseUnit: makeTotalBondings({
+        stakedAmountCryptoBaseUnit: balance,
+        rewardsAmountsCryptoBaseUnit,
+      }).toFixed(),
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
     }

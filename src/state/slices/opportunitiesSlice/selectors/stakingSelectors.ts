@@ -175,6 +175,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
         | []
         | [string, string]
         | [string],
+      totalAmountCryptoBaseUnit: '0',
       ...userOpportunity,
       ...opportunityMetadata,
     }

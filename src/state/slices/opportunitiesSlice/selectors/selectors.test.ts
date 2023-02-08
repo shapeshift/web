@@ -84,14 +84,17 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
+          totalAmountCryptoBaseUnit: '1000000000000009000',
           stakedAmountCryptoBaseUnit: '9000',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
@@ -186,10 +189,12 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
@@ -278,14 +283,17 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
+          totalAmountCryptoBaseUnit: '1000000000000000100',
           stakedAmountCryptoBaseUnit: '100',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },

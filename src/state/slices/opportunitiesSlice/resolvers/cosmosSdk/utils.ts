@@ -106,6 +106,11 @@ export const makeAccountUserData = ({
       maybeValidatorUndelegations.length
     ) {
       acc[userStakingId] = {
+        totalAmountCryptoBaseUnit: makeTotalBondings({
+          stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
+          rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
+          undelegations: maybeValidatorUndelegations,
+        }).toFixed(),
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
         rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
         undelegations: maybeValidatorUndelegations,
@@ -137,14 +142,14 @@ export const getDefaultValidatorAddressFromAccountId = flow(
 )
 
 export const isCosmosUserStaking = (
-  userStakingOpportunity: UserStakingOpportunity,
+  userStakingOpportunity: Partial<UserStakingOpportunity>,
 ): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
   'undelegations' in userStakingOpportunity
 
 export const makeTotalUndelegations = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 
-export const makeTotalBondings = (userStakingOpportunity: UserStakingOpportunity) =>
+export const makeTotalBondings = (userStakingOpportunity: Partial<UserStakingOpportunity>) =>
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
     .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
     .plus(

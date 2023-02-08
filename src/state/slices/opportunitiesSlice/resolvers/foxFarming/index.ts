@@ -36,6 +36,7 @@ import type {
   GetOpportunityUserStakingDataOutput,
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
+import { makeTotalBondings } from '../cosmosSdk/utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { fetchPairData, getOrCreateContract } from './contractManager'
 
@@ -299,6 +300,11 @@ export const foxFarmingStakingUserDataResolver = async ({
   const data = {
     byId: {
       [serializeUserStakingId(accountId, opportunityId)]: {
+        totalAmountCryptoBaseUnit: makeTotalBondings({
+          stakedAmountCryptoBaseUnit,
+          rewardsAmountsCryptoBaseUnit,
+        }).toFixed(),
+
         stakedAmountCryptoBaseUnit,
         rewardsAmountsCryptoBaseUnit,
       },

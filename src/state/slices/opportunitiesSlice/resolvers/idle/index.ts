@@ -16,6 +16,7 @@ import type {
   StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
+import { makeTotalBondings } from '../cosmosSdk/utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -172,6 +173,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       // https://docs.idle.finance/developers/best-yield/methods/redeemidletoken-1
       // https://docs.idle.finance/developers/perpetual-yield-tranches/methods/withdrawbb
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        totalAmountCryptoBaseUnit: '0',
         stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoBaseUnit: [],
       }
@@ -202,6 +204,10 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     }
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      totalAmountCryptoBaseUnit: makeTotalBondings({
+        stakedAmountCryptoBaseUnit: balance,
+        rewardsAmountsCryptoBaseUnit,
+      }).toFixed(),
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
     }

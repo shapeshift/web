@@ -9,7 +9,6 @@ import type { ReduxState } from 'state/reducer'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectFeatureFlags,
   selectMarketDataById,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
@@ -37,11 +36,6 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   data: GetOpportunityIdsOutput
 }> => {
   const state = reduxApi.getState() as ReduxState
-
-  const { CosmosSdkOpportunitiesAbstraction } = selectFeatureFlags(state)
-  if (!CosmosSdkOpportunitiesAbstraction) {
-    return { data: [] }
-  }
 
   const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
@@ -81,22 +75,13 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 }
 
 export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
-  opportunityIds: validatorIds,
+  opportunityIds: validatorIds = [],
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
 }> => {
-  const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
-
   const state = reduxApi.getState() as ReduxState
-
-  const { CosmosSdkOpportunitiesAbstraction } = selectFeatureFlags(state)
-
-  // TODO(gomes): default validatorIds
-  if (!(CosmosSdkOpportunitiesAbstraction && validatorIds?.length)) {
-    return { data: { byId: stakingOpportunitiesById, type: DefiType.Staking } }
-  }
 
   const metadataByValidatorId = await Promise.allSettled(
     validatorIds.map(async validatorId => {

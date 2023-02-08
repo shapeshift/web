@@ -1,6 +1,5 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -8,6 +7,7 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 import { AssetCell } from './Cells'
 

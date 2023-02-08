@@ -34,14 +34,13 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
 
-  const allOpportunities = stakingOpportunities
-  const filteredOpportunities = allOpportunities
+  const filteredOpportunities = stakingOpportunities
     .filter(opportunity => ids.includes(opportunity.assetId as OpportunityId))
     .filter(opportunity => opportunity.provider !== DefiProvider.ThorchainSavers)
 
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
-      const opportunity = allOpportunities.find(
+      const opportunity = stakingOpportunities.find(
         opportunity => opportunity.assetId === opportunityId,
       )
       if (!opportunity) return

@@ -54,11 +54,9 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
-    if (!accountId?.length) return
-
-    return {
-      userStakingId: serializeUserStakingId(accountId, validatorId),
-    }
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
   }, [accountId, validatorId])
 
   const earnOpportunityData = useAppSelector(state =>

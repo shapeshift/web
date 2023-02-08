@@ -30,11 +30,9 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
   const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
-    if (!routeAccountId?.length) return {}
-
-    return {
-      userStakingId: serializeUserStakingId(routeAccountId, validatorId),
-    }
+    if (!routeAccountId) return {}
+    const userStakingId = serializeUserStakingId(routeAccountId, validatorId)
+    return { userStakingId }
   }, [routeAccountId, validatorId])
 
   const opportunityData = useAppSelector(state =>

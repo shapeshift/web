@@ -64,11 +64,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   }, [handleAccountIdChange, maybeAccountId])
 
   const opportunityDataFilter = useMemo(() => {
-    if (!accountId?.length) return {}
-
-    return {
-      userStakingId: serializeUserStakingId(accountId, validatorId),
-    }
+    if (!accountId) return {}
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
   }, [accountId, validatorId])
 
   const opportunityData = useAppSelector(state =>

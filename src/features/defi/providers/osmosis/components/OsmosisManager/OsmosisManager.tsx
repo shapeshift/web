@@ -38,14 +38,17 @@ const componentMapByTypeAndAction = {
   },
 }
 
+const getComponentByTypeAndAction = (type: DefiType | string, action: DefiAction | string) => {
+  return componentMapByTypeAndAction[type as SupportedDefiType][action as SupportedDefiAction]
+}
+
 export const OsmosisManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal: action, type } = query
   const [accountId, setAccountId] = useState<AccountId | undefined>()
 
   const renderContext = () => {
-    const ComponentToRender =
-      componentMapByTypeAndAction[type as SupportedDefiType][action as SupportedDefiAction]
+    const ComponentToRender = getComponentByTypeAndAction(type, action)
 
     return ComponentToRender ? (
       <>

@@ -6,16 +6,28 @@ import { RawText } from 'components/Text'
 
 interface IProps {
   requiredNamespaces: ProposalTypes.RequiredNamespaces
+  selectedAccountIds: string[]
+  toggleAccountId: (accountId: string) => void
 }
 
-export const AccountSelectionOverview: FC<IProps> = ({ requiredNamespaces }) => {
+export const AccountSelectionOverview: FC<IProps> = ({
+  requiredNamespaces,
+  toggleAccountId,
+  selectedAccountIds,
+}) => {
   const accountsByChainNamespace: JSX.Element[] = Object.entries(requiredNamespaces).map(
     ([chainNamespace, requiredNamespace]) => {
       return (
         <>
           <RawText>{chainNamespace}</RawText>
           {requiredNamespace.chains.map(chainId => {
-            return <AccountSelectionByChainId chainId={chainId} />
+            return (
+              <AccountSelectionByChainId
+                chainId={chainId}
+                toggleAccountId={toggleAccountId}
+                selectedAccountIds={selectedAccountIds}
+              />
+            )
           })}
         </>
       )

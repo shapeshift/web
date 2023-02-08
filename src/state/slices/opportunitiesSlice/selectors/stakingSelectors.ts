@@ -7,6 +7,7 @@ import chain from 'lodash/chain'
 import pickBy from 'lodash/pickBy'
 import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
+import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
@@ -19,9 +20,12 @@ import {
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
 
-import { selectAssets } from '../../assetsSlice/selectors'
+import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../common-selectors'
-import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
+import {
+  selectMarketDataByFilter,
+  selectMarketDataSortedByMarketCap,
+} from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { isCosmosUserStaking, makeTotalBondings } from '../resolvers/cosmosSdk/utils'
@@ -103,6 +107,25 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
       })
       .filter(isSome),
 )
+
+// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
+export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = createSelector(
+  selectUserStakingOpportunitiesWithMetadataByFilter,
+  (userStakingOpportunities): BN =>
+    userStakingOpportunities.reduce(
+      (acc, currentOpportunity) => acc.plus(makeTotalBondings(currentOpportunity)),
+      bn(0),
+    ),
+)
+// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
+export const selectUserStakingOpportunitiesAggregatedByFilterFiat = createSelector(
+  selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
+  selectAssetByFilter,
+  selectMarketDataByFilter,
+  (stakingBalanceCryptoBaseUnit, asset, marketData): BN =>
+    stakingBalanceCryptoBaseUnit.div(bn(10).pow(asset?.precision ?? 1)).times(marketData.price),
+)
+
 // "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
 export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,

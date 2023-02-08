@@ -30,13 +30,13 @@ import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
-import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
-  selectUserStakingOpportunitiesWithMetadataByFilter,
+  selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
+  selectUserStakingOpportunitiesAggregatedByFilterFiat,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -79,23 +79,12 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
-  const userStakingOpportunities = useAppSelector(state =>
-    selectUserStakingOpportunitiesWithMetadataByFilter(state, opportunitiesFilter),
+  const stakingBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit(state, opportunitiesFilter),
   )
 
-  const stakingBalanceCryptoBaseUnit = useMemo(
-    () =>
-      userStakingOpportunities.reduce(
-        (acc, currentOpportunity) => acc.plus(makeTotalBondings(currentOpportunity)),
-        bn(0),
-      ),
-    [userStakingOpportunities],
-  )
-
-  const stakingBalanceFiat = useMemo(
-    () =>
-      stakingBalanceCryptoBaseUnit.div(bn(10).pow(asset?.precision ?? 1)).times(marketData.price),
-    [asset?.precision, marketData.price, stakingBalanceCryptoBaseUnit],
+  const stakingBalanceFiat = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterFiat(state, opportunitiesFilter),
   )
 
   useEffect(() => {

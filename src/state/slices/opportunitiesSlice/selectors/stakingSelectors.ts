@@ -296,22 +296,30 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
         userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
 
+      const stakedAmountCryptoBaseUnit = bnOrZero(acc?.stakedAmountCryptoBaseUnit)
+        .plus(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+        .toFixed()
+      const rewardsAmountsCryptoBaseUnit = (
+        userStakingOpportunity.rewardsAmountsCryptoBaseUnit ?? []
+      ).map((amount, i) =>
+        bnOrZero(acc?.rewardsAmountsCryptoBaseUnit?.[i]).plus(amount).toString(),
+      ) as [string, string] | [string] | []
+      const undelegations = [
+        ...(isCosmosUserStaking(userStakingOpportunity)
+          ? userStakingOpportunity.undelegations
+          : []),
+        ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
+      ]
+      const totalAmountCryptoBaseUnit = bnOrZero(acc?.totalAmountCryptoBaseUnit)
+        .plus(makeTotalBondings(userStakingOpportunity))
+        .toFixed()
+
       return {
         ...userStakingOpportunityWithoutUserStakingId,
-        stakedAmountCryptoBaseUnit: bnOrZero(acc?.stakedAmountCryptoBaseUnit)
-          .plus(userStakingOpportunity.stakedAmountCryptoBaseUnit)
-          .toString(),
-        rewardsAmountsCryptoBaseUnit: (
-          userStakingOpportunity.rewardsAmountsCryptoBaseUnit ?? []
-        ).map((amount, i) =>
-          bnOrZero(acc?.rewardsAmountsCryptoBaseUnit?.[i]).plus(amount).toString(),
-        ) as [string, string] | [string] | [],
-        undelegations: [
-          ...(isCosmosUserStaking(userStakingOpportunity)
-            ? userStakingOpportunity.undelegations
-            : []),
-          ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
-        ],
+        stakedAmountCryptoBaseUnit,
+        rewardsAmountsCryptoBaseUnit,
+        undelegations,
+        totalAmountCryptoBaseUnit,
       }
     },
     undefined,

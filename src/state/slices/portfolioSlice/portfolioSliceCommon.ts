@@ -1,15 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
-
-export type Staking = {
-  delegations: cosmossdk.Delegation[]
-  redelegations: cosmossdk.Redelegation[]
-  undelegations: cosmossdk.UndelegationEntry[]
-  rewards: cosmossdk.Reward[]
-}
 
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */

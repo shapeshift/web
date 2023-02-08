@@ -44,13 +44,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const {
-    // defaultAccountId: queryAccountId, // TODO: do we even need this
-    assetNamespace,
-    chainId,
-    contractAddress: validatorAddress,
-    assetReference,
-  } = query
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
 
   const stakingAssetId = toAssetId({
     chainId,

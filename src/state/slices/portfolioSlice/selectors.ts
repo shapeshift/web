@@ -53,7 +53,6 @@ import {
   selectWalletAccountIds,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
-import { makeTotalBondings } from '../opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import type {
@@ -438,14 +437,15 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
           const [, stakingId] = deserializeUserStakingId(userStakingId as UserStakingId)
           const assetId = stakingOpportunitiesById[stakingId]?.assetId
           if (!assetId || !userStakingOpportunity) return acc
-          const totalBondings = makeTotalBondings(userStakingOpportunity)
           if (!acc[accountId]) {
             acc[accountId] = {}
           }
           // Handle staking over multiple opportunities for a given AssetId e.g
           // - savers and native ATOM staking
           // - staking over different validators for the same AssetId
-          acc[accountId][assetId] = totalBondings.plus(bnOrZero(acc[accountId][assetId])).toFixed()
+          acc[accountId][assetId] = bn(userStakingOpportunity.totalAmountCryptoBaseUnit)
+            .plus(bnOrZero(acc[accountId][assetId]))
+            .toFixed()
         })
       return acc
     }, {})

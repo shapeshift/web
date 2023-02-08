@@ -6,7 +6,6 @@ import type {
   FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
-import type { EvmSupportedChainIds } from '@shapeshiftoss/swapper'
 import { convertNumberToHex } from '@walletconnect/utils'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/components/modal/callRequest/CallRequestCommon'
@@ -27,10 +26,7 @@ export const getFeesForTx = async (
   })
 }
 
-export const getGasData = (
-  approveData: ConfirmData,
-  fees: FeeDataEstimate<EvmSupportedChainIds>,
-) => {
+export const getGasData = (approveData: ConfirmData, fees: FeeDataEstimate<EvmChainId>) => {
   const { speed, customFee } = approveData
   return speed === 'custom' && customFee?.baseFee && customFee?.baseFee
     ? {

@@ -1,0 +1,79 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { WithdrawType } from '@shapeshiftoss/types'
+import type {
+  Field as WithdrawField,
+  WithdrawValues,
+} from 'features/defi/components/Withdraw/Withdraw'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+
+type SupportedOsmosisOpportunity = {
+  type: DefiType
+  provider: string
+  version: string
+  contractAddress: string
+  stakingToken: string
+  chain: ChainId
+  tvl: BigNumber
+  expired: boolean
+}
+
+type EstimatedGas = {
+  estimatedGasCrypto?: string
+}
+
+type OsmosisStakingWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage> &
+  EstimatedGas & {
+    txStatus: string
+    usedGasFee: string
+    withdrawType: WithdrawType
+  }
+
+export type OsmosisStakingWithdrawState = {
+  osmosisOpportunity: SupportedOsmosisOpportunity
+  userAddress: string | null
+  withdraw: OsmosisStakingWithdrawValues
+  loading: boolean
+  txid: string | null
+}
+export enum OsmosisStakingWithdrawActionType {
+  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
+  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
+  SET_WITHDRAW = 'SET_WITHDRAW',
+  SET_LOADING = 'SET_LOADING',
+  SET_TXID = 'SET_TXID',
+  SET_TX_STATUS = 'SET_TX_STATUS',
+}
+
+type SetVaultAction = {
+  type: OsmosisStakingWithdrawActionType.SET_OPPORTUNITY
+  payload: MergedActiveStakingOpportunity
+}
+
+type SetWithdraw = {
+  type: OsmosisStakingWithdrawActionType.SET_WITHDRAW
+  payload: Partial<OsmosisStakingWithdrawValues>
+}
+
+type SetUserAddress = {
+  type: OsmosisStakingWithdrawActionType.SET_USER_ADDRESS
+  payload: string
+}
+
+type SetLoading = {
+  type: OsmosisStakingWithdrawActionType.SET_LOADING
+  payload: boolean
+}
+
+type SetTxid = {
+  type: OsmosisStakingWithdrawActionType.SET_TXID
+  payload: string
+}
+
+export type OsmosisStakingWithdrawActions =
+  | SetVaultAction
+  | SetWithdraw
+  | SetUserAddress
+  | SetLoading
+  | SetTxid

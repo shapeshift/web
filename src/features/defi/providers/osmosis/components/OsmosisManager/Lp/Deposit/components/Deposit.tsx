@@ -35,8 +35,8 @@ import {
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { OsmosisDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+import { OsmosisDepositActionType } from '../LpDepositCommon'
+import { DepositContext } from '../LpDepositContext'
 
 const DEFAULT_SLIPPAGE = '0.001' // Allow for 0.1% slippage. TODO(pastaghost): is there a better way to do this?
 

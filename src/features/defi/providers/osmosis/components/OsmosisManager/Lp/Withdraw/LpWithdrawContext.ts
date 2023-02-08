@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import type { OsmosisWithdrawActions, OsmosisWithdrawState } from './WithdrawCommon'
+import type { OsmosisWithdrawActions, OsmosisWithdrawState } from './LpWithdrawCommon'
 
 interface IWithdrawContext {
   state: OsmosisWithdrawState | null

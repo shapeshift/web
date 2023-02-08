@@ -35,8 +35,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { OsmosisWithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
+import { WithdrawContext } from '../LpWithdrawContext'
 
 const DEFAULT_SLIPPAGE = '0.001' // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
 

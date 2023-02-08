@@ -1,5 +1,4 @@
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -18,6 +17,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -28,18 +28,18 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'
-import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { OsmosisDepositActionType } from './DepositCommon'
-import { DepositContext } from './DepositContext'
-import { initialState, reducer } from './DepositReducer'
+import { Withdraw } from './components/Withdraw'
+import { OsmosisWithdrawActionType } from './LpWithdrawCommon'
+import { WithdrawContext } from './LpWithdrawContext'
+import { initialState, reducer } from './LpWithdrawReducer'
 
-type OsmosisDepositProps = {
-  accountId: AccountId | undefined
+type OsmosisWithdrawProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: AccountId | undefined
 }
 
-export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
+export const OsmosisLpWithdraw: React.FC<OsmosisWithdrawProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
@@ -48,6 +48,7 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
+  // Asset info
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -56,6 +57,7 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const loading = useSelector(selectPortfolioLoading)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const opportunityId: LpId | undefined = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),
@@ -70,29 +72,16 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
     }),
     [accountId, assetId, opportunityId],
   )
-
   const osmosisOpportunity = useAppSelector(state =>
     selectEarnUserLpOpportunity(state, osmosisLpOpportunityFilter),
   )
 
-  const underlyingAsset0: Asset | undefined = useAppSelector(state =>
+  const underlyingAsset0 = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
   )
-  const underlyingAsset1: Asset | undefined = useAppSelector(state =>
+  const underlyingAsset1 = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
-
-  useEffect(() => {
-    ;(() => {
-      dispatch({
-        type: OsmosisDepositActionType.SET_ACCOUNT_ID,
-        payload: accountId ?? '',
-      })
-
-      if (!osmosisOpportunity) return
-      dispatch({ type: OsmosisDepositActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
-    })()
-  }, [accountId, osmosisOpportunity])
 
   const handleBack = () => {
     history.push({
@@ -109,12 +98,12 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
 
     return {
       [DefiStep.Info]: {
-        label: translate('defi.steps.deposit.info.title'),
-        description: translate('defi.steps.deposit.info.description', {
+        label: translate('defi.steps.withdraw.info.title'),
+        description: translate('defi.steps.withdraw.info.description', {
           asset: `${underlyingAsset0.symbol} and ${underlyingAsset1.symbol}`,
         }),
         component: ownProps => (
-          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
       },
       [DefiStep.Confirm]: {
@@ -123,18 +112,27 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [underlyingAsset0, underlyingAsset1, translate, accountId, handleAccountIdChange])
 
-  const value = useMemo(() => ({ state, dispatch }), [state])
+  useEffect(() => {
+    dispatch({
+      type: OsmosisWithdrawActionType.SET_ACCOUNT_ID,
+      payload: accountId ?? '',
+    })
+
+    if (!osmosisOpportunity) return
+    dispatch({ type: OsmosisWithdrawActionType.SET_OPPORTUNITY, payload: osmosisOpportunity })
+  }, [osmosisOpportunity, accountId])
 
   if (
     loading ||
     !asset ||
     !underlyingAsset0 ||
     !underlyingAsset1 ||
+    !marketData ||
     !osmosisOpportunity ||
     !StepConfig
   ) {
@@ -146,16 +144,16 @@ export const OsmosisDeposit: React.FC<OsmosisDepositProps> = ({
   }
 
   return (
-    <DepositContext.Provider value={value}>
+    <WithdrawContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', {
-            opportunity: `${underlyingAsset0.symbol}/${underlyingAsset1.symbol} Pool`,
+          title={translate('modals.withdraw.withdrawFrom', {
+            opportunity: `${underlyingAsset0.symbol}/${underlyingAsset1.symbol} Pool`!,
           })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />
       </DefiModalContent>
-    </DepositContext.Provider>
+    </WithdrawContext.Provider>
   )
 }

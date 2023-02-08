@@ -79,7 +79,7 @@ export const STAKING_ID_TO_VERSION = {
 export const STAKING_ID_DELIMITER = '*'
 
 // Earn opportunity types - everyting after this comment is here for backwards compatibility
-// with the expected EarnOpportunityType the DeFi hooks / normalizeOpportunity expect
+// with the expected EarnOpportunityType the DeFi hooks expect
 // The current abstraction just forces us to pass a lot of fluff that could be derived / we don't need
 // This will go away in a follow-up PR as we remove those hooks
 

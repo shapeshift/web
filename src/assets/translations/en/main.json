@@ -85,7 +85,8 @@
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
-    "slippage": "Slippage"
+    "slippage": "Slippage",
+    "validator": "the %{name} Validator"
   },
   "errorPage": {
     "title": "Oops!",

@@ -53,7 +53,7 @@ export const PortfolioBreakdown = () => {
   // TODO(gomes): This goes away in a follow-up PR
   // - FOXy balances are now the only effective reason we have a useEarnBalances( hook, and a selector should be able to get that
   // - Once useEarnBalances() is removed, we should be able to properly get earn balances from selector, meaning the total balance will accurately be
-  // the smae as the addition below
+  // the same as the addition below
   const earnBalances = useEarnBalances()
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const netWorth = useMemo(

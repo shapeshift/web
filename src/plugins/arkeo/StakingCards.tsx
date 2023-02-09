@@ -1,18 +1,10 @@
-import {
-  cosmosAssetId,
-  cosmosChainId,
-  fromAssetId,
-  osmosisAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useTransformCosmosStaking } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -42,32 +34,13 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     selectFirstAccountIdByChainId(state, osmosisChainId),
   )
 
-  const { cosmosSdkStakingOpportunities: cosmosStakingOpportunities } = useCosmosSdkStakingBalances(
-    {
-      assetId: cosmosAssetId,
-      accountId: cosmosAccountId,
-    },
-  )
-
-  const { cosmosSdkStakingOpportunities: osmosisStakingOpportunities } =
-    useCosmosSdkStakingBalances({
-      assetId: osmosisAssetId,
-      accountId: osmosisAccountId,
-    })
-
-  const cosmos = useMemo(
-    () => cosmosStakingOpportunities.concat(osmosisStakingOpportunities),
-    [cosmosStakingOpportunities, osmosisStakingOpportunities],
-  )
-
-  const allOpportunities = [...stakingOpportunities, ...useTransformCosmosStaking(cosmos)]
-  const filteredOpportunities = allOpportunities
+  const filteredOpportunities = stakingOpportunities
     .filter(opportunity => ids.includes(opportunity.assetId as OpportunityId))
     .filter(opportunity => opportunity.provider !== DefiProvider.ThorchainSavers)
 
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
-      const opportunity = allOpportunities.find(
+      const opportunity = stakingOpportunities.find(
         opportunity => opportunity.assetId === opportunityId,
       )
       if (!opportunity) return

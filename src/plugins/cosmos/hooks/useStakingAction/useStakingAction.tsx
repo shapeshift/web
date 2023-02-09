@@ -11,7 +11,7 @@ import { logger } from 'lib/logger'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
-} from 'state/slices/validatorDataSlice/constants'
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
 const moduleLogger = logger.child({ namespace: ['useStakingAction'] })
 

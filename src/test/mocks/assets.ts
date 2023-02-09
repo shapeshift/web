@@ -1,14 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import {
-  btcAssetId,
-  btcChainId,
-  cosmosAssetId,
-  cosmosChainId,
-  ethAssetId,
-  ethChainId,
-  foxAssetId,
-  foxyAssetId,
-} from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import merge from 'lodash/merge'
 
 export const rune: Asset = {
@@ -74,32 +65,6 @@ export const fox: Asset = {
   name: 'Fox',
   precision: 18,
   symbol: 'FOX',
-}
-
-export const foxy: Asset = {
-  chainId: ethChainId,
-  assetId: foxyAssetId,
-  color: '#CE3885',
-  explorer: 'https://etherscan.io',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
-  name: 'FOX Yieldy',
-  precision: 18,
-  symbol: 'FOXy',
-}
-
-export const cosmos: Asset = {
-  chainId: cosmosChainId,
-  assetId: cosmosAssetId,
-  color: '#FFFFFF',
-  explorer: 'https://www.mintscan.io/cosmos',
-  explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
-  explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
-  icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
-  name: 'Cosmos',
-  precision: 6,
-  symbol: 'ATOM',
 }
 
 export const bitcoin: Asset = {

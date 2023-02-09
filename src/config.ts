@@ -118,7 +118,6 @@ const validators = {
     default: 1000,
   }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
-  REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION: bool({ default: false }),
   REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
 }
 

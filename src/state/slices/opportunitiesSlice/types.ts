@@ -94,7 +94,6 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['byId']
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
@@ -158,17 +157,12 @@ export type EarnOpportunityType = {
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
-export type StakingEarnOpportunityType = OpportunityMetadata & {
-  stakedAmountCryptoBaseUnit?: string
-  rewardsAmountsCryptoBaseUnit?:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
-  underlyingToken0AmountCryptoBaseUnit?: string
-  underlyingToken1AmountCryptoBaseUnit?: string
-  isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+export type StakingEarnOpportunityType = OpportunityMetadata &
+  Partial<UserStakingOpportunityBase> & {
+    underlyingToken0AmountCryptoBaseUnit?: string
+    underlyingToken1AmountCryptoBaseUnit?: string
+    isVisible?: boolean
+  } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadata & {
   underlyingToken0AmountCryptoBaseUnit?: string

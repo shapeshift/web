@@ -8,21 +8,17 @@ import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import type { Row } from 'react-table'
+import type { CellProps, ColumnGroup, Renderer, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  isCosmosUserStaking,
-  makeTotalBondings,
-  makeTotalUndelegations,
-} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
+  selectIsActiveStakingOpportunityByFilter,
   selectMarketDataById,
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
@@ -101,17 +97,9 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const userStakingOpportunities = useAppSelector(state =>
     selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
   )
-  const hasActiveStaking = userStakingOpportunities.some(userStakingOpportunity => {
-    if (!(userStakingOpportunity && isCosmosUserStaking(userStakingOpportunity))) return false
-    const { stakedAmountCryptoBaseUnit, rewardsAmountsCryptoBaseUnit } = userStakingOpportunity
-    const undelegations = makeTotalUndelegations(userStakingOpportunity.undelegations)
-
-    return (
-      bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ||
-      bnOrZero(rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ||
-      undelegations.gt(0)
-    )
-  })
+  const isActive = useAppSelector(state =>
+    selectIsActiveStakingOpportunityByFilter(state, userStakingOpportunitiesFilter),
+  )
 
   const handleClick = useCallback(
     (values: Row<UserStakingOpportunityWithMetadata>) => {
@@ -134,14 +122,17 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
     [accountId, assetId, history],
   )
 
-  const columns = useMemo(
+  const columns: (ColumnGroup<UserStakingOpportunityWithMetadata> & {
+    Cell: Renderer<CellProps<UserStakingOpportunityWithMetadata>>
+  })[] = useMemo(
     () => [
       {
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
+        Cell: ({ row: { original: opportunityData } }) => {
           const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
 
           return (
@@ -161,6 +152,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.apr' />,
         id: 'apr',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
           const opportunityData = row.original
@@ -175,17 +168,18 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.stakedAmount' />,
         id: 'cryptoAmount',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
-          const totalBondings = makeTotalBondings(opportunityData)
+        Cell: ({ row: { original: opportunityData } }) => {
+          const { stakedAmountCryptoBaseUnit } = opportunityData
 
           return (
             <Skeleton isLoaded={Boolean(opportunityData)}>
-              {bnOrZero(totalBondings).gt(0) ? (
+              {bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ? (
                 <Amount.Crypto
-                  value={bnOrZero(totalBondings)
+                  value={bnOrZero(stakedAmountCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
@@ -204,47 +198,44 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
-          const opportunityData = row.original
-          const totalBondings = makeTotalBondings(opportunityData)
-
-          return (
-            <Skeleton isLoaded={Boolean(opportunityData)}>
-              {totalBondings.gt(0) ? (
-                <HStack fontWeight={'normal'}>
-                  <Amount.Crypto
-                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-                      .div(bn(10).pow(asset.precision))
-                      .decimalPlaces(asset.precision)
-                      .toString()}
-                    symbol={asset.symbol}
-                  />
-                  <Amount.Fiat
-                    value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
-                      .div(bn(10).pow(asset.precision))
-                      .times(bnOrZero(marketData.price))
-                      .toPrecision()}
-                    color='green.500'
-                    prefix='≈'
-                  />
-                </HStack>
-              ) : (
-                <Box width='100%' textAlign={'right'}>
-                  <Button
-                    as='span'
-                    colorScheme='blue'
-                    variant='ghost-filled'
-                    size='sm'
-                    cursor='pointer'
-                  >
-                    <Text translation='common.getStarted' />
-                  </Button>
-                </Box>
-              )}
-            </Skeleton>
-          )
-        },
+        Cell: ({ row: { original: opportunityData } }) => (
+          <Skeleton isLoaded={Boolean(opportunityData)}>
+            {bnOrZero(opportunityData.rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ? (
+              <HStack fontWeight={'normal'}>
+                <Amount.Crypto
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .decimalPlaces(asset.precision)
+                    .toString()}
+                  symbol={asset.symbol}
+                />
+                <Amount.Fiat
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .times(bnOrZero(marketData.price))
+                    .toPrecision()}
+                  color='green.500'
+                  prefix='≈'
+                />
+              </HStack>
+            ) : (
+              <Box width='100%' textAlign={'right'}>
+                <Button
+                  as='span'
+                  colorScheme='blue'
+                  variant='ghost-filled'
+                  size='sm'
+                  cursor='pointer'
+                >
+                  <Text translation='common.getStarted' />
+                </Button>
+              </Box>
+            )}
+          </Skeleton>
+        ),
         disableSortBy: true,
       },
     ],
@@ -277,7 +268,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         <ReactTable
           data={userStakingOpportunities}
           columns={columns}
-          displayHeaders={hasActiveStaking}
+          displayHeaders={isActive}
           onRowClick={handleClick}
         />
       </Card.Body>

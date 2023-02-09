@@ -28,9 +28,7 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import last from 'lodash/last'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -106,17 +104,6 @@ export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
 
 export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
   chainIdToFeeAssetId(fromAssetId(assetId).chainId)
-
-export const accountIdToAccountType = (accountId: AccountId): UtxoAccountType | null => {
-  const pubkeyVariant = last(accountId.split(':'))
-  if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
-  if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
-  if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
-  if (pubkeyVariant?.startsWith('dgub')) return UtxoAccountType.P2pkh // doge
-  if (pubkeyVariant?.startsWith('Ltub')) return UtxoAccountType.P2pkh // ltc
-  if (pubkeyVariant?.startsWith('Mtub')) return UtxoAccountType.SegwitP2sh // ltc
-  return null
-}
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],

@@ -1,19 +1,29 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { FaPiggyBank } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectActiveAggregatedEarnUserLpOpportunities,
+  selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmount,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { OpportunityCard } from './OpportunityCard'
 
-export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  const activeOpportunities = balances.opportunities.filter(o =>
-    bnOrZero(o.cryptoAmountBaseUnit).gt(0),
+export const OpportunityCardList = () => {
+  const activeStakingOpportunities = useAppSelector(
+    selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmount,
+  )
+  const activeLpOpportunities = useAppSelector(selectActiveAggregatedEarnUserLpOpportunities)
+
+  const activeOpportunities = useMemo(
+    () => [...activeStakingOpportunities, ...activeLpOpportunities],
+    [activeLpOpportunities, activeStakingOpportunities],
   )
 
   return (

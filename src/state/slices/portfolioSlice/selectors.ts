@@ -7,6 +7,7 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
+  foxyAssetId,
   fromAccountId,
   fromAssetId,
   ltcAssetId,
@@ -53,7 +54,6 @@ import {
   selectWalletAccountIds,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
-import { makeTotalBondings } from '../opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
 import type {
@@ -202,6 +202,22 @@ export const selectPortfolioTotalFiatBalance = createSelector(
     Object.values(portfolioFiatBalances)
       .reduce((acc, assetFiatBalance) => acc.plus(bnOrZero(assetFiatBalance)), bn(0))
       .toFixed(2),
+)
+
+export const selectPortfolioTotalFiatBalanceExcludeEarnDupes = createSelector(
+  selectPortfolioFiatBalances,
+  (portfolioFiatBalances): string => {
+    // ETH/FOX LP token and FOXy are portfolio assets, but they're also part of DeFi opportunities
+    // With the current architecture (having them both as portfolio assets and earn opportunities), we have to remove these two some place or another
+    // This obviously won't scale as we support more LP tokens, but for now, this at least gives this deduction a sane home we can grep with `dupes` or `duplicates`
+    const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId]
+    return Object.entries(portfolioFiatBalances)
+      .reduce<BN>((acc, [assetId, assetFiatBalance]) => {
+        if (portfolioEarnAssetIdsDuplicates.includes(assetId)) return acc
+        return acc.plus(bnOrZero(assetFiatBalance))
+      }, bn(0))
+      .toFixed(2)
+  },
 )
 
 export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
@@ -438,14 +454,16 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
           const [, stakingId] = deserializeUserStakingId(userStakingId as UserStakingId)
           const assetId = stakingOpportunitiesById[stakingId]?.assetId
           if (!assetId || !userStakingOpportunity) return acc
-          const totalBondings = makeTotalBondings(userStakingOpportunity)
           if (!acc[accountId]) {
             acc[accountId] = {}
           }
           // Handle staking over multiple opportunities for a given AssetId e.g
           // - savers and native ATOM staking
           // - staking over different validators for the same AssetId
-          acc[accountId][assetId] = totalBondings.plus(bnOrZero(acc[accountId][assetId])).toFixed()
+          const stakedAmountCryptoBaseUnit = userStakingOpportunity.stakedAmountCryptoBaseUnit
+          acc[accountId][assetId] = bn(stakedAmountCryptoBaseUnit)
+            .plus(bnOrZero(acc[accountId][assetId]))
+            .toFixed()
         })
       return acc
     }, {})

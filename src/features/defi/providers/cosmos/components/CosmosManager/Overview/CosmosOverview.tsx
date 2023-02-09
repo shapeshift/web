@@ -18,11 +18,12 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { makeTotalBondings } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
+  selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
@@ -73,18 +74,29 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const hasClaim = useAppSelector(state =>
+    selectHasClaimByUserStakingId(state, opportunityDataFilter),
+  )
+
   const loaded = useMemo(() => Boolean(opportunityData), [opportunityData])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
+  const userStakingOpportunity = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
   const totalBondings = useMemo(
-    () => (opportunityData ? makeTotalBondings(opportunityData) : bn(0)),
-    [opportunityData],
+    () =>
+      userStakingOpportunity
+        ? makeTotalCosmosSdkBondingsCryptoBaseUnit(userStakingOpportunity)
+        : bn(0),
+    [userStakingOpportunity],
   )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(totalBondings).div(bn(10).pow(stakingAsset.precision))
+  const cryptoAmountAvailable = totalBondings.div(bn(10).pow(stakingAsset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -92,7 +104,6 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   if (!opportunityData) return null
 
-  const hasClaim = bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0]).gt(0)
   const claimDisabled = !hasClaim
 
   if (!loaded || !opportunityData) {
@@ -105,7 +116,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
-  if (bnOrZero(totalBondings).eq(0)) {
+  if (totalBondings.eq(0)) {
     return (
       <CosmosEmpty
         assets={[stakingAsset]}

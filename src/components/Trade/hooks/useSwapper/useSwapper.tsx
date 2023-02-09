@@ -1,11 +1,6 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import {
-  type Swapper,
-  type UtxoSupportedChainIds,
-  SwapperManager,
-  SwapperName,
-} from '@shapeshiftoss/swapper'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { type Swapper, SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -195,7 +190,7 @@ export const useSwapper = () => {
       if (!accountType) throw new Error('no accountType')
       const sellAssetChainAdapter = getChainAdapterManager().get(
         sellAssetChainId,
-      ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+      ) as unknown as UtxoBaseAdapter<UtxoChainId>
       const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,

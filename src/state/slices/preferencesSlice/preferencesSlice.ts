@@ -23,7 +23,6 @@ export type FeatureFlags = {
   Wherever: boolean
   SaversVaults: boolean
   Yearn: boolean
-  CosmosSdkOpportunitiesAbstraction: boolean
   ArkeoAirdrop: boolean
   Cowswap: boolean
 }
@@ -61,8 +60,6 @@ const initialState: Preferences = {
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
-    CosmosSdkOpportunitiesAbstraction:
-      getConfig().REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
   },

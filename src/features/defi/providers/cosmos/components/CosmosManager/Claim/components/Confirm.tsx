@@ -49,7 +49,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
-  const claimAmount = bnOrZero(opportunity?.rewards).toString()
+  const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))

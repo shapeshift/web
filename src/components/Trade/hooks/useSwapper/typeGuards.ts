@@ -1,12 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { SupportedSwappingChain } from 'components/Trade/types'
 
-export const isSupportedUtxoSwappingChain = (
-  chainId: ChainId,
-): chainId is UtxoSupportedChainIds => {
+export const isSupportedUtxoSwappingChain = (chainId: ChainId): chainId is UtxoChainId => {
   const { chainNamespace } = fromChainId(chainId)
   return chainNamespace === CHAIN_NAMESPACE.Utxo
 }

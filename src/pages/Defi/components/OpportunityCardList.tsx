@@ -1,18 +1,30 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { FaPiggyBank } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { selectActiveAggregatedEarnUserStakingOpportunities } from 'state/slices/selectors'
+import {
+  selectActiveAggregatedEarnUserLpOpportunities,
+  selectActiveAggregatedEarnUserStakingOpportunities,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityCard } from './OpportunityCard'
 
 export const OpportunityCardList = () => {
-  const activeOpportunities = useAppSelector(selectActiveAggregatedEarnUserStakingOpportunities)
+  const activeStakingOpportunities = useAppSelector(
+    selectActiveAggregatedEarnUserStakingOpportunities,
+  )
+  const activeLpOpportunities = useAppSelector(selectActiveAggregatedEarnUserLpOpportunities)
+
+  const allOpportunities = useMemo(
+    () => [...activeLpOpportunities, ...activeStakingOpportunities],
+    [activeLpOpportunities, activeStakingOpportunities],
+  )
 
   return (
     <Box mb={6}>
@@ -39,7 +51,7 @@ export const OpportunityCardList = () => {
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {activeOpportunities.map((opportunity, i) => (
+        {allOpportunities.map((opportunity, i) => (
           // https://reactjs.org/docs/lists-and-keys.html
           // Indexes as keys are fine under the right conditions (no permutations, additions only to the end of the array) which is the case here
           // We initially have all the opportunities, but only set them as loaded when all the data for them is loaded
@@ -48,7 +60,7 @@ export const OpportunityCardList = () => {
           <OpportunityCard key={i} {...opportunity} />
         ))}
       </SimpleGrid>
-      {activeOpportunities.length === 0 && (
+      {activeStakingOpportunities.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

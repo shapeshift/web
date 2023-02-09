@@ -77,7 +77,7 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
       ]),
     )
 
-export const isActiveOpportunity = (
+export const isActiveStakingOpportunity = (
   userStakingOpportunity: UserStakingOpportunity | UserStakingOpportunityWithMetadata,
 ) => {
   const hasActiveStaking = bn(userStakingOpportunity.stakedAmountCryptoBaseUnit).gt(0)
@@ -92,5 +92,6 @@ export const isActiveOpportunity = (
   return hasActiveStaking || hasRewards || hasActiveUndelegations
 }
 
-export const isActiveEarnOpportunity = (earnUserStakingOpportunity: StakingEarnOpportunityType) =>
-  isActiveOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
+export const isActiveStakingEarnOpportunity = (
+  earnUserStakingOpportunity: StakingEarnOpportunityType,
+) => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)

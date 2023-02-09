@@ -91,7 +91,6 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   data: GetOpportunityMetadataOutput
 }> => {
   const state = reduxApi.getState() as ReduxState
-
   const metadataByValidatorId = await Promise.allSettled(
     validatorIds.map(async validatorId => {
       const { account: validatorAddress, chainId } = fromAccountId(validatorId)
@@ -155,7 +154,6 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
       {},
     ),
   )
-
   const data = {
     byId: metadataByValidatorId,
     type: opportunityType,
@@ -177,7 +175,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { account: pubKey, chainId } = fromAccountId(accountId)
-    if (![cosmosChainId || osmosisChainId].includes(chainId)) {
+    if (![cosmosChainId, osmosisChainId].includes(chainId)) {
       return Promise.resolve({
         data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
       })

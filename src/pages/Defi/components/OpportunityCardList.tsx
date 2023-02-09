@@ -9,7 +9,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import {
   selectActiveAggregatedEarnUserLpOpportunities,
-  selectActiveAggregatedEarnUserStakingOpportunities,
+  selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmount,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +17,7 @@ import { OpportunityCard } from './OpportunityCard'
 
 export const OpportunityCardList = () => {
   const activeStakingOpportunities = useAppSelector(
-    selectActiveAggregatedEarnUserStakingOpportunities,
+    selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmount,
   )
   const activeLpOpportunities = useAppSelector(selectActiveAggregatedEarnUserLpOpportunities)
 

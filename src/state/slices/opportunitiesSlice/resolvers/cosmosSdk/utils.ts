@@ -1,3 +1,4 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   cosmosChainId,
@@ -7,6 +8,7 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type { MarketData } from '@shapeshiftoss/types'
 import flatMapDeep from 'lodash/flatMapDeep'
 import flow from 'lodash/flow'
 import groupBy from 'lodash/groupBy'
@@ -17,8 +19,10 @@ import { isSome } from 'lib/utils'
 
 import type {
   OpportunitiesState,
+  StakingEarnOpportunityType,
   UserStakingId,
   UserStakingOpportunity,
+  UserStakingOpportunityWithMetadata,
   ValidatorId,
 } from '../../types'
 import { serializeUserStakingId, toValidatorId } from '../../utils'
@@ -157,3 +161,41 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
           : []),
       ]),
     )
+
+export const makeOpportunityTotalFiatBalance = ({
+  opportunity,
+  marketData,
+  assets,
+}: {
+  opportunity: StakingEarnOpportunityType | UserStakingOpportunityWithMetadata
+  marketData: Partial<Record<AssetId, MarketData>>
+  assets: Partial<Record<AssetId, Asset>>
+}): BN => {
+  const asset = assets[opportunity.assetId]
+  const underlyingAsset = assets[opportunity.underlyingAssetId]
+
+  const stakedAmountFiatBalance = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+    .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
+    .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
+
+  const rewardsAmountFiatBalance = [...(opportunity.rewardsAmountsCryptoBaseUnit ?? [])].reduce<BN>(
+    (acc, currentAmount, i) => {
+      const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
+      const rewardAsset = assets[rewardAssetId]
+      return acc.plus(
+        bnOrZero(currentAmount)
+          .times(marketData[rewardAssetId]?.price ?? '0')
+          .div(bn(10).pow(rewardAsset?.precision ?? 1)),
+      )
+    },
+    bn(0),
+  )
+
+  const undelegationsFiatBalance = makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
+    ...(isCosmosUserStaking(opportunity) ? opportunity.undelegations : []),
+  ])
+    .times(marketData[opportunity.assetId]?.price ?? '0')
+    .div(bn(10).pow(asset?.precision ?? 1))
+
+  return stakedAmountFiatBalance.plus(rewardsAmountFiatBalance).plus(undelegationsFiatBalance)
+}

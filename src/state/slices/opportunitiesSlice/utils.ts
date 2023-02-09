@@ -10,6 +10,7 @@ import type {
   UserUndelegation,
 } from './resolvers/cosmosSdk/types'
 import type {
+  LpEarnOpportunityType,
   OpportunityId,
   StakingEarnOpportunityType,
   StakingId,
@@ -94,7 +95,4 @@ export const isActiveStakingOpportunity = (
 
 export const isActiveStakingEarnOpportunity = (
   earnUserStakingOpportunity: StakingEarnOpportunityType,
-) => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
-
-export const isActiveLpEarnOpportunity = (earnLpOpportunity: LpEarnOpportunityType) =>
-  isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
+): boolean => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)

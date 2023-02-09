@@ -304,6 +304,6 @@ export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutp
   selectAggregatedEarnUserLpOpportunities,
   (aggregatedUserStakingOpportunities): LpEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.filter(opportunity =>
-      bnOrZero(opportunity.cryptoAmountBaseUnit).gt(0),
+      bnOrZero(opportunity.fiatAmount).gt(0),
     ),
 )

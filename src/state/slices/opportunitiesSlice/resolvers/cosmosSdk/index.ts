@@ -191,7 +191,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const asset = selectAssetById(state, assetId)
     if (!asset) throw new Error(`Cannot get asset for AssetId: ${assetId}`)
 
-    const byId = makeAccountUserData({ cosmosAccount, validatorIds })
+    const byId = makeAccountUserData({ cosmosSdkAccount: cosmosAccount, validatorIds })
 
     return Promise.resolve({ data: { byId, type: opportunityType } })
   } catch (e) {

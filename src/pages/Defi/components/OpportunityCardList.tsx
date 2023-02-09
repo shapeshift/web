@@ -21,7 +21,7 @@ export const OpportunityCardList = () => {
   )
   const activeLpOpportunities = useAppSelector(selectActiveAggregatedEarnUserLpOpportunities)
 
-  const allOpportunities = useMemo(
+  const activeOpportunities = useMemo(
     () => [...activeStakingOpportunities, ...activeLpOpportunities],
     [activeLpOpportunities, activeStakingOpportunities],
   )
@@ -51,7 +51,7 @@ export const OpportunityCardList = () => {
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {allOpportunities.map((opportunity, i) => (
+        {activeOpportunities.map((opportunity, i) => (
           // https://reactjs.org/docs/lists-and-keys.html
           // Indexes as keys are fine under the right conditions (no permutations, additions only to the end of the array) which is the case here
           // We initially have all the opportunities, but only set them as loaded when all the data for them is loaded

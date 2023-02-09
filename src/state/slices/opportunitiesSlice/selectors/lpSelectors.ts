@@ -299,3 +299,11 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
     return opportunities
   },
 )
+
+export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserLpOpportunities,
+  (aggregatedUserStakingOpportunities): LpEarnOpportunityType[] =>
+    aggregatedUserStakingOpportunities.filter(opportunity =>
+      bnOrZero(opportunity.fiatAmount).gt(0),
+    ),
+)

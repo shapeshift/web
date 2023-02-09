@@ -9,6 +9,7 @@ import type { ReduxState } from 'state/reducer'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectMarketDataById,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
@@ -39,11 +40,16 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
   const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
+  const { OsmosisStaking: isOsmoStakingEnabled } = selectFeatureFlags(state)
 
+  const cosmosSdkChainIdsWhitelist = [
+    cosmosChainId,
+    ...(isOsmoStakingEnabled ? [osmosisChainId] : []),
+  ]
   // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
   // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
-    [cosmosChainId || osmosisChainId].includes(fromAccountId(accountId).chainId),
+    cosmosSdkChainIdsWhitelist.includes(fromAccountId(accountId).chainId),
   )
   const cosmosSdkAccounts = await Promise.allSettled(
     cosmosSdkAccountIds.map(accountId => {
@@ -67,7 +73,10 @@ export const cosmosSdkOpportunityIdsResolver = async ({
       .filter(isSome),
   )
 
-  const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds(cosmosSdkAccounts)
+  const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds({
+    cosmosSdkAccounts,
+    isOsmoStakingEnabled,
+  })
 
   return {
     data: uniqueValidatorAccountIds,
@@ -82,7 +91,6 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   data: GetOpportunityMetadataOutput
 }> => {
   const state = reduxApi.getState() as ReduxState
-
   const metadataByValidatorId = await Promise.allSettled(
     validatorIds.map(async validatorId => {
       const { account: validatorAddress, chainId } = fromAccountId(validatorId)
@@ -146,7 +154,6 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
       {},
     ),
   )
-
   const data = {
     byId: metadataByValidatorId,
     type: opportunityType,
@@ -168,7 +175,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
 
   try {
     const { account: pubKey, chainId } = fromAccountId(accountId)
-    if (![cosmosChainId || osmosisChainId].includes(chainId)) {
+    if (![cosmosChainId, osmosisChainId].includes(chainId)) {
       return Promise.resolve({
         data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
       })
@@ -184,7 +191,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const asset = selectAssetById(state, assetId)
     if (!asset) throw new Error(`Cannot get asset for AssetId: ${assetId}`)
 
-    const byId = makeAccountUserData({ cosmosAccount, validatorIds })
+    const byId = makeAccountUserData({ cosmosSdkAccount: cosmosAccount, validatorIds })
 
     return Promise.resolve({ data: { byId, type: opportunityType } })
   } catch (e) {

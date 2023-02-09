@@ -10,7 +10,6 @@ import type {
   UserUndelegation,
 } from './resolvers/cosmosSdk/types'
 import type {
-  LpEarnOpportunityType,
   OpportunityId,
   StakingEarnOpportunityType,
   StakingId,

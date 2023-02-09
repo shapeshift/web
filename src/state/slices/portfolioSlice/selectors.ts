@@ -7,6 +7,7 @@ import {
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
+  foxyAssetId,
   fromAccountId,
   fromAssetId,
   ltcAssetId,
@@ -201,6 +202,23 @@ export const selectPortfolioTotalFiatBalance = createSelector(
     Object.values(portfolioFiatBalances)
       .reduce((acc, assetFiatBalance) => acc.plus(bnOrZero(assetFiatBalance)), bn(0))
       .toFixed(2),
+)
+
+export const selectPortfolioTotalFiatBalanceExcludeEarnDupes = createSelector(
+  selectPortfolioFiatBalances,
+  (portfolioFiatBalances): string => {
+    // ETH/FOX LP token and FOXy are portfolio assets, but they're also part of DeFi opportunities
+    // With the current architecture (having them both as portfolio assets and earn opportunities), we have to remove these two some place or another
+    // This obviously won't scale as we support more LP tokens, but for now, this at least gives this deduction a sane home we can grep with `dupes` or `duplicates`
+    const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId]
+    return Object.entries(portfolioFiatBalances)
+      .reduce<BN>((acc, [assetId, assetFiatBalance]) => {
+        debugger
+        if (portfolioEarnAssetIdsDuplicates.includes(assetId)) return acc
+        return acc.plus(bnOrZero(assetFiatBalance))
+      }, bn(0))
+      .toFixed(2)
+  },
 )
 
 export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(

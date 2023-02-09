@@ -22,7 +22,7 @@ export const OpportunityCardList = () => {
   const activeLpOpportunities = useAppSelector(selectActiveAggregatedEarnUserLpOpportunities)
 
   const allOpportunities = useMemo(
-    () => [...activeLpOpportunities, ...activeStakingOpportunities],
+    () => [...activeStakingOpportunities, ...activeLpOpportunities],
     [activeLpOpportunities, activeStakingOpportunities],
   )
 

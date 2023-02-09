@@ -42,14 +42,14 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   const portfolioAccountIds = selectWalletAccountIds(state)
   const { OsmosisStaking: isOsmoStakingEnabled } = selectFeatureFlags(state)
 
-  const cosmosSdkAccountIdsFilter = [
+  const cosmosSdkChainIdsWhitelist = [
     cosmosChainId,
     ...(isOsmoStakingEnabled ? [osmosisChainId] : []),
   ]
   // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
   // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
-    cosmosSdkAccountIdsFilter.includes(fromAccountId(accountId).chainId),
+    cosmosSdkChainIdsWhitelist.includes(fromAccountId(accountId).chainId),
   )
   const cosmosSdkAccounts = await Promise.allSettled(
     cosmosSdkAccountIds.map(accountId => {
@@ -74,7 +74,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   )
 
   const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds({
-    cosmosAccounts: cosmosSdkAccounts,
+    cosmosSdkAccounts,
     isOsmoStakingEnabled,
   })
 

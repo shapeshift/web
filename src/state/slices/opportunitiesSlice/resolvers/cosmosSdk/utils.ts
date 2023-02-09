@@ -28,10 +28,10 @@ import {
 import type { CosmosSdkStakingSpecificUserStakingOpportunity, UserUndelegation } from './types'
 
 export const makeUniqueValidatorAccountIds = ({
-  cosmosAccounts,
+  cosmosSdkAccounts: cosmosAccounts,
   isOsmoStakingEnabled,
 }: {
-  cosmosAccounts: Account<CosmosSdkChainId>[]
+  cosmosSdkAccounts: Account<CosmosSdkChainId>[]
   isOsmoStakingEnabled: Boolean
 }): ValidatorId[] =>
   uniq([

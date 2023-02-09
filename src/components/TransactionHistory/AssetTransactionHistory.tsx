@@ -18,10 +18,6 @@ type AssetTransactionHistoryProps = {
   useCompactMode?: boolean
   limit?: number
 }
-export type MatchParams = {
-  chainId: ChainId
-  assetSubId: string
-}
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,

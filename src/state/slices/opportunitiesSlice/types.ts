@@ -94,7 +94,6 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['byId']
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {

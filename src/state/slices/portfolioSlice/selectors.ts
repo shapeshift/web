@@ -213,7 +213,6 @@ export const selectPortfolioTotalFiatBalanceExcludeEarnDupes = createSelector(
     const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId]
     return Object.entries(portfolioFiatBalances)
       .reduce<BN>((acc, [assetId, assetFiatBalance]) => {
-        debugger
         if (portfolioEarnAssetIdsDuplicates.includes(assetId)) return acc
         return acc.plus(bnOrZero(assetFiatBalance))
       }, bn(0))

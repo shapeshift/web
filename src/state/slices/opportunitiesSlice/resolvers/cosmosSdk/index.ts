@@ -9,6 +9,7 @@ import type { ReduxState } from 'state/reducer'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectFeatureFlags,
   selectMarketDataById,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
@@ -39,11 +40,16 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
   const chainAdapters = getChainAdapterManager()
   const portfolioAccountIds = selectWalletAccountIds(state)
+  const { OsmosisStaking: isOsmoStakingEnabled } = selectFeatureFlags(state)
 
+  const cosmosSdkAccountIdsFilter = [
+    cosmosChainId,
+    ...(isOsmoStakingEnabled ? [osmosisChainId] : []),
+  ]
   // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support
   // We can't just check the chainNamespace, since this includes Thorchain and possibly future chains which don't use the regular Cosmos SDK staking module
   const cosmosSdkAccountIds = portfolioAccountIds.filter(accountId =>
-    [cosmosChainId || osmosisChainId].includes(fromAccountId(accountId).chainId),
+    cosmosSdkAccountIdsFilter.includes(fromAccountId(accountId).chainId),
   )
   const cosmosSdkAccounts = await Promise.allSettled(
     cosmosSdkAccountIds.map(accountId => {
@@ -67,7 +73,10 @@ export const cosmosSdkOpportunityIdsResolver = async ({
       .filter(isSome),
   )
 
-  const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds(cosmosSdkAccounts)
+  const uniqueValidatorAccountIds = makeUniqueValidatorAccountIds({
+    cosmosAccounts: cosmosSdkAccounts,
+    isOsmoStakingEnabled,
+  })
 
   return {
     data: uniqueValidatorAccountIds,

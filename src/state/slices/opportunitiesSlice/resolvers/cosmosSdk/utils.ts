@@ -27,12 +27,18 @@ import {
 } from './constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity, UserUndelegation } from './types'
 
-export const makeUniqueValidatorAccountIds = (
-  cosmosAccounts: Account<CosmosSdkChainId>[],
-): ValidatorId[] =>
+export const makeUniqueValidatorAccountIds = ({
+  cosmosAccounts,
+  isOsmoStakingEnabled,
+}: {
+  cosmosAccounts: Account<CosmosSdkChainId>[]
+  isOsmoStakingEnabled: Boolean
+}): ValidatorId[] =>
   uniq([
     toValidatorId({ account: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS, chainId: cosmosChainId }),
-    toValidatorId({ account: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS, chainId: osmosisChainId }),
+    ...(isOsmoStakingEnabled
+      ? [toValidatorId({ account: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS, chainId: osmosisChainId })]
+      : []),
     ...flatMapDeep(cosmosAccounts, cosmosAccount => [
       cosmosAccount.chainSpecific.delegations.map(delegation =>
         toValidatorId({

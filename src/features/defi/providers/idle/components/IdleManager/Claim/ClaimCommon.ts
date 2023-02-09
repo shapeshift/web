@@ -1,16 +1,5 @@
 import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
 
-export enum ClaimPath {
-  Claim = '/',
-  Confirm = '/confirm',
-  Status = '/status',
-}
-
-export const routes = [
-  { step: 0, path: ClaimPath.Confirm, label: 'Confirm' },
-  { step: 1, path: ClaimPath.Status, label: 'Status' },
-]
-
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }

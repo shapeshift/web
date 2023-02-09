@@ -18,5 +18,3 @@ function setupMsw() {
 }
 
 export const { worker, server } = setupMsw()
-export const mock = (worker || server)!.use
-export { graphql, rest } from 'msw'

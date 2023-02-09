@@ -15,7 +15,6 @@ import type {
   StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
-import { makeTotalBondings } from '../cosmosSdk/utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -202,10 +201,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     ]
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      totalAmountCryptoBaseUnit: makeTotalBondings({
-        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
-        rewardsAmountsCryptoBaseUnit,
-      }).toFixed(),
       stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
       rewardsAmountsCryptoBaseUnit,
     }

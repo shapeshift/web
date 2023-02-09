@@ -11,6 +11,7 @@ import flatMapDeep from 'lodash/flatMapDeep'
 import flow from 'lodash/flow'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
+import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
@@ -106,11 +107,6 @@ export const makeAccountUserData = ({
       maybeValidatorUndelegations.length
     ) {
       acc[userStakingId] = {
-        totalAmountCryptoBaseUnit: makeTotalBondings({
-          stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
-          rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
-          undelegations: maybeValidatorUndelegations,
-        }).toFixed(),
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
         rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
         undelegations: maybeValidatorUndelegations,
@@ -146,14 +142,16 @@ export const isCosmosUserStaking = (
 ): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
   'undelegations' in userStakingOpportunity
 
-export const makeTotalUndelegations = (undelegations: UserUndelegation[]) =>
+export const makeTotalCosmosSdkUndelegations = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 
-export const makeTotalBondings = (userStakingOpportunity: Partial<UserStakingOpportunity>) =>
+export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
+  userStakingOpportunity: Partial<UserStakingOpportunity>,
+): BN =>
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
     .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
     .plus(
-      makeTotalUndelegations([
+      makeTotalCosmosSdkUndelegations([
         ...(isCosmosUserStaking(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
           : []),

@@ -18,6 +18,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -26,7 +27,6 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectTotalBondingsByUserStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -83,12 +83,20 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  const totalBondings = useAppSelector(state =>
-    selectTotalBondingsByUserStakingId(state, opportunityDataFilter),
+  const userStakingOpportunity = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const totalBondings = useMemo(
+    () =>
+      userStakingOpportunity
+        ? makeTotalCosmosSdkBondingsCryptoBaseUnit(userStakingOpportunity)
+        : bn(0),
+    [userStakingOpportunity],
   )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(totalBondings).div(bn(10).pow(stakingAsset.precision))
+  const cryptoAmountAvailable = totalBondings.div(bn(10).pow(stakingAsset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -108,7 +116,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
-  if (bnOrZero(totalBondings).eq(0)) {
+  if (totalBondings.eq(0)) {
     return (
       <CosmosEmpty
         assets={[stakingAsset]}

@@ -39,7 +39,12 @@ import type {
   UserStakingOpportunity,
   UserStakingOpportunityWithMetadata,
 } from '../types'
-import { deserializeUserStakingId, filterUserStakingIdByStakingIdCompareFn } from '../utils'
+import {
+  deserializeUserStakingId,
+  filterUserStakingIdByStakingIdCompareFn,
+  isActiveEarnOpportunity,
+  isActiveOpportunity,
+} from '../utils'
 
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
 
@@ -113,7 +118,7 @@ export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = cr
   selectUserStakingOpportunitiesWithMetadataByFilter,
   (userStakingOpportunities): BN =>
     userStakingOpportunities.reduce(
-      (acc, currentOpportunity) => acc.plus(currentOpportunity.totalAmountCryptoBaseUnit),
+      (acc, currentOpportunity) => acc.plus(currentOpportunity.stakedAmountCryptoBaseUnit),
       bn(0),
     ),
 )
@@ -175,20 +180,19 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
         | []
         | [string, string]
         | [string],
-      totalAmountCryptoBaseUnit: '0',
       ...userOpportunity,
       ...opportunityMetadata,
     }
   },
 )
 
-export const selectHasActiveStakingByFilter = createSelector(
+export const selectIsActiveStakingOpportunityByFilter = createSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
   (userStakingOpportunities): boolean =>
     userStakingOpportunities.some(userStakingOpportunity => {
       if (!userStakingOpportunity) return false
 
-      return bn(userStakingOpportunity.totalAmountCryptoBaseUnit).gt(0)
+      return isActiveOpportunity(userStakingOpportunity)
     }),
 )
 
@@ -200,11 +204,6 @@ export const selectHasClaimByUserStakingId = createSelector(
         bnOrZero(rewardAmount).gt(0),
       ),
     ),
-)
-
-export const selectTotalBondingsByUserStakingId = createSelector(
-  selectUserStakingOpportunityByUserStakingId,
-  (userStakingOpportunity): BN => bnOrZero(userStakingOpportunity?.totalAmountCryptoBaseUnit),
 )
 
 // "Give me the staking values of all my accounts for that specific opportunity"
@@ -308,16 +307,12 @@ const getAggregatedUserStakingOpportunityByStakingId = (
           : []),
         ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
       ]
-      const totalAmountCryptoBaseUnit = bnOrZero(acc?.totalAmountCryptoBaseUnit)
-        .plus(userStakingOpportunity.totalAmountCryptoBaseUnit)
-        .toFixed()
 
       return {
         ...userStakingOpportunityWithoutUserStakingId,
         stakedAmountCryptoBaseUnit,
         rewardsAmountsCryptoBaseUnit,
         undelegations,
-        totalAmountCryptoBaseUnit,
       }
     },
     undefined,
@@ -417,6 +412,12 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
     }),
 )
 
+export const selectActiveAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunities,
+  (aggregatedUserStakingOpportunities): StakingEarnOpportunityType[] =>
+    aggregatedUserStakingOpportunities.filter(isActiveEarnOpportunity),
+)
+
 // Used exclusively in useEarnBalances - returns a single aggregated amount, for all opportunities, accounts, and assets
 // Including delegations, undelegations, and rewards
 export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
@@ -429,10 +430,11 @@ export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
         const asset = assets[opportunity.assetId]
         const underlyingAsset = assets[opportunity.underlyingAssetId]
 
-        return bnOrZero(opportunity.totalAmountCryptoBaseUnit)
+        const stakedAmountFiatBalance = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
           .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-          .toString()
+
+        return stakedAmountFiatBalance
       })
       .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0)),
 )

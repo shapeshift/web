@@ -19,7 +19,6 @@ import type {
   StakingId,
 } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
-import { makeTotalBondings } from '../cosmosSdk/utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
@@ -130,7 +129,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        totalAmountCryptoBaseUnit: '0',
         stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoBaseUnit: [],
       }
@@ -145,10 +143,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     const rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-      totalAmountCryptoBaseUnit: makeTotalBondings({
-        stakedAmountCryptoBaseUnit: balance,
-        rewardsAmountsCryptoBaseUnit,
-      }).toFixed(),
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
     }

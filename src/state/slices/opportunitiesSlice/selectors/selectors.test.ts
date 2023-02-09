@@ -84,17 +84,14 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
-          totalAmountCryptoBaseUnit: '1000000000000009000',
           stakedAmountCryptoBaseUnit: '9000',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
@@ -189,12 +186,10 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
@@ -222,7 +217,6 @@ describe('opportunitiesSlice selectors', () => {
         provider: DefiProvider.FoxFarming,
         rewardsAmountsCryptoBaseUnit: ['420000000000000000000'],
         stakedAmountCryptoBaseUnit: '1337',
-        totalAmountCryptoBaseUnit: '420000000000000001337',
         tvl: '424242',
         type: 'lp',
         underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -243,7 +237,6 @@ describe('opportunitiesSlice selectors', () => {
         provider: DefiProvider.FoxFarming,
         stakedAmountCryptoBaseUnit: '4',
         rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
-        totalAmountCryptoBaseUnit: '3000000000000000004',
         tvl: '424242',
         type: 'lp',
         underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -285,17 +278,14 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
-          totalAmountCryptoBaseUnit: '420000000000000001337',
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
-          totalAmountCryptoBaseUnit: '1000000000000000100',
           stakedAmountCryptoBaseUnit: '100',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
-          totalAmountCryptoBaseUnit: '3000000000000000004',
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
@@ -323,7 +313,6 @@ describe('opportunitiesSlice selectors', () => {
             provider: DefiProvider.FoxFarming,
             rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '1337',
-            totalAmountCryptoBaseUnit: '420000000000000001337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetId: foxEthLpAssetId,
@@ -341,7 +330,6 @@ describe('opportunitiesSlice selectors', () => {
             provider: DefiProvider.FoxFarming,
             rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '100',
-            totalAmountCryptoBaseUnit: '1000000000000000100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
             underlyingAssetId: foxEthLpAssetId,
@@ -375,7 +363,6 @@ describe('opportunitiesSlice selectors', () => {
           ],
           rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
           stakedAmountCryptoBaseUnit: '1437',
-          totalAmountCryptoBaseUnit: '421000000000000001437',
           undelegations: [],
         })
       })

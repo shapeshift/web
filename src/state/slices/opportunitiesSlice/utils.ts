@@ -1,8 +1,17 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import type { OpportunityId, StakingId, UserStakingId, ValidatorId } from './types'
+import { isCosmosUserStaking, makeTotalCosmosSdkUndelegations } from './resolvers/cosmosSdk/utils'
+import type {
+  OpportunityId,
+  StakingEarnOpportunityType,
+  StakingId,
+  UserStakingId,
+  UserStakingOpportunityWithMetadata,
+  ValidatorId,
+} from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -40,3 +49,25 @@ export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
 // Since AccountId is generally used to represent portfolio accounts and not other, arbitrary on-chain accounts, we give this some flavour
 export const toValidatorId = (...[args]: Parameters<typeof toAccountId>) =>
   toAccountId(args) as ValidatorId
+
+export const isActiveOpportunity = (userStakingOpportunity: UserStakingOpportunityWithMetadata) =>
+  bn(userStakingOpportunity.stakedAmountCryptoBaseUnit).gt(0) ||
+  userStakingOpportunity.rewardsAmountsCryptoBaseUnit.some(rewardsAmount =>
+    bn(rewardsAmount).gt(0),
+  ) ||
+  // Defaults to 0 for non-Cosmos-Sdk opportunities
+  makeTotalCosmosSdkUndelegations([
+    ...(isCosmosUserStaking(userStakingOpportunity) ? userStakingOpportunity.undelegations : []),
+  ]).gt(0)
+
+export const isActiveEarnOpportunity = (earnUserStakingOpportunity: StakingEarnOpportunityType) =>
+  bn(earnUserStakingOpportunity?.stakedAmountCryptoBaseUnit ?? '0').gt(0) ||
+  earnUserStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.some(rewardsAmount =>
+    bn(rewardsAmount).gt(0),
+  ) ||
+  // Defaults to 0 for non-Cosmos-Sdk opportunities
+  makeTotalCosmosSdkUndelegations([
+    ...(isCosmosUserStaking(earnUserStakingOpportunity)
+      ? earnUserStakingOpportunity.undelegations
+      : []),
+  ]).gt(0)

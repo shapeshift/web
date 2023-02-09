@@ -17,7 +17,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectHasActiveStakingByFilter,
+  selectIsActiveStakingOpportunityByFilter,
   selectMarketDataById,
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
@@ -96,8 +96,8 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const userStakingOpportunities = useAppSelector(state =>
     selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
   )
-  const hasActiveStaking = useAppSelector(state =>
-    selectHasActiveStakingByFilter(state, userStakingOpportunitiesFilter),
+  const isActive = useAppSelector(state =>
+    selectIsActiveStakingOpportunityByFilter(state, userStakingOpportunitiesFilter),
   )
 
   const handleClick = useCallback(
@@ -171,13 +171,13 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         isNumeric: true,
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => {
-          const { totalAmountCryptoBaseUnit } = opportunityData
+          const { stakedAmountCryptoBaseUnit } = opportunityData
 
           return (
             <Skeleton isLoaded={Boolean(opportunityData)}>
-              {bnOrZero(totalAmountCryptoBaseUnit).gt(0) ? (
+              {bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ? (
                 <Amount.Crypto
-                  value={bnOrZero(totalAmountCryptoBaseUnit)
+                  value={bnOrZero(stakedAmountCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
@@ -201,7 +201,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => (
           <Skeleton isLoaded={Boolean(opportunityData)}>
-            {bn(opportunityData.totalAmountCryptoBaseUnit).gt(0) ? (
+            {bnOrZero(opportunityData.rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ? (
               <HStack fontWeight={'normal'}>
                 <Amount.Crypto
                   value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
@@ -266,7 +266,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         <ReactTable
           data={userStakingOpportunities}
           columns={columns}
-          displayHeaders={hasActiveStaking}
+          displayHeaders={isActive}
           onRowClick={handleClick}
         />
       </Card.Body>

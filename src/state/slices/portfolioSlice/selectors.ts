@@ -443,7 +443,8 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
           // Handle staking over multiple opportunities for a given AssetId e.g
           // - savers and native ATOM staking
           // - staking over different validators for the same AssetId
-          acc[accountId][assetId] = bn(userStakingOpportunity.totalAmountCryptoBaseUnit)
+          const stakedAmountCryptoBaseUnit = userStakingOpportunity.stakedAmountCryptoBaseUnit
+          acc[accountId][assetId] = bn(stakedAmountCryptoBaseUnit)
             .plus(bnOrZero(acc[accountId][assetId]))
             .toFixed()
         })

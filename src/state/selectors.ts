@@ -47,16 +47,13 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
       `${param}-${filter?.[param]}` ?? param,
   )
 
-export const selectAccountAddressParamFromFilter = selectParamFromFilter('accountAddress')
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
-export const selectValidatorIdParamFromFilter = selectParamFromFilter('validatorId')
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
-export const selectFiatRampActionFromFilter = selectParamFromFilter('fiatRampAction')
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')

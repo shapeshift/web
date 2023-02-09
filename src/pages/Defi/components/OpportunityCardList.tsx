@@ -60,7 +60,7 @@ export const OpportunityCardList = () => {
           <OpportunityCard key={i} {...opportunity} />
         ))}
       </SimpleGrid>
-      {activeStakingOpportunities.length === 0 && (
+      {activeOpportunities.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

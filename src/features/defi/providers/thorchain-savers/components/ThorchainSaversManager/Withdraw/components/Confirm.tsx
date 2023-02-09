@@ -30,6 +30,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixPanelSingleton'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -537,6 +538,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
+      getMixPanel().track('THORSavers.Withdraw', {
+        amount: withdrawFeeCryptoBaseUnit,
+        asset: assetId,
+      })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({

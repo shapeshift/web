@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import {
   selectBIP44ParamsByAccountId,
@@ -86,6 +87,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         api.getGasPrice(),
       ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
+      getMixPanel().track('defi.deposit', {
+        type: 'foxy',
+        step: 'confirm',
+        amount: state?.deposit.cryptoAmount,
+      })
       onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({

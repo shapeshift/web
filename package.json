@@ -30,7 +30,8 @@
     "postinstall": "./scripts/postinstall.sh",
     "release": "ts-node --skipProject ./scripts/release.ts",
     "scrape-walletconnect-dapps": "ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
-    "env": "ts-node --skipProject ./scripts/bootstrap-env.ts"
+    "env": "ts-node --skipProject ./scripts/bootstrap-env.ts",
+    "deadcode": "ts-prune"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -259,6 +260,7 @@
     "storybook-dark-mode": "^1.0.9",
     "ts-jest": "^27.1.5",
     "ts-node": "^10.8.0",
+    "ts-prune": "^0.10.3",
     "typechain": "^8.1.1",
     "typescript": "^4.7.0",
     "val-loader": "^4.0.0",

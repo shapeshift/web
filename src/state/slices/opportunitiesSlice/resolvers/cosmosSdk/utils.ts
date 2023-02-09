@@ -27,46 +27,52 @@ import {
 } from './constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity, UserUndelegation } from './types'
 
-export const makeUniqueValidatorAccountIds = (
-  cosmosAccounts: Account<CosmosSdkChainId>[],
-): ValidatorId[] =>
+export const makeUniqueValidatorAccountIds = ({
+  cosmosSdkAccounts,
+  isOsmoStakingEnabled,
+}: {
+  cosmosSdkAccounts: Account<CosmosSdkChainId>[]
+  isOsmoStakingEnabled: Boolean
+}): ValidatorId[] =>
   uniq([
     toValidatorId({ account: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS, chainId: cosmosChainId }),
-    toValidatorId({ account: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS, chainId: osmosisChainId }),
-    ...flatMapDeep(cosmosAccounts, cosmosAccount => [
-      cosmosAccount.chainSpecific.delegations.map(delegation =>
+    ...(isOsmoStakingEnabled
+      ? [toValidatorId({ account: SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS, chainId: osmosisChainId })]
+      : []),
+    ...flatMapDeep(cosmosSdkAccounts, cosmosSdkAccount => [
+      cosmosSdkAccount.chainSpecific.delegations.map(delegation =>
         toValidatorId({
           account: delegation.validator.address,
-          chainId: cosmosAccount.chainId,
+          chainId: cosmosSdkAccount.chainId,
         }),
       ),
-      cosmosAccount.chainSpecific.undelegations
+      cosmosSdkAccount.chainSpecific.undelegations
         .map(undelegation =>
           toValidatorId({
             account: undelegation.validator.address,
-            chainId: cosmosAccount.chainId,
+            chainId: cosmosSdkAccount.chainId,
           }),
         )
         .filter(isSome),
-      cosmosAccount.chainSpecific.rewards.map(reward =>
+      cosmosSdkAccount.chainSpecific.rewards.map(reward =>
         toValidatorId({
           account: reward.validator.address,
-          chainId: cosmosAccount.chainId,
+          chainId: cosmosSdkAccount.chainId,
         }),
       ),
     ]),
   ])
 
 export const makeAccountUserData = ({
-  cosmosAccount,
+  cosmosSdkAccount,
   validatorIds,
 }: {
-  cosmosAccount: Account<CosmosSdkChainId>
+  cosmosSdkAccount: Account<CosmosSdkChainId>
   validatorIds: ValidatorId[]
 }): OpportunitiesState['userStaking']['byId'] => {
-  const delegations = cosmosAccount.chainSpecific.delegations
-  const undelegations = cosmosAccount.chainSpecific.undelegations
-  const rewards = cosmosAccount.chainSpecific.rewards
+  const delegations = cosmosSdkAccount.chainSpecific.delegations
+  const undelegations = cosmosSdkAccount.chainSpecific.undelegations
+  const rewards = cosmosSdkAccount.chainSpecific.rewards
 
   const delegationsByValidator = groupBy(delegations, delegation => delegation.validator.address)
   const undelegationsByValidator = groupBy(
@@ -78,7 +84,7 @@ export const makeAccountUserData = ({
   return validatorIds.reduce<Record<UserStakingId, UserStakingOpportunity>>((acc, validatorId) => {
     const validatorAddress = fromAccountId(validatorId).account
     const userStakingId = serializeUserStakingId(
-      toAccountId({ account: cosmosAccount.pubkey, chainId: cosmosAccount.chainId }),
+      toAccountId({ account: cosmosSdkAccount.pubkey, chainId: cosmosSdkAccount.chainId }),
       validatorId,
     )
 

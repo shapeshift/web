@@ -18,7 +18,7 @@ export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
   return (
     <Tooltip label={translate('features.yat.banner.title')} isDisabled={isBig} placement='right'>
       <Link
-        href='https://y.at'
+        href='https://www.y03btrk.com/DFBHL/7XDN2/'
         isExternal
         display='block'
         aria-label={translate('features.yat.banner.title')}

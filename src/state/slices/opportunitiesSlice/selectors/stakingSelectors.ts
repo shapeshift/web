@@ -45,8 +45,8 @@ import type {
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,
-  isActiveEarnOpportunity,
-  isActiveOpportunity,
+  isActiveStakingEarnOpportunity,
+  isActiveStakingOpportunity,
 } from '../utils'
 
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
@@ -195,7 +195,7 @@ export const selectIsActiveStakingOpportunityByFilter = createSelector(
     userStakingOpportunities.some(userStakingOpportunity => {
       if (!userStakingOpportunity) return false
 
-      return isActiveOpportunity(userStakingOpportunity)
+      return isActiveStakingOpportunity(userStakingOpportunity)
     }),
 )
 
@@ -418,7 +418,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
 export const selectActiveAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunities,
   (aggregatedUserStakingOpportunities): StakingEarnOpportunityType[] =>
-    aggregatedUserStakingOpportunities.filter(isActiveEarnOpportunity),
+    aggregatedUserStakingOpportunities.filter(isActiveStakingEarnOpportunity),
 )
 
 // Used exclusively in useEarnBalances - returns a single aggregated amount, for all opportunities, accounts, and assets

@@ -28,7 +28,10 @@ import {
 } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
-import { isCosmosUserStaking } from '../resolvers/cosmosSdk/utils'
+import {
+  isCosmosUserStaking,
+  makeTotalCosmosSdkUndelegationsCryptoBaseUnit,
+} from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
@@ -434,7 +437,26 @@ export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
           .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
 
-        return stakedAmountFiatBalance
+        const rewardsAmountFiatBalance = [...opportunity.rewardsAmountsCryptoBaseUnit].reduce<BN>(
+          (acc, currentAmount, i) => {
+            const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
+            const rewardAsset = assets[rewardAssetId]
+            return acc.plus(
+              bnOrZero(currentAmount)
+                .times(marketData[rewardAssetId]?.price ?? '0')
+                .div(bn(10).pow(rewardAsset?.precision ?? 1)),
+            )
+          },
+          bn(0),
+        )
+
+        const undelegationsFiatBalance = makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
+          ...(isCosmosUserStaking(opportunity) ? opportunity.undelegations : []),
+        ])
+          .times(marketData[opportunity.assetId]?.price ?? '0')
+          .div(bn(10).pow(asset?.precision ?? 1))
+
+        return stakedAmountFiatBalance.plus(rewardsAmountFiatBalance).plus(undelegationsFiatBalance)
       })
       .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0)),
 )

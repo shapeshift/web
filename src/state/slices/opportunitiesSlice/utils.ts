@@ -3,7 +3,10 @@ import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { STAKING_ID_DELIMITER } from './constants'
-import { isCosmosUserStaking, makeTotalCosmosSdkUndelegations } from './resolvers/cosmosSdk/utils'
+import {
+  isCosmosUserStaking,
+  makeTotalCosmosSdkUndelegationsCryptoBaseUnit,
+} from './resolvers/cosmosSdk/utils'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -56,7 +59,7 @@ export const isActiveOpportunity = (userStakingOpportunity: UserStakingOpportuni
     bn(rewardsAmount).gt(0),
   ) ||
   // Defaults to 0 for non-Cosmos-Sdk opportunities
-  makeTotalCosmosSdkUndelegations([
+  makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
     ...(isCosmosUserStaking(userStakingOpportunity) ? userStakingOpportunity.undelegations : []),
   ]).gt(0)
 
@@ -66,7 +69,7 @@ export const isActiveEarnOpportunity = (earnUserStakingOpportunity: StakingEarnO
     bn(rewardsAmount).gt(0),
   ) ||
   // Defaults to 0 for non-Cosmos-Sdk opportunities
-  makeTotalCosmosSdkUndelegations([
+  makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
     ...(isCosmosUserStaking(earnUserStakingOpportunity)
       ? earnUserStakingOpportunity.undelegations
       : []),

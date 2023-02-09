@@ -113,7 +113,7 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
       .filter(isSome),
 )
 
-// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
+// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all staked amounts into one BN
 export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = createSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
   (userStakingOpportunities): BN =>
@@ -122,7 +122,7 @@ export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = cr
       bn(0),
     ),
 )
-// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
+// The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all staked amounts into one BN representing the fiat value
 export const selectUserStakingOpportunitiesAggregatedByFilterFiat = createSelector(
   selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
   selectAssetByFilter,

@@ -15,7 +15,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -100,7 +100,9 @@ export const Status = () => {
           <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
           <Row.Value>
             <Amount.Crypto
-              value={bnOrZero(opportunity.rewards).div(`1e+${asset.precision}`).toString()}
+              value={bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
+                .div(bn(10).pow(asset.precision))
+                .toString()}
               symbol={asset?.symbol}
             />
           </Row.Value>

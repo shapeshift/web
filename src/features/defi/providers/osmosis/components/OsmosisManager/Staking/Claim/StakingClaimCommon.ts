@@ -1,4 +1,4 @@
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum TxStatus {
   PENDING = 'pending',
@@ -13,7 +13,7 @@ type OsmosisStakingClaimValues = {
 }
 
 export type OsmosisStakingClaimState = {
-  opportunity: MergedActiveStakingOpportunity
+  opportunity: StakingEarnOpportunityType
   userAddress: string | null
   claim: OsmosisStakingClaimValues
   loading: boolean
@@ -30,7 +30,7 @@ export enum OsmosisStakingClaimActionType {
 
 type SetOsmosisStakingOpportunitiesAction = {
   type: OsmosisStakingClaimActionType.SET_OPPORTUNITY
-  payload: Partial<MergedActiveStakingOpportunity> | null
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetClaim = {

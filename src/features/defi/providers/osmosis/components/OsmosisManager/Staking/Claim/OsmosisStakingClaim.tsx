@@ -18,8 +18,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { selectAssetById, selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'
@@ -37,9 +41,8 @@ type OsmosisStakingClaimProps = { accountId: AccountId | undefined }
 export const OsmosisStakingClaim: React.FC<OsmosisStakingClaimProps> = ({ accountId }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference, chainId } = query
+  const { assetNamespace, contractAddress: validatorAddress, assetReference, chainId } = query
   const { state: walletState } = useWallet()
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -48,37 +51,41 @@ export const OsmosisStakingClaim: React.FC<OsmosisStakingClaimProps> = ({ accoun
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const osmosisStakingOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(osmosisStakingOpportunity && bip44Params)) return
+        if (!(earnOpportunityData && bip44Params)) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId) as unknown as osmosis.ChainAdapter
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
 
         dispatch({ type: OsmosisStakingClaimActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: OsmosisStakingClaimActionType.SET_OPPORTUNITY,
-          payload: { ...osmosisStakingOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'OsmosisStakingClaim error')
       }
     })()
-  }, [chainId, osmosisStakingOpportunity, contractAddress, walletState.wallet, bip44Params])
+  }, [chainId, validatorAddress, earnOpportunityData, walletState.wallet, bip44Params])
 
   // Asset info
 

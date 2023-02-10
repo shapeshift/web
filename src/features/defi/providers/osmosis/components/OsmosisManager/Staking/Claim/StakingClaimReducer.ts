@@ -1,11 +1,11 @@
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 import type { OsmosisStakingClaimActions, OsmosisStakingClaimState } from './StakingClaimCommon'
 import { OsmosisStakingClaimActionType, TxStatus } from './StakingClaimCommon'
 
 export const initialState: OsmosisStakingClaimState = {
   txid: null,
-  opportunity: {} as MergedActiveStakingOpportunity,
+  opportunity: {} as StakingEarnOpportunityType,
   userAddress: null,
   loading: false,
   claim: {

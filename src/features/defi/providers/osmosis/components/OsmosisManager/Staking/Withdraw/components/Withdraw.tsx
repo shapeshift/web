@@ -16,11 +16,12 @@ import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectDelegationCryptoAmountByAssetIdAndValidator,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,7 +49,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch } = useContext(StakingWithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference, contractAddress: validatorAddress } = query
   const toast = useToast()
 
   const methods = useForm<OsmosisStakingWithdrawValues>({ mode: 'onChange' })
@@ -77,18 +78,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  const filter = useMemo(
-    () => ({
-      accountId: accountId ?? '',
-      validatorAddress: contractAddress,
-      assetId,
-    }),
-    [accountId, assetId, contractAddress],
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
-  const cryptoStakeBalance = useAppSelector(s =>
-    selectDelegationCryptoAmountByAssetIdAndValidator(s, filter),
+  const cryptoStakeBalanceHuman = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+    bn(10).pow(asset.precision),
   )
-  const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
@@ -184,7 +189,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   if (!state || !dispatch) return null
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+      bn(10).pow(asset.precision),
+    )
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -192,7 +199,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(cryptoStakeBalance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
+      bn(10).pow(asset.precision),
+    )
     const fiat = crypto.times(bnOrZero(marketData?.price))
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

@@ -19,11 +19,11 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -50,21 +50,15 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
 
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
-  })
-  const underlyingAssetId = toAssetId({
-    // TODO: Underlying asset is the same as the staked asset for now, handle multiple denoms
-    chainId,
-    assetNamespace,
     assetReference,
   })
+  const underlyingAssetId = assetId
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
 
@@ -84,14 +78,19 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
   const chainAdapter = chainAdapterManager.get(chainId)
   const { state: walletState } = useWallet()
 
-  const opportunities = useCosmosSdkStakingBalances({ accountId, assetId })
-  const osmosisStakingOpportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ) ?? {},
-    [opportunities, contractAddress],
-  ) as unknown as MergedActiveStakingOpportunity // TODO: remove casting
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
@@ -100,7 +99,7 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
     if (!bip44Params) return
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter)) return
+        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
         const { accountNumber } = bip44Params
         const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
@@ -110,14 +109,14 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
         })
         dispatch({
           type: OsmosisStakingWithdrawActionType.SET_OPPORTUNITY,
-          payload: { ...osmosisStakingOpportunity },
+          payload: { ...earnOpportunityData },
         })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'OsmosisStakingWithdraw error')
       }
     })()
-  }, [bip44Params, osmosisStakingOpportunity, chainAdapter, contractAddress, walletState.wallet])
+  }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {
@@ -151,7 +150,7 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
     })
   }
 
-  if (!osmosisStakingOpportunity?.isLoaded || !asset || !marketData || !feeMarketData)
+  if (!(earnOpportunityData && asset && marketData && feeMarketData))
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

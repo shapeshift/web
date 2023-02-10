@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -49,7 +49,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
-  const claimAmount = bnOrZero(opportunity?.rewards).toString()
+  const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
@@ -150,7 +150,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState?.wallet,
   ])
 
-  if (!state || !accountId || !dispatch || !asset) return null
+  if (!state || !dispatch || !asset) return null
 
   return (
     <>
@@ -178,9 +178,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 color='blue.500'
                 href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
               >
-                {state.userAddress && (
-                  <MiddleEllipsis value={fromAccountId(accountId).account ?? state.userAddress} />
-                )}
+                {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>

@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import type { MergedActiveStakingOpportunity } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type SupportedOsmosisOpportunity = {
   type: DefiType
@@ -44,7 +44,7 @@ export enum OsmosisStakingDepositActionType {
 
 type SetOsmosisStakingOpportunitiesAction = {
   type: OsmosisStakingDepositActionType.SET_OPPORTUNITY
-  payload: Partial<MergedActiveStakingOpportunity> | null
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetDeposit = {

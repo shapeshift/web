@@ -12,10 +12,12 @@ import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isCosmosUserStaking } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectFirstAccountIdByChainId,
-  selectUnbondingEntriesByAccountId,
+  selectHasClaimByUserStakingId,
+  selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,27 +31,38 @@ export const OsmosisStakingWithdrawCard = ({
   accountId: routeAccountId,
 }: OsmosisStakingWithdrawCardProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress } = query
+  const { chainId, contractAddress: validatorAddress } = query
 
-  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, asset.chainId))
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
-  const filter = useMemo(
-    () => ({
-      accountId: routeAccountId ?? accountId,
-      validatorAddress: contractAddress,
-      assetId: asset.assetId,
-    }),
-    [accountId, asset.assetId, contractAddress, routeAccountId],
+  const opportunityDataFilter = useMemo(() => {
+    if (!routeAccountId) return {}
+    const userStakingId = serializeUserStakingId(routeAccountId, validatorId)
+    return { userStakingId }
+  }, [routeAccountId, validatorId])
+
+  const opportunityData = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
-  const undelegationEntries = useAppSelector(s => selectUnbondingEntriesByAccountId(s, filter))
 
-  const hasClaim = useMemo(() => Boolean(undelegationEntries.length), [undelegationEntries])
+  const hasClaim = useAppSelector(state =>
+    selectHasClaimByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const undelegationEntries = useMemo(() => {
+    if (!opportunityData) return []
+    if (isCosmosUserStaking(opportunityData) && opportunityData.undelegations.length) {
+      return opportunityData.undelegations
+    }
+    return []
+  }, [opportunityData])
+
   const textColor = useColorModeValue('black', 'white')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
   const undelegationNodes = useMemo(
     () =>
-      undelegationEntries.map(({ amount, completionTime }) => {
+      undelegationEntries.map(({ undelegationAmountCryptoBaseUnit, completionTime }) => {
         return (
           <Button
             variant='input'
@@ -80,7 +93,9 @@ export const OsmosisStakingWithdrawCard = ({
             <Stack spacing={0} ml='auto' textAlign='right'>
               <Amount.Crypto
                 color={textColor}
-                value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+                value={bnOrZero(undelegationAmountCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toString()}
                 symbol={asset.symbol}
                 maximumFractionDigits={asset.precision}
               />
@@ -88,7 +103,7 @@ export const OsmosisStakingWithdrawCard = ({
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={[
-                  'defi.modals.cosmosOverview.availableDate',
+                  'defi.modals.osmosis.staking.overview.availableDate',
                   { date: dayjs().to(dayjs.unix(completionTime)) },
                 ]}
               />
@@ -96,14 +111,14 @@ export const OsmosisStakingWithdrawCard = ({
           </Button>
         )
       }),
-    [asset.precision, asset.symbol, textColor, pendingColor, undelegationEntries],
+    [undelegationEntries, textColor, pendingColor, asset.precision, asset.symbol],
   )
 
   return (
     <Stack px={8} py={6}>
-      <Text fontWeight='medium' translation='defi.modals.cosmosOverview.withdrawals' />
+      <Text fontWeight='medium' translation='defi.modals.osmosis.staking.overview.withdrawals' />
       {!hasClaim ? (
-        <Text color='gray.500' translation='defi.modals.cosmosOverview.emptyWithdraws' />
+        <Text color='gray.500' translation='defi.modals.osmosis.staking.overview.emptyWithdraws' />
       ) : (
         undelegationNodes
       )}

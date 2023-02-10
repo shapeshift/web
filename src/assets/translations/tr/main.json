@@ -84,7 +84,8 @@
     "pageNotFound": "Aradığınız sayfa bulunamadı",
     "buySell": "Al/Sat",
     "all": "Hepsi",
-    "viewAll": "Hepsini Gör"
+    "viewAll": "Hepsini Gör",
+    "slippage": "Kayma"
   },
   "errorPage": {
     "title": "Hata!",
@@ -162,6 +163,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Çok yakında ...",
     "buy": "Satın Al",
     "sell": "Sat",
@@ -286,7 +288,7 @@
         "claimYour": " %{opportunity} Talep Edin"
       },
       "saversVaults": {
-        "description": "THORChain Birikim Kasaları aracılığıyla %{varlığınız} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
+        "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
         "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
@@ -298,7 +300,22 @@
         "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
         "sendDustBody": "Para çekebilmek için bu adrese biraz toz göndermeniz gerekiyor.",
         "sendDust": "Toz Gönder",
-        "addressToSendTo": "Gönderilecek Adres"
+        "addressToSendTo": "Gönderilecek Adres",
+        "introducingSaversVaults": "Saver Vaults Giriş",
+        "risksBody": {
+          "1": "Saver Vaults ile ilgili riskler için",
+          "2": "bu makaleye",
+          "3": "bakın."
+        },
+        "understand": "Anladım",
+        "days": "%{amount} günler",
+        "day": "%{amount} gün",
+        "timeToBreakEven": {
+          "title": "Eşitiliği bozma",
+          "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
+        },
+        "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
       }
     },
     "memoNote": {
@@ -608,6 +625,7 @@
       "balanceToLow": "Bakiye çok düşük. Bu çift için minimum işlem tutarı %{minLimit}",
       "dexTradeFailed": "İşlem Başarısız Oldu, Jetonlar İade Edildi",
       "quoteFailed": "İşleminiz için fiyat teklifi alınırken bir hata oluştu.",
+      "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
       "failedQuoteExecuted": "Başarısız bir fiyat teklifi yürütülemez",
       "sellAssetRequired": "Satılacak bir varlık olmadan fiyat teklifi yürütülemez",
       "sellAmountRequired": "Satılacak bir miktar olmadan fiyat teklifi yürütülemez",
@@ -907,6 +925,7 @@
       "estimatedReturns": "Tahmini Yıllık Getiri*",
       "estimatedGas": "Tahmini Gaz Ücreti",
       "notEnoughGas": "Gazı kapatmak için yeterli %{assetSymbol} yok",
+      "missingFundsForGas": "Yeterli bakiye yok, işlemi tamamlamak için %{cryptoAmountHuman} %{assetSymbol} daha gerekiyor",
       "preFooter": "Ödüller otomatik olarak tahakkuk eder",
       "signBroadcast": "İmzala ve Yayınla",
       "cancel": "İptal"
@@ -1462,7 +1481,7 @@
       "buyAssetOnCoinbase": "Coinbase'de %{assetSymbol} satın alın",
       "totalFoxValue": "Toplam FOX Değeri",
       "foxToken": "ShapeShift %{assetSymbol} Jetonu",
-      "foxDescription": "2019'dan bu yana, şekil değiştiren FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
+      "foxDescription": "2019'dan bu yana, ShapeShift FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
       "getAsset": "%{assetSymbol} alın",
       "trade": "Takas",
       "receive": "Al",

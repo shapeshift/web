@@ -84,7 +84,8 @@
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
     "buySell": "Kaufen/Verkaufen",
     "all": "Alle",
-    "viewAll": "Alle ansehen"
+    "viewAll": "Alle ansehen",
+    "slippage": "Marktabweichung"
   },
   "errorPage": {
     "title": "Hoppala!",
@@ -162,6 +163,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
@@ -298,7 +300,22 @@
         "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
         "sendDustBody": "Sie müssen einen Kleinbetrag an diese Adresse senden, um Abheben zu können.",
         "sendDust": "Sende Kleinbetrag",
-        "addressToSendTo": "an diese Adresse senden"
+        "addressToSendTo": "an diese Adresse senden",
+        "introducingSaversVaults": "Einführung von Savers Vaults",
+        "risksBody": {
+          "1": "In Bezug auf",
+          "2": "diesen Artikel",
+          "3": "für Risiken im Zusammenhang mit Savers Vaults."
+        },
+        "understand": "Ich verstehe",
+        "days": "%{amount} Tage",
+        "day": "%{amount} Tag",
+        "timeToBreakEven": {
+          "title": "Zeit zum Break-Even",
+          "tooltip": "Geschätzte Zeit zur Deckung von Einzahlungsgebühren und Einnahmen."
+        },
+        "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
+        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen"
       }
     },
     "memoNote": {
@@ -608,6 +625,7 @@
       "balanceToLow": "Guthaben zu niedrig. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
       "dexTradeFailed": "Handel fehlgeschlagen, Token zurückgegeben",
       "quoteFailed": "Beim Abrufen eines Angebots für Ihren Handel ist ein Fehler aufgetreten.",
+      "quoteExpired": "Angebot abgelaufen, versuchen Sie es erneut.",
       "failedQuoteExecuted": "Ein fehlgeschlagenes Angebot kann nicht ausgeführt werden",
       "sellAssetRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Vermögenswert ausgeführt werden",
       "sellAmountRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Betrag ausgeführt werden",
@@ -907,6 +925,7 @@
       "estimatedReturns": "Geschätzte jährliche Rendite*",
       "estimatedGas": "Geschätzte Gasgebühr",
       "notEnoughGas": "Nicht genug %{assetSymbol}, um Gas abzudecken",
+      "missingFundsForGas": "Nicht genügend Guthaben, Sie benötigen %{cryptoAmountHuman} %{assetSymbol} mehr, um die Transaktion abzuschließen",
       "preFooter": "Prämien fallen automatisch an",
       "signBroadcast": "Signieren und übertragen",
       "cancel": "Abbruch"

@@ -2,8 +2,6 @@ import {
   type AssetId,
   btcAssetId,
   btcChainId,
-  cosmosAssetId,
-  cosmosChainId,
   ethAssetId,
   ethChainId,
   foxAssetId,
@@ -49,133 +47,6 @@ export const btcAddresses = Object.freeze([
   'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8',
 ])
 
-export const mockCosmosAccountWithStakingData = Object.freeze({
-  chainSpecific: {
-    delegations: [
-      {
-        amount: '4',
-        assetId: 'cosmos:cosmoshub-4/slip44:118',
-        validator: {
-          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-          tokens: '111115',
-          apr: '0.1662979435',
-          commission: '0.000000000000000000',
-          moniker: 'tokenpocket',
-        },
-      },
-      {
-        amount: '10015',
-        assetId: 'cosmos:cosmoshub-4/slip44:118',
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-      {
-        amount: '5000',
-        assetId: 'cosmos:cosmoshub-4/slip44:118',
-        validator: {
-          address: 'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
-          tokens: '111117',
-          apr: '0.1514974265',
-          commission: '0.089000000000000000',
-          moniker: 'Cosmostation',
-        },
-      },
-    ],
-    redelegations: [
-      {
-        destinationValidator: {
-          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-          tokens: '111115',
-          apr: '0.1662979435',
-          commission: '0.000000000000000000',
-          moniker: 'tokenpocket',
-        },
-        entries: [
-          {
-            amount: '4',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650470407,
-          },
-        ],
-        sourceValidator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-    ],
-    rewards: [
-      {
-        rewards: [],
-        validator: {
-          address: 'cosmosvaloper1qtxec3ggeuwnca9mmngw7vf6ctw54cppey02fs',
-          tokens: '111115',
-          apr: '0.1662979435',
-          commission: '0.000000000000000000',
-          moniker: 'tokenpocket',
-        },
-      },
-      {
-        rewards: [
-          {
-            amount: '3.831752143667562385',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-          },
-        ],
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-      {
-        rewards: [
-          {
-            amount: '12.688084635379675000',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-          },
-        ],
-        validator: {
-          address: 'cosmosvaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4epsluffn',
-          tokens: '111117',
-          apr: '0.1514974265',
-          commission: '0.089000000000000000',
-          moniker: 'Cosmostation',
-        },
-      },
-    ],
-    undelegations: [
-      {
-        entries: [
-          {
-            amount: '100',
-            assetId: 'cosmos:cosmoshub-4/slip44:118',
-            completionTime: 1650472940,
-          },
-        ],
-        validator: {
-          address: 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf',
-          tokens: '111116',
-          apr: '0.1496681491',
-          commission: '0.100000000000000000',
-          moniker: 'ShapeShift DAO',
-        },
-      },
-    ],
-    sequence: '422',
-    accountNumber: '424242',
-  },
-})
-
 export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
 export const osmoPubKeys = Object.freeze(['osmo1n89secc5fgu4cje3jw6c3pu264vy2yavzm8khe'])
 
@@ -197,29 +68,6 @@ export const mockEthAccount = (obj?: Partial<Account<KnownChainIds.EthereumMainn
         nonce: 1,
       },
       pubkey: ethPubKeys[0],
-    },
-    obj,
-  )
-
-export const mockCosmosAccount = (obj?: {
-  chainSpecific: Account<KnownChainIds.CosmosMainnet>['chainSpecific']
-}): Account<KnownChainIds.CosmosMainnet> =>
-  merge(
-    {},
-    {
-      balance: '0',
-      chainId: cosmosChainId,
-      assetId: cosmosAssetId,
-      chain: KnownChainIds.CosmosMainnet as const,
-      chainSpecific: {
-        sequence: '',
-        accountNumber: '',
-        delegations: [],
-        redelegations: [],
-        undelegations: [],
-        rewards: [],
-      },
-      pubkey: cosmosPubKeys[0],
     },
     obj,
   )

@@ -41,7 +41,9 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     web3: ethWeb3,
   })
 
-  _swapperManager.addSwapper(cowSwapper)
+  const { Cowswap } = flags
+
+  if (Cowswap) _swapperManager.addSwapper(cowSwapper)
 
   const zrxEthereumSwapper = new ZrxSwapper({
     web3: ethWeb3,

@@ -40,47 +40,45 @@ export const TransactionMethod = ({
     [txDetails.transfers],
   )
 
-  const titlePrefix = translate(
-    txMetadata.parser
-      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
-      : 'transactionRow.unknown',
-  )
-
   const title = useMemo(() => {
     const symbol = asset?.symbol
-
+    const titlePrefix = txMetadata.parser
+      ? `transactionRow.parser.${txMetadata.parser}.${txMetadata.method}`
+      : 'transactionRow.unknown'
     switch (txMetadata.method) {
       case 'approve':
-        return `${titlePrefix} ${symbol}`
       case 'revoke':
-        return `${titlePrefix} ${symbol} approval`
+        // add symbol if available
+        return symbol ? translate(`${titlePrefix}Symbol`, { symbol }) : translate(titlePrefix)
       default:
-        return titlePrefix
+        return translate(titlePrefix)
     }
-  }, [asset?.symbol, titlePrefix, txMetadata.method])
+  }, [asset?.symbol, txMetadata.parser, txMetadata.method, translate])
 
   const type = useMemo(() => {
     switch (txMetadata.method) {
-      case Method.Deposit:
       case Method.AddLiquidityEth:
-      case Method.TransferOut:
-      case Method.Stake:
-      case Method.Delegate:
       case Method.BeginRedelegate:
+      case Method.Delegate:
+      case Method.Deposit:
+      case Method.JoinPool:
+      case Method.Stake:
       case Method.Transfer:
+      case Method.TransferOut:
         return TransferType.Send
-      case Method.Withdraw:
-      case Method.RemoveLiquidityEth:
-      case Method.Unstake:
-      case Method.InstantUnstake:
+      case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
       case Method.Exit:
-      case Method.Outbound:
+      case Method.ExitPool:
+      case Method.InstantUnstake:
       case Method.Out:
-      case Method.Refund:
-      case Method.BeginUnbonding:
-      case Method.WithdrawDelegatorReward:
+      case Method.Outbound:
       case Method.RecvPacket:
+      case Method.Refund:
+      case Method.RemoveLiquidityEth:
+      case Method.Unstake:
+      case Method.Withdraw:
+      case Method.WithdrawDelegatorReward:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:

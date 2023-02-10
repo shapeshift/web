@@ -363,6 +363,7 @@ describe('opportunitiesSlice selectors', () => {
           ],
           rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
           stakedAmountCryptoBaseUnit: '1437',
+          undelegations: [],
         })
       })
     })

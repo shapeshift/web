@@ -56,7 +56,7 @@ export const ArkeoPage = () => {
               <RawText fontSize='lg' color='gray.500'>
                 {`
               ${translate('arkeo.whatIsArkeo.bodyParts.1')} `}
-                <Link color={linkColor} isExternal href='https://www.coinbase.com/ventures'>
+                <Link color={linkColor} isExternal href='https://shapeshift.com/library/foxchain-shapeshift-partners-with-coinbase-cloud'>
                   {translate('arkeo.whatIsArkeo.bodyParts.2')}
                 </Link>
                 {` 

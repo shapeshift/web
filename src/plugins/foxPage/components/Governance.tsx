@@ -9,6 +9,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetGovernanceData } from '../hooks/getGovernanceData'
 
 const BOARDROOM_APP_BASE_URL = getConfig().REACT_APP_BOARDROOM_APP_BASE_URL
+const SNAPSHOT_BASE_URL = getConfig().REACT_APP_SNAPSHOT_BASE_URL
 
 export const Governance = () => {
   const linkColor = useColorModeValue('blue.500', 'blue.200')
@@ -19,12 +20,7 @@ export const Governance = () => {
       <Card.Header>
         <Flex flexDirection='row' justifyContent='space-between' alignItems='center' mb={2}>
           <Text translation='plugins.foxPage.governanceTitle' fontWeight='bold' color='inherit' />
-          <Link
-            isExternal
-            href={`${BOARDROOM_APP_BASE_URL}proposals`}
-            fontWeight='semibold'
-            color={linkColor}
-          >
+          <Link isExternal href={SNAPSHOT_BASE_URL} fontWeight='semibold' color={linkColor}>
             <Text translation='plugins.foxPage.seeAllProposals' />
           </Link>
         </Flex>

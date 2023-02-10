@@ -14,8 +14,9 @@ import { ModalSection } from 'plugins/walletConnectToDapps/components/modal/call
 import { AccountSelectionOverview } from 'plugins/walletConnectV2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectV2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectV2/components/Permissions'
+import { useWalletConnectV2 } from 'plugins/walletConnectV2/WalletConnectV2Provider'
 import type { FC } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
@@ -48,6 +49,7 @@ const filterSupportedNamespaces = (
 
 const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) => {
   const wallet = useWallet().state.wallet
+  const { web3wallet } = useWalletConnectV2()
   const translate = useTranslate()
 
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>(() => [])
@@ -58,8 +60,13 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
         : [...previousState, accountId],
     )
 
-  const handleApprove = () => {}
-  const handleReject = () => {}
+  const handleApprove = useCallback(async () => {
+    const session = await web3wallet?.approveSession({
+      id: proposal.id,
+      proposal,
+    })
+  }, [proposal.id, web3wallet])
+  const handleReject = useCallback(() => {}, [])
 
   // TODO: Show an error if no namespaces are supported by the connect wallet
   const filteredNamespaces = filterSupportedNamespaces(proposal.params.requiredNamespaces, wallet)
@@ -74,6 +81,7 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
     proposer,
     requiredNamespaces,
     relays,
+    selectedAccountIds,
   })
 
   return (

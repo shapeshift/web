@@ -14,7 +14,7 @@ interface IProps {
 
 export const Account: FC<IProps> = ({ accountId, isSelected, toggleAccountId, accountNumber }) => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const greenColor = useColorModeValue('green.500', 'green.200')
+  const blueColor = useColorModeValue('blue.500', 'blue.200')
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
   const chainId = fromAccountId(accountId).chainReference
@@ -24,9 +24,9 @@ export const Account: FC<IProps> = ({ accountId, isSelected, toggleAccountId, ac
     <Flex
       borderWidth={1}
       cursor='pointer'
-      borderColor={isSelected ? greenColor : borderColor}
-      _hover={{ borderColor: isSelected ? greenColor : hoverColor }}
-      _active={{ borderColor: isSelected ? greenColor : focusColor }}
+      borderColor={isSelected ? blueColor : borderColor}
+      _hover={{ borderColor: isSelected ? blueColor : hoverColor }}
+      _active={{ borderColor: isSelected ? blueColor : focusColor }}
       borderRadius='xl'
       flexDir='column'
       gap={2}
@@ -41,7 +41,7 @@ export const Account: FC<IProps> = ({ accountId, isSelected, toggleAccountId, ac
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2}>
           <RawText>
-            {accountNumber}: {accountId}
+            Account {accountNumber}: {accountId}
           </RawText>
           <Tag size='sm' colorScheme='green'>
             {chainId}

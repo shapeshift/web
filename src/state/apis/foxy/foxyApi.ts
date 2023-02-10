@@ -1,7 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import type { DefiType, WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -13,32 +11,6 @@ const TOKEMAK_TFOX_POOL_ADDRESS = '0x808d3e6b23516967ceae4f17a5f9038383ed5311'
 
 type GetFoxyAprOutput = {
   foxyApr: string
-}
-
-export type FoxyOpportunity = {
-  type: DefiType
-  provider: string
-  version: string
-  contractAddress: string
-  rewardToken: string
-  stakingToken: string
-  chainId: ChainId
-  tvl?: string
-  expired?: boolean
-  apy?: string
-  balance: string
-  contractAssetId: AssetId
-  tokenAssetId: AssetId
-  rewardTokenAssetId: AssetId
-  pricePerShare: string
-  withdrawInfo: Record<AccountId, WithdrawInfo>
-}
-
-export type MergedFoxyOpportunity = FoxyOpportunity & {
-  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
-  cryptoAmountPrecision: string
-  cryptoAmountBaseUnit: string
-  fiatAmount: string
 }
 
 type TokemakPool = {

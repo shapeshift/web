@@ -96,7 +96,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       : undefined,
   )
 
-  const hasActiveStaking = bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).gt(0)
   const hasClaim = useAppSelector(state =>
     opportunityDataFilter ? selectHasClaimByUserStakingId(state, opportunityDataFilter) : undefined,
   )

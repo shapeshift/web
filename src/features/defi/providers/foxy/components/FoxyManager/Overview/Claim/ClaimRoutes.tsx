@@ -1,12 +1,16 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectBIP44ParamsByAccountId, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import {
+  makeTotalUndelegationsCryptoBaseUnit,
+  serializeUserStakingId,
+  supportsUndelegations,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
+import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'
@@ -18,23 +22,35 @@ type ClaimRouteProps = {
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) => {
-  const { contractAddress, stakingAssetId, chainId, contractAssetId } = useFoxyQuery()
+  // TODO(gomes): This goes away too, FOXy is a single contract and we can derive all we need from opportunitiesSlice
+  const { contractAddress, stakingAssetId, chainId } = useFoxyQuery()
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const opportunityDataFilter = useMemo(() => {
+    return {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }
+  }, [accountId, chainId, contractAddress])
 
-  const { data: foxyBalancesData } = useFoxyBalances({
-    accountNumber: bip44Params?.accountNumber ?? 0,
-  })
-  const opportunity = (foxyBalancesData?.opportunities || []).find(
-    e => e.contractAssetId === contractAssetId,
+  const foxyEarnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
   )
-  const firstAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, ethChainId))
-  const withdrawInfo = accountId
-    ? // Look up the withdrawInfo for the current account, if we have one
-      opportunity?.withdrawInfo[accountId]
-    : // Else, get the withdrawInfo for the first account
-      opportunity?.withdrawInfo[firstAccountId ?? '']
+
+  const undelegationAmount = useMemo(
+    () =>
+      foxyEarnOpportunityData && supportsUndelegations(foxyEarnOpportunityData)
+        ? makeTotalUndelegationsCryptoBaseUnit(foxyEarnOpportunityData.undelegations).toFixed()
+        : '0',
+    [foxyEarnOpportunityData],
+  )
 
   const location = useLocation()
 
@@ -49,7 +65,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
               chainId={chainId}
               contractAddress={contractAddress}
               onBack={onBack}
-              amount={withdrawInfo?.amount}
+              amount={undelegationAmount}
             />
           </Route>
           <Route exact path='/status'>

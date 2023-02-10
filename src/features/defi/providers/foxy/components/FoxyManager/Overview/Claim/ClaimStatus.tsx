@@ -1,9 +1,10 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -20,13 +21,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
   txid: string
@@ -100,12 +97,21 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const dispatch = useAppDispatch()
+  const refetchFoxyBalances = useCallback(() => {
+    dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesUserData.initiate(
+        {
+          accountId: accountId ?? '',
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.ShapeShift,
+          opportunityType: DefiType.Staking,
+        },
+        { forceRefetch: true },
+      ),
+    )
+  }, [accountId, dispatch])
 
-  const { refetch: refetchFoxyBalances } = useFoxyBalances({
-    accountNumber: bip44Params?.accountNumber ?? 0,
-  })
   useEffect(() => {
     ;(async () => {
       if (!foxy || !txid) return

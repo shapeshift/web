@@ -6,6 +6,7 @@ import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectAssetById,
+  selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -28,7 +29,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
   opportunityType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
-  const opportunities = await getFoxyApi().getFoxyOpportunities()
+  const allOpportunities = await getFoxyApi().getFoxyOpportunities()
 
   const foxyApr = await reduxApi.dispatch(foxyApi.endpoints.getFoxyApr.initiate())
 
@@ -37,7 +38,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
-  for (const opportunity of opportunities) {
+  for (const opportunity of allOpportunities) {
     // FOXY Token
     const rewardTokenAssetId = toAssetId({
       chainId: ethChainId,
@@ -137,14 +138,35 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
     const opportunities = await foxyInvestor.getFoxyOpportunities()
 
+    // investor-foxy is architected around many FOXy addresses/opportunity, but akchually there's only one
     if (!opportunities[0]) continue
+
+    const opportunity = opportunities[0]
 
     //FOXy is a rebasing token so there aren't rewards to claim
     const rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
 
+    const bip44Params = selectBIP44ParamsByAccountId(state, { accountId })
+
+    if (!bip44Params) continue
+
+    const withdrawInfo = await foxyInvestor.getWithdrawInfo({
+      contractAddress: opportunity.contractAddress,
+      userAddress: fromAccountId(accountId).account,
+      bip44Params,
+    })
+
+    const undelegations = [
+      {
+        completionTime: Number(withdrawInfo.releaseTime),
+        undelegationAmountCryptoBaseUnit: bnOrZero(withdrawInfo.amount).toFixed(),
+      },
+    ]
+
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
+      undelegations,
     }
   }
 

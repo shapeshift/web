@@ -28,7 +28,7 @@ import {
 } from '../../marketDataSlice/selectors'
 import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
-import { isCosmosUserStaking, makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
+import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
@@ -44,6 +44,7 @@ import {
   filterUserStakingIdByStakingIdCompareFn,
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
+  supportsUndelegations,
 } from '../utils'
 
 export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
@@ -302,7 +303,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         bnOrZero(acc?.rewardsAmountsCryptoBaseUnit?.[i]).plus(amount).toString(),
       ) as [string, string] | [string] | []
       const undelegations = [
-        ...(isCosmosUserStaking(userStakingOpportunity)
+        ...(supportsUndelegations(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
           : []),
         ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),

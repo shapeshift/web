@@ -26,6 +26,24 @@ export function useEarnBalances(): UseEarnBalancesReturn {
     selectPortfolioFiatBalanceByAssetId(state, lpAssetBalanceFilter),
   )
 
+  // const toAssetIdParts: ToAssetIdArgs = {
+  // assetNamespace: 'erc20',
+  // assetReference: foxyAddresses[0].staking,
+  // chainId: ethChainId,
+  // }
+  //
+  // const opportunityId = toOpportunityId(toAssetIdParts)
+  // const opportunityDataFilter = useMemo(() => {
+  // return {
+  // stakingId: opportunityId,
+  // }
+  // }, [opportunityId])
+  //
+  // const foxyEarnOpportunityData = useAppSelector(state =>
+  // opportunityDataFilter
+  // ? selectAggregatedEarnUserStakingOpportunityByStakingId(state, opportunityDataFilter)
+  // : undefined,
+  // )
   const totalEarningBalance = bnOrZero(stakingOpportunitiesFiatBalance)
     .plus(foxEthLpFiatBalance ?? 0)
     .toString()

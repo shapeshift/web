@@ -38,7 +38,7 @@ export type OpportunityMetadataBase = {
   // TODO: Optional for backwards compatibility, but it should always be present
   rewardAssetIds?: AssetIdsTuple
   expired?: boolean
-  name?: string
+  name: string
   version?: string
   tags?: string[]
 }
@@ -137,7 +137,7 @@ export type EarnOpportunityType = {
   provider: string
   version?: string
   contractAddress?: string
-  rewardAddress: string
+  rewardAddress?: string
   apy?: number | string
   tvl: string
   underlyingAssetId?: AssetId
@@ -164,7 +164,7 @@ export type StakingEarnOpportunityType = OpportunityMetadata &
     isVisible?: boolean
   } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
-export type LpEarnOpportunityType = OpportunityMetadata & {
+export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean

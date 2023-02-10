@@ -61,7 +61,7 @@ export const Notifications = () => {
         accountIdx: 0,
       })[0]
 
-      const ethAddress = await wallet.ethGetAddress({ addressNList })
+      const ethAddress = await wallet.ethGetAddress({ addressNList, showDisplay: false })
 
       setEthAddress(ethAddress)
       setAddressNList(addressNList)

@@ -30,6 +30,7 @@ import { WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import type { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
+import { setupKeepKeySDK } from './KeepKey/setupKeepKeySdk'
 import { KeyManager } from './KeyManager'
 import {
   clearLocalWallet,
@@ -430,7 +431,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               break
             case KeyManager.KeepKey:
               try {
-                const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
+                const sdk = await setupKeepKeySDK()
+                const localKeepKeyWallet = await state.adapters
+                    .get(KeyManager.KeepKey)
+                    ?.pairDevice(sdk)
                 /**
                  * if localKeepKeyWallet is not null it means
                  * KeepKey remained connected during the reload

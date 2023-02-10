@@ -3459,6 +3459,25 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
+"@keepkey/hdwallet-keepkey-rest@^1.40.9":
+  version "1.40.9"
+  resolved "https://registry.yarnpkg.com/@keepkey/hdwallet-keepkey-rest/-/hdwallet-keepkey-rest-1.40.9.tgz#4adc7b88e47e024c523b59f312d794b5c747ad26"
+  integrity sha512-puVjD1XenuQ3BOHGhaOXJGikSTmThSnLQYqQjVzoZnPXgk+d7i4uZkbjTS6R5DO+E2o94AqWernu7FJVHmAtQw==
+  dependencies:
+    "@keepkey/keepkey-sdk" "0.2.16"
+    lodash "^4.17.21"
+    semver "^6.3.0"
+
+"@keepkey/keepkey-sdk@0.2.16":
+  version "0.2.16"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-sdk/-/keepkey-sdk-0.2.16.tgz#50039661fae1e7bc5ff999ea0a53de6b48611fdd"
+  integrity sha512-1NZD+b2fE+pkMihtw26ogEuzyCIRvQ8I+cY/roY7VHyckxydrm9b+nTtKGcjDq2didlLJq4XA79FMnUtVp0XwQ==
+
+"@keepkey/keepkey-sdk@^0.2.19":
+  version "0.2.19"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-sdk/-/keepkey-sdk-0.2.19.tgz#974fcae4ddaf3c01cf800f97d83128be4c51a077"
+  integrity sha512-pZT+fiKWehjct1RHA4WmdCa9yNO1qfhoYlrU5xLZt+M/jjVvRCD9PqiYkXMck5JKbr2s7wnUDeCtqRLnAxGabw==
+
 "@keplr-wallet/types@^0.10.5":
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/@keplr-wallet/types/-/types-0.10.5.tgz#6d3f7ddd60a545eaadb55d17774f7a2f65f5b0a0"

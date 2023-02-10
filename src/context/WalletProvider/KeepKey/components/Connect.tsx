@@ -18,6 +18,7 @@ import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
 const moduleLogger = logger.child({ namespace: ['Connect'] })
 
@@ -53,24 +54,9 @@ export const KeepKeyConnect = () => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
-      // if keepkey is connected to another tab, it does not get added to state.adapters.
-      setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
-      return
-    }
-    if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
-      const wallet = await state.adapters
-        .get(KeyManager.KeepKey)
-        ?.pairDevice()
-        .catch(err => {
-          if (err.name === 'ConflictingApp') {
-            setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
-            return
-          }
-          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          return
-        })
+    if (state.adapters) {
+      const sdk = await setupKeepKeySDK()
+      let wallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice(sdk)
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         return

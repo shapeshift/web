@@ -98,6 +98,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const dispatch = useAppDispatch()
+  // TODO: maybeRefetchOpportunities heuristics
   const refetchFoxyBalances = useCallback(() => {
     dispatch(
       opportunitiesApi.endpoints.getOpportunitiesUserData.initiate(

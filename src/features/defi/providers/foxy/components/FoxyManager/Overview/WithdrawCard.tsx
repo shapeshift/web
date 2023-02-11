@@ -47,7 +47,7 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
 
-  if (!(undelegation && hasClaim)) return
+  if (!(undelegation && hasClaim)) return null
 
   return (
     <Stack px={8} py={6}>

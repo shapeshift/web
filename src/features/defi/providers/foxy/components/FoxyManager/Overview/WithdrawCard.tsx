@@ -15,23 +15,24 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
   asset: Asset
-  releaseTime?: string
-} & WithdrawInfo
+  undelegation: UserUndelegation
+}
 
-export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const { amount, releaseTime } = rest
   const hasClaim = bnOrZero(amount).gt(0)
+  const { undelegationAmountCryptoBaseUnit, completionTime } = undelegation
   const textColor = useColorModeValue('black', 'white')
-  const isAvailable = dayjs().isAfter(dayjs(releaseTime))
+  const isAvailable = dayjs().isAfter(dayjs(completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 

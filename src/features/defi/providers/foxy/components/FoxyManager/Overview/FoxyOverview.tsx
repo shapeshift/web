@@ -21,7 +21,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  serializeUserStakingId,
+  supportsUndelegations,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHasClaimByUserStakingId,
@@ -100,16 +104,13 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     opportunityDataFilter ? selectHasClaimByUserStakingId(state, opportunityDataFilter) : undefined,
   )
 
-  const withdrawInfo = {}
-  // TODO: Make me programmatic by AccountId
-  // const withdrawInfo = accountId
-  // ? // Look up the withdrawInfo for the current account, if we have one
-  // opportunity?.withdrawInfo[accountId]
-  // : // Else, get the withdrawInfo for the highest balance account
-  // opportunity?.withdrawInfo[highestBalanceAccountId ?? '']
-  // const rewardBalance = bnOrZero(withdrawInfo?.amount)
-  // const releaseTime = withdrawInfo?.releaseTime
-  // const foxyBalance = bnOrZero(opportunity?.balance)
+  const undelegation = useMemo(
+    () =>
+      foxyEarnOpportunityData && supportsUndelegations(foxyEarnOpportunityData)
+        ? foxyEarnOpportunityData.undelegations[0]
+        : undefined,
+    [foxyEarnOpportunityData],
+  )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const cryptoAmountAvailablePrecision = bnOrZero(

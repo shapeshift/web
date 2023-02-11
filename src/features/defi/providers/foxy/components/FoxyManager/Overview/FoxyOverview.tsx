@@ -12,7 +12,7 @@ import type {
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -24,10 +24,10 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   serializeUserStakingId,
   supportsUndelegations,
-  toOpportunityId,
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFirstAccountIdByChainId,
   selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -65,34 +65,26 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
 
-  // const accountFilter = useMemo(
-  // () => ({ accountId: accountId ?? highestBalanceAccountId ?? '' }),
-  // [accountId, highestBalanceAccountId],
-  // )
-  // TODO: We should still select by accountId
-  // const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-  // const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances({
-  // accountNumber: bip44Params?.accountNumber ?? 0,
-  // })
   const translate = useTranslate()
 
-  // const opportunity = useMemo(
-  // () => (foxyBalancesData?.opportunities || []).find(e => e.contractAssetId === assetId),
-  // [foxyBalancesData?.opportunities, assetId],
-  // )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
+  )
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
 
   const opportunityDataFilter = useMemo(() => {
     return {
       userStakingId: serializeUserStakingId(
         accountId ?? highestBalanceAccountId ?? '',
-        toOpportunityId({
-          chainId,
-          assetNamespace: 'erc20',
-          assetReference,
-        }),
+        assetId as StakingId,
       ),
     }
-  }, [accountId, assetReference, chainId, highestBalanceAccountId])
+  }, [accountId, assetId, highestBalanceAccountId])
 
   const foxyEarnOpportunityData = useAppSelector(state =>
     opportunityDataFilter

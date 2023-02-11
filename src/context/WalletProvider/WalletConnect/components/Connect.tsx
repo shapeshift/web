@@ -64,9 +64,9 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       })
 
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
-        const wallet = (await state.adapters
-          .get(KeyManager.WalletConnect)
-          ?.pairDevice()) as WalletConnectHDWallet
+        const adapters = state.adapters.get(KeyManager.WalletConnect)
+        if (!adapters) return
+        const wallet = (await adapters[0]?.pairDevice()) as WalletConnectHDWallet
 
         if (!wallet) {
           throw new WalletNotFoundError()

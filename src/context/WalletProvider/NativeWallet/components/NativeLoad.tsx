@@ -77,7 +77,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        const wallet = await adapter.pairDevice(deviceId)
+        const wallet = await adapter[0].pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
           // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will

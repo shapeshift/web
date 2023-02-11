@@ -3,7 +3,7 @@ import { TallyHoIcon } from 'components/Icons/TallyHoIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const TallyHoConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapter: TallyHoAdapter,
+  adapter: [TallyHoAdapter],
   icon: TallyHoIcon,
   name: 'TallyHo',
 }

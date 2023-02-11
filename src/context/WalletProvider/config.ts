@@ -68,7 +68,7 @@ import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
 
 export interface SupportedWalletInfo {
-  adapter: any
+  adapter: any[]
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string

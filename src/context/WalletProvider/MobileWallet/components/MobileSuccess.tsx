@@ -29,7 +29,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       const adapter = state.adapters?.get(KeyManager.Native)!
       try {
         const deviceId = vault.id ?? ''
-        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapter[0].pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
 
         if (mnemonic) {

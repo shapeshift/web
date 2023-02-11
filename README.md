@@ -43,7 +43,7 @@ info You can now run `yarn link "@shapeshiftoss/unchained-client"` in the projec
 ✨  Done in 0.47s.
 ```
 
-Similarly you can unlink packages, which can be useful for debugging failing CI runs
+Similarly, you can unlink packages, which can be useful for debugging failing CI runs
 
 ```bash
 ➜ yarn unlink-packages
@@ -74,6 +74,8 @@ info You can now run `yarn unlink "@shapeshiftoss/unchained-client"` in the proj
 
 ✨  Done in 0.37s.
 ```
+
+To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running `git config --local blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 ## Testing
 

@@ -22,7 +22,6 @@ type ClaimRouteProps = {
 }
 
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) => {
-  // TODO(gomes): This goes away too, FOXy is a single contract and we can derive all we need from opportunitiesSlice
   const { contractAddress, stakingAssetId, chainId } = useFoxyQuery()
 
   const opportunityDataFilter = useMemo(() => {

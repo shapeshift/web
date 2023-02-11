@@ -26,8 +26,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { OsmosisDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+import { OsmosisDepositActionType } from '../LpDepositCommon'
+import { DepositContext } from '../LpDepositContext'
 
 export const Status = () => {
   const translate = useTranslate()

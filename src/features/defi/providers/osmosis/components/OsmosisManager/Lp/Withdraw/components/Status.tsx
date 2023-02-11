@@ -23,8 +23,8 @@ import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slice
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { WithdrawContext } from '../../Withdraw/WithdrawContext'
-import { OsmosisWithdrawActionType } from '../WithdrawCommon'
+import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
+import { WithdrawContext } from '../LpWithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined } & StepComponentProps
 

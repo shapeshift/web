@@ -1,6 +1,5 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { WithdrawInfo } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
 import type {
   DefiParams,
@@ -15,12 +14,12 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
   asset: Asset
-  undelegation: UserUndelegation
+  undelegation: UserUndelegation | undefined
 }
 
 export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
@@ -29,10 +28,9 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
     state: { isConnected },
     dispatch,
   } = useWallet()
-  const hasClaim = bnOrZero(amount).gt(0)
-  const { undelegationAmountCryptoBaseUnit, completionTime } = undelegation
+  const hasClaim = bnOrZero(undelegation?.undelegationAmountCryptoBaseUnit).gt(0)
   const textColor = useColorModeValue('black', 'white')
-  const isAvailable = dayjs().isAfter(dayjs(completionTime))
+  const isAvailable = undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
@@ -48,6 +46,8 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+
+  if (!(undelegation && hasClaim)) return
 
   return (
     <Stack px={8} py={6}>
@@ -98,7 +98,9 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
           >
             <Amount.Crypto
               color={textColor}
-              value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+              value={bnOrZero(undelegation.undelegationAmountCryptoBaseUnit)
+                .div(`1e+${asset.precision}`)
+                .toFixed()}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />
@@ -113,7 +115,7 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
                 lineHeight='shorter'
                 translation={[
                   'defi.modals.foxyOverview.availableDate',
-                  { date: dayjs(releaseTime).fromNow() },
+                  { date: dayjs(dayjs.unix(undelegation.completionTime)).fromNow() },
                 ]}
               />
             )}

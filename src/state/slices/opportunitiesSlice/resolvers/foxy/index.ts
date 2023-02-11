@@ -1,6 +1,7 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -158,7 +159,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
     const undelegations = [
       {
-        completionTime: Number(withdrawInfo.releaseTime),
+        completionTime: dayjs(withdrawInfo.releaseTime).unix(),
         undelegationAmountCryptoBaseUnit: bnOrZero(withdrawInfo.amount).toFixed(),
       },
     ]

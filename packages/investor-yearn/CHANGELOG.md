@@ -1,3 +1,5 @@
+# [@shapeshiftoss/investor-yearn-v6.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.4.0...@shapeshiftoss/investor-yearn-v6.4.1) (2023-02-11)
+
 # [@shapeshiftoss/investor-yearn-v6.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.3.0...@shapeshiftoss/investor-yearn-v6.4.0) (2023-01-13)
 
 

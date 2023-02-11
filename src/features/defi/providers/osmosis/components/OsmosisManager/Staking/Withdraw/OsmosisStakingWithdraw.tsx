@@ -97,15 +97,13 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
 
   useEffect(() => {
     if (!bip44Params) return
-    ;(async () => {
+    ;(() => {
       try {
         if (!(walletState.wallet && validatorAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
         dispatch({
-          type: OsmosisStakingWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
+          type: OsmosisStakingWithdrawActionType.SET_ACCOUNT_ID,
+          payload: accountId ?? '',
         })
         dispatch({
           type: OsmosisStakingWithdrawActionType.SET_OPPORTUNITY,
@@ -116,7 +114,14 @@ export const OsmosisStakingWithdraw: React.FC<OsmosisStakingWithdrawProps> = ({
         moduleLogger.error(error, 'OsmosisStakingWithdraw error')
       }
     })()
-  }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
+  }, [
+    bip44Params,
+    chainAdapter,
+    validatorAddress,
+    walletState.wallet,
+    earnOpportunityData,
+    accountId,
+  ])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

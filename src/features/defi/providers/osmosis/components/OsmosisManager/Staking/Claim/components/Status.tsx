@@ -43,12 +43,11 @@ export const Status = () => {
   const { state, dispatch } = useContext(StakingClaimContext)
   const opportunity = state?.opportunity
   const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, assetNamespace } = query
   const translate = useTranslate()
-  const assetNamespace = 'slip44'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
-  const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const txStatus = useMemo(() => {
     if (!state) return TxStatus.PENDING
@@ -113,9 +112,9 @@ export const Status = () => {
             <Link
               isExternal
               color='blue.500'
-              href={`${asset?.explorerAddressLink}${state.userAddress}`}
+              href={`${asset?.explorerAddressLink}${state.accountId}`}
             >
-              {state.userAddress && <MiddleEllipsis value={state.userAddress} />}
+              {state.accountId && <MiddleEllipsis value={state.accountId} />}
             </Link>
           </Row.Value>
         </Row>

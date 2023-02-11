@@ -45,7 +45,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   if (!opportunity) throw new Error('Opportunity not found')
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetNamespace, assetReference } = query
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
@@ -55,7 +55,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const feeAssetId = toAssetId({
     chainId,
-    assetNamespace: 'slip44',
+    assetNamespace,
     assetReference,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
@@ -100,7 +100,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         asset &&
         walletState.wallet &&
         contractAddress &&
-        state?.userAddress &&
+        state?.accountId &&
         dispatch &&
         bip44Params
       )
@@ -144,7 +144,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     feeMarketData?.price,
     handleStakingAction,
     onNext,
-    state?.userAddress,
+    state?.accountId,
     toast,
     translate,
     walletState?.wallet,
@@ -172,13 +172,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Text translation='defi.modals.claim.claimToAddress' />
           </Row.Label>
           <Row.Value>
-            <Skeleton minWidth='100px' isLoaded={!!state.userAddress && !!accountId}>
+            <Skeleton minWidth='100px' isLoaded={!!state.accountId && !!accountId}>
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
+                href={`${asset.explorerAddressLink}${accountId ?? state.accountId}`}
               >
-                {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
+                {state.accountId && <MiddleEllipsis value={accountId ?? state.accountId} />}
               </Link>
             </Skeleton>
           </Row.Value>

@@ -38,7 +38,7 @@ import { useAppSelector } from 'state/store'
 import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
 import { WithdrawContext } from '../LpWithdrawContext'
 
-const DEFAULT_SLIPPAGE = '0.001' // Allow for 0.1% slippage. TODO:(pastaghost) is there a better way to do this?
+const DEFAULT_SLIPPAGE = '0.0025' // Allow for 0.25% slippage. TODO:(pastaghost) is there a better way to do this?
 
 const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],

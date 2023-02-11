@@ -6,7 +6,7 @@ import { OsmosisStakingClaimActionType, TxStatus } from './StakingClaimCommon'
 export const initialState: OsmosisStakingClaimState = {
   txid: null,
   opportunity: {} as StakingEarnOpportunityType,
-  userAddress: null,
+  accountId: null,
   loading: false,
   claim: {
     usedGasFee: '',
@@ -29,8 +29,8 @@ export const reducer = (
       }
     case OsmosisStakingClaimActionType.SET_CLAIM:
       return { ...state, claim: { ...state.claim, ...action.payload } }
-    case OsmosisStakingClaimActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
+    case OsmosisStakingClaimActionType.SET_ACCOUNT_ID:
+      return { ...state, accountId: action.payload }
     case OsmosisStakingClaimActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case OsmosisStakingClaimActionType.SET_TXID:

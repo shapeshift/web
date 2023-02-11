@@ -24,7 +24,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { walletCanEditMemo } from 'lib/utils'
 import {
@@ -50,10 +50,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(StakingWithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetNamespace, assetReference } = query
   const wallet = useWallet().state.wallet
 
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -109,14 +108,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const handleConfirm = useCallback(async () => {
     if (
       state?.loading ||
-      !(
-        bip44Params &&
-        dispatch &&
-        gasLimit &&
-        gasPrice &&
-        state?.userAddress &&
-        walletState?.wallet
-      )
+      !(bip44Params && dispatch && gasLimit && gasPrice && state?.accountId && walletState?.wallet)
     )
       return
 
@@ -129,9 +121,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice).times(bn(10).pow(asset?.precision)).toString(),
         },
-        value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        value: bnOrZero(state.withdraw.cryptoAmount).times(bn(10).pow(asset.precision)).toString(),
         action: StakingAction.Unstake,
       })
 
@@ -163,7 +155,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     handleStakingAction,
     onNext,
     state?.loading,
-    state?.userAddress,
+    state?.accountId,
     state?.withdraw.cryptoAmount,
     walletState?.wallet,
   ])
@@ -171,7 +163,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(bn(10).pow(feeAsset.precision)))
     .gte(0)
 
   return (
@@ -218,14 +210,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}
                 symbol={feeAsset.symbol}
               />

@@ -15,10 +15,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isCosmosUserStaking } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectHasClaimByUserStakingId,
-  selectUserStakingOpportunityByUserStakingId,
-} from 'state/slices/selectors'
+import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type OsmosisStakingWithdrawCardProps = {
@@ -45,10 +42,6 @@ export const OsmosisStakingWithdrawCard = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const hasClaim = useAppSelector(state =>
-    selectHasClaimByUserStakingId(state, opportunityDataFilter),
-  )
-
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
     if (isCosmosUserStaking(opportunityData) && opportunityData.undelegations.length) {
@@ -56,6 +49,11 @@ export const OsmosisStakingWithdrawCard = ({
     }
     return []
   }, [opportunityData])
+
+  const hasUndelegations = useMemo(
+    () => Boolean(undelegationEntries?.length),
+    [undelegationEntries],
+  )
 
   const textColor = useColorModeValue('black', 'white')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
@@ -103,7 +101,7 @@ export const OsmosisStakingWithdrawCard = ({
                 fontWeight='normal'
                 lineHeight='shorter'
                 translation={[
-                  'defi.modals.osmosis.staking.overview.availableDate',
+                  'defi.modals.cosmosOverview.availableDate',
                   { date: dayjs().to(dayjs.unix(completionTime)) },
                 ]}
               />
@@ -116,9 +114,9 @@ export const OsmosisStakingWithdrawCard = ({
 
   return (
     <Stack px={8} py={6}>
-      <Text fontWeight='medium' translation='defi.modals.osmosis.staking.overview.withdrawals' />
-      {!hasClaim ? (
-        <Text color='gray.500' translation='defi.modals.osmosis.staking.overview.emptyWithdraws' />
+      <Text fontWeight='medium' translation='defi.modals.cosmosOverview.withdrawals' />
+      {!hasUndelegations ? (
+        <Text color='gray.500' translation='defi.modals.cosmosOverview.emptyWithdraws' />
       ) : (
         undelegationNodes
       )}

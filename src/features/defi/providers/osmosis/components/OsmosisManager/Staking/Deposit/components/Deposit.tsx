@@ -48,8 +48,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const assetNamespace = 'slip44'
+  const { chainId, assetNamespace, assetReference } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -67,7 +66,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const toast = useToast()
 
   const cryptoAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    () => bnOrZero(balance).div(bn(10).pow(asset.precision)),
     [asset.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
@@ -79,7 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
     async (setValue: UseFormSetValue<DepositValues>) => {
       if (!accountId) return
       const estimatedFees = await estimateFees({
-        cryptoAmount: cryptoAmountAvailable.toString(),
+        cryptoAmount: cryptoAmountAvailable.toFixed(),
         asset,
         to: '',
         sendMax: true,
@@ -104,10 +103,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress)) return
+      if (!(state && dispatch && state.accountId)) return
 
       const getStakingGasEstimate = async () => {
-        if (!state.userAddress || !assetReference) return
+        if (!state.accountId || !assetReference) return
 
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 

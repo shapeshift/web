@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -25,9 +25,8 @@ export const Status = () => {
   const { state, dispatch } = useContext(StakingWithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
 
-  const assetNamespace = 'slip44'
   // Asset info
   const underlyingAssetId = toAssetId({
     chainId,
@@ -53,7 +52,7 @@ export const Status = () => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  if (!state || !dispatch) return null
+  if (!(state && state.accountId && dispatch)) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {
@@ -114,7 +113,7 @@ export const Status = () => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis value={state.userAddress || ''} />
+            <MiddleEllipsis value={fromAccountId(state.accountId).account || ''} />
           </Row.Value>
         </Row>
         {state.txid && (

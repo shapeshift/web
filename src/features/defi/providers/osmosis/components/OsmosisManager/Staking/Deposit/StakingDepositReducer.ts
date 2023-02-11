@@ -20,7 +20,7 @@ export const initialState: OsmosisStakingDepositState = {
     tvl: bn(0),
     apr: '',
   },
-  userAddress: null,
+  accountId: null,
   loading: false,
   pricePerShare: '',
   deposit: {
@@ -47,8 +47,8 @@ export const reducer = (
       }
     case OsmosisStakingDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case OsmosisStakingDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
+    case OsmosisStakingDepositActionType.SET_ACCOUNT_ID:
+      return { ...state, accountId: action.payload }
     case OsmosisStakingDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case OsmosisStakingDepositActionType.SET_TXID:

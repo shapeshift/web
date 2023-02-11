@@ -115,7 +115,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
           assetReference,
           assetNamespace,
           modal: 'overview',
-          type: DefiType.TokenStaking, //TODO(pastaghost): Don't hardcode. Get type from opportunity properties instead.
+          type: DefiType.Staking, //TODO(pastaghost): Don't hardcode. Get type from opportunity properties instead.
         }),
       })
     },

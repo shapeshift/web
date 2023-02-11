@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export enum TxStatus {
@@ -14,7 +15,7 @@ type OsmosisStakingClaimValues = {
 
 export type OsmosisStakingClaimState = {
   opportunity: StakingEarnOpportunityType
-  userAddress: string | null
+  accountId: AccountId | null
   claim: OsmosisStakingClaimValues
   loading: boolean
   txid: string | null
@@ -22,7 +23,7 @@ export type OsmosisStakingClaimState = {
 
 export enum OsmosisStakingClaimActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
+  SET_ACCOUNT_ID = 'SET_ACCOUNT_ID',
   SET_CLAIM = 'SET_CLAIM',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -38,9 +39,9 @@ type SetClaim = {
   payload: Partial<OsmosisStakingClaimValues>
 }
 
-type SetUserAddress = {
-  type: OsmosisStakingClaimActionType.SET_USER_ADDRESS
-  payload: string
+type SetAccountId = {
+  type: OsmosisStakingClaimActionType.SET_ACCOUNT_ID
+  payload: AccountId
 }
 
 type SetLoading = {
@@ -56,6 +57,6 @@ type SetTxid = {
 export type OsmosisStakingClaimActions =
   | SetOsmosisStakingOpportunitiesAction
   | SetClaim
-  | SetUserAddress
+  | SetAccountId
   | SetLoading
   | SetTxid

@@ -26,8 +26,7 @@ export const Status = () => {
   const { state } = useContext(StakingDepositContext)
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const assetNamespace = 'slip44'
+  const { chainId, assetNamespace, assetReference } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))

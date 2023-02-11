@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { WithdrawType } from '@shapeshiftoss/types'
 import type {
   Field as WithdrawField,
@@ -32,14 +32,14 @@ type OsmosisStakingWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage>
 
 export type OsmosisStakingWithdrawState = {
   osmosisOpportunity: SupportedOsmosisOpportunity
-  userAddress: string | null
+  accountId: AccountId | null
   withdraw: OsmosisStakingWithdrawValues
   loading: boolean
   txid: string | null
 }
 export enum OsmosisStakingWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
+  SET_ACCOUNT_ID = 'SET_ACCOUNT_ID',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -56,9 +56,9 @@ type SetWithdraw = {
   payload: Partial<OsmosisStakingWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: OsmosisStakingWithdrawActionType.SET_USER_ADDRESS
-  payload: string
+type SetAccountId = {
+  type: OsmosisStakingWithdrawActionType.SET_ACCOUNT_ID
+  payload: AccountId
 }
 
 type SetLoading = {
@@ -74,6 +74,6 @@ type SetTxid = {
 export type OsmosisStakingWithdrawActions =
   | SetVaultAction
   | SetWithdraw
-  | SetUserAddress
+  | SetAccountId
   | SetLoading
   | SetTxid

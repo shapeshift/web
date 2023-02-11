@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -21,7 +21,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { walletCanEditMemo } from 'lib/utils'
 import {
@@ -45,13 +45,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(StakingDepositContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
-  const assetNamespace = 'slip44'
+  const { chainId, contractAddress, assetReference, assetNamespace } = query
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Osmosis,
+    assetNamespace,
+    assetReference,
   })
 
   const wallet = useWallet().state.wallet
@@ -85,7 +84,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleDeposit = useCallback(async () => {
-    if (!(state?.userAddress && dispatch && bip44Params && assetReference && walletState.wallet))
+    if (!(state?.accountId && dispatch && bip44Params && assetReference && walletState.wallet))
       return
     dispatch({ type: OsmosisStakingDepositActionType.SET_LOADING, payload: true })
 
@@ -98,9 +97,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset?.precision}`).toString(),
+          fee: bnOrZero(gasPrice).times(bn(10).pow(asset?.precision)).toString(),
         },
-        value: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toString(),
+        value: bnOrZero(state.deposit.cryptoAmount).times(bn(10).pow(asset.precision)).toString(),
         action: StakingAction.Stake,
       })
 
@@ -138,7 +137,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     marketData,
     onNext,
     state?.deposit.cryptoAmount,
-    state?.userAddress,
+    state?.accountId,
     toast,
     translate,
     walletState?.wallet,

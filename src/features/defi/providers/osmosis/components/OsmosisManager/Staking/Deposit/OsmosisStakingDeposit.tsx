@@ -83,7 +83,7 @@ export const OsmosisStakingDeposit: React.FC<OsmosisStakingDepositProps> = ({
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
-    ;(async () => {
+    ;(() => {
       try {
         if (!earnOpportunityData) return
 
@@ -99,10 +99,8 @@ export const OsmosisStakingDeposit: React.FC<OsmosisStakingDepositProps> = ({
           )
         )
           return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
 
-        dispatch({ type: OsmosisStakingDepositActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: OsmosisStakingDepositActionType.SET_ACCOUNT_ID, payload: accountId ?? '' })
         dispatch({
           type: OsmosisStakingDepositActionType.SET_OPPORTUNITY,
           payload: { ...earnOpportunityData },
@@ -112,7 +110,7 @@ export const OsmosisStakingDeposit: React.FC<OsmosisStakingDepositProps> = ({
         moduleLogger.error(error, 'OsmosisStakingDeposit error')
       }
     })()
-  }, [bip44Params, chainId, earnOpportunityData, walletState.wallet, validatorAddress])
+  }, [bip44Params, chainId, earnOpportunityData, walletState.wallet, validatorAddress, accountId])
 
   const handleBack = () => {
     history.push({

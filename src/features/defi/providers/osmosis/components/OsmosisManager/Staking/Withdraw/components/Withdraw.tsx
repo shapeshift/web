@@ -49,7 +49,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { state, dispatch } = useContext(StakingWithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress: validatorAddress } = query
+  const { chainId, assetNamespace, assetReference, contractAddress: validatorAddress } = query
   const toast = useToast()
 
   const methods = useForm<OsmosisStakingWithdrawValues>({ mode: 'onChange' })
@@ -57,7 +57,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
-  const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Reward Asset info
   const assetId = toAssetId({
     chainId,
@@ -122,7 +121,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       if (!state) return
 
       const getWithdrawGasEstimate = async () => {
-        if (!state.userAddress) return
+        if (!state.accountId) return
 
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
@@ -146,7 +145,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         }
       }
 
-      if (!state?.userAddress || !dispatch) return
+      if (!state?.accountId || !dispatch) return
       // set withdraw state for future use
       dispatch({
         type: OsmosisStakingWithdrawActionType.SET_WITHDRAW,

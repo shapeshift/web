@@ -20,7 +20,7 @@ export const initialState: OsmosisStakingWithdrawState = {
     version: '',
     tvl: bn(0),
   },
-  userAddress: null,
+  accountId: null,
   loading: false,
   withdraw: {
     fiatAmount: '',
@@ -40,8 +40,8 @@ export const reducer = (
       return { ...state, OsmosisOpportunity: { ...state.osmosisOpportunity, ...action.payload } }
     case OsmosisStakingWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case OsmosisStakingWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
+    case OsmosisStakingWithdrawActionType.SET_ACCOUNT_ID:
+      return { ...state, accountId: action.payload }
     case OsmosisStakingWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case OsmosisStakingWithdrawActionType.SET_TXID:

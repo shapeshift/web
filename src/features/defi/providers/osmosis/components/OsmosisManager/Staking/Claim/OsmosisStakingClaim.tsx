@@ -46,7 +46,7 @@ export const OsmosisStakingClaim: React.FC<OsmosisStakingClaimProps> = ({ accoun
   const assetId = toAssetId({
     chainId,
     assetNamespace,
-    assetReference, // TODO: handle multiple denoms
+    assetReference,
   })
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -65,17 +65,15 @@ export const OsmosisStakingClaim: React.FC<OsmosisStakingClaimProps> = ({ accoun
       : undefined,
   )
   useEffect(() => {
-    ;(async () => {
+    ;(() => {
       try {
         if (!(earnOpportunityData && bip44Params)) return
 
         const chainAdapterManager = getChainAdapterManager()
         const chainAdapter = chainAdapterManager.get(chainId) as unknown as osmosis.ChainAdapter
         if (!(walletState.wallet && validatorAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
 
-        dispatch({ type: OsmosisStakingClaimActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: OsmosisStakingClaimActionType.SET_ACCOUNT_ID, payload: accountId ?? '' })
         dispatch({
           type: OsmosisStakingClaimActionType.SET_OPPORTUNITY,
           payload: { ...earnOpportunityData },
@@ -85,7 +83,7 @@ export const OsmosisStakingClaim: React.FC<OsmosisStakingClaimProps> = ({ accoun
         moduleLogger.error(error, 'OsmosisStakingClaim error')
       }
     })()
-  }, [chainId, validatorAddress, earnOpportunityData, walletState.wallet, bip44Params])
+  }, [chainId, validatorAddress, earnOpportunityData, walletState.wallet, bip44Params, accountId])
 
   // Asset info
 

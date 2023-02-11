@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -27,7 +27,7 @@ type OsmosisStakingDepositValues = Omit<DepositValues, DepositField.Slippage> &
 
 export type OsmosisStakingDepositState = {
   osmosisOpportunity: SupportedOsmosisOpportunity
-  userAddress: string | null
+  accountId: AccountId | null
   deposit: OsmosisStakingDepositValues
   loading: boolean
   pricePerShare: string
@@ -36,7 +36,7 @@ export type OsmosisStakingDepositState = {
 
 export enum OsmosisStakingDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
+  SET_ACCOUNT_ID = 'SET_ACCOUNT_ID',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -52,9 +52,9 @@ type SetDeposit = {
   payload: Partial<OsmosisStakingDepositValues>
 }
 
-type SetUserAddress = {
-  type: OsmosisStakingDepositActionType.SET_USER_ADDRESS
-  payload: string
+type SetAccountId = {
+  type: OsmosisStakingDepositActionType.SET_ACCOUNT_ID
+  payload: AccountId | null
 }
 
 type SetLoading = {
@@ -70,6 +70,6 @@ type SetTxid = {
 export type OsmosisStakingDepositActions =
   | SetOsmosisStakingOpportunitiesAction
   | SetDeposit
-  | SetUserAddress
+  | SetAccountId
   | SetLoading
   | SetTxid

@@ -47,7 +47,7 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Quick Start
 
-If you are using Linux and MacOS it works out of the box following these steps:
+If you are using Linux and macOS it works out of the box following these steps:
 
 1. Clone the repo
 
@@ -71,6 +71,10 @@ If you are using Linux and MacOS it works out of the box following these steps:
 > If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
 >
 > **Please do NOT ask our Engineering team for further help with WSL.**
+
+5. Other configuration (optional):
+
+To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running `git config --local blame.ignoreRevsFile .git-blame-ignore-revs`. 
 
 ### Commands
 
@@ -124,16 +128,6 @@ yarn build
 > Your app is ready to be deployed!
 >
 > See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-<br/>
-
-To run the component documentation:
-
-```sh
-yarn storybook
-```
-
-> It opens [http://localhost:6006](http://localhost:6006) to view it in the browser.
 
 ### Linking
 

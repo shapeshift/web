@@ -1,5 +1,5 @@
-import type { OsmosisWithdrawActions, OsmosisWithdrawState } from './WithdrawCommon'
-import { OsmosisWithdrawActionType } from './WithdrawCommon'
+import type { OsmosisWithdrawActions, OsmosisWithdrawState } from './LpWithdrawCommon'
+import { OsmosisWithdrawActionType } from './LpWithdrawCommon'
 
 export const initialState: OsmosisWithdrawState = {
   txid: null,

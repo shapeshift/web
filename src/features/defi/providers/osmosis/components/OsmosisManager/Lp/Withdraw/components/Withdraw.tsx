@@ -31,8 +31,8 @@ import {
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { OsmosisWithdrawActionType } from '../WithdrawCommon'
-import { WithdrawContext } from '../WithdrawContext'
+import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
+import { WithdrawContext } from '../LpWithdrawContext'
 
 type AssetWithBaseUnitBalance = {
   cryptoBalanceBaseUnit: string

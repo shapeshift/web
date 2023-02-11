@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -40,13 +40,14 @@ type OsmosisOverviewProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-export const OsmosisOverview: React.FC<OsmosisOverviewProps> = ({
+export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const [opportunityBalances, setOpportunityBalances] = useState<opportunityBalances>(undefined)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference } = query
+  const { chainId, assetReference } = query
+  const assetNamespace = ASSET_NAMESPACE.ibc
 
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 

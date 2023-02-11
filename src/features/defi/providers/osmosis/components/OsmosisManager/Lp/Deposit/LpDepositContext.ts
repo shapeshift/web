@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import type { OsmosisDepositActions, OsmosisDepositState } from './DepositCommon'
+import type { OsmosisDepositActions, OsmosisDepositState } from './LpDepositCommon'
 
 interface IDepositContext {
   state: OsmosisDepositState | null

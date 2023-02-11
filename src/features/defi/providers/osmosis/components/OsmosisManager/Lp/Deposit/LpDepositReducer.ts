@@ -1,5 +1,5 @@
-import type { OsmosisDepositActions, OsmosisDepositState } from './DepositCommon'
-import { OsmosisDepositActionType } from './DepositCommon'
+import type { OsmosisDepositActions, OsmosisDepositState } from './LpDepositCommon'
+import { OsmosisDepositActionType } from './LpDepositCommon'
 
 export const initialState: OsmosisDepositState = {
   txid: null,

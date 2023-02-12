@@ -10,11 +10,14 @@ import {
 } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SessionTypes, SignClientTypes } from '@walletconnect/types'
+import { getSdkError } from '@walletconnect/utils'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modal/callRequest/methods/components/ModalSection'
 import { AccountSelectionOverview } from 'plugins/walletConnectV2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectV2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectV2/components/Permissions'
+import type { WalletConnectContextType } from 'plugins/walletConnectV2/types'
+import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,6 +31,7 @@ type Props = {
   onClose(): void
   proposal: SignClientTypes.EventArguments['session_proposal']
   web3wallet: IWeb3Wallet
+  dispatch: WalletConnectContextType['dispatch']
 }
 
 // Filter out namespace chainIds that are not supported by the currently connected wallet
@@ -67,7 +71,13 @@ const createApprovalNamespaces = (
   )
 }
 
-const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal, web3wallet }) => {
+const SessionProposal: FC<Props> = ({
+  isOpen,
+  onClose: handleClose,
+  proposal,
+  web3wallet,
+  dispatch,
+}) => {
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
 
@@ -95,9 +105,19 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal, we
       id: proposal.id,
       namespaces: approvalNamespaces,
     })
+    // FIXME: use a reducer to update the state
+    dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
     console.log('[debug] SessionProposal modal session created!', { session })
-  }, [approvalNamespaces, proposal.id, web3wallet])
-  const handleReject = useCallback(() => {}, [])
+    handleClose()
+  }, [approvalNamespaces, dispatch, handleClose, proposal.id, web3wallet])
+
+  const handleReject = useCallback(async () => {
+    await web3wallet.rejectSession({
+      id,
+      reason: getSdkError('USER_REJECTED_METHODS'),
+    })
+    handleClose()
+  }, [handleClose, id, web3wallet])
 
   console.log('[debug] SessionProposal modal', {
     proposal,

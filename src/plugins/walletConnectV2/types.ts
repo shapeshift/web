@@ -31,12 +31,15 @@ export type WalletConnectState = Partial<{
   pair: (params: { uri: string }) => Promise<PairingTypes.Struct>
   modalData: ModalData
   activeModal: WalletConnectModal
+  session: SessionTypes.Struct
 }>
 
 export enum WalletConnectActionType {
   SET_MODAL = 'SET_MODAL',
   CLEAR_MODAL = 'CLEAR_MODAL',
   INITIALIZE = 'INITIALIZE',
+  SET_SESSION = 'SET_SESSION',
+  DELETE_SESSION = 'DELETE_SESSION',
 }
 
 export type WalletConnectAction =
@@ -50,6 +53,13 @@ export type WalletConnectAction =
   | {
       type: WalletConnectActionType.INITIALIZE
       payload: { core: ICore; web3wallet: IWeb3Wallet; pair: WalletConnectState['pair'] }
+    }
+  | {
+      type: WalletConnectActionType.SET_SESSION
+      payload: { session: SessionTypes.Struct }
+    }
+  | {
+      type: WalletConnectActionType.DELETE_SESSION
     }
 
 export type WalletConnectContextType = {

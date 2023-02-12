@@ -24,6 +24,7 @@ export const WalletConnectModalManager: FC<Props> = ({
           onClose={handleClose}
           proposal={proposal}
           web3wallet={web3wallet}
+          dispatch={dispatch}
         />
       ) : null
     default:

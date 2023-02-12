@@ -1,9 +1,12 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button, useDisclosure } from '@chakra-ui/react'
+import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
 import { ConnectModal as ConnectModalV1 } from 'plugins/walletConnectToDapps/components/modal/connect/Connect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/WalletConnectBridgeContext'
 import { ConnectModal } from 'plugins/walletConnectV2/components/modal/Connect'
+import { useWalletConnectV2 } from 'plugins/walletConnectV2/WalletConnectV2Provider'
+import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { RawText } from 'components/Text'
@@ -14,11 +17,12 @@ import { useIsWalletConnectToDappsSupportedWallet } from '../../hooks/useIsWalle
 import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
-export const WalletConnectToDappsHeaderButton = () => {
+export const WalletConnectToDappsHeaderButton: FC = () => {
   const { isOpen: isOpenV1, onClose: handleCloseV1, onOpen: handleOpenV1 } = useDisclosure()
   const { isOpen, onClose: handleClose, onOpen: handleOpen } = useDisclosure()
   const translate = useTranslate()
-  const walletConnect = useWalletConnect()
+  const walletConnectV1 = useWalletConnect()
+  const walletConnectV2 = useWalletConnectV2()
 
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
@@ -26,44 +30,44 @@ export const WalletConnectToDappsHeaderButton = () => {
   const isWalletConnectToDappsSupportedWallet = useIsWalletConnectToDappsSupportedWallet()
   if (!isWalletConnectToDappsSupportedWallet) return null
 
-  if (!walletConnect.connector || !walletConnect.dapp) {
-    return (
-      <>
-        {isWalletConnectToDappsV1Enabled && (
-          <Button
-            leftIcon={<WalletConnectIcon />}
-            rightIcon={<ChevronRightIcon />}
-            onClick={handleOpenV1}
-            isLoading={!!walletConnect.connector}
-          >
-            WC V1
-          </Button>
-        )}
-        {isWalletConnectToDappsV2Enabled && (
-          <Button
-            leftIcon={<WalletConnectIcon />}
-            rightIcon={<ChevronRightIcon />}
-            onClick={handleOpen}
-            isLoading={!!walletConnect.connector}
-          >
-            {translate('plugins.walletConnectToDapps.header.connectDapp')}
-          </Button>
-        )}
-        <ConnectModalV1 isOpen={isOpenV1} onClose={handleCloseV1} />
-        <ConnectModal isOpen={isOpen} onClose={handleClose} />
-      </>
-    )
-  }
+  const walletConnectV2Connected = !!walletConnectV2.session?.peer
 
-  return (
+  const walletConnectButtons = (
+    <>
+      {isWalletConnectToDappsV1Enabled && (
+        <Button
+          leftIcon={<WalletConnectIcon />}
+          rightIcon={<ChevronRightIcon />}
+          onClick={handleOpenV1}
+          isLoading={!!walletConnectV1.connector}
+        >
+          WC V1
+        </Button>
+      )}
+      {isWalletConnectToDappsV2Enabled && (
+        <Button
+          leftIcon={<WalletConnectIcon />}
+          rightIcon={<ChevronRightIcon />}
+          onClick={handleOpen}
+          isLoading={!!walletConnectV1.connector}
+        >
+          {translate('plugins.walletConnectToDapps.header.connectDapp')}
+        </Button>
+      )}
+      <ConnectModalV1 isOpen={isOpenV1} onClose={handleCloseV1} />
+      <ConnectModal isOpen={isOpen} onClose={handleClose} />
+    </>
+  )
+
+  const walletConnectV1ConnectedButton = (
     <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={
           <DappAvatar
-            name={walletConnect.dapp.name}
-            image={walletConnect.dapp.icons[0]}
-            connected={walletConnect.connector.connected}
+            name={walletConnectV1.dapp?.name ?? ''}
+            image={walletConnectV1.dapp?.icons[0] ?? ''}
+            connected={walletConnectV1.connector?.connected ?? false}
             size={6}
             connectedDotSize={2}
             borderWidth={1}
@@ -75,10 +79,10 @@ export const WalletConnectToDappsHeaderButton = () => {
         flexShrink='none'
       >
         <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
-          {trimWithEndEllipsis(walletConnect.dapp.name, 16)}
+          {trimWithEndEllipsis(walletConnectV1.dapp?.name, 16)}
         </RawText>
         <RawText fontSize='xs' color='gray.500'>
-          {trimWithEndEllipsis(walletConnect.dapp.url.replace(/^https?:\/\//, ''), 18)}
+          {trimWithEndEllipsis(walletConnectV1.dapp?.url.replace(/^https?:\/\//, ''), 18)}
         </RawText>
       </MenuButton>
       <MenuList zIndex={2}>
@@ -86,4 +90,47 @@ export const WalletConnectToDappsHeaderButton = () => {
       </MenuList>
     </Menu>
   )
+
+  const walletConnectV2ConnectedButton = (
+    <Menu autoSelect={false}>
+      <MenuButton
+        as={Button}
+        leftIcon={
+          <DappAvatar
+            name={walletConnectV2.session?.peer.metadata.name ?? ''}
+            image={walletConnectV2.session?.peer.metadata.icons[0] ?? ''}
+            connected={walletConnectV2.session?.acknowledged ?? false}
+            size={6}
+            connectedDotSize={2}
+            borderWidth={1}
+          />
+        }
+        rightIcon={<ChevronDownIcon />}
+        width={{ base: 'full', md: 'auto' }}
+        textAlign='left'
+        flexShrink='none'
+      >
+        <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
+          {trimWithEndEllipsis(walletConnectV2.session?.peer.metadata.name, 16)}
+        </RawText>
+        <RawText fontSize='xs' color='gray.500'>
+          {trimWithEndEllipsis(
+            walletConnectV2.session?.peer.metadata.url.replace(/^https?:\/\//, ''),
+            18,
+          )}
+        </RawText>
+      </MenuButton>
+      <MenuList zIndex={2}>
+        <DappHeaderMenuSummaryV2 />
+      </MenuList>
+    </Menu>
+  )
+
+  if ((!walletConnectV1.connector || !walletConnectV1.dapp) && !walletConnectV2Connected) {
+    return walletConnectButtons
+  } else if (walletConnectV2Connected) {
+    return walletConnectV2ConnectedButton
+  } else {
+    return walletConnectV1ConnectedButton
+  }
 }

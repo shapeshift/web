@@ -1559,7 +1559,8 @@
           "address": "Address",
           "connected": "Connected",
           "network": "Network",
-          "unsupportedNetwork": "Unsupported Network"
+          "unsupportedNetwork": "Unsupported Network",
+          "expiry": "Expiry"
         }
       },
       "modal": {

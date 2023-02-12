@@ -6171,7 +6171,7 @@
     query-string "7.1.1"
     uint8arrays "3.1.0"
 
-"@walletconnect/utils@2.4.0", "@walletconnect/utils@^2.1.4", "@walletconnect/utils@^2.3.2":
+"@walletconnect/utils@2.4.0", "@walletconnect/utils@^2.1.4", "@walletconnect/utils@^2.3.2", "@walletconnect/utils@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@walletconnect/utils/-/utils-2.4.0.tgz#3ac0abe2803d9298d3b75bf2ad6185c5ef746a4d"
   integrity sha512-wXmy35hCpCNQLr21uFYM0+Wu1ON5J8bKTZ5x4FKaaw5qL24gjHridqUwdepjjkMpU1l3JX2OJGpmmKMyCBSu0g==

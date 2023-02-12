@@ -13,6 +13,10 @@ export const walletConnectReducer = (
       return { ...state, activeModal: action.payload.modal, modalData: action.payload.data }
     case WalletConnectActionType.CLEAR_MODAL:
       return { ...state, activeModal: undefined, modalData: undefined }
+    case WalletConnectActionType.SET_SESSION:
+      return { ...state, session: action.payload.session }
+    case WalletConnectActionType.DELETE_SESSION:
+      return { ...state, session: undefined }
     default:
       return state
   }

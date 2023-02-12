@@ -6,10 +6,28 @@ import type {
   FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
-import { convertNumberToHex } from '@walletconnect/utils'
+import { utils } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/components/modal/callRequest/CallRequestCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+
+/**
+ * Converts hex to utf8 string if it is valid bytes
+ */
+export const convertHexToUtf8 = (value: string) => {
+  if (utils.isHexString(value)) {
+    return utils.toUtf8String(value)
+  }
+
+  return value
+}
+
+export const convertNumberToHex = (value: number | string): string => {
+  const num = typeof value === 'string' ? parseInt(value, 10) : value
+  return num.toString(16).toUpperCase()
+}
+
+export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 
 export const getFeesForTx = async (
   tx: TransactionParams,

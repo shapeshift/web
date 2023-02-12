@@ -4,9 +4,13 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { convertHexToUtf8, convertNumberToHex } from '@walletconnect/utils'
 import type { ethers } from 'ethers'
-import { getFeesForTx, getGasData } from 'plugins/walletConnectToDapps/utils'
+import {
+  convertHexToUtf8,
+  convertNumberToHex,
+  getFeesForTx,
+  getGasData,
+} from 'plugins/walletConnectToDapps/utils'
 import { useCallback } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'

@@ -9,7 +9,7 @@ type Props = {
 }
 
 export const WalletConnectModalManager: FC<Props> = ({
-  state: { activeModal, modalData },
+  state: { activeModal, modalData, web3wallet },
   dispatch,
 }) => {
   const handleClose = () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
@@ -18,8 +18,13 @@ export const WalletConnectModalManager: FC<Props> = ({
 
   switch (activeModal) {
     case WalletConnectModal.sessionProposal:
-      return proposal ? (
-        <SessionProposalModal isOpen={true} onClose={handleClose} proposal={proposal} />
+      return proposal && web3wallet ? (
+        <SessionProposalModal
+          isOpen={true}
+          onClose={handleClose}
+          proposal={proposal}
+          web3wallet={web3wallet}
+        />
       ) : null
     default:
       return null

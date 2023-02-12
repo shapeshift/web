@@ -9,12 +9,12 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ProposalTypes, SignClientTypes } from '@walletconnect/types'
+import type { ProposalTypes, SessionTypes, SignClientTypes } from '@walletconnect/types'
+import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modal/callRequest/methods/components/ModalSection'
 import { AccountSelectionOverview } from 'plugins/walletConnectV2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectV2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectV2/components/Permissions'
-import { useWalletConnectV2 } from 'plugins/walletConnectV2/WalletConnectV2Provider'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -27,6 +27,7 @@ type Props = {
   isOpen: boolean
   onClose(): void
   proposal: SignClientTypes.EventArguments['session_proposal']
+  web3wallet: IWeb3Wallet
 }
 
 // Filter out namespace chainIds that are not supported by the currently connected wallet
@@ -39,18 +40,39 @@ const filterSupportedNamespaces = (
       chainId,
       requiredNamespace: {
         ...requiredNamespace,
-        chains: requiredNamespace.chains.filter(chainId =>
+        chains: requiredNamespace.chains?.filter(chainId =>
           walletSupportsChain({ chainId, wallet }),
         ),
       },
     }))
-    .filter(({ requiredNamespace }) => requiredNamespace.chains.length > 0)
+    .filter(({ requiredNamespace }) => (requiredNamespace.chains?.length ?? 0) > 0)
     .reduce((acc, { chainId, requiredNamespace }) => ({ ...acc, [chainId]: requiredNamespace }), {})
 
-const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) => {
+const createApprovalNamespaces = (
+  requiredNamespaces: ProposalTypes.RequiredNamespaces,
+  selectedAccounts: string[],
+): SessionTypes.Namespaces => {
+  return Object.entries(requiredNamespaces).reduce(
+    (namespaces: SessionTypes.Namespaces, [key, requiredNamespace]) => {
+      // const accounts =
+      //   requiredNamespace.chains?.map(chain => `${chain}:${selectedAccounts.join(',')}`) || []
+      namespaces[key] = {
+        accounts: selectedAccounts,
+        methods: requiredNamespace.methods,
+        events: requiredNamespace.events,
+      }
+      return namespaces
+    },
+    {},
+  )
+}
+
+const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal, web3wallet }) => {
   const wallet = useWallet().state.wallet
-  const { web3wallet } = useWalletConnectV2()
   const translate = useTranslate()
+
+  const { id, params } = proposal
+  const { proposer, requiredNamespaces, relays } = params
 
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>(() => [])
   const toggleAccountId = (accountId: string) =>
@@ -60,19 +82,22 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
         : [...previousState, accountId],
     )
 
-  const handleApprove = useCallback(async () => {
-    const session = await web3wallet?.approveSession({
-      id: proposal.id,
-      proposal,
-    })
-  }, [proposal.id, web3wallet])
-  const handleReject = useCallback(() => {}, [])
-
   // TODO: Show an error if no namespaces are supported by the connect wallet
   const filteredNamespaces = filterSupportedNamespaces(proposal.params.requiredNamespaces, wallet)
 
-  const { id, params } = proposal
-  const { proposer, requiredNamespaces, relays } = params
+  const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
+    requiredNamespaces,
+    selectedAccountIds,
+  )
+
+  const handleApprove = useCallback(async () => {
+    const session = await web3wallet?.approveSession({
+      id: proposal.id,
+      namespaces: approvalNamespaces,
+    })
+    console.log('[debug] SessionProposal modal session created!', { session })
+  }, [approvalNamespaces, proposal.id, web3wallet])
+  const handleReject = useCallback(() => {}, [])
 
   console.log('[debug] SessionProposal modal', {
     proposal,
@@ -82,6 +107,7 @@ const SessionProposal: FC<Props> = ({ isOpen, onClose: handleClose, proposal }) 
     requiredNamespaces,
     relays,
     selectedAccountIds,
+    approvalNamespaces,
   })
 
   return (

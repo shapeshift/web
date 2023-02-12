@@ -67,6 +67,7 @@ const validators = {
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),
   REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),

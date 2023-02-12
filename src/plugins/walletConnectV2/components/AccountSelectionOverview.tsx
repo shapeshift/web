@@ -20,7 +20,7 @@ export const AccountSelectionOverview: FC<IProps> = ({
       return (
         <>
           <RawText>{chainNamespace}</RawText>
-          {requiredNamespace.chains.map(chainId => {
+          {requiredNamespace.chains?.map(chainId => {
             return (
               <AccountSelectionByChainId
                 chainId={chainId}

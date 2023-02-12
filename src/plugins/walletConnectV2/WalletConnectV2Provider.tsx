@@ -1,4 +1,4 @@
-import type { WalletConnectContextType } from 'plugins/walletConnectV2/types'
+import type { WalletConnectContextType, WalletConnectState } from 'plugins/walletConnectV2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
 import { useWalletConnectEventsManager } from 'plugins/walletConnectV2/useWalletConnectEventsManager'
 import { WalletConnectModalManager } from 'plugins/walletConnectV2/WalletConnectModalManager'
@@ -12,7 +12,7 @@ const WalletConnectContext = createContext<WalletConnectContextType | undefined>
 export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => {
   console.log('[debug] WalletConnectV2Provider')
 
-  const initialState = {
+  const initialState: WalletConnectState = {
     core: undefined,
     web3wallet: undefined,
     pair: undefined,

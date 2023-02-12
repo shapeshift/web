@@ -20,7 +20,7 @@ export const Permissions: FC<IProps> = ({ requiredNamespaces }) => {
           <Card.Body>
             <Flex alignItems='center' gap={4}>
               <RawText>
-                <b>Chains:</b> {value.chains.join(', ')}
+                <b>Chains:</b> {value.chains?.join(', ')}
               </RawText>
               <RawText>
                 <b>Methods:</b> {value.methods.join(', ')}

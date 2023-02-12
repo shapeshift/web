@@ -61,6 +61,7 @@ export const mockStore: ReduxState = {
       Axelar: false,
       Yat: false,
       WalletConnectToDapps: false,
+      WalletConnectToDappsV2: false,
       Wherever: false,
       SaversVaults: false,
       Yearn: false,

@@ -3490,6 +3490,11 @@
   dependencies:
     "@openapitools/openapi-generator-cli" "^2.5.2"
 
+"@keepkey/keepkey-sdk@0.2.24":
+  version "0.2.24"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-sdk/-/keepkey-sdk-0.2.24.tgz#95229e94a696a8acb20d4fff5a5a69d9d6270e1b"
+  integrity sha512-S/avulRkHyS/+uhf8Lk1FeLM/LziT4zlsMs4smGTXh5bdHIdofEZVS/CHXyFKp0S1YLqBmUTqFV2mAf18Qfb/g==
+
 "@keplr-wallet/types@^0.10.5":
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/@keplr-wallet/types/-/types-0.10.5.tgz#6d3f7ddd60a545eaadb55d17774f7a2f65f5b0a0"

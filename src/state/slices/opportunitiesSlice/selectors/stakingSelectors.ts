@@ -21,12 +21,16 @@ import {
 } from 'state/selectors'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
-import { selectPortfolioAssetBalances, selectWalletAccountIds } from '../../common-selectors'
+import {
+  selectPortfolioAssetBalances,
+  selectPortfolioFiatBalances,
+  selectWalletAccountIds,
+} from '../../common-selectors'
 import {
   selectMarketDataByFilter,
   selectMarketDataSortedByMarketCap,
 } from '../../marketDataSlice/selectors'
-import { LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
+import { foxEthLpAssetId, LP_EARN_OPPORTUNITIES, STAKING_EARN_OPPORTUNITIES } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
@@ -437,16 +441,19 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
         })),
   )
 
-// Used exclusively in useEarnBalances - returns a single aggregated amount, for all opportunities, accounts, and assets
+// Returns a single aggregated amount, for all opportunities, accounts, and assets
 // Including delegations, undelegations, and rewards
+// Also slaps in ETH/FOX balances which value lives in the portfolio vs. being an "upstream earn opportunity"
 export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectMarketDataSortedByMarketCap,
   selectAssets,
-  (aggregatedUserStakingOpportunities, marketData, assets): BN =>
+  selectPortfolioFiatBalances,
+  (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
-      .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0)),
+      .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0))
+      .plus(portfolioFiatBalances[foxEthLpAssetId]),
 )
 
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =

@@ -3,7 +3,11 @@ import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { logger } from 'lib/logger'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeatureFlags,
+  selectPortfolioCryptoBalanceByFilter,
+} from 'state/slices/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -18,6 +22,7 @@ import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
+  OpportunityIdsResolverInput,
 } from '../types'
 import { BASE_OPPORTUNITIES_BY_ID } from './constants'
 import { getIdleInvestor } from './idleInvestorSingleton'
@@ -30,6 +35,11 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities
@@ -38,6 +48,14 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return await getIdleInvestor().findAll()
   })()
 
+  if (!IdleFinance) {
+    return {
+      data: {
+        byId: {},
+        type: opportunityType,
+      },
+    }
+  }
   if (!opportunities?.length) {
     const data = {
       byId: Object.fromEntries(
@@ -53,9 +71,6 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       data,
     }
   }
-
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
@@ -134,16 +149,19 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
+
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+
+  if (accountChainId !== ethChainId || !IdleFinance)
     return Promise.resolve({
       data: {
         byId: {},
         type: opportunityType,
       },
     })
-
-  const { getState } = reduxApi
-  const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
 
@@ -215,9 +233,19 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
   return Promise.resolve({ data })
 }
 
-export const idleStakingOpportunityIdsResolver = async (): Promise<{
+export const idleStakingOpportunityIdsResolver = async ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState() // ReduxState causes circular dependency
+
+  const { IdleFinance } = selectFeatureFlags(state)
+  if (!IdleFinance) {
+    return { data: [] }
+  }
+
   const opportunities = await (async () => {
     const maybeOpportunities = await getIdleInvestor().findAll()
     if (maybeOpportunities.length) return maybeOpportunities

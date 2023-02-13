@@ -1,6 +1,5 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
 import { useTranslate } from 'react-polyglot'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { logger } from 'lib/logger'
@@ -117,18 +116,11 @@ export const TransactionMethod = ({
             txMetadataWithAssetId?.assetId &&
             txMetadataWithAssetId?.value && (
               // TODO(gomes): add isTransactionMetadata type guard
-              <ErrorBoundary
-                fallbackRender={() => {
-                  // No amount displayed in case of error formatting it (missing symbol/precision).
-                  return null
-                }}
-              >
-                <ApprovalAmount
-                  assetId={txMetadataWithAssetId.assetId}
-                  value={txMetadataWithAssetId.value}
-                  parser={txMetadataWithAssetId.parser}
-                />
-              </ErrorBoundary>
+              <ApprovalAmount
+                assetId={txMetadataWithAssetId.assetId}
+                value={txMetadataWithAssetId.value}
+                parser={txMetadataWithAssetId.parser}
+              />
             )}
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           <Row title='status'>

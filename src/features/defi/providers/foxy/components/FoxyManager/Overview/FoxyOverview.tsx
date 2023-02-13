@@ -109,7 +109,9 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit,
   ).div(bn(10).pow(stakingAsset?.precision ?? 0))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(marketData.price)
-  const claimAvailable = dayjs().isAfter(dayjs('0')) // TODO
+  const claimAvailable = Boolean(
+    undelegation && dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+  )
   const claimDisabled = !claimAvailable || !hasClaim
 
   const selectedLocale = useAppSelector(selectSelectedLocale)

@@ -1,8 +1,6 @@
 import type { Plugins } from 'plugins/types'
 import { isMobile } from 'lib/globals'
 import { logger } from 'lib/logger'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { store } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['Plugins', 'Mobile'] })
 
@@ -23,8 +21,6 @@ export default function register(): Plugins {
 
               if (e.data?.cmd === 'walletImported' && e.data?.deviceId) {
                 moduleLogger.debug({ event: e.data }, 'Wallet Import message received')
-                // Set the welcome modal to true once the wallet has been imported on mobile
-                store.dispatch(preferences.actions.setWelcomeModal({ show: true }))
               }
 
               // ------------ WARNING ------------

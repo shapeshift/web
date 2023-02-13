@@ -4,17 +4,19 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { useModal } from 'hooks/useModal/useModal'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { store } from 'state/store'
 
 import EasyToUseIcon from '../easy-to-use.svg'
 
 const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAssets', 'earnYield']
 
 export const EasyToUse = () => {
+  const { nativeOnboard } = useModal()
+  const { close: closeModal } = nativeOnboard
   const translate = useTranslate()
-  const { dispatch } = useWallet()
   const { history } = useBrowserRouter()
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.easyToUse.${key}`
   const renderFeatures = useMemo(() => {
@@ -37,14 +39,15 @@ export const EasyToUse = () => {
 
   const handleClick = useCallback(
     (path: string) => {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      closeModal()
       history.push(path)
+      store.dispatch(preferences.actions.setWelcomeModal({ show: false }))
     },
-    [dispatch, history],
+    [closeModal, history],
   )
   return (
     <SlideTransition>
-      <Flex flexDir='column' px={6} gap={6}>
+      <Flex flexDir='column' gap={6}>
         <Center height='150px'>
           <Image src={EasyToUseIcon} height='100px' width='auto' />
         </Center>

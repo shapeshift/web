@@ -41,7 +41,7 @@ export const OnboardPager: React.FC<OnboardPagerProps> = ({ activeRoute }) => {
   }, [activeIndex])
 
   return canGoNext ? (
-    <Flex width='full' alignItems='center' justifyContent='space-between' px={6} pt={8}>
+    <Flex width='full' alignItems='center' justifyContent='space-between'>
       <Flex gap={2}>{renderPages}</Flex>
       <Button onClick={handleNext} colorScheme='blue'>
         {translate('common.next')}

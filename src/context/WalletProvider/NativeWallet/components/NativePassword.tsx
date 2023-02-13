@@ -116,6 +116,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
                   size='sm'
+                  tabIndex={-1}
                   onClick={handleShowPwClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
@@ -146,6 +147,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   )}
                   h='1.75rem'
                   size='sm'
+                  tabIndex='-1'
                   onClick={handleShowConfirmPwClick}
                   icon={!showConfirmPw ? <FaEye /> : <FaEyeSlash />}
                 />

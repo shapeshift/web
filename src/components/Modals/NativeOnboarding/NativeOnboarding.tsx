@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
 import { useModal } from 'hooks/useModal/useModal'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -20,6 +21,7 @@ import { OnboardingRoutes } from './config'
 
 export const NativeOnboarding = () => {
   const { nativeOnboard } = useModal()
+  const translate = useTranslate()
   const { isOpen, close: closeModal } = nativeOnboard
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => (
@@ -38,10 +40,10 @@ export const NativeOnboarding = () => {
       <ModalContent>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>
           <Tag size='sm' colorScheme='blue'>
-            ShapeShift Native Wallet
+            {translate('walletProvider.shapeShift.onboarding.shapeShiftNativeWallet')}
           </Tag>
           <Button size='sm' onClick={handleClose} variant='ghost'>
-            Skip
+            {translate('common.skip')}
           </Button>
         </ModalHeader>
         <MemoryRouter>

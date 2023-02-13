@@ -2,7 +2,6 @@ import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakr
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
@@ -21,6 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -74,7 +74,7 @@ type ClaimStatusProps = {
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()
-  const { foxy } = useFoxy()
+  const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
@@ -117,15 +117,15 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     ;(async () => {
-      if (!foxy || !txid) return
+      if (!foxyApi || !txid) return
       try {
         const transactionReceipt = await poll({
-          fn: () => foxy.getTxReceipt({ txid }),
+          fn: () => foxyApi.getTxReceipt({ txid }),
           validate: (result: TransactionReceipt) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
         })
-        const gasPrice = await foxy.getGasPrice()
+        const gasPrice = await foxyApi.getGasPrice()
 
         if (transactionReceipt.status) {
           refetchFoxyBalances()
@@ -145,7 +145,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         })
       }
     })()
-  }, [refetchFoxyBalances, estimatedGas, foxy, state, txid])
+  }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid])
 
   return (
     <SlideTransition>

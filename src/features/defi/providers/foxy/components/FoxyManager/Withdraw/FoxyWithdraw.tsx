@@ -8,7 +8,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
@@ -23,6 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
@@ -46,7 +46,7 @@ export const FoxyWithdraw: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
   accountId: AccountId | undefined
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -68,14 +68,15 @@ export const FoxyWithdraw: React.FC<{
   useEffect(() => {
     ;(async () => {
       try {
-        if (!(walletState.wallet && contractAddress && chainAdapter && api && bip44Params)) return
+        if (!(walletState.wallet && contractAddress && chainAdapter && foxyApi && bip44Params))
+          return
         const { accountNumber } = bip44Params
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
+          foxyApi.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         // Get foxy fee for instant sends
-        const foxyFeePercentage = await api.instantUnstakeFee({
+        const foxyFeePercentage = await foxyApi.instantUnstakeFee({
           contractAddress,
         })
 
@@ -96,7 +97,7 @@ export const FoxyWithdraw: React.FC<{
         moduleLogger.error(error, 'FoxyWithdraw error:')
       }
     })()
-  }, [api, bip44Params, chainAdapter, contractAddress, walletState.wallet])
+  }, [foxyApi, bip44Params, chainAdapter, contractAddress, walletState.wallet])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

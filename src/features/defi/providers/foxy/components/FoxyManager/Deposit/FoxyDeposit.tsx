@@ -9,7 +9,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import qs from 'qs'
 import { useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,6 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
@@ -49,7 +49,7 @@ export const FoxyDeposit: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
   accountId: AccountId | undefined
 }> = ({ onAccountIdChange: handleAccountIdChange, accountId }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -88,7 +88,7 @@ export const FoxyDeposit: React.FC<{
             contractAddress &&
             !isFoxyAprLoading &&
             chainAdapter &&
-            api &&
+            foxyApi &&
             bip44Params
           )
         )
@@ -96,7 +96,7 @@ export const FoxyDeposit: React.FC<{
         const { accountNumber } = bip44Params
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
+          foxyApi.getFoxyOpportunityByStakingAddress(contractAddress),
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
@@ -109,7 +109,7 @@ export const FoxyDeposit: React.FC<{
       }
     })()
   }, [
-    api,
+    foxyApi,
     bip44Params,
     chainAdapterManager,
     contractAddress,

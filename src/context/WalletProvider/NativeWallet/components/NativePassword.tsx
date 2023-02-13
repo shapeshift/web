@@ -147,7 +147,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   )}
                   h='1.75rem'
                   size='sm'
-                  tabIndex='-1'
+                  tabIndex={-1}
                   onClick={handleShowConfirmPwClick}
                   icon={!showConfirmPw ? <FaEye /> : <FaEyeSlash />}
                 />

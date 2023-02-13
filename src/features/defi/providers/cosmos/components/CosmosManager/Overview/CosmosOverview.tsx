@@ -22,7 +22,6 @@ import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportuni
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -45,7 +44,13 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetNamespace, chainId, contractAddress: validatorAddress, assetReference } = query
+  const {
+    accountId: routeAccountId,
+    assetNamespace,
+    chainId,
+    contractAddress: validatorAddress,
+    assetReference,
+  } = query
   const stakingAssetId = toAssetId({ chainId, assetNamespace, assetReference })
   const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
@@ -53,10 +58,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const highestBalanceAccountId = useAppSelector(state =>
     selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
-  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = useMemo(
-    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
-    [accountId, defaultAccountId, highestBalanceAccountId],
+    () => accountId ?? routeAccountId ?? highestBalanceAccountId,
+    [accountId, highestBalanceAccountId, routeAccountId],
   )
 
   useEffect(() => {

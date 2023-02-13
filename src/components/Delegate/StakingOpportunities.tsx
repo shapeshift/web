@@ -16,6 +16,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
+import { deserializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectIsActiveStakingOpportunityByFilter,
@@ -81,7 +82,10 @@ export const ValidatorName = ({
   )
 }
 
-export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitiesProps) => {
+export const StakingOpportunities = ({
+  assetId,
+  accountId: routeAccountId,
+}: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
@@ -90,10 +94,11 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
 
   const userStakingOpportunitiesFilter = useMemo(
     () => ({
-      accountId: accountId ?? '',
+      accountId: routeAccountId ?? '',
+      assetId: assetId ?? '',
       defiProvider: DefiProvider.Cosmos,
     }),
-    [accountId],
+    [routeAccountId, assetId],
   )
   const userStakingOpportunities = useAppSelector(state =>
     selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
@@ -107,9 +112,10 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       const { chainId, assetReference, assetNamespace } = fromAssetId(assetId)
       const provider = chainIdToLabel(chainId)
       const { account: validatorAddress } = fromAccountId(values.original.id)
+      const [opportunityAccountId] = deserializeUserStakingId(values.original.userStakingId)
       history.push({
         search: qs.stringify({
-          defaultAccountId: accountId,
+          accountId: routeAccountId ?? opportunityAccountId,
           provider,
           chainId,
           contractAddress: validatorAddress,
@@ -120,7 +126,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
         }),
       })
     },
-    [accountId, assetId, history],
+    [routeAccountId, assetId, history],
   )
 
   const columns: (ColumnGroup<UserStakingOpportunityWithMetadata> & {

@@ -137,7 +137,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
           />
         ))}
         <CText color='inherit' fontWeight='semibold'>
-          {opportunity.opportunityName}
+          {opportunity.name}
         </CText>
       </Flex>
       <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={{ base: 'right', md: 'center' }}>

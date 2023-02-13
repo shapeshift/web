@@ -9,7 +9,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -19,6 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
@@ -42,7 +42,7 @@ export const Withdraw: React.FC<
     onAccountIdChange: AccountDropdownProps['onChange']
   }
 > = ({ accountId, onAccountIdChange: handleAccountIdChange, onNext }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -96,19 +96,19 @@ export const Withdraw: React.FC<
 
   const handleContinue = useCallback(
     async (formValues: FoxyWithdrawValues) => {
-      if (!(accountAddress && dispatch && rewardId && api && bip44Params)) return
+      if (!(accountAddress && dispatch && rewardId && foxyApi && bip44Params)) return
 
       const getApproveGasEstimate = async () => {
         if (!accountAddress) return
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
-            api.estimateApproveGas({
+            foxyApi.estimateApproveGas({
               tokenContractAddress: rewardId,
               contractAddress,
               userAddress: accountAddress,
             }),
-            api.getGasPrice(),
+            foxyApi.getGasPrice(),
           ])
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
@@ -127,7 +127,7 @@ export const Withdraw: React.FC<
 
         try {
           const [gasLimit, gasPrice] = await Promise.all([
-            api.estimateWithdrawGas({
+            foxyApi.estimateWithdrawGas({
               tokenContractAddress: rewardId,
               contractAddress,
               amountDesired: bnOrZero(
@@ -137,7 +137,7 @@ export const Withdraw: React.FC<
               type: withdraw.withdrawType,
               bip44Params,
             }),
-            api.getGasPrice(),
+            foxyApi.getGasPrice(),
           ])
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
@@ -169,7 +169,7 @@ export const Withdraw: React.FC<
       })
       try {
         // Check is approval is required for user address
-        const _allowance = await api.allowance({
+        const _allowance = await foxyApi.allowance({
           tokenContractAddress: rewardId,
           contractAddress,
           userAddress: accountAddress,
@@ -218,7 +218,7 @@ export const Withdraw: React.FC<
       }
     },
     [
-      api,
+      foxyApi,
       asset.precision,
       bip44Params,
       contractAddress,

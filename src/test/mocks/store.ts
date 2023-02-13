@@ -23,7 +23,6 @@ export const mockStore: ReduxState = {
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
-  validatorDataApi: mockApiFactory('validatorDataApi' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
@@ -65,7 +64,6 @@ export const mockStore: ReduxState = {
       Wherever: false,
       SaversVaults: false,
       Yearn: false,
-      CosmosSdkOpportunitiesAbstraction: false,
       ArkeoAirdrop: false,
       TradeRates: false,
     },
@@ -107,10 +105,6 @@ export const mockStore: ReduxState = {
       ids: [],
       byId: {},
     },
-  },
-  validatorData: {
-    byValidator: {},
-    validatorIds: [],
   },
   opportunities: {
     lp: {

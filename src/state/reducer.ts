@@ -12,13 +12,11 @@ import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opp
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
-import { validatorData, validatorDataApi } from './slices/validatorDataSlice/validatorDataSlice'
 
 export const slices = {
   assets,
   marketData,
   txHistory,
-  validatorData,
   portfolio,
   preferences,
   opportunities,
@@ -36,7 +34,6 @@ export const sliceReducers = {
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
-  validatorData: validatorData.reducer,
   swapperApi: swapperApi.reducer,
   opportunities: opportunities.reducer,
 }
@@ -46,7 +43,6 @@ export const apiSlices = {
   portfolioApi,
   marketApi,
   txHistoryApi,
-  validatorDataApi,
   swapperApi,
   foxyApi,
   fiatRampApi,
@@ -59,7 +55,6 @@ export const apiReducers = {
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
-  [validatorDataApi.reducerPath]: validatorDataApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,

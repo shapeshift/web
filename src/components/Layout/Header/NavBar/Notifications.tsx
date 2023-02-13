@@ -16,7 +16,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { breakpoints, theme } from 'theme/theme'
 
-const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native]
+const eip712SupportedWallets = [KeyManager.KeepKey, KeyManager.Native, KeyManager.Mobile]
 const moduleLogger = logger.child({ namespace: ['wherever'] })
 
 export const Notifications = () => {
@@ -61,7 +61,7 @@ export const Notifications = () => {
         accountIdx: 0,
       })[0]
 
-      const ethAddress = await wallet.ethGetAddress({ addressNList })
+      const ethAddress = await wallet.ethGetAddress({ addressNList, showDisplay: false })
 
       setEthAddress(ethAddress)
       setAddressNList(addressNList)

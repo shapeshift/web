@@ -21,9 +21,7 @@ export const ApprovalAmount = ({
   const translate = useTranslate()
 
   const approvedAsset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!approvedAsset) throw new Error(`No approval asset found for assetId: ${assetId}`)
   const approvedAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
-
   const amountOrDefault = useMemo(
     () => makeAmountOrDefault(value, approvedAssetMarketData, approvedAsset, parser),
     [parser, approvedAsset, approvedAssetMarketData, value],

@@ -494,6 +494,7 @@
         "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -504,6 +505,7 @@
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
         "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -527,7 +529,8 @@
         "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
-        "infinite": "Infinite ∞"
+        "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable"
       },
       "staking": {
         "delegate": "Delegate",
@@ -592,6 +595,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
+    "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
     "needPermission": "needs your permission to use your %{symbol}",
@@ -1690,7 +1694,7 @@
       "title": "What is Arkeo?",
       "bodyParts": {
         "1": "Last year, alongside",
-        "2": "Coinbase Ventures",
+        "2": "Coinbase Cloud",
         "3": "ShapeShift incubated a project called Arkeo. Mainnet launch is just around the corner!",
         "4": "Arkeo was created to be a decentralized back-end for all node data. Applications that use Arkeo will benefit from increased development velocity, censorship-resistance and",
         "5": "nakamoto coefficient",

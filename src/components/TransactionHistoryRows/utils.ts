@@ -73,12 +73,16 @@ export const getTradeFees = memoize(
 
 export const makeAmountOrDefault = (
   value: string,
-  approvedAssetMarketData: MarketData,
-  approvedAsset: Asset,
+  approvedAssetMarketData: MarketData | undefined,
+  approvedAsset: Asset | undefined,
   parser: TxMetadata['parser'] | undefined,
 ) => {
   // An obvious revoke i.e a 0-value approve() Tx
   if (bn(value).isZero()) return `transactionRow.parser.${parser}.revoke`
+
+  // Unavailable assets
+  if (!approvedAsset || !approvedAssetMarketData)
+    return `transactionRow.parser.${parser}.amountUnavailable`
 
   const approvedAmount = bn(value).div(bn(10).pow(approvedAsset.precision)).toString()
 

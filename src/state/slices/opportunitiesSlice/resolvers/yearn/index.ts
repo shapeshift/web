@@ -127,6 +127,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     //Yearn doesn't have rewards so we set this to 0 and an empty array
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
         stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoBaseUnit: [],
       }
@@ -147,6 +148,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     let rewardsAmountsCryptoBaseUnit = [] as []
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      userStakingId,
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
     }

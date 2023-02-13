@@ -1,25 +1,27 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { NavLink, useHistory } from 'react-router-dom'
-import type { Row } from 'react-table'
+import type { CellProps, ColumnGroup, Renderer, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { OpportunitiesDataFull } from 'state/slices/selectors'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { UserStakingOpportunityWithMetadata } from 'state/slices/opportunitiesSlice/types'
+import { deserializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectHasActiveStakingOpportunity,
+  selectIsActiveStakingOpportunityByFilter,
   selectMarketDataById,
-  selectStakingOpportunitiesDataFullByFilter,
+  selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -80,55 +82,74 @@ export const ValidatorName = ({
   )
 }
 
-export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitiesProps) => {
+export const StakingOpportunities = ({
+  assetId,
+  accountId: routeAccountId,
+}: StakingOpportunitiesProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const history = useHistory()
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  // this is returning data grouped by validator, not by account
-  const stakingOpportunitiesData = useAppSelector(s =>
-    selectStakingOpportunitiesDataFullByFilter(s, filter),
+  const userStakingOpportunitiesFilter = useMemo(
+    () => ({
+      accountId: routeAccountId ?? '',
+      assetId: assetId ?? '',
+      defiProvider: DefiProvider.Cosmos,
+    }),
+    [routeAccountId, assetId],
   )
-  const hasActiveStaking = useAppSelector(state => selectHasActiveStakingOpportunity(state, filter))
+  const userStakingOpportunities = useAppSelector(state =>
+    selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
+  )
+  const isActive = useAppSelector(state =>
+    selectIsActiveStakingOpportunityByFilter(state, userStakingOpportunitiesFilter),
+  )
 
   const handleClick = useCallback(
-    (values: Row<OpportunitiesDataFull>) => {
-      const { chainId, assetReference } = fromAssetId(assetId)
+    (values: Row<UserStakingOpportunityWithMetadata>) => {
+      const { chainId, assetReference, assetNamespace } = fromAssetId(assetId)
       const provider = chainIdToLabel(chainId)
+      const { account: validatorAddress } = fromAccountId(values.original.id)
+      const [opportunityAccountId] = deserializeUserStakingId(values.original.userStakingId)
       history.push({
         search: qs.stringify({
-          defaultAccountId: accountId,
+          accountId: routeAccountId ?? opportunityAccountId,
           provider,
           chainId,
-          contractAddress: values.original.address,
+          contractAddress: validatorAddress,
           assetReference,
+          assetNamespace,
           modal: 'overview',
+          type: DefiType.Staking, //TODO(pastaghost): Don't hardcode. Get type from opportunity properties instead.
         }),
       })
     },
-    [accountId, assetId, history],
+    [routeAccountId, assetId, history],
   )
 
-  const columns = useMemo(
+  const columns: (ColumnGroup<UserStakingOpportunityWithMetadata> & {
+    Cell: Renderer<CellProps<UserStakingOpportunityWithMetadata>>
+  })[] = useMemo(
     () => [
       {
         Header: <Text translation='defi.validator' />,
         id: 'moniker',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
-          const validator = row.original
+        Cell: ({ row: { original: opportunityData } }) => {
+          const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
 
           return (
-            <Skeleton isLoaded={validator.isLoaded}>
+            <Skeleton isLoaded={Boolean(opportunityData)}>
               <ValidatorName
-                validatorAddress={validator?.address}
-                moniker={validator?.moniker}
+                validatorAddress={validatorAddress}
+                moniker={opportunityData?.name!}
                 isStaking={true}
-                chainId={asset?.chainId}
-                apr={validator?.apr}
+                chainId={chainId}
+                apr={opportunityData?.apy}
               />
             </Skeleton>
           )
@@ -138,12 +159,14 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.apr' />,
         id: 'apr',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
-          const validator = row.original
+        Cell: ({ row }: { row: { original: UserStakingOpportunityWithMetadata } }) => {
+          const opportunityData = row.original
           return (
-            <Skeleton isLoaded={validator.isLoaded}>
-              <AprTag percentage={validator?.apr} showAprSuffix />
+            <Skeleton isLoaded={Boolean(opportunityData)}>
+              <AprTag percentage={opportunityData?.apy} showAprSuffix />
             </Skeleton>
           )
         },
@@ -152,17 +175,19 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.stakedAmount' />,
         id: 'cryptoAmount',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
-          const { isLoaded, totalDelegations } = row.original
+        Cell: ({ row: { original: opportunityData } }) => {
+          const { stakedAmountCryptoBaseUnit } = opportunityData
 
           return (
-            <Skeleton isLoaded={isLoaded}>
-              {bnOrZero(totalDelegations).gt(0) ? (
+            <Skeleton isLoaded={Boolean(opportunityData)}>
+              {bnOrZero(stakedAmountCryptoBaseUnit).gt(0) ? (
                 <Amount.Crypto
-                  value={bnOrZero(totalDelegations)
-                    .div(`1e+${asset.precision}`)
+                  value={bnOrZero(stakedAmountCryptoBaseUnit)
+                    .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
                   symbol={asset.symbol}
@@ -180,54 +205,51 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       {
         Header: <Text translation='defi.rewards' />,
         id: 'rewards',
+        // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
+        // to Chakra components
         display: { base: 'table-cell' },
-        Cell: ({ row }: { row: { original: OpportunitiesDataFull } }) => {
-          const { totalDelegations, rewards: validatorRewards, isLoaded } = row.original
-          const rewards = bnOrZero(validatorRewards)
-
-          return (
-            <Skeleton isLoaded={isLoaded}>
-              {bnOrZero(totalDelegations).gt(0) ? (
-                <HStack fontWeight={'normal'}>
-                  <Amount.Crypto
-                    value={bnOrZero(rewards)
-                      .div(`1e+${asset.precision}`)
-                      .decimalPlaces(asset.precision)
-                      .toString()}
-                    symbol={asset.symbol}
-                  />
-                  <Amount.Fiat
-                    value={bnOrZero(rewards)
-                      .div(`1e+${asset.precision}`)
-                      .times(bnOrZero(marketData.price))
-                      .toPrecision()}
-                    color='green.500'
-                    prefix='≈'
-                  />
-                </HStack>
-              ) : (
-                <Box width='100%' textAlign={'right'}>
-                  <Button
-                    as='span'
-                    colorScheme='blue'
-                    variant='ghost-filled'
-                    size='sm'
-                    cursor='pointer'
-                  >
-                    <Text translation='common.getStarted' />
-                  </Button>
-                </Box>
-              )}
-            </Skeleton>
-          )
-        },
+        Cell: ({ row: { original: opportunityData } }) => (
+          <Skeleton isLoaded={Boolean(opportunityData)}>
+            {bnOrZero(opportunityData.rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ? (
+              <HStack fontWeight={'normal'}>
+                <Amount.Crypto
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .decimalPlaces(asset.precision)
+                    .toString()}
+                  symbol={asset.symbol}
+                />
+                <Amount.Fiat
+                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                    .div(bn(10).pow(asset.precision))
+                    .times(bnOrZero(marketData.price))
+                    .toPrecision()}
+                  color='green.500'
+                  prefix='≈'
+                />
+              </HStack>
+            ) : (
+              <Box width='100%' textAlign={'right'}>
+                <Button
+                  as='span'
+                  colorScheme='blue'
+                  variant='ghost-filled'
+                  size='sm'
+                  cursor='pointer'
+                >
+                  <Text translation='common.getStarted' />
+                </Button>
+              </Box>
+            )}
+          </Skeleton>
+        ),
         disableSortBy: true,
       },
     ],
-    [asset?.chainId, asset.precision, asset.symbol, marketData.price],
+    [asset.precision, asset.symbol, marketData.price],
   )
 
-  if (stakingOpportunitiesData.length === 0) return null
+  if (userStakingOpportunities.length === 0) return null
 
   return (
     <Card>
@@ -251,9 +273,9 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
       </Card.Header>
       <Card.Body pt={0} px={2}>
         <ReactTable
-          data={stakingOpportunitiesData}
+          data={userStakingOpportunities}
           columns={columns}
-          displayHeaders={hasActiveStaking}
+          displayHeaders={isActive}
           onRowClick={handleClick}
         />
       </Card.Body>

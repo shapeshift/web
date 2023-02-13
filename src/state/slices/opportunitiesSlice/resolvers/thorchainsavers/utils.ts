@@ -133,7 +133,7 @@ export const getThorchainSaversPosition = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
-}): Promise<ThorchainSaverPositionResponse> => {
+}): Promise<ThorchainSaverPositionResponse | null> => {
   const allPositions = await getAllThorchainSaversPositions(assetId)
 
   if (!allPositions.length)
@@ -150,7 +150,7 @@ export const getThorchainSaversPosition = async ({
   )
 
   if (!accountPosition) {
-    throw new Error(`No THORCHain savers position in ${assetId} pool for accountId ${accountId}`)
+    return null
   }
 
   return accountPosition

@@ -5,6 +5,7 @@ import { purgeOldIdleOpportunities } from './003_purge_old_idle_opportunities'
 import { renameUnderlyingAssetRatios } from './004_opportunities_underlyingAssetRatios_underlyingAssetRatiosBaseUnit'
 import { disableYearnOpportunities } from './005_disable_yearn_opportunities'
 import { cosmosSdkOpportunitiesSliceAbstraction } from './006_opportunities_cosmos_abstraction'
+import { clearWithdrawnSaversOpportunities } from './007_clear_withdrawn_savers_opportunities'
 
 export const migrations = {
   0: clearOpportunitiesSlice,
@@ -14,4 +15,5 @@ export const migrations = {
   4: renameUnderlyingAssetRatios,
   5: disableYearnOpportunities,
   6: cosmosSdkOpportunitiesSliceAbstraction,
+  7: clearWithdrawnSaversOpportunities,
 }

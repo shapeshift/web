@@ -7,16 +7,12 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useFoxyBalances } from './useFoxyBalances'
-
 export type UseEarnBalancesReturn = {
   totalEarningBalance: string
   loading: boolean
 }
 
 export function useEarnBalances(): UseEarnBalancesReturn {
-  const { isLoading: isFoxyBalancesLoading, data: foxyBalancesData } = useFoxyBalances()
-
   const stakingOpportunitiesFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull)
 
   const lpAssetBalanceFilter = useMemo(
@@ -31,12 +27,11 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   )
 
   const totalEarningBalance = bnOrZero(stakingOpportunitiesFiatBalance)
-    .plus(foxyBalancesData?.totalBalance ?? '0')
     .plus(foxEthLpFiatBalance ?? 0)
     .toString()
 
   return {
     totalEarningBalance,
-    loading: isFoxyBalancesLoading,
+    loading: false,
   }
 }

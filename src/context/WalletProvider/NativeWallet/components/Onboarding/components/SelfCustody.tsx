@@ -1,13 +1,10 @@
-import { Center, Flex, Image, Link, useColorModeValue } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
+import { Center, Flex, Image } from '@chakra-ui/react'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 
 import SelfCustodyIcon from '../self-custody.svg'
 
 export const SelfCustody = () => {
-  const translate = useTranslate()
-  const linkColor = useColorModeValue('blue.500', 'blue.200')
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.selfCustody.${key}`
   return (
     <SlideTransition>
@@ -18,13 +15,7 @@ export const SelfCustody = () => {
         <Flex flexDir='column' gap={2}>
           <Text fontSize='2xl' fontWeight='bold' translation={translateKey('title')} />
           <Text fontSize='lg' translation={translateKey('subTitle')} />
-          <RawText color='gray.500'>
-            {translate(translateKey('body.1'))}{' '}
-            <Link color={linkColor} isExternal href='https://google.com'>
-              {translate(translateKey('body.2'))}
-            </Link>{' '}
-            {translate(translateKey('body.3'))}
-          </RawText>
+          <Text color='gray.500' translation={translateKey('body')} />
         </Flex>
       </Flex>
     </SlideTransition>

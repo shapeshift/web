@@ -1348,11 +1348,7 @@
         "selfCustody": {
           "title": "Self-custody",
           "subTitle": "You hold the keys and you're the only one who can access it.",
-          "body": {
-            "1": "Your ShapeShift Native Wallet is a self-custody wallet.",
-            "2": "Learn more",
-            "3": "about self custody."
-          },
+          "body": "A self-custody wallet means that you own it, and only you have access to your funds. Your secret recovery phrase is your key to accessing it. Nobody can block you from accessing your funds.",
           "cta": "Next"
         },
         "multiChain": {

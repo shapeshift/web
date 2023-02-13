@@ -13,6 +13,7 @@ export const useWalletConnectEventsManager = (
   isInitialized: boolean,
   web3wallet: WalletConnectState['web3wallet'],
   dispatch: WalletConnectContextType['dispatch'],
+  core: WalletConnectState['core'],
 ) => {
   /******************************************************************************
    * 1. Open session proposal modal for confirmation / rejection

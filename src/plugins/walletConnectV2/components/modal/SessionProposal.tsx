@@ -105,7 +105,6 @@ const SessionProposal: FC<Props> = ({
       id: proposal.id,
       namespaces: approvalNamespaces,
     })
-    // FIXME: use a reducer to update the state
     dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
     console.log('[debug] SessionProposal modal session created!', { session })
     handleClose()

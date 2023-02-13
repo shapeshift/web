@@ -1,7 +1,10 @@
+import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
-import { Box, HStack, Link, MenuDivider, VStack } from '@chakra-ui/react'
+import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
 import type { WalletConnectState } from 'plugins/walletConnectV2/types'
+import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectV2/WalletConnectV2Provider'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -11,8 +14,8 @@ import { useAppSelector } from 'state/store'
 
 import { DappAvatar } from './DappAvatar'
 
-export const extractChainIds = (state: WalletConnectState): string[] => {
-  const requiredNamespaces = state.session?.requiredNamespaces
+export const extractChainIds = (session: WalletConnectState['session']): string[] => {
+  const requiredNamespaces = session?.requiredNamespaces
 
   const requiredNamespacesValues = requiredNamespaces ? Object.values(requiredNamespaces) : []
   const allChains = requiredNamespacesValues
@@ -24,8 +27,8 @@ export const extractChainIds = (state: WalletConnectState): string[] => {
   return allChains ?? []
 }
 
-export const extractConnectedAccounts = (state: WalletConnectState): string[] => {
-  const namespaces = state.session?.namespaces
+export const extractConnectedAccounts = (session: WalletConnectState['session']): string[] => {
+  const namespaces = session?.namespaces
 
   const requiredNamespacesValues = namespaces ? Object.values(namespaces) : []
   const allAccounts = requiredNamespacesValues
@@ -42,14 +45,46 @@ export const DappHeaderMenuSummaryV2 = () => {
 
   const translate = useTranslate()
 
-  const walletConnectV2 = useWalletConnectV2()
-  const connectedChainIds = extractChainIds(walletConnectV2)
+  const { session, web3wallet, core, dispatch } = useWalletConnectV2()
+  const connectedChainIds = extractChainIds(session)
 
-  // const handleDisconnect = walletConnect.disconnect
+  if (!session || !web3wallet) return null
 
-  const connectedAccounts = extractConnectedAccounts(walletConnectV2)
+  const handleDisconnect = async () => {
+    if (!session || !web3wallet || !core) return
 
-  return walletConnectV2.session ? (
+    /*
+     FIXME: this is a hack to clear out all sessions, as the MVP supports only one at a time.
+     In the future we want to support multiple pairings and sessions at once.
+     */
+    const activeTopics = Object.values(web3wallet.getActiveSessions()).map(session => session.topic)
+    for await (const topic of activeTopics) {
+      try {
+        await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
+      } catch (e) {
+        console.error('[debug] Error disconnecting session', { error: e, topic })
+      }
+    }
+
+    const pairedTopics = core.pairing.getPairings().map(pairing => pairing.topic)
+    for await (const topic of pairedTopics) {
+      try {
+        await core.pairing.disconnect({ topic })
+      } catch (e) {
+        console.error('[debug] Error disconnecting pairing', { error: e, topic })
+      }
+    }
+
+    dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+
+    console.log('[debug] handleDisconnect should have no pairings', {
+      pairings: core.pairing.getPairings(),
+    })
+  }
+
+  const connectedAccounts = extractConnectedAccounts(session)
+
+  return (
     <>
       <MenuGroup
         title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
@@ -58,13 +93,13 @@ export const DappHeaderMenuSummaryV2 = () => {
       >
         <HStack spacing={4} px={3} py={1}>
           <DappAvatar
-            name={walletConnectV2.session.peer.metadata.name}
-            image={walletConnectV2.session.peer.metadata.icons[0]}
-            connected={walletConnectV2.session.acknowledged}
+            name={session.peer.metadata.name}
+            image={session.peer.metadata.icons[0]}
+            connected={session.acknowledged}
           />
           <Box fontWeight='medium'>
             <RawText maxWidth='215px' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
-              {walletConnectV2.session.peer.metadata.name}
+              {session.peer.metadata.name}
             </RawText>
             <RawText
               fontSize='sm'
@@ -74,7 +109,7 @@ export const DappHeaderMenuSummaryV2 = () => {
               textOverflow='ellipsis'
               whiteSpace='nowrap'
             >
-              {walletConnectV2.session.peer.metadata.url.replace(/^https?:\/\//, '')}
+              {session.peer.metadata.url.replace(/^https?:\/\//, '')}
             </RawText>
           </Box>
         </HStack>
@@ -85,30 +120,36 @@ export const DappHeaderMenuSummaryV2 = () => {
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='gray.500' />
           <RawText>
-            {dayjs(walletConnectV2.session.expiry).locale(selectedLocale).format('ll hh:mm A')}
+            {dayjs.unix(session.expiry).locale(selectedLocale).format('ll hh:mm A')}
           </RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
-          <Link
-            href={'walletConnect.accountExplorerAddressLink}${connectedAccountAddress'}
-            isExternal
-          >
-            <MiddleEllipsis value={connectedAccounts[0]} color='blue.200' />
-          </Link>
+          <Text translation='plugins.walletConnectToDapps.header.menu.addresses' color='gray.500' />
+          {connectedAccounts.map((address, index) => (
+            <Link
+              key={address}
+              href={'walletConnect.accountExplorerAddressLink}${address'}
+              isExternal
+            >
+              <MiddleEllipsis value={address} color='blue.200' />
+            </Link>
+          ))}
         </HStack>
-        {walletConnectV2.session.acknowledged && (
+        {session.acknowledged && (
           <HStack justifyContent='space-between' spacing={4}>
-            <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
-            <RawText>{connectedChainIds}</RawText>
+            <Text
+              translation='plugins.walletConnectToDapps.header.menu.networks'
+              color='gray.500'
+            />
+            <RawText>{connectedChainIds.join(', ')}</RawText>
           </HStack>
         )}
       </VStack>
 
       <MenuDivider />
-      {/*<MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={handleDisconnect} color='red.500'>*/}
-      {/*  {translate('plugins.walletConnectToDapps.header.menu.disconnect')}*/}
-      {/*</MenuItem>*/}
+      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={handleDisconnect} color='red.500'>
+        {translate('plugins.walletConnectToDapps.header.menu.disconnect')}
+      </MenuItem>
     </>
-  ) : null
+  )
 }

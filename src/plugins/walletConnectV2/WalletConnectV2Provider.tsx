@@ -18,6 +18,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     pair: undefined,
     modalData: undefined,
     activeModal: undefined,
+    session: undefined,
   }
 
   const [state, dispatch] = useReducer(walletConnectReducer, initialState)
@@ -34,7 +35,18 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   }, [])
 
   const isInitialized = !!state.core && !!state.web3wallet
-  useWalletConnectEventsManager(isInitialized, state.web3wallet, dispatch)
+  useWalletConnectEventsManager(isInitialized, state.web3wallet, dispatch, state.core)
+
+  useEffect(() => {
+    const activeSessions = state.web3wallet?.getActiveSessions()
+    const sessions = activeSessions ? Object.values(activeSessions) : []
+    console.log('[debug] sessions useEffect', sessions)
+    if (sessions?.length) {
+      const session = sessions[0]
+      // FIXME: handle multiple sessions
+      dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
+    }
+  }, [state.web3wallet])
 
   const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
   return (

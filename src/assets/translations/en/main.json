@@ -1557,10 +1557,12 @@
         "menu": {
           "disconnect": "Disconnect",
           "address": "Address",
+          "addresses": "Addresses",
           "connected": "Connected",
           "network": "Network",
+          "networks": "Networks",
           "unsupportedNetwork": "Unsupported Network",
-          "expiry": "Expiry"
+          "expiry": "Session expiry"
         }
       },
       "modal": {

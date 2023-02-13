@@ -14,7 +14,7 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
@@ -99,7 +99,7 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
             <Amount.Crypto
               color={textColor}
               value={bnOrZero(undelegation.undelegationAmountCryptoBaseUnit)
-                .div(`1e+${asset.precision}`)
+                .div(bn(10).pow(asset?.precision))
                 .toFixed()}
               symbol={asset.symbol}
               maximumFractionDigits={4}

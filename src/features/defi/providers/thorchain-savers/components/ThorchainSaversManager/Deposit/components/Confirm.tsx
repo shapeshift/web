@@ -435,9 +435,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ;(async () => {
       const accountAddress = isUtxoChainId(chainId)
         ? await getThorchainSaversPosition({ accountId, assetId })
-            .then(({ asset_address }) =>
-              chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address,
-            )
+            .then(position => {
+              if (!position) throw new Error(`No position found for assetId: ${assetId}`)
+              const { asset_address } = position
+              return chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
+            })
             .catch(async () => {
               const firstReceiveAddress = await chainAdapter.getAddress({
                 wallet: walletState.wallet!,

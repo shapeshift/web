@@ -117,6 +117,7 @@ export const makeAccountUserData = ({
       maybeValidatorUndelegations.length
     ) {
       acc[userStakingId] = {
+        userStakingId,
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
         rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
         undelegations: maybeValidatorUndelegations,

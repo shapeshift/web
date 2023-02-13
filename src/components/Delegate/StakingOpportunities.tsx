@@ -91,6 +91,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const userStakingOpportunitiesFilter = useMemo(
     () => ({
       accountId: accountId ?? '',
+      defiProvider: DefiProvider.Cosmos,
     }),
     [accountId],
   )

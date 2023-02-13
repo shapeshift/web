@@ -4,17 +4,14 @@ import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  foxEthLpAssetId,
-  foxEthStakingAssetIdV5,
-  v5EarnFarmingOpportunity,
-} from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
-  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunitiesById,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -24,7 +21,7 @@ import { OpportunityTypes } from '../FoxCommon'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const highestFarmingBalanceAccountIdFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV5,
+      stakingId: foxEthStakingAssetIdV5 as StakingId,
     }),
     [],
   )
@@ -47,16 +44,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     selectHighestBalanceAccountIdByLpId(state, highestBalanceLpAccountIdFilter),
   )
 
-  const farmingv5EarnOpportunityFilter = useMemo(
-    () => ({
-      stakingId: foxEthStakingAssetIdV5,
-    }),
-    [],
-  )
-  const farmingv5EarnOpportunity = useAppSelector(state =>
-    selectAggregatedEarnUserStakingOpportunityByStakingId(state, farmingv5EarnOpportunityFilter),
-  )
-
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
       lpId: foxEthLpAssetId,
@@ -68,6 +55,13 @@ export const useOtherOpportunities = (assetId: AssetId) => {
     selectAggregatedEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
 
+  const stakingOpportunities = useAppSelector(selectStakingOpportunitiesById)
+
+  const foxFarmingOpportunityMetadata = useMemo(
+    () => stakingOpportunities[foxEthStakingAssetIdV5 as StakingId],
+    [stakingOpportunities],
+  )
+
   const otherOpportunities = useMemo(() => {
     const opportunities: Record<AssetId, OpportunitiesBucket[]> = {
       [foxAssetId]: [
@@ -75,17 +69,17 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           type: DefiType.Staking,
           title: 'plugins.foxPage.farming',
           opportunities: [
-            ...(farmingv5EarnOpportunity
+            ...(foxFarmingOpportunityMetadata
               ? [
                   {
-                    ...farmingv5EarnOpportunity,
-                    isLoaded: true,
-                    apy: Boolean(defaultLpOpportunityData && farmingv5EarnOpportunity)
-                      ? bnOrZero(farmingv5EarnOpportunity?.apy)
+                    ...foxFarmingOpportunityMetadata,
+                    apy: Boolean(defaultLpOpportunityData && foxFarmingOpportunityMetadata)
+                      ? bnOrZero(foxFarmingOpportunityMetadata?.apy)
                           .plus(defaultLpOpportunityData?.apy ?? 0)
                           .toString()
                       : undefined,
-                    contractAddress: v5EarnFarmingOpportunity.contractAddress,
+                    contractAddress: fromAssetId(foxFarmingOpportunityMetadata.assetId)
+                      .assetReference,
                     highestBalanceAccountAddress:
                       highestFarmingBalanceAccountId &&
                       fromAccountId(highestFarmingBalanceAccountId).account,
@@ -103,7 +97,6 @@ export const useOtherOpportunities = (assetId: AssetId) => {
                   {
                     ...foxEthLpOpportunity,
                     type: DefiType.LiquidityPool,
-                    isLoaded: true,
                     contractAddress: fromAssetId(foxEthLpAssetId).assetReference,
                     highestBalanceAccountAddress:
                       highestBalanceLpAccountId && fromAccountId(highestBalanceLpAccountId).account,
@@ -117,7 +110,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.borrowingAndLending',
           opportunities: [
             {
-              opportunityName: 'FOX',
+              name: 'FOX',
               isLoaded: true,
               apy: null,
               link: 'https://app.rari.capital/fuse/pool/79',
@@ -133,7 +126,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              opportunityName: 'ElasticSwap',
+              name: 'ElasticSwap',
               contractAddress: foxyAddresses[0].staking,
               isLoaded: true, // No network request here
               apy: null,
@@ -151,7 +144,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   }, [
     assetId,
     defaultLpOpportunityData,
-    farmingv5EarnOpportunity,
+    foxFarmingOpportunityMetadata,
     foxEthLpOpportunity,
     highestBalanceLpAccountId,
     highestFarmingBalanceAccountId,

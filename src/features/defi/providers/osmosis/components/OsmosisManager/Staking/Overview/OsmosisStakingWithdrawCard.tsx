@@ -13,8 +13,11 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isCosmosUserStaking } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
-import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  serializeUserStakingId,
+  supportsUndelegations,
+  toValidatorId,
+} from 'state/slices/opportunitiesSlice/utils'
 import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,7 +47,7 @@ export const OsmosisStakingWithdrawCard = ({
 
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
-    if (isCosmosUserStaking(opportunityData) && opportunityData.undelegations.length) {
+    if (supportsUndelegations(opportunityData) && opportunityData.undelegations.length) {
       return opportunityData.undelegations
     }
     return []

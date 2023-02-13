@@ -4,6 +4,7 @@ import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
+import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -38,7 +39,7 @@ export type OpportunityMetadataBase = {
   // TODO: Optional for backwards compatibility, but it should always be present
   rewardAssetIds?: AssetIdsTuple
   expired?: boolean
-  name?: string
+  name: string
   version?: string
   tags?: string[]
 }
@@ -47,6 +48,7 @@ export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStaki
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {
+  userStakingId: UserStakingId
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
@@ -60,6 +62,7 @@ export type UserStakingOpportunityBase = {
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | CosmosSdkStakingSpecificUserStakingOpportunity
+  | FoxySpecificUserStakingOpportunity
 
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
 
@@ -137,7 +140,7 @@ export type EarnOpportunityType = {
   provider: string
   version?: string
   contractAddress?: string
-  rewardAddress: string
+  rewardAddress?: string
   apy?: number | string
   tvl: string
   underlyingAssetId?: AssetId
@@ -164,7 +167,7 @@ export type StakingEarnOpportunityType = OpportunityMetadata &
     isVisible?: boolean
   } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
-export type LpEarnOpportunityType = OpportunityMetadata & {
+export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean

@@ -1,5 +1,3 @@
-import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
-import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -53,12 +51,8 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   return (
     <DefiManagerContext.Provider value={null}>
       <YearnProvider>
-        <IdleProvider>
-          <FoxyProvider>
-            {children}
-            {provider && renderModules}
-          </FoxyProvider>
-        </IdleProvider>
+        {children}
+        {provider && renderModules}
       </YearnProvider>
     </DefiManagerContext.Provider>
   )

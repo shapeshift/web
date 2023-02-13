@@ -4,11 +4,12 @@ import { Box, Circle, Divider, Flex, Spinner, useColorModeValue } from '@chakra-
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { FC } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
+import { assertUnreachable } from 'lib/utils'
 
 type AssetToAssetProps = {
   buyIcon: string
   sellIcon: string
-  status?: TxStatus
+  status: TxStatus
   buyColor?: string
   sellColor?: string
 } & FlexProps
@@ -28,34 +29,32 @@ export const AssetToAsset: FC<AssetToAssetProps> = ({
 
   const renderIcon = () => {
     switch (status) {
-      case TxStatus.Confirmed: {
+      case TxStatus.Confirmed:
         return (
           <Circle bg={green} size='100%'>
             <CheckIcon />
           </Circle>
         )
-      }
-      case TxStatus.Failed: {
+      case TxStatus.Failed:
         return (
           <Circle bg={red} size='100%'>
             <CloseIcon p={1} />
           </Circle>
         )
-      }
-      case TxStatus.Pending: {
+      case TxStatus.Pending:
         return (
           <Circle bg={gray} size='100%'>
             <Spinner />
           </Circle>
         )
-      }
-      default: {
+      case TxStatus.Unknown:
         return (
           <Circle bg={gray} size='100%'>
             <ArrowForwardIcon />
           </Circle>
         )
-      }
+      default:
+        assertUnreachable(status)
     }
   }
 

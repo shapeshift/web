@@ -5,7 +5,6 @@ import { Approve as ReusableApprove } from 'features/defi/components/Approve/App
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -17,6 +16,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const history = useHistory()
@@ -54,10 +54,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues) => {
-      if (!accountAddress || !assetReference || !api) return
+      if (!accountAddress || !assetReference || !foxyApi) return
       try {
         const [gasLimit, gasPrice] = await Promise.all([
-          api.estimateDepositGas({
+          foxyApi.estimateDepositGas({
             tokenContractAddress: assetReference,
             contractAddress,
             amountDesired: bnOrZero(deposit.cryptoAmount)
@@ -65,7 +65,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
               .decimalPlaces(0),
             userAddress: accountAddress,
           }),
-          api.getGasPrice(),
+          foxyApi.getGasPrice(),
         ])
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
@@ -81,7 +81,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         })
       }
     },
-    [api, asset.precision, assetReference, contractAddress, accountAddress, toast, translate],
+    [foxyApi, asset.precision, assetReference, contractAddress, accountAddress, toast, translate],
   )
 
   const handleApprove = useCallback(async () => {
@@ -90,7 +90,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         assetReference &&
         accountAddress &&
         walletState.wallet &&
-        api &&
+        foxyApi &&
         dispatch &&
         bip44Params &&
         state
@@ -99,7 +99,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
-      await api.approve({
+      await foxyApi.approve({
         tokenContractAddress: assetReference,
         contractAddress,
         userAddress: accountAddress,
@@ -111,7 +111,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
       await poll({
         fn: () =>
-          api.allowance({
+          foxyApi.allowance({
             tokenContractAddress: assetReference,
             contractAddress,
             userAddress: accountAddress,
@@ -145,7 +145,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [
     accountAddress,
-    api,
+    foxyApi,
     asset.precision,
     assetReference,
     bip44Params,

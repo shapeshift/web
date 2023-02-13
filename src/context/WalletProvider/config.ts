@@ -52,6 +52,7 @@ import { NativeRename } from './NativeWallet/components/NativeRename'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
+import { NativeOnboarding } from './NativeWallet/components/Onboarding/NativeOnboarding'
 import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
@@ -110,6 +111,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/enter-password', component: EnterPassword },
       { path: '/native/legacy/login', component: NativeLegacyLogin },
       { path: '/native/legacy/login/success', component: NativeLegacySuccess },
+      { path: '/native/onboard', component: NativeOnboarding },
     ],
     connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,

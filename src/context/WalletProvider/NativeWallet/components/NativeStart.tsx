@@ -59,7 +59,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/native/create')}
+            onClick={() => history.push('/native/onboard')}
             data-test='wallet-native-create-button'
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />

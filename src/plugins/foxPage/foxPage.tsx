@@ -280,7 +280,7 @@ export const FoxPage = () => {
                   assetId={selectedAsset.assetId}
                   apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toString()}
-                  isLoaded={!foxyEarnOpportunityData && !isFoxyAprLoading}
+                  isLoaded={Boolean(foxyEarnOpportunityData && !isFoxyAprLoading)}
                   balance={cryptoHumanBalances[selectedAssetIndex]}
                   onClick={handleOpportunityClick}
                 />

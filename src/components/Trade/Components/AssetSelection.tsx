@@ -51,6 +51,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
+  const networkName = feeAsset?.networkName || feeAsset?.name
   const handleChange = () => {
     return null
   }
@@ -82,7 +83,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
           <Flex flexDir='column' fontWeight='medium'>
             <RawText lineHeight='shorter'>{asset?.symbol}</RawText>
             <RawText fontSize='xs' color='gray.500' lineHeight='shorter'>
-              on {feeAsset?.name}
+              on {networkName}
             </RawText>
           </Flex>
         </Flex>
@@ -93,7 +94,14 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}
             onChange={handleChange}
-            buttonProps={{ width: 'full', borderTopRadius: 0, px: 4, fontSize: 'xs' }}
+            buttonProps={{
+              width: 'full',
+              borderTopRadius: 0,
+              px: 4,
+              fontSize: 'xs',
+              py: 2,
+              height: 'auto',
+            }}
             boxProps={{ m: 0, p: 0 }}
             disabled={accountSelectionDisabled}
             autoSelectHighestBalance

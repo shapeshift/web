@@ -492,6 +492,7 @@
         "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -502,6 +503,7 @@
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
         "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable",
         "withdraw": "Withdraw",
         "receive": "Receive"
       },
@@ -525,7 +527,8 @@
         "approveSymbol": "Approve %{symbol}",
         "revoke": "Revoke",
         "revokeSymbol": "Revoke %{symbol} approval",
-        "infinite": "Infinite ∞"
+        "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable"
       },
       "staking": {
         "delegate": "Delegate",

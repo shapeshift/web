@@ -94,7 +94,6 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             assetId={assetId}
             onChange={handleChange}
             buttonProps={{ width: 'full', borderTopRadius: 0, px: 4, fontSize: 'xs' }}
-            showLabel={false}
             boxProps={{ m: 0, p: 0 }}
             disabled={accountSelectionDisabled}
             autoSelectHighestBalance

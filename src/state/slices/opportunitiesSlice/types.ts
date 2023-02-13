@@ -4,6 +4,7 @@ import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
+import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -60,6 +61,7 @@ export type UserStakingOpportunityBase = {
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | CosmosSdkStakingSpecificUserStakingOpportunity
+  | FoxySpecificUserStakingOpportunity
 
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
 

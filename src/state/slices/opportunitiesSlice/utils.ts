@@ -9,6 +9,7 @@ import type {
   CosmosSdkStakingSpecificUserStakingOpportunity,
   UserUndelegation,
 } from './resolvers/cosmosSdk/types'
+import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -56,12 +57,13 @@ export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
 export const toValidatorId = (...[args]: Parameters<typeof toAccountId>) =>
   toAccountId(args) as ValidatorId
 
-export const isCosmosUserStaking = (
+export const supportsUndelegations = (
   userStakingOpportunity: Partial<UserStakingOpportunity>,
-): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
-  'undelegations' in userStakingOpportunity
+): userStakingOpportunity is
+  | CosmosSdkStakingSpecificUserStakingOpportunity
+  | FoxySpecificUserStakingOpportunity => 'undelegations' in userStakingOpportunity
 
-export const makeTotalCosmosSdkUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
+export const makeTotalUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 
 export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
@@ -70,8 +72,8 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
     .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
     .plus(
-      makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
-        ...(isCosmosUserStaking(userStakingOpportunity)
+      makeTotalUndelegationsCryptoBaseUnit([
+        ...(supportsUndelegations(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
           : []),
       ]),
@@ -85,8 +87,8 @@ export const isActiveStakingOpportunity = (
     bn(rewardsAmount).gt(0),
   )
   // Defaults to 0 for non-Cosmos-Sdk opportunities
-  const hasActiveUndelegations = makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
-    ...(isCosmosUserStaking(userStakingOpportunity) ? userStakingOpportunity.undelegations : []),
+  const hasActiveUndelegations = makeTotalUndelegationsCryptoBaseUnit([
+    ...(supportsUndelegations(userStakingOpportunity) ? userStakingOpportunity.undelegations : []),
   ]).gt(0)
 
   return hasActiveStaking || hasRewards || hasActiveUndelegations

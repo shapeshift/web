@@ -4,8 +4,6 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
-
 type EarnStatProps = {
   label: string
   value: string
@@ -32,12 +30,10 @@ export const OverviewHeader = ({
   earnBalance,
   portfolioBalance,
 }: {
-  earnBalance: UseEarnBalancesReturn
+  earnBalance: string
   portfolioBalance: string
 }) => {
-  if (earnBalance.loading) return null
-
-  const netWorth = bnOrZero(portfolioBalance).plus(earnBalance.totalEarningBalance)
+  const netWorth = bnOrZero(portfolioBalance).plus(earnBalance)
   return (
     <Card variant='unstyled' textAlign='center'>
       <Card.Header px={{ base: 4, xl: 0 }} textAlign='left'>
@@ -58,7 +54,7 @@ export const OverviewHeader = ({
           gridGap={{ base: 0, lg: 6 }}
         >
           <EarnStat label='defi.walletBalance' value={portfolioBalance} />
-          <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
+          <EarnStat label='defi.earnBalance' value={earnBalance} />
         </SimpleGrid>
       </Card.Footer>
     </Card>

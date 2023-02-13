@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -125,7 +126,8 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              name: 'ElasticSwap',
+              opportunityName: 'ElasticSwap',
+              contractAddress: foxyAddresses[0].staking,
               isLoaded: true, // No network request here
               apy: null,
               link: 'https://elasticswap.org/#/liquidity',

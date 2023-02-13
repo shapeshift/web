@@ -51,6 +51,7 @@ import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 import {
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
+  selectPortfolioFiatBalances,
   selectWalletAccountIds,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
@@ -146,25 +147,6 @@ export const selectPortfolioLoadingStatus = createSelector(
     if (vals.some(val => val === 'error')) return 'error'
     return 'success'
   },
-)
-
-export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
-  selectAssets,
-  selectMarketDataSortedByMarketCap,
-  selectPortfolioAssetBalances,
-  selectBalanceThreshold,
-  (assetsById, marketData, balances, balanceThreshold) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
-      const asset = assetsById[assetId]
-      if (!asset) return acc
-      const precision = asset.precision
-      const price = marketData[assetId]?.price
-      const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-      const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-      if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
-      acc[assetId] = assetFiatBalance.toFixed(2)
-      return acc
-    }, {}),
 )
 
 export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(

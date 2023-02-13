@@ -465,7 +465,7 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
           }).toFixed(),
         })),
   )
-// Used exclusively in useEarnBalances - returns a single aggregated amount, for all opportunities, accounts, and assets
+// Returns a single aggregated amount, for all opportunities, accounts, and assets
 // Including delegations, undelegations, and rewards
 // Also slaps in ETH/FOX balances which value lives in the portfolio vs. being an "upstream earn opportunity"
 export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(

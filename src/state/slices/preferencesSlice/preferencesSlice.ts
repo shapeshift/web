@@ -67,7 +67,7 @@ const initialState: Preferences = {
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
-  showWelcomeModal: true,
+  showWelcomeModal: false,
 }
 
 export const preferences = createSlice({

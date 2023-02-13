@@ -477,7 +477,7 @@ export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
       .reduce((acc, opportunityFiatAmount) => acc.plus(opportunityFiatAmount), bn(0))
-      .plus(portfolioFiatBalances[foxEthLpAssetId]),
+      .plus(bnOrZero(portfolioFiatBalances[foxEthLpAssetId])),
 )
 
 export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =

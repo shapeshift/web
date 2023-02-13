@@ -1,10 +1,10 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { BN } from '@shapeshiftoss/investor-foxy'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { STAKING_ID_DELIMITER } from './constants'
+import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
 import type {
   CosmosSdkStakingSpecificUserStakingOpportunity,
   UserUndelegation,
@@ -97,3 +97,4 @@ export const isActiveStakingOpportunity = (
 export const isActiveStakingEarnOpportunity = (
   earnUserStakingOpportunity: StakingEarnOpportunityType,
 ): boolean => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
+export const isFoxEthStakingAssetId = (assetId: AssetId) => foxEthAssetIds.includes(assetId)

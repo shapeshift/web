@@ -38,6 +38,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { poll } from 'lib/poll/poll'
+import { assertUnreachable } from 'lib/utils'
 import {
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
@@ -136,7 +137,9 @@ export const TradeConfirm = () => {
   }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status =
-    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Pending
+    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Unknown
+
+  const tradeStatus = sellTradeId || isSubmitting ? status : TxStatus.Unknown
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
@@ -214,25 +217,34 @@ export const TradeConfirm = () => {
   const isFeeRatioOverThreshold =
     networkFeeToTradeRatioPercentage > networkFeeToTradeRatioPercentageThreshold
 
-  const header: JSX.Element = useMemo(
-    () => (
+  const header: JSX.Element = useMemo(() => {
+    const statusText: string = (() => {
+      switch (tradeStatus) {
+        case TxStatus.Confirmed:
+          return 'trade.complete'
+        case TxStatus.Failed:
+          return 'trade.error.title'
+        case TxStatus.Pending:
+          return 'trade.pending'
+        case TxStatus.Unknown:
+          return 'trade.confirmDetails'
+        default:
+          assertUnreachable(tradeStatus)
+      }
+    })()
+    return (
       <>
         <Card.Header px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
             <Card.Heading textAlign='center'>
-              <Text
-                translation={
-                  status === TxStatus.Confirmed ? 'trade.complete' : 'trade.confirmDetails'
-                }
-              />
+              <Text translation={statusText} />
             </Card.Heading>
           </WithBackButton>
         </Card.Header>
         <Divider />
       </>
-    ),
-    [handleBack, status],
-  )
+    )
+  }, [handleBack, tradeStatus])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     const tradeWarningElement = (
@@ -356,7 +368,7 @@ export const TradeConfirm = () => {
                 sellIcon={trade.sellAsset.icon}
                 buyColor={trade.buyAsset.color}
                 sellColor={trade.sellAsset.color}
-                status={sellTradeId || isSubmitting ? status : undefined}
+                status={tradeStatus}
               />
               {tradeWarning}
               {sendReceiveSummary}

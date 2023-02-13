@@ -19,8 +19,8 @@ import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
-import { useEarnBalances } from 'pages/Defi/hooks/useEarnBalances'
 import {
+  selectEarnBalancesFiatAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
@@ -36,15 +36,11 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  // TODO(gomes): This goes away in a follow-up PR
-  // - FOXy balances are now the only effective reason we have a useEarnBalances() hook, and a selector should be able to get that
-  // - Once useEarnBalances() is removed, we should be able to properly get earn balances from selector, meaning the total balance will accurately be
-  // the same as the addition below
-  const earnBalances = useEarnBalances()
+  const earnBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const totalBalance = useMemo(
-    () => bnOrZero(earnBalances.totalEarningBalance).plus(portfolioTotalFiatBalance).toFixed(),
-    [earnBalances.totalEarningBalance, portfolioTotalFiatBalance],
+    () => bnOrZero(earnBalance).plus(portfolioTotalFiatBalance).toFixed(),
+    [earnBalance, portfolioTotalFiatBalance],
   )
 
   const loading = useAppSelector(selectPortfolioLoading)

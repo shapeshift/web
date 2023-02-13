@@ -11,7 +11,6 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -25,6 +24,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -57,7 +57,7 @@ export const ClaimConfirm = ({
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
-  const { foxy } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
@@ -90,10 +90,10 @@ export const ClaimConfirm = ({
   )
 
   const handleConfirm = useCallback(async () => {
-    if (!(walletState.wallet && contractAddress && userAddress && foxy && bip44Params)) return
+    if (!(walletState.wallet && contractAddress && userAddress && foxyApi && bip44Params)) return
     setLoading(true)
     try {
-      const txid = await foxy.claimWithdraw({
+      const txid = await foxyApi.claimWithdraw({
         claimAddress: userAddress,
         userAddress,
         wallet: walletState.wallet,
@@ -126,7 +126,7 @@ export const ClaimConfirm = ({
     chainId,
     contractAddress,
     estimatedGas,
-    foxy,
+    foxyApi,
     history,
     toast,
     translate,
@@ -139,7 +139,7 @@ export const ClaimConfirm = ({
     ;(async () => {
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && foxy && chainAdapter)) return
+        if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter)) return
         const { accountNumber } = bip44Params
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
@@ -147,15 +147,15 @@ export const ClaimConfirm = ({
         })
         setUserAddress(userAddress)
         const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
-          foxy.estimateClaimWithdrawGas({
+          foxyApi.estimateClaimWithdrawGas({
             claimAddress: userAddress,
             userAddress,
             contractAddress,
             wallet: walletState.wallet,
             bip44Params,
           }),
-          foxy.getGasPrice(),
-          foxy.canClaimWithdraw({ contractAddress, userAddress }),
+          foxyApi.getGasPrice(),
+          foxyApi.canClaimWithdraw({ contractAddress, userAddress }),
         ])
 
         setCanClaim(canClaimWithdraw)
@@ -172,7 +172,7 @@ export const ClaimConfirm = ({
     contractAddress,
     feeAsset.precision,
     feeMarketData.price,
-    foxy,
+    foxyApi,
     walletState.wallet,
   ])
 

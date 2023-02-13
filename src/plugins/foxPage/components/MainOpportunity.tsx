@@ -68,7 +68,7 @@ export const MainOpportunity = ({
   }, [isDemoWallet, wallet, hasActiveStaking])
 
   const isOpportunityButtonReady = useMemo(
-    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || !foxyEarnOpportunityData),
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || foxyEarnOpportunityData),
     [isDemoWallet, wallet, foxyEarnOpportunityData],
   )
 

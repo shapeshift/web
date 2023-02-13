@@ -12,16 +12,6 @@ import { useAppSelector } from 'state/store'
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
 
-enum OverviewPath {
-  Claim = '/',
-  ClaimStatus = '/status',
-}
-
-export const routes = [
-  { step: 0, path: OverviewPath.Claim, label: 'Confirm' },
-  { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' },
-]
-
 type ClaimRouteProps = {
   accountId: AccountId | undefined
   onBack: () => void

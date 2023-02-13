@@ -1,6 +1,5 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
@@ -62,6 +61,8 @@ export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | CosmosSdkStakingSpecificUserStakingOpportunity
 
+export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
+
 // The AccountId of the staking contract in the form of chainId:accountAddress
 export type StakingId = Nominal<string, 'StakingId'> & AssetId
 // The AccountId of the LP contract in the form of chainId:accountAddress
@@ -93,7 +94,6 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['byId']
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
@@ -131,17 +131,38 @@ export type GetOpportunityUserStakingDataOutput = {
 
 export type GetOpportunityIdsOutput = OpportunityId[]
 
-export type StakingEarnOpportunityType = OpportunityMetadata & {
-  stakedAmountCryptoBaseUnit?: string
-  rewardsAmountsCryptoBaseUnit?:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
-  underlyingToken0AmountCryptoBaseUnit?: string
-  underlyingToken1AmountCryptoBaseUnit?: string
-  isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+// TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
+export type EarnOpportunityType = {
+  type?: string
+  provider: string
+  version?: string
+  contractAddress?: string
+  rewardAddress: string
+  apy?: number | string
+  tvl: string
+  underlyingAssetId?: AssetId
+  assetId: AssetId
+  id: OpportunityId
+  fiatAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
+  expired?: boolean
+  chainId: ChainId
+  showAssetSymbol?: boolean
+  isLoaded: boolean
+  icons?: string[]
+  // overrides any name down the road
+  opportunityName?: string
+  highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
+}
+
+export type StakingEarnOpportunityType = OpportunityMetadata &
+  Partial<UserStakingOpportunityBase> & {
+    underlyingToken0AmountCryptoBaseUnit?: string
+    underlyingToken1AmountCryptoBaseUnit?: string
+    isVisible?: boolean
+  } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadata & {
   underlyingToken0AmountCryptoBaseUnit?: string

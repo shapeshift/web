@@ -16,6 +16,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
+  selectDefiProviderParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
@@ -36,7 +37,6 @@ import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
-  OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -88,11 +88,13 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
   selectStakingOpportunitiesById,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
+  selectDefiProviderParamFromFilter,
   (
     userStakingOpportunitiesById,
     stakingOpportunitiesById,
     accountId,
     assetId,
+    defiProvider,
   ): UserStakingOpportunityWithMetadata[] =>
     Object.entries(userStakingOpportunitiesById)
       .filter(([userStakingId]) => {
@@ -101,6 +103,7 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
         )
 
         return (
+          (!defiProvider || defiProvider === stakingOpportunitiesById[stakingId]?.provider) &&
           (!accountId || accountId === userStakingAccountId) &&
           (!assetId || assetId === (stakingOpportunitiesById[stakingId]?.assetId ?? ''))
         )
@@ -110,8 +113,9 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
         if (!stakingOpportunitiesById[stakingId] || !userStakingOpportunity) return undefined
 
         const userStakingOpportunityWithMetadata = {
-          ...stakingOpportunitiesById[stakingId],
           ...userStakingOpportunity,
+          ...stakingOpportunitiesById[stakingId],
+          userStakingId,
         } as UserStakingOpportunityWithMetadata
 
         return userStakingOpportunityWithMetadata
@@ -188,6 +192,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
         | [string],
       ...userOpportunity,
       ...opportunityMetadata,
+      userStakingId,
     }
   },
 )
@@ -223,16 +228,8 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     userStakingOpportunityIds,
     stakingOpportunities,
     stakingIds,
-  ): Record<
-    StakingId,
-    (OpportunityMetadata & UserStakingOpportunity & { userStakingId: `${string}*${string}` })[]
-  > =>
-    stakingIds.reduce<
-      Record<
-        StakingId,
-        (OpportunityMetadata & UserStakingOpportunity & { userStakingId: `${string}*${string}` })[]
-      >
-    >((acc, stakingId) => {
+  ): Record<StakingId, UserStakingOpportunityWithMetadata[]> =>
+    stakingIds.reduce<Record<StakingId, UserStakingOpportunityWithMetadata[]>>((acc, stakingId) => {
       if (!stakingId) return acc
       // Filter out only the user data for this specific opportunity
       const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
@@ -268,7 +265,7 @@ export const selectUserStakingOpportunitiesFromStakingId = createDeepEqualOutput
     stakingId,
     userStakingOpportunityIds,
     stakingOpportunities,
-  ): (UserStakingOpportunityWithMetadata & { userStakingId: UserStakingId })[] => {
+  ): UserStakingOpportunityWithMetadata[] => {
     if (!stakingId) return []
     // Filter out only the user data for this specific opportunity
     const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
@@ -289,8 +286,7 @@ export const selectUserStakingOpportunitiesFromStakingId = createDeepEqualOutput
 )
 
 const getAggregatedUserStakingOpportunityByStakingId = (
-  userStakingOpportunities: (UserStakingOpportunity &
-    OpportunityMetadata & { userStakingId: UserStakingId })[],
+  userStakingOpportunities: UserStakingOpportunityWithMetadata[],
 ): UserStakingOpportunityWithMetadata | undefined => {
   if (!userStakingOpportunities?.length) return
 
@@ -319,6 +315,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         stakedAmountCryptoBaseUnit,
         rewardsAmountsCryptoBaseUnit,
         undelegations,
+        userStakingId,
       }
     },
     undefined,

@@ -131,6 +131,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
         stakedAmountCryptoBaseUnit: '0',
         rewardsAmountsCryptoBaseUnit: [],
       }
@@ -165,6 +166,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     ]
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      userStakingId,
       stakedAmountCryptoBaseUnit: balance,
       rewardsAmountsCryptoBaseUnit,
       undelegations,

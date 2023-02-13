@@ -7,8 +7,8 @@ import type {
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
 import { utils } from 'ethers'
-import type { TransactionParams } from 'plugins/walletConnectToDapps/bridge/types'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/components/modal/callRequest/CallRequestCommon'
+import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
+import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 /**

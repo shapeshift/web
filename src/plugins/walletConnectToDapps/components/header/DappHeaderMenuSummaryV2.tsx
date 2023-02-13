@@ -3,9 +3,9 @@ import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
-import type { WalletConnectState } from 'plugins/walletConnectV2/types'
-import { WalletConnectActionType } from 'plugins/walletConnectV2/types'
-import { useWalletConnectV2 } from 'plugins/walletConnectV2/WalletConnectV2Provider'
+import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
+import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
+import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -125,7 +125,7 @@ export const DappHeaderMenuSummaryV2 = () => {
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.addresses' color='gray.500' />
-          {connectedAccounts.map((address, index) => (
+          {connectedAccounts.map(address => (
             <Link
               key={address}
               href={'walletConnect.accountExplorerAddressLink}${address'}

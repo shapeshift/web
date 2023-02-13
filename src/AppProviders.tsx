@@ -5,8 +5,8 @@ import {
   createStandaloneToast,
 } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
-import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/WalletConnectBridgeProvider'
-import { WalletConnectV2Provider } from 'plugins/walletConnectV2/WalletConnectV2Provider'
+import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeProvider'
+import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import React from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'

@@ -1,4 +1,3 @@
-import { IdleProvider } from 'features/defi/contexts/IdleProvider/IdleProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -52,10 +51,8 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   return (
     <DefiManagerContext.Provider value={null}>
       <YearnProvider>
-        <IdleProvider>
-          {children}
-          {provider && renderModules}
-        </IdleProvider>
+        {children}
+        {provider && renderModules}
       </YearnProvider>
     </DefiManagerContext.Provider>
   )

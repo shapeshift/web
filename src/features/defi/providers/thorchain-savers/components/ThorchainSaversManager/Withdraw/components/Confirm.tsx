@@ -225,30 +225,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     withdrawFeeCryptoBaseUnit,
   ])
 
-  const getMaybeFromUtxoAccountAddress: () => Promise<string> = useCallback(async () => {
-    if (!accountId) throw new Error('accountId is undefined')
-    if (!isUtxoChainId(chainId)) return ''
-
-    try {
-      const position = await getThorchainSaversPosition({ accountId, assetId })
-      if (!position) throw new Error(`No position found for assetId: ${assetId}`)
-      const { asset_address } = position
-      const accountAddress = chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
-
-      return accountAddress
-    } catch (_e) {
-      throw new Error(`Cannot get savers position for accountId: ${accountId}`)
-    }
-  }, [accountId, assetId, chainId])
-
   useEffect(() => {
     ;(async () => {
-      if (maybeFromUTXOAccountAddress) return
+      if (maybeFromUTXOAccountAddress || !isUtxoChainId(chainId) || !accountId) return
 
-      const maybeFromUtxoAccountAddress = await getMaybeFromUtxoAccountAddress()
-      setMaybeFromUTXOAccountAddress(maybeFromUtxoAccountAddress)
+      try {
+        const position = await getThorchainSaversPosition({ accountId, assetId })
+        if (!position) return ''
+        const { asset_address } = position
+        const accountAddress =
+          chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
+
+        setMaybeFromUTXOAccountAddress(accountAddress)
+      } catch (_e) {
+        throw new Error(`Cannot get savers position for accountId: ${accountId}`)
+      }
     })()
-  }, [accountId, getMaybeFromUtxoAccountAddress, maybeFromUTXOAccountAddress])
+  }, [accountId, assetId, chainId, maybeFromUTXOAccountAddress])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit?.[0]))

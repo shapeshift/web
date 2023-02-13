@@ -100,10 +100,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const dispatch = useAppDispatch()
   // TODO: maybeRefetchOpportunities heuristics
   const refetchFoxyBalances = useCallback(() => {
+    if (!accountId) return
+
     dispatch(
       opportunitiesApi.endpoints.getOpportunitiesUserData.initiate(
         {
-          accountId: accountId ?? '',
+          accountId,
           defiType: DefiType.Staking,
           defiProvider: DefiProvider.ShapeShift,
           opportunityType: DefiType.Staking,

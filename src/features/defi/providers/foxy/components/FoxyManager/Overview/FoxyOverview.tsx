@@ -68,10 +68,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   const translate = useTranslate()
 
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-  const maybeAccountId = useMemo(
-    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
-    [accountId, defaultAccountId, highestBalanceAccountId],
-  )
+  const maybeAccountId = accountId ?? highestBalanceAccountId ?? defaultAccountId
   useEffect(() => {
     if (!maybeAccountId) return
     handleAccountIdChange(maybeAccountId)

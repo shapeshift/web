@@ -1706,7 +1706,7 @@
     },
     "lp": {
       "title": "Fournisseurs de %{asset1}/%{asset2}",
-      "body": "Vous avez des %{asset1} et des %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner X% APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Areko.",
+      "body": "Vous avez des %{asset1} et des %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Areko.",
       "cta": "Déposer des liquidités"
     },
     "foxTokenHolders": {

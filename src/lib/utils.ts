@@ -133,3 +133,7 @@ export const setTimeoutAsync = (waitMs: number) =>
 export function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)
 }
+
+export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
+  if (x === undefined || x === null) throw Error(`unexpected undefined or null`)
+}

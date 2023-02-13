@@ -45,6 +45,13 @@ export const useWalletConnectEventsHandler = (
         case EIP155_SigningMethod.ETH_SIGN:
         case EIP155_SigningMethod.PERSONAL_SIGN:
           console.log('[debug] SessionSignPersonalModal', { requestEvent, requestSession })
+          dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.signMessageConfirmation,
+              data: { requestEvent, requestSession },
+            },
+          })
           return undefined
 
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA:
@@ -68,7 +75,7 @@ export const useWalletConnectEventsHandler = (
           return
       }
     },
-    [web3wallet?.engine.signClient.session],
+    [dispatch, web3wallet?.engine.signClient.session],
   )
 
   return { handleSessionProposal, handleAuthRequest, handleSessionRequest }

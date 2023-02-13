@@ -18,7 +18,7 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
 
-interface ModalData {
+export interface ModalData {
   proposal?: SignClientTypes.EventArguments['session_proposal']
   requestEvent?: SignClientTypes.EventArguments['session_request']
   requestSession?: SessionTypes.Struct
@@ -69,4 +69,5 @@ export type WalletConnectContextType = {
 
 export enum WalletConnectModal {
   sessionProposal = 'sessionProposal',
+  signMessageConfirmation = 'signMessageConfirmation',
 }

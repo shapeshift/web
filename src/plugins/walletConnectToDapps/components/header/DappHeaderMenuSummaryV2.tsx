@@ -3,6 +3,7 @@ import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
+import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
@@ -25,19 +26,6 @@ export const extractChainIds = (session: WalletConnectState['session']): string[
       [],
     )
   return allChains ?? []
-}
-
-export const extractConnectedAccounts = (session: WalletConnectState['session']): string[] => {
-  const namespaces = session?.namespaces
-
-  const requiredNamespacesValues = namespaces ? Object.values(namespaces) : []
-  const allAccounts = requiredNamespacesValues
-    .map(v => v.accounts)
-    .reduce(
-      (acc, namespaceAccounts) => (acc && namespaceAccounts ? acc.concat(namespaceAccounts) : []),
-      [],
-    )
-  return allAccounts ?? []
 }
 
 export const DappHeaderMenuSummaryV2 = () => {

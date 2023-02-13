@@ -1,38 +1,19 @@
-import {
-  Button,
-  HStack,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  VStack,
-} from '@chakra-ui/react'
+import { Button, VStack } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ProposalTypes, SessionTypes, SignClientTypes } from '@walletconnect/types'
+import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
-import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { AccountSelectionOverview } from 'plugins/walletConnectToDapps/v2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectToDapps/v2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectToDapps/v2/components/Permissions'
-import type { WalletConnectContextType } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
+import type { WalletConnectModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
-import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-
-type Props = {
-  isOpen: boolean
-  onClose(): void
-  proposal: SignClientTypes.EventArguments['session_proposal']
-  web3wallet: IWeb3Wallet
-  dispatch: WalletConnectContextType['dispatch']
-}
+import { assertIsDefined } from 'lib/utils'
 
 // Filter out namespace chainIds that are not supported by the currently connected wallet
 const filterSupportedNamespaces = (
@@ -58,8 +39,6 @@ const createApprovalNamespaces = (
 ): SessionTypes.Namespaces => {
   return Object.entries(requiredNamespaces).reduce(
     (namespaces: SessionTypes.Namespaces, [key, requiredNamespace]) => {
-      // const accounts =
-      //   requiredNamespace.chains?.map(chain => `${chain}:${selectedAccounts.join(',')}`) || []
       namespaces[key] = {
         accounts: selectedAccounts,
         methods: requiredNamespace.methods,
@@ -71,13 +50,16 @@ const createApprovalNamespaces = (
   )
 }
 
-const SessionProposal: FC<Props> = ({
-  isOpen,
+const SessionProposal: FC<WalletConnectModalProps> = ({
   onClose: handleClose,
-  proposal,
-  web3wallet,
+  state: {
+    modalData: { proposal },
+    web3wallet,
+  },
   dispatch,
 }) => {
+  assertIsDefined(proposal)
+
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
 
@@ -130,55 +112,38 @@ const SessionProposal: FC<Props> = ({
   })
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} variant='header-nav'>
-      <ModalOverlay />
-      <ModalContent
-        width='full'
-        borderRadius={{ base: 0, md: 'xl' }}
-        minWidth={{ base: '100%', md: '500px' }}
-        maxWidth={{ base: 'full', md: '500px' }}
-      >
-        <ModalHeader py={2}>
-          <HStack alignItems='center' spacing={2}>
-            <WalletConnectIcon />
-            <Text fontSize='md' translation='plugins.walletConnectToDapps.modal.title' flex={1} />
-            <ModalCloseButton position='static' />
-          </HStack>
-        </ModalHeader>
-        <VStack p={6} spacing={6} alignItems='stretch'>
-          <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.dAppInfo'>
-            <DAppInfo metadata={proposer.metadata} />
-          </ModalSection>
-          <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
-            <Permissions requiredNamespaces={filteredNamespaces} />
-          </ModalSection>
-          <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.accountSelection'>
-            <AccountSelectionOverview
-              requiredNamespaces={filteredNamespaces}
-              selectedAccountIds={selectedAccountIds}
-              toggleAccountId={toggleAccountId}
-            />
-          </ModalSection>
-          <ModalSection title={''}>
-            <VStack spacing={4}>
-              <Button
-                size='lg'
-                width='full'
-                colorScheme='blue'
-                type='submit'
-                onClick={handleApprove}
-                disabled={selectedAccountIds.length === 0}
-              >
-                {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
-              </Button>
-              <Button size='lg' width='full' onClick={handleReject}>
-                {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
-              </Button>
-            </VStack>
-          </ModalSection>
+    <>
+      <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.dAppInfo'>
+        <DAppInfo metadata={proposer.metadata} />
+      </ModalSection>
+      <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
+        <Permissions requiredNamespaces={filteredNamespaces} />
+      </ModalSection>
+      <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.accountSelection'>
+        <AccountSelectionOverview
+          requiredNamespaces={filteredNamespaces}
+          selectedAccountIds={selectedAccountIds}
+          toggleAccountId={toggleAccountId}
+        />
+      </ModalSection>
+      <ModalSection title={''}>
+        <VStack spacing={4}>
+          <Button
+            size='lg'
+            width='full'
+            colorScheme='blue'
+            type='submit'
+            onClick={handleApprove}
+            disabled={selectedAccountIds.length === 0}
+          >
+            {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+          </Button>
+          <Button size='lg' width='full' onClick={handleReject}>
+            {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
+          </Button>
         </VStack>
-      </ModalContent>
-    </Modal>
+      </ModalSection>
+    </>
   )
 }
 

@@ -126,7 +126,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
           title: 'plugins.foxPage.liquidityPools',
           opportunities: [
             {
-              opportunityName: 'ElasticSwap',
+              name: 'ElasticSwap',
               contractAddress: foxyAddresses[0].staking,
               isLoaded: true, // No network request here
               apy: null,

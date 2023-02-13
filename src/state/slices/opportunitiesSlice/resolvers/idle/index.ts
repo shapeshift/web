@@ -2,7 +2,6 @@ import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { logger } from 'lib/logger'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 
@@ -21,6 +20,7 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 import { BASE_OPPORTUNITIES_BY_ID } from './constants'
+import { getIdleInvestor } from './idleInvestorSingleton'
 
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 

@@ -16,6 +16,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
+  selectDefiProviderParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
@@ -88,11 +89,13 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
   selectStakingOpportunitiesById,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
+  selectDefiProviderParamFromFilter,
   (
     userStakingOpportunitiesById,
     stakingOpportunitiesById,
     accountId,
     assetId,
+    defiProvider,
   ): UserStakingOpportunityWithMetadata[] =>
     Object.entries(userStakingOpportunitiesById)
       .filter(([userStakingId]) => {
@@ -101,6 +104,7 @@ export const selectUserStakingOpportunitiesWithMetadataByFilter = createSelector
         )
 
         return (
+          (!defiProvider || defiProvider === stakingOpportunitiesById[stakingId]?.provider) &&
           (!accountId || accountId === userStakingAccountId) &&
           (!assetId || assetId === (stakingOpportunitiesById[stakingId]?.assetId ?? ''))
         )

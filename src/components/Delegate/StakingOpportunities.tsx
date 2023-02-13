@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
@@ -91,6 +91,7 @@ export const StakingOpportunities = ({ assetId, accountId }: StakingOpportunitie
   const userStakingOpportunitiesFilter = useMemo(
     () => ({
       accountId: accountId ?? '',
+      defiProvider: DefiProvider.Cosmos,
     }),
     [accountId],
   )

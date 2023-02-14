@@ -1347,6 +1347,33 @@
         "twoFactorRequired": "2FA is required",
         "invalidTwoFactor": "6-digit code is invalid",
         "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
+      },
+      "onboarding": {
+        "skip": "Skip",
+        "shapeShiftNativeWallet": "ShapeShift Native Wallet",
+        "selfCustody": {
+          "title": "Self-custody",
+          "subTitle": "You hold the keys and you're the only one who can access it.",
+          "body": "A self-custody wallet means that you own it, and only you have access to your funds. Your secret recovery phrase is your key to accessing it. Nobody can block you from accessing your funds.",
+          "cta": "Next"
+        },
+        "multiChain": {
+          "title": "Mult-chain",
+          "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
+          "body": "When a new chain is added on ShapeShift, your Native Wallet will automatically support it.",
+          "cta": "Next"
+        },
+        "easyToUse": {
+          "title": "Easy-to-use",
+          "subTitle": "With ShapeShift Native Wallet you can:",
+          "trackBalance": "Track your balances",
+          "sendReceive": "Send/receive crypto",
+          "buyCrypto": "Buy crypto",
+          "tradeAssets": "Trade assets",
+          "earnYield": "Earn yield on your idle assets",
+          "cta": "Buy Crypto",
+          "secondaryCta": "Go to my dashboard"
+        }
       }
     },
     "selectModal": {

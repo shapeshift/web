@@ -12,11 +12,8 @@ export const MobileNavBar = () => {
   const translate = useTranslate()
   const allRoutes = union(routes, pluginRoutes)
     .filter(route => !route.disable && !route.hide && route.mobileNav)
-    .sort((a, b) =>
-      bnOrZero(a?.priority ?? 0)
-        .minus(b?.priority ?? 0)
-        .toNumber(),
-    )
+    // route mobileNav discriminated union narrowing is lost by the Array.prototype.sort() call
+    .sort((a, b) => bnOrZero(a.priority!).minus(b.priority!).toNumber())
   const location = useLocation()
 
   const renderMenu = useMemo(() => {

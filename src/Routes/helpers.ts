@@ -29,8 +29,13 @@ export type Route = {
   hide?: boolean
   breadcrumb?: string | React.ReactNode
   category?: RouteCategory
-  mobileNav?: boolean
-  priority?: number
+& ({
+  mobileNav: boolean
+  priority: number
+}) | {
+  mobileNav?: never
+  priority?: never
+}
 }
 
 const combinePaths = (parent: string, child: string): string =>

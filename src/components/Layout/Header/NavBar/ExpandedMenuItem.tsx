@@ -59,7 +59,6 @@ export const ExpandedMenuItem = ({
       alignItems='center'
       px={3}
       flex={1}
-      width='full'
       closeOnSelect={!hasSubmenu}
       isDisabled={isDisabled}
       style={isDisabled ? disabledStyleOverride : undefined}

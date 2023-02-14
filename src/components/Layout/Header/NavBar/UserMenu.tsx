@@ -156,7 +156,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           walletInfo={walletInfo}
           isConnected={isConnected}
           isDemoWallet={isDemoWallet}
-          isLoadingLocalWallet={state.isLoadingLocalWallet}
+          isLoadingLocalWallet={isLoadingLocalWallet}
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList

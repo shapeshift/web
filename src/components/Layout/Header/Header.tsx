@@ -105,7 +105,10 @@ export const Header = () => {
         transitionDuration='500ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
-        top={{ base: scrollDirection === 'down' ? '-72px' : 0, md: 0 }}
+        top={{
+          base: scrollDirection === 'down' ? 'calc(-1 * (72px + env(safe-area-inset-top)))' : 0,
+          md: 0,
+        }}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>

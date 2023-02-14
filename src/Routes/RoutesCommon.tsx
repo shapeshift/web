@@ -73,7 +73,7 @@ export const routes: NestedRoute[] = [
     icon: <AccountsIcon />,
     category: RouteCategory.Wallet,
     mobileNav: true,
-    priority: 4,
+    priority: 1,
     routes: [
       {
         path: '/:accountId',
@@ -120,7 +120,7 @@ export const routes: NestedRoute[] = [
     main: null,
     category: RouteCategory.Explore,
     mobileNav: true,
-    priority: 1,
+    priority: 3,
     routes: [
       {
         path: '/',
@@ -180,7 +180,7 @@ export const routes: NestedRoute[] = [
     main: Buy,
     category: RouteCategory.Wallet,
     mobileNav: true,
-    priority: 3,
+    priority: 4,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',
       path: assetIdPath,

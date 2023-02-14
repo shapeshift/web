@@ -7,6 +7,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAssetIdParamFromFilter } from 'state/selectors'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
@@ -62,6 +63,14 @@ export const selectMarketDataById = createCachedSelector(
     return cryptoMarketData[assetId] ?? defaultMarketData
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
+
+export const selectMarketDataByFilter = createCachedSelector(
+  selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  (cryptoMarketData, assetId): MarketData => {
+    return cryptoMarketData[assetId ?? ''] ?? defaultMarketData
+  },
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
 // assets we have loaded market data for
 export const selectCryptoMarketDataIdsSortedByMarketCap = createDeepEqualOutputSelector(

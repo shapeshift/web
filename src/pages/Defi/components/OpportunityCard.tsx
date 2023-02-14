@@ -21,7 +21,6 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
@@ -33,6 +32,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,7 +57,6 @@ export const OpportunityCard = ({
   cryptoAmountPrecision,
   fiatAmount,
   expired,
-  moniker,
   assetId,
   icons,
   opportunityName,
@@ -126,12 +125,12 @@ export const OpportunityCard = ({
     const overridenName = getOverrideNameFromAssetId(assetId)
     if (overridenName) return overridenName
 
-    if (chainId === cosmosChainId || chainId === osmosisChainId) return moniker
+    if (chainId === cosmosChainId || chainId === osmosisChainId) return opportunityName
 
     if (chainId !== cosmosChainId && chainId !== osmosisChainId) {
       return getVaultName(asset, provider, version)
     }
-  }, [asset, assetId, chainId, getVaultName, moniker, opportunityName, provider, version])
+  }, [asset, assetId, chainId, getVaultName, opportunityName, provider, version])
 
   if (!asset) return null
 

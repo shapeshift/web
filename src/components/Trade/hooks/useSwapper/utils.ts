@@ -15,8 +15,8 @@ import {
   osmosisAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { type Trade, type TradeQuote, type UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
@@ -123,7 +123,7 @@ export const getFormFees = ({
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const utxoTrade = trade as Trade<UtxoSupportedChainIds>
+      const utxoTrade = trade as Trade<UtxoChainId>
       return {
         networkFeeCryptoHuman,
         networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,

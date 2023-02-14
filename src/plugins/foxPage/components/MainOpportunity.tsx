@@ -1,5 +1,8 @@
 import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
+import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -7,8 +10,11 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { selectAssetById } from 'state/slices/selectors'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
+  selectAssetById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type MainOpportunityProps = {
@@ -35,8 +41,25 @@ export const MainOpportunity = ({
   const selectedAsset = useAppSelector(state => selectAssetById(state, assetId))
   if (!selectedAsset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
-  const hasActiveStaking = bnOrZero(foxyBalancesData?.opportunities?.[0]?.balance).gt(0)
+  const toAssetIdParts: ToAssetIdArgs = {
+    assetNamespace: 'erc20',
+    assetReference: foxyAddresses[0].staking,
+    chainId: ethChainId,
+  }
+
+  const opportunityId = toOpportunityId(toAssetIdParts)
+  const opportunityDataFilter = useMemo(() => {
+    return {
+      stakingId: opportunityId,
+    }
+  }, [opportunityId])
+
+  const foxyEarnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectAggregatedEarnUserStakingOpportunityByStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
+  const hasActiveStaking = bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).gt(0)
 
   const opportunityButtonTranslation = useMemo(() => {
     if (isDemoWallet || !wallet || !supportsETH(wallet)) return 'common.connectWallet'
@@ -45,8 +68,8 @@ export const MainOpportunity = ({
   }, [isDemoWallet, wallet, hasActiveStaking])
 
   const isOpportunityButtonReady = useMemo(
-    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || !isFoxyBalancesLoading),
-    [wallet, isDemoWallet, isFoxyBalancesLoading],
+    () => Boolean(isDemoWallet || (wallet && !supportsETH(wallet)) || foxyEarnOpportunityData),
+    [isDemoWallet, wallet, foxyEarnOpportunityData],
   )
 
   return (

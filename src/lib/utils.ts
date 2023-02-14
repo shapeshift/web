@@ -129,3 +129,7 @@ export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is Prom
 
 export const setTimeoutAsync = (waitMs: number) =>
   new Promise(resolve => setTimeout(resolve, waitMs))
+
+export function assertUnreachable(x: never): never {
+  throw Error(`unhandled case: ${x}`)
+}

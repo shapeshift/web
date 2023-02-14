@@ -155,6 +155,10 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
+  const data = {
+    byId: stakingOpportunitiesUserDataByUserStakingId,
+    type: opportunityType,
+  }
 
   try {
     const stakingOpportunityId = accountIdToFeeAssetId(accountId)
@@ -186,6 +190,17 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       assetId: stakingOpportunityId,
     })
 
+    // No position on that pool - either it was never staked in, or fully withdrawn
+    if (!accountPosition) {
+      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        userStakingId,
+        stakedAmountCryptoBaseUnit: '0',
+        rewardsAmountsCryptoBaseUnit: ['0'],
+      }
+
+      return Promise.resolve({ data })
+    }
+
     const { asset_deposit_value, asset_redeem_value } = accountPosition
 
     const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
@@ -201,13 +216,9 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     ]
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      userStakingId,
       stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
       rewardsAmountsCryptoBaseUnit,
-    }
-
-    const data = {
-      byId: stakingOpportunitiesUserDataByUserStakingId,
-      type: opportunityType,
     }
 
     return Promise.resolve({ data })

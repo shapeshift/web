@@ -2,9 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { bn } from 'lib/bignumber/bignumber'
-
-import type { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type EarnStatProps = {
   label: string
@@ -30,17 +28,12 @@ function EarnStat({ label, value }: EarnStatProps) {
 
 export const OverviewHeader = ({
   earnBalance,
-  netWorth,
+  portfolioBalance,
 }: {
-  earnBalance: UseEarnBalancesReturn
-  netWorth: string
+  earnBalance: string
+  portfolioBalance: string
 }) => {
-  if (earnBalance.loading) return null
-
-  const walletBalanceWithoutEarn = bn(netWorth)
-    .minus(bn(earnBalance.totalEarningBalance))
-    .toString()
-
+  const netWorth = bnOrZero(portfolioBalance).plus(earnBalance)
   return (
     <Card variant='unstyled' textAlign='center'>
       <Card.Header px={{ base: 4, xl: 0 }} textAlign='left'>
@@ -50,7 +43,7 @@ export const OverviewHeader = ({
               <Text translation='defi.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={netWorth} />
+              <Amount.Fiat value={netWorth.toFixed()} />
             </StatNumber>
           </Stat>
         </StatGroup>
@@ -60,8 +53,8 @@ export const OverviewHeader = ({
           gridTemplateColumns='repeat(auto-fit,minmax(200px,1fr))'
           gridGap={{ base: 0, lg: 6 }}
         >
-          <EarnStat label='defi.walletBalance' value={walletBalanceWithoutEarn} />
-          <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
+          <EarnStat label='defi.walletBalance' value={portfolioBalance} />
+          <EarnStat label='defi.earnBalance' value={earnBalance} />
         </SimpleGrid>
       </Card.Footer>
     </Card>

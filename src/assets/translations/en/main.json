@@ -86,6 +86,8 @@
     "all": "All",
     "viewAll": "View All",
     "slippage": "Slippage",
+    "best": "Best",
+    "alternative": "Alternative",
     "validator": "the %{name} Validator"
   },
   "errorPage": {
@@ -581,6 +583,10 @@
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
+    "from": "From",
+    "to": "To",
+    "youPay": "You Pay",
+    "youGet": "You Get",
     "tradeTo": "Trade to",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",

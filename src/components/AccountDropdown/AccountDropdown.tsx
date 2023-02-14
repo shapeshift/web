@@ -5,12 +5,12 @@ import {
   type MenuItemOptionProps,
   Box,
   Button,
+  Flex,
   Menu,
   MenuButton,
   MenuList,
   MenuOptionGroup,
   Portal,
-  Stack,
   Text,
   useColorModeValue,
   usePrevious,
@@ -62,6 +62,7 @@ export type AccountDropdownProps = {
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps
+  showLabel?: boolean
 }
 
 const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
@@ -87,6 +88,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   listProps,
   autoSelectHighestBalance,
   boxProps,
+  showLabel = true,
 }) => {
   const { chainId } = fromAssetId(assetId)
 
@@ -286,7 +288,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     <Box px={2} my={2} {...boxProps}>
       <Menu closeOnSelect={true} matchWidth autoSelect={false}>
         <MenuButton
-          iconSpacing={0}
+          iconSpacing={1}
           as={Button}
           size='sm'
           rightIcon={isDropdownDisabled ? null : <ChevronDownIcon />}
@@ -295,14 +297,22 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
           disabled={isDropdownDisabled}
           {...buttonProps}
         >
-          <Stack direction='row' alignItems='center'>
+          <Flex
+            direction='row'
+            alignItems='center'
+            gap={1}
+            justifyContent='space-between'
+            flexWrap='wrap'
+          >
             <RawText fontWeight='bold'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
-            <Text fontWeight='medium' color={labelColor}>
-              {accountLabel}
-            </Text>
-          </Stack>
+            {showLabel && (
+              <Text fontWeight='medium' color={labelColor}>
+                {accountLabel}
+              </Text>
+            )}
+          </Flex>
         </MenuButton>
         <Portal>
           <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>

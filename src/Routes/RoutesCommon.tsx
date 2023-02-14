@@ -73,7 +73,7 @@ export const routes: NestedRoute[] = [
     icon: <AccountsIcon />,
     category: RouteCategory.Wallet,
     mobileNav: true,
-    priority: 5,
+    priority: 4,
     routes: [
       {
         path: '/:accountId',
@@ -120,7 +120,7 @@ export const routes: NestedRoute[] = [
     main: null,
     category: RouteCategory.Explore,
     mobileNav: true,
-    priority: 2,
+    priority: 1,
     routes: [
       {
         path: '/',

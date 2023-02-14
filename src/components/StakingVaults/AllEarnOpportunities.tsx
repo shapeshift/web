@@ -6,6 +6,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
@@ -23,6 +24,7 @@ import { StakingTable } from './StakingTable'
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
+  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -106,8 +108,11 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={0}>
-        <PositionTable />
-        <StakingTable data={filteredRows} onClick={handleClick} />
+        {isDefiDashboardEnabled ? (
+          <PositionTable />
+        ) : (
+          <StakingTable data={filteredRows} onClick={handleClick} />
+        )}
       </Card.Body>
     </Card>
   )

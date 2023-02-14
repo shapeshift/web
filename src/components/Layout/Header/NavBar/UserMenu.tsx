@@ -140,7 +140,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, type, isLocked } = state
+  const { isConnected, isDemoWallet, walletInfo, type, isLocked, isLoadingLocalWallet } = state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -150,7 +150,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   }
   return (
     <ButtonGroup width='full'>
-      <Menu>
+      <Menu autoSelect={false}>
         <WalletButton
           onConnect={handleConnect}
           walletInfo={walletInfo}

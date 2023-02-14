@@ -86,7 +86,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
   )
 
-  const lpAssetBalance = useAppSelector(state =>
+  const lpAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
       assetId: osmosisOpportunity?.assetId,
       accountId: accountId ?? '',
@@ -141,7 +141,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     }
   }, [assetReference, accountId, osmosisOpportunity, chainId, toast, translate])
 
-  const calculateBalances = useCallback(
+  const calculateBalancesCryptoBaseUnit = useCallback(
     async (
       lpAsset: Asset,
       lpAssetBalanceBaseUnit: string,
@@ -275,16 +275,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (!(lpAsset && lpAssetMarketData)) return
-    const divisor = bnOrZero(lpAssetMarketData.price)
+    if (!(lpAsset && lpAssetMarketData?.price)) return
 
-    const _value = isFiat
-      ? bnOrZero(value)
-          .dividedBy(divisor.toFixed() ?? 1)
-          .toString()
-      : value
+    const _value = isFiat ? bnOrZero(value).times(lpAssetMarketData.price).toString() : value
     ;(async () => {
-      const amounts = await calculateBalances(lpAsset, _value)
+      const amounts = await calculateBalancesCryptoBaseUnit(lpAsset, _value)
       if (!amounts) return
       const receiveAmounts = [
         {
@@ -319,15 +314,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         return
       // set withdraw state for future use
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
-      const tokenOutMins = await calculateTokenOutMins(
+      const tokenOutMinsCryptoBaseUnit = await calculateTokenOutMins(
         bnOrZero(formValues.cryptoAmount).multipliedBy(bn(10).pow(lpAsset.precision)).toString(),
       )
-      if (!tokenOutMins) return
+      if (!tokenOutMinsCryptoBaseUnit) return
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
         payload: {
-          underlyingAsset0: tokenOutMins[0],
-          underlyingAsset1: tokenOutMins[1],
+          underlyingAsset0: tokenOutMinsCryptoBaseUnit[0],
+          underlyingAsset1: tokenOutMinsCryptoBaseUnit[1],
           shareOutAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
             .multipliedBy(bn(10).pow(lpAsset.precision))
             .toFixed(0, BigNumber.ROUND_DOWN)
@@ -364,7 +359,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handlePercentClick = (percent: number) => {
     if (!opportunityBalances) return
-    const cryptoAmountBaseUnit = bnOrZero(lpAssetBalance).multipliedBy(percent).toString()
+    const cryptoAmountBaseUnit = bnOrZero(lpAssetBalanceCryptoBaseUnit)
+      .multipliedBy(percent)
+      .toString()
     const cryptoAmountPrecision = bnOrZero(cryptoAmountBaseUnit)
       .dividedBy(bnOrZero(bn(10).pow(lpAsset?.precision ?? '0')))
       .toString()
@@ -379,11 +376,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     // Calculate underlying token balances
     if (!lpAsset) return
     ;(async () => {
-      const balances = await calculateBalances(lpAsset, lpAssetBalance)
+      const balances = await calculateBalancesCryptoBaseUnit(lpAsset, lpAssetBalanceCryptoBaseUnit)
       if (!balances) return
       setOpportunityBalances(balances)
     })()
-  }, [calculateBalances, lpAsset, lpAssetBalance, poolData, state])
+  }, [calculateBalancesCryptoBaseUnit, lpAsset, lpAssetBalanceCryptoBaseUnit, poolData, state])
 
   if (
     !(
@@ -404,7 +401,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateCryptoAmount = (value: string) => {
-    const lpAssetBalanceBaseUnit = bnOrZero(lpAssetBalance)
+    const lpAssetBalanceBaseUnit = bnOrZero(lpAssetBalanceCryptoBaseUnit)
     const _value = bnOrZero(value)
     const hasValidBalance =
       lpAssetBalanceBaseUnit.gt(0) && _value.gt(0) && lpAssetBalanceBaseUnit.gte(value)
@@ -420,15 +417,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
+  if (!lpAsset || !lpAssetMarketData) return null
+
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw
         accountId={accountId}
         asset={lpAsset}
         icons={osmosisOpportunity?.icons}
-        cryptoAmountAvailable={bnOrZero(lpAssetBalance)
+        cryptoAmountAvailable={bnOrZero(lpAssetBalanceCryptoBaseUnit)
           .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
-          .toPrecision()}
+          .toFixed()}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

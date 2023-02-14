@@ -52,7 +52,7 @@ export const MobileNavBar = () => {
       zIndex='banner'
       justifyContent='space-between'
       px={4}
-      paddingBottom='env(safe-area-inset-bottom)'
+      paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
       display={{ base: 'flex', md: 'none' }}
     >
       {renderMenu}

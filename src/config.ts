@@ -120,6 +120,7 @@ const validators = {
   }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
   REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
+  REACT_APP_FEATURE_TRADE_RATES: bool({ default: false }),
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),

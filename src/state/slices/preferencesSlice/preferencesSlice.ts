@@ -25,6 +25,7 @@ export type FeatureFlags = {
   Yearn: boolean
   DefiDashboard: boolean
   ArkeoAirdrop: boolean
+  TradeRates: boolean
   Cowswap: boolean
 }
 
@@ -63,6 +64,7 @@ const initialState: Preferences = {
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
+    TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
   },
   selectedLocale: simpleLocale(),

@@ -1358,7 +1358,7 @@
           "cta": "Next"
         },
         "multiChain": {
-          "title": "Mult-chain",
+          "title": "Multi-chain",
           "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
           "body": "When a new chain is added on ShapeShift, your Native Wallet will automatically support it.",
           "cta": "Next"

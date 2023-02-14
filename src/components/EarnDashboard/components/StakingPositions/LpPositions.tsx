@@ -98,8 +98,8 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         Cell: ({ row }: { row: RowProps }) => (
           <Flex alignItems='center' gap={4}>
             <Flex>
-              {row.original.underlyingAssetIds.map((assetId, i) => (
-                <AssetIcon assetId={`${assetId}-${i}`} size='sm' _last={{ marginLeft: -4 }} />
+              {row.original.underlyingAssetIds.map(assetId => (
+                <AssetIcon key={assetId} assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
               ))}
             </Flex>
             <Stack

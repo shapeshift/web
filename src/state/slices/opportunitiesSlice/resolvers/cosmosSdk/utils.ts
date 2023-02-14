@@ -25,12 +25,12 @@ import type {
   UserStakingOpportunityWithMetadata,
   ValidatorId,
 } from '../../types'
-import { serializeUserStakingId, toValidatorId } from '../../utils'
+import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from './constants'
-import type { CosmosSdkStakingSpecificUserStakingOpportunity, UserUndelegation } from './types'
+import type { UserUndelegation } from './types'
 
 export const makeUniqueValidatorAccountIds = ({
   cosmosSdkAccounts,
@@ -117,6 +117,7 @@ export const makeAccountUserData = ({
       maybeValidatorUndelegations.length
     ) {
       acc[userStakingId] = {
+        userStakingId,
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
         rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
         undelegations: maybeValidatorUndelegations,
@@ -147,11 +148,6 @@ export const getDefaultValidatorAddressFromAccountId = flow(
   getDefaultValidatorAddressFromChainId,
 )
 
-export const isCosmosUserStaking = (
-  userStakingOpportunity: Partial<UserStakingOpportunity>,
-): userStakingOpportunity is CosmosSdkStakingSpecificUserStakingOpportunity =>
-  'undelegations' in userStakingOpportunity
-
 export const makeTotalCosmosSdkUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 
@@ -162,7 +158,7 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
     .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
     .plus(
       makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
-        ...(isCosmosUserStaking(userStakingOpportunity)
+        ...(supportsUndelegations(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
           : []),
       ]),
@@ -198,7 +194,7 @@ export const makeOpportunityTotalFiatBalance = ({
   )
 
   const undelegationsFiatBalance = makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
-    ...(isCosmosUserStaking(opportunity) ? opportunity.undelegations : []),
+    ...(supportsUndelegations(opportunity) ? opportunity.undelegations : []),
   ])
     .times(marketData[opportunity.assetId]?.price ?? '0')
     .div(bn(10).pow(asset?.precision ?? 1))

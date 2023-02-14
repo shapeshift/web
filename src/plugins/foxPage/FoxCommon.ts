@@ -11,7 +11,7 @@ export enum OpportunityTypes {
 }
 
 export type ExternalOpportunity = {
-  opportunityName: string | undefined
+  name: string | undefined
   type?: DefiType
   apy?: string | null
   link?: string

@@ -88,7 +88,6 @@ export const PositionTable = () => {
               aria-label='Exapnd Row'
               isActive={row.isExpanded}
               icon={row.isExpanded ? <ArrowUpIcon /> : <ArrowDownIcon />}
-              {...row.getToggleRowExpandedProps()}
             />
           </Flex>
         ),
@@ -98,6 +97,7 @@ export const PositionTable = () => {
   )
   return (
     <ReactTable
+      onRowClick={row => row.toggleRowExpanded()}
       data={positions}
       columns={columns}
       renderSubComponent={PositionDetails}

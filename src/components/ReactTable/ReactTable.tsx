@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
@@ -66,7 +66,7 @@ export const ReactTable = <T extends {}>({
     return page.map(row => {
       prepareRow(row)
       return (
-        <>
+        <Fragment key={row.id}>
           <Tr
             {...row.getRowProps()}
             tabIndex={row.index}
@@ -95,7 +95,7 @@ export const ReactTable = <T extends {}>({
               </Td>
             </Tr>
           ) : null}
-        </>
+        </Fragment>
       )
     })
   }, [

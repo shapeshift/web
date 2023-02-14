@@ -28,15 +28,17 @@ export const MobileNavBar = () => {
           to={route.path}
           flexDir='column'
           fontSize='2xl'
-          gap={2}
+          gap={3}
           height='auto'
           variant='nav-link'
           isActive={isActive}
+          fontWeight='medium'
           _active={{ bg: 'transparent', svg: { color: 'blue.200' } }}
           py={2}
+          width='full'
         >
           {route.icon}
-          <Flex flexDir='column' fontSize='xs'>
+          <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'gray.500'}>
             {translate(route.shortLabel ?? route.label)}
           </Flex>
         </Button>
@@ -53,6 +55,7 @@ export const MobileNavBar = () => {
       zIndex='banner'
       justifyContent='space-between'
       height='72px'
+      px={4}
     >
       {renderMenu}
     </Flex>

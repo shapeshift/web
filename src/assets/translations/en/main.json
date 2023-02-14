@@ -467,6 +467,7 @@
     "explore": "Explore",
     "trade": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
+    "buySell": "Buy/Sell",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {

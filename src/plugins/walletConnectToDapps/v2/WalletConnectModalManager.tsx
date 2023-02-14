@@ -83,6 +83,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       chainAdapter: chainAdapter as unknown as EvmBaseAdapter<EvmChainId>,
       accountMetadata,
       customTransactionData,
+      accountId,
     })
     await web3wallet.respondSessionRequest({
       topic,

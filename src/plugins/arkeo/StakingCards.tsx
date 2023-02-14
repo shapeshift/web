@@ -41,7 +41,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
       const opportunity = stakingOpportunities.find(
-        opportunity => opportunity.assetId === opportunityId,
+        opportunity => (opportunity.id ?? opportunity.assetId) === opportunityId,
       )
       if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity

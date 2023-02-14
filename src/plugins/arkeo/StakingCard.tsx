@@ -69,7 +69,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
           <Button
             width='full'
             colorScheme='blue'
-            onClick={() => onClick(opportunity.assetId as OpportunityId)}
+            onClick={() => onClick((opportunity.id ?? opportunity.assetId) as OpportunityId)}
           >
             {translate(cta, { asset: asset?.name })}
           </Button>

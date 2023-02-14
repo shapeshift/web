@@ -19,7 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -111,7 +111,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const toast = useToast()
 
-  const getWithdrawFeeEstimate = useCallback(async (): Promise<string | undefined> => {
+  const getWithdrawFeeEstimateCryptoBaseUnit = useCallback(async (): Promise<
+    string | undefined
+  > => {
     if (!(assetReference && accountId && osmosisOpportunity)) return
     try {
       const chainAdapters = getChainAdapterManager()
@@ -124,10 +126,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
       ).fast.txFee
 
-      const fastFeeCryptoPrecision = bnOrZero(
-        bnOrZero(fastFeeCryptoBaseUnit).div(bn(10).pow(lpAsset?.precision ?? '0')),
-      )
-      return bnOrZero(fastFeeCryptoPrecision).toString()
+      return fastFeeCryptoBaseUnit
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositFeeEstimate', error },
@@ -140,7 +139,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         status: 'error',
       })
     }
-  }, [assetReference, accountId, lpAsset?.precision, osmosisOpportunity, chainId, toast, translate])
+  }, [assetReference, accountId, osmosisOpportunity, chainId, toast, translate])
 
   const calculateBalances = useCallback(
     async (
@@ -307,14 +306,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(state && contextDispatch && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
+      if (
+        !(
+          state &&
+          contextDispatch &&
+          osmosisOpportunity &&
+          underlyingAsset0 &&
+          underlyingAsset1 &&
+          lpAsset
+        )
+      )
         return
       // set withdraw state for future use
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
       const tokenOutMins = await calculateTokenOutMins(
-        bnOrZero(formValues.cryptoAmount)
-          .multipliedBy(bn(10).pow(lpAsset?.precision ?? '0'))
-          .toString(),
+        bnOrZero(formValues.cryptoAmount).multipliedBy(bn(10).pow(lpAsset.precision)).toString(),
       )
       if (!tokenOutMins) return
       contextDispatch({
@@ -323,12 +329,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           underlyingAsset0: tokenOutMins[0],
           underlyingAsset1: tokenOutMins[1],
           shareOutAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
-            .multipliedBy(bn(10).pow(lpAsset?.precision ?? '0'))
+            .multipliedBy(bn(10).pow(lpAsset.precision))
+            .toFixed(0, BigNumber.ROUND_DOWN)
             .toString(),
         },
       })
 
-      const estimatedFeeCryptoBaseUnit = await getWithdrawFeeEstimate()
+      const estimatedFeeCryptoBaseUnit = await getWithdrawFeeEstimateCryptoBaseUnit()
       if (!estimatedFeeCryptoBaseUnit) {
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
         return
@@ -343,12 +350,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [
       state,
       contextDispatch,
-      lpAsset?.precision,
       osmosisOpportunity,
       underlyingAsset0,
       underlyingAsset1,
+      lpAsset,
       calculateTokenOutMins,
-      getWithdrawFeeEstimate,
+      getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,
     ],
   )

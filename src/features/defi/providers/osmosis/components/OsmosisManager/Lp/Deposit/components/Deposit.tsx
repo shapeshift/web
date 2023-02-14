@@ -97,7 +97,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
   const toast = useToast()
 
-  const getDepositFeeEstimate = useCallback(async (): Promise<string | undefined> => {
+  const getDepositFeeEstimateCryptoBaseUnit = useCallback(async (): Promise<string | undefined> => {
     if (!(contextDispatch && userAddress && assetReference && accountId && osmosisOpportunity))
       return
     try {
@@ -174,6 +174,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const inputAssetAmountBaseUnit = bnOrZero(inputAssetAmountPrecision)
         .multipliedBy(bn(10).pow(bnOrZero(inputAsset.precision)))
+        .toFixed(0, BigNumber.ROUND_DOWN)
         .toString()
 
       const poolAssetAmountBaseUnit = poolAssets[poolAssetIndex]?.token.amount
@@ -247,7 +248,7 @@ export const Deposit: React.FC<DepositProps> = ({
       })
       contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: true })
       try {
-        const estimatedFeeCryptoBaseUnit = await getDepositFeeEstimate()
+        const estimatedFeeCryptoBaseUnit = await getDepositFeeEstimateCryptoBaseUnit()
         if (!estimatedFeeCryptoBaseUnit) return
         contextDispatch({
           type: OsmosisDepositActionType.SET_DEPOSIT,
@@ -273,7 +274,7 @@ export const Deposit: React.FC<DepositProps> = ({
       underlyingAsset0,
       underlyingAsset1,
       calculateAllocations,
-      getDepositFeeEstimate,
+      getDepositFeeEstimateCryptoBaseUnit,
       onNext,
       toast,
       translate,

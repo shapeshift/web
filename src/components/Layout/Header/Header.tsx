@@ -27,6 +27,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+import { useScrollDirection } from './hooks/useScrollDirection'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
@@ -36,6 +37,7 @@ import { SideNavContent } from './SideNavContent'
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isLoading = useIsAnyApiFetching()
+  const scrollDirection = useScrollDirection()
 
   const history = useHistory()
   const translate = useTranslate()
@@ -100,7 +102,10 @@ export const Header = () => {
         width='full'
         position='sticky'
         zIndex='banner'
-        top={0}
+        transitionDuration='500ms'
+        transitionProperty='all'
+        transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
+        top={{ base: scrollDirection === 'down' ? '-72px' : 0, md: 0 }}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
         <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>

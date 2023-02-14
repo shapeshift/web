@@ -42,7 +42,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
       new Map(),
     )
     return Array.from(groups.entries())
-  }, [pluginRoutes])
+  }, [isLargerThanMd, pluginRoutes])
 
   return (
     <Stack

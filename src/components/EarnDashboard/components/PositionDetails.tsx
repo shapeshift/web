@@ -8,7 +8,7 @@ import { ProviderPositions } from './StakingPositions/ProviderPositions'
 import { StakedBalance } from './StakingPositions/StakedBalance'
 
 export const PositionDetails: React.FC<RowProps> = ({ original }) => {
-  const assetId = original.underlyingAssetIds[0]
+  const { assetId } = original
   if (!assetId) return null
   return (
     <Flex px={6} py={8} flexDir='column' gap={6}>

@@ -59,13 +59,15 @@ export const ExpandedMenuItem = ({
       display='flex'
       alignItems='center'
       px={3}
+      flex={1}
+      width='full'
       closeOnSelect={!hasSubmenu}
       isDisabled={isDisabled}
       style={isDisabled ? disabledStyleOverride : undefined}
       {...props}
     >
       <Text flex={1} translation={label} />
-      <RawText ml={3} color={valueColor}>
+      <RawText ml={3} color={valueColor} fontSize='xs'>
         {value}
       </RawText>
       {badge && (
@@ -84,7 +86,7 @@ export const ExpandedMenuItem = ({
   )
 
   return externalUrl && !isDisabled ? (
-    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }}>
+    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }} display='flex'>
       {expandedMenuItem}
     </Link>
   ) : (

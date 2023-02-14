@@ -1,6 +1,6 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, ButtonGroup, Flex, HStack, IconButton, useColorModeValue } from '@chakra-ui/react'
+import { Button, ButtonGroup, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
@@ -98,11 +98,13 @@ const WalletButton: FC<WalletButtonProps> = ({
   }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
-    <Button
+    <MenuButton
+      as={Button}
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
       variant='outline'
       isLoading={isLoadingLocalWallet}
+      rightIcon={<ChevronDownIcon />}
       leftIcon={
         <HStack>
           {!(isConnected || isDemoWallet) && (
@@ -128,7 +130,7 @@ const WalletButton: FC<WalletButtonProps> = ({
           <RawText>{walletInfo?.name}</RawText>
         )}
       </Flex>
-    </Button>
+    </MenuButton>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
@@ -148,18 +150,13 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   }
   return (
     <ButtonGroup width='full'>
-      <WalletButton
-        onConnect={handleConnect}
-        walletInfo={walletInfo}
-        isConnected={isConnected}
-        isDemoWallet={isDemoWallet}
-        isLoadingLocalWallet={state.isLoadingLocalWallet}
-      />
       <Menu>
-        <MenuButton
-          as={IconButton}
-          aria-label='Open wallet dropdown menu'
-          icon={<ChevronDownIcon />}
+        <WalletButton
+          onConnect={handleConnect}
+          walletInfo={walletInfo}
+          isConnected={isConnected}
+          isDemoWallet={isDemoWallet}
+          isLoadingLocalWallet={state.isLoadingLocalWallet}
           data-test='navigation-wallet-dropdown-button'
         />
         <MenuList

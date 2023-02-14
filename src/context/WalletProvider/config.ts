@@ -75,6 +75,7 @@ export interface SupportedWalletInfo {
   routes: RouteProps[]
   connectedWalletMenuRoutes?: RouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
+  connectedMenuComponent?: React.ComponentType<any> | undefined
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
@@ -111,8 +112,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/legacy/login', component: NativeLegacyLogin },
       { path: '/native/legacy/login/success', component: NativeLegacySuccess },
     ],
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+    connectedMenuComponent: NativeMenu,
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,

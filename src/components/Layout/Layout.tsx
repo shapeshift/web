@@ -88,7 +88,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
     <>
       <Header />
 
-      <Flex maxWidth='container.3xl' margin='0 auto' pb={{ base: '72px', lg: 0 }}>
+      <Flex maxWidth='container.3xl' margin='0 auto' pb={{ base: '72px', md: 0 }}>
         <SideNav />
         <Container
           as='main'

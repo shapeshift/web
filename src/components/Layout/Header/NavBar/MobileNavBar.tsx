@@ -56,6 +56,7 @@ export const MobileNavBar = () => {
       justifyContent='space-between'
       height='72px'
       px={4}
+      display={{ base: 'flex', md: 'none' }}
     >
       {renderMenu}
     </Flex>

@@ -69,6 +69,7 @@ export const ReactTable = <T extends {}>({
         <Fragment key={row.id}>
           <Tr
             {...row.getRowProps()}
+            key={row.id}
             tabIndex={row.index}
             onClick={() => onRowClick?.(row)}
             className={row.isExpanded ? 'expanded' : ''}
@@ -83,7 +84,7 @@ export const ReactTable = <T extends {}>({
             cursor={onRowClick ? 'pointer' : undefined}
           >
             {row.cells.map(cell => (
-              <Td {...cell.getCellProps()} display={cell.column.display}>
+              <Td {...cell.getCellProps()} display={cell.column.display} key={cell.column.id}>
                 {cell.render('Cell')}
               </Td>
             ))}

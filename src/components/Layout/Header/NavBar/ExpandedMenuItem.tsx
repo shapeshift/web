@@ -1,8 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
 import type { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
-import { Link, useColorModeValue } from '@chakra-ui/react'
+import { Link, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { ThemeTypings } from '@chakra-ui/styled-system'
 import type { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -71,9 +70,9 @@ export const ExpandedMenuItem = ({
         {value}
       </RawText>
       {badge && (
-        <Badge ml={2} p={1} borderRadius='lg' colorScheme={badgeColor} fontWeight='semibold'>
+        <Tag ml={2} size='sm' borderRadius='lg' colorScheme={badgeColor}>
           {badge}
-        </Badge>
+        </Tag>
       )}
       {hasSubmenu &&
         (isOpen ? (

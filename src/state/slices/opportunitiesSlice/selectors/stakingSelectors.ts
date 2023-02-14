@@ -626,7 +626,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
       if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
       return acc
     }, [])
-    return eligibleOpportunities
+    return uniqBy(eligibleOpportunities, 'id')
   },
 )
 

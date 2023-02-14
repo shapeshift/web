@@ -21,6 +21,7 @@ import createCachedSelector from 're-reselect'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
@@ -28,9 +29,14 @@ import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  // TODO(0xdef1cafe): make this return type AssetId | undefined and fix the 600+ type errors
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+
+export const selectAssetByFilter = createCachedSelector(
+  (state: ReduxState) => state.assets.byId,
+  selectAssetIdParamFromFilter,
+  (byId, assetId) => byId[assetId ?? ''] || undefined,
+)((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
 export const selectAssetNameById = createSelector(
   selectAssetById,

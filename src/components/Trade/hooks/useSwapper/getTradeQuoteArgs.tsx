@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput, UtxoSupportedChainIds } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import {
   isSupportedNonUtxoSwappingChain,
@@ -53,7 +53,7 @@ export const getTradeQuoteArgs = async ({
     if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
-    ) as unknown as UtxoBaseAdapter<UtxoSupportedChainIds>
+    ) as unknown as UtxoBaseAdapter<UtxoChainId>
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,
       sellAccountNumber,

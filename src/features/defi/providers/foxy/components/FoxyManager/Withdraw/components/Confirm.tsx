@@ -5,7 +5,6 @@ import { WithdrawType } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -20,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -37,7 +37,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   onNext,
   accountId,
 }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { stakingAsset, underlyingAsset, contractAddress, feeMarketData, rewardId, feeAsset } =
@@ -78,7 +78,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           accountAddress &&
           rewardId &&
           walletState.wallet &&
-          api &&
+          foxyApi &&
           dispatch &&
           bip44Params
         )
@@ -86,7 +86,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
-        api.withdraw({
+        foxyApi.withdraw({
           tokenContractAddress: rewardId,
           userAddress: accountAddress,
           contractAddress,
@@ -97,13 +97,13 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           type: state.withdraw.withdrawType,
           bip44Params,
         }),
-        api.getGasPrice(),
+        foxyApi.getGasPrice(),
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
-        fn: () => api.getTxReceipt({ txid }),
+        fn: () => foxyApi.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
@@ -120,7 +120,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }, [
-    api,
+    foxyApi,
     underlyingAsset.precision,
     bip44Params,
     contractAddress,

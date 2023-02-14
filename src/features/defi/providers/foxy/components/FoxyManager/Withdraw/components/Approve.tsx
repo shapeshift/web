@@ -4,7 +4,6 @@ import { Approve as ReusableApprove } from 'features/defi/components/Approve/App
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -15,6 +14,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ const moduleLogger = logger.child({
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
@@ -49,10 +49,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(state?.userAddress && rewardId && api && dispatch && bip44Params)) return
+      if (!(state?.userAddress && rewardId && foxyApi && dispatch && bip44Params)) return
       try {
         const [gasLimit, gasPrice] = await Promise.all([
-          api.estimateWithdrawGas({
+          foxyApi.estimateWithdrawGas({
             tokenContractAddress: rewardId,
             contractAddress,
             amountDesired: bnOrZero(
@@ -62,7 +62,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             type: state.withdraw.withdrawType,
             bip44Params,
           }),
-          api.getGasPrice(),
+          foxyApi.getGasPrice(),
         ])
         const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         return returVal
@@ -81,7 +81,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       }
     },
     [
-      api,
+      foxyApi,
       asset.precision,
       bip44Params,
       contractAddress,
@@ -95,11 +95,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
 
   const handleApprove = useCallback(async () => {
-    if (!(rewardId && state?.userAddress && walletState.wallet && api && dispatch && bip44Params))
+    if (
+      !(rewardId && state?.userAddress && walletState.wallet && foxyApi && dispatch && bip44Params)
+    )
       return
     try {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
-      await api.approve({
+      await foxyApi.approve({
         tokenContractAddress: rewardId,
         contractAddress,
         userAddress: state.userAddress,
@@ -108,7 +110,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
       await poll({
         fn: () =>
-          api.allowance({
+          foxyApi.allowance({
             tokenContractAddress: rewardId,
             contractAddress,
             userAddress: state.userAddress!,
@@ -140,7 +142,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    api,
+    foxyApi,
     asset.precision,
     bip44Params,
     contractAddress,

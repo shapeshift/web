@@ -37,6 +37,8 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',
@@ -62,6 +64,8 @@ describe('opportunitiesSlice', () => {
             [mockLpContractOne]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',
@@ -85,6 +89,8 @@ describe('opportunitiesSlice', () => {
             [mockLpContractTwo]: {
               // The LP token AssetId
               assetId: foxEthLpAssetId,
+              id: foxEthLpAssetId,
+              name: 'ETH/FOX Pool',
               underlyingAssetId: foxEthLpAssetId,
               provider: DefiProvider.FoxFarming,
               tvl: '424242',
@@ -191,9 +197,11 @@ describe('opportunitiesSlice', () => {
 
     describe('upsertUserStakingOpportunities', () => {
       it('inserts user data', () => {
+        const userStakingId = serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')
         const payload = {
           byId: {
-            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingId]: {
+              userStakingId,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
@@ -204,9 +212,14 @@ describe('opportunitiesSlice', () => {
         expect(store.getState().opportunities.userStaking.ids).toEqual(Object.keys(payload.byId))
       })
       it('merges prevState and payload', () => {
+        const userStakingIdOne = serializeUserStakingId(
+          gomesAccountId,
+          'eip155:1:0xMyStakingContract',
+        )
         const insertPayloadOne = {
           byId: {
-            [serializeUserStakingId(gomesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingIdOne]: {
+              userStakingId: userStakingIdOne,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },
@@ -218,9 +231,14 @@ describe('opportunitiesSlice', () => {
           Object.keys(insertPayloadOne.byId),
         )
 
+        const userStakingIdTwo = serializeUserStakingId(
+          fauxmesAccountId,
+          'eip155:1:0xMyStakingContract',
+        )
         const insertPayloadTwo = {
           byId: {
-            [serializeUserStakingId(fauxmesAccountId, 'eip155:1:0xMyStakingContract')]: {
+            [userStakingIdTwo]: {
+              userStakingId: userStakingIdTwo,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
             },

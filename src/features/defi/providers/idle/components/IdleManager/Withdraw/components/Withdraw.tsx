@@ -9,13 +9,13 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,

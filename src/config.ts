@@ -54,6 +54,7 @@ const validators = {
   REACT_APP_MTPELERIN_SELL_URL: url(),
   REACT_APP_MTPELERIN_REFERRAL_CODE: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
+  REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
@@ -107,7 +108,7 @@ const validators = {
   REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
   REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
   REACT_APP_OSMOSIS_LCD_BASE_URL: url({
-    default: 'https://lcd-osmosis.keplr.app/osmosis/',
+    default: 'https://daemon.osmosis.shapeshift.com/',
   }),
   REACT_APP_OSMOSIS_IMPERATOR_BASE_URL: url({
     default: 'https://api-osmosis.imperator.co/',
@@ -117,7 +118,11 @@ const validators = {
     default: 1000,
   }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
-  REACT_APP_FEATURE_COSMOS_SDK_OPPORTUNITIES_ABSTRACTION: bool({ default: false }),
+  REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
+  REACT_APP_FEATURE_TRADE_RATES: bool({ default: false }),
+  REACT_APP_SNAPSHOT_BASE_URL: url({
+    default: 'https://snapshot.org/#/shapeshiftdao.eth',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -7,6 +7,7 @@ import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/Ba
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
+import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
 import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
@@ -30,6 +31,7 @@ const MODALS = {
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   popup: PopupWindowModal,
+  nativeOnboard: NativeOnboarding,
 }
 
 // state

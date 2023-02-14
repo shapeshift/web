@@ -1,9 +1,9 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
@@ -20,13 +20,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
   txid: string
@@ -77,7 +74,7 @@ type ClaimStatusProps = {
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter()
-  const { foxy } = useFoxy()
+  const foxyApi = getFoxyApi()
   const translate = useTranslate()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
@@ -100,23 +97,35 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const dispatch = useAppDispatch()
+  // TODO: maybeRefetchOpportunities heuristics
+  const refetchFoxyBalances = useCallback(() => {
+    if (!accountId) return
 
-  const { refetch: refetchFoxyBalances } = useFoxyBalances({
-    accountNumber: bip44Params?.accountNumber ?? 0,
-  })
+    dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesUserData.initiate(
+        {
+          accountId,
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.ShapeShift,
+          opportunityType: DefiType.Staking,
+        },
+        { forceRefetch: true },
+      ),
+    )
+  }, [accountId, dispatch])
+
   useEffect(() => {
     ;(async () => {
-      if (!foxy || !txid) return
+      if (!foxyApi || !txid) return
       try {
         const transactionReceipt = await poll({
-          fn: () => foxy.getTxReceipt({ txid }),
+          fn: () => foxyApi.getTxReceipt({ txid }),
           validate: (result: TransactionReceipt) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
         })
-        const gasPrice = await foxy.getGasPrice()
+        const gasPrice = await foxyApi.getGasPrice()
 
         if (transactionReceipt.status) {
           refetchFoxyBalances()
@@ -136,7 +145,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         })
       }
     })()
-  }, [refetchFoxyBalances, estimatedGas, foxy, state, txid])
+  }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid])
 
   return (
     <SlideTransition>

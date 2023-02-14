@@ -27,7 +27,6 @@ import {
   foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
-  LP_EARN_OPPORTUNITIES,
   STAKING_ID_TO_VERSION,
 } from '../../constants'
 import type {
@@ -116,6 +115,7 @@ export const foxFarmingLpMetadataResolver = async ({
       [opportunityId]: {
         apy,
         assetId: opportunityId,
+        id: opportunityId,
         provider: DefiProvider.FoxFarming,
         tvl,
         type: DefiType.LiquidityPool,
@@ -125,7 +125,7 @@ export const foxFarmingLpMetadataResolver = async ({
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
-        name: LP_EARN_OPPORTUNITIES[opportunityId].opportunityName,
+        name: 'ETH/FOX Pool',
       },
     },
 
@@ -209,6 +209,7 @@ export const foxFarmingStakingMetadataResolver = async ({
       [opportunityId]: {
         apy,
         assetId: opportunityId,
+        id: opportunityId,
         provider: DefiProvider.FoxFarming,
         tvl,
         type: DefiType.Staking,
@@ -294,9 +295,12 @@ export const foxFarmingStakingUserDataResolver = async ({
   const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
   const rewardsAmountsCryptoBaseUnit = [earned.toString()] as [string]
 
+  const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
   const data = {
     byId: {
-      [serializeUserStakingId(accountId, opportunityId)]: {
+      [userStakingId]: {
+        userStakingId,
         stakedAmountCryptoBaseUnit,
         rewardsAmountsCryptoBaseUnit,
       },

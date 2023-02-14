@@ -24,6 +24,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
@@ -149,6 +150,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
+  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
   const getDepositGasEstimate = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && assetReference && accountId && opportunityData)) return
@@ -165,7 +167,12 @@ export const Deposit: React.FC<DepositProps> = ({
           await adapter.getFeeData({
             to: quote.inbound_address,
             value: amountCryptoBaseUnit.toFixed(0),
-            chainSpecific: { pubkey: userAddress, from: '' },
+            // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
+            // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
+            chainSpecific: {
+              pubkey: userAddress,
+              from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+            },
             sendMax: Boolean(state?.deposit.sendMax),
           })
         ).fast.txFee
@@ -194,6 +201,7 @@ export const Deposit: React.FC<DepositProps> = ({
       opportunityData,
       asset,
       chainId,
+      supportedEvmChainIds,
       state?.deposit.sendMax,
       toast,
       translate,

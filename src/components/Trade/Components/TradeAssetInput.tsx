@@ -3,12 +3,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import React, { useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
-import { AssetInput } from 'components/DeFi/components/AssetInput'
 import {
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import type { TradeAmountInputProps } from './TradeAmountInput'
+import { TradeAmountInput } from './TradeAmountInput'
 
 const AssetInputAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -44,12 +46,12 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   const balance = useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter))
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
-  return <AssetInput balance={balance} fiatBalance={fiatBalance} {...props} />
+  return <TradeAmountInput balance={balance} fiatBalance={fiatBalance} {...props} />
 }
 
 export type TradeAssetInputProps = {
   assetId?: AssetId
-} & AssetInputProps
+} & TradeAmountInputProps
 
 export const TradeAssetInput: React.FC<TradeAssetInputProps> = ({
   assetId,

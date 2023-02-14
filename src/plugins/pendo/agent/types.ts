@@ -48,23 +48,6 @@ export type PendoEnv = {
   unseal(): void
 }
 
-export type FixupTable = {
-  fixups: Record<number, string>
-  makeFixupHelpers(env: PendoEnv): Record<string, unknown>
-}
-
-export type AgentParseResult = {
-  /** A PendoConfig object containing server-specified configuration values
-   * merged with any local overrides. */
-  PendoConfig: PendoConfig
-  /** The set of fixup helpers which match the fixups applied. */
-  makeFixupHelpers: FixupTable['makeFixupHelpers']
-  /** A blob URL which resolves to the parsed agent. */
-  src: string
-  /** The integrity value of the blob URL. */
-  integrity: string
-}
-
 export interface Pendo {
   VERSION?: string
   _q: unknown[]

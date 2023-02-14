@@ -84,7 +84,8 @@
     "pageNotFound": "A página que você está procurando não pode ser encontrada",
     "buySell": "Compre/Venda",
     "all": "Todos",
-    "viewAll": "Ver todos"
+    "viewAll": "Ver todos",
+    "slippage": "Slippage"
   },
   "errorPage": {
     "title": "Opa!",
@@ -162,6 +163,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -298,7 +300,22 @@
         "dustAmountTooltip": "Uma pequena quantidade de saldo é necessário para identificar seus endereços, e será separada para um uso posterior, quando você realizar seu saque",
         "sendDustBody": "Você precisar enviar um pouco de suas criptos para este endereço, permitindo a você sacar seu dinheiro. ",
         "sendDust": "Enviar Cripto",
-        "addressToSendTo": "Endereço para Enviar"
+        "addressToSendTo": "Endereço para Enviar",
+        "introducingSaversVaults": "Introduzindo a Savers Vault",
+        "risksBody": {
+          "1": "Indique para",
+          "2": "este artigo",
+          "3": "para riscos envolvidos com a Savers Vault"
+        },
+        "understand": "Eu entendo",
+        "days": "%{amount} dias",
+        "day": "%{amount} dia",
+        "timeToBreakEven": {
+          "title": "Tempo para igualar",
+          "tooltip": "Tempo estimado para cobrir taxas de depósito e ganhos."
+        },
+        "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
+        "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes"
       }
     },
     "memoNote": {
@@ -608,6 +625,7 @@
       "balanceToLow": "Saldo muito baixo. O valor mínimo de negociação para este par é %{minLimit}",
       "dexTradeFailed": "Falha na negociação, tokens devolvidos",
       "quoteFailed": "Ocorreu um erro ao obter uma cotação para sua negociação.",
+      "quoteExpired": "Pedido expirado, tente novamente",
       "failedQuoteExecuted": "Não é possível executar uma cotação que falhou uma vez",
       "sellAssetRequired": "Não é possível executar uma cotação sem um ativo para vender",
       "sellAmountRequired": "Não é possível executar uma cotação sem inserir o valor de venda",
@@ -907,6 +925,7 @@
       "estimatedReturns": "Estimativa de rendimentos anuais*",
       "estimatedGas": "Taxa Estimada da Rede",
       "notEnoughGas": "Insuficiente %{assetSymbol} para pagar o gas",
+      "missingFundsForGas": "Sem fundos suficientes, você precisa %{cryptoAmountHuman} %{assetSymbol} de mais para completar a transação",
       "preFooter": "As recompensas são acumuladas automaticamente",
       "signBroadcast": "Assinar e transmitir",
       "cancel": "Cancelar"

@@ -84,7 +84,8 @@
     "pageNotFound": "La página que buscas no se encuentra",
     "buySell": "Comprar/Vender",
     "all": "Todo",
-    "viewAll": "Ver todo"
+    "viewAll": "Ver todo",
+    "slippage": "Deslizamiento"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -162,6 +163,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "Rampa de entrada",
+    "coinbase": "Coinbase",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -298,7 +300,22 @@
         "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
         "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
         "sendDust": "Send Dust",
-        "addressToSendTo": "Dirección de envío"
+        "addressToSendTo": "Dirección de envío",
+        "introducingSaversVaults": "Presentamos Bóvedas Savers",
+        "risksBody": {
+          "1": "Refiere a",
+          "2": "Este artículo",
+          "3": "por los riesgos de las Bovedas Savers."
+        },
+        "understand": "Entiendo",
+        "days": "%{amount} días",
+        "day": "%{amount} día",
+        "timeToBreakEven": {
+          "title": "Tiempo para evitar pérdidas",
+          "tooltip": "Tiempo estimado para cubrir tarifas de depósito y ganancias."
+        },
+        "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
+        "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes"
       }
     },
     "memoNote": {
@@ -608,6 +625,7 @@
       "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
       "dexTradeFailed": "Comercio fallido, Tokens regresados",
       "quoteFailed": "Se produjo un error al obtener una cotización para su operación.",
+      "quoteExpired": "Cotización caducada, intente de nuevo.",
       "failedQuoteExecuted": "No se puede ejecutar una cotización fallida",
       "sellAssetRequired": "No se puede ejecutar una cotización sin un activo para vender",
       "sellAmountRequired": "No se puede ejecutar una cotización sin una cantidad para vender",
@@ -907,6 +925,7 @@
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
+      "missingFundsForGas": "No hay suficientes fondos, necesita %{cryptoAmountHuman} %{assetSymbol} más para completar la transacción",
       "preFooter": "Las Recompensas se acumulan automáticamente",
       "signBroadcast": "Firmar y Transmitir",
       "cancel": "Cancelar"

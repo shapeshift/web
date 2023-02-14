@@ -7,7 +7,7 @@ import { AccountSelectionOverview } from 'plugins/walletConnectToDapps/v2/compon
 import { DAppInfo } from 'plugins/walletConnectToDapps/v2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectToDapps/v2/components/Permissions'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
-import type { WalletConnectModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+import type { WalletConnectSessionModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -50,7 +50,7 @@ const createApprovalNamespaces = (
   )
 }
 
-const SessionProposal: FC<WalletConnectModalProps> = ({
+const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   onClose: handleClose,
   state: {
     modalData: { proposal },

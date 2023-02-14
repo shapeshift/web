@@ -71,7 +71,22 @@ export const getSignParamsMessage = (params: string[]) => {
   return convertHexToUtf8(message)
 }
 
-export const extractConnectedAccounts = (session: WalletConnectState['session']): string[] => {
+/**
+ * Gets data from various signTypedData request methods by filtering out
+ * a value that is not an address (thus is data).
+ * If data is a string convert it to object
+ */
+export const getSignTypedDataParamsData = (params: string[]) => {
+  const data = params.filter(p => !utils.isAddress(p))[0]
+
+  if (typeof data === 'string') {
+    return JSON.parse(data)
+  }
+
+  return data
+}
+
+export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {
   const namespaces = session?.namespaces
 
   const requiredNamespacesValues = namespaces ? Object.values(namespaces) : []
@@ -83,20 +98,25 @@ export const extractConnectedAccounts = (session: WalletConnectState['session'])
     )
   return allAccounts ?? []
 }
+/**
+ * Get our account from params checking if params string contains an accounts address
+ * of our wallet addresses
+ */
+export const getWalletAccountFromParams = (accountIds: AccountId[], params: unknown): AccountId => {
+  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
+  return (
+    accountIds.find(accountId =>
+      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    ) || ''
+  )
+}
 
 /**
  * Get our address from params checking if params string contains one
  * of our wallet addresses
  */
-export const getWalletAddressFromParams = (addresses: string[], params: any): string => {
-  const paramsString = JSON.stringify(params)
-  let address = ''
-
-  addresses.forEach(addr => {
-    if (paramsString.toLowerCase().includes(addr.toLowerCase())) {
-      address = addr
-    }
-  })
-
-  return address
+export const getWalletAddressFromParams = (accountIds: AccountId[], params: unknown): string => {
+  const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
+  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
+  return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
 }

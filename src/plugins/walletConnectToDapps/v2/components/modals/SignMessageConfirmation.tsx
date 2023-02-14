@@ -7,7 +7,7 @@ import {
   getSignParamsMessage,
   getWalletAddressFromParams,
 } from 'plugins/walletConnectToDapps/utils'
-import type { WalletConnectModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -16,16 +16,16 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertIsDefined } from 'lib/utils'
 
-export const SignMessageConfirmationModal: FC<WalletConnectModalProps> = ({
-  onClose: handleClose,
+export const SignMessageConfirmationModal: FC<WalletConnectRequestModalProps> = ({
+  onConfirm: handleConfirm,
+  onReject: handleReject,
   state: {
     modalData: { requestEvent },
-    web3wallet,
     session,
   },
-  dispatch,
 }) => {
   assertIsDefined(requestEvent)
+  console.log('[debug] requestEvent', { requestEvent })
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -37,16 +37,7 @@ export const SignMessageConfirmationModal: FC<WalletConnectModalProps> = ({
 
   const connectedAccounts = extractConnectedAccounts(session)
   const address = getWalletAddressFromParams(connectedAccounts, params)
-
-  // Get message, convert it to UTF8 string if it is valid hex
   const message = getSignParamsMessage(request.params)
-
-  const handleConfirm = () => {
-    handleClose()
-  }
-  const handleReject = () => {
-    handleClose()
-  }
 
   return (
     <VStack p={6} spacing={6} alignItems='stretch'>

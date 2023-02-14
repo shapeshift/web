@@ -69,10 +69,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
           <Heading flex={1} fontSize='xl'>
             <Text translation='plugins.walletConnectToDapps.modal.connect.title' />
           </Heading>
-          <Link
-            href='src/plugins/walletConnectToDapps/v1/components/modals/connect#'
-            target='_blank'
-          >
+          <Link href='#' target='_blank'>
             <Button colorScheme='blue' variant='link'>
               {translate('plugins.walletConnectToDapps.modal.connect.howTo')}
             </Button>

@@ -1,6 +1,7 @@
 import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
 import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type { Dispatch } from 'react'
 
 export enum EIP155_SigningMethod {
@@ -70,4 +71,14 @@ export type WalletConnectContextType = {
 export enum WalletConnectModal {
   sessionProposal = 'sessionProposal',
   signMessageConfirmation = 'signMessageConfirmation',
+}
+
+export type CustomTransactionData = {
+  nonce?: string
+  gasLimit?: string
+  speed: WalletConnectFeeDataKey
+  customFee?: {
+    baseFee: string
+    priorityFee: string
+  }
 }

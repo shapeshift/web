@@ -277,7 +277,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleInputChange = (value: string, isFiat?: boolean) => {
     if (!(lpAsset && lpAssetMarketData?.price)) return
 
-    const _value = isFiat ? bnOrZero(value).times(lpAssetMarketData.price).toString() : value
+    const _value = isFiat ? bnOrZero(value).div(lpAssetMarketData.price).toString() : value
     ;(async () => {
       const amounts = await calculateBalancesCryptoBaseUnit(lpAsset, _value)
       if (!amounts) return
@@ -358,12 +358,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleCancel = browserHistory.goBack
 
   const handlePercentClick = (percent: number) => {
-    if (!opportunityBalances) return
+    if (!opportunityBalances || !lpAsset) return
     const cryptoAmountBaseUnit = bnOrZero(lpAssetBalanceCryptoBaseUnit)
       .multipliedBy(percent)
       .toString()
     const cryptoAmountPrecision = bnOrZero(cryptoAmountBaseUnit)
-      .dividedBy(bnOrZero(bn(10).pow(lpAsset?.precision ?? '0')))
+      .dividedBy(bn(10).pow(lpAsset.precision))
       .toString()
     const fiatAmount = bnOrZero(opportunityBalances?.fiatBalance).multipliedBy(percent).toString()
 
@@ -401,10 +401,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateCryptoAmount = (value: string) => {
-    const lpAssetBalanceBaseUnit = bnOrZero(lpAssetBalanceCryptoBaseUnit)
+    const lpAssetBalanceCryptoPrecision = bnOrZero(lpAssetBalanceCryptoBaseUnit).div(
+      bn(10).pow(lpAsset.precision),
+    )
     const _value = bnOrZero(value)
     const hasValidBalance =
-      lpAssetBalanceBaseUnit.gt(0) && _value.gt(0) && lpAssetBalanceBaseUnit.gte(value)
+      bnOrZero(lpAssetBalanceCryptoBaseUnit).gt(0) &&
+      _value.gt(0) &&
+      lpAssetBalanceCryptoPrecision.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }

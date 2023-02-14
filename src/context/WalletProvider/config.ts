@@ -75,7 +75,7 @@ export interface SupportedWalletInfo {
   routes: RouteProps[]
   connectedWalletMenuRoutes?: RouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
-  connectedMenuComponent?: React.ComponentType<any> | undefined
+  connectedMenuComponent?: React.ComponentType<any>
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {

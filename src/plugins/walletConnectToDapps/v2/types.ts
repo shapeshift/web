@@ -71,6 +71,7 @@ export type WalletConnectContextType = {
 export enum WalletConnectModal {
   sessionProposal = 'sessionProposal',
   signMessageConfirmation = 'signMessageConfirmation',
+  signTypedDataConfirmation = 'signTypedDataConfirmation',
 }
 
 export type CustomTransactionData = {

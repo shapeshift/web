@@ -1,9 +1,10 @@
+import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { SignClientTypes } from '@walletconnect/types'
@@ -40,7 +41,7 @@ export const approveEIP155Request = async ({
   accountMetadata,
   customTransactionData,
   accountId,
-}: ApproveEIP155RequestArgs) => {
+}: ApproveEIP155RequestArgs): Promise<JsonRpcResult<ETHSignedTypedData | string>> => {
   const { params, id } = requestEvent
   const { request } = params
   const { bip44Params } = accountMetadata
@@ -54,7 +55,7 @@ export const approveEIP155Request = async ({
       const messageToSign = { addressNList, message }
       const input = { messageToSign, wallet }
       const signedMessage = await chainAdapter.signMessage(input)
-      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signMessage failed')
+      if (!signedMessage) throw new Error('approveEIP155Request: signMessage failed')
       return formatJsonRpcResult(id, signedMessage)
     }
 
@@ -67,7 +68,8 @@ export const approveEIP155Request = async ({
       const typedData = JSON.parse(payloadString)
       const messageToSign = { addressNList, typedData }
       const signedData = await wallet.ethSignTypedData(messageToSign)
-      return formatJsonRpcResult(id, signedData)
+      if (!signedData) throw new Error('approveEIP155Request: signMessage failed')
+      return formatJsonRpcResult(id, signedData.signature)
     }
 
     case EIP155_SigningMethod.ETH_SEND_TRANSACTION: {
@@ -107,7 +109,7 @@ export const approveEIP155Request = async ({
       const nonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)
         : signTransaction.nonce
-      if (!nonce) return
+      if (!nonce) throw new Error('approveEIP155Request: missing nonce')
       const gasLimit =
         (customTransactionData.gasLimit
           ? convertNumberToHex(customTransactionData.gasLimit)

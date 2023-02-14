@@ -37,7 +37,6 @@ export const useWalletConnectEventsManager = (
       signClientEvents.on('session_delete', data => console.log('[debug] delete', data))
 
       return () => {
-        console.log('[debug] useWalletConnectEventsManager unregistering ons', { web3wallet })
         // Sign
         web3wallet.off('session_proposal', handleSessionProposal)
         web3wallet.off('session_request', handleSessionRequest)

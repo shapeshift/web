@@ -13,7 +13,6 @@ const Connect = ({ isOpen, onClose }: Props) => {
   const handleConnect = useCallback(
     async (uri: string) => {
       const connectionResult = await pair?.({ uri })
-      console.log('[debug] connectionResult', connectionResult)
       if (connectionResult) onClose()
     },
     [onClose, pair],

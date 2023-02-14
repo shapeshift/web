@@ -19,7 +19,6 @@ export const useWalletConnectEventsHandler = (
   // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
-      console.log('[debug] session_proposal', proposal)
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
         payload: { modal: WalletConnectModal.sessionProposal, data: { proposal } },
@@ -44,30 +43,31 @@ export const useWalletConnectEventsHandler = (
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
         case EIP155_SigningMethod.PERSONAL_SIGN:
-          console.log('[debug] SessionSignPersonalModal', { requestEvent, requestSession })
-          dispatch({
+          return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.signMessageConfirmation,
               data: { requestEvent, requestSession },
             },
           })
-          return undefined
 
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA:
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3:
         case EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4:
-          console.log('[debug] SessionSignTypedDataModal', { requestEvent, requestSession })
-          return
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.signMessageConfirmation,
+              data: { requestEvent, requestSession },
+            },
+          })
 
         case EIP155_SigningMethod.ETH_SEND_TRANSACTION:
         case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
-          console.log('[debug] SessionSendTransactionModal', { requestEvent, requestSession })
           return
 
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
-          console.log('[debug] SessionSignCosmosModal', { requestEvent, requestSession })
           return
 
         default:

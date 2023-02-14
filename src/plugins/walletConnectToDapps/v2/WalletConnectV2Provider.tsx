@@ -16,8 +16,6 @@ import { createContext, useContext, useEffect, useMemo, useReducer } from 'react
 const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
 
 export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => {
-  console.log('[debug] WalletConnectV2Provider')
-
   const initialState: WalletConnectState = {
     core: undefined,
     web3wallet: undefined,
@@ -46,7 +44,6 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()
     const sessions = activeSessions ? Object.values(activeSessions) : []
-    console.log('[debug] sessions useEffect', sessions)
     if (sessions?.length) {
       const session = sessions[0]
       // FIXME: handle multiple sessions

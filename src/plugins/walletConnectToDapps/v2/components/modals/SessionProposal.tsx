@@ -88,7 +88,6 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
       namespaces: approvalNamespaces,
     })
     dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
-    console.log('[debug] SessionProposal modal session created!', { session })
     handleClose()
   }, [approvalNamespaces, dispatch, handleClose, proposal.id, web3wallet])
 
@@ -99,17 +98,6 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
     })
     handleClose()
   }, [handleClose, id, web3wallet])
-
-  console.log('[debug] SessionProposal modal', {
-    proposal,
-    id,
-    params,
-    proposer,
-    requiredNamespaces,
-    relays,
-    selectedAccountIds,
-    approvalNamespaces,
-  })
 
   return (
     <>

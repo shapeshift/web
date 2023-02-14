@@ -7,6 +7,7 @@ import {
 } from 'plugins/walletConnectToDapps/utils'
 import { SessionProposalModal } from 'plugins/walletConnectToDapps/v2/components/modals/SessionProposal'
 import { SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/SignMessageConfirmation'
+import { SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/SignTypedDataConfirmation'
 import type {
   CustomTransactionData,
   WalletConnectAction,
@@ -113,6 +114,15 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.signMessageConfirmation:
         return (
           <SignMessageConfirmationModal
+            onConfirm={handleConfirmEIP155Request}
+            onReject={handleRejectEIP155Request}
+            dispatch={dispatch}
+            state={state}
+          />
+        )
+      case WalletConnectModal.signTypedDataConfirmation:
+        return (
+          <SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectEIP155Request}
             dispatch={dispatch}

@@ -5,7 +5,6 @@ export const walletConnectReducer = (
   state: WalletConnectState,
   action: WalletConnectAction,
 ): WalletConnectState => {
-  console.log('[debug] reducer', { state, action })
   switch (action.type) {
     case WalletConnectActionType.INITIALIZE:
       return { ...state, ...action.payload }

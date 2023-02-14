@@ -64,10 +64,6 @@ export const DappHeaderMenuSummaryV2 = () => {
     }
 
     dispatch({ type: WalletConnectActionType.DELETE_SESSION })
-
-    console.log('[debug] handleDisconnect should have no pairings', {
-      pairings: core.pairing.getPairings(),
-    })
   }
 
   const connectedAccounts = extractConnectedAccounts(session)

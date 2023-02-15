@@ -499,6 +499,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               if (isFoxEthStakingAssetId(opportunity.assetId))
                 return {
                   rewardAddress: fromAssetId(foxAssetId).assetReference,
+                  contractAddress: fromAssetId(opportunity.id).assetReference,
                 }
 
               if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference))

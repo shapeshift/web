@@ -22,6 +22,9 @@ export type OpportunityMetadataBase = {
   provider: DefiProvider
   tvl: string
   type: DefiType
+  // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon
+  // If not specified, the underlying asset IDs' icons are used as icons
+  icon?: string
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   // Which might or might not be the same as the AssetId, e.g

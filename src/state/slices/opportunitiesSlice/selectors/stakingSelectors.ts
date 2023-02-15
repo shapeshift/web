@@ -49,6 +49,7 @@ import {
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
   isFoxEthStakingAssetId,
+  makeOpportunityIcons,
   supportsUndelegations,
 } from '../utils'
 
@@ -364,9 +365,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
           .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
           .toString(),
         isLoaded: true,
-        icons: opportunity.underlyingAssetIds
-          .map(assetId => assets[assetId]?.icon)
-          .map(icon => icon ?? ''),
+        icons: makeOpportunityIcons({ opportunity, assets }),
         opportunityName: opportunity.name,
       },
     )
@@ -429,9 +428,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
             .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
             .toString(),
           isLoaded: true,
-          icons: opportunity.underlyingAssetIds
-            .map(assetId => assets[assetId]?.icon)
-            .map(icon => icon ?? ''),
+          icons: makeOpportunityIcons({ opportunity, assets }),
           opportunityName: opportunity.name,
         },
       )
@@ -517,9 +514,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               cryptoAmountPrecision: '0',
               fiatAmount: '0',
               isLoaded: true,
-              icons: opportunity.underlyingAssetIds
-                .map(assetId => assets[assetId]?.icon)
-                .map(icon => icon ?? ''),
+              icons: makeOpportunityIcons({ opportunity, assets }),
               opportunityName: opportunity.name,
             },
           )
@@ -604,9 +599,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
         .toString(),
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       opportunityName: userStakingOpportunity.name,
-      icons: userStakingOpportunity.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? ''),
+      icons: makeOpportunityIcons({ opportunity: userStakingOpportunity, assets }),
     }
 
     return earnUserStakingOpportunity

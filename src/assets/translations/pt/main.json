@@ -85,7 +85,8 @@
     "buySell": "Compre/Venda",
     "all": "Todos",
     "viewAll": "Ver todos",
-    "slippage": "Slippage"
+    "slippage": "Slippage",
+    "validator": "o %{name} validador"
   },
   "errorPage": {
     "title": "Opa!",
@@ -463,7 +464,8 @@
     "wallet": "Carteira",
     "explore": "Explorar",
     "trade": "Negocie",
-    "buyCrypto": "Compre Cripto"
+    "buyCrypto": "Compre Cripto",
+    "arkeo": "Airdrop da Arkeo"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -487,15 +489,21 @@
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "approveSymbol": "Aprovar %{symbol}",
         "revoke": "Revogar",
+        "revokeSymbol": "Revogar %{symbol} a aprovação",
+        "amountUnavailable": "Indisponível",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
       "yearn": {
         "deposit": "Depósito",
         "approve": "Aprovar",
+        "approveSymbol": "Aprovar %{symbol}",
         "revoke": "Revogar",
+        "revokeSymbol": "Revogar %{symbol} aprovação",
         "infinite": "Infinito ∞",
+        "amountUnavailable": "Indisponível",
         "withdraw": "Retirar",
         "receive": "Receber"
       },
@@ -516,8 +524,11 @@
       },
       "erc20": {
         "approve": "Aprovar",
+        "approveSymbol": "Aprovar %{symbol}",
         "revoke": "Revogar",
-        "infinite": "Infinito ∞"
+        "revokeSymbol": "Revogar %{symbol} aprovação",
+        "infinite": "Infinito ∞",
+        "amountUnavailable": "Indisponível"
       },
       "staking": {
         "delegate": "Delegar",
@@ -536,7 +547,10 @@
         "recv_packet": "Recebido"
       },
       "lp": {
-        "deposit": "Adicionar Liquidez"
+        "deposit": "Adicionar Liquidez",
+        "withdraw": "Remover Liquidez",
+        "join_pool": "Entrar na pool",
+        "exit_pool": "Sair da pool"
       }
     },
     "unknown": "Transação"
@@ -575,6 +589,7 @@
     "gasFeeExceedsTradeAmountThreshold": "A taxa de gás excede %{percentage}% do valor da transação",
     "confirmDetails": "Confirmar Detalhes",
     "confirmAndTrade": "Confirmar e Trocar",
+    "pending": "Negociação Pendente",
     "complete": "Troca efetivada com sucesso",
     "approveAsset": "Aprovar %{symbol}",
     "needPermission": "Precisamos de sua permissão para utilizar %{symbol}",
@@ -832,6 +847,10 @@
       "blockExplorer": "Explorador de Blocos"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Sua Alocação",
+        "fractionDescription": "% da pool"
+      },
       "amountToDeposit": "Valor a depositar",
       "depositInto": "Deposito em %{opportunity}",
       "estimatedReturns": "Estimativa de rendimentos anuais*",
@@ -1662,6 +1681,76 @@
       "title": "Compre Cripto SEM KYC",
       "body": "Compre até US$ 1.000 com o Apple Pay",
       "cta": "Compre Agora"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "O que é Arkeo?",
+      "bodyParts": {
+        "1": "Último ano",
+        "2": "Coinbase Cloud",
+        "3": "A ShapeShift incubou um projeto chamado Arkeo. Lançamento na mainnet é logo logo!",
+        "4": "O Arkeo foi criado para ser um back-end descentralizado para todos os dados do nó. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
+        "5": "coeficiente nakamoto",
+        "6": "enquanto reduz a dependência de fontes de dados centralizadas."
+      }
+    },
+    "whoQualifies": {
+      "title": "Quem se qualifica para o Arkeo Airdrop?",
+      "body": "Existem várias maneiras de se qualificar para o airdrop usando o ShapeShift dApp. O Snapshot ainda tá rolando, dá tempo de se qualificar!"
+    },
+    "staking": {
+      "title": "%{asset} Stakers",
+      "body": "Ganhe %{apy} APR sobre seu dinheiro depositado %{asset} e qualifique-se para o airdrop da Arkeo. Além disso, se você fizer o stake %{provider}, poderá ganhar duas vezes mais no airdrop!",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Provedores",
+      "body": "Tem %{asset1} e %{asset2}? Forneça liquidez na pool da Uniswap v2 e ganhe %{apy} de APR, além do FOX depositado na pool de FOX/ETH também entrar na conta do airdrop!",
+      "cta": "Forneça liquidez"
+    },
+    "foxTokenHolders": {
+      "title": "Holders do token FOX",
+      "body": "Holde tokens FOX. Quanto maior a quantia, maior será seu airdrop de Arkeo. ",
+      "cta": "Troque por FOX.",
+      "secondary": "Compre FOX"
+    },
+    "foxFarmers": {
+      "title": "Fazendeiros de LPs de FOX/ETH",
+      "body": "Ganhe até %{apy} APR por depositar seus LPs de FOX/ETH na pool de FOX. Além disso, o FOX dentro do seu LP em stake na v5 da pool de FOX/ETH, será contado no airdrop da Arkeo!",
+      "cta": "Deposite o LP de FOX/ETH"
+    },
+    "foxyTokenHolders": {
+      "title": "Holders do token FOXy",
+      "body": "Ganhe %{apy} APR no seu FOX parado com o FOX Yieldy (FOXy). Além disso, o FOXy parado na sua carteira também contará no airdrop da Arkeo!",
+      "cta": "Deposite token FOX"
+    },
+    "foxEthProviders": {
+      "title": "LPs de FOX/ETH na Uniswap v2",
+      "body": "Tem %{asset1} e %{asset2}? \nForneça liquidez para a pool da Uniswap V2 e ganhe %{apy} APR. Além disso, seus LPs depositados na pool de FOX/ETH contarão na hora de realizar o airdrop da Arkeo!",
+      "cta": "Forneça Liquidez"
+    },
+    "atomOsmoProviders": {
+      "title": "Provedores de Liquidez na pool de ATOM/OSMO",
+      "body": "Tem ATOM e OSMO? Forneça liquidez ao pool, para ganhar %{apy} APR e se qualificar para o airdrop.",
+      "cta": "Forneça Liquidez"
+    },
+    "stakeAtom": {
+      "title": "Deposite ATOM",
+      "body": "Ganhe até %{apr} APR no ATOM na sua carteira. Além disso, os ATOMs em stake possibiltarã você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!",
+      "cta": "Deposite ATOM"
+    },
+    "stakeOsmo": {
+      "title": "Deposite OSMO",
+      "body": "Ganhe até %{apr} APR no OSMO na sua carteira. Além disso, os OSMOs em stake possibiltará você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!"
+    },
+    "footer": {
+      "title": "Existem outras maneiras de se qualificar também, fora do app da ShapeShift. Para obter uma lista completa, confira a proposta de governança.",
+      "cta": "Confira a proposta de governança",
+      "disclaimer": {
+        "body": "* Apenas carteiras autocustodiais serão qualificadas. Os tokens mantidos ou depositados em uma carteira de exchange não se qualificam. Precisa de uma carteira?",
+        "cta": "Crie um"
+      }
     }
   }
 }

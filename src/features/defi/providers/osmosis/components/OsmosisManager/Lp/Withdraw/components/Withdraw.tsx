@@ -10,7 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -40,12 +40,11 @@ type AssetWithBaseUnitBalance = {
   icons?: string[]
 } & Asset
 
-type opportunityBalanceData = {
+type OpportunityBalanceData = {
   underlyingAssetBalances: AssetWithBaseUnitBalance[]
-  fiatBalance: string
 }
 
-type receiveAmount = {
+type ReceiveAmount = {
   cryptoAmountBaseUnit: string
   fiatAmount: string
 }
@@ -68,9 +67,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [opportunityBalances, setOpportunityBalances] = useState<
-    opportunityBalanceData | undefined
+    OpportunityBalanceData | undefined
   >(undefined)
-  const [receiveAmounts, setReceiveAmounts] = useState<receiveAmount[] | undefined>([
+  const [receiveAmounts, setReceiveAmounts] = useState<ReceiveAmount[] | undefined>([
     { cryptoAmountBaseUnit: '0', fiatAmount: '0' },
     { cryptoAmountBaseUnit: '0', fiatAmount: '0' },
   ])
@@ -102,6 +101,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const { data: lpAssetData } = useFindByAssetIdQuery(lpAsset?.assetId || '')
   const lpAssetMarketData = lpAssetData?.[lpAsset?.assetId || '']
+
+  const lpAssetFiatBalance = useMemo(
+    () =>
+      bnOrZero(lpAssetBalanceCryptoBaseUnit)
+        .dividedBy(bn(10).pow(lpAsset?.precision ?? 18))
+        .times(lpAssetMarketData?.price ?? 0),
+    [lpAsset?.precision, lpAssetBalanceCryptoBaseUnit, lpAssetMarketData?.price],
+  )
 
   const { data: underlyingAsset0Data } = useFindByAssetIdQuery(underlyingAsset0?.assetId || '')
   const underlyingAsset0MarketData = underlyingAsset0Data?.[underlyingAsset0?.assetId || '']
@@ -145,7 +152,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     async (
       lpAsset: Asset,
       lpAssetBalanceBaseUnit: string,
-    ): Promise<opportunityBalanceData | undefined> => {
+    ): Promise<OpportunityBalanceData | undefined> => {
       if (!(osmosisOpportunity && underlyingAsset0 && underlyingAsset1)) return undefined
 
       const id = getPoolIdFromAssetReference(fromAssetId(lpAsset.assetId).assetReference)
@@ -194,9 +201,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             cryptoBalanceBaseUnit: underlyingAsset1Balance,
           },
         ],
-        fiatBalance: bnOrZero(poolOwnershipFraction)
-          .multipliedBy(bnOrZero(osmosisOpportunity.tvl))
-          .toString(),
       }
     },
     [osmosisOpportunity, poolData, underlyingAsset0, underlyingAsset1],
@@ -284,13 +288,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const receiveAmounts = [
         {
           cryptoAmountBaseUnit: amounts.underlyingAssetBalances[0].cryptoBalanceBaseUnit,
-          fiatAmount: bnOrZero(amounts.fiatBalance)
+          fiatAmount: bnOrZero(lpAssetFiatBalance)
             .multipliedBy(bnOrZero(amounts.underlyingAssetBalances[0].allocationPercentage))
             .toString(),
         },
         {
           cryptoAmountBaseUnit: amounts.underlyingAssetBalances[1].cryptoBalanceBaseUnit,
-          fiatAmount: bnOrZero(amounts.fiatBalance)
+          fiatAmount: bnOrZero(lpAssetFiatBalance)
             .multipliedBy(bnOrZero(amounts.underlyingAssetBalances[1].allocationPercentage))
             .toString(),
         },
@@ -358,14 +362,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const handleCancel = browserHistory.goBack
 
   const handlePercentClick = (percent: number) => {
-    if (!opportunityBalances || !lpAsset) return
+    if (!lpAssetMarketData || !lpAsset) return
     const cryptoAmountBaseUnit = bnOrZero(lpAssetBalanceCryptoBaseUnit)
       .multipliedBy(percent)
       .toString()
     const cryptoAmountPrecision = bnOrZero(cryptoAmountBaseUnit)
       .dividedBy(bn(10).pow(lpAsset.precision))
       .toString()
-    const fiatAmount = bnOrZero(opportunityBalances?.fiatBalance).multipliedBy(percent).toString()
+    const fiatAmount = bnOrZero(lpAssetBalanceCryptoBaseUnit)
+      .dividedBy(bn(10).pow(lpAsset.precision))
+      .times(lpAssetMarketData.price)
+      .multipliedBy(percent)
+      .toString()
 
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmountPrecision, { shouldValidate: true })
@@ -415,8 +423,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateFiatAmount = (value: string) => {
     const _value = bnOrZero(value)
-    const fiatBalance = bnOrZero(opportunityBalances.fiatBalance)
-    const hasValidBalance = fiatBalance.gt(0) && _value.gt(0) && fiatBalance.gte(value)
+    const hasValidBalance =
+      lpAssetFiatBalance.gt(0) && _value.gt(0) && lpAssetFiatBalance.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
@@ -436,7 +444,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           required: true,
           validate: { validateCryptoAmount },
         }}
-        fiatAmountAvailable={opportunityBalances?.fiatBalance}
+        fiatAmountAvailable={lpAssetFiatBalance.toString()}
         fiatInputValidation={{
           required: true,
           validate: { validateFiatAmount },

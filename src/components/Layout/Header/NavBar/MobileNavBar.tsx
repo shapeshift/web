@@ -25,7 +25,7 @@ export const MobileNavBar = () => {
           to={route.path}
           flexDir='column'
           fontSize='2xl'
-          gap={3}
+          gap={2}
           height='auto'
           variant='nav-link'
           isActive={isActive}
@@ -51,8 +51,8 @@ export const MobileNavBar = () => {
       bg='gray.800'
       zIndex='banner'
       justifyContent='space-between'
-      height='72px'
       px={4}
+      paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
       display={{ base: 'flex', md: 'none' }}
     >
       {renderMenu}

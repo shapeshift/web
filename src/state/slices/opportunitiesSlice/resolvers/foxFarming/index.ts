@@ -295,9 +295,12 @@ export const foxFarmingStakingUserDataResolver = async ({
   const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
   const rewardsAmountsCryptoBaseUnit = [earned.toString()] as [string]
 
+  const userStakingId = serializeUserStakingId(accountId, opportunityId)
+
   const data = {
     byId: {
-      [serializeUserStakingId(accountId, opportunityId)]: {
+      [userStakingId]: {
+        userStakingId,
         stakedAmountCryptoBaseUnit,
         rewardsAmountsCryptoBaseUnit,
       },

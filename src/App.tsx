@@ -21,7 +21,7 @@ export const App = () => {
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
   const {
-    mobileWelcomeModal: { isOpen: isWelcomeModalOpen, open: openWelcomeModal },
+    nativeOnboard: { isOpen: isNativeOnboardOpen, open: openNativeOnboard },
   } = useModal()
 
   useEffect(() => {
@@ -53,10 +53,10 @@ export const App = () => {
   }, [shouldUpdate, toast, translate])
 
   useEffect(() => {
-    if (showWelcomeModal && !isWelcomeModalOpen) {
-      openWelcomeModal({})
+    if (showWelcomeModal && !isNativeOnboardOpen) {
+      openNativeOnboard({})
     }
-  }, [isWelcomeModalOpen, openWelcomeModal, showWelcomeModal])
+  }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
 
   return <Routes />
 }

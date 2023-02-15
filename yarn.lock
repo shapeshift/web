@@ -5027,6 +5027,14 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
+"@types/node-fetch@^2.6.2":
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.2.tgz#d1a9c5fd049d9415dce61571557104dec3ec81da"
+  integrity sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==
+  dependencies:
+    "@types/node" "*"
+    form-data "^3.0.0"
+
 "@types/node-polyglot@^2.4.2":
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/@types/node-polyglot/-/node-polyglot-2.4.2.tgz#1230dd64a3521e5d11bccb16e2f13bb81c563d65"
@@ -6260,10 +6268,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@^0.3.11":
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.11.tgz#ca6f1860900cc2b483f31c3f70a613d1c4e7bd2c"
-  integrity sha512-q3MpRew3DzqLhQABMKA3SxlzkAhXU63vNPTM93cQLu5yO6YAR7pnUafmxuJztoRUg24LSb8HWp52HjayU4C2rA==
+"@wherever/react-notification-feed@^0.3.13":
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.13.tgz#808d428908edb0716ba16380aa3f584cc5e9b34a"
+  integrity sha512-C008QYE8r1YLXZjTc5TwqdYDfVu5OUYi7v4vfVhb5qIIxpnF3bQSngJgaL3TnK7DQVfrTGzDXzIF8iQ3haIYWQ==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@epnsproject/sdk-restapi" "^0.1.20"

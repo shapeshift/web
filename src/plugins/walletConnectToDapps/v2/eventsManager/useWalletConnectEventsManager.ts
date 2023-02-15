@@ -1,4 +1,4 @@
-import { Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsHandler'
 import type {
   NarrowedSessionRequest,
@@ -7,9 +7,10 @@ import type {
 } from 'plugins/walletConnectToDapps/v2/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
-import SessionRequest = Web3WalletTypes.SessionRequest
 
-const isNarrowedSessionRequest = (request: SessionRequest): request is NarrowedSessionRequest => {
+const isNarrowedSessionRequest = (
+  request: Web3WalletTypes.SessionRequest,
+): request is NarrowedSessionRequest => {
   return Object.values(EIP155_SigningMethod).some(value => value === request.params.request.method)
 }
 

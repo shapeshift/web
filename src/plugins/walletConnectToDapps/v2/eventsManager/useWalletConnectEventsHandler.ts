@@ -35,7 +35,6 @@ export const useWalletConnectEventsHandler = (
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
     (requestEvent: NarrowedSessionRequest) => {
-      console.log('[debug] session_request', requestEvent)
       const { topic, params } = requestEvent
       const { request } = params
       // const requestSession = signClient.session.get(topic)

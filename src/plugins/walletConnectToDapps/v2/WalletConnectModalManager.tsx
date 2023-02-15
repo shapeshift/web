@@ -1,6 +1,7 @@
 import { Modal, ModalContent } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { SessionTypes } from '@walletconnect/types'
 import {
   extractConnectedAccounts,
   getWalletAccountFromParams,
@@ -33,10 +34,13 @@ import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/sele
 import { useAppSelector } from 'state/store'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
+type SessionProposalState = Required<Omit<WalletConnectState, 'session'>> & {
+  session: SessionTypes.Struct
+}
 
 export type WalletConnectSessionModalProps = {
   dispatch: Dispatch<WalletConnectAction>
-  state: Required<WalletConnectState>
+  state: SessionProposalState
   onClose(): void
 }
 
@@ -47,10 +51,8 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): void
 }
 
-const isRequiredWalletConnectState = (
-  state: WalletConnectState,
-): state is Required<WalletConnectState> => {
-  return !!(state.modalData && state.web3wallet && state.activeModal && state.session)
+const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState => {
+  return !!(state.modalData && state.web3wallet && state.activeModal)
 }
 
 export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
@@ -109,7 +111,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleClose()
   }
 
-  if (!web3wallet || !activeModal || !isRequiredWalletConnectState(state)) return null
+  if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
 
   const modalContent = (() => {
     switch (activeModal) {

@@ -1,11 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
 import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
-import type { IWeb3Wallet } from '@walletconnect/web3wallet'
-import { Web3WalletTypes } from '@walletconnect/web3wallet'
+import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type { Dispatch } from 'react'
-import SessionRequest = Web3WalletTypes.SessionRequest
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -99,7 +97,7 @@ export type TransactionParams = {
 }
 
 // Overwrite Web3WalletTypes.SessionRequest to narrow chainId and request params
-export type NarrowedSessionRequest<T = WalletConnectRequest> = SessionRequest & {
+export type NarrowedSessionRequest<T = WalletConnectRequest> = Web3WalletTypes.SessionRequest & {
   chainId: ChainId
   request: {
     params: T

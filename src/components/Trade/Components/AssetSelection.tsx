@@ -31,7 +31,7 @@ const TradeAssetAwaitingAsset = () => {
 
 type TradeAssetSelectProps = {
   assetId?: AssetId
-  onAccountIdChange?: AccountDropdownProps['onChange']
+  onAccountIdChange: AccountDropdownProps['onChange']
   accountId?: AccountId | undefined
   accountSelectionDisabled?: boolean
   onAssetClick?: () => void
@@ -52,9 +52,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const networkName = feeAsset?.networkName || feeAsset?.name
-  const handleChange = () => {
-    return null
-  }
+
   return (
     <Card
       bg={useColorModeValue('white', 'gray.850')}
@@ -88,12 +86,12 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
           </Flex>
         </Flex>
       </Card.Body>
-      {handleAccountIdChange && assetId && (
+      {assetId && (
         <Card.Footer p={0} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}
-            onChange={handleChange}
+            onChange={handleAccountIdChange}
             buttonProps={{
               width: 'full',
               borderTopRadius: 0,

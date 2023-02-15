@@ -6268,10 +6268,10 @@
   dependencies:
     lodash "^4"
 
-"@wherever/react-notification-feed@^0.3.13":
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.13.tgz#808d428908edb0716ba16380aa3f584cc5e9b34a"
-  integrity sha512-C008QYE8r1YLXZjTc5TwqdYDfVu5OUYi7v4vfVhb5qIIxpnF3bQSngJgaL3TnK7DQVfrTGzDXzIF8iQ3haIYWQ==
+"@wherever/react-notification-feed@^0.3.16":
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/@wherever/react-notification-feed/-/react-notification-feed-0.3.16.tgz#f6977c8e2f3a797cac701419ca7d61cd39e25736"
+  integrity sha512-4K0OtnsTGJjz2DPDMZgHnP6pWGjD+Wz9GRZ6edqrQ99Q+PMt63xnfMLXSuFBhHNflzn4VpV91GDjCxHMysQnDQ==
   dependencies:
     "@apollo/client" "^3.6.9"
     "@epnsproject/sdk-restapi" "^0.1.20"
@@ -6285,6 +6285,7 @@
     react-infinite-scroller "^1.2.6"
     react-popper "^2.3.0"
     rudder-sdk-js "^2.18.1"
+    showdown "^2.1.0"
     siwe "^1.1.6"
     wagmi "^0.10.1"
 
@@ -8227,6 +8228,11 @@ commander@^8.3.0:
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
   integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
+
+commander@^9.0.0:
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-9.5.0.tgz#bc08d1eb5cedf7ccb797a96199d41c7bc3e60d30"
+  integrity sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==
 
 common-path-prefix@^3.0.0:
   version "3.0.0"
@@ -17038,6 +17044,13 @@ shell-quote@^1.7.3:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.3.tgz#aa40edac170445b9a431e17bb62c0b881b9c4123"
   integrity sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==
+
+showdown@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/showdown/-/showdown-2.1.0.tgz#1251f5ed8f773f0c0c7bfc8e6fd23581f9e545c5"
+  integrity sha512-/6NVYu4U819R2pUIk79n67SYgJHWCce0a5xTP979WbNp0FL9MN1I1QK662IDU1b6JzKTvmhgI7T7JYIxBi3kMQ==
+  dependencies:
+    commander "^9.0.0"
 
 side-channel@^1.0.4:
   version "1.0.4"

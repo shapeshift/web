@@ -1,0 +1,16 @@
+[
+	{
+		"category": "dapp",
+		"id": "02563239502b03cef22f5e71059ce97bd48cf7ab0f856964d7e17c0e3631db9f",
+		"homepage": "https://zapper.xyz/",
+		"name": "Zapper",
+		"image": "https://explorer-api.walletconnect.com/v3/logo/md/4c97d203-d07a-4b2a-04e3-5f9ea7afca00?projectId=2f05ae7f1116030fde2d36508f472bfb"
+	},
+	{
+		"category": "dapp",
+		"id": "2d7b5ef9ea6e5b856440ad38ac3e9ffc6e311f353aae4a90daadf4654e31ffb7",
+		"homepage": "https://snapshot.org/",
+		"name": "Snapshot",
+		"image": "https://explorer-api.walletconnect.com/v3/logo/md/b96552e9-6c7d-467c-bb37-486224d77e00?projectId=2f05ae7f1116030fde2d36508f472bfb"
+	}
+]

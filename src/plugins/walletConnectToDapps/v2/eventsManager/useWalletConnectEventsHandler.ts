@@ -63,7 +63,13 @@ export const useWalletConnectEventsHandler = (
           })
 
         case EIP155_SigningMethod.ETH_SEND_TRANSACTION:
-          return
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.sendTransactionConfirmation,
+              data: { requestEvent, requestSession },
+            },
+          })
         case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,

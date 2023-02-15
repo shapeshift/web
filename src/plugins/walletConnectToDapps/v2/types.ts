@@ -74,6 +74,7 @@ export enum WalletConnectModal {
   signMessageConfirmation = 'signMessageConfirmation',
   signTypedDataConfirmation = 'signTypedDataConfirmation',
   signTransactionConfirmation = 'signTransactionConfirmation',
+  sendTransactionConfirmation = 'sendTransactionConfirmation',
 }
 
 export type CustomTransactionData = {

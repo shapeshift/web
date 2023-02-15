@@ -158,18 +158,19 @@ export const Deposit: React.FC<DepositProps> = ({
   const handleCancel = history.goBack
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = amountAvailableCryptoPrecision
     const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    const hasValidBalance =
+      amountAvailableCryptoPrecision.gt(0) &&
+      _value.gt(0) &&
+      amountAvailableCryptoPrecision.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = amountAvailableCryptoPrecision
-    const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
-    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+    const hasValidBalance =
+      fiatAmountAvailable.gt(0) && _value.gt(0) && fiatAmountAvailable.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }

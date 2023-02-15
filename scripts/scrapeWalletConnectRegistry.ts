@@ -1,26 +1,42 @@
 import * as fs from 'fs'
 import fetch from 'node-fetch'
 import * as path from 'path'
-import { RegistryItem } from '../src/plugins/walletConnectToDapps/types'
+import { RegistryItem, APIRegistryItem } from '../src/plugins/walletConnectToDapps/types'
 
-const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
-
-const registryJsonUrl =
-  'https://explorer.walletconnect.com/_next/data/rBOMJOAm1Nrct0fjtOOlA/index.json'
+const registryJsonUrl = 'https://explorer-api.walletconnect.com/v3/all?projectId=2f05ae7f1116030fde2d36508f472bfb'
 
 async function run() {
-  const listings: RegistryItem[] = []
-  for (const searchQuery of ['', ...alphabet]) {
-    // eslint-disable-next-line no-console
-    console.log('Scraping listings for query: ', { searchQuery })
+  // eslint-disable-next-line no-console
+  console.log('Scraping dApps listings from WalletConnect Cloud API...')
 
-    const newListings = await fetch(`${registryJsonUrl}?search=${searchQuery}`)
-      .then(res => res.json())
-      .then(res => res.pageProps.listings.filter((l: RegistryItem) => !listings.some(ll => l.id === ll.id) && l.category !== 'wallet'))
-    listings.push(...newListings)
-  }
+  const newData: RegistryItem[] = await fetch(registryJsonUrl)
+      .then(response => response.json())
+      .then(data => {
+      const entries: APIRegistryItem[] = Object.values(data.listings)
+      const filteredEntries = entries.filter(entry => entry.app_type !== 'wallet')
+      // Mapping the WalledConnect API registry structure to our app registry structure.
+      return filteredEntries.map(
+        (entry: APIRegistryItem) => {
+          return {
+            category: entry.app_type,
+            id: entry.id,
+            homepage: entry.homepage,
+            name: entry.name,
+            image: entry.image_url.md
+          }
+        }
+      )
+    })
 
-  fs.writeFileSync(path.join(__dirname, '../src/plugins/walletConnectToDapps', 'registry.json'), JSON.stringify(listings, null, 2))
+  const overrideData = JSON.parse(fs.readFileSync(path.join(__dirname, '../src/plugins/walletConnectToDapps', 'registry-overrides.json'), 'utf8'))
+
+  overrideData.forEach((newObject: any) => {
+    const index = newData.findIndex((existingObject: any) => existingObject.id === newObject.id)
+    if (index !== -1) newData.splice(index, 1, newObject)
+  })
+
+  fs.writeFileSync(path.join(__dirname, '../src/plugins/walletConnectToDapps', 'registry.json'), JSON.stringify(newData, null, 2))
+  console.log(`${newData.length} entries scrapped.`)
 }
 
 run()

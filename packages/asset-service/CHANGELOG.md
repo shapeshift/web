@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.8.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.8.0...@shapeshiftoss/asset-service-v8.8.1) (2023-02-15)
+
+
+### Bug Fixes
+
+* **asset-service:** osmosis lp token precision ([#1198](https://github.com/shapeshift/lib/issues/1198)) ([60a5bc4](https://github.com/shapeshift/lib/commit/60a5bc48a31b8be8eff25df632e0302d13a91a7e))
+
 # [@shapeshiftoss/asset-service-v8.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.7.0...@shapeshiftoss/asset-service-v8.8.0) (2023-02-02)
 
 

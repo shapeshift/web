@@ -11,6 +11,9 @@ import { SignTransactionConfirmation } from 'plugins/walletConnectToDapps/v2/com
 import { SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/SignTypedDataConfirmation'
 import type {
   CustomTransactionData,
+  EthSignCallRequest,
+  EthSignTransactionCallRequest,
+  EthSignTypedDataCallRequest,
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
@@ -118,7 +121,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectEIP155Request}
             dispatch={dispatch}
-            state={state}
+            state={state as Required<WalletConnectState<EthSignCallRequest>>}
           />
         )
       case WalletConnectModal.signTypedDataConfirmation:
@@ -127,7 +130,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectEIP155Request}
             dispatch={dispatch}
-            state={state}
+            state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
           />
         )
       case WalletConnectModal.signTransactionConfirmation:
@@ -136,7 +139,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             onConfirm={handleConfirmEIP155Request}
             onReject={handleRejectEIP155Request}
             dispatch={dispatch}
-            state={state}
+            state={state as Required<WalletConnectState<EthSignTransactionCallRequest>>}
           />
         )
       default:

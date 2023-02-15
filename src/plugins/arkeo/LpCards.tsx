@@ -26,7 +26,7 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   } = useWallet()
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredLpOpportunities = lpOpportunities.filter(opportunity =>
-    ids.includes(opportunity.assetId as OpportunityId),
+    ids.includes((opportunity.id ?? opportunity.assetId) as OpportunityId),
   )
   const cosmosAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, cosmosChainId),
@@ -36,7 +36,9 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   )
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
-      const opportunity = lpOpportunities.find(opportunity => opportunity.assetId === opportunityId)
+      const opportunity = lpOpportunities.find(
+        opportunity => (opportunity.id ?? opportunity.assetId) === opportunityId,
+      )
       if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
@@ -71,7 +73,11 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
 
   const renderCards = useMemo(() => {
     return filteredLpOpportunities.map(lpOpportunity => (
-      <LpCard key={lpOpportunity.assetId} onClick={handleClick} {...lpOpportunity} />
+      <LpCard
+        key={lpOpportunity.id ?? lpOpportunity.assetId}
+        onClick={handleClick}
+        {...lpOpportunity}
+      />
     ))
   }, [filteredLpOpportunities, handleClick])
   return <>{renderCards}</>

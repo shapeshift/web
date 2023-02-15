@@ -71,7 +71,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
           width='full'
           colorScheme='blue'
           mt='auto'
-          onClick={() => onClick(opportunity.assetId as OpportunityId)}
+          onClick={() => onClick((opportunity.id ?? opportunity.assetId) as OpportunityId)}
         >
           {translate(cta)}
         </Button>

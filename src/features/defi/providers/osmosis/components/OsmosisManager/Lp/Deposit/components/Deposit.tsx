@@ -175,7 +175,6 @@ export const Deposit: React.FC<DepositProps> = ({
       const inputAssetAmountBaseUnit = bnOrZero(inputAssetAmountPrecision)
         .multipliedBy(bn(10).pow(bnOrZero(inputAsset.precision)))
         .toFixed(0, BigNumber.ROUND_DOWN)
-        .toString()
 
       const poolAssetAmountBaseUnit = poolAssets[poolAssetIndex]?.token.amount
 

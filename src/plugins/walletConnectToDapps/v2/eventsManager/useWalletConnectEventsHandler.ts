@@ -1,9 +1,8 @@
 import type { SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import type {
-  RequestEvent,
+  NarrowedSessionRequest,
   WalletConnectContextType,
-  WalletConnectRequest,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
@@ -35,7 +34,7 @@ export const useWalletConnectEventsHandler = (
 
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
-    (requestEvent: RequestEvent<WalletConnectRequest>) => {
+    (requestEvent: NarrowedSessionRequest) => {
       console.log('[debug] session_request', requestEvent)
       const { topic, params } = requestEvent
       const { request } = params

@@ -42,7 +42,7 @@ export const DappHeaderMenuSummaryV2 = () => {
     if (!session || !web3wallet || !core) return
 
     /*
-     FIXME: this is a hack to clear out all sessions, as the MVP supports only one at a time.
+     TODO: this is a hack to clear out all sessions, as the MVP supports only one at a time.
      In the future we want to support multiple pairings and sessions at once.
      */
     const activeTopics = Object.values(web3wallet.getActiveSessions()).map(session => session.topic)
@@ -50,7 +50,7 @@ export const DappHeaderMenuSummaryV2 = () => {
       try {
         await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
       } catch (e) {
-        console.error('[debug] Error disconnecting session', { error: e, topic })
+        throw new Error(`Error disconnecting session: ${e}, topic: ${topic}`)
       }
     }
 
@@ -59,7 +59,7 @@ export const DappHeaderMenuSummaryV2 = () => {
       try {
         await core.pairing.disconnect({ topic })
       } catch (e) {
-        console.error('[debug] Error disconnecting pairing', { error: e, topic })
+        throw new Error(`Error disconnecting pairing: ${e}, topic: ${topic}`)
       }
     }
 

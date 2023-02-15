@@ -15,12 +15,16 @@ import {
   getGasData,
   getSignParamsMessage,
 } from 'plugins/walletConnectToDapps/utils'
-import type { CustomTransactionData } from 'plugins/walletConnectToDapps/v2/types'
+import type {
+  CustomTransactionData,
+  RequestEvent,
+  WalletConnectRequest,
+} from 'plugins/walletConnectToDapps/v2/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveEIP155RequestArgs = {
-  requestEvent: SignClientTypes.EventArguments['session_request']
+  requestEvent: RequestEvent<WalletConnectRequest>
   wallet: HDWallet
   chainAdapter: EvmBaseAdapter<EvmChainId>
   accountMetadata: AccountMetadata

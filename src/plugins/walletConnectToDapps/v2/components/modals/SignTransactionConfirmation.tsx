@@ -9,11 +9,16 @@ import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
-import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
-import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
+import {
+  convertHexToNumber,
+  extractConnectedAccounts,
+  getWalletAddressFromParams,
+} from 'plugins/walletConnectToDapps/utils'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
-import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
+import type { EthSignTransactionCallRequest } from 'plugins/walletConnectToDapps/v2/types'
+import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
+import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -22,21 +27,33 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertIsDefined } from 'lib/utils'
 
-type CallRequest = WalletConnectEthSendTransactionCallRequest
+export const SignTransactionConfirmation: FC<
+  WalletConnectRequestModalProps<EthSignTransactionCallRequest>
+> = ({
+  onConfirm: handleConfirm,
+  onReject: handleReject,
+  state: {
+    modalData: { requestEvent },
+    session,
+  },
+}) => {
+  assertIsDefined(requestEvent)
 
-type Props = {
-  request: CallRequest['params'][number]
-  onConfirm(data: ConfirmData): void
-  onReject(): void
-}
+  console.log('xxx requestEvent', { requestEvent, session })
 
-export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Props) => {
-  const walletConnect = useWalletConnect()
-  const { feeAsset, fees } = useCallRequestFees(request)
+  const { params } = requestEvent
+  const { request, chainId } = params
+  const { params: transactionParams } = request
+  const tx = transactionParams[0]
+
+  const connectedAccounts = extractConnectedAccounts(session)
+  const address = getWalletAddressFromParams(connectedAccounts, params)
+  const { feeAsset, fees } = useCallRequestFees(tx)
   const { isInteractingWithContract } = useIsInteractingWithContract({
-    evmChainId: walletConnect.evmChainId,
-    address: request.to,
+    evmChainId: chainId,
+    address: tx.to,
   })
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
@@ -47,8 +64,8 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
 
   const form = useForm<ConfirmData>({
     defaultValues: {
-      nonce: request.nonce ? convertHexToNumber(request.nonce).toString() : undefined,
-      gasLimit: request.gas ? convertHexToNumber(request.gas).toString() : undefined,
+      nonce: tx.nonce ? convertHexToNumber(tx.nonce).toString() : undefined,
+      gasLimit: tx.gas ? convertHexToNumber(tx.gas).toString() : undefined,
       speed: FeeDataKey.Average,
       customFee: {
         baseFee: '0',
@@ -56,9 +73,6 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
       },
     },
   })
-
-  if (!walletConnect.connector || !walletConnect.dapp) return null
-  const address = walletConnect.connector.accounts[0]
 
   if (isInteractingWithContract === null)
     return (
@@ -79,7 +93,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
           }`}
         >
           <AddressSummaryCard
-            address={request.to}
+            address={tx.to}
             showWalletProviderName={false}
             icon={<Image borderRadius='full' w='full' h='full' src={feeAsset?.icon} />}
           />
@@ -87,26 +101,26 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
         {isInteractingWithContract ? (
           <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
             <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-              <ContractInteractionBreakdown request={request} />
+              <ContractInteractionBreakdown request={tx} />
             </Card>
           </ModalSection>
         ) : (
           <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.amount'>
-            {feeAsset && <AmountCard value={request.value ?? '0'} assetId={feeAsset.assetId} />}
+            {feeAsset && <AmountCard value={tx.value ?? '0'} assetId={feeAsset.assetId} />}
           </ModalSection>
         )}
         <ModalCollapsableSection
           title={
             <HStack flex={1} justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-              <GasFeeEstimateLabel request={request} />
+              <GasFeeEstimateLabel request={tx} />
             </HStack>
           }
           icon={<FaGasPump />}
           defaultOpen={false}
         >
           <Box pt={2}>
-            <GasInput request={request} />
+            <GasInput request={tx} />
           </Box>
         </ModalCollapsableSection>
         <ModalCollapsableSection
@@ -121,7 +135,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
         <Text
           fontWeight='medium'
           color='gray.500'
-          translation='plugins.walletConnectToDapps.modal.sendTransaction.description'
+          translation='plugins.walletConnectToDapps.modal.signTransaction.description'
         />
         <VStack spacing={4}>
           <Button
@@ -129,13 +143,13 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             width='full'
             colorScheme='blue'
             type='submit'
-            onClick={form.handleSubmit(onConfirm)}
+            onClick={form.handleSubmit(handleConfirm)}
             isLoading={form.formState.isSubmitting}
             disabled={!fees}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>
-          <Button size='lg' width='full' onClick={onReject}>
+          <Button size='lg' width='full' onClick={handleReject}>
             {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}
           </Button>
         </VStack>

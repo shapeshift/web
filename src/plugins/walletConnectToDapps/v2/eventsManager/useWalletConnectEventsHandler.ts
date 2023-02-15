@@ -1,7 +1,9 @@
 import type { SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import type {
+  RequestEvent,
   WalletConnectContextType,
+  WalletConnectRequest,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
@@ -33,7 +35,7 @@ export const useWalletConnectEventsHandler = (
 
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
-    (requestEvent: SignClientTypes.EventArguments['session_request']) => {
+    (requestEvent: RequestEvent<WalletConnectRequest>) => {
       console.log('[debug] session_request', requestEvent)
       const { topic, params } = requestEvent
       const { request } = params
@@ -63,8 +65,15 @@ export const useWalletConnectEventsHandler = (
           })
 
         case EIP155_SigningMethod.ETH_SEND_TRANSACTION:
-        case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
           return
+        case EIP155_SigningMethod.ETH_SIGN_TRANSACTION:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.signTransactionConfirmation,
+              data: { requestEvent, requestSession },
+            },
+          })
 
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:

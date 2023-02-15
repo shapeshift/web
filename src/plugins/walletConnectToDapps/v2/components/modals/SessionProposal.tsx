@@ -64,7 +64,7 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   const translate = useTranslate()
 
   const { id, params } = proposal
-  const { proposer, requiredNamespaces, relays } = params
+  const { proposer, requiredNamespaces } = params
 
   const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>(() => [])
   const toggleAccountId = (accountId: string) =>

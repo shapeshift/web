@@ -16,6 +16,8 @@ import { isValidDate } from '../utils/isValidDate'
 import { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 import { getPool, getPoolIdFromAssetReference, getPoolMarketData, isOsmosisLpAsset } from './utils'
 
+const OSMOSIS_LP_TOKEN_PRECISION = 18
+
 export class OsmosisMarketService implements MarketService {
   baseUrl: string // Unused, but present to satisfy MarketService interface definition
   providerUrls: ProviderUrls
@@ -71,6 +73,7 @@ export class OsmosisMarketService implements MarketService {
         return {
           price: bnOrZero(marketData.liquidity)
             .dividedBy(bnOrZero(poolData.total_shares.amount))
+            .multipliedBy(bn(10).pow(OSMOSIS_LP_TOKEN_PRECISION))
             .toFixed(),
           marketCap: bnOrZero(marketData.liquidity).toFixed(),
           volume: bn(marketData.volume_24h).toFixed(),

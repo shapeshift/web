@@ -7,6 +7,8 @@ import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/Gene
 import { osmosis } from '../baseAssets'
 import { colorMap } from '../colorMap'
 
+const OSMOSIS_LP_ASSET_PRECISION = 18
+
 type OsmoAsset = {
   description: string
   denom_units: {
@@ -200,7 +202,7 @@ export const getAssets = async (): Promise<Asset[]> => {
           chainId: osmosisChainId,
           symbol: `gamm/pool/${poolId}`,
           name: getLPTokenName(current.symbol, pairedSymbol),
-          precision: osmosis.precision,
+          precision: OSMOSIS_LP_ASSET_PRECISION,
           color: osmosis.color,
           icon: osmosis.icon,
           explorer: osmosis.explorer,

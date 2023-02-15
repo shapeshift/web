@@ -1,5 +1,5 @@
 import type { StackProps } from '@chakra-ui/react'
-import { Divider, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Divider, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,6 +10,7 @@ import { YatBanner } from 'components/Banners/YatBanner'
 import { Text } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { breakpoints } from 'theme/theme'
 
 import { MainNavLink } from './MainNavLink'
 
@@ -20,13 +21,18 @@ type NavBarProps = {
 
 export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { routes: pluginRoutes } = usePlugins()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   const groupColor = useColorModeValue('gray.400', 'gray.600')
   const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
 
   const navItemGroups = useMemo(() => {
-    const allRoutes = union(routes, pluginRoutes).filter(route => !route.disable && !route.hide)
+    const allRoutes = union(routes, pluginRoutes).filter(route =>
+      isLargerThanMd
+        ? !route.disable && !route.hide
+        : !route.disable && !route.hide && !route.mobileNav,
+    )
     const groups = allRoutes.reduce(
       (entryMap, currentRoute) =>
         entryMap.set(currentRoute.category, [
@@ -36,7 +42,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
       new Map(),
     )
     return Array.from(groups.entries())
-  }, [pluginRoutes])
+  }, [isLargerThanMd, pluginRoutes])
 
   return (
     <Stack

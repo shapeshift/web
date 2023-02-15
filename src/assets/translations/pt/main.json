@@ -1706,7 +1706,7 @@
     },
     "lp": {
       "title": "%{asset1}/%{asset2} Provedores",
-      "body": "Tem %{asset1} e %{asset2}? Forneça liquidez na pool da Uniswap v2 e ganhe X% de APR, além do FOX depositado na pool de FOX/ETH também entrar na conta do airdrop!",
+      "body": "Tem %{asset1} e %{asset2}? Forneça liquidez na pool da Uniswap v2 e ganhe %{apy} de APR, além do FOX depositado na pool de FOX/ETH também entrar na conta do airdrop!",
       "cta": "Forneça liquidez"
     },
     "foxTokenHolders": {

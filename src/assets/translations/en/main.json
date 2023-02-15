@@ -1706,7 +1706,7 @@
     },
     "lp": {
       "title": "%{asset1}/%{asset2} Providers",
-      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn X% APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
+      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
       "cta": "Deposit Liquidity"
     },
     "foxTokenHolders": {

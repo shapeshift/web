@@ -1,10 +1,12 @@
-import { Button, Flex, Stack } from '@chakra-ui/react'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Avatar, Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -126,21 +128,21 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
       {
         Header: 'Staking Position',
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex>
-            <Stack
-              divider={
-                <RawText color='gray.500' mx={1}>
-                  •
+        Cell: ({ row }: { row: RowProps }) => {
+          const subText = [row.original.provider as string]
+          if (row.original.version) subText.push(row.original.version)
+          return (
+            <Flex gap={4} alignItems='center'>
+              <Avatar size='sm' src={DefiProviderMetadata[row.original.provider].icon} />
+              <Flex flexDir='column'>
+                <RawText>{row.original.opportunityName}</RawText>
+                <RawText textTransform='capitalize' variant='sub-text' size='xs'>
+                  {subText.join(' • ')}
                 </RawText>
-              }
-              direction='row'
-            >
-              <RawText textTransform='capitalize'>{row.original.provider}</RawText>
-              {row.original.version && <RawText>{row.original.version}</RawText>}
-            </Stack>
-          </Flex>
-        ),
+              </Flex>
+            </Flex>
+          )
+        },
         disableSortBy: true,
       },
       {
@@ -150,8 +152,8 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           <Flex flexDir='column'>
             <Amount.Fiat value={row.original.fiatAmount} />
             <Amount.Crypto
-              fontSize='sm'
-              color='gray.500'
+              variant='sub-text'
+              size='xs'
               value={bnOrZero(row.original.cryptoAmountBaseUnit)
                 .div(bnOrZero(10).pow(assets[assetId]?.precision ?? 0))
                 .toString()}
@@ -179,11 +181,19 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
             assets,
             marketData,
           })
-          return (
-            <Amount.Fiat
-              value={fiatAmount}
-              color={bnOrZero(fiatAmount).gt(0) ? 'green.500' : 'gray.500'}
-            />
+          const hasRewardBalance = bnOrZero(fiatAmount).gt(0)
+          return hasRewardBalance ? (
+            <Button
+              isDisabled={!hasRewardBalance}
+              variant='ghost-filled'
+              colorScheme='green'
+              size='sm'
+              rightIcon={<ArrowForwardIcon />}
+            >
+              <Amount.Fiat value={fiatAmount} />
+            </Button>
+          ) : (
+            <RawText color='gray.500'>-</RawText>
           )
         },
         sortType: (a: RowProps, b: RowProps): number => {
@@ -206,9 +216,11 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Header: () => null,
         id: 'expander',
         Cell: ({ row }: { row: RowProps }) => (
-          <Button variant='ghost' size='sm' colorScheme='green' onClick={() => handleClick(row)}>
-            Claim
-          </Button>
+          <Flex justifyContent='flex-end'>
+            <Button variant='ghost' size='sm' colorScheme='blue' onClick={() => handleClick(row)}>
+              Manage
+            </Button>
+          </Flex>
         ),
       },
     ],

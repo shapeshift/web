@@ -17,6 +17,44 @@ export enum DefiProvider {
   ThorchainSavers = 'THORChain Savers',
 }
 
+export const DefiProviderMetadata = {
+  [DefiProvider.Idle]: {
+    type: DefiProvider.Idle,
+    icon: 'https://assets.coingecko.com/coins/images/13286/thumb/image.png?1655284075',
+    name: 'Cosmos SDK Staking',
+  },
+  [DefiProvider.Yearn]: {
+    type: DefiProvider.Yearn,
+    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo.png',
+    name: 'Idle Finance',
+  },
+  [DefiProvider.ShapeShift]: {
+    type: DefiProvider.ShapeShift,
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    name: 'ShapeShift',
+  },
+  [DefiProvider.FoxFarming]: {
+    type: DefiProvider.FoxFarming,
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    name: 'FOX Farming',
+  },
+  [DefiProvider.Cosmos]: {
+    type: DefiProvider.Cosmos,
+    icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+    name: 'Cosmos',
+  },
+  [DefiProvider.Osmosis]: {
+    type: DefiProvider.Osmosis,
+    icon: 'https://rawcdn.githack.com/cosmos/chain-registry/6561270d8e1f169774a3857756e9aecbbd762eb4/osmosis/images/osmo.png',
+    name: 'Osmosis',
+  },
+  [DefiProvider.ThorchainSavers]: {
+    type: DefiProvider.ThorchainSavers,
+    icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
+    name: 'Thorchain',
+  },
+}
+
 export enum DefiAction {
   Overview = 'overview',
   Deposit = 'deposit',

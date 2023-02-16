@@ -1,8 +1,11 @@
-import { Button, Flex, Stack } from '@chakra-ui/react'
+import { Avatar, Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProviderMetadata,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -95,26 +98,40 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
       {
         Header: 'Liquidity Pool',
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex alignItems='center' gap={4}>
-            <Flex>
-              {row.original.underlyingAssetIds.map(assetId => (
-                <AssetIcon key={assetId} assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
-              ))}
+        Cell: ({ row }: { row: RowProps }) => {
+          const providerIcon = DefiProviderMetadata[row.original.provider]
+          return (
+            <Flex alignItems='center' gap={4}>
+              <Flex>
+                {/* {row.original.underlyingAssetIds.map(assetId => (
+                  <AssetIcon key={assetId} assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
+                ))} */}
+                <Avatar size='sm' src={providerIcon} />
+              </Flex>
+              <Flex flexDir='column'>
+                <RawText>{row.original.opportunityName}</RawText>
+                <Stack
+                  divider={
+                    <RawText variant='sub-text' size='xs' mx={1}>
+                      •
+                    </RawText>
+                  }
+                  alignItems='center'
+                  direction='row'
+                >
+                  <RawText textTransform='capitalize' variant='sub-text' size='xs'>
+                    {row.original.provider}
+                  </RawText>
+                  {row.original.version && (
+                    <RawText variant='sub-text' size='xs'>
+                      {row.original.version}
+                    </RawText>
+                  )}
+                </Stack>
+              </Flex>
             </Flex>
-            <Stack
-              divider={
-                <RawText color='gray.500' mx={1}>
-                  •
-                </RawText>
-              }
-              direction='row'
-            >
-              <RawText textTransform='capitalize'>{row.original.opportunityName}</RawText>
-              {row.original.version && <RawText>{row.original.version}</RawText>}
-            </Stack>
-          </Flex>
-        ),
+          )
+        },
         disableSortBy: true,
       },
       {
@@ -137,8 +154,8 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
                 </Flex>
               </Flex>
               <Amount.Crypto
-                fontSize='sm'
-                color='gray.500'
+                variant='sub-text'
+                size='xs'
                 value={underlyingBalances[assetId].cryptoBalancePrecision ?? 0}
                 symbol={assets[assetId]?.symbol ?? ''}
               />

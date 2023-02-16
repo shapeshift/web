@@ -11,21 +11,29 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnOpportunitiesByAssetId, selectAssetById } from 'state/slices/selectors'
+import {
+  selectAggregatedEarnOpportunitiesByAssetId,
+  selectAssetById,
+  selectFeeAssetByChainId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
+  const networkName = feeAsset?.networkName || feeAsset?.name
   if (!asset) return null
   return (
     <Flex alignItems='center' gap={4}>
       <AssetIcon size='sm' assetId={assetId} />
       <Flex flexDir='column'>
-        <RawText>{asset.name}</RawText>
+        <RawText>
+          {asset.name} {`(${asset.symbol})`}
+        </RawText>
         <RawText color='gray.500' fontSize='sm'>
-          {asset.symbol}
+          {`on ${networkName}`}
         </RawText>
       </Flex>
     </Flex>

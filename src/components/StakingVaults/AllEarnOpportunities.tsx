@@ -1,9 +1,11 @@
-import { Box } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
+import { GlobalFilter } from 'components/ReactTable/GlobalFilter'
+import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -20,6 +22,22 @@ import { useAppSelector } from 'state/store'
 
 import { PositionTable } from './PositionTable'
 import { StakingTable } from './StakingTable'
+
+const renderHeader = ({ setGlobalFilter, globalFilter }: TableHeaderProps) => {
+  return (
+    <Flex justifyContent='space-around' alignItems='center' mb={6} px={4}>
+      <Box flex={1}>
+        <Card.Heading>
+          <Text translation='defi.earn' />
+        </Card.Heading>
+        <Text color='gray.500' translation='defi.earnBody' />
+      </Box>
+      <Flex flex={1} maxWidth='300px'>
+        <GlobalFilter setGlobalFilter={setGlobalFilter} globalFilter={globalFilter} />
+      </Flex>
+    </Flex>
+  )
+}
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
@@ -99,17 +117,19 @@ export const AllEarnOpportunities = () => {
 
   return (
     <Card variant='unstyled' my={6}>
-      <Card.Header flexDir='row' display='flex' px={4}>
-        <Box>
-          <Card.Heading>
-            <Text translation='defi.earn' />
-          </Card.Heading>
-          <Text color='gray.500' translation='defi.earnBody' />
-        </Box>
-      </Card.Header>
+      {!isDefiDashboardEnabled && (
+        <Card.Header flexDir='row' display='flex' px={4}>
+          <Box>
+            <Card.Heading>
+              <Text translation='defi.earn' />
+            </Card.Heading>
+            <Text color='gray.500' translation='defi.earnBody' />
+          </Box>
+        </Card.Header>
+      )}
       <Card.Body pt={0} px={0}>
         {isDefiDashboardEnabled ? (
-          <PositionTable />
+          <PositionTable headerComponent={renderHeader} />
         ) : (
           <StakingTable data={filteredRows} onClick={handleClick} />
         )}

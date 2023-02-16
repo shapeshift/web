@@ -17,7 +17,10 @@ import type { Column, IdType, Row, TableState } from 'react-table'
 import { useExpanded, useGlobalFilter, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
-import { GlobalFilter } from './GlobalFilter'
+export type TableHeaderProps = {
+  globalFilter: any
+  setGlobalFilter: (filterValue: any) => void
+}
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -29,6 +32,7 @@ type ReactTableProps<T extends {}> = {
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   customFilter?: (rows: Row<T>[], columnIds: IdType<T>[], filterValue: any) => Row<T>[]
+  renderHeader?: (props: TableHeaderProps) => ReactNode
 }
 
 export const ReactTable = <T extends {}>({
@@ -41,6 +45,7 @@ export const ReactTable = <T extends {}>({
   initialState,
   renderSubComponent,
   customFilter,
+  renderHeader,
 }: ReactTableProps<T>) => {
   const hoverColor = useColorModeValue('black', 'white')
   const {
@@ -118,9 +123,7 @@ export const ReactTable = <T extends {}>({
 
   return (
     <>
-      {customFilter && (
-        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-      )}
+      {!!renderHeader && renderHeader({ globalFilter, setGlobalFilter })}
       <Table variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
         {displayHeaders && (
           <Thead>

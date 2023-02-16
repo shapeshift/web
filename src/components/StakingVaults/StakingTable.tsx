@@ -1,9 +1,11 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,11 +17,12 @@ type StakingTableProps = {
   data: EarnOpportunityType[]
   onClick: (arg: EarnOpportunityType) => void
   showTeaser?: boolean
+  headerComponent?: (props: TableHeaderProps) => ReactNode
 }
 
 type RowProps = Row<EarnOpportunityType>
 
-export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
+export const StakingTable = ({ data, onClick, showTeaser, headerComponent }: StakingTableProps) => {
   const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
@@ -129,6 +132,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
       columns={columns}
       onRowClick={handleRowClick}
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+      renderHeader={headerComponent}
     />
   )
 }

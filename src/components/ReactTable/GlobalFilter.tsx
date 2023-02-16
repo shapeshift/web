@@ -6,7 +6,10 @@ type GlobalFilterProps = {
   setGlobalFilter: (filterValue: any) => void
   globalFilter: any
 }
-export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setGlobalFilter, globalFilter }) => {
+export const GlobalFilter: React.FC<GlobalFilterProps> = ({
+  setGlobalFilter,
+  globalFilter = '',
+}) => {
   const [value, setValue] = useState(globalFilter)
 
   const handleDebounce = useCallback(

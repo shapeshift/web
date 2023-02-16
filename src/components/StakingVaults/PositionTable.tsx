@@ -1,14 +1,19 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { matchSorter } from 'match-sorter'
+import type { ReactNode } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails'
+import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
+import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -18,8 +23,6 @@ import {
   selectFeeAssetByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { positionTableFilter } from './utils'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
@@ -35,7 +38,7 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
         <RawText>
           {asset.name} {`(${asset.symbol})`}
         </RawText>
-        <RawText color='gray.500' fontSize='sm'>
+        <RawText variant='sub-text' size='xs'>
           {`on ${networkName}`}
         </RawText>
       </Flex>
@@ -43,7 +46,11 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   )
 }
 
-export const PositionTable = () => {
+type PositionTableProps = {
+  headerComponent?: (props: TableHeaderProps) => ReactNode
+}
+
+export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
@@ -86,7 +93,7 @@ export const PositionTable = () => {
         ),
       },
       {
-        Header: 'Claimable Rewards',
+        Header: 'Rewards',
         accessor: 'rewards',
         Cell: ({ row }: { row: RowProps }) => {
           const hasRewards = bnOrZero(row.original.rewards).gt(0)
@@ -101,6 +108,7 @@ export const PositionTable = () => {
         Header: () => null,
         id: 'expander',
         textAlign: 'right',
+        display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => (
           <Flex justifyContent='flex-end' width='full'>
             <IconButton
@@ -116,6 +124,30 @@ export const PositionTable = () => {
     ],
     [translate],
   )
+
+  const positionTableFilter = useCallback(
+    (rows: Row<AggregatedOpportunitiesByAssetIdReturn>[], _column: string[], filterValue: any) => {
+      if (filterValue === '' || filterValue === null || filterValue === undefined) return rows
+      if (typeof filterValue !== 'string') {
+        return []
+      }
+      const search = filterValue.trim().toLowerCase()
+      if (isEthAddress(filterValue)) {
+        return rows.filter(
+          row => fromAssetId(row.original.assetId).assetReference.toLowerCase() === filterValue,
+        )
+      }
+      const assetIds = rows.map(row => row.original.assetId)
+      const rowAssets = assets.filter(asset => assetIds.includes(asset.assetId))
+      const matchedAssets = matchSorter(rowAssets, search, { keys: ['name', 'symbol'] }).map(
+        asset => asset.assetId,
+      )
+      const results = rows.filter(row => matchedAssets.includes(row.original.assetId))
+      return results
+    },
+    [assets],
+  )
+
   return (
     <ReactTable
       onRowClick={row => row.toggleRowExpanded()}
@@ -123,7 +155,8 @@ export const PositionTable = () => {
       columns={columns}
       renderSubComponent={PositionDetails}
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-      customFilter={(rows, _columns, filterValue) => positionTableFilter(rows, filterValue, assets)}
+      customFilter={positionTableFilter}
+      renderHeader={headerComponent}
     />
   )
 }

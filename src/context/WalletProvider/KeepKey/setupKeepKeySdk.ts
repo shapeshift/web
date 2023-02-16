@@ -1,14 +1,14 @@
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 
 interface PairingInfo {
-  name: string,
-  imageUrl: string,
-  basePath: string,
-  url: string,
+  name: string
+  imageUrl: string
+  basePath: string
+  url: string
 }
 
 interface Config {
-  apiKey: string,
+  apiKey: string
   pairingInfo: PairingInfo
 }
 

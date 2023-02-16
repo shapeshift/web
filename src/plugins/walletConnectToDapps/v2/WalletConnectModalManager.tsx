@@ -48,8 +48,8 @@ export type WalletConnectSessionModalProps = {
 export type WalletConnectRequestModalProps<T> = {
   dispatch: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
-  onConfirm(): void
-  onReject(): void
+  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
+  onReject(): Promise<void>
 }
 
 const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState => {

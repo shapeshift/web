@@ -33,7 +33,5 @@ export const useWalletConnectState = (state: Required<WalletConnectState>) => {
 
   const isInteractingWithContract = useIsInteractingWithContract({ evmChainId: chainId, address })
 
-  // const defaultCustomTransactionData: CustomTransactionData = state
-
   return { isInteractingWithContract, address, transaction, message, method }
 }

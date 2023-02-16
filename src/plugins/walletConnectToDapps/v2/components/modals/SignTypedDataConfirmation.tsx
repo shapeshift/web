@@ -34,7 +34,13 @@ export const SignTypedDataConfirmation: FC<
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={handleConfirm}>
+        <Button
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          type='submit'
+          onClick={() => handleConfirm()}
+        >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={handleReject}>

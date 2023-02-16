@@ -20,6 +20,7 @@ import type {
   NarrowedSessionRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
+import { assertIsDefined } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveEIP155RequestArgs = {
@@ -27,7 +28,7 @@ type ApproveEIP155RequestArgs = {
   wallet: HDWallet
   chainAdapter: EvmBaseAdapter<EvmChainId>
   accountMetadata: AccountMetadata
-  customTransactionData: CustomTransactionData
+  customTransactionData?: CustomTransactionData
   accountId: AccountId
 }
 
@@ -77,6 +78,7 @@ export const approveEIP155Request = async ({
     }
 
     case EIP155_SigningMethod.ETH_SEND_TRANSACTION: {
+      assertIsDefined(customTransactionData)
       const sendTransaction = request.params[0]
       const maybeAdvancedParamsNonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)
@@ -109,6 +111,7 @@ export const approveEIP155Request = async ({
     }
 
     case EIP155_SigningMethod.ETH_SIGN_TRANSACTION: {
+      assertIsDefined(customTransactionData)
       const signTransaction = request.params[0]
       const nonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)

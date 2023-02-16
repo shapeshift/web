@@ -37,7 +37,13 @@ type DepositProps = {
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): { allocationFraction: string; shareOutAmountBaseUnit: string } | undefined
+  ):
+    | {
+        allocationFraction: string
+        shareOutAmountBaseUnit: string
+        shareOutAmountCryptoPrecision: string
+      }
+    | undefined
   // Validation rules for the crypto input
   cryptoInputValidation1?: ControllerProps['rules']
   cryptoInputValidation2?: ControllerProps['rules']
@@ -265,12 +271,12 @@ export const PairDepositWithAllocation = ({
       })
     }
     if (!calculateAllocations) return
-    ;(async () => {
-      const allocations = await calculateAllocations(selectedAsset, cryptoAmount.toString())
+    ;(() => {
+      const allocations = calculateAllocations(selectedAsset, cryptoAmount.toString())
       if (!allocations) return
 
       setValue(Field.AllocationFraction, allocations.allocationFraction)
-      setValue(Field.ShareOutAmount, allocations.shareOutAmountBaseUnit)
+      setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
     })()
   }
 

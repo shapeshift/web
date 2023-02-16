@@ -8,6 +8,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -33,6 +34,7 @@ type ProviderPositionProps = {
 export type RowProps = Row<LpEarnOpportunityType>
 
 export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
+  const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
   const {
@@ -179,24 +181,16 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
             <Button
               variant='ghost'
               size='sm'
-              colorScheme='green'
-              onClick={() => handleClick(row, DefiAction.Deposit)}
+              colorScheme='blue'
+              onClick={() => handleClick(row, DefiAction.Overview)}
             >
-              Deposit
-            </Button>
-            <Button
-              variant='ghost'
-              size='sm'
-              colorScheme='green'
-              onClick={() => handleClick(row, DefiAction.Withdraw)}
-            >
-              Withdraw
+              {translate('common.manage')}
             </Button>
           </Flex>
         ),
       },
     ],
-    [assetId, assets, handleClick, marketData],
+    [assetId, assets, handleClick, marketData, translate],
   )
 
   if (!filteredDown.length) return null

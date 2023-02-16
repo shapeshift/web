@@ -14,9 +14,12 @@ import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opport
 import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
+  selectAssetsByMarketCap,
   selectFeeAssetByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { positionTableFilter } from './utils'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
@@ -42,6 +45,7 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 
 export const PositionTable = () => {
   const translate = useTranslate()
+  const assets = useAppSelector(selectAssetsByMarketCap)
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -63,12 +67,14 @@ export const PositionTable = () => {
         Header: 'Total Value',
         id: 'fiatAmount',
         accessor: 'fiatAmount',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Amount.Fiat
-            color={bnOrZero(row.original.fiatAmount).gt(0) ? 'inherit' : 'gray.500'}
-            value={row.original.fiatAmount}
-          />
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
+          return hasValue ? (
+            <Amount.Fiat value={row.original.fiatAmount} />
+          ) : (
+            <RawText variant='sub-text'>-</RawText>
+          )
+        },
       },
       {
         Header: 'Net APY',
@@ -82,7 +88,14 @@ export const PositionTable = () => {
       {
         Header: 'Claimable Rewards',
         accessor: 'rewards',
-        Cell: ({ row }: { row: RowProps }) => <Amount.Fiat value={row.original.rewards} />,
+        Cell: ({ row }: { row: RowProps }) => {
+          const hasRewards = bnOrZero(row.original.rewards).gt(0)
+          return hasRewards ? (
+            <Amount.Fiat value={row.original.rewards} />
+          ) : (
+            <RawText variant='sub-text'>-</RawText>
+          )
+        },
       },
       {
         Header: () => null,
@@ -110,6 +123,7 @@ export const PositionTable = () => {
       columns={columns}
       renderSubComponent={PositionDetails}
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+      customFilter={(rows, _columns, filterValue) => positionTableFilter(rows, filterValue, assets)}
     />
   )
 }

@@ -59,10 +59,10 @@ export const TableStyle = {
     default: (props: Record<string, any>) => {
       return {
         table: {
-          '> :last-child tr:last-of-type td:first-of-type': {
+          '> :last-child > tr:last-of-type > td:first-of-type': {
             borderBottomLeftRadius: 'xl',
           },
-          '> :last-child tr:last-of-type td:last-of-type': {
+          '> :last-child > tr:last-of-type > td:last-of-type': {
             borderBottomRightRadius: 'xl',
           },
         },

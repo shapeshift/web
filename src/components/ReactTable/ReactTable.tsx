@@ -13,9 +13,11 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { Fragment, useMemo } from 'react'
-import type { Column, Row, TableState } from 'react-table'
-import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
+import type { Column, IdType, Row, TableState } from 'react-table'
+import { useExpanded, useGlobalFilter, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
+
+import { GlobalFilter } from './GlobalFilter'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -26,6 +28,7 @@ type ReactTableProps<T extends {}> = {
   onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
+  customFilter?: (rows: Row<T>[], columnIds: IdType<T>[], filterValue: any) => Row<T>[]
 }
 
 export const ReactTable = <T extends {}>({
@@ -37,6 +40,7 @@ export const ReactTable = <T extends {}>({
   onRowClick,
   initialState,
   renderSubComponent,
+  customFilter,
 }: ReactTableProps<T>) => {
   const hoverColor = useColorModeValue('black', 'white')
   const {
@@ -51,13 +55,16 @@ export const ReactTable = <T extends {}>({
     previousPage,
     canNextPage,
     canPreviousPage,
-    state: { pageIndex },
+    state: { pageIndex, globalFilter },
+    setGlobalFilter,
   } = useTable<T>(
     {
       columns,
       data,
       initialState,
+      globalFilter: customFilter ?? '',
     },
+    useGlobalFilter,
     useSortBy,
     useExpanded,
     usePagination,
@@ -110,65 +117,70 @@ export const ReactTable = <T extends {}>({
   ])
 
   return (
-    <Table variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
-      {displayHeaders && (
-        <Thead>
-          {headerGroups.map(headerGroup => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  color='gray.500'
-                  textAlign={column.textAlign}
-                  display={column.display}
-                  _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
-                >
-                  <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                    {column.render('Header')}
-                    <Flex>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <ArrowDownIcon ml={2} aria-label='sorted descending' />
-                        ) : (
-                          <ArrowUpIcon ml={2} aria-label='sorted ascending' />
-                        )
-                      ) : null}
+    <>
+      {customFilter && (
+        <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+      )}
+      <Table variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
+        {displayHeaders && (
+          <Thead>
+            {headerGroups.map(headerGroup => (
+              <Tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <Th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    color='gray.500'
+                    textAlign={column.textAlign}
+                    display={column.display}
+                    _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
+                  >
+                    <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                      {column.render('Header')}
+                      <Flex>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <ArrowDownIcon ml={2} aria-label='sorted descending' />
+                          ) : (
+                            <ArrowUpIcon ml={2} aria-label='sorted ascending' />
+                          )
+                        ) : null}
+                      </Flex>
                     </Flex>
-                  </Flex>
-                </Th>
-              ))}
+                  </Th>
+                ))}
+              </Tr>
+            ))}
+          </Thead>
+        )}
+        <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+        {(canNextPage || canPreviousPage) && (
+          <Tfoot>
+            <Tr>
+              <Td colSpan={visibleColumns.length} py={0}>
+                <Flex width='full' justifyContent='space-between' alignItems='center'>
+                  <IconButton
+                    icon={<ArrowBackIcon />}
+                    size='sm'
+                    isDisabled={!canPreviousPage}
+                    onClick={previousPage}
+                    variant='ghost'
+                    aria-label='Previous Page'
+                  />
+                  <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
+                  <IconButton
+                    icon={<ArrowForwardIcon />}
+                    size='sm'
+                    isDisabled={!canNextPage}
+                    onClick={nextPage}
+                    variant='ghost'
+                    aria-label='Next Page'
+                  />
+                </Flex>
+              </Td>
             </Tr>
-          ))}
-        </Thead>
-      )}
-      <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
-      {(canNextPage || canPreviousPage) && (
-        <Tfoot>
-          <Tr>
-            <Td colSpan={visibleColumns.length} py={0}>
-              <Flex width='full' justifyContent='space-between' alignItems='center'>
-                <IconButton
-                  icon={<ArrowBackIcon />}
-                  size='sm'
-                  isDisabled={!canPreviousPage}
-                  onClick={previousPage}
-                  variant='ghost'
-                  aria-label='Previous Page'
-                />
-                <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
-                <IconButton
-                  icon={<ArrowForwardIcon />}
-                  size='sm'
-                  isDisabled={!canNextPage}
-                  onClick={nextPage}
-                  variant='ghost'
-                  aria-label='Next Page'
-                />
-              </Flex>
-            </Td>
-          </Tr>
-        </Tfoot>
-      )}
-    </Table>
+          </Tfoot>
+        )}
+      </Table>
+    </>
   )
 }

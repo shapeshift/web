@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -26,6 +27,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
+  selectStakingOpportunitiesById,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -78,11 +80,20 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[stakingAssetId as StakingId],
+    [opportunitiesMetadata, stakingAssetId],
+  )
+
   const hasClaim = useAppSelector(state =>
     selectHasClaimByUserStakingId(state, opportunityDataFilter),
   )
 
-  const loaded = useMemo(() => Boolean(opportunityData), [opportunityData])
+  const loaded = useMemo(
+    () => Boolean(opportunityData || opportunitiesMetadata),
+    [opportunitiesMetadata, opportunityData],
+  )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
@@ -106,11 +117,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  if (!opportunityData) return null
-
   const claimDisabled = !hasClaim
 
-  if (!loaded || !opportunityData) {
+  if (!loaded) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -124,7 +133,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     return (
       <CosmosEmpty
         assets={[stakingAsset]}
-        apy={opportunityData?.apy ?? ''}
+        apy={opportunityMetadata?.apy ?? ''}
         onStakeClick={() =>
           history.push({
             pathname: location.pathname,

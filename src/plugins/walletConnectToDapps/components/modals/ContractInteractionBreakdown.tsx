@@ -1,12 +1,12 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import type { ParamType, TransactionDescription } from '@ethersproject/abi'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import startCase from 'lodash/startCase'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components/modals/ModalCollapsableSection'
 import { useGetAbi } from 'plugins/walletConnectToDapps/hooks/useGetAbi'
 import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
-import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import type { FC } from 'react'
 import { Fragment, useMemo } from 'react'
@@ -21,6 +21,7 @@ const moduleLogger = logger.child({ namespace: 'ContractInteractionBreakdown' })
 
 type ContractInteractionBreakdownProps = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
+  feeAsset: Asset | null
 }
 
 const EncodedText = ({ value }: { value: string }) => (
@@ -32,9 +33,9 @@ const EncodedText = ({ value }: { value: string }) => (
 
 export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps> = ({
   request,
+  feeAsset,
 }) => {
   // TODO(Q): this shouldn't be feeAsset, get the real asset from request
-  const { feeAsset } = useCallRequestFees(request)
   const contractInterface = useGetAbi(request)
 
   const transaction: TransactionDescription | undefined = useMemo(() => {

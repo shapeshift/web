@@ -37,8 +37,7 @@ export const TransactionConfirmation: FC<
   const { address, transaction, isInteractingWithContract, method } = useWalletConnectState(state)
   assertIsTransactionParams(transaction)
 
-  // // fixme - this is a V1 hook and doesn't work with V2
-  const { feeAsset, fees } = useCallRequestEvmFees(state)
+  const { feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
 
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
@@ -85,7 +84,7 @@ export const TransactionConfirmation: FC<
       {isInteractingWithContract ? (
         <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
           <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-            <ContractInteractionBreakdown request={transaction} />
+            <ContractInteractionBreakdown request={transaction} feeAsset={feeAsset} />
           </Card>
         </ModalSection>
       ) : (
@@ -97,14 +96,14 @@ export const TransactionConfirmation: FC<
         title={
           <HStack flex={1} justify='space-between'>
             <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-            <GasFeeEstimateLabel request={transaction} />
+            <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
           </HStack>
         }
         icon={<FaGasPump />}
         defaultOpen={false}
       >
         <Box pt={2}>
-          <GasInput request={transaction} />
+          <GasInput fees={fees} />
         </Box>
       </ModalCollapsableSection>
       <ModalCollapsableSection

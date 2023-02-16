@@ -33,7 +33,7 @@ type Props = {
 
 export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Props) => {
   const walletConnect = useWalletConnect()
-  const { feeAsset, fees } = useCallRequestFees(request)
+  const { feeAsset, fees, feeAssetPrice } = useCallRequestFees(request)
   const { isInteractingWithContract } = useIsInteractingWithContract({
     evmChainId: walletConnect.evmChainId,
     address: request.to,
@@ -87,7 +87,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
         {isInteractingWithContract ? (
           <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.title'>
             <Card bg={cardBg} borderRadius='md' px={4} py={2}>
-              <ContractInteractionBreakdown request={request} />
+              <ContractInteractionBreakdown request={request} feeAsset={feeAsset} />
             </Card>
           </ModalSection>
         ) : (
@@ -99,14 +99,14 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
           title={
             <HStack flex={1} justify='space-between'>
               <Text translation='plugins.walletConnectToDapps.modal.sendTransaction.estGasCost' />
-              <GasFeeEstimateLabel request={request} />
+              <GasFeeEstimateLabel fees={fees} feeAsset={feeAsset} feeAssetPrice={feeAssetPrice} />
             </HStack>
           }
           icon={<FaGasPump />}
           defaultOpen={false}
         >
           <Box pt={2}>
-            <GasInput request={request} />
+            <GasInput fees={fees} />
           </Box>
         </ModalCollapsableSection>
         <ModalCollapsableSection

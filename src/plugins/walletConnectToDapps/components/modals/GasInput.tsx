@@ -13,19 +13,18 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
-import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
 import type { FC } from 'react'
 import { Fragment, useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { getFeeTranslation } from 'components/Modals/Send/TxFeeRadioGroup'
+import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { RawText, Text } from 'components/Text'
 
 type GasInputProps = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
+  fees: FeePrice | undefined
 }
 
 type GasOption = {
@@ -36,8 +35,7 @@ type GasOption = {
   color: ThemeTypings['colorSchemes']
 }
 
-export const GasInput: FC<GasInputProps> = ({ request }) => {
-  const { fees } = useCallRequestFees(request)
+export const GasInput: FC<GasInputProps> = ({ fees }) => {
   const { control, setValue, register } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
 

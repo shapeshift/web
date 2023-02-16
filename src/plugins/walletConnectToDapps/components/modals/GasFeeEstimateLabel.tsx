@@ -1,20 +1,26 @@
 import { HStack } from '@chakra-ui/react'
-import type { WalletConnectEthSendTransactionCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
-import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
+import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-type Props = {
-  request: WalletConnectEthSendTransactionCallRequest['params'][number]
+type GasFeeEstimateLabelProps = {
+  fees: FeePrice | undefined
+  feeAsset: Asset | null
+  feeAssetPrice: string
 }
 
-export const GasFeeEstimateLabel = ({ request }: Props) => {
-  const { fees, feeAsset, feeAssetPrice } = useCallRequestFees(request)
+export const GasFeeEstimateLabel: FC<GasFeeEstimateLabelProps> = ({
+  fees,
+  feeAsset,
+  feeAssetPrice,
+}) => {
   const { control } = useFormContext<ConfirmData>()
   const speed = useWatch({ control, name: 'speed' })
   const gasLimit = useWatch({ control, name: 'gasLimit' })

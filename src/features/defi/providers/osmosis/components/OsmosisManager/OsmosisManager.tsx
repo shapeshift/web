@@ -12,12 +12,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { OsmosisLpDeposit } from './Lp/Deposit/OsmosisLpDeposit'
 import { OsmosisLpOverview } from './Lp/Overview/OsmosisLpOverview'
 import { OsmosisLpWithdraw } from './Lp/Withdraw/OsmosisLpWithdraw'
-import { OsmosisStakingClaim } from './Staking/Claim/OsmosisStakingClaim'
-import { OsmosisStakingDeposit } from './Staking/Deposit/OsmosisStakingDeposit'
-import { OsmosisStakingOverview } from './Staking/Overview/OsmosisStakingOverview'
-import { OsmosisStakingWithdraw } from './Staking/Withdraw/OsmosisStakingWithdraw'
 
-type SupportedDefiType = DefiType.LiquidityPool | DefiType.Staking
+// TODO(gomes): Rename this whole domain. This is really `OsmosisLpManager`, there's nothing staking here
+type SupportedDefiType = DefiType.LiquidityPool
 type SupportedDefiAction = DefiAction.Overview | DefiAction.Deposit | DefiAction.Withdraw
 
 /** TODO(pastaghost): Move component lookup logic below into a function or hook that accepts chainId, type, and action arguments.
@@ -29,16 +26,10 @@ const componentMapByTypeAndAction = {
     [DefiAction.Overview]: OsmosisLpOverview,
     [DefiAction.Withdraw]: OsmosisLpWithdraw,
   },
-  [DefiType.Staking]: {
-    [DefiAction.Claim]: OsmosisStakingClaim,
-    [DefiAction.Deposit]: OsmosisStakingDeposit,
-    [DefiAction.GetStarted]: OsmosisStakingOverview,
-    [DefiAction.Overview]: OsmosisStakingOverview,
-    [DefiAction.Withdraw]: OsmosisStakingWithdraw,
-  },
 }
 
 const getComponentByTypeAndAction = (type: DefiType | string, action: DefiAction | string) => {
+  if (type === DefiType.Staking) return // This should never be hit. We use CosmosManager for cosmos-sdk staking
   return componentMapByTypeAndAction[type as SupportedDefiType][action as SupportedDefiAction]
 }
 

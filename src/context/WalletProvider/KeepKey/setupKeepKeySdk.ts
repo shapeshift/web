@@ -1,8 +1,20 @@
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 
+interface PairingInfo {
+  name: string,
+  imageUrl: string,
+  basePath: string,
+  url: string,
+}
+
+interface Config {
+  apiKey: string,
+  pairingInfo: PairingInfo
+}
+
 export const setupKeepKeySDK = async () => {
-  const serviceKey = window.localStorage.getItem('@app/serviceKey')
-  let config: any = {
+  const serviceKey = window.localStorage.getItem('@app/serviceKey') || 'notSet'
+  let config: Config = {
     apiKey: serviceKey,
     pairingInfo: {
       name: 'ShapeShift',

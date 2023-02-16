@@ -1,4 +1,5 @@
 import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
+import IdleFinanceLogo from 'assets/idle-finance.png'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -20,13 +21,13 @@ export enum DefiProvider {
 export const DefiProviderMetadata = {
   [DefiProvider.Idle]: {
     type: DefiProvider.Idle,
-    icon: 'https://assets.coingecko.com/coins/images/13286/thumb/image.png?1655284075',
-    name: 'Cosmos SDK Staking',
+    icon: IdleFinanceLogo,
+    name: 'Idle Finance',
   },
   [DefiProvider.Yearn]: {
     type: DefiProvider.Yearn,
     icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo.png',
-    name: 'Idle Finance',
+    name: 'Yearn Finance',
   },
   [DefiProvider.ShapeShift]: {
     type: DefiProvider.ShapeShift,

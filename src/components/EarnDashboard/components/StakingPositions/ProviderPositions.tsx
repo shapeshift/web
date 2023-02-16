@@ -152,19 +152,24 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
       {
         Header: 'Total Value',
         accessor: 'fiatAmount',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex flexDir='column'>
-            <Amount.Fiat value={row.original.fiatAmount} />
-            <Amount.Crypto
-              variant='sub-text'
-              size='xs'
-              value={bnOrZero(row.original.cryptoAmountBaseUnit)
-                .div(bnOrZero(10).pow(assets[assetId]?.precision ?? 0))
-                .toString()}
-              symbol={assets[assetId]?.symbol ?? ''}
-            />
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
+          return hasValue ? (
+            <Flex flexDir='column'>
+              <Amount.Fiat value={row.original.fiatAmount} />
+              <Amount.Crypto
+                variant='sub-text'
+                size='xs'
+                value={bnOrZero(row.original.cryptoAmountBaseUnit)
+                  .div(bnOrZero(10).pow(assets[assetId]?.precision ?? 0))
+                  .toString()}
+                symbol={assets[assetId]?.symbol ?? ''}
+              />
+            </Flex>
+          ) : (
+            <RawText variant='sub-text'>-</RawText>
+          )
+        },
       },
       {
         Header: 'APY',
@@ -197,7 +202,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
               <Amount.Fiat value={fiatAmount} />
             </Button>
           ) : (
-            <RawText color='gray.500'>-</RawText>
+            <RawText variant='sub-text'>-</RawText>
           )
         },
         sortType: (a: RowProps, b: RowProps): number => {

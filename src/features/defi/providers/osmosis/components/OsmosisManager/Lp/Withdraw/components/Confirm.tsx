@@ -288,7 +288,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedFeeCryptoBaseUnit).toFixed(5)}
+                value={bnOrZero(state?.withdraw.estimatedFeeCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset?.precision ?? '0'))
+                  .toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

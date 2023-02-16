@@ -67,12 +67,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
             { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: `${opportunityApy}%` },
           ]}
         />
-        <Button
-          width='full'
-          colorScheme='blue'
-          mt='auto'
-          onClick={() => onClick((opportunity.id ?? opportunity.assetId) as OpportunityId)}
-        >
+        <Button width='full' colorScheme='blue' mt='auto' onClick={() => onClick(opportunity.id)}>
           {translate(cta)}
         </Button>
       </Card.Body>

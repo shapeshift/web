@@ -75,6 +75,7 @@ export interface SupportedWalletInfo {
   routes: RouteProps[]
   connectedWalletMenuRoutes?: RouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
+  connectedMenuComponent?: React.ComponentType<any>
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
@@ -93,8 +94,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       // WalletProvider.create looks for the first path that ends in "create"
       { path: '/mobile/legacy/create', component: MobileLegacyCreate },
     ],
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+    connectedMenuComponent: NativeMenu,
   },
   [KeyManager.Native]: {
     ...NativeConfig,
@@ -111,8 +111,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/legacy/login', component: NativeLegacyLogin },
       { path: '/native/legacy/login/success', component: NativeLegacySuccess },
     ],
-    connectedWalletMenuRoutes: [{ path: WalletConnectedRoutes.Native, component: NativeMenu }],
-    connectedWalletMenuInitialPath: WalletConnectedRoutes.Native,
+    connectedMenuComponent: NativeMenu,
   },
   [KeyManager.KeepKey]: {
     ...KeepKeyConfig,

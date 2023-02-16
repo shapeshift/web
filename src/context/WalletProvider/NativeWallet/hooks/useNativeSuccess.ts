@@ -10,6 +10,8 @@ import {
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from 'state/store'
 
 import { NativeConfig } from '../config'
 
@@ -19,6 +21,8 @@ export type UseNativeSuccessPropTypes = { vault: Vault }
 
 export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
+  const appDispatch = useAppDispatch()
+  const { setWelcomeModal } = preferences.actions
   const { state, dispatch } = useWallet()
 
   useEffect(() => {
@@ -50,6 +54,8 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
+        //Set to show the native onboarding
+        appDispatch(setWelcomeModal({ show: true }))
       } catch (error) {
         moduleLogger.error(error, 'Failed to load device')
         setIsSuccessful(false)

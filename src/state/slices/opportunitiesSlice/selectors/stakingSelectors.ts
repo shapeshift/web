@@ -499,6 +499,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               if (isFoxEthStakingAssetId(opportunity.assetId))
                 return {
                   rewardAddress: fromAssetId(foxAssetId).assetReference,
+                  contractAddress: fromAssetId(opportunity.id).assetReference,
                 }
 
               if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference))
@@ -626,7 +627,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
       if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
       return acc
     }, [])
-    return eligibleOpportunities
+    return uniqBy(eligibleOpportunities, 'id')
   },
 )
 

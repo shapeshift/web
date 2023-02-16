@@ -37,7 +37,13 @@ type DepositProps = {
   calculateAllocations?(
     asset: Asset,
     amount: string,
-  ): { allocationFraction: string; shareOutAmountBaseUnit: string } | undefined
+  ):
+    | {
+        allocationFraction: string
+        shareOutAmountBaseUnit: string
+        shareOutAmountCryptoPrecision: string
+      }
+    | undefined
   // Validation rules for the crypto input
   cryptoInputValidation1?: ControllerProps['rules']
   cryptoInputValidation2?: ControllerProps['rules']
@@ -197,16 +203,27 @@ export const PairDepositWithAllocation = ({
     const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
     const otherCryptoInput = !isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
     const otherAssetMarketData = !isForAsset1 ? asset1MarketData : asset2MarketData
+    const otherAsset = !isForAsset1 ? asset1 : asset2
     if (isFiat) {
       setValue(fiatField, value, { shouldValidate: true })
-      setValue(cryptoField, bnOrZero(value).div(assetMarketData.price).toString(), {
-        shouldValidate: true,
-      })
+      setValue(
+        cryptoField,
+        bnOrZero(value).div(assetMarketData.price).toFixed(selectedAsset.precision),
+        {
+          shouldValidate: true,
+        },
+      )
       if (syncPair) {
         setValue(otherFiatInput, value, { shouldValidate: true })
-        setValue(otherCryptoInput, bnOrZero(value).div(otherAssetMarketData.price).toString(), {
-          shouldValidate: true,
-        })
+        setValue(
+          otherCryptoInput,
+          value
+            ? bnOrZero(value).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
+            : '',
+          {
+            shouldValidate: true,
+          },
+        )
       }
     } else {
       setValue(fiatField, bnOrZero(value).times(assetMarketData.price).toString(), {
@@ -220,9 +237,15 @@ export const PairDepositWithAllocation = ({
         setValue(otherFiatInput, fiatValue, {
           shouldValidate: true,
         })
-        setValue(otherCryptoInput, bnOrZero(fiatValue).div(otherAssetMarketData.price).toString(), {
-          shouldValidate: true,
-        })
+        setValue(
+          otherCryptoInput,
+          value
+            ? bnOrZero(fiatValue).div(otherAssetMarketData.price).toFixed(otherAsset.precision)
+            : '',
+          {
+            shouldValidate: true,
+          },
+        )
       }
     }
     if (!calculateAllocations) return
@@ -231,7 +254,7 @@ export const PairDepositWithAllocation = ({
     if (!allocations) return
 
     setValue(Field.AllocationFraction, allocations.allocationFraction)
-    setValue(Field.ShareOutAmount, allocations.shareOutAmountBaseUnit)
+    setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
   }
 
   const handlePercentClick = (percent: number, isForAsset1: boolean) => {
@@ -265,12 +288,12 @@ export const PairDepositWithAllocation = ({
       })
     }
     if (!calculateAllocations) return
-    ;(async () => {
-      const allocations = await calculateAllocations(selectedAsset, cryptoAmount.toString())
+    ;(() => {
+      const allocations = calculateAllocations(selectedAsset, cryptoAmount.toString())
       if (!allocations) return
 
       setValue(Field.AllocationFraction, allocations.allocationFraction)
-      setValue(Field.ShareOutAmount, allocations.shareOutAmountBaseUnit)
+      setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
     })()
   }
 

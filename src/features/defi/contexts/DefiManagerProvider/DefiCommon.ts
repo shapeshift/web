@@ -40,6 +40,7 @@ export type DefiParams = {
 }
 
 export type DefiQueryParams = {
+  accountId?: AccountId
   defaultAccountId?: AccountId
   chainId: ChainId
   highestBalanceAccountAddress?: string

@@ -29,12 +29,17 @@ export const WalletConnectedMenu = ({
     () => type && SUPPORTED_WALLETS[type].connectedWalletMenuRoutes,
     [type],
   )
+  const ConnectMenuComponent = useMemo(
+    () => type && SUPPORTED_WALLETS[type].connectedMenuComponent,
+    [type],
+  )
 
   const ConnectedMenu = () => {
     return (
       <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
         <MenuItem
           closeOnSelect={!connectedWalletMenuRoutes}
+          isDisabled={!connectedWalletMenuRoutes}
           onClick={
             connectedWalletMenuRoutes
               ? () =>
@@ -58,6 +63,7 @@ export const WalletConnectedMenu = ({
             {connectedWalletMenuRoutes && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
+        {ConnectMenuComponent && <ConnectMenuComponent />}
         <MenuDivider />
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}

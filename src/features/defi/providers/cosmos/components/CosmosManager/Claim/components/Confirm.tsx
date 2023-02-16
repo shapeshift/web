@@ -1,6 +1,6 @@
 import { Button, Link, Skeleton, SkeletonText, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -176,7 +176,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset.explorerAddressLink}${accountId ?? state.userAddress}`}
+                href={`${asset.explorerAddressLink}${
+                  accountId ? fromAccountId(accountId).account : state.userAddress
+                }`}
               >
                 {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
               </Link>

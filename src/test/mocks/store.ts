@@ -65,6 +65,7 @@ export const mockStore: ReduxState = {
       SaversVaults: false,
       Yearn: false,
       ArkeoAirdrop: false,
+      TradeRates: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

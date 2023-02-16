@@ -1,8 +1,7 @@
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
 import type { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
-import { Link, useColorModeValue } from '@chakra-ui/react'
+import { Link, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { ThemeTypings } from '@chakra-ui/styled-system'
 import type { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -59,19 +58,20 @@ export const ExpandedMenuItem = ({
       display='flex'
       alignItems='center'
       px={3}
+      flex={1}
       closeOnSelect={!hasSubmenu}
       isDisabled={isDisabled}
       style={isDisabled ? disabledStyleOverride : undefined}
       {...props}
     >
       <Text flex={1} translation={label} />
-      <RawText ml={3} color={valueColor}>
+      <RawText ml={3} color={valueColor} fontSize='xs'>
         {value}
       </RawText>
       {badge && (
-        <Badge ml={2} p={1} borderRadius='lg' colorScheme={badgeColor} fontWeight='semibold'>
+        <Tag ml={2} size='sm' borderRadius='lg' colorScheme={badgeColor}>
           {badge}
-        </Badge>
+        </Tag>
       )}
       {hasSubmenu &&
         (isOpen ? (
@@ -84,7 +84,7 @@ export const ExpandedMenuItem = ({
   )
 
   return externalUrl && !isDisabled ? (
-    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }}>
+    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }} display='flex'>
       {expandedMenuItem}
     </Link>
   ) : (

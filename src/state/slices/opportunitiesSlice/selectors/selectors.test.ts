@@ -84,14 +84,17 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
+          userStakingId: serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '9000',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
@@ -187,10 +190,12 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
@@ -215,6 +220,7 @@ describe('opportunitiesSlice selectors', () => {
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         id: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        userStakingId: 'eip155:1:0xgomes*eip155:1:0xStakingContractTwo',
         name: 'FOX Farming',
         provider: DefiProvider.FoxFarming,
         rewardsAmountsCryptoBaseUnit: ['420000000000000000000'],
@@ -236,6 +242,7 @@ describe('opportunitiesSlice selectors', () => {
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         id: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
+        userStakingId: 'eip155:1:0xgomes*eip155:1:0xStakingContractOne',
         name: 'FOX Farming',
         provider: DefiProvider.FoxFarming,
         stakedAmountCryptoBaseUnit: '4',
@@ -282,14 +289,17 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
+          userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '100',
           rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
         },
@@ -358,6 +368,7 @@ describe('opportunitiesSlice selectors', () => {
           apy: '1000',
           assetId: mockStakingContractTwo,
           id: mockStakingContractTwo,
+          userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xStakingContractTwo',
           name: 'FOX Farming',
           provider: DefiProvider.FoxFarming,
           tvl: '91283233211',

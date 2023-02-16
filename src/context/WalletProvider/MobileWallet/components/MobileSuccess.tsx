@@ -10,6 +10,8 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from 'state/store'
 
 import { MobileConfig, mobileLogger } from '../config'
 import type { MobileSetupProps } from '../types'
@@ -19,6 +21,8 @@ const moduleLogger = mobileLogger.child({
 })
 
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
+  const appDispatch = useAppDispatch()
+  const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const { state, dispatch } = useWallet()
   const { vault } = location.state
@@ -49,6 +53,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           setLocalNativeWalletName(walletLabel)
+          appDispatch(setWelcomeModal({ show: true }))
           return setIsSuccessful(true)
         }
       } catch (e) {
@@ -62,7 +67,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       // Make sure the component is completely unmounted before we revoke the mnemonic
       setTimeout(() => vault?.revoke(), 500)
     }
-  }, [dispatch, setIsSuccessful, state.adapters, vault])
+  }, [appDispatch, dispatch, setIsSuccessful, setWelcomeModal, state.adapters, vault])
 
   return (
     <>

@@ -142,3 +142,17 @@ export const isActiveStakingEarnOpportunity = (
   earnUserStakingOpportunity: StakingEarnOpportunityType,
 ): boolean => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
 export const isFoxEthStakingAssetId = (assetId: AssetId) => foxEthAssetIds.includes(assetId)
+
+// Returns either
+// - underlying asset icons
+// - opportunity metadata icon e.g the Cosmos SDK validator icon
+export const makeOpportunityIcons = ({
+  opportunity,
+  assets,
+}: {
+  opportunity: OpportunityMetadataBase | UserStakingOpportunityWithMetadata
+  assets: Partial<Record<AssetId, Asset>>
+}) =>
+  opportunity.icon
+    ? [opportunity.icon]
+    : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')

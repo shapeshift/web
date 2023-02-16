@@ -20,9 +20,14 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeOpportunityIcons,
+  serializeUserStakingId,
+  toValidatorId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -79,6 +84,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const opportunityData = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
+  const assets = useAppSelector(selectAssets)
 
   const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
   const opportunityMetadata = useMemo(
@@ -164,6 +170,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
       name={opportunityData.name!}
+      icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={[
         {

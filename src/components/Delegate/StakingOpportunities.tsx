@@ -3,7 +3,6 @@ import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { chainIdToLabel } from 'features/defi/helpers/utils'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -110,13 +109,12 @@ export const StakingOpportunities = ({
   const handleClick = useCallback(
     (values: Row<UserStakingOpportunityWithMetadata>) => {
       const { chainId, assetReference, assetNamespace } = fromAssetId(assetId)
-      const provider = chainIdToLabel(chainId)
       const { account: validatorAddress } = fromAccountId(values.original.id)
       const [opportunityAccountId] = deserializeUserStakingId(values.original.userStakingId)
       history.push({
         search: qs.stringify({
           accountId: routeAccountId ?? opportunityAccountId,
-          provider,
+          provider: DefiProvider.Cosmos,
           chainId,
           contractAddress: validatorAddress,
           assetReference,

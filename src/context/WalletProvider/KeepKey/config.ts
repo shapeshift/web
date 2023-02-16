@@ -4,6 +4,7 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const KeepKeyConfig: Omit<SupportedWalletInfo, 'routes'> = {
+  //Allow multiple transports per wallet. order is in first attempt priority, with fail over to next transport
   adapter: [KkRestAdapter, WebUSBKeepKeyAdapter],
   icon: KeepKeyIcon,
   name: 'KeepKey',

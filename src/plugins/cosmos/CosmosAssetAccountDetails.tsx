@@ -5,9 +5,9 @@ import { useMemo } from 'react'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
-import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
+import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { getDefaultAssetIdPairByChainId } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { selectFeatureFlags } from 'state/slices/selectors'
@@ -44,7 +44,7 @@ export const CosmosAssetAccountDetails = ({ assetId, chainId, accountId }: Asset
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <AssetAccounts assetId={assetId} accountId={accountId} />
           {supportsStaking(fromAssetId(assetId).chainId) && (
-            <StakingOpportunities accountId={accountId} assetId={assetId} />
+            <EarnOpportunities assetId={assetId} accountId={accountId} />
           )}
           <AssetTransactionHistory assetId={assetId} accountId={accountId} />
         </Stack>

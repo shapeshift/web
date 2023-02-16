@@ -24,7 +24,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { walletCanEditMemo } from 'lib/utils'
 import {
@@ -121,9 +121,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(bn(10).pow(asset?.precision)).toString(),
+          fee: bnOrZero(gasPrice)
+            .times(bn(10).pow(asset?.precision))
+            .toFixed(0, BigNumber.ROUND_DOWN),
         },
-        value: bnOrZero(state.withdraw.cryptoAmount).times(bn(10).pow(asset.precision)).toString(),
+        value: bnOrZero(state.withdraw.cryptoAmount)
+          .times(bn(10).pow(asset.precision))
+          .toFixed(0, BigNumber.ROUND_DOWN),
         action: StakingAction.Unstake,
       })
 

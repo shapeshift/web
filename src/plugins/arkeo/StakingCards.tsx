@@ -35,14 +35,12 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
   )
 
   const filteredOpportunities = stakingOpportunities
-    .filter(opportunity => ids.includes(opportunity.assetId as OpportunityId))
+    .filter(opportunity => ids.includes(opportunity.id))
     .filter(opportunity => opportunity.provider !== DefiProvider.ThorchainSavers)
 
   const handleClick = useCallback(
     (opportunityId: OpportunityId) => {
-      const opportunity = stakingOpportunities.find(
-        opportunity => opportunity.assetId === opportunityId,
-      )
+      const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
       if (!opportunity) return
       const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
@@ -77,7 +75,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
 
   const renderItems = useMemo(() => {
     return filteredOpportunities.map(opportunity => (
-      <StakingCard onClick={handleClick} key={opportunity.assetId} {...opportunity} />
+      <StakingCard onClick={handleClick} key={opportunity.id} {...opportunity} />
     ))
   }, [filteredOpportunities, handleClick])
   return <>{renderItems}</>

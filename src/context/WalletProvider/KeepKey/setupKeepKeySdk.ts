@@ -1,7 +1,7 @@
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 
 export const setupKeepKeySDK = async () => {
-  let serviceKey = window.localStorage.getItem('@app/serviceKey')
+  const serviceKey = window.localStorage.getItem('@app/serviceKey')
   let config: any = {
     apiKey: serviceKey,
     pairingInfo: {
@@ -11,7 +11,7 @@ export const setupKeepKeySDK = async () => {
       url: 'https://app.shapeshift.com',
     },
   }
-  let sdk = await KeepKeySdk.create(config)
+  const sdk = await KeepKeySdk.create(config)
 
   if (!serviceKey) {
     window.localStorage.setItem('@app/serviceKey', config.apiKey)

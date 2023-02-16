@@ -9,7 +9,8 @@ import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
-import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
+import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/v2/hooks/useCallRequestEvmFees'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
@@ -19,7 +20,6 @@ import {
   assertIsTransactionParams,
   EIP155_SigningMethod,
 } from 'plugins/walletConnectToDapps/v2/types'
-import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/utils/useWalletConnectState'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -38,7 +38,7 @@ export const TransactionConfirmation: FC<
   assertIsTransactionParams(transaction)
 
   // // fixme - this is a V1 hook and doesn't work with V2
-  const { feeAsset, fees } = useCallRequestFees(transaction)
+  const { feeAsset, fees } = useCallRequestEvmFees(state)
 
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')

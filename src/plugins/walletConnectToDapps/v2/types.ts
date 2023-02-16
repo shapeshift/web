@@ -160,11 +160,11 @@ export const isTransactionRequest = (
   )
 
 export const isTransactionParams = (
-  transaction: TransactionParams | string,
+  transaction: TransactionParams | string | undefined,
 ): transaction is TransactionParams => typeof transaction !== 'string'
 
 export const assertIsTransactionParams: (
-  transaction: TransactionParams | string,
+  transaction: TransactionParams | string | undefined,
 ) => asserts transaction is TransactionParams = getTypeGuardAssertion(
   isTransactionParams,
   'Transaction has no transaction params',

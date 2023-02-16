@@ -2,14 +2,11 @@ import { Modal, ModalContent } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
-import {
-  extractConnectedAccounts,
-  getWalletAccountFromParams,
-} from 'plugins/walletConnectToDapps/utils'
 import { SessionProposalModal } from 'plugins/walletConnectToDapps/v2/components/modals/SessionProposal'
 import { SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/SignMessageConfirmation'
 import { SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/SignTypedDataConfirmation'
 import { TransactionConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/TransactionConfirmation'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
@@ -28,11 +25,8 @@ import {
 import type { Dispatch, FC } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
-import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 type SessionProposalState = Required<Omit<WalletConnectState, 'session'>> & {
@@ -60,17 +54,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   state,
   dispatch,
 }) => {
-  const { activeModal, web3wallet, session } = state
   const wallet = useWallet().state.wallet
-  const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
+  const { chainAdapter, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
+
+  const { activeModal, web3wallet } = state
 
   const handleClose = () => dispatch({ type: WalletConnectActionType.CLEAR_MODAL })
-  const requestEvent = state.modalData?.requestEvent
-  const connectedAccounts = extractConnectedAccounts(session)
-  const accountId = getWalletAccountFromParams(connectedAccounts, requestEvent?.params)
-  const accountMetadata = accountMetadataById[accountId]
-  const chainId = requestEvent?.params.chainId
-  const chainAdapter = chainId && getChainAdapterManager().get(chainId)
 
   const handleConfirmEIP155Request = async (customTransactionData?: CustomTransactionData) => {
     if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return

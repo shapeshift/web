@@ -27,7 +27,6 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import { colors } from 'theme/colors'
 
 const CryptoInput = (props: InputProps) => {
@@ -106,7 +105,7 @@ export const Allocation: React.FC<AllocationProps> = ({
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
   const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
     ? cryptoAmount
-    : bnOrZero(cryptoAmount).toExponential(OSMOSIS_PRECISION)
+    : bnOrZero(cryptoAmount).toFixed(3)
   const formattedAllocationFraction = bnOrZero(allocationFraction).multipliedBy(bn(100)).toFixed(5)
 
   return (

@@ -114,10 +114,22 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
         const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
 
+        const cosmostationChainName = (() => {
+          switch (chainId) {
+            case cosmosChainId:
+              return 'cosmoshub'
+            case osmosisChainId:
+              return 'osmosis'
+            default:
+              return ''
+          }
+        })()
+
         return {
           validatorId,
           id: validatorId,
           apy: data.apr,
+          icon: `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`,
           tvl: bnOrZero(data.tokens)
             .div(bn(10).pow(asset.precision))
             .times(bnOrZero(marketData?.price))

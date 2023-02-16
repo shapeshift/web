@@ -38,7 +38,7 @@ import { useAppSelector } from 'state/store'
 import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
 import { WithdrawContext } from '../LpWithdrawContext'
 
-const DEFAULT_SLIPPAGE = '0.0025' // Allow for 0.25% slippage. TODO:(pastaghost) is there a better way to do this?
+const DEFAULT_SLIPPAGE = '0.025' // Allow for 2.5% slippage. TODO:(pastaghost) is there a better way to do this?
 
 const moduleLogger = logger.child({
   namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
@@ -232,6 +232,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
     .toString()
 
+  if (!(feeAsset && lpAsset)) return null
+
   return (
     <ReusableConfirm
       onCancel={handleCancel}
@@ -281,11 +283,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedFeeCryptoBaseUnit)
                   .times(feeMarketData.price)
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedFeeCryptoBaseUnit).toFixed(5)}
+                value={bnOrZero(state?.withdraw.estimatedFeeCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset?.precision ?? '0'))
+                  .toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

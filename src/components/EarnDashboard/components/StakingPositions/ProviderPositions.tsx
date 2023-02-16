@@ -133,7 +133,11 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           if (row.original.version) subText.push(row.original.version)
           return (
             <Flex gap={4} alignItems='center'>
-              <Avatar size='sm' src={DefiProviderMetadata[row.original.provider].icon} />
+              <Avatar
+                bg='transparent'
+                size='sm'
+                src={DefiProviderMetadata[row.original.provider].icon}
+              />
               <Flex flexDir='column'>
                 <RawText>{row.original.opportunityName}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>

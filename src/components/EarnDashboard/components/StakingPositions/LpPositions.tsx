@@ -11,7 +11,6 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -99,14 +98,14 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         Header: 'Liquidity Pool',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
-          const providerIcon = DefiProviderMetadata[row.original.provider]
+          const providerIcon = DefiProviderMetadata[row.original.provider].icon
           return (
             <Flex alignItems='center' gap={4}>
               <Flex>
                 {/* {row.original.underlyingAssetIds.map(assetId => (
                   <AssetIcon key={assetId} assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
                 ))} */}
-                <Avatar size='sm' src={providerIcon} />
+                <Avatar bg='transparent' size='sm' src={providerIcon} />
               </Flex>
               <Flex flexDir='column'>
                 <RawText>{row.original.opportunityName}</RawText>

@@ -1,3 +1,4 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { BN } from '@shapeshiftoss/investor-foxy'
@@ -12,6 +13,7 @@ import type {
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type {
   OpportunityId,
+  OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -98,3 +100,17 @@ export const isActiveStakingEarnOpportunity = (
   earnUserStakingOpportunity: StakingEarnOpportunityType,
 ): boolean => isActiveStakingOpportunity(earnUserStakingOpportunity as UserStakingOpportunity)
 export const isFoxEthStakingAssetId = (assetId: AssetId) => foxEthAssetIds.includes(assetId)
+
+// Returns either
+// - underlying asset icons
+// - opportunity metadata icon e.g the Cosmos SDK validator icon
+export const makeOpportunityIcons = ({
+  opportunity,
+  assets,
+}: {
+  opportunity: OpportunityMetadata | UserStakingOpportunityWithMetadata
+  assets: Partial<Record<AssetId, Asset>>
+}) =>
+  opportunity.icon
+    ? [opportunity.icon]
+    : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')

@@ -27,14 +27,14 @@ export interface ModalData<T = WalletConnectRequest> {
   request?: Web3WalletTypes.AuthRequest
 }
 
-export type WalletConnectState<T = WalletConnectRequest> = Partial<{
-  core: ICore
-  web3wallet: IWeb3Wallet
-  pair: (params: { uri: string }) => Promise<PairingTypes.Struct>
-  modalData: ModalData<T>
-  activeModal: WalletConnectModal
-  session: SessionTypes.Struct
-}>
+export type WalletConnectState<T = WalletConnectRequest> = {
+  core?: ICore
+  web3wallet?: IWeb3Wallet
+  pair?: (params: { uri: string }) => Promise<PairingTypes.Struct>
+  modalData?: ModalData<T>
+  activeModal?: WalletConnectModal
+  session?: SessionTypes.Struct
+}
 
 export enum WalletConnectActionType {
   SET_MODAL = 'SET_MODAL',

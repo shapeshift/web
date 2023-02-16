@@ -83,12 +83,10 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   )
 
   const handleApprove = useCallback(async () => {
-    console.log('xxx handleApprove', { approvalNamespaces, proposal })
     const session = await web3wallet?.approveSession({
       id: proposal.id,
       namespaces: approvalNamespaces,
     })
-    console.log('xxx session', session)
     dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
     handleClose()
   }, [approvalNamespaces, dispatch, handleClose, proposal, web3wallet])

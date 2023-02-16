@@ -2,12 +2,8 @@ import { Box, Button, Divider, HStack, Image, useColorModeValue, VStack } from '
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import {
-  extractConnectedAccounts,
-  getSignParamsMessage,
-  getWalletAddressFromParams,
-} from 'plugins/walletConnectToDapps/utils'
 import type { EthSignCallRequest } from 'plugins/walletConnectToDapps/v2/types'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/utils/useWalletConnectState'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,31 +11,17 @@ import { Card } from 'components/Card/Card'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertIsDefined } from 'lib/utils'
 
 export const SignMessageConfirmationModal: FC<
   WalletConnectRequestModalProps<EthSignCallRequest>
-> = ({
-  onConfirm: handleConfirm,
-  onReject: handleReject,
-  state: {
-    modalData: { requestEvent },
-    session,
-  },
-}) => {
-  assertIsDefined(requestEvent)
+> = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
+  const { address, message } = useWalletConnectState(state)
+  const peerMetadata = state.session.peer.metadata
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
   const WalletIcon = walletInfo?.icon ?? FoxIcon
   const cardBg = useColorModeValue('white', 'gray.850')
-
-  const { params } = requestEvent
-  const { request } = params
-
-  const connectedAccounts = extractConnectedAccounts(session)
-  const address = getWalletAddressFromParams(connectedAccounts, params)
-  const message = getSignParamsMessage(request.params)
 
   return (
     <>
@@ -49,14 +31,11 @@ export const SignMessageConfirmationModal: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>
           <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={session.peer.metadata.icons[0]} />
+            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons[0]} />
             <RawText fontWeight='semibold' flex={1}>
-              {session.peer.metadata.name}
+              {peerMetadata.name}
             </RawText>
-            <ExternalLinkButton
-              href={session.peer.metadata.url}
-              ariaLabel={session.peer.metadata.name}
-            />
+            <ExternalLinkButton href={peerMetadata.url} ariaLabel={peerMetadata.name} />
           </HStack>
           <Divider />
           <Box p={4}>

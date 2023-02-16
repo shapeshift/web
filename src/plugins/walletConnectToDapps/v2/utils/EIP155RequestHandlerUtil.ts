@@ -37,6 +37,7 @@ function assertSupportsEthSignTypedData(
   if (!(wallet as KeepKeyHDWallet | NativeHDWallet).ethSignTypedData)
     throw new Error('approveEIP155Request: ethSignTypedData not supported')
 }
+
 export const approveEIP155Request = async ({
   requestEvent,
   wallet,

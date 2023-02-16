@@ -4,6 +4,7 @@ import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type { Dispatch } from 'react'
+import { getTypeGuardAssertion } from 'lib/utils'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -98,10 +99,13 @@ export type TransactionParams = {
 }
 
 // Overwrite Web3WalletTypes.SessionRequest to narrow chainId and request params
-export type NarrowedSessionRequest<T = WalletConnectRequest> = Web3WalletTypes.SessionRequest & {
-  chainId: ChainId
-  request: {
-    params: T
+export type NarrowedSessionRequest<T = WalletConnectRequest> = Omit<
+  Web3WalletTypes.SessionRequest,
+  'params'
+> & {
+  params: {
+    chainId: ChainId
+    request: T
   }
 }
 
@@ -133,3 +137,35 @@ export type WalletConnectRequest =
   | EthSignCallRequest
   | EthSignTypedDataCallRequest
   | EthSendTransactionCallRequest
+
+export const isSignRequest = (
+  request: WalletConnectRequest,
+): request is EthSignCallRequest | EthSignTypedDataCallRequest =>
+  [EIP155_SigningMethod.ETH_SIGN, EIP155_SigningMethod.PERSONAL_SIGN].includes(request.method)
+
+export const isSignTypedRequest = (
+  request: WalletConnectRequest,
+): request is EthSignCallRequest | EthSignTypedDataCallRequest =>
+  [
+    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA,
+    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3,
+    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4,
+  ].includes(request.method)
+
+export const isTransactionRequest = (
+  request: WalletConnectRequest,
+): request is EthSignTransactionCallRequest | EthSendTransactionCallRequest =>
+  [EIP155_SigningMethod.ETH_SIGN_TRANSACTION, EIP155_SigningMethod.ETH_SEND_TRANSACTION].includes(
+    request.method,
+  )
+
+export const isTransactionParams = (
+  transaction: TransactionParams | string,
+): transaction is TransactionParams => typeof transaction !== 'string'
+
+export const assertIsTransactionParams: (
+  transaction: TransactionParams | string,
+) => asserts transaction is TransactionParams = getTypeGuardAssertion(
+  isTransactionParams,
+  'Transaction has no transaction params',
+)

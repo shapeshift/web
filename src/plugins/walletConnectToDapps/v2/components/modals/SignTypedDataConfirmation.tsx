@@ -10,11 +10,13 @@ import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertIsDefined } from 'lib/utils'
 
 export const SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, message } = useWalletConnectState(state)
+  assertIsDefined(message)
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo

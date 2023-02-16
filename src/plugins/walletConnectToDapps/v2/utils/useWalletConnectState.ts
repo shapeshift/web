@@ -4,7 +4,11 @@ import {
   getSignParamsMessage,
   getWalletAddressFromParams,
 } from 'plugins/walletConnectToDapps/utils'
-import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
+import type {
+  EIP155_SigningMethod,
+  WalletConnectState,
+} from 'plugins/walletConnectToDapps/v2/types'
+import { isSignRequest, isSignTypedRequest } from 'plugins/walletConnectToDapps/v2/types'
 import { assertIsDefined } from 'lib/utils'
 
 export const useWalletConnectState = (state: Required<WalletConnectState>) => {
@@ -21,10 +25,15 @@ export const useWalletConnectState = (state: Required<WalletConnectState>) => {
 
   const connectedAccounts = extractConnectedAccounts(session)
   const address = getWalletAddressFromParams(connectedAccounts, params)
-  const message = getSignParamsMessage(request.params)
-  const method = state.modalData.requestEvent?.request?.params?.method
+  const message =
+    isSignRequest(request) || isSignTypedRequest(request)
+      ? getSignParamsMessage(request.params)
+      : undefined
+  const method: EIP155_SigningMethod = requestEvent.params.request.method
 
   const isInteractingWithContract = useIsInteractingWithContract({ evmChainId: chainId, address })
+
+  // const defaultCustomTransactionData: CustomTransactionData = state
 
   return { isInteractingWithContract, address, transaction, message, method }
 }

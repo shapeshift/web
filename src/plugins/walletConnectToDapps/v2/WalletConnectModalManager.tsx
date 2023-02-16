@@ -69,20 +69,11 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   const connectedAccounts = extractConnectedAccounts(session)
   const accountId = getWalletAccountFromParams(connectedAccounts, requestEvent?.params)
   const accountMetadata = accountMetadataById[accountId]
-  const customTransactionData = {} as CustomTransactionData
   const chainId = requestEvent?.params.chainId
   const chainAdapter = chainId && getChainAdapterManager().get(chainId)
 
-  const handleConfirmEIP155Request = async () => {
-    if (
-      !requestEvent ||
-      !chainAdapter ||
-      !wallet ||
-      !chainAdapter ||
-      !customTransactionData ||
-      !web3wallet
-    )
-      return
+  const handleConfirmEIP155Request = async (customTransactionData?: CustomTransactionData) => {
+    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return
 
     const topic = requestEvent.topic
     const response = await approveEIP155Request({

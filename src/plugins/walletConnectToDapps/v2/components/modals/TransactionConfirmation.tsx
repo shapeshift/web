@@ -9,13 +9,16 @@ import { ModalCollapsableSection } from 'plugins/walletConnectToDapps/components
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/components/modals/TransactionAdvancedParameters'
 import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import { useCallRequestFees } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/hooks/useCallRequestFees'
 import type {
+  CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
+import {
+  assertIsTransactionParams,
+  EIP155_SigningMethod,
+} from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/utils/useWalletConnectState'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
@@ -32,6 +35,7 @@ export const TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, transaction, isInteractingWithContract, method } = useWalletConnectState(state)
+  assertIsTransactionParams(transaction)
 
   // // fixme - this is a V1 hook and doesn't work with V2
   const { feeAsset, fees } = useCallRequestFees(transaction)
@@ -43,7 +47,7 @@ export const TransactionConfirmation: FC<
   } = useWallet()
   const WalletIcon = walletInfo?.icon ?? FoxIcon
 
-  const form = useForm<ConfirmData>({
+  const form = useForm<CustomTransactionData>({
     defaultValues: {
       nonce: transaction.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
       gasLimit: transaction.gas ? convertHexToNumber(transaction.gas).toString() : undefined,

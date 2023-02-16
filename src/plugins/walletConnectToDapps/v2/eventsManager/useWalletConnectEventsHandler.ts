@@ -6,7 +6,6 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
-  CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
@@ -79,9 +78,9 @@ export const useWalletConnectEventsHandler = (
             },
           })
 
-        case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
-        case CosmosSigningMethod.COSMOS_SIGN_AMINO:
-          return
+        // case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
+        // case CosmosSigningMethod.COSMOS_SIGN_AMINO:
+        //   return
 
         default:
           console.log('[debug] SessionUnsupportedMethodModal', { requestEvent, requestSession })

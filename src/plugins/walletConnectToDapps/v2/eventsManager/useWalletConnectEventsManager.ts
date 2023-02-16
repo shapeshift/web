@@ -8,7 +8,7 @@ import type {
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
 
-const isNarrowedSessionRequest = (
+export const isNarrowedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
 ): request is NarrowedSessionRequest => {
   return Object.values(EIP155_SigningMethod).some(value => value === request.params.request.method)

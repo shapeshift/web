@@ -5,10 +5,19 @@ import BigNumber from 'bignumber.js'
 import { TRADING_FEE_RATE } from './const'
 import { calculateAPRFromToken0, getToken0Volume24Hr } from './utils'
 
+jest.mock('state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager', () => ({
+  getOrCreateContract: () => ({
+    filters: {
+      Swap: jest.fn(() => {}),
+    },
+    queryFilter: mockGetPastEvents,
+  }),
+}))
+
 jest.mock('@ethersproject/contracts', () => ({
   Contract: jest.fn().mockImplementation(() => ({
     filters: {
-      Swap: jest.fn(),
+      Swap: jest.fn(() => {}),
     },
     queryFilter: mockGetPastEvents,
   })),
@@ -62,7 +71,8 @@ describe('foxpage-utils', () => {
   it('should calculate correct APR from given reserves', async () => {
     const input = {
       blockNumber,
-      uniswapLPContract: mockContract,
+      // uniswapLPContract: mockContract,
+      pairAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
       token0Decimals,
       token0Reserves: mockToken0Reserves,
     }

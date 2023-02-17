@@ -4,7 +4,6 @@ import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import isNumber from 'lodash/isNumber'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
@@ -17,6 +16,7 @@ import {
   uniswapV2Router02AssetId,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/constants'
 import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
 import {
   selectAccountNumberByAccountId,

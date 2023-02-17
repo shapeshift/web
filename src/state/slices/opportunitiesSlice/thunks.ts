@@ -17,7 +17,7 @@ export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryAction
             opportunityId,
             opportunityType: DefiType.LiquidityPool,
             defiType: DefiType.LiquidityPool,
-            defiProvider: DefiProvider.FoxFarming,
+            defiProvider: DefiProvider.UniV2,
           },
           // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
           { forceRefetch: false, ...options },
@@ -105,7 +105,7 @@ export const fetchAllStakingOpportunitiesMetadata = async (
             opportunityId,
             opportunityType: DefiType.Staking,
             defiType: DefiType.Staking,
-            defiProvider: DefiProvider.FoxFarming,
+            defiProvider: DefiProvider.UniV2,
           },
           // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
           { forceRefetch: false, ...options },
@@ -133,11 +133,11 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     },
     {
       defiType: DefiType.Staking,
-      defiProvider: DefiProvider.FoxFarming,
+      defiProvider: DefiProvider.UniV2,
     },
     {
       defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.FoxFarming,
+      defiProvider: DefiProvider.UniV2,
     },
     {
       defiType: DefiType.LiquidityPool,
@@ -247,7 +247,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
             opportunityId,
             opportunityType: DefiType.Staking,
             defiType: DefiType.Staking,
-            defiProvider: DefiProvider.FoxFarming,
+            defiProvider: DefiProvider.UniV2,
           },
           // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
           { forceRefetch: false, ...options },
@@ -273,7 +273,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
               opportunityId,
               opportunityType: DefiType.LiquidityPool,
               defiType: DefiType.LiquidityPool,
-              defiProvider: DefiProvider.FoxFarming,
+              defiProvider: DefiProvider.UniV2,
             },
             // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
             { forceRefetch: false, ...options },

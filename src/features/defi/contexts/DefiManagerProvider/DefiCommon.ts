@@ -11,7 +11,7 @@ export enum DefiProvider {
   Idle = 'idle',
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
-  FoxFarming = 'ShapeShift Farming',
+  UniV2 = 'Uniswap V2',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
   ThorchainSavers = 'THORChain Savers',

@@ -1,8 +1,9 @@
-import type { Fetcher, Token } from '@uniswap/sdk'
-import type { providers } from 'ethers'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import type { Token } from '@uniswap/sdk'
+import { Fetcher } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { getEthersProvider } from 'plugins/foxPage/utils'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import type { FoxEthStakingContractAddress } from '../../constants'
 import {
@@ -14,6 +15,8 @@ import {
   foxEthStakingContractAddressV5,
   uniswapV2Router02ContractAddress,
 } from '../../constants'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from './constants'
+import type { IUniswapV2Pair } from './contracts'
 import {
   ERC20ABI__factory,
   FarmingAbi__factory,
@@ -56,17 +59,47 @@ export const getOrCreateContract = <T extends KnownContractAddress>(
   if (definedContract && definedContract.contract)
     return definedContract.contract as KnownContract<T>
   const typechainContract = CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[address]
+  const ethersProvider = getEthersProvider()
   const contract = typechainContract.connect(address, ethersProvider)
   definedContracts.push({ contract, address })
   return contract as KnownContract<T>
 }
-export const ethersProvider = getEthersProvider()
 
-export const fetchPairData = memoize(
-  async (
-    tokenA: Token,
-    tokenB: Token,
-    fetchPairData: typeof Fetcher['fetchPairData'],
-    provider: providers.Web3Provider,
-  ) => await fetchPairData(tokenA, tokenB, provider),
-)
+export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
+  const { assetReference: contractAddress, chainId } = fromAssetId(pairAssetId)
+  const pair: IUniswapV2Pair = getOrCreateContract(
+    contractAddress as typeof foxEthLpContractAddress,
+  )
+  const ethersProvider = getEthersProvider()
+
+  const token0Address = await pair.token0()
+  const token1Address = await pair.token1()
+  const token0AssetId = toAssetId({
+    chainId,
+    assetNamespace: 'erc20',
+    assetReference: token0Address,
+  })
+  const token1AssetId = toAssetId({
+    chainId,
+    assetNamespace: 'erc20',
+    assetReference: token1Address,
+  })
+
+  const { chainReference: asset0EvmChainId, assetReference: asset0Address } =
+    fromAssetId(token0AssetId)
+  const { chainReference: asset1EvmChainId, assetReference: asset1Address } =
+    fromAssetId(token1AssetId)
+
+  const token0: Token = await Fetcher.fetchTokenData(
+    Number(asset0EvmChainId),
+    asset0Address,
+    ethersProvider,
+  )
+  const token1: Token = await Fetcher.fetchTokenData(
+    Number(asset1EvmChainId),
+    asset1Address,
+    ethersProvider,
+  )
+
+  return Fetcher.fetchPairData(token0, token1, ethersProvider)
+})

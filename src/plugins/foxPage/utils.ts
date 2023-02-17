@@ -1,34 +1,20 @@
 import type { Contract } from '@ethersproject/contracts'
-import { ethChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TokenAmount } from '@uniswap/sdk'
-import { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+import type { foxEthLpContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
+import type { IUniswapV2Pair } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contracts'
 
 import { TRADING_FEE_RATE } from './const'
 
 const moduleLogger = logger.child({
   namespace: ['Plugins', 'FoxPage', 'Utils'],
 })
-
-// TODO: remove this module and use wagmi provider
-let maybeEthersProvider: providers.Web3Provider | undefined
-// The provider we get from getWeb3Instance is a web3.js Provider
-// But uniswap SDK needs a Web3Provider from ethers.js
-export const getEthersProvider = () => {
-  if (maybeEthersProvider) return maybeEthersProvider
-
-  const provider = getWeb3InstanceByChainId(ethChainId).currentProvider
-
-  maybeEthersProvider = new providers.Web3Provider(
-    provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
-  )
-
-  return maybeEthersProvider
-}
 
 export const getToken0Volume24Hr = async ({
   blockNumber,
@@ -67,16 +53,21 @@ export const calculateAPRFromToken0 = memoize(
     token0Decimals,
     token0Reserves,
     blockNumber,
-    uniswapLPContract,
+    pairAssetId,
   }: {
     token0Decimals: number
     token0Reserves: TokenAmount
     blockNumber: number
-    uniswapLPContract: Contract
+    pairAssetId: AssetId
   }) => {
+    const { assetReference: contractAddress } = fromAssetId(pairAssetId)
+    const pair: IUniswapV2Pair = getOrCreateContract(
+      contractAddress as typeof foxEthLpContractAddress,
+    )
+
     const token0Volume24Hr = await getToken0Volume24Hr({
       blockNumber,
-      uniswapLPContract,
+      uniswapLPContract: pair,
     })
 
     const token0PoolReservesEquivalent = bnOrZero(token0Reserves.toFixed())

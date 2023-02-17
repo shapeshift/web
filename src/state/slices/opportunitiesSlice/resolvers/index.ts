@@ -6,12 +6,12 @@ import {
   cosmosSdkStakingOpportunitiesUserDataResolver,
 } from './cosmosSdk'
 import {
-  foxFarmingLpMetadataResolver,
+  ethFoxShapeShiftStakingMetadataResolver,
   foxFarmingLpOpportunityIdsResolver,
   foxFarmingLpUserDataResolver,
-  foxFarmingStakingMetadataResolver,
   foxFarmingStakingOpportunityIdsResolver,
   foxFarmingStakingUserDataResolver,
+  uniV2LpMetadataResolver,
 } from './foxFarming'
 import {
   foxyStakingOpportunitiesMetadataResolver,
@@ -40,9 +40,9 @@ import {
 } from './yearn'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
-  [`${DefiProvider.FoxFarming}`]: {
-    [`${DefiType.LiquidityPool}`]: foxFarmingLpMetadataResolver,
-    [`${DefiType.Staking}`]: foxFarmingStakingMetadataResolver,
+  [`${DefiProvider.UniV2}`]: {
+    [`${DefiType.LiquidityPool}`]: uniV2LpMetadataResolver,
+    [`${DefiType.Staking}`]: ethFoxShapeShiftStakingMetadataResolver,
   },
 }
 
@@ -86,7 +86,7 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
 }
 
 export const DefiProviderToOpportunityIdsResolverByDeFiType = {
-  [`${DefiProvider.FoxFarming}`]: {
+  [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpOpportunityIdsResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingOpportunityIdsResolver,
   },
@@ -111,7 +111,7 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
 }
 
 export const DefiProviderToUserDataResolverByDeFiType = {
-  [`${DefiProvider.FoxFarming}`]: {
+  [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: foxFarmingLpUserDataResolver,
     [`${DefiType.Staking}`]: foxFarmingStakingUserDataResolver,
   },

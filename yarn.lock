@@ -3473,6 +3473,11 @@
   resolved "https://registry.yarnpkg.com/@keepkey/keepkey-sdk/-/keepkey-sdk-0.2.25.tgz#2ad8d65456812900f30b16bae8b58dd54f728c0c"
   integrity sha512-VlKjvK6oPlixY69EBHR6/cLpusfr34O3IL3i4IWbOAyGF4v/KWh+iULiQDU0H/0OwMqbo0BEoWZe+8H5n+jbHA==
 
+"@keepkey/keepkey-sdk@0.2.26":
+  version "0.2.26"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-sdk/-/keepkey-sdk-0.2.26.tgz#554cc4ea4e6f3a4dfb511ae992a5d93b4f14db7b"
+  integrity sha512-SJDaYA/BbIYlvM+6uCEDaFkqNIcNbMnxzsytsqSTLM/US+6QLP09hREyS913Ox1LLl+05j7H9RY7FnDfWI05wg==
+
 "@keplr-wallet/types@^0.10.5":
   version "0.10.5"
   resolved "https://registry.yarnpkg.com/@keplr-wallet/types/-/types-0.10.5.tgz#6d3f7ddd60a545eaadb55d17774f7a2f65f5b0a0"

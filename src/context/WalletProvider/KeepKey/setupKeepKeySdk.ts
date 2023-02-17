@@ -24,8 +24,9 @@ export const setupKeepKeySDK = async () => {
     },
   }
   const sdk = await KeepKeySdk.create(config)
-
-  if (!serviceKey) {
+  //If apiKey is revoked by wallet, or 'notSet' a user will be prompted to pair and new apiKey issued by wallet.
+  if (serviceKey !== config.apiKey) {
+    //store apiKey to avoid needing to pair again
     window.localStorage.setItem('@app/serviceKey', config.apiKey)
   }
   return sdk

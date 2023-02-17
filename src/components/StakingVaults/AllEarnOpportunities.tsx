@@ -4,8 +4,8 @@ import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
-import { GlobalFilter } from 'components/ReactTable/GlobalFilter'
 import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
+import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -25,15 +25,22 @@ import { StakingTable } from './StakingTable'
 
 const renderHeader = ({ setGlobalFilter, globalFilter }: TableHeaderProps) => {
   return (
-    <Flex justifyContent='space-around' alignItems='center' mb={6} px={4}>
+    <Flex
+      justifyContent='space-around'
+      alignItems='center'
+      mb={6}
+      px={4}
+      flexDir={{ base: 'column', md: 'row' }}
+      gap={4}
+    >
       <Box flex={1}>
         <Card.Heading>
           <Text translation='defi.earn' />
         </Card.Heading>
         <Text color='gray.500' translation='defi.earnBody' />
       </Box>
-      <Flex flex={1} maxWidth='300px'>
-        <GlobalFilter setGlobalFilter={setGlobalFilter} globalFilter={globalFilter} />
+      <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full'>
+        <GlobalFilter setSearchQuery={setGlobalFilter} searchQuery={globalFilter} />
       </Flex>
     </Flex>
   )

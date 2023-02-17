@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
@@ -8,7 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
@@ -16,7 +16,6 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   assetId,
   opportunityName,
   apy,
-  tvl,
   icons,
   provider,
   type,
@@ -54,6 +53,9 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       state: { background: location },
     })
   }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress, type])
+
+  const subText = [provider as string]
+  if (version) subText.push(version)
   return (
     <Card
       position='relative'
@@ -75,26 +77,18 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       </Box>
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
-        <Tag mt={2} textTransform='capitalize'>
-          {provider}
-        </Tag>
       </Card.Header>
       <Card.Body py={0}>
         <RawText fontWeight='bold' textShadow={textShadow}>
           {opportunityName}
         </RawText>
-        {version && (
-          <RawText fontSize='sm' color='gray.500'>
-            {version}
-          </RawText>
-        )}
+
+        <RawText fontSize='sm' color='gray.500'>
+          {subText.join(' • ')}
+        </RawText>
       </Card.Body>
       <Card.Footer display='flex' flexDir='column' mt='auto'>
         <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
-        <Flex fontSize='sm' gap={1} color='gray.500'>
-          <Text translation='defi.currentTvl' />
-          <Amount.Fiat value={tvl} fontWeight='bold' />
-        </Flex>
         <Button
           mt={4}
           variant='ghost-filled'

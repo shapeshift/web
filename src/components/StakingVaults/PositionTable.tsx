@@ -4,7 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import type { ReactNode } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -51,6 +51,7 @@ type PositionTableProps = {
 }
 
 export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent }) => {
+  const [searchQuery, setSearchQuery] = useState('')
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
@@ -86,15 +87,19 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
       {
         Header: 'Net APY',
         accessor: 'netApy',
+        textAlign: 'right',
         Cell: ({ row }: { row: RowProps }) => (
-          <Tag colorScheme='green'>
-            <Amount.Percent value={row.original.netApy} />
-          </Tag>
+          <Flex justifyContent={{ base: 'flex-end', md: 'flex-start' }}>
+            <Tag colorScheme='green' size={{ base: 'sm', md: 'md' }}>
+              <Amount.Percent value={row.original.netApy} />
+            </Tag>
+          </Flex>
         ),
       },
       {
         Header: 'Rewards',
         accessor: 'rewards',
+        display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => {
           const hasRewards = bnOrZero(row.original.rewards).gt(0)
           return hasRewards ? (
@@ -125,8 +130,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
     [translate],
   )
 
-  const positionTableFilter = useCallback(
-    (rows: Row<AggregatedOpportunitiesByAssetIdReturn>[], _column: string[], filterValue: any) => {
+  const filterRowsBySearchTerm = useCallback(
+    (rows: AggregatedOpportunitiesByAssetIdReturn[], filterValue: any) => {
       if (filterValue === '' || filterValue === null || filterValue === undefined) return rows
       if (typeof filterValue !== 'string') {
         return []
@@ -134,29 +139,37 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
       const search = filterValue.trim().toLowerCase()
       if (isEthAddress(filterValue)) {
         return rows.filter(
-          row => fromAssetId(row.original.assetId).assetReference.toLowerCase() === filterValue,
+          row => fromAssetId(row.assetId).assetReference.toLowerCase() === filterValue,
         )
       }
-      const assetIds = rows.map(row => row.original.assetId)
+      const assetIds = rows.map(row => row.assetId)
       const rowAssets = assets.filter(asset => assetIds.includes(asset.assetId))
       const matchedAssets = matchSorter(rowAssets, search, { keys: ['name', 'symbol'] }).map(
         asset => asset.assetId,
       )
-      const results = rows.filter(row => matchedAssets.includes(row.original.assetId))
+      const results = rows.filter(row => matchedAssets.includes(row.assetId))
       return results
     },
     [assets],
   )
 
+  const searching = useMemo(() => searchQuery.length > 0, [searchQuery])
+
+  const rows = useMemo(() => {
+    return searching ? filterRowsBySearchTerm(positions, searchQuery) : positions
+  }, [filterRowsBySearchTerm, positions, searchQuery, searching])
+
   return (
-    <ReactTable
-      onRowClick={row => row.toggleRowExpanded()}
-      data={positions}
-      columns={columns}
-      renderSubComponent={PositionDetails}
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-      customFilter={positionTableFilter}
-      renderHeader={headerComponent}
-    />
+    <>
+      {headerComponent &&
+        headerComponent({ setGlobalFilter: setSearchQuery, globalFilter: searchQuery })}
+      <ReactTable
+        onRowClick={row => row.toggleRowExpanded()}
+        data={rows}
+        columns={columns}
+        renderSubComponent={PositionDetails}
+        initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+      />
+    </>
   )
 }

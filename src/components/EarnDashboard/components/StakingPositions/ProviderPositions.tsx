@@ -129,8 +129,11 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Header: 'Staking Position',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
-          const subText = [row.original.provider as string]
-          if (row.original.version) subText.push(row.original.version)
+          // Version or Provider
+          // Opportunity Name
+          const subText = []
+          if (row.original.version) subText.push(row.original.provider)
+          if (row.original.opportunityName) subText.push(row.original.opportunityName)
           return (
             <Flex gap={4} alignItems='center'>
               <Avatar
@@ -139,7 +142,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
                 src={DefiProviderMetadata[row.original.provider].icon}
               />
               <Flex flexDir='column'>
-                <RawText>{row.original.opportunityName}</RawText>
+                <RawText>{row.original.version ?? row.original.provider}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>
                   {subText.join(' • ')}
                 </RawText>

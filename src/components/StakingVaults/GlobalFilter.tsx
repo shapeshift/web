@@ -1,4 +1,4 @@
-import { CloseIcon, SearchIcon } from '@chakra-ui/icons'
+import { SearchIcon } from '@chakra-ui/icons'
 import {
   IconButton,
   Input,
@@ -11,25 +11,25 @@ import { useCallback, useMemo, useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
 
 type GlobalFilterProps = {
-  setGlobalFilter: (filterValue: any) => void
-  globalFilter: any
+  setSearchQuery: (filterValue: any) => void
+  searchQuery: any
 }
-export const GlobalFilter: React.FC<GlobalFilterProps> = ({
-  setGlobalFilter,
-  globalFilter = '',
-}) => {
-  const [value, setValue] = useState(globalFilter)
+export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setSearchQuery, searchQuery = '' }) => {
+  const [value, setValue] = useState(searchQuery)
+  const [loading, setLoading] = useState(false)
 
   const handleDebounce = useCallback(
     (value: string) => {
-      setGlobalFilter(value)
+      setSearchQuery(value)
+      setLoading(false)
     },
-    [setGlobalFilter],
+    [setSearchQuery],
   )
-  const debounceFnc = useMemo(() => debounce(handleDebounce, 1000), [handleDebounce])
+  const debounceFnc = useMemo(() => debounce(handleDebounce, 250), [handleDebounce])
 
   const handleChange = useCallback(
     (value: string) => {
+      setLoading(true)
       setValue(value)
       debounceFnc(value)
     },
@@ -60,6 +60,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
             variant='ghost'
             icon={<FaTimes />}
             aria-label='Clear'
+            isLoading={loading}
             onClick={handleReset}
           />
         </InputRightElement>

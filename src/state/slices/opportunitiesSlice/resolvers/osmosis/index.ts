@@ -17,8 +17,14 @@ import type {
   OpportunityMetadata,
 } from '../../types'
 import { toOpportunityId } from '../../utils'
-import type { OpportunitiesMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+import type {
+  OpportunitiesMetadataResolverInput,
+  OpportunityIdsResolverInput,
+  OpportunityUserDataResolverInput,
+} from '../types'
 import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
+
+const OSMO_ATOM_LIQUIDITY_POOL_ID = '1'
 
 export const osmosisLpOpportunitiesMetadataResolver = async ({
   opportunityType,
@@ -26,17 +32,19 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState()
-
+  const { OsmosisLP, OsmosisLPAdditionalPools } = selectFeatureFlags(state)
   const lpOpportunitiesById: Record<LpId, OpportunityMetadata> = {}
-
-  const { OsmosisLP } = selectFeatureFlags(state)
 
   if (!OsmosisLP) {
     throw new Error('Osmosis LP feature flag disabled. Pool metadata will not be fetched.')
   }
   const liquidityPools = await getPools()
 
-  for (const pool of liquidityPools) {
+  const _liquidityPools = OsmosisLPAdditionalPools
+    ? liquidityPools
+    : liquidityPools.filter(pool => pool.id === OSMO_ATOM_LIQUIDITY_POOL_ID) // Disable all pools other than OSMO/ATOM liquidity pool
+
+  for (const pool of _liquidityPools) {
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'ibc',
       assetReference: `gamm/pool/${pool.id}`,
@@ -108,13 +116,27 @@ export const osmosisLpUserDataResolver = ({
   return Promise.resolve()
 }
 
-export const osmosisLpOpportunityIdsResolver = async (): Promise<{
+export const osmosisLpOpportunityIdsResolver = async ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
+  const { getState } = reduxApi
+  const state: any = getState()
+  const { OsmosisLP, OsmosisLPAdditionalPools } = selectFeatureFlags(state)
+
+  if (!OsmosisLP) return { data: [] }
+
   const liquidityPools = await getPools()
 
+  const _liquidityPools = OsmosisLPAdditionalPools
+    ? liquidityPools
+    : liquidityPools.filter(pool => {
+        return pool.id === OSMO_ATOM_LIQUIDITY_POOL_ID
+      }) // Disable all pools other than OSMO/ATOM liquidity pool
+
   return {
-    data: liquidityPools.map(pool => {
+    data: _liquidityPools.map(pool => {
       return toOpportunityId({
         assetNamespace: 'ibc',
         assetReference: `/gamm/pool/${pool.id}`,

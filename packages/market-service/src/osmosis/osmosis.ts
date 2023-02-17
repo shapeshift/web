@@ -78,8 +78,12 @@ export class OsmosisMarketService implements MarketService {
           marketCap: bnOrZero(marketData.liquidity).toFixed(),
           volume: bn(marketData.volume_24h).toFixed(),
           changePercent24Hr: 0,
-          supply: bnOrZero(poolData.total_shares.amount).toFixed(),
-          maxSupply: bnOrZero(poolData.total_shares.amount).toFixed(),
+          supply: bnOrZero(poolData.total_shares.amount)
+            .dividedBy(bn(10).pow(OSMOSIS_LP_TOKEN_PRECISION))
+            .toFixed(),
+          maxSupply: bnOrZero(poolData.total_shares.amount)
+            .dividedBy(bn(10).pow(OSMOSIS_LP_TOKEN_PRECISION))
+            .toFixed(),
         }
       }
 

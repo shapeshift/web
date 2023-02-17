@@ -16,8 +16,8 @@ import {
   uniswapV2Router02AssetId,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/uniV2/contractManager'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

@@ -16,7 +16,7 @@ import {
   foxEthLpContractAddress,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/uniV2/contractManager'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

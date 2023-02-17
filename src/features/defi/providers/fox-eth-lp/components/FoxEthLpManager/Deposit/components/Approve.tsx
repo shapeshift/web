@@ -16,7 +16,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/constants'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

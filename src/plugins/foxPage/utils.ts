@@ -7,8 +7,8 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import type { foxEthLpContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
-import type { IUniswapV2Pair } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contracts'
+import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/uniV2/contractManager'
+import type { IUniswapV2Pair } from 'state/slices/opportunitiesSlice/resolvers/uniV2/contracts'
 
 import { TRADING_FEE_RATE } from './const'
 

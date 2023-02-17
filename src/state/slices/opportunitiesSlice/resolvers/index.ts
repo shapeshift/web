@@ -6,14 +6,6 @@ import {
   cosmosSdkStakingOpportunitiesUserDataResolver,
 } from './cosmosSdk'
 import {
-  ethFoxShapeShiftStakingMetadataResolver,
-  foxFarmingLpOpportunityIdsResolver,
-  foxFarmingLpUserDataResolver,
-  foxFarmingStakingOpportunityIdsResolver,
-  foxFarmingStakingUserDataResolver,
-  uniV2LpMetadataResolver,
-} from './foxFarming'
-import {
   foxyStakingOpportunitiesMetadataResolver,
   foxyStakingOpportunitiesUserDataResolver,
   foxyStakingOpportunityIdsResolver,
@@ -33,6 +25,14 @@ import {
   thorchainSaversStakingOpportunitiesMetadataResolver,
   thorchainSaversStakingOpportunitiesUserDataResolver,
 } from './thorchainsavers'
+import {
+  ethFoxShapeShiftStakingMetadataResolver,
+  foxFarmingLpOpportunityIdsResolver,
+  foxFarmingLpUserDataResolver,
+  foxFarmingStakingOpportunityIdsResolver,
+  foxFarmingStakingUserDataResolver,
+  uniV2LpMetadataResolver,
+} from './uniV2'
 import {
   yearnStakingOpportunitiesMetadataResolver,
   yearnStakingOpportunitiesUserDataResolver,

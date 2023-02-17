@@ -4171,9 +4171,9 @@
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
 "@shapeshiftoss/market-service@^7.7.0":
-  version "7.7.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.7.2.tgz#d7fddb99d144e09bec46372ae02a0f54e2dc3751"
-  integrity sha512-1zHeeCVuM203yDFnl5C+jTh1oxd6c8Go7loR16ylYV2EWdkuVa/x2kZNEKem7LfXHYQmwpFg4FgB4RagGWkaKA==
+  version "7.7.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-7.7.3.tgz#ac4c5439864f08432bc92896c39418c4faa11d39"
+  integrity sha512-fiNVQf24JPEdgWoJy9qnJ0jFBgT5DawuIOC8LRVVmbNDA3uEuI/TNGckMQu5tjiD/a/E4mfPuFg81sXTOroJvQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.2.0"

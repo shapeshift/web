@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v7.7.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.7.2...@shapeshiftoss/market-service-v7.7.3) (2023-02-17)
+
+
+### Bug Fixes
+
+* **market-service:** use correct precision for osmosis lp assets ([#1200](https://github.com/shapeshift/lib/issues/1200)) ([dd4217c](https://github.com/shapeshift/lib/commit/dd4217c1bd6503df8790da5ff7ca116e603a9813))
+
 # [@shapeshiftoss/market-service-v7.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v7.7.1...@shapeshiftoss/market-service-v7.7.2) (2023-02-15)
 
 

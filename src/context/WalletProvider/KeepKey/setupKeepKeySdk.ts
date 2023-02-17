@@ -1,11 +1,4 @@
-import { KeepKeySdk } from '@keepkey/keepkey-sdk'
-
-interface PairingInfo {
-  name: string
-  imageUrl: string
-  basePath: string
-  url: string
-}
+import { KeepKeySdk, PairingInfo } from '@keepkey/keepkey-sdk'
 
 interface Config {
   apiKey: string
@@ -19,7 +12,6 @@ export const setupKeepKeySDK = async () => {
     pairingInfo: {
       name: 'ShapeShift',
       imageUrl: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-      basePath: 'http://localhost:1646/spec/swagger.json',
       url: 'https://app.shapeshift.com',
     },
   }

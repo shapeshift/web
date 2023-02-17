@@ -1,7 +1,17 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import {
+  ASSET_NAMESPACE,
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromAssetId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
+import type {
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+  FeeDataEstimate,
+} from '@shapeshiftoss/chain-adapters'
 import {
   type ChainAdapter,
   type EvmBaseAdapter,
@@ -13,7 +23,7 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -186,7 +196,7 @@ export const handleSend = async ({
       if (fromChainId(sendInput.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
         const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
         const { accountNumber } = bip44Params
-        return adapter.buildSendTransaction({
+        const params = {
           to,
           memo: (sendInput as SendInput<CosmosSdkChainId>).memo,
           value,
@@ -194,7 +204,24 @@ export const handleSend = async ({
           accountNumber,
           chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
           sendMax: sendInput.sendMax,
-        })
+        }
+        const { assetReference, assetNamespace } = fromAssetId(sendInput.asset.assetId)
+        if (
+          sendInput.asset.chainId === KnownChainIds.OsmosisMainnet &&
+          assetNamespace === ASSET_NAMESPACE.ibc
+        ) {
+          return (
+            adapter as unknown as CosmosSdkBaseAdapter<KnownChainIds.OsmosisMainnet>
+          ).buildSendTransaction({
+            ...params,
+            chainSpecific: {
+              ...params.chainSpecific,
+              denom: `ibc/${assetReference}`,
+            },
+          })
+        }
+
+        return adapter.buildSendTransaction(params)
       }
 
       throw new Error(`${chainId} not supported`)

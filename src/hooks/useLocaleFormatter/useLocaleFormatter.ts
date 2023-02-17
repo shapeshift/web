@@ -197,7 +197,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         style: fiatType ? 'currency' : 'decimal',
         currency: fiatType,
         minimumFractionDigits,
-        maximumFractionDigits,
+        maximumFractionDigits: 10,
         ...filteredOptions,
       })
 

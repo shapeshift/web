@@ -11,7 +11,6 @@ import {
   Tr,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { Fragment, useMemo } from 'react'
 import type { Column, Row, TableState } from 'react-table'
@@ -96,13 +95,11 @@ export const ReactTable = <T extends {}>({
             ))}
           </Tr>
           {!!renderSubComponent && row.isExpanded ? (
-            <AnimatePresence>
-              <Tr className='expanded-details'>
-                <Td colSpan={visibleColumns.length} style={{ padding: 0 }}>
-                  {renderSubComponent(row)}
-                </Td>
-              </Tr>
-            </AnimatePresence>
+            <Tr className='expanded-details'>
+              <Td colSpan={visibleColumns.length} style={{ padding: 0 }}>
+                {renderSubComponent(row)}
+              </Td>
+            </Tr>
           ) : null}
         </Fragment>
       )

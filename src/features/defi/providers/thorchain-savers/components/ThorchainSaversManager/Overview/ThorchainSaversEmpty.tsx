@@ -1,11 +1,17 @@
-import { Button, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Alert, Button, Flex, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import SaversVaultTop from 'assets/savers-vault-top.png'
+import { AssetIcon } from 'components/AssetIcon'
+import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { RawText, Text } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
+import { useModal } from 'hooks/useModal/useModal'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
+import { selectAssetById, selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ThorchainSaversEmptyProps = {
@@ -15,31 +21,78 @@ type ThorchainSaversEmptyProps = {
 
 export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyProps) => {
   const translate = useTranslate()
+  const { open: openFiatRamp } = useModal().fiatRamps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
+  const cryptoBalance =
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
   const linkColor = useColorModeValue('blue.500', 'blue.200')
+  const textShadow = useColorModeValue(
+    '--chakra-colors-blackAlpha-50',
+    '--chakra-colors-blackAlpha-400',
+  )
+
+  const handleAssetBuyClick = useCallback(() => {
+    openFiatRamp({ assetId, fiatRampAction: FiatRampAction.Buy })
+  }, [assetId, openFiatRamp])
+
+  const renderFooter = useMemo(() => {
+    return (
+      <Flex flexDir='column' gap={4} width='full'>
+        {bnOrZero(cryptoBalance).eq(0) && assetSupportsBuy}
+        <Alert status='info' justifyContent='space-between' borderRadius='xl'>
+          <Flex gap={2} alignItems='center'>
+            <AssetIcon assetId={asset?.assetId} size='sm' />
+            <Text
+              fontWeight='bold'
+              letterSpacing='-0.02em'
+              translation={['common.needAsset', { asset: asset?.name }]}
+            />
+          </Flex>
+          <Button variant='ghost' size='sm' colorScheme='blue' onClick={handleAssetBuyClick}>
+            {translate('common.buyNow')}
+          </Button>
+        </Alert>
+        <Button size='lg' width='full' colorScheme='blue' onClick={onClick}>
+          <Text translation='common.continue' />
+        </Button>
+      </Flex>
+    )
+  }, [
+    asset?.assetId,
+    asset?.name,
+    assetSupportsBuy,
+    cryptoBalance,
+    handleAssetBuyClick,
+    onClick,
+    translate,
+  ])
+
   return (
     <DefiModalContent
       backgroundImage={SaversVaultTop}
       backgroundSize='cover'
-      backgroundPosition='center -150px'
+      backgroundPosition='center -160px'
       backgroundRepeat='no-repeat'
     >
-      <EmptyOverview
-        assets={[{ icon: asset?.icon ?? '' }]}
-        footer={
-          <Button width='full' colorScheme='blue' onClick={onClick}>
-            <Text translation='defi.modals.saversVaults.understand' />
-          </Button>
-        }
-      >
+      <EmptyOverview assets={[{ icon: asset?.icon ?? '' }]} footer={renderFooter}>
         <Stack spacing={4} justifyContent='center' mb={4}>
-          <Text translation='defi.modals.saversVaults.introducingSaversVaults' />
+          <Text
+            fontWeight='bold'
+            fontSize='xl'
+            letterSpacing='0.012em'
+            translation='defi.modals.saversVaults.introducingSaversVaults'
+            textShadow={`0 2px 2px var(${textShadow})`}
+          />
 
           <Text
-            color='gray.500'
+            fontSize='lg'
             translation={['defi.modals.saversVaults.description', { asset: asset?.symbol }]}
+            textShadow={`0 2px 2px var(${textShadow})`}
+            letterSpacing='0.009em'
           />
-          <RawText>
+          <RawText color='gray.500'>
             {`${translate('defi.modals.saversVaults.risksBody.1')} `}
             <Link
               color={linkColor}

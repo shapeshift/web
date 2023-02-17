@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v11.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.0.0...@shapeshiftoss/chain-adapters-v11.1.0) (2023-02-17)
+
+
+### Features
+
+* **chain-adapters:** add osmosis token send support ([#1201](https://github.com/shapeshift/lib/issues/1201)) ([c57e6f4](https://github.com/shapeshift/lib/commit/c57e6f4c2fce191e31a491db837b77f05287d6c3))
+
 # [@shapeshiftoss/chain-adapters-v11.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v10.14.0...@shapeshiftoss/chain-adapters-v11.0.0) (2023-02-08)
 
 

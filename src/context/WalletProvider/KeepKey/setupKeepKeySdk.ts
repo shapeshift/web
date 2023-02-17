@@ -1,4 +1,5 @@
-import { KeepKeySdk, PairingInfo } from '@keepkey/keepkey-sdk'
+import type { PairingInfo } from '@keepkey/keepkey-sdk'
+import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 
 interface Config {
   apiKey: string

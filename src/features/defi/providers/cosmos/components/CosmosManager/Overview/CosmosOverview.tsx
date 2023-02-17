@@ -8,7 +8,11 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProvider,
+  DefiType,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -19,7 +23,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   makeOpportunityIcons,
   serializeUserStakingId,
@@ -32,7 +35,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectStakingOpportunitiesById,
+  selectStakingOpportunitiesByFilter,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -86,10 +89,24 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
   const assets = useAppSelector(selectAssets)
 
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[stakingAssetId as StakingId],
-    [opportunitiesMetadata, stakingAssetId],
+  const filteredOpportunitiesMetadataFilter = useMemo(() => {
+    return {
+      defiProvider: DefiProvider.Cosmos,
+      defiType: DefiType.Staking,
+      assetId: stakingAssetId,
+    }
+  }, [stakingAssetId])
+
+  // An account may be empty, but other accounts on the same wallet may have some opportunity metadata/userData
+  // So this gives us a list, not a single opportunity
+  const filteredOpportunitiesMetadata = useAppSelector(state =>
+    selectStakingOpportunitiesByFilter(state, filteredOpportunitiesMetadataFilter),
+  )
+
+  // Default Cosmos-SDK Shapeshift validators are inserted and fetched first
+  const defaultOpportunityMetadata = useMemo(
+    () => filteredOpportunitiesMetadata[0],
+    [filteredOpportunitiesMetadata],
   )
 
   const hasClaim = useAppSelector(state =>
@@ -97,8 +114,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const loaded = useMemo(
-    () => Boolean(opportunityData || opportunitiesMetadata),
-    [opportunitiesMetadata, opportunityData],
+    () => Boolean(opportunityData || defaultOpportunityMetadata),
+    [defaultOpportunityMetadata, opportunityData],
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -139,7 +156,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     return (
       <CosmosEmpty
         assets={[stakingAsset]}
-        apy={opportunityMetadata?.apy ?? ''}
+        apy={defaultOpportunityMetadata?.apy ?? ''}
         onStakeClick={() =>
           history.push({
             pathname: location.pathname,

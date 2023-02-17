@@ -17,6 +17,7 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
 } from 'state/selectors'
@@ -79,6 +80,21 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
+export const selectStakingOpportunitiesByFilter = createSelector(
+  selectStakingOpportunitiesById,
+  selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (stakingOpportunitiesById, defiProvider, defiType, assetId) => {
+    return Object.values(stakingOpportunitiesById).filter(
+      stakingOpportunity =>
+        stakingOpportunity &&
+        (!defiProvider || defiProvider === stakingOpportunity.provider) &&
+        (!defiType || defiType === stakingOpportunity.type) &&
+        (!assetId || assetId === stakingOpportunity.assetId),
+    )
+  },
+)
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),

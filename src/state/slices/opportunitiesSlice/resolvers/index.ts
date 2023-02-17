@@ -6,6 +6,11 @@ import {
   cosmosSdkStakingOpportunitiesUserDataResolver,
 } from './cosmosSdk'
 import {
+  ethFoxStakingMetadataResolver,
+  ethFoxStakingOpportunityIdsResolver,
+  ethFoxStakingUserDataResolver,
+} from './ethFoxStaking'
+import {
   foxyStakingOpportunitiesMetadataResolver,
   foxyStakingOpportunitiesUserDataResolver,
   foxyStakingOpportunityIdsResolver,
@@ -26,12 +31,9 @@ import {
   thorchainSaversStakingOpportunitiesUserDataResolver,
 } from './thorchainsavers'
 import {
-  ethFoxShapeShiftStakingMetadataResolver,
-  foxFarmingLpOpportunityIdsResolver,
-  foxFarmingLpUserDataResolver,
-  foxFarmingStakingOpportunityIdsResolver,
-  foxFarmingStakingUserDataResolver,
+  uniV2LpLpOpportunityIdsResolver,
   uniV2LpMetadataResolver,
+  uniV2LpUserDataResolver,
 } from './uniV2'
 import {
   yearnStakingOpportunitiesMetadataResolver,
@@ -42,7 +44,9 @@ import {
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: uniV2LpMetadataResolver,
-    [`${DefiType.Staking}`]: ethFoxShapeShiftStakingMetadataResolver,
+  },
+  [`${DefiProvider.EthFoxStaking}`]: {
+    [`${DefiType.Staking}`]: ethFoxStakingMetadataResolver,
   },
 }
 
@@ -87,8 +91,8 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
 
 export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: foxFarmingLpOpportunityIdsResolver,
-    [`${DefiType.Staking}`]: foxFarmingStakingOpportunityIdsResolver,
+    [`${DefiType.LiquidityPool}`]: uniV2LpLpOpportunityIdsResolver,
+    [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
   },
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
@@ -112,8 +116,10 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
 
 export const DefiProviderToUserDataResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: foxFarmingLpUserDataResolver,
-    [`${DefiType.Staking}`]: foxFarmingStakingUserDataResolver,
+    [`${DefiType.LiquidityPool}`]: uniV2LpUserDataResolver,
+  },
+  [`${DefiProvider.EthFoxStaking}`]: {
+    [`${DefiType.Staking}`]: ethFoxStakingUserDataResolver,
   },
   [`${DefiProvider.Osmosis}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpUserDataResolver,

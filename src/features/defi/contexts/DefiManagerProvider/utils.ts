@@ -12,6 +12,8 @@ import { DefiProvider, DefiType } from './DefiCommon'
 export const DefiProviderToDefiModuleResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: FoxEthLpManager,
+  },
+  [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: FoxFarmingManager,
   },
   [DefiProvider.Idle]: {

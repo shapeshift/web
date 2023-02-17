@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
   selectHighestBalanceAccountIdByLpId,
@@ -120,7 +121,10 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       name={foxEthLpOpportunity.opportunityName}
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
-      provider={foxEthLpOpportunity.provider}
+      provider={makeDefiProviderDisplayName({
+        provider: foxEthLpOpportunity.provider,
+        asset: lpAsset,
+      })}
       description={{
         description: lpAsset?.description,
         isLoaded: !descriptionQuery.isLoading,

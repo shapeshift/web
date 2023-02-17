@@ -24,7 +24,11 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -246,7 +250,10 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={underlyingAssets}
-      provider='Idle Finance'
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        asset: vaultAsset,
+      })}
       description={{
         description: underlyingAsset.description,
         isLoaded: !descriptionQuery.isLoading,

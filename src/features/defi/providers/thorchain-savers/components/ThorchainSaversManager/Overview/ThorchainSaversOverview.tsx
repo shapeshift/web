@@ -39,7 +39,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -319,7 +323,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       name={earnOpportunityData.name ?? ''}
       opportunityFiatBalance={underlyingAssetsFiatBalanceCryptoPrecision}
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
-      provider={DefiProvider.ThorchainSavers}
+      provider={makeDefiProviderDisplayName({
+        provider: earnOpportunityData.provider,
+        asset,
+      })}
       description={{
         description: translate('defi.modals.saversVaults.description', {
           asset: underlyingAsset?.symbol ?? '',

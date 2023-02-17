@@ -1,4 +1,5 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
+import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,6 +9,9 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -20,6 +24,7 @@ type StakingTableProps = {
 type RowProps = Row<EarnOpportunityType>
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
+  const assets = useAppSelector(selectAssets)
   const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
@@ -51,13 +56,19 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: translate('defi.provider'),
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
-              {value}
-            </Tag>
-          </Skeleton>
-        ),
+        Cell: ({ value, row }: { value: DefiProvider; row: RowProps }) => {
+          const providerDisplayName = makeDefiProviderDisplayName({
+            provider: value,
+            asset: assets[row.original.assetId],
+          })
+          return (
+            <Skeleton isLoaded={row.original.isLoaded}>
+              <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+                {providerDisplayName}
+              </Tag>
+            </Skeleton>
+          )
+        },
       },
       {
         Header: translate('defi.type'),
@@ -115,7 +126,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [showTeaser, translate],
+    [assets, showTeaser, translate],
   )
 
   const handleRowClick = useCallback(

@@ -21,6 +21,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  makeDefiProviderDisplayName,
   makeOpportunityIcons,
   serializeUserStakingId,
   toValidatorId,
@@ -179,7 +180,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
           allocationPercentage: '1',
         },
       ]}
-      provider={`${stakingAsset.name} Staking`}
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        asset: stakingAsset,
+      })}
       menu={[
         {
           label: 'common.deposit',

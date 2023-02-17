@@ -92,7 +92,7 @@ export type TransactionParams = {
   from: string
   to: string
   data: string
-  gas?: string
+  gasLimit?: string
   gasPrice?: string
   value?: string
   nonce?: string

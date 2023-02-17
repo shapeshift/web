@@ -96,7 +96,7 @@ export const approveEIP155Request = async ({
         gasLimit:
           (customTransactionData.gasLimit
             ? convertNumberToHex(customTransactionData.gasLimit)
-            : sendTransaction.gas) ?? convertNumberToHex(90000), // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
+            : sendTransaction.gasLimit) ?? convertNumberToHex(90000), // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
         ...gasData,
       })
       const txToSign = {
@@ -120,7 +120,7 @@ export const approveEIP155Request = async ({
       const gasLimit =
         (customTransactionData.gasLimit
           ? convertNumberToHex(customTransactionData.gasLimit)
-          : signTransaction.gas) ?? convertNumberToHex(90000) // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
+          : signTransaction.gasLimit) ?? convertNumberToHex(90000) // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
       const fees = await getFeesForTx(signTransaction, chainAdapter, accountId)
       const gasData = getGasData(customTransactionData, fees)
       const signature = await chainAdapter.signTransaction({

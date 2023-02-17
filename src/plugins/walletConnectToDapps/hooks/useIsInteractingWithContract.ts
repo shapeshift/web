@@ -7,17 +7,19 @@ export const useIsInteractingWithContract = ({
   evmChainId,
   address,
 }: {
-  evmChainId: ChainId
+  evmChainId: ChainId | undefined
   address: string
 }) => {
   const [isInteractingWithContract, setIsInteractingWithContract] = useState<boolean | null>(null)
   useEffect(() => {
     ;(async () => {
-      const result = await getWeb3InstanceByChainId(
-        fromChainId(evmChainId).chainReference,
-      ).eth.getCode(address)
+      const result = evmChainId
+        ? await getWeb3InstanceByChainId(fromChainId(evmChainId).chainReference).eth.getCode(
+            address,
+          )
+        : undefined
       // this util function returns '0x' if the recipient address is not a contract address
-      setIsInteractingWithContract(result !== '0x')
+      setIsInteractingWithContract(!!result && result !== '0x')
     })()
   }, [address, evmChainId])
 

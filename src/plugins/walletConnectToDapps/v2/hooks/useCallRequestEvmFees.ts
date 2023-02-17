@@ -20,6 +20,7 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
   const feeAsset = useMemo(() => {
     const feeAssetId = chainAdapter?.getFeeAssetId()
     if (!feeAssetId) return null
+    // TODO(Q): this shouldn't be feeAsset, get the real asset from request
     const feeAsset = assets[feeAssetId]
     if (!feeAsset) return null
     return feeAsset

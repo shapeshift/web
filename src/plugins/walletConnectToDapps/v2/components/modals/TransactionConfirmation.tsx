@@ -49,7 +49,9 @@ export const TransactionConfirmation: FC<
   const form = useForm<CustomTransactionData>({
     defaultValues: {
       nonce: transaction.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit: transaction.gas ? convertHexToNumber(transaction.gas).toString() : undefined,
+      gasLimit: transaction.gasLimit
+        ? convertHexToNumber(transaction.gasLimit).toString()
+        : undefined,
       speed: FeeDataKey.Average,
       customFee: {
         baseFee: '0',

@@ -35,7 +35,6 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
   request,
   feeAsset,
 }) => {
-  // TODO(Q): this shouldn't be feeAsset, get the real asset from request
   const contractInterface = useGetAbi(request)
 
   const transaction: TransactionDescription | undefined = useMemo(() => {

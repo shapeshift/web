@@ -32,7 +32,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const accountMetadata = accountMetadataById[accountId]
 
   const isInteractingWithContract = useIsInteractingWithContract({
-    evmChainId: chainId ?? '',
+    evmChainId: chainId ?? undefined,
     address,
   })
 

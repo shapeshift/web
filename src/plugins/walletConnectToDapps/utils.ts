@@ -9,7 +9,10 @@ import type {
 import { utils } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
-import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
+import type {
+  CustomTransactionData,
+  WalletConnectState,
+} from 'plugins/walletConnectToDapps/v2/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 /**
@@ -23,10 +26,8 @@ export const convertHexToUtf8 = (value: string) => {
   return value
 }
 
-export const convertNumberToHex = (value: number | string): string => {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value
-  return num.toString(16).toUpperCase()
-}
+export const convertNumberToHex = (value: number | string): string =>
+  typeof value === 'number' ? utils.hexlify(value) : utils.hexlify(utils.hexlify(parseInt(value)))
 
 export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 
@@ -45,8 +46,11 @@ export const getFeesForTx = async (
   })
 }
 
-export const getGasData = (approveData: ConfirmData, fees: FeeDataEstimate<EvmChainId>) => {
-  const { speed, customFee } = approveData
+export const getGasData = (
+  customTransactionData: ConfirmData | CustomTransactionData,
+  fees: FeeDataEstimate<EvmChainId>,
+) => {
+  const { speed, customFee } = customTransactionData
   return speed === 'custom' && customFee?.baseFee && customFee?.baseFee
     ? {
         maxPriorityFeePerGas: convertNumberToHex(

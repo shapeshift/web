@@ -31,7 +31,7 @@ export type BuildTransactionInput<T extends CosmosSdkChainId> = {
   memo?: string
 } & types.ChainSpecificBuildTxData<T>
 
-export type BuildTxInput = { gas: string; fee: string }
+export type BuildTxInput = { gas: string; fee: string; denom?: string }
 
 export type Info = {
   totalSupply: string

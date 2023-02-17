@@ -113,7 +113,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     try {
       const {
         accountNumber,
-        chainSpecific: { fee },
+        chainSpecific: { denom, fee },
         sendMax,
         to,
         value,
@@ -127,7 +127,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
       const msg: Message = {
         type: 'cosmos-sdk/MsgSend',
         value: {
-          amount: [{ amount, denom: this.denom }],
+          amount: [{ amount, denom: denom ?? this.denom }],
           from_address: from,
           to_address: to,
         },

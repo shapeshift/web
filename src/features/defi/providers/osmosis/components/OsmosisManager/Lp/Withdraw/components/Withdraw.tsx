@@ -381,7 +381,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmountPrecision, { shouldValidate: true })
-    handleInputChange(cryptoAmountBaseUnit, false)
+    handleInputChange(cryptoAmountPrecision, false)
   }
 
   useEffect(() => {
@@ -467,12 +467,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           <Text translation='common.receive' />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={bnOrZero(
-              fromBaseUnit(
-                receiveAmounts?.[0]?.cryptoAmountBaseUnit ?? '0',
-                underlyingAsset0.precision,
-              ),
-            ).toString()}
+            cryptoAmount={bnOrZero(receiveAmounts?.[0]?.cryptoAmountBaseUnit)
+              .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+              .toFixed(underlyingAsset0.precision, BigNumber.ROUND_DOWN)}
             fiatAmount={bnOrZero(receiveAmounts?.[0]?.fiatAmount).toFixed(2) ?? '0'}
             showFiatAmount={true}
             assetId={underlyingAsset0.assetId}
@@ -494,12 +491,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={bnOrZero(
-              fromBaseUnit(
-                receiveAmounts?.[1]?.cryptoAmountBaseUnit ?? '0',
-                underlyingAsset1.precision,
-              ),
-            ).toString()}
+            cryptoAmount={bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit)
+              .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+              .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)}
             fiatAmount={bnOrZero(receiveAmounts?.[1]?.fiatAmount).toFixed(2) ?? '0'}
             showFiatAmount={true}
             assetId={underlyingAsset1.assetId}

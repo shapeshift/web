@@ -320,12 +320,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         )
       )
         return
-      // set withdraw state for future use
-      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
+
       const tokenOutMinsCryptoBaseUnit = await calculateTokenOutMins(
         bnOrZero(formValues.cryptoAmount).multipliedBy(bn(10).pow(lpAsset.precision)).toString(),
       )
       if (!tokenOutMinsCryptoBaseUnit) return
+
+      // set withdraw state for future use
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
         payload: {
@@ -337,18 +338,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             .toString(),
         },
       })
-
-      const estimatedFeeCryptoBaseUnit = await getWithdrawFeeEstimateCryptoBaseUnit()
-      if (!estimatedFeeCryptoBaseUnit) {
+      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
+      try {
+        const estimatedFeeCryptoBaseUnit = await getWithdrawFeeEstimateCryptoBaseUnit()
+        if (!estimatedFeeCryptoBaseUnit) return
+        contextDispatch({
+          type: OsmosisWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedFeeCryptoBaseUnit },
+        })
+        onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
-        return
+      } catch (error) {
+        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        toast({
+          position: 'top-right',
+          description: translate('common.somethingWentWrongBody'),
+          title: translate('common.somethingWentWrong'),
+          status: 'error',
+        })
+        contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
       }
-      contextDispatch({
-        type: OsmosisWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedFeeCryptoBaseUnit },
-      })
-      onNext(DefiStep.Confirm)
-      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
     },
     [
       state,
@@ -360,6 +369,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       calculateTokenOutMins,
       getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,
+      toast,
+      translate,
     ],
   )
 
@@ -467,9 +478,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           <Text translation='common.receive' />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={bnOrZero(receiveAmounts?.[0]?.cryptoAmountBaseUnit)
-              .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
-              .toFixed(underlyingAsset0.precision, BigNumber.ROUND_DOWN)}
+            cryptoAmount={
+              bnOrZero(receiveAmounts?.[0]?.cryptoAmountBaseUnit).gt(0)
+                ? bnOrZero(receiveAmounts?.[0]?.cryptoAmountBaseUnit)
+                    .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+                    .toFixed(underlyingAsset0.precision, BigNumber.ROUND_DOWN)
+                : '0'
+            }
             fiatAmount={bnOrZero(receiveAmounts?.[0]?.fiatAmount).toFixed(2) ?? '0'}
             showFiatAmount={true}
             assetId={underlyingAsset0.assetId}
@@ -491,9 +506,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit)
-              .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
-              .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)}
+            cryptoAmount={
+              bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit).gt(0)
+                ? bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit)
+                    .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+                    .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)
+                : '0'
+            }
             fiatAmount={bnOrZero(receiveAmounts?.[1]?.fiatAmount).toFixed(2) ?? '0'}
             showFiatAmount={true}
             assetId={underlyingAsset1.assetId}

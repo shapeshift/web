@@ -1715,6 +1715,11 @@
       "title": "Buy Crypto with NO KYC",
       "body": "Purchase up to $1,000 with Apple Pay",
       "cta": "Buy Now"
+    },
+    "savers": {
+      "title": "Earn rewards on your %{asset}",
+      "body": "Stake to THORChain savers vault. No lock-up time.",
+      "cta": "Deposit Now"
     }
   },
   "arkeo": {

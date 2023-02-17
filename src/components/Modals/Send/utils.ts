@@ -28,7 +28,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { tokenOrUndefined } from 'lib/utils'
+import { isOsmosisLpAsset, tokenOrUndefined } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -205,6 +205,7 @@ export const handleSend = async ({
           chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
           sendMax: sendInput.sendMax,
         }
+
         const { assetReference, assetNamespace } = fromAssetId(sendInput.asset.assetId)
         if (
           sendInput.asset.chainId === KnownChainIds.OsmosisMainnet &&
@@ -216,7 +217,7 @@ export const handleSend = async ({
             ...params,
             chainSpecific: {
               ...params.chainSpecific,
-              denom: `ibc/${assetReference}`,
+              denom: isOsmosisLpAsset(assetReference) ? assetReference : `ibc/${assetReference}`,
             },
           })
         }

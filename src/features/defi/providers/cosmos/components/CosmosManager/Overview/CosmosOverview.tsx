@@ -22,7 +22,10 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import {
+  getDefaultValidatorAddressFromChainId,
+  makeTotalCosmosSdkBondingsCryptoBaseUnit,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
 import {
   makeOpportunityIcons,
   serializeUserStakingId,
@@ -35,7 +38,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectStakingOpportunitiesByFilter,
+  selectStakingOpportunityByFilter,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -94,19 +97,15 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       defiProvider: DefiProvider.Cosmos,
       defiType: DefiType.Staking,
       assetId: stakingAssetId,
+      validatorId: toValidatorId({
+        chainId,
+        account: getDefaultValidatorAddressFromChainId(chainId),
+      }),
     }
-  }, [stakingAssetId])
+  }, [chainId, stakingAssetId])
 
-  // An account may be empty, but other accounts on the same wallet may have some opportunity metadata/userData
-  // So this gives us a list, not a single opportunity
-  const filteredOpportunitiesMetadata = useAppSelector(state =>
-    selectStakingOpportunitiesByFilter(state, filteredOpportunitiesMetadataFilter),
-  )
-
-  // Default Cosmos-SDK Shapeshift validators are inserted and fetched first
-  const defaultOpportunityMetadata = useMemo(
-    () => filteredOpportunitiesMetadata[0],
-    [filteredOpportunitiesMetadata],
+  const defaultOpportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
   )
 
   const hasClaim = useAppSelector(state =>

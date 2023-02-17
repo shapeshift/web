@@ -20,6 +20,7 @@ import {
   selectDefiTypeParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
@@ -38,6 +39,7 @@ import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
+  OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -80,18 +82,26 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
-export const selectStakingOpportunitiesByFilter = createSelector(
+export const selectStakingOpportunityByFilter = createSelector(
   selectStakingOpportunitiesById,
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
   selectAssetIdParamFromFilter,
-  (stakingOpportunitiesById, defiProvider, defiType, assetId) => {
-    return Object.values(stakingOpportunitiesById).filter(
+  selectValidatorIdParamFromFilter,
+  (
+    stakingOpportunitiesById,
+    defiProvider,
+    defiType,
+    assetId,
+    validatorId,
+  ): OpportunityMetadata | undefined => {
+    return Object.values(stakingOpportunitiesById).find(
       stakingOpportunity =>
         stakingOpportunity &&
-        (!defiProvider || defiProvider === stakingOpportunity.provider) &&
-        (!defiType || defiType === stakingOpportunity.type) &&
-        (!assetId || assetId === stakingOpportunity.assetId),
+        defiProvider === stakingOpportunity.provider &&
+        defiType === stakingOpportunity.type &&
+        assetId === stakingOpportunity.assetId &&
+        validatorId === stakingOpportunity.id,
     )
   },
 )

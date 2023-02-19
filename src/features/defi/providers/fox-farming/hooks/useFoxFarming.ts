@@ -2,6 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { getOrCreateContract } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -16,7 +17,6 @@ import {
   foxEthLpContractAddress,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/uniV2/contractManager'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

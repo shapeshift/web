@@ -1,6 +1,7 @@
 import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { calculateAPRFromToken0 } from 'plugins/foxPage/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -17,7 +18,6 @@ import type { foxEthLpContractAddress } from '../../constants'
 import { foxEthLpAssetIds } from '../../constants'
 import type { GetOpportunityIdsOutput, GetOpportunityMetadataOutput } from '../../types'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
-import { fetchUniV2PairData, getOrCreateContract } from './contractManager'
 
 export const uniV2LpMetadataResolver = async ({
   opportunityId,
@@ -67,7 +67,8 @@ export const uniV2LpMetadataResolver = async ({
 
   const { assetReference: contractAddress } = fromAssetId(opportunityId)
   // TODO(gomes): discrimination required because of typechain
-  // Import the standard UniV2 Pool ABI and cast `contractAddress` with it
+  // Import the standard UniV2 Pool ABI and cast `contractAddress` with it once we bring in Zerion SDK
+  // And know that a specific token is a UniV2 LP
   const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
   const apy = bnOrZero(calculatedApy).div(100).toString()
   const reserves = await uniV2LPContract.getReserves()

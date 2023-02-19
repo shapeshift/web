@@ -4,8 +4,7 @@ import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-
-import type { FoxEthStakingContractAddress } from '../../constants'
+import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   foxEthLpContractAddress,
   foxEthStakingContractAddressV1,
@@ -14,15 +13,16 @@ import {
   foxEthStakingContractAddressV4,
   foxEthStakingContractAddressV5,
   uniswapV2Router02ContractAddress,
-} from '../../constants'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from './constants'
-import type { IUniswapV2Pair } from './contracts'
+} from 'state/slices/opportunitiesSlice/constants'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+
+import type { IUniswapV2Pair } from './__generated'
 import {
   ERC20ABI__factory,
   FarmingAbi__factory,
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
-} from './contracts/factories'
+} from './__generated/factories'
 
 type KnownContract<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']

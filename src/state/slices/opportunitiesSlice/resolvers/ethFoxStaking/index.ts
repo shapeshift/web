@@ -1,5 +1,6 @@
 import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { makeTotalLpApr, rewardRatePerToken } from 'plugins/foxPage/utils'
@@ -23,7 +24,6 @@ import type {
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
-import { fetchUniV2PairData, getOrCreateContract } from '../uniV2/contractManager'
 export const ethFoxStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,

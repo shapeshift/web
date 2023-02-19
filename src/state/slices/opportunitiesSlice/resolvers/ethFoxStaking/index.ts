@@ -1,4 +1,4 @@
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import dayjs from 'dayjs'
@@ -9,10 +9,10 @@ import { toBaseUnit } from 'lib/math'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/selectors'
 
-import type { foxEthLpContractAddress } from '../../constants'
 import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
+  foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
   STAKING_ID_TO_VERSION,
@@ -35,25 +35,19 @@ export const ethFoxStakingMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const assets: AssetsState = state.assets
+  const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
+  const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
+  const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress, chainId } = fromAssetId(opportunityId)
+  const { assetReference: contractAddress } = fromAssetId(opportunityId)
+
+  if (bnOrZero(lpTokenPrice).isZero()) {
+    throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
+  }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getOrCreateContract(contractAddress)
-  const underlyingAssetId = toAssetId({
-    assetNamespace: 'erc20',
-    assetReference: contractAddress,
-    chainId,
-  })
-  const lpAssetPrecision = assets.byId[underlyingAssetId]?.precision ?? 0
-  const lpTokenMarketData: MarketData = selectMarketDataById(state, underlyingAssetId)
-  const lpTokenPrice = lpTokenMarketData?.price
-
-  const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
-
-  if (bnOrZero(lpTokenPrice).isZero()) {
-    throw new Error(`Market data not ready for ${underlyingAssetId}`)
-  }
+  const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -63,9 +57,9 @@ export const ethFoxStakingMetadataResolver = async ({
     .toFixed(2)
 
   // apr
-  const foxRewardRatePerTokenV5 = await rewardRatePerToken(uniV2LPContract)
+  const foxRewardRatePerTokenV5 = await rewardRatePerToken(foxFarmingContract)
 
-  const pair = await fetchUniV2PairData(opportunityId)
+  const pair = await fetchUniV2PairData(foxEthLpAssetId)
 
   // Getting the ratio of the LP token for each asset
   const reserves = await uniV2LPContract.getReserves()
@@ -94,22 +88,17 @@ export const ethFoxStakingMetadataResolver = async ({
     timeStamp.toNumber() === 0 ? false : dayjs().isAfter(dayjs.unix(timeStamp.toNumber()))
   const version = STAKING_ID_TO_VERSION[opportunityId]
 
-  const underlyingAssetIds = [
-    toAssetId({ assetNamespace: 'erc20', assetReference: pair.token0.address, chainId }),
-    toAssetId({ assetNamespace: 'erc20', assetReference: pair.token1.address, chainId }),
-  ] as const
-
   const data = {
     byId: {
       [opportunityId]: {
         apy,
         assetId: opportunityId,
         id: opportunityId,
-        provider: DefiProvider.UniV2,
+        provider: DefiProvider.EthFoxStaking,
         tvl,
         type: DefiType.Staking,
-        underlyingAssetId,
-        underlyingAssetIds,
+        underlyingAssetId: foxEthLpAssetId,
+        underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
           toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
           toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),

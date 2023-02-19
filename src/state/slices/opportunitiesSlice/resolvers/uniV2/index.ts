@@ -1,8 +1,9 @@
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { calculateAPRFromToken0 } from 'plugins/foxPage/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -54,10 +55,21 @@ export const uniV2LpMetadataResolver = async ({
     }),
   )
 
-  const underlyingAssetIds = [
-    toAssetId({ assetNamespace: 'erc20', assetReference: pair.token0.address, chainId }),
-    toAssetId({ assetNamespace: 'erc20', assetReference: pair.token1.address, chainId }),
-  ] as const
+  const assetId0 =
+    // Uniswap uses ERC20 WETH under the hood, but we want to display it as ETH
+    pair.token0.address === WETH_TOKEN_CONTRACT_ADDRESS
+      ? ethAssetId
+      : toAssetId({
+          assetNamespace: 'erc20',
+          assetReference: pair.token0.address,
+          chainId,
+        })
+  const assetId1 = toAssetId({
+    assetNamespace: 'erc20',
+    assetReference: pair.token1.address,
+    chainId,
+  })
+  const underlyingAssetIds = [assetId0, assetId1] as const
 
   if (bnOrZero(token0MarketData?.price).isZero()) {
     throw new Error(`Market data not ready for ${underlyingAssetIds[0]}`)
@@ -122,8 +134,8 @@ export const uniV2LpMetadataResolver = async ({
           toBaseUnit(token0PoolRatio.toString(), pair.token0.decimals ?? 18),
           toBaseUnit(token1PoolRatio.toString(), pair.token1.decimals ?? 18),
         ] as const,
-        name: `${assets.byId[underlyingAssetIds[0]]?.name}/${
-          assets.byId[underlyingAssetIds[1]]?.name
+        name: `${assets.byId[underlyingAssetIds[0]]?.symbol}/${
+          assets.byId[underlyingAssetIds[1]]?.symbol
         } Pool`,
       },
     },

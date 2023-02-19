@@ -23,6 +23,7 @@ import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 type FormValues = {
   uri: string
@@ -36,6 +37,9 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
   const [isQrCodeView, setIsQrCodeView] = useState<boolean>(false)
   const toggleQrCodeView = useCallback(() => setIsQrCodeView(v => !v), [])
   const { evmChainId, setWcAccountId } = useWalletConnect()
+
+  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
 
   const handleForm = (values: FormValues) => handleConnect(values.uri)
 
@@ -51,8 +55,9 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     [setValue, toggleQrCodeView],
   )
   const uri = useWatch({ control, name: 'uri' })
-  const canConnect = uri
+  const isWalletConnectV1 = uri.split('@')?.[1]?.[0] === '1'
   const isWalletConnectV2 = uri.split('@')?.[1]?.[0] === '2'
+  const isValidUri = isWalletConnectV1 || isWalletConnectV2
 
   const feeAssetId: AssetId = useMemo(() => {
     if (!evmChainId) return ethAssetId
@@ -63,6 +68,22 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
 
   if (isQrCodeView)
     return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />
+
+  const connectTranslation = (() => {
+    const commonString = 'plugins.walletConnectToDapps.modal.connect'
+    switch (true) {
+      case uri === '':
+        return `${commonString}.connect`
+      case isWalletConnectV1 && !isWalletConnectToDappsV1Enabled:
+        return `${commonString}.v1UriUnsupported`
+      case isWalletConnectV2 && !isWalletConnectToDappsV2Enabled:
+        return `${commonString}.v2UriUnsupported`
+      case !isValidUri:
+        return `${commonString}.invalidUri`
+      default:
+        return `${commonString}.connect`
+    }
+  })()
 
   return (
     <Box p={8}>
@@ -110,7 +131,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
             <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>
           </FormControl>
           <Button
-            isDisabled={!canConnect}
+            isDisabled={!isValidUri}
             colorScheme='blue'
             size='lg'
             width='full'
@@ -118,7 +139,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
             variant='solid'
             isLoading={formState.isSubmitting}
           >
-            {translate('plugins.walletConnectToDapps.modal.connect.connect')}
+            {translate(connectTranslation)}
           </Button>
         </VStack>
       </form>

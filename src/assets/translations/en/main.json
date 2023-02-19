@@ -1650,7 +1650,10 @@
           "howTo": "How to connect to a dApp?",
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
-          "connectionError": "Can't connect to provided URI."
+          "connectionError": "Can't connect to provided URI.",
+          "invalidUri": "Invalid URI",
+          "v1UriUnsupported": "WalletConnect V1 URI not enabled",
+          "v2UriUnsupported": "WalletConnect V2 URI not enabled"
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",

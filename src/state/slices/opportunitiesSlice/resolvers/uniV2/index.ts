@@ -90,7 +90,7 @@ export const uniV2LpMetadataResolver = async ({
   const totalLiquidityFiat = token0ReservesCryptoPrecision.times(token0Price).times(2)
   const tvl = totalLiquidityFiat.toString()
   const price = bnOrZero(tvl)
-    .div(bnOrZero(totalSupply.toString()).div(bn(10).div(pair.token1.decimals)))
+    .div(bnOrZero(totalSupply.toString()).div(bn(10).pow(pair.token1.decimals)))
     .toString()
 
   const lpMarketData = {

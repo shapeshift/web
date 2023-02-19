@@ -19,6 +19,7 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapError } from '@shapeshiftoss/swapper'
+import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -90,8 +91,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
-  async getUsdRate(_asset: Asset): Promise<string> {
-    return await Promise.reject(new SwapError('LifiSwapper: getUsdRate unimplemented'))
+  async getUsdRate(asset: Asset): Promise<string> {
+    return await getUsdRate(asset, this.chainMap, this.tokenMap, this.lifi)
   }
 
   /**

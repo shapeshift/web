@@ -92,6 +92,8 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
 export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: uniV2LpLpOpportunityIdsResolver,
+  },
+  [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
   },
   [`${DefiProvider.Idle}`]: {

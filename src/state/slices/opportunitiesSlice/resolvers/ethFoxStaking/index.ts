@@ -24,6 +24,7 @@ import type {
 } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+
 export const ethFoxStakingMetadataResolver = async ({
   opportunityId,
   opportunityType,
@@ -39,19 +40,16 @@ export const ethFoxStakingMetadataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getOrCreateContract(contractAddress)
-  const underlyingAssetAddress = await foxFarmingContract.stakingToken()
   const underlyingAssetId = toAssetId({
     assetNamespace: 'erc20',
-    assetReference: underlyingAssetAddress,
+    assetReference: contractAddress,
     chainId,
   })
   const lpAssetPrecision = assets.byId[underlyingAssetId]?.precision ?? 0
   const lpTokenMarketData: MarketData = selectMarketDataById(state, underlyingAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const uniV2LPContract = getOrCreateContract(
-    underlyingAssetAddress as typeof foxEthLpContractAddress,
-  )
+  const uniV2LPContract = getOrCreateContract(contractAddress as typeof foxEthLpContractAddress)
 
   if (bnOrZero(lpTokenPrice).isZero()) {
     throw new Error(`Market data not ready for ${underlyingAssetId}`)

@@ -84,7 +84,10 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
         pathname: location.pathname,
         search: qs.stringify({
           type: earnOpportunity.type,
-          provider: DefiProvider.UniV2,
+          provider:
+            opportunity.type === DefiType.LiquidityPool
+              ? DefiProvider.UniV2
+              : DefiProvider.EthFoxStaking,
           chainId,
           contractAddress,
           assetReference: earnOpportunity.underlyingAssetId

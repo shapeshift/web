@@ -36,7 +36,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
           body: 'arkeo.foxyTokenHolders.body',
           cta: 'arkeo.foxyTokenHolders.cta',
         }
-      case DefiProvider.UniV2:
+      case DefiProvider.EthFoxStaking:
         return {
           title: 'arkeo.foxFarmers.title',
           body: 'arkeo.foxFarmers.body',

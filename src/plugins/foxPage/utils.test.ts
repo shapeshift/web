@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import { TRADING_FEE_RATE } from './const'
 import { calculateAPRFromToken0, getToken0Volume24Hr } from './utils'
 
-jest.mock('state/slices/opportunitiesSlice/resolvers/uniV2/contractManager', () => ({
+jest.mock('contracts/contractManager', () => ({
   getOrCreateContract: () => ({
     filters: {
       Swap: jest.fn(() => {}),

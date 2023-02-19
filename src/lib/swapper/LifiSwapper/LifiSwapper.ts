@@ -21,6 +21,7 @@ import type {
 import { SwapError } from '@shapeshiftoss/swapper'
 import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
 
@@ -86,8 +87,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get a trade quote
    */
-  async getTradeQuote(_input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await Promise.reject(new SwapError('LifiSwapper: getTradeQuote unimplemented'))
+  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
+    return await getTradeQuote(input, this.chainMap, this.tokenMap, this.lifi)
   }
 
   /**

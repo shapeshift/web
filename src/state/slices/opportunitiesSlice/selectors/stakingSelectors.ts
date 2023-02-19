@@ -82,7 +82,7 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
-export const selectStakingOpportunityByFilter = createSelector(
+export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
   selectStakingOpportunitiesById,
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,

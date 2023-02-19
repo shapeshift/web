@@ -201,7 +201,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
-        asset: lpAsset,
+        assetName: lpAsset.name,
       })}
       menu={
         opportunityData.expired

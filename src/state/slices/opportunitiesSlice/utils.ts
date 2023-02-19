@@ -116,16 +116,20 @@ export const makeOpportunityIcons = ({
     ? [opportunity.icon]
     : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')
 
-export const makeDefiProviderDisplayName = ({
-  provider,
-  asset,
-}: {
+type MakeDefiProviderDisplayNameArgs = {
   provider: DefiProvider
-  asset: Asset | undefined
+  assetName: string
+}
+
+type MakeDefiProviderDisplayName = (args: MakeDefiProviderDisplayNameArgs) => string
+
+export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
+  provider,
+  assetName,
 }) => {
   switch (provider) {
     case DefiProvider.Cosmos:
-      return asset?.name ?? ''
+      return assetName
     case DefiProvider.Yearn:
       return 'Yearn Finance'
     case DefiProvider.Idle:

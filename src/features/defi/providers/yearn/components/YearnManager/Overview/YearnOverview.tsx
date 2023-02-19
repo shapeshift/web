@@ -205,7 +205,7 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssets}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
-        asset: vaultAsset,
+        assetName: vaultAsset.name,
       })}
       description={{
         description: underlyingAsset?.description,

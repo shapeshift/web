@@ -182,7 +182,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
       ]}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
-        asset: stakingAsset,
+        assetName: stakingAsset.name,
       })}
       menu={[
         {

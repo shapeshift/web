@@ -10,8 +10,7 @@ import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -24,7 +23,6 @@ type StakingTableProps = {
 type RowProps = Row<EarnOpportunityType>
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
-  const assets = useAppSelector(selectAssets)
   const translate = useTranslate()
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
@@ -57,9 +55,12 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: DefiProvider; row: RowProps }) => {
+          const assets = store.getState().assets.byId
+          const asset = assets[row.original.assetId]
+          const assetName = asset?.name ?? ''
           const providerDisplayName = makeDefiProviderDisplayName({
             provider: value,
-            asset: assets[row.original.assetId],
+            assetName,
           })
           return (
             <Skeleton isLoaded={row.original.isLoaded}>
@@ -126,7 +127,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [assets, showTeaser, translate],
+    [showTeaser, translate],
   )
 
   const handleRowClick = useCallback(

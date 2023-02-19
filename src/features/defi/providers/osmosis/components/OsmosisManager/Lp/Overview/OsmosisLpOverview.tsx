@@ -198,7 +198,7 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
       underlyingAssetsCryptoPrecision={opportunityBalances.underlyingAssetBalances}
       provider={makeDefiProviderDisplayName({
         provider: osmosisOpportunity.provider,
-        asset: lpAsset,
+        assetName: lpAsset.name,
       })}
       description={{
         description: lpAsset?.description,

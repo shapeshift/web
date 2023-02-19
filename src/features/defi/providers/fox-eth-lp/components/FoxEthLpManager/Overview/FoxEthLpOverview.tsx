@@ -123,7 +123,7 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={makeDefiProviderDisplayName({
         provider: foxEthLpOpportunity.provider,
-        asset: lpAsset,
+        assetName: lpAsset.name,
       })}
       description={{
         description: lpAsset?.description,

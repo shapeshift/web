@@ -325,7 +325,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={makeDefiProviderDisplayName({
         provider: earnOpportunityData.provider,
-        asset,
+        assetName: asset.name,
       })}
       description={{
         description: translate('defi.modals.saversVaults.description', {

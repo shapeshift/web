@@ -252,7 +252,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       underlyingAssetsCryptoPrecision={underlyingAssets}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
-        asset: vaultAsset,
+        assetName: vaultAsset.name,
       })}
       description={{
         description: underlyingAsset.description,

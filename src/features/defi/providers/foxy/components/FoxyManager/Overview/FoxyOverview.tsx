@@ -159,7 +159,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       ]}
       provider={makeDefiProviderDisplayName({
         provider: foxyEarnOpportunityData.provider,
-        asset: stakingAsset,
+        assetName: stakingAsset.name,
       })}
       menu={[
         {

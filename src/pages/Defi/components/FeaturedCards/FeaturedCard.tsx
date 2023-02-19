@@ -40,10 +40,8 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   }, [underlyingAssetIds])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const providerDisplayName = useMemo(
-    () => makeDefiProviderDisplayName({ provider, asset }),
-    [asset, provider],
-  )
+  const assetName = asset?.name ?? ''
+  const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })
 
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)

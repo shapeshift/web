@@ -7,6 +7,7 @@ import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -36,9 +37,7 @@ export const DappHeaderMenuSummaryV2 = () => {
   const { session, web3wallet, core, dispatch } = useWalletConnectV2()
   const connectedChainIds = extractChainIds(session)
 
-  if (!session || !web3wallet) return null
-
-  const handleDisconnect = async () => {
+  const handleDisconnect = useCallback(async () => {
     // Do this first - we want to always clear our session, even if the disconnect fails
     dispatch({ type: WalletConnectActionType.DELETE_SESSION })
 
@@ -65,9 +64,11 @@ export const DappHeaderMenuSummaryV2 = () => {
         throw new Error(`Error disconnecting pairing: ${e}, topic: ${topic}`)
       }
     }
-  }
+  }, [core, dispatch, session, web3wallet])
 
   const connectedAccounts = extractConnectedAccounts(session)
+
+  if (!session || !web3wallet) return null
 
   return (
     <>

@@ -43,14 +43,16 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     mode: 'onChange',
     defaultValues: { uri: '' },
   })
-  const handleSuccess = useCallback(
+  const handleQrScanSuccess = useCallback(
     (uri: string) => {
       setValue('uri', uri)
       toggleQrCodeView()
     },
     [setValue, toggleQrCodeView],
   )
-  const canConnect = !!useWatch({ control, name: 'uri' })
+  const uri = useWatch({ control, name: 'uri' })
+  const canConnect = uri
+  const isWalletConnectV2 = uri.split('@')?.[1]?.[0] === '2'
 
   const feeAssetId: AssetId = useMemo(() => {
     if (!evmChainId) return ethAssetId
@@ -59,7 +61,8 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     return chainAdapter.getFeeAssetId()
   }, [evmChainId])
 
-  if (isQrCodeView) return <QrCodeScanner onSuccess={handleSuccess} onBack={toggleQrCodeView} />
+  if (isQrCodeView)
+    return <QrCodeScanner onSuccess={handleQrScanSuccess} onBack={toggleQrCodeView} />
 
   return (
     <Box p={8}>
@@ -76,11 +79,13 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
           </Link>
 
           <FormControl isInvalid={Boolean(formState.errors.uri)} mb={6}>
-            <AccountDropdown
-              buttonProps={{ width: 'full', ml: 0, mr: 0 }}
-              assetId={feeAssetId}
-              onChange={setWcAccountId}
-            />
+            {!isWalletConnectV2 && (
+              <AccountDropdown
+                buttonProps={{ width: 'full', ml: 0, mr: 0 }}
+                assetId={feeAssetId}
+                onChange={setWcAccountId}
+              />
+            )}
             <InputGroup size='lg'>
               <InputRightElement>
                 <IconButton

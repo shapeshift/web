@@ -2,9 +2,8 @@ import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
 import { Button, useDisclosure } from '@chakra-ui/react'
 import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
-import { ConnectModal as ConnectModalV1 } from 'plugins/walletConnectToDapps/v1/components/modals/connect/Connect'
+import { ConnectModal } from 'plugins/walletConnectToDapps/v1/components/modals/connect/Connect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
-import { ConnectModal } from 'plugins/walletConnectToDapps/v2/components/modals/Connect'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -18,7 +17,6 @@ import { DappAvatar } from './DappAvatar'
 import { DappHeaderMenuSummary } from './DappHeaderMenuSummary'
 
 export const WalletConnectToDappsHeaderButton: FC = () => {
-  const { isOpen: isOpenV1, onClose: handleCloseV1, onOpen: handleOpenV1 } = useDisclosure()
   const { isOpen, onClose: handleClose, onOpen: handleOpen } = useDisclosure()
   const translate = useTranslate()
   const walletConnectV1 = useWalletConnect()
@@ -34,27 +32,15 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
 
   const walletConnectButtons = (
     <>
-      {isWalletConnectToDappsV1Enabled && (
-        <Button
-          leftIcon={<WalletConnectIcon />}
-          rightIcon={<ChevronRightIcon />}
-          onClick={handleOpenV1}
-          isLoading={!!walletConnectV1.connector}
-        >
-          WC V1
-        </Button>
-      )}
-      {isWalletConnectToDappsV2Enabled && (
+      {(isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled) && (
         <Button
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
           onClick={handleOpen}
-          isLoading={!!walletConnectV1.connector}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>
       )}
-      <ConnectModalV1 isOpen={isOpenV1} onClose={handleCloseV1} />
       <ConnectModal isOpen={isOpen} onClose={handleClose} />
     </>
   )
@@ -126,11 +112,12 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
     </Menu>
   )
 
-  if ((!walletConnectV1.connector || !walletConnectV1.dapp) && !walletConnectV2Connected) {
-    return walletConnectButtons
-  } else if (walletConnectV2Connected) {
-    return walletConnectV2ConnectedButton
-  } else {
-    return walletConnectV1ConnectedButton
+  switch (true) {
+    case (!walletConnectV1.connector || !walletConnectV1.dapp) && !walletConnectV2Connected:
+      return walletConnectButtons
+    case walletConnectV2Connected:
+      return walletConnectV2ConnectedButton
+    default:
+      return walletConnectV1ConnectedButton
   }
 }

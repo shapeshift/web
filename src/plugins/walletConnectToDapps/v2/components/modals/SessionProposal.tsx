@@ -87,7 +87,7 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
       id: proposal.id,
       namespaces: approvalNamespaces,
     })
-    dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
+    dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
     handleClose()
   }, [approvalNamespaces, dispatch, handleClose, proposal, web3wallet])
 

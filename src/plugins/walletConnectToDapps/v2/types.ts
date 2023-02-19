@@ -43,6 +43,7 @@ export enum WalletConnectActionType {
   INITIALIZE = 'INITIALIZE',
   SET_SESSION = 'SET_SESSION',
   DELETE_SESSION = 'DELETE_SESSION',
+  UPDATE_SESSION = 'UPDATE_SESSION',
 }
 
 export type WalletConnectAction =
@@ -59,10 +60,14 @@ export type WalletConnectAction =
     }
   | {
       type: WalletConnectActionType.SET_SESSION
-      payload: { session: SessionTypes.Struct }
+      payload: SessionTypes.Struct
     }
   | {
       type: WalletConnectActionType.DELETE_SESSION
+    }
+  | {
+      type: WalletConnectActionType.UPDATE_SESSION
+      payload: Partial<SessionTypes.Struct>
     }
 
 export type WalletConnectContextType = {

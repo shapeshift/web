@@ -39,6 +39,9 @@ export const DappHeaderMenuSummaryV2 = () => {
   if (!session || !web3wallet) return null
 
   const handleDisconnect = async () => {
+    // Do this first - we want to always clear our session, even if the disconnect fails
+    dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+
     if (!session || !web3wallet || !core) return
 
     /*
@@ -62,8 +65,6 @@ export const DappHeaderMenuSummaryV2 = () => {
         throw new Error(`Error disconnecting pairing: ${e}, topic: ${topic}`)
       }
     }
-
-    dispatch({ type: WalletConnectActionType.DELETE_SESSION })
   }
 
   const connectedAccounts = extractConnectedAccounts(session)

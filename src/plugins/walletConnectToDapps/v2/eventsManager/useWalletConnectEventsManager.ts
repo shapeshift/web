@@ -1,3 +1,4 @@
+import type { SessionTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsHandler'
 import type {
@@ -5,14 +6,22 @@ import type {
   WalletConnectContextType,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
-import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
+import {
+  EIP155_SigningMethod,
+  WalletConnectActionType,
+} from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
+import { logger } from 'lib/logger'
 
 export const isNarrowedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
 ): request is NarrowedSessionRequest => {
   return Object.values(EIP155_SigningMethod).some(value => value === request.params.request.method)
 }
+
+const moduleLogger = logger.child({
+  namespace: ['useWalletConnectEventsManager'],
+})
 
 export const useWalletConnectEventsManager = (
   isInitialized: boolean,
@@ -22,55 +31,62 @@ export const useWalletConnectEventsManager = (
 ) => {
   const { handleSessionProposal, handleAuthRequest, handleSessionRequest } =
     useWalletConnectEventsHandler(dispatch, web3wallet)
+
   // Set up WalletConnect event listeners
   useEffect(() => {
     if (isInitialized && web3wallet && core) {
-      // const signClientEvents = web3wallet.engine.signClient.events
-      // const pairingEvents = core.pairing.events
+      const signClientEvents = web3wallet.engine.signClient.events
+      const pairingEvents = core.pairing.events
+
+      const sessionRequestListener = (request: Web3WalletTypes.SessionRequest) =>
+        isNarrowedSessionRequest(request) && handleSessionRequest(request)
+      const sessionDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+      const sessionUpdateListener = (session: Partial<SessionTypes.Struct>) =>
+        dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: session })
+      const sessionPingListener = () =>
+        moduleLogger.info('Ping received from WalletConnect session client')
+      const pairingPingListener = () =>
+        moduleLogger.info('Ping received from WalletConnect session client')
+
+      // TODO: other cleanup needed here?
+      const pairingDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
+
+      // TODO: other cleanup needed here?
+      const pairingExpireListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
 
       // Sign
       web3wallet.on('session_proposal', handleSessionProposal)
-      web3wallet.on(
-        'session_request',
-        request => isNarrowedSessionRequest(request) && handleSessionRequest(request),
-      )
+      web3wallet.on('session_request', sessionRequestListener)
 
       // Auth
       web3wallet.on('auth_request', handleAuthRequest)
 
       // Pairing
-      // pairingEvents.on('pairing_ping', (data: any) => console.log('[debug] pairing_ping', data))
-      // pairingEvents.on('pairing_delete', (data: any) => console.log('[debug] pairing_delete', data))
-      // pairingEvents.on('pairing_expire', (data: any) => console.log('[debug] pairing_expire', data))
+      pairingEvents.on('pairing_ping', pairingPingListener)
+      pairingEvents.on('pairing_delete', pairingDeleteListener)
+      pairingEvents.on('pairing_expire', pairingExpireListener)
 
       // Session
-      // signClientEvents.on('session_ping', data => console.log('[debug] ping', data))
-      // signClientEvents.on('session_update', data => console.log('[debug] update', data))
-      // signClientEvents.on('session_delete', data => console.log('[debug] delete', data))
+      signClientEvents.on('session_ping', sessionPingListener)
+      signClientEvents.on('session_update', sessionUpdateListener)
+      signClientEvents.on('session_delete', sessionDeleteListener)
 
       return () => {
         // Sign
         web3wallet.off('session_proposal', handleSessionProposal)
-        web3wallet.off(
-          'session_request',
-          request => isNarrowedSessionRequest(request) && handleSessionRequest(request),
-        )
+        web3wallet.off('session_request', sessionRequestListener)
 
         // Auth
         web3wallet.off('auth_request', handleAuthRequest)
 
-        // pairingEvents.off('pairing_ping', (data: any) => console.log('[debug] pairing_ping', data))
-        // pairingEvents.off('pairing_delete', (data: any) =>
-        //   console.log('[debug] pairing_delete', data),
-        // )
-        // pairingEvents.off('pairing_expire', (data: any) =>
-        //   console.log('[debug] pairing_expire', data),
-        // )
+        pairingEvents.off('pairing_ping', pairingPingListener)
+        pairingEvents.off('pairing_delete', pairingDeleteListener)
+        pairingEvents.off('pairing_expire', pairingExpireListener)
 
         // Session
-        // signClientEvents.off('session_ping', data => console.log('[debug] ping', data))
-        // signClientEvents.off('session_update', data => console.log('[debug] update', data))
-        // signClientEvents.off('session_delete', data => console.log('[debug] delete', data))
+        signClientEvents.off('session_ping', sessionPingListener)
+        signClientEvents.off('session_update', sessionUpdateListener)
+        signClientEvents.off('session_delete', sessionDeleteListener)
       }
     }
   }, [
@@ -80,5 +96,6 @@ export const useWalletConnectEventsManager = (
     web3wallet,
     isInitialized,
     core,
+    dispatch,
   ])
 }

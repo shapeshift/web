@@ -13,9 +13,13 @@ export const walletConnectReducer = (
     case WalletConnectActionType.CLEAR_MODAL:
       return { ...state, activeModal: undefined, modalData: undefined }
     case WalletConnectActionType.SET_SESSION:
-      return { ...state, session: action.payload.session }
+      return { ...state, session: action.payload }
     case WalletConnectActionType.DELETE_SESSION:
       return { ...state, session: undefined }
+    case WalletConnectActionType.UPDATE_SESSION:
+      const { session } = state
+      // A session cannot be updated if it is not initialized
+      return session ? { ...state, session: { ...session, ...action.payload } } : state
     default:
       return state
   }

@@ -47,7 +47,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
     if (sessions?.length) {
       const session = sessions[0]
       // FIXME: handle multiple sessions
-      dispatch({ type: WalletConnectActionType.SET_SESSION, payload: { session } })
+      dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
     }
   }, [state.web3wallet])
 

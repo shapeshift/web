@@ -10,6 +10,7 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { LifiSwapper } from 'lib/swapper/LifiSwapper/LifiSwapper'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -101,6 +102,12 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
     _swapperManager.addSwapper(osmoSwapper)
+  }
+
+  if (flags.LifiSwap) {
+    const lifiSwapper = new LifiSwapper()
+    await lifiSwapper.initialize()
+    _swapperManager.addSwapper(lifiSwapper)
   }
 
   return _swapperManager

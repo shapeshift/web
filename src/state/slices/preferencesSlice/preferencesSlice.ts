@@ -33,6 +33,7 @@ export type FeatureFlags = {
   ConsentBanner: boolean
   MixPanel: boolean
   LiveSupport: boolean
+  LifiSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -76,6 +77,7 @@ const initialState: Preferences = {
     ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP,
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP,
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
+    LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     ConsentBanner: getConfig().REACT_APP_FEATURE_CONSENT_BANNER,
     MixPanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,

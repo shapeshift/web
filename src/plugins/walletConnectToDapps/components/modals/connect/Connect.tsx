@@ -1,6 +1,6 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { ConnectContent } from 'plugins/walletConnectToDapps/v1/components/modals/connect/ConnectContent'
+import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import { useCallback } from 'react'

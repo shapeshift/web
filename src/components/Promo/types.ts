@@ -1,8 +1,10 @@
+import type Polyglot from 'node-polyglot'
+
 export type PromoItem = {
   id: string
-  title: string
-  body: string
-  cta: string
+  title: string | [string, number | Polyglot.InterpolationOptions]
+  body: string | [string, number | Polyglot.InterpolationOptions]
+  cta: string | [string, number | Polyglot.InterpolationOptions]
   href: string
   startDate: string
   endDate: string

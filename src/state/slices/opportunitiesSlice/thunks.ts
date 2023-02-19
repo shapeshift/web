@@ -105,7 +105,7 @@ export const fetchAllStakingOpportunitiesMetadata = async (
             opportunityId,
             opportunityType: DefiType.Staking,
             defiType: DefiType.Staking,
-            defiProvider: DefiProvider.UniV2,
+            defiProvider: DefiProvider.EthFoxStaking,
           },
           // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
           { forceRefetch: false, ...options },
@@ -133,7 +133,7 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     },
     {
       defiType: DefiType.Staking,
-      defiProvider: DefiProvider.UniV2,
+      defiProvider: DefiProvider.EthFoxStaking,
     },
     {
       defiType: DefiType.LiquidityPool,
@@ -247,7 +247,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
             opportunityId,
             opportunityType: DefiType.Staking,
             defiType: DefiType.Staking,
-            defiProvider: DefiProvider.UniV2,
+            defiProvider: DefiProvider.EthFoxStaking,
           },
           // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
           { forceRefetch: false, ...options },

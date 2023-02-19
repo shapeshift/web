@@ -1,3 +1,4 @@
+import LIFI, { type ConfigUpdate } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -19,6 +20,15 @@ import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/consta
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
+  private readonly lifi: LIFI
+
+  constructor() {
+    const config: ConfigUpdate = {
+      disableVersionCheck: true, // prevent console notifying client about updates
+    }
+
+    this.lifi = new LIFI(config)
+  }
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {}

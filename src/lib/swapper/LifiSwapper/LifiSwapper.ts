@@ -2,7 +2,7 @@ import type { ChainId as LifiChainId, ChainKey, ConfigUpdate, Token } from '@lif
 import LIFI from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type {
@@ -19,6 +19,8 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapError } from '@shapeshiftoss/swapper'
+import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { selectAssets } from 'state/slices/selectors'
@@ -127,26 +129,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get supported buyAssetId's by sellAssetId
    */
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds = [], sellAssetId } = args
-
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
     const assetIdMap = selectAssets(store.getState())
-    const sellAssetChainId = fromAssetId(sellAssetId).chainId
-
-    const result = assetIds.filter(id => {
-      const assetChainId = fromAssetId(id).chainId
-      const symbol = assetIdMap[id]?.symbol
-
-      return (
-        assetChainId !== sellAssetChainId && // no same-chain swaps
-        (evmChainIds as readonly string[]).includes(assetChainId) &&
-        (evmChainIds as readonly string[]).includes(sellAssetChainId) &&
-        symbol !== undefined &&
-        this.tokenMap.has(symbol)
-      )
-    })
-
-    return result
+    return filterBuyAssetsBySellAssetId(input, this.tokenMap, assetIdMap)
   }
 
   /**
@@ -154,16 +139,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assetIdMap = selectAssets(store.getState())
-    const result = assetIds.filter(id => {
-      const symbol = assetIdMap[id]?.symbol
-      return (
-        (evmChainIds as readonly string[]).includes(fromAssetId(id).chainId) &&
-        symbol !== undefined &&
-        this.tokenMap.has(symbol)
-      )
-    })
-
-    return result
+    return filterAssetIdsBySellable(assetIds, this.tokenMap, assetIdMap)
   }
 
   /**

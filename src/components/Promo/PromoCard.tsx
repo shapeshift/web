@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -24,6 +24,10 @@ type PromoCardProps = {
 }
 
 export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
+  const textShadow = useColorModeValue(
+    '--chakra-colors-blackAlpha-50',
+    '--chakra-colors-blackAlpha-400',
+  )
   const {
     dispatch,
     state: { wallet, isDemoWallet },
@@ -67,6 +71,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
       ({
         rightElement,
         title,
+        image,
         body,
         colorScheme = 'blue',
         href,
@@ -76,11 +81,27 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
         isExternal,
       }) => {
         return (
-          <Card key={id}>
+          <Card
+            key={id}
+            backgroundImage={image}
+            backgroundSize='cover'
+            backgroundRepeat='no-repeat'
+            backgroundPosition='center -80px'
+          >
             <Card.Body display='flex' pb={filteredPromoCards.length > 1 ? 8 : 6} gap={6}>
               <Flex direction='column' alignItems='flex-start' gap={2}>
-                <Text fontWeight='bold' color={'whiteAlpha.900'} translation={title} />
-                <Text color={'gray.500'} translation={body} />
+                <Text
+                  letterSpacing='0.012em'
+                  fontWeight='bold'
+                  color={'whiteAlpha.900'}
+                  translation={title}
+                  textShadow={`0 2px 2px var(${textShadow})`}
+                />
+                <Text
+                  translation={body}
+                  textShadow={`0 2px 2px var(${textShadow})`}
+                  letterSpacing='0.009em'
+                />
                 <Button
                   variant='link'
                   colorScheme={colorScheme}
@@ -88,6 +109,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                   onClick={() => handleClick({ href, walletRequired, isExternal })}
                   rightIcon={<ArrowForwardIcon />}
                   data-test={`${id}-button`}
+                  letterSpacing='0.012em'
                 >
                   {translate(cta)}
                 </Button>
@@ -98,6 +120,6 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
         )
       },
     )
-  }, [data, handleClick, translate])
+  }, [data, handleClick, textShadow, translate])
   return renderPromos.length ? <Carousel>{renderPromos}</Carousel> : null
 }

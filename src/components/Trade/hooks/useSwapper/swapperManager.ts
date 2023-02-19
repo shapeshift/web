@@ -13,6 +13,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { LifiSwapper } from 'lib/swapper/LifiSwapper/LifiSwapper'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 // singleton - do not export me, use getSwapperManager
 let _swapperManager: SwapperManager | null = null
@@ -105,7 +107,8 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   }
 
   if (flags.LifiSwap) {
-    const lifiSwapper = new LifiSwapper()
+    const assetIdMap = selectAssets(store.getState())
+    const lifiSwapper = new LifiSwapper(assetIdMap)
     await lifiSwapper.initialize()
     _swapperManager.addSwapper(lifiSwapper)
   }

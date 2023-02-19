@@ -23,21 +23,21 @@ import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIds
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
   private readonly lifi: LIFI
   private chainMap: Map<number, ChainKey> = new Map()
   private tokenMap: Map<string, Pick<Token, 'decimals' | 'symbol'>> = new Map()
+  private readonly assetIdMap: Partial<Record<AssetId, Asset>>
 
-  constructor() {
+  constructor(assetIdMap: Partial<Record<AssetId, Asset>>) {
     const config: ConfigUpdate = {
       disableVersionCheck: true, // prevent console notifying client about updates
     }
 
     this.lifi = new LIFI(config)
+    this.assetIdMap = assetIdMap
   }
 
   /** perform any necessary async initialization */
@@ -130,16 +130,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    const assetIdMap = selectAssets(store.getState())
-    return filterBuyAssetsBySellAssetId(input, this.tokenMap, assetIdMap)
+    return filterBuyAssetsBySellAssetId(input, this.tokenMap, this.assetIdMap)
   }
 
   /**
    * Get supported sell assetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    const assetIdMap = selectAssets(store.getState())
-    return filterAssetIdsBySellable(assetIds, this.tokenMap, assetIdMap)
+    return filterAssetIdsBySellable(assetIds, this.tokenMap, this.assetIdMap)
   }
 
   /**

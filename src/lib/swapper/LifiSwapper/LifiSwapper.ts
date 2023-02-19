@@ -1,7 +1,10 @@
-import LIFI, { type ConfigUpdate } from '@lifi/sdk'
+import type { ChainId as LifiChainId, ChainKey, ConfigUpdate, Token } from '@lifi/sdk'
+import LIFI from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type {
   ApprovalNeededOutput,
   BuildTradeInput,
@@ -17,10 +20,14 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { SwapError } from '@shapeshiftoss/swapper'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
   private readonly lifi: LIFI
+  private chainMap: Map<number, ChainKey> = new Map()
+  private tokenMap: Map<string, Pick<Token, 'decimals' | 'symbol'>> = new Map()
 
   constructor() {
     const config: ConfigUpdate = {
@@ -31,7 +38,35 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   }
 
   /** perform any necessary async initialization */
-  async initialize(): Promise<void> {}
+  async initialize(): Promise<void> {
+    const supportedChainRefs = evmChainIds.map(
+      chainId => +fromChainId(chainId).chainReference,
+    ) as LifiChainId[]
+    const chains = await this.lifi.getChains()
+    this.chainMap = new Map(
+      chains
+        .filter(({ chainType, id }) => chainType === 'EVM' && supportedChainRefs.includes(id))
+        .map(({ id, key }) => [id, key]),
+    )
+
+    const { tokens } = await this.lifi.getTokens({
+      chains: [...this.chainMap.keys()] as LifiChainId[],
+    })
+
+    this.tokenMap = new Map(
+      ([] as [string, Pick<Token, 'decimals' | 'symbol'>][]).concat(
+        ...[...this.chainMap.keys()].map(chainId =>
+          tokens[chainId].map(
+            ({ decimals, symbol }) =>
+              [symbol.toUpperCase(), { decimals, symbol }] as [
+                string,
+                Pick<Token, 'decimals' | 'symbol'>,
+              ],
+          ),
+        ),
+      ),
+    )
+  }
 
   /** Returns the swapper type */
   getType(): SwapperType {
@@ -91,15 +126,43 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get supported buyAssetId's by sellAssetId
    */
-  filterBuyAssetsBySellAssetId(_args: BuyAssetBySellIdInput): AssetId[] {
-    throw new SwapError('LifiSwapper: filterBuyAssetsBySellAssetId unimplemented')
+  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
+    const { assetIds = [], sellAssetId } = args
+
+    const assetIdMap = selectAssets(store.getState())
+    const sellAssetChainId = fromAssetId(sellAssetId).chainId
+
+    const result = assetIds.filter(id => {
+      const assetChainId = fromAssetId(id).chainId
+      const symbol = assetIdMap[id]?.symbol
+
+      return (
+        assetChainId !== sellAssetChainId && // no same-chain swaps
+        (evmChainIds as readonly string[]).includes(assetChainId) &&
+        (evmChainIds as readonly string[]).includes(sellAssetChainId) &&
+        symbol !== undefined &&
+        this.tokenMap.has(symbol)
+      )
+    })
+
+    return result
   }
 
   /**
    * Get supported sell assetIds
    */
-  filterAssetIdsBySellable(_assetIds: AssetId[]): AssetId[] {
-    throw new SwapError('LifiSwapper: filterAssetIdsBySellable unimplemented')
+  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+    const assetIdMap = selectAssets(store.getState())
+    const result = assetIds.filter(id => {
+      const symbol = assetIdMap[id]?.symbol
+      return (
+        (evmChainIds as readonly string[]).includes(fromAssetId(id).chainId) &&
+        symbol !== undefined &&
+        this.tokenMap.has(symbol)
+      )
+    })
+
+    return result
   }
 
   /**

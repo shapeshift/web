@@ -3,7 +3,11 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
+import {
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  FOX_TOKEN_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+} from 'contracts/constants'
 import { getOrCreateContract } from 'contracts/contractManager'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
@@ -14,9 +18,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   foxEthLpAssetId,
-  foxEthLpContractAddress,
   uniswapV2Router02AssetId,
-  uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
@@ -67,7 +69,7 @@ export const useFoxEthLiquidityPool = (
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
+    () => (skip ? null : getOrCreateContract(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
   )
 
@@ -77,7 +79,7 @@ export const useFoxEthLiquidityPool = (
   )
 
   const uniV2LPContract = useMemo(
-    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
+    () => (skip ? null : getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)),
     [skip],
   )
 

@@ -2,6 +2,10 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+} from 'contracts/constants'
 import { getOrCreateContract } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -12,11 +16,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isValidAccountNumber } from 'lib/utils'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import {
-  foxEthLpAssetId,
-  foxEthLpContractAddress,
-  uniswapV2Router02ContractAddress,
-} from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +54,7 @@ export const useFoxFarming = (
   const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as ethereum.ChainAdapter
 
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
+    () => (skip ? null : getOrCreateContract(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
   )
 
@@ -64,7 +64,7 @@ export const useFoxFarming = (
   )
 
   const uniV2LPContract = useMemo(
-    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
+    () => (skip ? null : getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)),
     [skip],
   )
 

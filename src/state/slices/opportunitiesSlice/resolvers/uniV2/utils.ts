@@ -2,13 +2,13 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Fetcher, Token, TokenAmount } from '@uniswap/sdk'
 import type { IUniswapV2Pair } from 'contracts/__generated'
+import type { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContract } from 'contracts/contractManager'
 import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import type { foxEthLpContractAddress } from '../../constants'
 import { TRADING_FEE_RATE } from './constants'
 
 export const fetchPairData = memoize(
@@ -67,7 +67,7 @@ export const calculateAPRFromToken0 = memoize(
     const { assetReference: contractAddress } = fromAssetId(pairAssetId)
     // TODO: Don't cast as one of ETH/FOX LP addresses. Make this programmatic when we bring Zerion SDK in
     const pair: IUniswapV2Pair = getOrCreateContract(
-      contractAddress as typeof foxEthLpContractAddress,
+      contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
     )
 
     const token0Volume24Hr = await getToken0Volume24Hr({

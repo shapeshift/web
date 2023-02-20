@@ -1,5 +1,6 @@
 import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -11,7 +12,6 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
-  foxEthLpContractAddress,
   foxEthPair,
   foxEthStakingIds,
   STAKING_ID_TO_VERSION,
@@ -47,7 +47,7 @@ export const ethFoxStakingMetadataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getOrCreateContract(contractAddress)
-  const uniV2LPContract = getOrCreateContract(foxEthLpContractAddress)
+  const uniV2LPContract = getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()

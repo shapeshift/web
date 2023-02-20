@@ -5,15 +5,6 @@ import { Fetcher } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import {
-  foxEthLpContractAddress,
-  foxEthStakingContractAddressV1,
-  foxEthStakingContractAddressV2,
-  foxEthStakingContractAddressV3,
-  foxEthStakingContractAddressV4,
-  foxEthStakingContractAddressV5,
-  uniswapV2Router02ContractAddress,
-} from 'state/slices/opportunitiesSlice/constants'
 
 import type { IUniswapV2Pair } from './__generated'
 import {
@@ -22,17 +13,26 @@ import {
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
 } from './__generated/factories'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from './constants'
+import {
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V3,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
+  FOX_TOKEN_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+} from './constants'
 
 type KnownContract<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
 >
 
 type KnownContractAddress =
-  | typeof foxEthLpContractAddress
+  | typeof ETH_FOX_POOL_CONTRACT_ADDRESS
   | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS
-  | typeof uniswapV2Router02ContractAddress
+  | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
 
 type DefinedContract = {
   contract: KnownContract<KnownContractAddress>
@@ -42,14 +42,14 @@ type DefinedContract = {
 const definedContracts: DefinedContract[] = []
 
 export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
-  [foxEthLpContractAddress]: IUniswapV2Pair__factory,
-  [foxEthStakingContractAddressV1]: FarmingAbi__factory,
-  [foxEthStakingContractAddressV2]: FarmingAbi__factory,
-  [foxEthStakingContractAddressV3]: FarmingAbi__factory,
-  [foxEthStakingContractAddressV4]: FarmingAbi__factory,
-  [foxEthStakingContractAddressV5]: FarmingAbi__factory,
+  [ETH_FOX_POOL_CONTRACT_ADDRESS]: IUniswapV2Pair__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V1]: FarmingAbi__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V2]: FarmingAbi__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V3]: FarmingAbi__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V4]: FarmingAbi__factory,
+  [ETH_FOX_STAKING_CONTRACT_ADDRESS_V5]: FarmingAbi__factory,
   [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
-  [uniswapV2Router02ContractAddress]: IUniswapV2Router02__factory,
+  [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
 } as const
 
 export const getOrCreateContract = <T extends KnownContractAddress>(
@@ -68,7 +68,7 @@ export const getOrCreateContract = <T extends KnownContractAddress>(
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference: contractAddress, chainId } = fromAssetId(pairAssetId)
   const pair: IUniswapV2Pair = getOrCreateContract(
-    contractAddress as typeof foxEthLpContractAddress,
+    contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
   )
   const ethersProvider = getEthersProvider()
 

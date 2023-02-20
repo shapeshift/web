@@ -385,11 +385,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const w = await getWallet(localWalletDeviceId)
                 fnLogger.trace({ id: w?.id, label: w?.label }, 'Found mobile wallet')
                 if (w && w.mnemonic && w.label) {
-                  if (!nativeAdapters) {
-                    disconnect()
-                    break
-                  }
-                  const localMobileWallet = await nativeAdapters[0]?.pairDevice(localWalletDeviceId)
+                  const localMobileWallet = await nativeAdapters?.[0]?.pairDevice(
+                    localWalletDeviceId,
+                  )
 
                   if (localMobileWallet) {
                     localMobileWallet.loadDevice({ label: w.label, mnemonic: w.mnemonic })
@@ -420,11 +418,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               break
             case KeyManager.Native:
-              if (!nativeAdapters) {
-                disconnect()
-                break
-              }
-              const localNativeWallet = await nativeAdapters[0]?.pairDevice(localWalletDeviceId)
+              const localNativeWallet = await nativeAdapters?.[0]?.pairDevice(localWalletDeviceId)
               if (localNativeWallet) {
                 /**
                  * This will eventually fire an event, which the native wallet
@@ -480,12 +474,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Portis:
-              const portisAdapters = state.adapters.get(KeyManager.Portis)
-              if (!portisAdapters) {
-                disconnect()
-                break
-              }
-              const localPortisWallet = await portisAdapters[0]?.pairDevice()
+              const localPortisWallet = await state.adapters
+                .get(KeyManager.Portis)?.[0]
+                ?.pairDevice()
               if (localPortisWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
                 try {
@@ -517,12 +508,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               )
                 disconnect()
 
-              const metamaskAdapters = state.adapters.get(KeyManager.MetaMask)
-              if (!metamaskAdapters) {
-                disconnect()
-                break
-              }
-              const localMetaMaskWallet = await metamaskAdapters[0]?.pairDevice()
+              const localMetaMaskWallet = await state.adapters
+                .get(KeyManager.MetaMask)?.[0]
+                ?.pairDevice()
               if (localMetaMaskWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {
@@ -550,12 +538,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.TallyHo:
               //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
               if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
-              const tallyHoAdapters = state.adapters.get(KeyManager.TallyHo)
-              if (!tallyHoAdapters) {
-                disconnect()
-                break
-              }
-              const localTallyHoWallet = await tallyHoAdapters[0]?.pairDevice()
+              const localTallyHoWallet = await state.adapters
+                .get(KeyManager.TallyHo)?.[0]
+                ?.pairDevice()
               if (localTallyHoWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
                 try {
@@ -580,12 +565,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.XDefi:
-              const xDefiAdapters = state.adapters.get(KeyManager.XDefi)
-              if (!xDefiAdapters) {
-                disconnect()
-                break
-              }
-              const localXDEFIWallet = await xDefiAdapters[0]?.pairDevice()
+              const localXDEFIWallet = await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()
               if (localXDEFIWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
                 try {
@@ -610,12 +590,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.Keplr:
-              const keplrAdapters = state.adapters.get(KeyManager.Keplr)
-              if (!keplrAdapters) {
-                disconnect()
-                break
-              }
-              const localKeplrWallet = await keplrAdapters[0]?.pairDevice()
+              const localKeplrWallet = await state.adapters.get(KeyManager.Keplr)?.[0]?.pairDevice()
               if (localKeplrWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Keplr]
                 try {
@@ -718,9 +693,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       maybeProvider?.on?.('accountsChanged', handleAccountsOrChainChanged)
       maybeProvider?.on?.('chainChanged', handleAccountsOrChainChanged)
 
-      const keymanager = state.adapters?.get(walletType)
-      if (!keymanager) return
-      const wallet = await keymanager[0]?.pairDevice()
+      const wallet = await state.adapters?.get(walletType)?.[0]?.pairDevice()
       if (wallet) {
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
@@ -730,7 +703,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         }
       }
     },
-    [walletType, handleAccountsOrChainChanged, state.adapters],
+    [state.adapters, walletType, handleAccountsOrChainChanged],
   )
 
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load

@@ -42,9 +42,9 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
-        const adapters = state.adapters.get(KeyManager.XDefi)
-        if (!adapters) return
-        const wallet = (await adapters[0]?.pairDevice()) as XDEFIHDWallet | undefined
+        const wallet = (await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()) as
+          | XDEFIHDWallet
+          | undefined
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')

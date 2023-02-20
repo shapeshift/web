@@ -12,7 +12,7 @@ import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertIsDefined } from 'lib/utils'
 
-export const SignTypedDataConfirmation: FC<
+export const EIP155SignTypedDataConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTypedDataCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, message } = useWalletConnectState(state)
@@ -25,7 +25,7 @@ export const SignTypedDataConfirmation: FC<
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
       </ModalSection>
       <TypedMessageInfo typedData={message} />
       <Text

@@ -131,7 +131,7 @@ export type EthSignCallRequest = {
   params: EthSignCallRequestParams
 }
 
-type EthPersonalSignCallRequestParams = [message: string, account: string]
+export type EthPersonalSignCallRequestParams = [message: string, account: string]
 export type EthPersonalSignCallRequest = {
   method: EIP155_SigningMethod.PERSONAL_SIGN
   params: EthPersonalSignCallRequestParams
@@ -228,10 +228,14 @@ export const assertIsTransactionParams: (
   'Transaction has no transaction params',
 )
 
+export type EthSignParams =
+  | EthSignCallRequest
+  | EthPersonalSignCallRequestParams
+  | EthSignTypedDataCallRequest
+
 type RequestParams =
   | TransactionParams[]
-  | EthSignCallRequestParams
-  | EthPersonalSignCallRequestParams
+  | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
 
@@ -239,3 +243,9 @@ export const isTransactionParamsArray = (
   transactions: RequestParams | undefined,
 ): transactions is TransactionParams[] =>
   (transactions as TransactionParams[])?.every?.(isTransactionParams)
+
+export const isEthSignParams = (requestParams: RequestParams): requestParams is EthSignParams =>
+  requestParams instanceof Array &&
+  requestParams.length === 2 &&
+  typeof requestParams[0] === 'string' &&
+  typeof requestParams[1] === 'string'

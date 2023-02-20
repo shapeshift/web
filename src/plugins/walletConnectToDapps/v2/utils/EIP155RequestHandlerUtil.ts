@@ -27,9 +27,9 @@ type ApproveEIP155RequestArgs = {
   requestEvent: NarrowedSessionRequest
   wallet: HDWallet
   chainAdapter: EvmBaseAdapter<EvmChainId>
-  accountMetadata: AccountMetadata
+  accountMetadata?: AccountMetadata
   customTransactionData?: CustomTransactionData
-  accountId: AccountId
+  accountId?: AccountId
 }
 
 function assertSupportsEthSignTypedData(
@@ -49,9 +49,9 @@ export const approveEIP155Request = async ({
 }: ApproveEIP155RequestArgs): Promise<JsonRpcResult<ETHSignedTypedData | string>> => {
   const { params, id } = requestEvent
   const { request } = params
-  const { bip44Params } = accountMetadata
-  const { accountNumber } = bip44Params
-  const addressNList = toAddressNList(bip44Params)
+  const bip44Params = accountMetadata?.bip44Params
+  const accountNumber = bip44Params?.accountNumber
+  const addressNList = bip44Params ? toAddressNList(bip44Params) : []
 
   switch (request.method) {
     case EIP155_SigningMethod.PERSONAL_SIGN:
@@ -79,6 +79,9 @@ export const approveEIP155Request = async ({
 
     case EIP155_SigningMethod.ETH_SEND_TRANSACTION: {
       assertIsDefined(customTransactionData)
+      assertIsDefined(accountNumber)
+      assertIsDefined(accountId)
+
       const sendTransaction = request.params[0]
       const maybeAdvancedParamsNonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)
@@ -112,6 +115,8 @@ export const approveEIP155Request = async ({
 
     case EIP155_SigningMethod.ETH_SIGN_TRANSACTION: {
       assertIsDefined(customTransactionData)
+      assertIsDefined(accountId)
+
       const signTransaction = request.params[0]
       const nonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)

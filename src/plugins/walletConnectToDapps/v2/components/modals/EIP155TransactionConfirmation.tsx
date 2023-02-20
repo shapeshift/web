@@ -31,7 +31,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const TransactionConfirmation: FC<
+export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, transaction, isInteractingWithContract, method } = useWalletConnectState(state)
@@ -70,7 +70,7 @@ export const TransactionConfirmation: FC<
   return (
     <FormProvider {...form}>
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>
-        <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
       </ModalSection>
       <ModalSection
         title={`plugins.walletConnectToDapps.modal.sendTransaction.${

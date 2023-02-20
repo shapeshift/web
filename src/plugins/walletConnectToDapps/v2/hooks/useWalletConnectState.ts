@@ -2,8 +2,8 @@ import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks
 import {
   extractConnectedAccounts,
   getSignParamsMessage,
-  getWalletAccountFromParams,
-  getWalletAddressFromParams,
+  getWalletAccountFromEthSignParams,
+  getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
 import type {
   CosmosSigningMethod,
@@ -11,6 +11,7 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
+  isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
@@ -30,14 +31,24 @@ export const useWalletConnectState = (state: WalletConnectState) => {
   const transaction = isTransactionParamsArray(requestParams) ? requestParams?.[0] : undefined
 
   const connectedAccounts = extractConnectedAccounts(session)
-  const address = getWalletAddressFromParams(connectedAccounts, params)
+
+  const address = (() => {
+    if (requestParams && isEthSignParams(requestParams))
+      return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
+    if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
+    if (requestParams && isEthSignParams(requestParams)) return requestParams.signerAddress
+    else return undefined
+  })()
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
-  const accountId = getWalletAccountFromParams(connectedAccounts, requestEvent?.params)
-  const accountMetadata = accountMetadataById[accountId]
+  const accountId =
+    requestParams && isEthSignParams(requestParams)
+      ? getWalletAccountFromEthSignParams(connectedAccounts, requestParams)
+      : undefined
+  const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
   const isInteractingWithContract = useIsInteractingWithContract({
-    evmChainId: chainId ?? undefined,
+    evmChainId: chainId,
     address,
   })
 

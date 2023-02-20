@@ -4,8 +4,6 @@ import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/moda
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type {
-  CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
   EthPersonalSignCallRequest,
   EthSignCallRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
@@ -17,13 +15,8 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const SignMessageConfirmationModal: FC<
-  WalletConnectRequestModalProps<
-    | EthSignCallRequest
-    | EthPersonalSignCallRequest
-    | CosmosSignDirectCallRequest
-    | CosmosSignAminoCallRequest
-  >
+export const EIP155SignMessageConfirmationModal: FC<
+  WalletConnectRequestModalProps<EthSignCallRequest | EthPersonalSignCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, message } = useWalletConnectState(state)
   const peerMetadata = state.session.peer.metadata
@@ -36,7 +29,7 @@ export const SignMessageConfirmationModal: FC<
   return (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.signingFrom'>
-        <AddressSummaryCard address={address} icon={<WalletIcon w='full' h='full' />} />
+        <AddressSummaryCard address={address ?? ''} icon={<WalletIcon w='full' h='full' />} />
       </ModalSection>
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card bg={cardBg} borderRadius='md'>

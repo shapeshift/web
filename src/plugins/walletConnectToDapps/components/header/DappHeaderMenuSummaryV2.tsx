@@ -52,6 +52,7 @@ export const DappHeaderMenuSummaryV2 = () => {
     const activeTopics = Object.values(web3wallet.getActiveSessions()).map(session => session.topic)
     for await (const topic of activeTopics) {
       try {
+        // This currently throws, and does not work: https://github.com/WalletConnect/walletconnect-monorepo/issues/1772
         await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
       } catch (e) {
         throw new Error(`Error disconnecting session: ${e}, topic: ${topic}`)

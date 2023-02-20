@@ -11,6 +11,7 @@ import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/t
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type {
   CustomTransactionData,
+  EthSignParams,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -106,7 +107,10 @@ export const extractConnectedAccounts = (session: WalletConnectState['session'])
  * Get our account from params checking if params string contains an accounts address
  * of our wallet addresses
  */
-export const getWalletAccountFromParams = (accountIds: AccountId[], params: unknown): AccountId => {
+export const getWalletAccountFromEthSignParams = (
+  accountIds: AccountId[],
+  params: EthSignParams,
+): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return (
     accountIds.find(accountId =>
@@ -119,7 +123,10 @@ export const getWalletAccountFromParams = (accountIds: AccountId[], params: unkn
  * Get our address from params checking if params string contains one
  * of our wallet addresses
  */
-export const getWalletAddressFromParams = (accountIds: AccountId[], params: unknown): string => {
+export const getWalletAddressFromEthSignParams = (
+  accountIds: AccountId[],
+  params: EthSignParams,
+): string => {
   const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''

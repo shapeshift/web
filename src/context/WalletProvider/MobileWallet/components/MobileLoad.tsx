@@ -60,15 +60,15 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: RevocableWallet) => {
-    const adapter = state.adapters?.get(KeyManager.Native)
+    const adapters = state.adapters?.get(KeyManager.Native)
     const deviceId = item?.id
-    if (adapter && deviceId) {
+    if (adapters && deviceId) {
       const { name, icon } = MobileConfig
       try {
         const revoker = await getWallet(deviceId)
         if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
 
-        const wallet = await adapter[0].pairDevice(revoker.id)
+        const wallet = await adapters[0].pairDevice(revoker.id)
         await wallet.loadDevice({ mnemonic: revoker.mnemonic })
         if (!(await wallet.isInitialized())) {
           await wallet.initialize()

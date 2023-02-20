@@ -30,10 +30,10 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   useEffect(() => {
     ;(async () => {
       if (!vault) return
-      const adapter = state.adapters?.get(KeyManager.Native)!
+      const adapters = state.adapters?.get(KeyManager.Native)!
       try {
         const deviceId = vault.id ?? ''
-        const wallet = (await adapter[0].pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapters[0].pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = vault.mnemonic
 
         if (mnemonic) {

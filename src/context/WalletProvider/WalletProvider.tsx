@@ -853,13 +853,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [])
 
   const connectDemo = useCallback(async () => {
-    const { name, icon, adapters: adapter } = SUPPORTED_WALLETS[KeyManager.Demo]
+    const { name, icon, adapters } = SUPPORTED_WALLETS[KeyManager.Demo]
     // For the demo wallet, we use the name, DemoWallet, as the deviceId
     const deviceId = name
     setLocalWalletTypeAndDeviceId(KeyManager.Demo, deviceId)
     setLocalNativeWalletName(name)
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
-    const adapterInstance = adapter[0].useKeyring(state.keyring)
+    const adapterInstance = adapters[0].useKeyring(state.keyring)
     const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
     const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
     await wallet.loadDevice({

@@ -1615,7 +1615,15 @@
           "confirm": "Confirm",
           "reject": "Reject",
           "messageData": "Message data",
-          "domain": "Domain"
+          "domain": "Domain",
+          "memo": "Memo",
+          "messages": "Messages",
+          "noMessages": "No messages",
+          "sequence": "Sequence",
+          "accountNumber": "Account number",
+          "chainId": "Chain ID",
+          "authInfo": "Auth info",
+          "body": "Body"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

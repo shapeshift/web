@@ -23,7 +23,7 @@ export enum CosmosSigningMethod {
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: SignClientTypes.EventArguments['session_proposal']
-  requestEvent?: NarrowedSessionRequest<T>
+  requestEvent?: SupportedSessionRequest<T>
   requestSession?: SessionTypes.Struct
   request?: Web3WalletTypes.AuthRequest
 }
@@ -105,7 +105,7 @@ export type TransactionParams = {
 }
 
 // Overwrite Web3WalletTypes.SessionRequest to narrow chainId and request params
-export type NarrowedSessionRequest<T = WalletConnectRequest> = Omit<
+export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   Web3WalletTypes.SessionRequest,
   'params'
 > & {
@@ -155,8 +155,8 @@ export type CosmosSignDirectCallRequest = {
 export type CosmosSignAminoCallRequestParams = {
   signerAddress: string
   signDoc: {
-    chainId: ChainId
-    accountNumber: string
+    chain_id: ChainId
+    account_number: string
     sequence: string
     memo: string
     msgs: [type: string, value: string][]

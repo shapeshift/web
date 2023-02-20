@@ -78,21 +78,6 @@ export const getSignParamsMessage = (params: string[]) => {
   return convertHexToUtf8(message)
 }
 
-/**
- * Gets data from various signTypedData request methods by filtering out
- * a value that is not an address (thus is data).
- * If data is a string convert it to object
- */
-export const getSignTypedDataParamsData = (params: string[]) => {
-  const data = params.filter(p => !utils.isAddress(p))[0]
-
-  if (typeof data === 'string') {
-    return JSON.parse(data)
-  }
-
-  return data
-}
-
 export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {
   const namespaces = session?.namespaces
 

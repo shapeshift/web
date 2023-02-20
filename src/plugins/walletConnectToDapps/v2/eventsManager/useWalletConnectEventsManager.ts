@@ -2,7 +2,7 @@ import type { SessionTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import { useWalletConnectEventsHandler } from 'plugins/walletConnectToDapps/v2/eventsManager/useWalletConnectEventsHandler'
 import type {
-  NarrowedSessionRequest,
+  SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
@@ -16,7 +16,7 @@ import { logger } from 'lib/logger'
 
 export const isSupportedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
-): request is NarrowedSessionRequest => {
+): request is SupportedSessionRequest => {
   const supportedMethods = [
     ...Object.values(EIP155_SigningMethod),
     ...Object.values(CosmosSigningMethod),

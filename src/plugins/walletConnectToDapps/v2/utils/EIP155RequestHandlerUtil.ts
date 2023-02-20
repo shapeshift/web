@@ -17,14 +17,14 @@ import {
 } from 'plugins/walletConnectToDapps/utils'
 import type {
   CustomTransactionData,
-  NarrowedSessionRequest,
+  SupportedSessionRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import { assertIsDefined } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveEIP155RequestArgs = {
-  requestEvent: NarrowedSessionRequest
+  requestEvent: SupportedSessionRequest
   wallet: HDWallet
   chainAdapter: EvmBaseAdapter<EvmChainId>
   accountMetadata?: AccountMetadata

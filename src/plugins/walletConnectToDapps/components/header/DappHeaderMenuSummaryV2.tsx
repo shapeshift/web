@@ -3,7 +3,7 @@ import { MenuGroup } from '@chakra-ui/menu'
 import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
-import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
+import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
@@ -34,7 +34,9 @@ export const DappHeaderMenuSummaryV2 = () => {
 
   const translate = useTranslate()
 
-  const { session, web3wallet, core, dispatch } = useWalletConnectV2()
+  const { dispatch, ...state } = useWalletConnectV2()
+  const { session, web3wallet, core } = state
+  const { connectedAccounts } = useWalletConnectState(state)
   const connectedChainIds = extractChainIds(session)
 
   const handleDisconnect = useCallback(async () => {

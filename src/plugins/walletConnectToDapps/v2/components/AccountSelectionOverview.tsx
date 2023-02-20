@@ -26,6 +26,7 @@ export const AccountSelectionOverview: FC<IProps> = ({
                 chainId={chainId}
                 toggleAccountId={toggleAccountId}
                 selectedAccountIds={selectedAccountIds}
+                key={chainId}
               />
             )
           })}

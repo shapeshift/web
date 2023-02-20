@@ -1,4 +1,5 @@
 import { Button, VStack } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
@@ -39,8 +40,12 @@ const createApprovalNamespaces = (
 ): SessionTypes.Namespaces => {
   return Object.entries(requiredNamespaces).reduce(
     (namespaces: SessionTypes.Namespaces, [key, requiredNamespace]) => {
+      const selectedAccountsForKey = selectedAccounts.filter(accountId => {
+        const { chainNamespace } = fromAccountId(accountId)
+        return chainNamespace === key
+      })
       namespaces[key] = {
-        accounts: selectedAccounts,
+        accounts: selectedAccountsForKey,
         methods: requiredNamespace.methods,
         events: requiredNamespace.events,
       }

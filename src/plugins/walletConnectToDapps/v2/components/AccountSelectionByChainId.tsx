@@ -31,6 +31,7 @@ export const AccountSelectionByChainId: FC<IProps> = ({
             accountNumber={accountNumber}
             isSelected={isSelected}
             toggleAccountId={toggleAccountId}
+            key={accountNumber}
           ></Account>
         )
       })}

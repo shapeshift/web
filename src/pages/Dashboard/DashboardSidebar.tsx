@@ -1,5 +1,5 @@
 import { Flex, Image } from '@chakra-ui/react'
-import { avalancheAssetId, dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import OnRamperLogo from 'assets/on-ramper.png'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
@@ -25,17 +25,17 @@ const promoData: PromoItem[] = [
     isExternal: true,
   },
   {
-    title: ['promo.savers.title', { asset: 'AVAX' }],
+    title: ['promo.savers.title', { asset: 'BTC' }],
     body: 'promo.savers.body',
     cta: 'promo.savers.cta',
     image: SaversVaultTop,
     startDate: '2023-02-20 8:00 AM',
     endDate: '2023-02-25 8:00 AM',
-    id: 'savers-avax',
-    href: '?type=staking&provider=THORChain%20Savers&chainId=eip155%3A43114&defaultAccountId=cosmos%3Aosmosis-1%3Aosmo182emakchj2xp0llv5k87gsannvsa0cygdx307z&assetNamespace=slip44&assetReference=60&modal=overview',
+    id: 'savers-btc',
+    href: '?type=staking&provider=THORChain%20Savers&chainId=bip122%3A000000000019d6689c085ae165831e93&defaultAccountId=cosmos%3Aosmosis-1%3Aosmo182emakchj2xp0llv5k87gsannvsa0cygdx307z&assetNamespace=slip44&assetReference=0&modal=overview',
     walletRequired: true,
     isExternal: false,
-    rightElement: <AssetIcon assetId={avalancheAssetId} />,
+    rightElement: <AssetIcon assetId={btcAssetId} />,
   },
   {
     title: ['promo.savers.title', { asset: 'DOGE' }],

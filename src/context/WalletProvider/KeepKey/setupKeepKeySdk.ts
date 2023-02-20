@@ -8,7 +8,9 @@ type Config = {
   pairingInfo: PairingInfo
 }
 
-export const setupKeepKeySDK = async () => {
+type SetupKeepKeySDK = () => Promise<KeepKeySdk | undefined>
+
+export const setupKeepKeySDK: SetupKeepKeySDK = async () => {
   const serviceKey = window.localStorage.getItem('@app/serviceKey') || ''
   const imageUrl = store.getState().assets.byId[foxAssetId]?.icon || ''
 

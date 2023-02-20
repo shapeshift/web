@@ -17,8 +17,10 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
@@ -37,6 +39,7 @@ import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
+  OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -49,6 +52,7 @@ import {
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
   isFoxEthStakingAssetId,
+  makeOpportunityIcons,
   supportsUndelegations,
 } from '../utils'
 
@@ -78,6 +82,29 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
+export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
+  selectStakingOpportunitiesById,
+  selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
+  (
+    stakingOpportunitiesById,
+    defiProvider,
+    defiType,
+    assetId,
+    validatorId,
+  ): OpportunityMetadata | undefined => {
+    return Object.values(stakingOpportunitiesById).find(
+      stakingOpportunity =>
+        stakingOpportunity &&
+        defiProvider === stakingOpportunity.provider &&
+        defiType === stakingOpportunity.type &&
+        assetId === stakingOpportunity.assetId &&
+        validatorId === stakingOpportunity.id,
+    )
+  },
+)
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),
@@ -364,9 +391,7 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
           .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
           .toString(),
         isLoaded: true,
-        icons: opportunity.underlyingAssetIds
-          .map(assetId => assets[assetId]?.icon)
-          .map(icon => icon ?? ''),
+        icons: makeOpportunityIcons({ opportunity, assets }),
         opportunityName: opportunity.name,
       },
     )
@@ -429,9 +454,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
             .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
             .toString(),
           isLoaded: true,
-          icons: opportunity.underlyingAssetIds
-            .map(assetId => assets[assetId]?.icon)
-            .map(icon => icon ?? ''),
+          icons: makeOpportunityIcons({ opportunity, assets }),
           opportunityName: opportunity.name,
         },
       )
@@ -517,9 +540,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
               cryptoAmountPrecision: '0',
               fiatAmount: '0',
               isLoaded: true,
-              icons: opportunity.underlyingAssetIds
-                .map(assetId => assets[assetId]?.icon)
-                .map(icon => icon ?? ''),
+              icons: makeOpportunityIcons({ opportunity, assets }),
               opportunityName: opportunity.name,
             },
           )
@@ -604,9 +625,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
         .toString(),
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       opportunityName: userStakingOpportunity.name,
-      icons: userStakingOpportunity.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? ''),
+      icons: makeOpportunityIcons({ opportunity: userStakingOpportunity, assets }),
     }
 
     return earnUserStakingOpportunity

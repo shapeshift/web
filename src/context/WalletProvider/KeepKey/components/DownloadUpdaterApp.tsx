@@ -11,11 +11,11 @@ export const KeepKeyDownloadUpdaterApp = () => {
   const platformFilename = useMemo(() => {
     switch (platform) {
       case 'Mac OS':
-        return 'KeepKey-Desktop-1.3.27.dmg'
+        return 'KeepKey-Updater-2.1.4.dmg'
       case 'Windows':
-        return 'KeepKey-Desktop-Setup-1.3.27.exe'
+        return 'KeepKey-Updater-Setup-2.1.4.exe'
       case 'Linux':
-        return 'KeepKey-Desktop-1.3.27.AppImage'
+        return 'KeepKey-Updater-2.1.4.AppImage'
       default:
         return null
     }

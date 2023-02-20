@@ -14,7 +14,7 @@ import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,7 +38,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 

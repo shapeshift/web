@@ -74,7 +74,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   const handleWalletSelect = async (item: VaultInfo) => {
     const adapters = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
-    if (adapters) {
+    if (adapters?.length) {
       const { name, icon } = NativeConfig
       try {
         const wallet = await adapters[0].pairDevice(deviceId)

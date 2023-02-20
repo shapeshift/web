@@ -1,5 +1,8 @@
 import { Flex, Image } from '@chakra-ui/react'
+import { avalancheAssetId, dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import OnRamperLogo from 'assets/on-ramper.png'
+import SaversVaultTop from 'assets/savers-vault-top.png'
+import { AssetIcon } from 'components/AssetIcon'
 import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
@@ -20,6 +23,44 @@ const promoData: PromoItem[] = [
     walletRequired: false,
     rightElement: <Image width='80px' overflow='hidden' borderRadius='lg' src={OnRamperLogo} />,
     isExternal: true,
+  },
+  {
+    title: ['promo.savers.title', { asset: 'AVAX' }],
+    body: 'promo.savers.body',
+    cta: 'promo.savers.cta',
+    image: SaversVaultTop,
+    startDate: '2023-02-20 8:00 AM',
+    endDate: '2023-02-25 8:00 AM',
+    id: 'savers-avax',
+    href: '?type=staking&provider=THORChain%20Savers&chainId=eip155%3A43114&defaultAccountId=cosmos%3Aosmosis-1%3Aosmo182emakchj2xp0llv5k87gsannvsa0cygdx307z&assetNamespace=slip44&assetReference=60&modal=overview',
+    walletRequired: true,
+    isExternal: false,
+    rightElement: <AssetIcon assetId={avalancheAssetId} />,
+  },
+  {
+    title: ['promo.savers.title', { asset: 'DOGE' }],
+    body: 'promo.savers.body',
+    cta: 'promo.savers.cta',
+    image: SaversVaultTop,
+    startDate: '2023-02-25 8:00 AM',
+    endDate: '2023-03-01 8:00 AM',
+    id: 'promo-savers-doge',
+    href: '?provider=THORChain%20Savers&type=staking&chainId=bip122%3A00000000001a91e3dace36e2be3bf030&assetNamespace=slip44&assetReference=3&modal=overview',
+    walletRequired: true,
+    isExternal: false,
+    rightElement: <AssetIcon assetId={dogeAssetId} />,
+  },
+  {
+    title: 'plugins.foxPage.dappBack.title',
+    body: 'plugins.foxPage.dappBack.body',
+    cta: 'plugins.foxPage.dappBack.cta',
+    startDate: '2023-03-01 8:00 AM',
+    endDate: '2023-03-07 8:00 AM',
+    id: 'dappback-promo',
+    href: 'https://dappback.com/shapeshift',
+    walletRequired: false,
+    isExternal: true,
+    rightElement: <AssetIcon assetId={foxAssetId} />,
   },
 ]
 

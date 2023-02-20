@@ -615,12 +615,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.WalletConnect:
-              const walletConnectAdapters = state.adapters.get(KeyManager.WalletConnect)
-              if (!walletConnectAdapters) {
-                disconnect()
-                break
-              }
-              const localWalletConnectWallet = await walletConnectAdapters[0]?.pairDevice()
+              const localWalletConnectWallet = await state.adapters
+                .get(KeyManager.WalletConnect)?.[0]
+                ?.pairDevice()
               if (localWalletConnectWallet) {
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnect]
                 try {
@@ -662,9 +659,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const handleAccountsOrChainChanged = useCallback(async () => {
     if (!walletType || !state.adapters) return
 
-    const keymanager = state.adapters.get(walletType)
-    if (!keymanager) return
-    const localWallet = await keymanager[0]?.pairDevice()
+    const localWallet = await state.adapters.get(walletType)?.[0]?.pairDevice()
 
     if (!localWallet) return
 

@@ -59,7 +59,7 @@ const mockContract = new Contract('', '') as IUniswapV2Pair
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(new Token(1, '', token0Decimals), tokenAmount)
 
-describe('foxpage-utils', () => {
+describe('resolvers/univ2/utils', () => {
   it('should calculate correct token0Volume24hr', async () => {
     const expectedVolume = new BigNumber(amount0In)
       .plus(new BigNumber(amount0Out).div(1 - TRADING_FEE_RATE).decimalPlaces(0))

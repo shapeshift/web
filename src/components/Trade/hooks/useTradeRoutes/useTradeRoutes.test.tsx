@@ -14,7 +14,7 @@ jest.mock('react-router-dom', () => ({
     push: jest.fn(),
   }),
 }))
-jest.mock('plugins/foxPage/utils.ts')
+jest.mock('state/slices/opportunitiesSlice/resolvers/uniV2/utils')
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('hooks/useWallet/useWallet', () => ({

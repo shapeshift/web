@@ -14,7 +14,6 @@ import {
   foxEthStakingContractAddressV5,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 
 import type { IUniswapV2Pair } from './__generated'
 import {
@@ -23,6 +22,7 @@ import {
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
 } from './__generated/factories'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from './constants'
 
 type KnownContract<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']

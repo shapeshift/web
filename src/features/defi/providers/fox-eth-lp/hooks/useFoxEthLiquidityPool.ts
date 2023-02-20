@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { FOX_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContract } from 'contracts/contractManager'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
@@ -17,7 +18,6 @@ import {
   uniswapV2Router02AssetId,
   uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

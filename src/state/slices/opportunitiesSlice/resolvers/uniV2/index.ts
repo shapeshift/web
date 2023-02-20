@@ -1,10 +1,9 @@
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { WETH_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
-import { calculateAPRFromToken0 } from 'plugins/foxPage/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { toBaseUnit } from 'lib/math'
@@ -19,6 +18,7 @@ import type { foxEthLpContractAddress } from '../../constants'
 import { foxEthLpAssetIds } from '../../constants'
 import type { GetOpportunityIdsOutput, GetOpportunityMetadataOutput } from '../../types'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+import { calculateAPRFromToken0 } from './utils'
 
 export const uniV2LpMetadataResolver = async ({
   opportunityId,

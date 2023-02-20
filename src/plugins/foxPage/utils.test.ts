@@ -1,9 +1,12 @@
 import { Contract } from '@ethersproject/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
-
-import { TRADING_FEE_RATE } from './const'
-import { calculateAPRFromToken0, getToken0Volume24Hr } from './utils'
+import type { IUniswapV2Pair } from 'contracts/__generated'
+import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+import {
+  calculateAPRFromToken0,
+  getToken0Volume24Hr,
+} from 'state/slices/opportunitiesSlice/resolvers/uniV2/utils'
 
 jest.mock('contracts/contractManager', () => ({
   getOrCreateContract: () => ({
@@ -52,7 +55,7 @@ const mockGetPastEvents = () =>
     ])
   })
 
-const mockContract = new Contract('', '')
+const mockContract = new Contract('', '') as IUniswapV2Pair
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(new Token(1, '', token0Decimals), tokenAmount)
 

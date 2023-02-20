@@ -10,6 +10,8 @@ import { utils } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type {
+  CosmosSignAminoCallRequestParams,
+  CosmosSignDirectCallRequestParams,
   CustomTransactionData,
   EthSignParams,
   WalletConnectState,
@@ -112,6 +114,18 @@ export const getWalletAccountFromEthParams = (
   params: EthSignParams | TransactionParams[],
 ): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
+  return (
+    accountIds.find(accountId =>
+      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    ) || ''
+  )
+}
+
+export const getWalletAccountFromCosmosParams = (
+  accountIds: AccountId[],
+  params: CosmosSignDirectCallRequestParams | CosmosSignAminoCallRequestParams,
+): AccountId => {
+  const paramsString = params ? params.signerAddress : undefined
   return (
     accountIds.find(accountId =>
       paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),

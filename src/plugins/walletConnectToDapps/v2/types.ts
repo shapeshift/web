@@ -137,7 +137,7 @@ export type EthPersonalSignCallRequest = {
   params: EthPersonalSignCallRequestParams
 }
 
-type CosmosSignDirectCallRequestParams = {
+export type CosmosSignDirectCallRequestParams = {
   signerAddress: string
   signDoc: {
     chainId: ChainId
@@ -152,7 +152,7 @@ export type CosmosSignDirectCallRequest = {
   params: CosmosSignDirectCallRequestParams
 }
 
-type CosmosSignAminoCallRequestParams = {
+export type CosmosSignAminoCallRequestParams = {
   signerAddress: string
   signDoc: {
     chainId: ChainId

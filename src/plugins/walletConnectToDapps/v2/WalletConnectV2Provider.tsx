@@ -43,9 +43,15 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()
+    console.log('[debug] activeSessions', activeSessions)
     const sessions = activeSessions ? Object.values(activeSessions) : []
     if (sessions?.length) {
-      const session = sessions[0]
+      // Load the most recent session
+      const session = sessions[sessions.length - 1]
+      ;(async () => {
+        // Reactivate the session
+        await state.web3wallet?.extendSession({ topic: session.topic })
+      })()
       // FIXME: handle multiple sessions
       dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
     }

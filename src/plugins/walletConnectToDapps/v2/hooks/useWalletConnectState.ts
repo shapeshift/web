@@ -1,7 +1,9 @@
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks/useIsInteractingWithContract'
 import {
   extractConnectedAccounts,
   getSignParamsMessage,
+  getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
@@ -36,19 +38,27 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     if (requestParams && isEthSignParams(requestParams))
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
-    if (requestParams && isEthSignParams(requestParams)) return requestParams.signerAddress
+    if (requestParams) return requestParams.signerAddress
     else return undefined
   })()
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
-  const accountId =
-    requestParams && (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
-      ? getWalletAccountFromEthParams(connectedAccounts, requestParams)
-      : undefined
+
+  const accountId = (() => {
+    if (
+      requestParams &&
+      (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
+    )
+      return getWalletAccountFromEthParams(connectedAccounts, requestParams)
+    if (requestParams) return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
+    else return undefined
+  })()
+
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
+  const isEvmChain = chainId && fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm
   const isInteractingWithContract = useIsInteractingWithContract({
-    evmChainId: chainId,
+    evmChainId: isEvmChain ? chainId : undefined,
     address,
   })
 

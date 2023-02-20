@@ -2,14 +2,17 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/idle/types'
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
@@ -55,6 +58,31 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
+      const idleContractAddresses = [
+        ...Object.values(stakingOpportunitiesById)
+          .map(opportunity => (opportunity as IdleStakingSpecificMetadata | undefined)?.cdoAddress)
+          .filter(isSome),
+        IDLE_PROXY_1_CONTRACT_ADDRESS,
+        IDLE_PROXY_2_CONTRACT_ADDRESS,
+      ]
+      if (
+        transfers.some(
+          ({ from, to }) =>
+            idleContractAddresses.includes(from) || idleContractAddresses.includes(to),
+        )
+      ) {
+        dispatch(
+          getOpportunitiesUserData.initiate(
+            {
+              accountId,
+              defiType: DefiType.Staking,
+              defiProvider: DefiProvider.Idle,
+              opportunityType: DefiType.Staking,
+            },
+            { forceRefetch: true },
+          ),
+        )
+      }
       if (data?.parser === 'staking') {
         dispatch(
           getOpportunitiesUserData.initiate(

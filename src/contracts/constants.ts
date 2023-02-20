@@ -19,3 +19,6 @@ export const ETH_FOX_POOL_CONTRACT_ADDRESS = '0x470e8de2ebaef52014a47cb5e6af8688
 // Exported as a string literal for contract address discrimination purposes
 export const UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS =
   '0x7a250d5630b4cf539739df2c5dacb4c659f2488d' as const
+
+export const IDLE_PROXY_1_CONTRACT_ADDRESS = '0xaca81583840B1bf2dDF6CDe824ada250C1936B4D'
+export const IDLE_PROXY_2_CONTRACT_ADDRESS = '0x4aAc17D48E4Ccb4e1c53cAfBe4934FeE899009C4'

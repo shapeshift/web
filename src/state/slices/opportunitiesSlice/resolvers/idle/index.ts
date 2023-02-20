@@ -130,7 +130,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           },
           // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
           // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
-          // As 1 Idle token wraps ~1.0x underlying
+          // As 1 Idle token wraps ~1.0x* underlying
           underlyingAssetRatiosBaseUnit: [
             opportunity.positionAsset.underlyingPerPosition
               .times(bn(10).pow(underlyingAsset.precision))

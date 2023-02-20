@@ -3,7 +3,7 @@ import { KeplrIcon } from 'components/Icons/KeplrIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const KeplrConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapter: [KeplrAdapter],
+  adapters: [KeplrAdapter],
   icon: KeplrIcon,
   name: 'Keplr',
 }

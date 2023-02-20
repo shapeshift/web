@@ -3,7 +3,7 @@ import { XDEFIIcon } from 'components/Icons/XDEFIIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const XDEFIConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapter: [XDEFIAdapter],
+  adapters: [XDEFIAdapter],
   icon: XDEFIIcon,
   name: 'XDEFI',
 }

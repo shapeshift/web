@@ -800,34 +800,42 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string } | WalletConnectProviderConfig
-        for (const wallet of Object.values(KeyManager)) {
+        for (const keyManager of Object.values(KeyManager)) {
           try {
-            switch (wallet) {
-              case 'portis':
-                options = { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                break
-              case 'walletconnect':
-                options = {
-                  rpc: {
-                    1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-                  },
-                }
-                break
-              default:
-                break
+            type KeyManagerOptions =
+              | undefined
+              | { portisAppId: string }
+              | WalletConnectProviderConfig
+
+            type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
+
+            const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
+              switch (keyManager) {
+                case 'portis':
+                  return { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                case 'walletconnect':
+                  return {
+                    rpc: {
+                      1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                    },
+                  }
+                default:
+                  return undefined
+              }
             }
-            const walletAdapters = new Array<GenericAdapter>()
-            for (let i = 0; i < SUPPORTED_WALLETS[wallet].adapters.length; i++) {
-              const adapter = SUPPORTED_WALLETS[wallet].adapters[i].useKeyring(
-                state.keyring,
-                options,
-              )
-              walletAdapters.push(adapter)
-              adapters.set(wallet, walletAdapters)
-              await adapter.initialize?.()
-            }
-            adapters.set(wallet, walletAdapters)
+
+            const walletAdapters = await SUPPORTED_WALLETS[keyManager]?.adapters.reduce<
+              Promise<GenericAdapter[]>
+            >(async (acc, cur) => {
+              const adapters = await acc
+              const options = getKeyManagerOptions(keyManager)
+              const adapter = cur.useKeyring(state.keyring, options)
+              await adapter?.initialize?.()
+              adapters.push(adapter)
+              return acc
+            }, Promise.resolve([]))
+
+            adapters.set(keyManager, walletAdapters)
           } catch (e) {
             moduleLogger.error(e, 'Error initializing HDWallet adapters')
           }

@@ -1,4 +1,3 @@
-import type { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import React, { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -64,9 +63,7 @@ export const WalletConnectConnect = ({ history }: WalletConnectSetupProps) => {
       })
 
       if (state.adapters && state.adapters?.has(KeyManager.WalletConnect)) {
-        const adapters = state.adapters.get(KeyManager.WalletConnect)
-        if (!adapters) return
-        const wallet = (await adapters[0]?.pairDevice()) as WalletConnectHDWallet
+        const wallet = await state.adapters.get(KeyManager.WalletConnect)?.[0]?.pairDevice()
 
         if (!wallet) {
           throw new WalletNotFoundError()

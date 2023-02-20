@@ -107,9 +107,9 @@ export const extractConnectedAccounts = (session: WalletConnectState['session'])
  * Get our account from params checking if params string contains an accounts address
  * of our wallet addresses
  */
-export const getWalletAccountFromEthSignParams = (
+export const getWalletAccountFromEthParams = (
   accountIds: AccountId[],
-  params: EthSignParams,
+  params: EthSignParams | TransactionParams[],
 ): AccountId => {
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return (

@@ -2,7 +2,7 @@ import { useIsInteractingWithContract } from 'plugins/walletConnectToDapps/hooks
 import {
   extractConnectedAccounts,
   getSignParamsMessage,
-  getWalletAccountFromEthSignParams,
+  getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
 import type {
@@ -42,8 +42,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
   const accountId =
-    requestParams && isEthSignParams(requestParams)
-      ? getWalletAccountFromEthSignParams(connectedAccounts, requestParams)
+    requestParams && (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
+      ? getWalletAccountFromEthParams(connectedAccounts, requestParams)
       : undefined
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

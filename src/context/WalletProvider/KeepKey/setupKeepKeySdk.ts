@@ -9,13 +9,9 @@ type Config = {
 }
 
 export const setupKeepKeySDK = async () => {
-  // is `notSet` some magic value?
-  const serviceKey = window.localStorage.getItem('@app/serviceKey') || 'notSet'
+  const serviceKey = window.localStorage.getItem('@app/serviceKey') || ''
   const imageUrl = store.getState().assets.byId[foxAssetId]?.icon || ''
 
-  /**
-   * NOTE - the KeepKeySdk.create() call mutates the config it's passed in...
-   */
   const config: Config = {
     apiKey: serviceKey,
     pairingInfo: {
@@ -27,11 +23,11 @@ export const setupKeepKeySDK = async () => {
 
   const sdk = await KeepKeySdk.create(config)
 
-  // If apiKey is revoked by wallet, or 'notSet' a user will be prompted to pair and new apiKey issued by wallet.
-  if (serviceKey !== config.apiKey) {
-    // store apiKey to avoid needing to pair again
-    window.localStorage.setItem('@app/serviceKey', config.apiKey)
-  }
+  /**
+   * NOTE - the KeepKeySdk.create() call mutates the config it's passed in...
+   * so even though this may have been an empty string before, it might be populated now
+   */
+  config.apiKey && window.localStorage.setItem('@app/serviceKey', config.apiKey)
 
   return sdk
 }

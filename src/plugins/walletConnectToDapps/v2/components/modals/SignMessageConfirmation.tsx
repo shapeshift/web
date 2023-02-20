@@ -3,7 +3,12 @@ import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/moda
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
-import type { EthSignCallRequest } from 'plugins/walletConnectToDapps/v2/types'
+import type {
+  CosmosSignAminoCallRequest,
+  CosmosSignDirectCallRequest,
+  EthPersonalSignCallRequest,
+  EthSignCallRequest,
+} from 'plugins/walletConnectToDapps/v2/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,7 +18,12 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const SignMessageConfirmationModal: FC<
-  WalletConnectRequestModalProps<EthSignCallRequest>
+  WalletConnectRequestModalProps<
+    | EthSignCallRequest
+    | EthPersonalSignCallRequest
+    | CosmosSignDirectCallRequest
+    | CosmosSignAminoCallRequest
+  >
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, message } = useWalletConnectState(state)
   const peerMetadata = state.session.peer.metadata
@@ -56,13 +66,7 @@ export const SignMessageConfirmationModal: FC<
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button
-          size='lg'
-          width='full'
-          colorScheme='blue'
-          type='submit'
-          onClick={() => handleConfirm()}
-        >
+        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={handleConfirm}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button size='lg' width='full' onClick={handleReject}>

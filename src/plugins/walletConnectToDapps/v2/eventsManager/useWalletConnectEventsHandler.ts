@@ -6,6 +6,7 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
+  CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
@@ -21,7 +22,7 @@ export const useWalletConnectEventsHandler = (
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
-        payload: { modal: WalletConnectModal.sessionProposal, data: { proposal } },
+        payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
       })
     },
     [dispatch],
@@ -39,13 +40,15 @@ export const useWalletConnectEventsHandler = (
       // const requestSession = signClient.session.get(topic)
       const requestSession = web3wallet?.engine.signClient.session.get(topic)
 
+      console.log('[debug] handleSessionRequest', { requestEvent, requestSession, request })
+
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
         case EIP155_SigningMethod.PERSONAL_SIGN:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
-              modal: WalletConnectModal.signMessageConfirmation,
+              modal: WalletConnectModal.SignEIP155MessageConfirmation,
               data: { requestEvent, requestSession },
             },
           })
@@ -56,7 +59,7 @@ export const useWalletConnectEventsHandler = (
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
-              modal: WalletConnectModal.signMessageConfirmation,
+              modal: WalletConnectModal.SignEIP155MessageConfirmation,
               data: { requestEvent, requestSession },
             },
           })
@@ -65,7 +68,7 @@ export const useWalletConnectEventsHandler = (
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
-              modal: WalletConnectModal.sendTransactionConfirmation,
+              modal: WalletConnectModal.SendEIP155TransactionConfirmation,
               data: { requestEvent, requestSession },
             },
           })
@@ -73,14 +76,20 @@ export const useWalletConnectEventsHandler = (
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
-              modal: WalletConnectModal.signTransactionConfirmation,
+              modal: WalletConnectModal.SignEIP155TransactionConfirmation,
               data: { requestEvent, requestSession },
             },
           })
 
-        // case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
-        // case CosmosSigningMethod.COSMOS_SIGN_AMINO:
-        //   return
+        case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
+        case CosmosSigningMethod.COSMOS_SIGN_AMINO:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.SendCosmosTransactionConfirmation,
+              data: { requestEvent, requestSession },
+            },
+          })
 
         default:
           console.log('[debug] SessionUnsupportedMethodModal', { requestEvent, requestSession })

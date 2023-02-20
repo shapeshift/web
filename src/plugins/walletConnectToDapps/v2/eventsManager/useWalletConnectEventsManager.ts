@@ -7,16 +7,21 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import {
+  CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
 import { logger } from 'lib/logger'
 
-export const isNarrowedSessionRequest = (
+export const isSupportedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
 ): request is NarrowedSessionRequest => {
-  return Object.values(EIP155_SigningMethod).some(value => value === request.params.request.method)
+  const supportedMethods = [
+    ...Object.values(EIP155_SigningMethod),
+    ...Object.values(CosmosSigningMethod),
+  ]
+  return supportedMethods.some(value => value === request.params.request.method)
 }
 
 const moduleLogger = logger.child({
@@ -39,7 +44,7 @@ export const useWalletConnectEventsManager = (
       const pairingEvents = core.pairing.events
 
       const sessionRequestListener = (request: Web3WalletTypes.SessionRequest) =>
-        isNarrowedSessionRequest(request) && handleSessionRequest(request)
+        isSupportedSessionRequest(request) && handleSessionRequest(request)
       const sessionDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
       const sessionUpdateListener = (session: Partial<SessionTypes.Struct>) =>
         dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: session })

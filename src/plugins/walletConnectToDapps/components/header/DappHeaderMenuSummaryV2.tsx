@@ -68,8 +68,6 @@ export const DappHeaderMenuSummaryV2 = () => {
     }
   }, [core, dispatch, session, web3wallet])
 
-  const connectedAccounts = extractConnectedAccounts(session)
-
   if (!session || !web3wallet) return null
 
   return (

@@ -76,11 +76,12 @@ export type WalletConnectContextType = {
 }
 
 export enum WalletConnectModal {
-  sessionProposal = 'sessionProposal',
-  signMessageConfirmation = 'signMessageConfirmation',
-  signTypedDataConfirmation = 'signTypedDataConfirmation',
-  signTransactionConfirmation = 'signTransactionConfirmation',
-  sendTransactionConfirmation = 'sendTransactionConfirmation',
+  SessionProposal = 'sessionProposal',
+  SignEIP155MessageConfirmation = 'signEIP155MessageConfirmation',
+  SignEIP155TypedDataConfirmation = 'signEIP155TypedDataConfirmation',
+  SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
+  SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
+  SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
 }
 
 export type CustomTransactionData = {
@@ -124,49 +125,101 @@ export type EthSendTransactionCallRequest = {
   params: TransactionParams[]
 }
 
+type EthSignCallRequestParams = [account: string, message: string]
 export type EthSignCallRequest = {
-  method: EIP155_SigningMethod.ETH_SIGN | EIP155_SigningMethod.PERSONAL_SIGN
-  params: [string, string]
+  method: EIP155_SigningMethod.ETH_SIGN
+  params: EthSignCallRequestParams
 }
 
+type EthPersonalSignCallRequestParams = [message: string, account: string]
+export type EthPersonalSignCallRequest = {
+  method: EIP155_SigningMethod.PERSONAL_SIGN
+  params: EthPersonalSignCallRequestParams
+}
+
+type CosmosSignDirectCallRequestParams = {
+  signerAddress: string
+  signDoc: {
+    chainId: ChainId
+    accountNumber: string
+    authInfoBytes: string
+    bodyBytes: string
+  }
+}
+
+export type CosmosSignDirectCallRequest = {
+  method: CosmosSigningMethod.COSMOS_SIGN_DIRECT
+  params: CosmosSignDirectCallRequestParams
+}
+
+type CosmosSignAminoCallRequestParams = {
+  signerAddress: string
+  signDoc: {
+    chainId: ChainId
+    accountNumber: string
+    sequence: string
+    memo: string
+    msgs: [type: string, value: string][]
+    fee: {
+      amount: {
+        amount: string
+        denom: string
+      }[]
+      gas: string
+    }
+  }
+}
+
+export type CosmosSignAminoCallRequest = {
+  method: CosmosSigningMethod.COSMOS_SIGN_AMINO
+  params: CosmosSignAminoCallRequestParams
+}
+
+type EthSignTypedDataCallRequestParams = [account: string, message: string]
 export type EthSignTypedDataCallRequest = {
   method:
     | EIP155_SigningMethod.ETH_SIGN_TYPED_DATA
     | EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3
     | EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4
-  params: [string, string]
+  params: EthSignTypedDataCallRequestParams
 }
 
 export type WalletConnectRequest =
   | EthSignTransactionCallRequest
   | EthSignCallRequest
+  | EthPersonalSignCallRequest
   | EthSignTypedDataCallRequest
   | EthSendTransactionCallRequest
+  | CosmosSignDirectCallRequest
+  | CosmosSignAminoCallRequest
 
 export const isSignRequest = (
   request: WalletConnectRequest,
-): request is EthSignCallRequest | EthSignTypedDataCallRequest =>
-  [EIP155_SigningMethod.ETH_SIGN, EIP155_SigningMethod.PERSONAL_SIGN].includes(request.method)
+): request is EthSignCallRequest | EthPersonalSignCallRequest =>
+  [EIP155_SigningMethod.ETH_SIGN, EIP155_SigningMethod.PERSONAL_SIGN].includes(
+    request.method as EIP155_SigningMethod,
+  )
 
 export const isSignTypedRequest = (
   request: WalletConnectRequest,
-): request is EthSignCallRequest | EthSignTypedDataCallRequest =>
+): request is EthSignTypedDataCallRequest =>
   [
     EIP155_SigningMethod.ETH_SIGN_TYPED_DATA,
     EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3,
     EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4,
-  ].includes(request.method)
-
-export const isTransactionRequest = (
-  request: WalletConnectRequest,
-): request is EthSignTransactionCallRequest | EthSendTransactionCallRequest =>
-  [EIP155_SigningMethod.ETH_SIGN_TRANSACTION, EIP155_SigningMethod.ETH_SEND_TRANSACTION].includes(
-    request.method,
-  )
+  ].includes(request.method as EIP155_SigningMethod)
 
 export const isTransactionParams = (
   transaction: TransactionParams | string | undefined,
-): transaction is TransactionParams => typeof transaction !== 'string'
+): transaction is TransactionParams =>
+  typeof transaction === 'object' &&
+  !!transaction?.from &&
+  !!transaction?.to &&
+  !!transaction?.data &&
+  !!transaction?.value &&
+  !!transaction?.gasLimit &&
+  !!transaction?.gasPrice &&
+  !!transaction?.nonce
 
 export const assertIsTransactionParams: (
   transaction: TransactionParams | string | undefined,
@@ -174,3 +227,15 @@ export const assertIsTransactionParams: (
   isTransactionParams,
   'Transaction has no transaction params',
 )
+
+type RequestParams =
+  | TransactionParams[]
+  | EthSignCallRequestParams
+  | EthPersonalSignCallRequestParams
+  | CosmosSignDirectCallRequestParams
+  | CosmosSignAminoCallRequestParams
+
+export const isTransactionParamsArray = (
+  transactions: RequestParams | undefined,
+): transactions is TransactionParams[] =>
+  (transactions as TransactionParams[])?.every?.(isTransactionParams)

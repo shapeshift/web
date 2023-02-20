@@ -8,6 +8,8 @@ import { SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/compo
 import { TransactionConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/TransactionConfirmation'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type {
+  CosmosSignAminoCallRequest,
+  CosmosSignDirectCallRequest,
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignCallRequest,
@@ -42,7 +44,7 @@ export type WalletConnectSessionModalProps = {
 export type WalletConnectRequestModalProps<T> = {
   dispatch: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
-  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
+  onConfirm(): Promise<void>
   onReject(): Promise<void>
 }
 
@@ -96,9 +98,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const modalContent = (() => {
     switch (activeModal) {
-      case WalletConnectModal.sessionProposal:
+      case WalletConnectModal.SessionProposal:
         return <SessionProposalModal onClose={handleClose} dispatch={dispatch} state={state} />
-      case WalletConnectModal.signMessageConfirmation:
+      case WalletConnectModal.SignEIP155MessageConfirmation:
         return (
           <SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
@@ -107,7 +109,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
           />
         )
-      case WalletConnectModal.signTypedDataConfirmation:
+      case WalletConnectModal.SignEIP155TypedDataConfirmation:
         return (
           <SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
@@ -116,8 +118,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
           />
         )
-      case WalletConnectModal.signTransactionConfirmation:
-      case WalletConnectModal.sendTransactionConfirmation:
+      case WalletConnectModal.SignEIP155TransactionConfirmation:
+      case WalletConnectModal.SendEIP155TransactionConfirmation:
         return (
           <TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
@@ -126,6 +128,19 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             state={
               state as Required<
                 WalletConnectState<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
+              >
+            }
+          />
+        )
+      case WalletConnectModal.SendCosmosTransactionConfirmation:
+        return (
+          <SignMessageConfirmationModal
+            onConfirm={handleConfirmEIP155Request}
+            onReject={handleRejectEIP155Request}
+            dispatch={dispatch}
+            state={
+              state as Required<
+                WalletConnectState<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
               >
             }
           />

@@ -437,17 +437,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               break
             case KeyManager.KeepKey:
               try {
-                let localKeepKeyWallet: HDWallet | null | undefined =
-                  state.keyring.get(localWalletDeviceId)
-                if (!localKeepKeyWallet) {
+                const localKeepKeyWallet = await (async () => {
+                  const maybeWallet = state.keyring.get(localWalletDeviceId)
+                  if (maybeWallet) return maybeWallet
+                  const keepKeyAdapters = state.adapters?.get(KeyManager.KeepKey)
+                  if (!keepKeyAdapters) return void disconnect()
                   const sdk = await setupKeepKeySDK()
-                  const keepKeyAdapters = state.adapters.get(KeyManager.KeepKey)
-                  if (!keepKeyAdapters) {
-                    disconnect()
-                    break
-                  }
-                  localKeepKeyWallet = await keepKeyAdapters[0]?.pairDevice(sdk)
-                }
+                  return await keepKeyAdapters[0]?.pairDevice(sdk)
+                })()
 
                 /**
                  * if localKeepKeyWallet is not null it means
@@ -475,12 +472,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
-                  /**
-                   * The KeepKey wallet is disconnected,
-                   * because the accounts are not persisted, the app cannot load without getting pub keys from the
-                   * wallet.
-                   */
-                  // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
                   disconnect()
                 }
               } catch (e) {

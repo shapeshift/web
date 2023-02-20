@@ -6,9 +6,13 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProviderMetadata,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -65,6 +69,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
 export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
   const location = useLocation()
   const history = useHistory()
+  const translate = useTranslate()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -84,7 +89,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   )
 
   const handleClick = useCallback(
-    (opportunity: RowProps) => {
+    (opportunity: RowProps, action: DefiAction) => {
       const {
         original: {
           type,
@@ -116,7 +121,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           assetReference,
           highestBalanceAccountAddress,
           rewardId: rewardAddress,
-          modal: 'overview',
+          modal: action,
         }),
         state: { background: location },
       })
@@ -158,7 +163,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Cell: ({ row }: { row: RowProps }) => {
           const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
           return hasValue ? (
-            <Flex flexDir='column'>
+            <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
               <Amount.Fiat value={row.original.fiatAmount} />
               <Amount.Crypto
                 variant='sub-text'
@@ -200,7 +205,12 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
               variant='ghost-filled'
               colorScheme='green'
               size='sm'
+              minHeight='1.5rem'
+              height='auto'
+              borderRadius='lg'
+              px={2}
               rightIcon={<ArrowForwardIcon />}
+              onClick={() => handleClick(row, DefiAction.Claim)}
             >
               <Amount.Fiat value={fiatAmount} />
             </Button>
@@ -228,15 +238,21 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Header: () => null,
         id: 'expander',
         Cell: ({ row }: { row: RowProps }) => (
-          <Flex justifyContent='flex-end'>
-            <Button variant='ghost' size='sm' colorScheme='blue' onClick={() => handleClick(row)}>
-              Manage
+          <Flex justifyContent='flex-end' width='full'>
+            <Button
+              variant='ghost'
+              size='sm'
+              colorScheme='blue'
+              width='full'
+              onClick={() => handleClick(row, DefiAction.Overview)}
+            >
+              {translate('common.manage')}
             </Button>
           </Flex>
         ),
       },
     ],
-    [assetId, assets, handleClick, marketData],
+    [assetId, assets, handleClick, marketData, translate],
   )
 
   if (!filteredDown.length) return null

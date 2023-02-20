@@ -89,7 +89,12 @@ export const ReactTable = <T extends {}>({
             cursor={onRowClick ? 'pointer' : undefined}
           >
             {row.cells.map(cell => (
-              <Td {...cell.getCellProps()} display={cell.column.display} key={cell.column.id}>
+              <Td
+                {...cell.getCellProps()}
+                data-label={cell.column.Header}
+                display={cell.column.display}
+                key={cell.column.id}
+              >
                 {cell.render('Cell')}
               </Td>
             ))}

@@ -109,6 +109,47 @@ export const TableStyle = {
             '> td': {
               bg: mode('transparent', 'blackAlpha.400')(props),
             },
+            table: {
+              tbody: {
+                tr: {
+                  '@media screen and (min-width: 0em) and (max-width: 767px)': {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginBottom: 4,
+                    borderRadius: 'xl',
+                    td: {
+                      display: 'flex',
+                      px: 4,
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      _before: {
+                        content: 'attr(data-label)',
+                        color: 'gray.500',
+                      },
+                    },
+                    'td:first-of-type': {
+                      _before: {
+                        display: 'none',
+                      },
+                      borderTopWidth: 0,
+                    },
+                  },
+                },
+              },
+              thead: {
+                tr: {
+                  '@media screen and (min-width: 0em) and (max-width: 767px)': {
+                    background: 'transparent',
+                    th: {
+                      display: 'none',
+                      ':first-of-type': {
+                        display: 'block',
+                      },
+                    },
+                  },
+                },
+              },
+            },
             _hover: {
               bg: mode('white', 'gray.785')(props),
               color: 'inherit',

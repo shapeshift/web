@@ -90,7 +90,8 @@
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "manage": "Manage"
   },
   "errorPage": {
     "title": "Oops!",

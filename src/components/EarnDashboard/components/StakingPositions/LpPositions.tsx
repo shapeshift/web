@@ -177,8 +177,9 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         Header: () => null,
         id: 'expander',
         Cell: ({ row }: { row: RowProps }) => (
-          <Flex gap={4} justifyContent='flex-end'>
+          <Flex gap={4} justifyContent='flex-end' width='full'>
             <Button
+              width='full'
               variant='ghost'
               size='sm'
               colorScheme='blue'

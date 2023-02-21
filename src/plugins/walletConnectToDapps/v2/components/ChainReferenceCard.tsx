@@ -3,6 +3,7 @@ import { Collapse, Divider, Stack, useColorModeValue, useDisclosure } from '@cha
 import { Tag } from '@chakra-ui/tag'
 import type { FC } from 'react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
@@ -29,10 +30,12 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
   selectedAccountIds,
   toggleAccountId,
 }) => {
+  const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const hoverBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.200')
+  const translateKey = (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`
 
   const renderEvents = useMemo(() => {
     return events.map(event => (
@@ -66,13 +69,13 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
       <Card.Body p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
         <Stack spacing={0} divider={<Divider />}>
           <Row gap={2} variant='gutter' py={3}>
-            <Row.Label>Methods</Row.Label>
+            <Row.Label>{translate(translateKey('methods'))}</Row.Label>
             <Row.Value display='flex' gap={2} flexWrap='wrap' justifyContent='flex-end'>
               {renderMethods}
             </Row.Value>
           </Row>
           <Row variant='gutter' py={3}>
-            <Row.Label>Events</Row.Label>
+            <Row.Label>{translate(translateKey('events'))}</Row.Label>
             <Row.Value display='flex' gap={4} flexWrap='wrap' justifyContent='flex-end'>
               {renderEvents}
             </Row.Value>
@@ -87,7 +90,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
             onClick={onToggle}
           >
             <Row alignItems='center'>
-              <Row.Label>Selected Accounts</Row.Label>
+              <Row.Label>{translate(translateKey('selectedAccounts'))}</Row.Label>
               <Row.Value fontWeight='semibold' display='flex' gap={2} alignItems='center'>
                 <RawText>2 / 4</RawText>
                 {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon boxSize={4} />}

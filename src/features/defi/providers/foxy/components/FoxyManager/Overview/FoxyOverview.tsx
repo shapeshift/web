@@ -22,6 +22,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  makeDefiProviderDisplayName,
   serializeUserStakingId,
   supportsUndelegations,
 } from 'state/slices/opportunitiesSlice/utils'
@@ -156,7 +157,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
           allocationPercentage: '1',
         },
       ]}
-      provider='ShapeShift'
+      provider={makeDefiProviderDisplayName({
+        provider: foxyEarnOpportunityData.provider,
+        assetName: stakingAsset.name,
+      })}
       menu={[
         {
           label: 'common.deposit',

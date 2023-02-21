@@ -22,7 +22,7 @@ import {
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { makeDefiProviderDisplayName, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
@@ -196,7 +196,10 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
       name={osmosisOpportunity.opportunityName}
       opportunityFiatBalance={opportunityBalances.fiatBalance}
       underlyingAssetsCryptoPrecision={opportunityBalances.underlyingAssetBalances}
-      provider={osmosisOpportunity.provider}
+      provider={makeDefiProviderDisplayName({
+        provider: osmosisOpportunity.provider,
+        assetName: lpAsset.name,
+      })}
       description={{
         description: lpAsset?.description,
         isLoaded: !descriptionQuery.isLoading,

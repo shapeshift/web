@@ -17,8 +17,10 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
@@ -37,6 +39,7 @@ import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
   GroupedEligibleOpportunityReturnType,
   OpportunityId,
+  OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -79,6 +82,29 @@ export const selectUserStakingOpportunitiesById = createSelector(
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
   state.opportunities.staking.byId
 
+export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
+  selectStakingOpportunitiesById,
+  selectDefiProviderParamFromFilter,
+  selectDefiTypeParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectValidatorIdParamFromFilter,
+  (
+    stakingOpportunitiesById,
+    defiProvider,
+    defiType,
+    assetId,
+    validatorId,
+  ): OpportunityMetadata | undefined => {
+    return Object.values(stakingOpportunitiesById).find(
+      stakingOpportunity =>
+        stakingOpportunity &&
+        defiProvider === stakingOpportunity.provider &&
+        defiType === stakingOpportunity.type &&
+        assetId === stakingOpportunity.assetId &&
+        validatorId === stakingOpportunity.id,
+    )
+  },
+)
 export const selectStakingAccountIds = createDeepEqualOutputSelector(
   selectStakingOpportunitiesByAccountId,
   (byAccountId): AccountId[] => Object.keys(byAccountId),

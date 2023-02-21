@@ -140,7 +140,7 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
 export type EarnOpportunityType = {
   type?: string
-  provider: string
+  provider: DefiProvider
   version?: string
   contractAddress?: string
   rewardAddress?: string

@@ -21,13 +21,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 /**
  * Converts hex to utf8 string if it is valid bytes
  */
-export const convertHexToUtf8 = (value: string) => {
-  if (utils.isHexString(value)) {
-    return utils.toUtf8String(value)
-  }
-
-  return value
-}
+export const convertHexToUtf8 = (value: string) =>
+  utils.isHexString(value) ? utils.toUtf8String(value) : value
 
 export const convertNumberToHex = (value: number | string): string =>
   typeof value === 'number' ? utils.hexlify(value) : utils.hexlify(utils.hexlify(parseInt(value)))
@@ -73,27 +68,23 @@ export const getGasData = (
  * a value that is not an address (thus is a message).
  * If it is a hex string, it gets converted to utf8 string
  */
-export const getSignParamsMessage = (params: string[]) => {
+export const getSignParamsMessage = (params: [string, string]) => {
   const message = params.filter(p => !utils.isAddress(p))[0]
   return convertHexToUtf8(message)
 }
 
 export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {
-  const namespaces = session?.namespaces
-
-  const requiredNamespacesValues = namespaces ? Object.values(namespaces) : []
-  const allAccounts = requiredNamespacesValues
+  const namespaces = session?.namespaces ?? []
+  const requiredNamespacesValues = Object.values(namespaces)
+  return requiredNamespacesValues
     .map(v => v.accounts)
     .reduce(
       (acc, namespaceAccounts) => (acc && namespaceAccounts ? acc.concat(namespaceAccounts) : []),
       [],
     )
-  return allAccounts ?? []
 }
-/**
- * Get our account from params checking if params string contains an accounts address
- * of our wallet addresses
- */
+
+// Get our account from params by checking if the params string contains an account from our wallet
 export const getWalletAccountFromEthParams = (
   accountIds: AccountId[],
   params: EthSignParams | TransactionParams[],

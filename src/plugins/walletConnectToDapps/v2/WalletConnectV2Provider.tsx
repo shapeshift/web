@@ -55,7 +55,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
       // FIXME: handle multiple sessions
       dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })
     }
-  }, [state.web3wallet])
+  }, [state.core?.pairing, state.web3wallet])
 
   const value: WalletConnectContextType = useMemo(() => ({ state, dispatch }), [state])
   return (

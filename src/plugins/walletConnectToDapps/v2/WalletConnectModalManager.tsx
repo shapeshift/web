@@ -32,6 +32,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 
 type WalletConnectModalManagerProps = WalletConnectContextType
+
+// A session must be defined in a session proposal state
 type SessionProposalState = Required<Omit<WalletConnectState, 'session'>> & {
   session: SessionTypes.Struct
 }
@@ -49,9 +51,8 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): Promise<void>
 }
 
-const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState => {
-  return !!(state.modalData && state.web3wallet && state.activeModal)
-}
+const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState =>
+  !!(state.modalData && state.web3wallet && state.activeModal)
 
 export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   state,

@@ -97,7 +97,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [
       {
-        Header: 'Liquidity Pool',
+        Header: translate('defi.liquidityPool'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
           const providerIcon = DefiProviderMetadata[row.original.provider].icon
@@ -136,7 +136,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         disableSortBy: true,
       },
       {
-        Header: 'Total Value',
+        Header: translate('defi.totalValue'),
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const underlyingBalances = getUnderlyingAssetIdsBalances({
@@ -165,7 +165,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         },
       },
       {
-        Header: 'APY',
+        Header: translate('defi.apy'),
         accessor: 'apy',
         Cell: ({ row }: { row: RowProps }) => (
           <Tag colorScheme='green'>

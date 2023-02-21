@@ -72,7 +72,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
         disableSortBy: true,
       },
       {
-        Header: 'Total Value',
+        Header: translate('defi.totalValue'),
         id: 'fiatAmount',
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
@@ -85,7 +85,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
         },
       },
       {
-        Header: 'Net APY',
+        Header: translate('defi.netApy'),
         accessor: 'netApy',
         textAlign: 'right',
         Cell: ({ row }: { row: RowProps }) => (
@@ -97,7 +97,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
         ),
       },
       {
-        Header: 'Rewards',
+        Header: translate('defi.claimableRewards'),
         accessor: 'rewards',
         display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => {

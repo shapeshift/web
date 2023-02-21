@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useMemo } from 'react'
+import { Fragment, useCallback, useMemo, useRef } from 'react'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
@@ -43,6 +43,7 @@ export const ReactTable = <T extends {}>({
   initialState,
   renderSubComponent,
 }: ReactTableProps<T>) => {
+  const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
   const {
     getTableProps,
@@ -119,8 +120,25 @@ export const ReactTable = <T extends {}>({
     visibleColumns.length,
   ])
 
+  const scrollToTableTop = useCallback(() => {
+    if (tableRef.current) {
+      const scrollY = tableRef.current.offsetTop - 80
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
+
+  const handlePrevious = useCallback(() => {
+    previousPage()
+    scrollToTableTop()
+  }, [previousPage, scrollToTableTop])
+
+  const handleNext = useCallback(() => {
+    nextPage()
+    scrollToTableTop()
+  }, [nextPage, scrollToTableTop])
+
   return (
-    <Table variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
+    <Table ref={tableRef} variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (
@@ -161,7 +179,7 @@ export const ReactTable = <T extends {}>({
                   icon={<ArrowBackIcon />}
                   size='sm'
                   isDisabled={!canPreviousPage}
-                  onClick={previousPage}
+                  onClick={handlePrevious}
                   variant='ghost'
                   aria-label='Previous Page'
                 />
@@ -170,7 +188,7 @@ export const ReactTable = <T extends {}>({
                   icon={<ArrowForwardIcon />}
                   size='sm'
                   isDisabled={!canNextPage}
-                  onClick={nextPage}
+                  onClick={handleNext}
                   variant='ghost'
                   aria-label='Next Page'
                 />

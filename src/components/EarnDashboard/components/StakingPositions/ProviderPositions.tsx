@@ -131,7 +131,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [
       {
-        Header: 'Staking Position',
+        Header: translate('defi.stakingPosition'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
           // Version or Provider
@@ -158,7 +158,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         disableSortBy: true,
       },
       {
-        Header: 'Total Value',
+        Header: translate('defi.totalValue'),
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
@@ -180,7 +180,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         },
       },
       {
-        Header: 'APY',
+        Header: translate('defi.apy'),
         accessor: 'apy',
         Cell: ({ row }: { row: RowProps }) => (
           <Tag colorScheme='green'>
@@ -189,7 +189,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         ),
       },
       {
-        Header: 'Claimable Rewards',
+        Header: translate('defi.claimableRewards'),
         accessor: 'rewardsAmountsCryptoBaseUnit',
         Cell: ({ row }: { row: RowProps }) => {
           const fiatAmount = calculateRewardFiatAmount({

@@ -61,10 +61,7 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
     selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
   )
 
-  const maybeAccountId = useMemo(
-    () => accountId ?? highestBalanceAccountId,
-    [accountId, highestBalanceAccountId],
-  )
+  const maybeAccountId = accountId ?? highestBalanceAccountId
 
   useEffect(() => {
     if (!maybeAccountId) return

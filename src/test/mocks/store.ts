@@ -53,6 +53,7 @@ export const mockStore: ReduxState = {
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
+      OsmosisLPAdditionalPools: false,
       OsmosisSwap: false,
       ThorSwap: false,
       Cowswap: false,

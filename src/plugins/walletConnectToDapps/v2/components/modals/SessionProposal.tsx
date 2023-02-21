@@ -5,7 +5,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
-import { AccountSelectionOverview } from 'plugins/walletConnectToDapps/v2/components/AccountSelectionOverview'
 import { DAppInfo } from 'plugins/walletConnectToDapps/v2/components/DAppInfo'
 import { Permissions } from 'plugins/walletConnectToDapps/v2/components/Permissions'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
@@ -115,10 +114,7 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   const modalBody: JSX.Element = areAllNamespacesSupported ? (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
-        <Permissions requiredNamespaces={requiredNamespaces} />
-      </ModalSection>
-      <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.accountSelection'>
-        <AccountSelectionOverview
+        <Permissions
           requiredNamespaces={requiredNamespaces}
           selectedAccountIds={selectedAccountIds}
           toggleAccountId={toggleAccountId}

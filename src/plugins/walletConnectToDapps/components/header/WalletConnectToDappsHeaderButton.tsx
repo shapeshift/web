@@ -78,7 +78,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
   )
 
   const walletConnectV2ConnectedButton = (
-    <Menu autoSelect={false} matchWidth={true}>
+    <Menu autoSelect={false}>
       <MenuButton
         as={Button}
         leftIcon={
@@ -108,7 +108,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
       </MenuButton>
       <MenuList
         zIndex='banner'
-        maxWidth={{ base: 'full', md: 'xs' }}
+        maxWidth={{ base: '280px', md: 'xs' }}
         minWidth={{ base: 0, md: 'xs' }}
         display='flex'
         flexDir='column'

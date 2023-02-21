@@ -1,19 +1,19 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuGroup } from '@chakra-ui/menu'
-import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AddressAndChain } from './AddressAndChain'
 import { DappAvatar } from './DappAvatar'
 
 export const extractChainIds = (session: WalletConnectState['session']): string[] => {
@@ -37,7 +37,6 @@ export const DappHeaderMenuSummaryV2 = () => {
   const { dispatch, ...state } = useWalletConnectV2()
   const { session, web3wallet, core } = state
   const { connectedAccounts } = useWalletConnectState(state)
-  const connectedChainIds = extractChainIds(session)
 
   const handleDisconnect = useCallback(async () => {
     // Do this first - we want to always clear our session, even if the disconnect fails
@@ -69,6 +68,10 @@ export const DappHeaderMenuSummaryV2 = () => {
     }
   }, [core, dispatch, session, web3wallet])
 
+  const renderConnectedAddresses = useMemo(() => {
+    return connectedAccounts.map(accountId => <AddressAndChain accountId={accountId} />)
+  }, [connectedAccounts])
+
   if (!session || !web3wallet) return null
 
   return (
@@ -78,7 +81,7 @@ export const DappHeaderMenuSummaryV2 = () => {
         ml={3}
         color='gray.500'
       >
-        <HStack spacing={4} px={3} py={1}>
+        <HStack spacing={4} px={4} py={1}>
           <DappAvatar
             name={session.peer.metadata.name}
             image={session.peer.metadata.icons[0]}
@@ -103,34 +106,19 @@ export const DappHeaderMenuSummaryV2 = () => {
       </MenuGroup>
       <MenuDivider />
 
-      <VStack px={3} py={1} fontWeight='medium' spacing={1} alignItems='stretch'>
+      <VStack px={4} py={1} fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='gray.500' />
           <RawText>
             {dayjs.unix(session.expiry).locale(selectedLocale).format('ll hh:mm A')}
           </RawText>
         </HStack>
-        <HStack justifyContent='space-between' spacing={4}>
+        <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
           <Text translation='plugins.walletConnectToDapps.header.menu.addresses' color='gray.500' />
-          {connectedAccounts.map(address => (
-            <Link
-              key={address}
-              href={'walletConnect.accountExplorerAddressLink}${address'}
-              isExternal
-            >
-              <MiddleEllipsis value={address} color='blue.200' />
-            </Link>
-          ))}
+          <Flex flexWrap='wrap' gap={2} flex={1} justifyContent='flex-end'>
+            {renderConnectedAddresses}
+          </Flex>
         </HStack>
-        {session.acknowledged && (
-          <HStack justifyContent='space-between' spacing={4}>
-            <Text
-              translation='plugins.walletConnectToDapps.header.menu.networks'
-              color='gray.500'
-            />
-            <RawText>{connectedChainIds.join(', ')}</RawText>
-          </HStack>
-        )}
       </VStack>
 
       <MenuDivider />

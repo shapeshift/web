@@ -106,7 +106,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
           )}
         </RawText>
       </MenuButton>
-      <MenuList zIndex={2}>
+      <MenuList zIndex={2} maxWidth='385px'>
         <DappHeaderMenuSummaryV2 />
       </MenuList>
     </Menu>

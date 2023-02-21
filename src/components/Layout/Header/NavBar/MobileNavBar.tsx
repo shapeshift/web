@@ -21,6 +21,7 @@ export const MobileNavBar = () => {
       const isActive = location?.pathname.includes(route?.path ?? '')
       return (
         <Button
+          key={route.path}
           as={ReactRouterLink}
           to={route.path}
           flexDir='column'

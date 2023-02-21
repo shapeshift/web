@@ -26,6 +26,7 @@ import { makeDefiProviderDisplayName, toOpportunityId } from 'state/slices/oppor
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
+  selectHighestBalanceAccountIdByLpId,
   selectMarketDataById,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -52,13 +53,31 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
     [assetId, assetNamespace, assetReference, chainId],
   )
 
+  const highestBalanceAccountIdFilter = useMemo(
+    () => ({ lpId: osmosisOpportunityId }),
+    [osmosisOpportunityId],
+  )
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByLpId(state, highestBalanceAccountIdFilter),
+  )
+
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId,
+    [accountId, highestBalanceAccountId],
+  )
+
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
+
   const opportunityDataFilter = useMemo(
     () => ({
       lpId: osmosisOpportunityId,
       assetId,
-      accountId,
+      accountId: maybeAccountId,
     }),
-    [accountId, assetId, osmosisOpportunityId],
+    [assetId, maybeAccountId, osmosisOpportunityId],
   )
 
   const osmosisOpportunity = useAppSelector(state =>

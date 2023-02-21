@@ -50,6 +50,7 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
       ;(async () => {
         // Reactivate the session
         await state.web3wallet?.extendSession({ topic: session.topic })
+        await state.core?.pairing.activate({ topic: session.topic })
       })()
       // FIXME: handle multiple sessions
       dispatch({ type: WalletConnectActionType.SET_SESSION, payload: session })

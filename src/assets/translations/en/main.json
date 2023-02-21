@@ -1668,7 +1668,8 @@
         "sessionProposal": {
           "dAppInfo": "dApp Info",
           "permissions": "Permissions",
-          "accountSelection": "Choose accounts"
+          "accountSelection": "Choose accounts",
+          "unsupportedChain": "Unsupported chain namespace in session proposal."
         }
       },
       "registry": {

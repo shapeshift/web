@@ -4,7 +4,6 @@ import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { WalletConnectFeeDataKey } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import type { Dispatch } from 'react'
-import { getTypeGuardAssertion } from 'lib/utils'
 
 export enum EIP155_SigningMethod {
   PERSONAL_SIGN = 'personal_sign',
@@ -20,6 +19,8 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_DIRECT = 'cosmos_signDirect',
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
+
+export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: SignClientTypes.EventArguments['session_proposal']
@@ -193,59 +194,13 @@ export type WalletConnectRequest =
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
 
-export const isSignRequest = (
-  request: WalletConnectRequest,
-): request is EthSignCallRequest | EthPersonalSignCallRequest =>
-  [EIP155_SigningMethod.ETH_SIGN, EIP155_SigningMethod.PERSONAL_SIGN].includes(
-    request.method as EIP155_SigningMethod,
-  )
-
-export const isSignTypedRequest = (
-  request: WalletConnectRequest,
-): request is EthSignTypedDataCallRequest =>
-  [
-    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA,
-    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3,
-    EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4,
-  ].includes(request.method as EIP155_SigningMethod)
-
-export const isTransactionParams = (
-  transaction: TransactionParams | string | undefined,
-): transaction is TransactionParams =>
-  typeof transaction === 'object' &&
-  !!transaction?.from &&
-  !!transaction?.to &&
-  !!transaction?.data &&
-  !!transaction?.value &&
-  !!transaction?.gasLimit &&
-  !!transaction?.gasPrice &&
-  !!transaction?.nonce
-
-export const assertIsTransactionParams: (
-  transaction: TransactionParams | string | undefined,
-) => asserts transaction is TransactionParams = getTypeGuardAssertion(
-  isTransactionParams,
-  'Transaction has no transaction params',
-)
-
 export type EthSignParams =
   | EthSignCallRequest
   | EthPersonalSignCallRequestParams
   | EthSignTypedDataCallRequest
 
-type RequestParams =
+export type RequestParams =
   | TransactionParams[]
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
-
-export const isTransactionParamsArray = (
-  transactions: RequestParams | undefined,
-): transactions is TransactionParams[] =>
-  (transactions as TransactionParams[])?.every?.(isTransactionParams)
-
-export const isEthSignParams = (requestParams: RequestParams): requestParams is EthSignParams =>
-  requestParams instanceof Array &&
-  requestParams.length === 2 &&
-  typeof requestParams[0] === 'string' &&
-  typeof requestParams[1] === 'string'

@@ -7,21 +7,20 @@ import {
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
 } from 'plugins/walletConnectToDapps/utils'
-import type {
-  CosmosSigningMethod,
-  EIP155_SigningMethod,
-  WalletConnectState,
-} from 'plugins/walletConnectToDapps/v2/types'
 import {
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
-} from 'plugins/walletConnectToDapps/v2/types'
+} from 'plugins/walletConnectToDapps/v2/typeGuards'
+import type { KnownSigningMethod, WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+/*
+  A helper hook to derive commonly used information from the WalletConnectState
+ */
 export const useWalletConnectState = (state: WalletConnectState) => {
   const { modalData, session } = state
   const requestEvent = modalData?.requestEvent
@@ -66,8 +65,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     request && (isSignRequest(request) || isSignTypedRequest(request))
       ? getSignParamsMessage(request.params)
       : undefined
-  const method: EIP155_SigningMethod | CosmosSigningMethod | undefined =
-    requestEvent?.params.request.method
+  const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
   const chainAdapter = chainId && getChainAdapterManager().get(chainId)
 
   return {

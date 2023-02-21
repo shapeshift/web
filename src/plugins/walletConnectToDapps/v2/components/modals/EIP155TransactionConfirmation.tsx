@@ -11,15 +11,13 @@ import { TransactionAdvancedParameters } from 'plugins/walletConnectToDapps/comp
 import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
 import { useCallRequestEvmFees } from 'plugins/walletConnectToDapps/v2/hooks/useCallRequestEvmFees'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
+import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/v2/typeGuards'
 import type {
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignTransactionCallRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
-import {
-  assertIsTransactionParams,
-  EIP155_SigningMethod,
-} from 'plugins/walletConnectToDapps/v2/types'
+import { EIP155_SigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'

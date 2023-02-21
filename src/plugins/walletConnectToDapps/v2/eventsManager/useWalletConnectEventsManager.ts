@@ -51,12 +51,10 @@ export const useWalletConnectEventsManager = (
       const sessionPingListener = () =>
         moduleLogger.info('Ping received from WalletConnect session client')
       const pairingPingListener = () =>
-        moduleLogger.info('Ping received from WalletConnect session client')
+        moduleLogger.info('Ping received from WalletConnect core client')
 
-      // TODO: other cleanup needed here?
       const pairingDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
 
-      // TODO: other cleanup needed here?
       const pairingExpireListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
 
       // Sign

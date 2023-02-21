@@ -11,7 +11,6 @@ interface IProps {
   toggleAccountId: (accountId: string) => void
 }
 
-// FIXME: this needs serious beard oil, but it shows all required information for now.
 export const Permissions: FC<IProps> = ({
   requiredNamespaces,
   selectedAccountIds,

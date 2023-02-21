@@ -4,19 +4,19 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
-import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   getPool,
   getPoolIdFromAssetReference,
@@ -41,9 +41,7 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const [underlyingAssetsCryptoPrecision, setUnderlyingAssetsCryptoPrecision] = useState<
-    AssetWithBalance[] | undefined
-  >([])
+  const [osmosisPool, setOsmosisPool] = useState<OsmosisPool | undefined>()
   const { chainId, assetReference } = query
   const assetNamespace = ASSET_NAMESPACE.ibc
 
@@ -83,35 +81,46 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[1] ?? ''),
   )
 
-  const calculateUnderlyingAssetBalancesCryptoPrecision = useCallback(async () => {
-    if (!(osmosisOpportunity && underlyingAsset0 && underlyingAsset1)) return undefined
+  useEffect(() => {
+    ;(async () => {
+      const id = getPoolIdFromAssetReference(fromAssetId(lpAssetId).assetReference)
+      if (!id) return
+      const poolData = await getPool(id)
+      setOsmosisPool(poolData)
+    })()
+  }, [lpAssetId])
 
-    const id = getPoolIdFromAssetReference(fromAssetId(lpAssetId).assetReference)
-    if (!id) return undefined
-    const poolData = await getPool(id)
+  const underlyingAssetsCryptoPrecision = useMemo(() => {
+    if (!(osmosisOpportunity && underlyingAsset0 && underlyingAsset1 && osmosisPool))
+      return undefined
 
     if (
-      !(poolData && poolData.pool_assets && poolData.total_shares && poolData.total_weight !== '0')
+      !(
+        osmosisPool &&
+        osmosisPool.pool_assets &&
+        osmosisPool.total_shares &&
+        osmosisPool.total_weight !== '0'
+      )
     ) {
       return undefined
     }
 
     const poolOwnershipFraction = bnOrZero(osmosisOpportunity.cryptoAmountBaseUnit)
-      .dividedBy(bnOrZero(poolData.total_shares.amount))
+      .dividedBy(bnOrZero(osmosisPool.total_shares.amount))
       .toString()
 
-    const underlyingAsset0AllocationPercentage = bnOrZero(poolData.pool_assets[0].weight)
-      .dividedBy(bnOrZero(poolData.total_weight))
+    const underlyingAsset0AllocationPercentage = bnOrZero(osmosisPool.pool_assets[0].weight)
+      .dividedBy(bnOrZero(osmosisPool.total_weight))
       .toString()
-    const underlyingAsset1AllocationPercentage = bnOrZero(poolData.pool_assets[1].weight)
-      .dividedBy(bnOrZero(poolData.total_weight))
+    const underlyingAsset1AllocationPercentage = bnOrZero(osmosisPool.pool_assets[1].weight)
+      .dividedBy(bnOrZero(osmosisPool.total_weight))
       .toString()
 
     const underlyingAsset0Balance = bnOrZero(poolOwnershipFraction)
-      .multipliedBy(poolData.pool_assets[0].token.amount)
+      .multipliedBy(osmosisPool.pool_assets[0].token.amount)
       .toString()
     const underlyingAsset1Balance = bnOrZero(poolOwnershipFraction)
-      .multipliedBy(poolData.pool_assets[1].token.amount)
+      .multipliedBy(osmosisPool.pool_assets[1].token.amount)
       .toString()
 
     const underlyingAsset0CryptoBalancePrecision = bnOrZero(underlyingAsset0Balance)
@@ -136,14 +145,7 @@ export const OsmosisLpOverview: React.FC<OsmosisOverviewProps> = ({
         cryptoBalancePrecision: underlyingAsset1CryptoBalancePrecision,
       },
     ]
-  }, [lpAssetId, osmosisOpportunity, underlyingAsset0, underlyingAsset1])
-
-  useEffect(() => {
-    ;(async () => {
-      const underlyingAssetBalances = await calculateUnderlyingAssetBalancesCryptoPrecision()
-      setUnderlyingAssetsCryptoPrecision(underlyingAssetBalances)
-    })()
-  }, [calculateUnderlyingAssetBalancesCryptoPrecision])
+  }, [osmosisOpportunity, osmosisPool, underlyingAsset0, underlyingAsset1])
 
   const lpMarketData = useAppSelector(state => selectMarketDataById(state, lpAssetId))
   const opportunityFiatBalance = bnOrZero(osmosisOpportunity?.cryptoAmountBaseUnit)

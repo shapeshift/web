@@ -1672,7 +1672,8 @@
           "unsupportedChain": "Unsupported chain namespace in session proposal.",
           "methods": "Methods",
           "events": "Events",
-          "selectedAccounts": "Selected Accounts"
+          "selectedAccounts": "Selected Accounts",
+          "permissionMessage": "Please select at least one account per chain."
         }
       },
       "registry": {

@@ -51,7 +51,12 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
     ))
   }, [methods])
   return (
-    <Card borderColor={borderColor} overflow='hidden' width='full'>
+    <Card
+      borderColor={borderColor}
+      overflow='hidden'
+      width='full'
+      borderRadius={{ base: 'lg', md: 'xl' }}
+    >
       <Card.Header
         px={{ base: 4, md: 4 }}
         display='flex'

@@ -1,4 +1,4 @@
-import { Button, VStack } from '@chakra-ui/react'
+import { Alert, AlertIcon, AlertTitle, Button, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -12,7 +12,7 @@ import type { WalletConnectSessionModalProps } from 'plugins/walletConnectToDapp
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
@@ -114,6 +114,12 @@ const SessionProposal: FC<WalletConnectSessionModalProps> = ({
   const modalBody: JSX.Element = areAllNamespacesSupported ? (
     <>
       <ModalSection title='plugins.walletConnectToDapps.modal.sessionProposal.permissions'>
+        <Alert status='warning' mb={4} mt={-2}>
+          <AlertIcon />
+          <AlertTitle>
+            <Text translation='plugins.walletConnectToDapps.modal.sessionProposal.permissionMessage' />
+          </AlertTitle>
+        </Alert>
         <Permissions
           requiredNamespaces={requiredNamespaces}
           selectedAccountIds={selectedAccountIds}

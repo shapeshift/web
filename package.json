@@ -220,7 +220,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
-    "git-semver-tags": "^4.1.1",
     "inquirer": "8.2.4",
     "jest-mock": "^27.5.1",
     "lit-html": "^2.6.1",

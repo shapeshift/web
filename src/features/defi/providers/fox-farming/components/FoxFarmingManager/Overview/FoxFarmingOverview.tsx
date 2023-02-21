@@ -18,7 +18,11 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -195,7 +199,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       opportunityFiatBalance={underlyingAssetsFiatBalance}
       lpAsset={lpAssetWithBalancesAndIcons}
       underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
-      provider='ShapeShift'
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: lpAsset.name,
+      })}
       menu={
         opportunityData.expired
           ? [

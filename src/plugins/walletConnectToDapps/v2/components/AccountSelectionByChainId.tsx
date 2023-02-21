@@ -26,32 +26,36 @@ export const AccountSelectionByChainId: FC<IProps> = ({
   const hoverBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
   const translateKey = (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`
   const filter = useMemo(() => ({ chainId }), [chainId])
-  const accountIdsByAccountNumber = useAppSelector(s =>
+  const accountIdsByAccountNumberChainId = useAppSelector(s =>
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
-  const accountIds = Object.entries(accountIdsByAccountNumber).map(accountId => accountId[1][0])
-  const selectedAccountIdsByChain = accountIds.filter(accountId =>
+  const accountIds = Object.entries(accountIdsByAccountNumberChainId).flatMap(
+    ([_, accountIds]) => accountIds,
+  )
+  const selectedAccountIdsByChainId = accountIds.filter(accountId =>
     selectedAccountIds.includes(accountId),
   )
+
   const renderAccounts = useMemo(() => {
-    return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => {
-      // FIXME: Why would we have more than one accountId here? 🤔
-      const isSelected = selectedAccountIds.some(accountId => accountId === accountIds[0])
-      return (
-        <Account
-          accountId={accountIds[0]}
-          accountNumber={accountNumber}
-          isSelected={isSelected}
-          toggleAccountId={toggleAccountId}
-          key={accountNumber}
-        ></Account>
-      )
+    return Object.entries(accountIdsByAccountNumberChainId).map(([accountNumber, accountIds]) => {
+      return accountIds.map(accountId => {
+        const isSelected = selectedAccountIds.some(accountId => accountIds.includes(accountId))
+        return (
+          <Account
+            accountId={accountId}
+            accountNumber={accountNumber}
+            isSelected={isSelected}
+            toggleAccountId={toggleAccountId}
+            key={accountNumber}
+          ></Account>
+        )
+      })
     })
-  }, [accountIdsByAccountNumber, selectedAccountIds, toggleAccountId])
+  }, [accountIdsByAccountNumberChainId, selectedAccountIds, toggleAccountId])
 
   const renderSelectedCounts = useMemo(() => {
-    return `${selectedAccountIdsByChain.length} / ${accountIds.length}`
-  }, [accountIds.length, selectedAccountIdsByChain.length])
+    return `${selectedAccountIdsByChainId.length} / ${accountIds.length}`
+  }, [accountIds.length, selectedAccountIdsByChainId.length])
   return (
     <Row
       variant='gutter'

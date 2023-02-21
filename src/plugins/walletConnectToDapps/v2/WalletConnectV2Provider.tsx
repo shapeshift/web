@@ -43,7 +43,6 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()
-    console.log('[debug] activeSessions', activeSessions)
     const sessions = activeSessions ? Object.values(activeSessions) : []
     if (sessions?.length) {
       // Load the most recent session
@@ -71,8 +70,6 @@ export function useWalletConnectV2() {
   if (context === undefined) {
     throw new Error('useWalletConnectV2 must be used within a WalletConnectV2Provider')
   }
-
-  console.log('[debug] context', context)
 
   return { ...context.state, dispatch: context.dispatch }
 }

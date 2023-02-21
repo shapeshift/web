@@ -12,6 +12,9 @@ import {
   WalletConnectModal,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { useCallback } from 'react'
+import { logger } from 'lib/logger'
+
+const moduleLogger = logger.child({ namespace: ['useWalletConnectEventsHandler'] })
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
@@ -29,7 +32,7 @@ export const useWalletConnectEventsHandler = (
   )
 
   const handleAuthRequest = useCallback((request: Web3WalletTypes.AuthRequest) => {
-    console.log('[debug] auth_request', request)
+    moduleLogger.info(request, 'auth_request received')
   }, [])
 
   // Open request handling modal based on method that was used
@@ -37,10 +40,7 @@ export const useWalletConnectEventsHandler = (
     (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
       const { request } = params
-      // const requestSession = signClient.session.get(topic)
       const requestSession = web3wallet?.engine.signClient.session.get(topic)
-
-      console.log('[debug] handleSessionRequest', { requestEvent, requestSession, request })
 
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
@@ -92,7 +92,7 @@ export const useWalletConnectEventsHandler = (
           })
 
         default:
-          console.log('[debug] SessionUnsupportedMethodModal', { requestEvent, requestSession })
+          moduleLogger.info(request, 'Unsupported method received')
           return
       }
     },

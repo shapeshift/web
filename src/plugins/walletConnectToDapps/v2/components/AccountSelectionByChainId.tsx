@@ -1,9 +1,8 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Collapse, useColorModeValue, useDisclosure } from '@chakra-ui/react'
+import { Checkbox } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Account } from 'plugins/walletConnectToDapps/v2/components/Account'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
@@ -22,8 +21,7 @@ export const AccountSelectionByChainId: FC<IProps> = ({
   toggleAccountId,
 }) => {
   const translate = useTranslate()
-  const { isOpen, onToggle } = useDisclosure()
-  const hoverBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
+  const [allChecked, setAllChecked] = useState(false)
   const translateKey = (key: string) => `plugins.walletConnectToDapps.modal.sessionProposal.${key}`
   const filter = useMemo(() => ({ chainId }), [chainId])
   const accountIdsByAccountNumberChainId = useAppSelector(s =>
@@ -56,24 +54,37 @@ export const AccountSelectionByChainId: FC<IProps> = ({
   const renderSelectedCounts = useMemo(() => {
     return `${selectedAccountIdsByChainId.length} / ${accountIds.length}`
   }, [accountIds.length, selectedAccountIdsByChainId.length])
+
+  const handleSelectAllAccounts = useCallback(() => {
+    const hasAllChecked = selectedAccountIdsByChainId.length === accountIds.length
+    accountIds
+      .filter(accountId => (hasAllChecked ? accountId : !selectedAccountIds.includes(accountId)))
+      .map(accountId => toggleAccountId(accountId))
+    setAllChecked(true)
+  }, [accountIds, selectedAccountIds, selectedAccountIdsByChainId.length, toggleAccountId])
+
+  useEffect(() => {
+    // Update the select all when all options are selected
+    if (selectedAccountIdsByChainId.length === accountIds.length) {
+      setAllChecked(true)
+    } else {
+      setAllChecked(false)
+    }
+  }, [accountIds.length, selectedAccountIdsByChainId.length])
+
   return (
-    <Row
-      variant='gutter'
-      flexDir='column'
-      cursor='pointer'
-      _hover={{ bg: hoverBg }}
-      py={3}
-      gap={2}
-      onClick={onToggle}
-    >
+    <Row variant='gutter' flexDir='column' py={3} gap={2}>
       <Row alignItems='center'>
-        <Row.Label>{translate(translateKey('selectedAccounts'))}</Row.Label>
+        <Row.Label>
+          <Checkbox onChange={handleSelectAllAccounts} isChecked={allChecked}>
+            {translate(translateKey('selectedAccounts'))}
+          </Checkbox>
+        </Row.Label>
         <Row.Value fontWeight='semibold' display='flex' gap={2} alignItems='center'>
           <RawText>{renderSelectedCounts}</RawText>
-          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon boxSize={4} />}
         </Row.Value>
       </Row>
-      <Collapse in={isOpen}>{renderAccounts}</Collapse>
+      {renderAccounts}
     </Row>
   )
 }

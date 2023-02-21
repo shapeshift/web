@@ -1,4 +1,5 @@
-import { Divider, Stack, useColorModeValue } from '@chakra-ui/react'
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { Collapse, Divider, Flex, Stack, useColorModeValue, useDisclosure } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -28,6 +29,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
   selectedAccountIds,
   toggleAccountId,
 }) => {
+  const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.200')
@@ -49,40 +51,48 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
     ))
   }, [methods])
   return (
-    <Card borderColor={borderColor} overflow='hidden'>
+    <Card borderColor={borderColor} overflow='hidden' width='full'>
       <Card.Header
         px={{ base: 4, md: 4 }}
         display='flex'
         alignItems='center'
         justifyContent='space-between'
+        onClick={onToggle}
+        cursor='pointer'
+        _hover={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50') }}
       >
         <Card.Heading display='flex' alignItems='center' gap={2}>
           <AssetIcon src={asset?.networkIcon ?? asset?.icon} size='xs' />
           {asset?.networkName ?? asset?.name}
         </Card.Heading>
-        <Tag>{chainNamespace}</Tag>
+        <Flex gap={2} alignItems='center'>
+          <Tag>{chainNamespace}</Tag>
+          {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        </Flex>
       </Card.Header>
-      <Card.Body p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
-        <Stack spacing={0} divider={<Divider />}>
-          <Row gap={2} variant='gutter' py={3}>
-            <Row.Label>{translate(translateKey('methods'))}</Row.Label>
-            <Row.Value display='flex' gap={2} flexWrap='wrap' justifyContent='flex-end'>
-              {renderMethods}
-            </Row.Value>
-          </Row>
-          <Row variant='gutter' py={3}>
-            <Row.Label>{translate(translateKey('events'))}</Row.Label>
-            <Row.Value display='flex' gap={4} flexWrap='wrap' justifyContent='flex-end'>
-              {renderEvents}
-            </Row.Value>
-          </Row>
-          <AccountSelectionByChainId
-            chainId={chainId}
-            toggleAccountId={toggleAccountId}
-            selectedAccountIds={selectedAccountIds}
-          />
-        </Stack>
-      </Card.Body>
+      <Collapse in={isOpen}>
+        <Card.Body p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
+          <Stack spacing={0} divider={<Divider />}>
+            <Row gap={4} variant='gutter' py={3}>
+              <Row.Label>{translate(translateKey('methods'))}</Row.Label>
+              <Row.Value display='flex' gap={2} flexWrap='wrap' justifyContent='flex-end'>
+                {renderMethods}
+              </Row.Value>
+            </Row>
+            <Row gap={4} variant='gutter' py={3}>
+              <Row.Label>{translate(translateKey('events'))}</Row.Label>
+              <Row.Value display='flex' gap={4} flexWrap='wrap' justifyContent='flex-end'>
+                {renderEvents}
+              </Row.Value>
+            </Row>
+            <AccountSelectionByChainId
+              chainId={chainId}
+              toggleAccountId={toggleAccountId}
+              selectedAccountIds={selectedAccountIds}
+            />
+          </Stack>
+        </Card.Body>
+      </Collapse>
     </Card>
   )
 }

@@ -20,7 +20,7 @@ export const useIsInteractingWithContract = ({
             )
           : undefined
       // this util function returns '0x' if the recipient address is not a contract address
-      setIsInteractingWithContract(!!result && result !== '0x')
+      setIsInteractingWithContract(result ? result !== '0x' : null)
     })()
   }, [address, evmChainId])
 

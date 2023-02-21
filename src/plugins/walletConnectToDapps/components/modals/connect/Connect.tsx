@@ -1,6 +1,7 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
+import { isWalletConnectV2Uri } from 'plugins/walletConnectToDapps/components/modals/connect/utils'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import { useCallback } from 'react'
@@ -34,7 +35,7 @@ const Connect = ({ isOpen, onClose }: Props) => {
   const handleConnect = useCallback(
     (uri: string) => {
       // https://eips.ethereum.org/EIPS/eip-1328
-      const isWalletConnectV2 = uri.split('@')?.[1]?.[0] === '2'
+      const isWalletConnectV2 = isWalletConnectV2Uri(uri)
       return isWalletConnectV2 ? handleConnectV2(uri) : handleConnectV1(uri)
     },
     [handleConnectV1, handleConnectV2],

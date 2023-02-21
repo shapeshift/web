@@ -29,7 +29,7 @@ export const getWalletConnectWallet = async () => {
         description:
           'A free open source platform to trade, track, buy, and earn. Community-owned. Private. Non-custodial. Multi-chain.',
         url: 'https://app.shapeshift.com/',
-        icons: ['https://avatars.githubusercontent.com/u/37784886'], // FIXME: temp value
+        icons: ['https://app.shapeshift.com/icon-512x512.png'],
       },
     })
   } catch (e) {

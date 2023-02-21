@@ -13,6 +13,11 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import {
+  isValidWalletConnectUri,
+  isWalletConnectV1Uri,
+  isWalletConnectV2Uri,
+} from 'plugins/walletConnectToDapps/components/modals/connect/utils'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -55,9 +60,9 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     [setValue, toggleQrCodeView],
   )
   const uri = useWatch({ control, name: 'uri' })
-  const isWalletConnectV1 = uri.split('@')?.[1]?.[0] === '1'
-  const isWalletConnectV2 = uri.split('@')?.[1]?.[0] === '2'
-  const isValidUri = isWalletConnectV1 || isWalletConnectV2
+  const isWalletConnectV1 = isWalletConnectV1Uri(uri)
+  const isWalletConnectV2 = isWalletConnectV2Uri(uri)
+  const isValidUri = isValidWalletConnectUri(uri)
 
   const feeAssetId: AssetId = useMemo(() => {
     if (!evmChainId) return ethAssetId

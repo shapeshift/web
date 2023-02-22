@@ -11,7 +11,7 @@ function baseStyleList(props: Record<string, any>) {
     minW: '3xs',
     py: '2',
     zIndex: 1,
-    borderRadius: 'xl',
+    borderRadius: '2xl',
     borderWidth: '1px',
   }
 }

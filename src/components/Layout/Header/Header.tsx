@@ -28,6 +28,7 @@ import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetchi
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ChainMenu } from './NavBar/ChainMenu'
+import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
@@ -99,6 +100,9 @@ export const Header = () => {
         width='full'
         position='sticky'
         zIndex='banner'
+        transitionDuration='500ms'
+        transitionProperty='all'
+        transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
@@ -174,6 +178,7 @@ export const Header = () => {
           <SideNavContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
+      <MobileNavBar />
     </>
   )
 }

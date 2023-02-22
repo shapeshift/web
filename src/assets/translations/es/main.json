@@ -84,7 +84,9 @@
     "pageNotFound": "La página que buscas no se encuentra",
     "buySell": "Comprar/Vender",
     "all": "Todo",
-    "viewAll": "Ver todo"
+    "viewAll": "Ver todo",
+    "slippage": "Deslizamiento",
+    "validator": "el validador %{name}"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -162,6 +164,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "Rampa de entrada",
+    "coinbase": "Coinbase",
     "comingSoon": "Próximamente ...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -298,7 +301,22 @@
         "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
         "sendDustBody": "Necesitas enviar algo de polvo a esta dirección para poder retirar.",
         "sendDust": "Send Dust",
-        "addressToSendTo": "Dirección de envío"
+        "addressToSendTo": "Dirección de envío",
+        "introducingSaversVaults": "Presentamos Bóvedas Savers",
+        "risksBody": {
+          "1": "Refiere a",
+          "2": "Este artículo",
+          "3": "por los riesgos de las Bovedas Savers."
+        },
+        "understand": "Entiendo",
+        "days": "%{amount} días",
+        "day": "%{amount} día",
+        "timeToBreakEven": {
+          "title": "Tiempo para evitar pérdidas",
+          "tooltip": "Tiempo estimado para cubrir tarifas de depósito y ganancias."
+        },
+        "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
+        "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes"
       }
     },
     "memoNote": {
@@ -446,7 +464,8 @@
     "wallet": "Billetera",
     "explore": "Explore",
     "trade": "Intercambie",
-    "buyCrypto": "Comprar/Vender Cripto"
+    "buyCrypto": "Comprar/Vender Cripto",
+    "arkeo": "Airdrop Arkeo "
   },
   "transactionRow": {
     "send": "Enviado",
@@ -470,15 +489,21 @@
       "weth": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
+        "revokeSymbol": "Revocar aprobación %{symbol}",
+        "amountUnavailable": "No disponible",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
       "yearn": {
         "deposit": "Depositar",
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
+        "revokeSymbol": "Revocar aprobación %{symbol}",
         "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible",
         "withdraw": "Retirar",
         "receive": "Recibir"
       },
@@ -499,8 +524,11 @@
       },
       "erc20": {
         "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
         "revoke": "Revocar",
-        "infinite": "Infinito ∞"
+        "revokeSymbol": "Revocar aprobación %{symbol}",
+        "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible"
       },
       "staking": {
         "delegate": "Delegar",
@@ -519,7 +547,10 @@
         "recv_packet": "Recibido"
       },
       "lp": {
-        "deposit": "Añadir Liquidez"
+        "deposit": "Añadir Liquidez",
+        "withdraw": "Remover Liquidez",
+        "join_pool": "Unirse al Pool",
+        "exit_pool": "Salir del Pool"
       }
     },
     "unknown": "Transacción"
@@ -558,6 +589,7 @@
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
+    "pending": "Intercambio Pendiente",
     "complete": "Intercambio Completado",
     "approveAsset": "Aprobar la interacción con %{symbol}",
     "needPermission": "Necesitamos su permiso para usar su %{symbol}",
@@ -608,6 +640,7 @@
       "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
       "dexTradeFailed": "Comercio fallido, Tokens regresados",
       "quoteFailed": "Se produjo un error al obtener una cotización para su operación.",
+      "quoteExpired": "Cotización caducada, intente de nuevo.",
       "failedQuoteExecuted": "No se puede ejecutar una cotización fallida",
       "sellAssetRequired": "No se puede ejecutar una cotización sin un activo para vender",
       "sellAmountRequired": "No se puede ejecutar una cotización sin una cantidad para vender",
@@ -814,6 +847,10 @@
       "blockExplorer": "Explorador"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Su Asignación",
+        "fractionDescription": "% del pool"
+      },
       "amountToDeposit": "Cantidad a depositar",
       "depositInto": "Deposite en %{opportunity}",
       "estimatedReturns": "Rendimientos anuales estimados*",
@@ -907,6 +944,7 @@
       "estimatedReturns": "Rendimientos anuales estimados*",
       "estimatedGas": "Tarifa Estimada de Gas",
       "notEnoughGas": "No hay suficiente %{assetSymbol} para cubrir el gas",
+      "missingFundsForGas": "No hay suficientes fondos, necesita %{cryptoAmountHuman} %{assetSymbol} más para completar la transacción",
       "preFooter": "Las Recompensas se acumulan automáticamente",
       "signBroadcast": "Firmar y Transmitir",
       "cancel": "Cancelar"
@@ -1643,6 +1681,76 @@
       "title": "Compra cripto sin KYC",
       "body": "Compra hasta $1,000 con Apple Pay",
       "cta": "Compra ahora"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "¿Qué es Arkeo?",
+      "bodyParts": {
+        "1": "El año pasado, junto a",
+        "2": "Coinbase Cloud",
+        "3": "ShapeShift incubó un proyecto llamado Arkeo. ¡El lanzamiento de Mainnet está a la vuelta de la esquina!",
+        "4": "Arkeo se creó para ser un back-end descentralizado para todos los datos de los nodos. Las app que utilizan Arkeo se beneficiarán en una mayor velocidad de desarrollo, resistencia a censura y",
+        "5": "coeficiente nakamoto",
+        "6": "mientras reduce la dependencia en fuentes de datos centralizadas."
+      }
+    },
+    "whoQualifies": {
+      "title": "¿Quién califica para el Arkeo Airdrop?",
+      "body": "Hay varias formas para calificar al airdrop usando ShapeShift dApp. La instantánea está rodando, ¡todavía estás a tiempo de calificar!"
+    },
+    "staking": {
+      "title": "%{asset} Stakers",
+      "body": "Gane hasta %{apy} APR en su %{asset} inactivo y califique para el airdrop Arkeo. ADEMÁS, si stake  a %{provider}, se aplicará un multiplicador 2x a su saldo cuando se calcule el monto de su airdrop de Arkeo.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Proveedores",
+      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al pool Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX token LP FOX/ETH calificará para el airdrop Arkeo.",
+      "cta": "Depositar Liquidez"
+    },
+    "foxTokenHolders": {
+      "title": "Titulares FOX Tokens",
+      "body": "Hodling tokens FOX. Más grande su bolsa, mayor su Airdrop Arkeo.",
+      "cta": "Intercambiar por FOX",
+      "secondary": "Comprar FOX"
+    },
+    "foxFarmers": {
+      "title": "Farmers FOX/ETH LP",
+      "body": "Gane hasta %{apy} APR por Stake sus tokens LP ETH/FOX en FOX Farm. ADEMÁS, el FOX en los tokens LP ETH/FOX Farm V5 califica para el Airdrop Arkeo.",
+      "cta": "Stake LP FOX/ETH"
+    },
+    "foxyTokenHolders": {
+      "title": "Titulares Tokens FOXy",
+      "body": "Gane hasta %{apy} APR en su FOX inactivo con FOX Yieldy (FOXy). Además su FOXy en su billetera será tratado igual que FOX y calificará para el airdrop de Arkeo.",
+      "cta": "Stake Tokens FOX"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LPs",
+      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al grupo Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX subyacente en los tokens LP FOX/ETH califica para el Airdrop Arkeo.",
+      "cta": "Depositar Liquidez"
+    },
+    "atomOsmoProviders": {
+      "title": "Proveedores LP ATOM/OSMO",
+      "body": "¿Tiene ATOM y OSMO? Proporcione liquidez al grupo para ganar %{apy} APR y calificar para el airdrop.",
+      "cta": "Depositar Liquidez"
+    },
+    "stakeAtom": {
+      "title": "Stake ATOM",
+      "body": "Gane hasta %{apr} APR en su ATOM inactivo. ADEMÁS, cualquier ATOM en Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop.",
+      "cta": "Stake ATOM"
+    },
+    "stakeOsmo": {
+      "title": "Stake OSMO",
+      "body": "Gane hasta %{apr} APR en su OSMO inactivo. ADEMÁS, cualquier OSMO que Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop."
+    },
+    "footer": {
+      "title": "También hay otras formas de calificar, fuera de ShapeShift dApp. Para obtener una lista completa, consulte la propuesta de gobernanza.",
+      "cta": "Consulta la propuesta de gobernanza",
+      "disclaimer": {
+        "body": "* Solo calificarán las billeteras de auto-custodia. Los tokens retenidos o stake en intercambios centralizados no califican. ¿Necesitas una billetera?",
+        "cta": "Crea una"
+      }
     }
   }
 }

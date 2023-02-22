@@ -84,7 +84,9 @@
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
     "buySell": "Kaufen/Verkaufen",
     "all": "Alle",
-    "viewAll": "Alle ansehen"
+    "viewAll": "Alle ansehen",
+    "slippage": "Marktabweichung",
+    "validator": "der %{name} Prüfer"
   },
   "errorPage": {
     "title": "Hoppala!",
@@ -162,6 +164,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Demnächst ...",
     "buy": "Kaufen",
     "sell": "Verkaufen",
@@ -298,7 +301,22 @@
         "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
         "sendDustBody": "Sie müssen einen Kleinbetrag an diese Adresse senden, um Abheben zu können.",
         "sendDust": "Sende Kleinbetrag",
-        "addressToSendTo": "an diese Adresse senden"
+        "addressToSendTo": "an diese Adresse senden",
+        "introducingSaversVaults": "Einführung von Savers Vaults",
+        "risksBody": {
+          "1": "In Bezug auf",
+          "2": "diesen Artikel",
+          "3": "für Risiken im Zusammenhang mit Savers Vaults."
+        },
+        "understand": "Ich verstehe",
+        "days": "%{amount} Tage",
+        "day": "%{amount} Tag",
+        "timeToBreakEven": {
+          "title": "Zeit zum Break-Even",
+          "tooltip": "Geschätzte Zeit zur Deckung von Einzahlungsgebühren und Einnahmen."
+        },
+        "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
+        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen"
       }
     },
     "memoNote": {
@@ -446,7 +464,8 @@
     "wallet": "Wallet",
     "explore": "Entdecken",
     "trade": "Handeln",
-    "buyCrypto": "Krypto kaufen/verkaufen"
+    "buyCrypto": "Krypto kaufen/verkaufen",
+    "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -470,15 +489,21 @@
       "weth": {
         "deposit": "Einzahlung",
         "approve": "Genehmigen",
+        "approveSymbol": "Genehmige %{symbol}",
         "revoke": "Widerrufen",
+        "revokeSymbol": "Widerruf der Genehmigung von %{symbol}",
+        "amountUnavailable": "Nicht verfügbar",
         "withdraw": "Abheben",
         "receive": "Erhalten"
       },
       "yearn": {
         "deposit": "Einzahlen",
         "approve": "Genehmigen",
+        "approveSymbol": "Genehmige %{symbol}",
         "revoke": "Widerrufen",
+        "revokeSymbol": "Widerruf der Genehmigung von %{symbol}",
         "infinite": "Unendlich ∞",
+        "amountUnavailable": "Nicht verfügbar",
         "withdraw": "Abheben",
         "receive": "Erhalten"
       },
@@ -499,8 +524,11 @@
       },
       "erc20": {
         "approve": "Genehmigen",
+        "approveSymbol": "Genehmige %{symbol}",
         "revoke": "Widerrufen",
-        "infinite": "Unendlich ∞"
+        "revokeSymbol": "Widerruf der Genehmigung von %{symbol}",
+        "infinite": "Unendlich ∞",
+        "amountUnavailable": "Nicht verfügbar"
       },
       "staking": {
         "delegate": "Delegieren",
@@ -519,7 +547,10 @@
         "recv_packet": "Erhalten"
       },
       "lp": {
-        "deposit": "Liquidität hinzufügen"
+        "deposit": "Liquidität hinzufügen",
+        "withdraw": "Liquidität entfernen",
+        "join_pool": "Pool beitreten",
+        "exit_pool": "Pool verlassen"
       }
     },
     "unknown": "Transaktion"
@@ -558,6 +589,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
     "confirmAndTrade": "Bestätigen und Handeln",
+    "pending": "Handel ausstehend",
     "complete": "Handel abgeschlossen",
     "approveAsset": "Interaktion mit %{symbol} genehmigen",
     "needPermission": "benötigt Ihre Erlaubnis, Ihre %{symbol} zu verwenden",
@@ -608,6 +640,7 @@
       "balanceToLow": "Guthaben zu niedrig. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
       "dexTradeFailed": "Handel fehlgeschlagen, Token zurückgegeben",
       "quoteFailed": "Beim Abrufen eines Angebots für Ihren Handel ist ein Fehler aufgetreten.",
+      "quoteExpired": "Angebot abgelaufen, versuchen Sie es erneut.",
       "failedQuoteExecuted": "Ein fehlgeschlagenes Angebot kann nicht ausgeführt werden",
       "sellAssetRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Vermögenswert ausgeführt werden",
       "sellAmountRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Betrag ausgeführt werden",
@@ -814,6 +847,10 @@
       "blockExplorer": "Explorer"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Ihre Zuordnung",
+        "fractionDescription": "% des Pools"
+      },
       "amountToDeposit": "Einzuzahlender Betrag",
       "depositInto": "Einzahlung in %{opportunity}",
       "estimatedReturns": "Geschätzte jährliche Rendite*",
@@ -907,6 +944,7 @@
       "estimatedReturns": "Geschätzte jährliche Rendite*",
       "estimatedGas": "Geschätzte Gasgebühr",
       "notEnoughGas": "Nicht genug %{assetSymbol}, um Gas abzudecken",
+      "missingFundsForGas": "Nicht genügend Guthaben, Sie benötigen %{cryptoAmountHuman} %{assetSymbol} mehr, um die Transaktion abzuschließen",
       "preFooter": "Prämien fallen automatisch an",
       "signBroadcast": "Signieren und übertragen",
       "cancel": "Abbruch"
@@ -1643,6 +1681,76 @@
       "title": "Kaufen Sie Krypto ohne KYC",
       "body": "Kaufen Sie bis zu 1.000 $ mit Apple Pay",
       "cta": "Kaufe jetzt"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "Was ist Arkeo?",
+      "bodyParts": {
+        "1": "Letztes Jahr, mit",
+        "2": "Coinbase Cloud",
+        "3": "ShapeShift hat ein Projekt namens Arkeo ins Leben gerufen. Der Start des Mainnets steht vor der Tür!",
+        "4": "Arkeo wurde als dezentrales Backend für alle Knotendaten entwickelt. Anwendungen, die Arkeo verwenden, profitieren von erhöhter Entwicklungsgeschwindigkeit, Zensurresistenz und",
+        "5": "Nakamoto-Koeffizient",
+        "6": "bei gleichzeitiger Verringerung der Abhängigkeit von zentralisierten Datenquellen."
+      }
+    },
+    "whoQualifies": {
+      "title": "Wer qualifiziert sich für den Arkeo Airdrop?",
+      "body": "Es gibt eine Reihe von Möglichkeiten, wie Sie sich mit der ShapeShift dApp für den Airdrop qualifizieren können. Der Schnappschuss läuft, Sie haben noch Zeit, sich zu qualifizieren!"
+    },
+    "staking": {
+      "title": "%{asset} Staker",
+      "body": "Verdienen Sie bis zu %{apy} APR auf Ihr ungenutztes %{asset} und qualifizieren Sie sich für den Arkeo Airdrop. PLUS: Wenn Sie bei %{provider} einsetzen, wird ein 2-facher Multiplikator auf Ihr eingesetztes Guthaben angewendet, wenn Ihr Arkeo-Airdrop-Betrag berechnet wird.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Anbieter",
+      "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2 Pool bereit, um %{apy} APR effektiven Jahreszins zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
+      "cta": "Liquidität einzahlen"
+    },
+    "foxTokenHolders": {
+      "title": "FOX-Token-Inhaber",
+      "body": "Hodl FOX Token. Je größer Ihr Anteil, desto größer Ihr Arkeo Airdrop.",
+      "cta": "Handel für FOX",
+      "secondary": "FOX kaufen"
+    },
+    "foxFarmers": {
+      "title": "FOX/ETH LP Farmer",
+      "body": "Verdienen Sie bis zu %{apy} APR für das Staking Ihrer ETH/FOX LP-Tokens in der FOX Farm. PLUS der zugrunde liegende FOX in den ETH/FOX LP-Token, die Sie in Runde 5 der FOX Farm einsetzen, qualifiziert sich für den Arkeo Airdrop.",
+      "cta": "Stake FOX/ETH LP"
+    },
+    "foxyTokenHolders": {
+      "title": "FOXy-Token-Inhaber",
+      "body": "Verdienen Sie mit FOX Yieldy (FOXy) bis zu %{apy} APR auf Ihren untätigen FOX. PLUS FOXy in Ihrer Wallet wird genauso behandelt wie FOX und qualifiziert sich für den Arkeo Airdrop.",
+      "cta": "Stake FOX Token"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LPs",
+      "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2-Pool bereit, um %{apy} APR zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
+      "cta": "Liquidität einzahlen"
+    },
+    "atomOsmoProviders": {
+      "title": "ATOM/OSMO LP Provider",
+      "body": "Haben Sie ATOM und OSMO? Stellen Sie Liquidität in den Pool, um %{apy} APR zu verdienen und sich für den Airdrop zu qualifizieren.",
+      "cta": "Liquidität einzahlen"
+    },
+    "stakeAtom": {
+      "title": "Stake ATOM",
+      "body": "Verdienen Sie bis zu %{apr} APR mit Ihrem ungenutzten ATOM. PLUS jedes ATOM, das Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Validator einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln.",
+      "cta": "Stake ATOM"
+    },
+    "stakeOsmo": {
+      "title": "Stake OSMO",
+      "body": "Verdienen Sie bis zu %{apr} APR auf Ihre freien OSMO. PLUS jeden OSMO, den Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Prüfer einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln."
+    },
+    "footer": {
+      "title": "Es gibt auch andere Möglichkeiten, sich außerhalb der ShapeShift dApp zu qualifizieren. Eine vollständige Liste finden Sie im Governance-Vorschlag.",
+      "cta": "Sehen Sie sich den Governance-Vorschlag an",
+      "disclaimer": {
+        "body": "* Nur Selbstverwaltende Wallets sind qualifiziert. Token, die über eine zentralisierte Börse in einem Wallet gehalten oder gestaket werden, sind nicht qualifiziert. Brauchen Sie eine Wallet?",
+        "cta": "Erstelle einen"
+      }
     }
   }
 }

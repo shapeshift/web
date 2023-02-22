@@ -11,7 +11,6 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getIdleInvestor } from 'features/defi/contexts/IdleProvider/idleInvestorSingleton'
 import { useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -23,8 +22,13 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
+import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -34,6 +38,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -151,15 +156,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const underlyingAssets: AssetWithBalance[] = useMemo(
-    () => [
-      {
-        ...underlyingAsset,
-        cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
-        allocationPercentage: '1',
-      },
-    ],
-    [cryptoAmountAvailable, underlyingAsset],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -236,7 +234,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     )
   }
 
-  if (!underlyingAssets || !opportunityData) return null
+  if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
 
   return (
     <Overview
@@ -245,8 +243,11 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       asset={vaultAsset}
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={underlyingAssets}
-      provider='Idle Finance'
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: vaultAsset.name,
+      })}
       description={{
         description: underlyingAsset.description,
         isLoaded: !descriptionQuery.isLoading,

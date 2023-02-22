@@ -4,7 +4,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -20,6 +19,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -36,7 +36,7 @@ const moduleLogger = logger.child({
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
-  const { foxy: api } = useFoxy()
+  const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const {
@@ -69,12 +69,21 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!(accountAddress && assetReference && walletState.wallet && api && bip44Params && dispatch))
+    if (
+      !(
+        accountAddress &&
+        assetReference &&
+        walletState.wallet &&
+        foxyApi &&
+        bip44Params &&
+        dispatch
+      )
+    )
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
-        api.deposit({
+        foxyApi.deposit({
           amountDesired: bnOrZero(state?.deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
@@ -84,7 +93,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           wallet: walletState.wallet,
           bip44Params,
         }),
-        api.getGasPrice(),
+        foxyApi.getGasPrice(),
       ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       getMixPanel().track('defi.deposit', {
@@ -95,7 +104,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
-        fn: () => api.getTxReceipt({ txid }),
+        fn: () => foxyApi.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
@@ -119,7 +128,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    api,
+    foxyApi,
     asset.precision,
     assetReference,
     bip44Params,

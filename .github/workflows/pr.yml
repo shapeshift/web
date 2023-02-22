@@ -31,6 +31,11 @@ jobs:
 
       # needs to run after install
       - name: Commitlint PR Title
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-contexts
+        # only commitlint on PRs - pull_request.title not available in merge_group (merge queue)
+        # https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#merge_group
+        # once a PR is in the merge queue, its title has already been commitlint'd
+        if: ${{ github.event_name == 'pull_request' }}
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$TITLE" | npx commitlint

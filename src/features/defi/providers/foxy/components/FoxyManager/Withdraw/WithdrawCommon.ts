@@ -4,22 +4,6 @@ import type { WithdrawType } from '@shapeshiftoss/types'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 
-export enum WithdrawPath {
-  Withdraw = '/',
-  Approve = '/approve',
-  Confirm = '/confirm',
-  ConfirmSettings = '/confirm/settings',
-  Status = '/status',
-}
-
-export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Approve, label: 'Approve' },
-  { step: 2, path: WithdrawPath.Confirm, label: 'Confirm' },
-  { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: WithdrawPath.Status, label: 'Status' },
-]
-
 type SupportedFoxyOpportunity = {
   type: DefiType
   provider: string

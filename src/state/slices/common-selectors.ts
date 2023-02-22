@@ -8,7 +8,9 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from './assetsSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
+import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
 export const selectWalletId = (state: ReduxState) => state.portfolio.walletId
 
@@ -63,3 +65,22 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
+
+export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectPortfolioAssetBalances,
+  selectBalanceThreshold,
+  (assetsById, marketData, balances, balanceThreshold) =>
+    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
+      const asset = assetsById[assetId]
+      if (!asset) return acc
+      const precision = asset.precision
+      const price = marketData[assetId]?.price
+      const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
+      const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+      if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
+      acc[assetId] = assetFiatBalance.toFixed(2)
+      return acc
+    }, {}),
+)

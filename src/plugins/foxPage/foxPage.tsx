@@ -15,8 +15,8 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, foxyAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -30,10 +30,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
@@ -87,7 +88,6 @@ export const FoxPage = () => {
   if (!assetFox) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!assetFoxy) throw new Error(`Asset not found for AssetId ${foxyAssetId}`)
 
-  const { data: foxyBalancesData, isLoading: isFoxyBalancesLoading } = useFoxyBalances()
   const otherOpportunities = useOtherOpportunities(activeAssetId)
 
   const assets = useMemo(() => [assetFox, assetFoxy], [assetFox, assetFoxy])
@@ -139,6 +139,25 @@ export const FoxPage = () => {
   })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading
 
+  const toAssetIdParts: ToAssetIdArgs = {
+    assetNamespace: 'erc20',
+    assetReference: foxyAddresses[0].staking,
+    chainId: ethChainId,
+  }
+
+  const opportunityId = toOpportunityId(toAssetIdParts)
+  const opportunityDataFilter = useMemo(() => {
+    return {
+      stakingId: opportunityId,
+    }
+  }, [opportunityId])
+
+  const foxyEarnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectAggregatedEarnUserStakingOpportunityByStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
+
   const handleTabClick = useCallback(
     (assetId: AssetId) => {
       if (assetId === activeAssetId) {
@@ -172,7 +191,7 @@ export const FoxPage = () => {
   }, [assetFoxy.chainId, dispatch, history, location, wallet])
 
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
-  if (wallet && supportsETH(wallet) && (isFoxyBalancesLoading || !foxyBalancesData)) return null
+  if (wallet && supportsETH(wallet) && !foxyEarnOpportunityData) return null
 
   return (
     <Layout
@@ -260,8 +279,8 @@ export const FoxPage = () => {
                 <MainOpportunity
                   assetId={selectedAsset.assetId}
                   apy={foxyAprData?.foxyApr ?? ''}
-                  tvl={bnOrZero(foxyBalancesData?.opportunities?.[0]?.tvl).toString()}
-                  isLoaded={!isFoxyBalancesLoading && !isFoxyAprLoading}
+                  tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toString()}
+                  isLoaded={Boolean(foxyEarnOpportunityData && !isFoxyAprLoading)}
                   balance={cryptoHumanBalances[selectedAssetIndex]}
                   onClick={handleOpportunityClick}
                 />

@@ -2,8 +2,6 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
-import { useNormalizeOpportunities } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
@@ -13,9 +11,10 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,7 +38,9 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const stakingOpportunities = useAppSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
@@ -52,11 +53,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     }
   }, [setLpAccountId, setFarmingAccountId, accountId])
 
-  const allRows = useNormalizeOpportunities({
-    cosmosSdkStakingOpportunities: [],
-    lpOpportunities,
-    stakingOpportunities,
-  }).filter(
+  const allRows = [...lpOpportunities, ...stakingOpportunities].filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
       // show FOX_ETH LP token on FOX and ETH pages

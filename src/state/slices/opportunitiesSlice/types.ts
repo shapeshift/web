@@ -1,10 +1,10 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
+import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -22,6 +22,9 @@ export type OpportunityMetadataBase = {
   provider: DefiProvider
   tvl: string
   type: DefiType
+  // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon
+  // If not specified, the underlying asset IDs' icons are used as icons
+  icon?: string
   // For LP opportunities, this is the same as the AssetId
   // For staking opportunities i.e when you stake your LP asset, this is the AssetId of the LP asset being staked
   // Which might or might not be the same as the AssetId, e.g
@@ -39,7 +42,7 @@ export type OpportunityMetadataBase = {
   // TODO: Optional for backwards compatibility, but it should always be present
   rewardAssetIds?: AssetIdsTuple
   expired?: boolean
-  name?: string
+  name: string
   version?: string
   tags?: string[]
 }
@@ -48,6 +51,7 @@ export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStaki
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {
+  userStakingId: UserStakingId
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
@@ -61,6 +65,9 @@ export type UserStakingOpportunityBase = {
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | CosmosSdkStakingSpecificUserStakingOpportunity
+  | FoxySpecificUserStakingOpportunity
+
+export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
 export type StakingId = Nominal<string, 'StakingId'> & AssetId
@@ -93,7 +100,6 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityMetadataById = OpportunitiesState[OpportunityDefiType]['byId']
 export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
@@ -131,19 +137,40 @@ export type GetOpportunityUserStakingDataOutput = {
 
 export type GetOpportunityIdsOutput = OpportunityId[]
 
-export type StakingEarnOpportunityType = OpportunityMetadata & {
-  stakedAmountCryptoBaseUnit?: string
-  rewardsAmountsCryptoBaseUnit?:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
-  underlyingToken0AmountCryptoBaseUnit?: string
-  underlyingToken1AmountCryptoBaseUnit?: string
-  isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+// TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
+export type EarnOpportunityType = {
+  type?: string
+  provider: DefiProvider
+  version?: string
+  contractAddress?: string
+  rewardAddress?: string
+  apy?: number | string
+  tvl: string
+  underlyingAssetId?: AssetId
+  assetId: AssetId
+  id: OpportunityId
+  fiatAmount: string
+  /** @deprecated use cryptoAmountBaseUnit instead and derive precision amount from it*/
+  cryptoAmountPrecision: string
+  cryptoAmountBaseUnit: string
+  expired?: boolean
+  chainId: ChainId
+  showAssetSymbol?: boolean
+  isLoaded: boolean
+  icons?: string[]
+  // overrides any name down the road
+  opportunityName?: string
+  highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
+}
 
-export type LpEarnOpportunityType = OpportunityMetadata & {
+export type StakingEarnOpportunityType = OpportunityMetadata &
+  Partial<UserStakingOpportunityBase> & {
+    underlyingToken0AmountCryptoBaseUnit?: string
+    underlyingToken1AmountCryptoBaseUnit?: string
+    isVisible?: boolean
+  } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean

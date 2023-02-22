@@ -22,7 +22,7 @@ export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }
       <ModalOverlay />
       <ModalContent
         width='full'
-        borderRadius={{ base: 0, md: 'xl' }}
+        borderRadius={{ base: 0, md: '2xl' }}
         minWidth={{ base: '100%', md: '500px' }}
         maxWidth={{ base: 'full', md: '500px' }}
       >

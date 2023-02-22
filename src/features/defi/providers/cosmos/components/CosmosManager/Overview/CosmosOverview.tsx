@@ -8,26 +8,40 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProvider,
+  DefiType,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { useCosmosSdkStakingBalances } from 'pages/Defi/hooks/useCosmosSdkStakingBalances'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
+  getDefaultValidatorAddressFromChainId,
+  makeTotalCosmosSdkBondingsCryptoBaseUnit,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import {
+  makeDefiProviderDisplayName,
+  makeOpportunityIcons,
+  serializeUserStakingId,
+  toValidatorId,
+} from 'state/slices/opportunitiesSlice/utils'
+import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
+  selectAssets,
+  selectHasClaimByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectTotalBondingsBalanceByAssetId,
-  selectValidatorByAddress,
+  selectStakingOpportunityByFilter,
+  selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
-import { getDefaultValidatorAddressFromAssetId } from 'state/slices/validatorDataSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosEmpty } from './CosmosEmpty'
@@ -39,81 +53,96 @@ type CosmosOverviewProps = {
 }
 
 export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
-  accountId: defaultAccountId,
+  accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { defaultAccountId: queryAccountId, chainId, contractAddress, assetReference } = query
-
-  const accountId = useMemo(
-    () => defaultAccountId ?? queryAccountId,
-    [defaultAccountId, queryAccountId],
-  )
-
-  const assetNamespace = 'slip44'
-  const stakingAssetId = toAssetId({
-    chainId,
+  const {
+    accountId: routeAccountId,
     assetNamespace,
+    chainId,
+    contractAddress: validatorAddress,
     assetReference,
-  })
+  } = query
+  const stakingAssetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
-  const opportunities = useCosmosSdkStakingBalances({
-    accountId,
-    assetId: stakingAssetId,
-  })
-
-  const opportunity = useMemo(
-    () =>
-      opportunities?.cosmosSdkStakingOpportunities?.find(
-        opportunity => opportunity.address === contractAddress,
-      ),
-    [opportunities, contractAddress],
+  const highestBalanceAccountIdFilter = useMemo(() => ({ stakingId: validatorId }), [validatorId])
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const maybeAccountId = useMemo(
+    () => accountId ?? routeAccountId ?? highestBalanceAccountId,
+    [accountId, highestBalanceAccountId, routeAccountId],
   )
 
-  const loaded = useMemo(() => opportunity?.isLoaded, [opportunity?.isLoaded])
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
+
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return {}
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const opportunityData = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
+  )
+  const assets = useAppSelector(selectAssets)
+
+  const filteredOpportunitiesMetadataFilter = useMemo(() => {
+    return {
+      defiProvider: DefiProvider.Cosmos,
+      defiType: DefiType.Staking,
+      assetId: stakingAssetId,
+      validatorId: toValidatorId({
+        chainId,
+        account: getDefaultValidatorAddressFromChainId(chainId),
+      }),
+    }
+  }, [chainId, stakingAssetId])
+
+  const defaultOpportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
+  )
+
+  const hasClaim = useAppSelector(state =>
+    selectHasClaimByUserStakingId(state, opportunityDataFilter),
+  )
+
+  const loaded = useMemo(
+    () => Boolean(opportunityData || defaultOpportunityMetadata),
+    [defaultOpportunityMetadata, opportunityData],
+  )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
 
-  // TODO: Remove - currently, we need this to fire the first onChange() in `<AccountDropdown />`
-  const firstAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId),
+  const userStakingOpportunity = useAppSelector(state =>
+    selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const filter = useMemo(
-    () => ({
-      accountId: accountId ?? firstAccountId,
-      validatorAddress: contractAddress,
-      assetId: stakingAsset.assetId,
-    }),
-    [accountId, contractAddress, firstAccountId, stakingAsset.assetId],
+  const totalBondings = useMemo(
+    () =>
+      userStakingOpportunity
+        ? makeTotalCosmosSdkBondingsCryptoBaseUnit(userStakingOpportunity)
+        : bn(0),
+    [userStakingOpportunity],
   )
-  const totalBondings = useAppSelector(s => selectTotalBondingsBalanceByAssetId(s, filter))
 
   const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
-  const cryptoAmountAvailable = bnOrZero(totalBondings).div(`1e${stakingAsset.precision}`)
+  const cryptoAmountAvailable = totalBondings.div(bn(10).pow(stakingAsset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const defaultValidatorAddress = useMemo(
-    () => getDefaultValidatorAddressFromAssetId(stakingAssetId),
-    [stakingAssetId],
-  )
-  const validatorData = useAppSelector(state =>
-    selectValidatorByAddress(state, defaultValidatorAddress),
-  )
-
-  const apr = useMemo(() => bnOrZero(validatorData?.apr).toString(), [validatorData])
-
-  if (!opportunity) return null
-
-  const hasClaim = bnOrZero(opportunity?.rewards).gt(0)
   const claimDisabled = !hasClaim
 
-  if (!loaded || !opportunity) {
+  if (!loaded) {
     return (
       <DefiModalContent>
         <Center minW='350px' minH='350px'>
@@ -123,11 +152,11 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
-  if (bnOrZero(totalBondings).eq(0)) {
+  if (totalBondings.eq(0)) {
     return (
       <CosmosEmpty
         assets={[stakingAsset]}
-        apy={apr ?? ''}
+        apy={defaultOpportunityMetadata?.apy ?? ''}
         onStakeClick={() =>
           history.push({
             pathname: location.pathname,
@@ -150,12 +179,15 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     )
   }
 
+  if (!opportunityData) return null
+
   return (
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={stakingAsset}
-      name={opportunity.moniker}
+      name={opportunityData.name!}
+      icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={[
         {
@@ -164,7 +196,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
           allocationPercentage: '1',
         },
       ]}
-      provider={`${stakingAsset.name} Staking`}
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: stakingAsset.name,
+      })}
       menu={[
         {
           label: 'common.deposit',
@@ -191,8 +226,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
         isLoaded: !descriptionQuery.isLoading,
         isTrustedDescription: stakingAsset.isTrustedDescription,
       }}
-      tvl={bnOrZero(opportunity.tvl).toFixed(2)}
-      apy={apr?.toString()}
+      tvl={bnOrZero(opportunityData?.tvl).toFixed(2)}
+      apy={bnOrZero(opportunityData?.apy).toString()}
     >
       <WithdrawCard accountId={accountId} asset={stakingAsset} />
     </Overview>

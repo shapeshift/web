@@ -84,7 +84,9 @@
     "pageNotFound": "Aradığınız sayfa bulunamadı",
     "buySell": "Al/Sat",
     "all": "Hepsi",
-    "viewAll": "Hepsini Gör"
+    "viewAll": "Hepsini Gör",
+    "slippage": "Kayma",
+    "validator": "%{name} Doğrulayıcı"
   },
   "errorPage": {
     "title": "Hata!",
@@ -162,6 +164,7 @@
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
+    "coinbase": "Coinbase",
     "comingSoon": "Çok yakında ...",
     "buy": "Satın Al",
     "sell": "Sat",
@@ -286,7 +289,7 @@
         "claimYour": " %{opportunity} Talep Edin"
       },
       "saversVaults": {
-        "description": "THORChain Birikim Kasaları aracılığıyla %{varlığınız} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
+        "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
         "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
@@ -298,7 +301,22 @@
         "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
         "sendDustBody": "Para çekebilmek için bu adrese biraz toz göndermeniz gerekiyor.",
         "sendDust": "Toz Gönder",
-        "addressToSendTo": "Gönderilecek Adres"
+        "addressToSendTo": "Gönderilecek Adres",
+        "introducingSaversVaults": "Saver Vaults Giriş",
+        "risksBody": {
+          "1": "Saver Vaults ile ilgili riskler için",
+          "2": "bu makaleye",
+          "3": "bakın."
+        },
+        "understand": "Anladım",
+        "days": "%{amount} günler",
+        "day": "%{amount} gün",
+        "timeToBreakEven": {
+          "title": "Eşitiliği bozma",
+          "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
+        },
+        "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
       }
     },
     "memoNote": {
@@ -446,7 +464,8 @@
     "wallet": "Cüzdan",
     "explore": "Keşfet",
     "trade": "Takas",
-    "buyCrypto": "Kripto Al/Sat"
+    "buyCrypto": "Kripto Al/Sat",
+    "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -470,15 +489,21 @@
       "weth": {
         "deposit": "Depozit",
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
+        "revokeSymbol": "%{symbol} Onayını iptal et",
+        "amountUnavailable": "Kullanım dışı",
         "withdraw": "Çek",
         "receive": "Al"
       },
       "yearn": {
         "deposit": "Depozit",
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
+        "revokeSymbol": "%{symbol} Onayını iptal et",
         "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanım dışı",
         "withdraw": "Çek",
         "receive": "Al"
       },
@@ -499,8 +524,11 @@
       },
       "erc20": {
         "approve": "Onayla",
+        "approveSymbol": "%{symbol} Onayla",
         "revoke": "Geri Çek",
-        "infinite": "Sonsuz ∞"
+        "revokeSymbol": "%{symbol} Onayını iptal et",
+        "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanım dışı"
       },
       "staking": {
         "delegate": "Yetki",
@@ -519,7 +547,10 @@
         "recv_packet": "Alınan"
       },
       "lp": {
-        "deposit": "Likidite Ekle"
+        "deposit": "Likidite Ekle",
+        "withdraw": "Likiditeyi Kaldır",
+        "join_pool": "Havuza Katılın",
+        "exit_pool": "Havuzdan Çık"
       }
     },
     "unknown": "İşlem"
@@ -558,6 +589,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gaz ücreti, ticaret tutarının %{percentage}%'sini aşıyor",
     "confirmDetails": "Ayrıntıları Onaylayın",
     "confirmAndTrade": "Onaylayın ve Takas Yapın",
+    "pending": "İşlem Beklemede",
     "complete": "Takas Tamamlandı",
     "approveAsset": "%{symbol} ile etkileşimi onaylayın",
     "needPermission": "%{symbol} kullanımınız için izniniz gerekiyor",
@@ -608,6 +640,7 @@
       "balanceToLow": "Bakiye çok düşük. Bu çift için minimum işlem tutarı %{minLimit}",
       "dexTradeFailed": "İşlem Başarısız Oldu, Jetonlar İade Edildi",
       "quoteFailed": "İşleminiz için fiyat teklifi alınırken bir hata oluştu.",
+      "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
       "failedQuoteExecuted": "Başarısız bir fiyat teklifi yürütülemez",
       "sellAssetRequired": "Satılacak bir varlık olmadan fiyat teklifi yürütülemez",
       "sellAmountRequired": "Satılacak bir miktar olmadan fiyat teklifi yürütülemez",
@@ -814,6 +847,10 @@
       "blockExplorer": "Tarayıcı"
     },
     "deposit": {
+      "allocation": {
+        "heading": "Havuz",
+        "fractionDescription": "% dağılımınız"
+      },
       "amountToDeposit": "Yatırılacak Tutar",
       "depositInto": "%{opportunity} İçine Para Yatırma",
       "estimatedReturns": "Tahmini Yıllık Getiri*",
@@ -907,6 +944,7 @@
       "estimatedReturns": "Tahmini Yıllık Getiri*",
       "estimatedGas": "Tahmini Gaz Ücreti",
       "notEnoughGas": "Gazı kapatmak için yeterli %{assetSymbol} yok",
+      "missingFundsForGas": "Yeterli bakiye yok, işlemi tamamlamak için %{cryptoAmountHuman} %{assetSymbol} daha gerekiyor",
       "preFooter": "Ödüller otomatik olarak tahakkuk eder",
       "signBroadcast": "İmzala ve Yayınla",
       "cancel": "İptal"
@@ -1462,7 +1500,7 @@
       "buyAssetOnCoinbase": "Coinbase'de %{assetSymbol} satın alın",
       "totalFoxValue": "Toplam FOX Değeri",
       "foxToken": "ShapeShift %{assetSymbol} Jetonu",
-      "foxDescription": "2019'dan bu yana, şekil değiştiren FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
+      "foxDescription": "2019'dan bu yana, ShapeShift FOX Token'ımız, kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetişim belirtecimiz, oylarınızla ShapeShift'in geleceğini etkilemenizi sağlamakla kalmıyor, aynı zamanda sürekli genişleyen bir yatırım fırsatları evrenine de sahipsiniz. Burada FOX varlıklarınıza yatırım yapın, izleyin ve yönetin.",
       "getAsset": "%{assetSymbol} alın",
       "trade": "Takas",
       "receive": "Al",
@@ -1643,6 +1681,76 @@
       "title": "Kripto Satın Alın(KYC OLMADAN )",
       "body": "Apple Pay ile 1.000 dolara kadar satın alma",
       "cta": "Hemen Satın Al"
+    }
+  },
+  "arkeo": {
+    "whatIsArkeo": {
+      "title": "Arkeo nedir?",
+      "bodyParts": {
+        "1": "Geçen yıl,",
+        "2": "Coinbase Cloud",
+        "3": "Arkeo adlı bir projeyi kuluçkaya yatırdı. Mainnet lansmanı çok yakında!",
+        "4": "Arkeo, tüm düğüm verileri için merkezi olmayan bir arka uç olacak şekilde oluşturuldu. Arkeo kullanan uygulamalar, artan geliştirme hızı, sansür direnci ve",
+        "5": "nakamoto katsayısından",
+        "6": "merkezi veri kaynaklarına bağımlılığı azaltırken."
+      }
+    },
+    "whoQualifies": {
+      "title": "Arkeo Airdrop'a kimler hak kazanır?",
+      "body": "ShapeShift dApp'i kullanarak airdrop'a katılmaya hak kazanmanın birkaç yolu vardır. Anlık görüntü yayınlanıyor, kalifiye olmak için hala zamanınız var!"
+    },
+    "staking": {
+      "title": "%{asset} Staker",
+      "body": "Boşta kalan %{asset} üzerinden %{apy}'ye kadar APR ve Arkeo airdrop'una hak kazanın. AYRICA %{provider}'a bahis yaparsanız, Arkeo airdrop miktarınız hesaplanırken bahis bakiyenize 2 kat çarpan uygulanacaktır.",
+      "cta": "Stake %{asset}"
+    },
+    "lp": {
+      "title": "%{asset1}/%{asset2} Sağlayıcılar",
+      "body": "Elinizde %{asset1} ve %{asset2} var mı? %{apy} APR kazanmak için Uniswap V2 Havuzuna likidite sağlayın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
+      "cta": "Likidite Ekleyin"
+    },
+    "foxTokenHolders": {
+      "title": "FOX Token Sahipleri",
+      "body": "Cüzdanda tutulan FOX token'ları. Çantanız ne kadar büyükse, Arkeo airdrop'unuz da o kadar büyük olur.",
+      "cta": "FOX Takas yap",
+      "secondary": "FOX Satın Al"
+    },
+    "foxFarmers": {
+      "title": "FOX/ETH LP Çiftçiler",
+      "body": "FOX Farm'da ETH/FOX LP jetonlarınızı staking yaparak %{apy} APR'ye kadar kazanın. AYRICA FOX Farm'ın 5. Turunda yatırdığınız ETH/FOX LP tokenlerinin temelinde yatan FOX, Arkeo airdrop'u için hak kazanacaktır.",
+      "cta": "FOX/ETH LP Stake Et"
+    },
+    "foxyTokenHolders": {
+      "title": "FOXy Token Sahipleri",
+      "body": "FOX Yieldy (FOXy) ile boştaki FOX'unuzdan %{apy}'ye kadar APR kazanın. AYRICA Cüzdanınızda tutulan FOXy, FOX ile aynı muameleyi görecek ve Arkeo airdrop için uygun olacaktır.",
+      "cta": "FOX Token Stake Et"
+    },
+    "foxEthProviders": {
+      "title": "FOX/ETH Uniswap V2 LP'ler",
+      "body": "%{asset1} ve %{asset2}'ye sahip misiniz? Uniswap V2 Havuzuna likidite sağlayarak %{apy} APR kazanın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
+      "cta": "Likidite Ekleyin"
+    },
+    "atomOsmoProviders": {
+      "title": "ATOM/OSMO LP Sağlayıcıları",
+      "body": "ATOM ve OSMO'nuz var mı? %{apy} APR kazanmak ve airdrop'a hak kazanmak için havuza likidite sağlayın.",
+      "cta": "Likidite Ekleyin"
+    },
+    "stakeAtom": {
+      "title": "ATOM Stake",
+      "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
+      "cta": "ATOM Stake"
+    },
+    "stakeOsmo": {
+      "title": "OSMO Stake ",
+      "body": "Boştaki OSMO'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir OSMO size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz."
+    },
+    "footer": {
+      "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",
+      "cta": "Yönetişim teklifine göz atın",
+      "disclaimer": {
+        "body": "* Yalnızca kişisel saklama cüzdanları geçerli olacaktır. Merkezi bir borsa aracılığıyla bir cüzdanda tutulan veya stake edilen jetonlar uygun değildir. Cüzdana mı ihtiyacınız var?",
+        "cta": "Bir tane yaratın"
+      }
     }
   }
 }

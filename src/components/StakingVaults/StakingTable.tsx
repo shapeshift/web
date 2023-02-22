@@ -1,6 +1,6 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
+import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -8,6 +8,9 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+import { store } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -51,13 +54,22 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: translate('defi.provider'),
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
-          <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
-              {value}
-            </Tag>
-          </Skeleton>
-        ),
+        Cell: ({ value, row }: { value: DefiProvider; row: RowProps }) => {
+          const assets = store.getState().assets.byId
+          const asset = assets[row.original.assetId]
+          const assetName = asset?.name ?? ''
+          const providerDisplayName = makeDefiProviderDisplayName({
+            provider: value,
+            assetName,
+          })
+          return (
+            <Skeleton isLoaded={row.original.isLoaded}>
+              <Tag textTransform='capitalize' size={{ base: 'sm', md: 'md' }}>
+                {providerDisplayName}
+              </Tag>
+            </Skeleton>
+          )
+        },
       },
       {
         Header: translate('defi.type'),

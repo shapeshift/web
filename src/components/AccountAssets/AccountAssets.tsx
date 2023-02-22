@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
@@ -18,7 +18,9 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   )
   const { chainNamespace } = fromAssetId(assetId)
   if (
-    ![CHAIN_NAMESPACE.Evm, CHAIN_NAMESPACE.CosmosSdk].includes(chainNamespace) ||
+    !([CHAIN_NAMESPACE.Evm, CHAIN_NAMESPACE.CosmosSdk] as ChainNamespace[]).includes(
+      chainNamespace,
+    ) ||
     assetIds.length === 0
   )
     return null

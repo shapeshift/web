@@ -15,7 +15,8 @@ export const walletConnectReducer = (
     case WalletConnectActionType.SET_SESSION:
       return { ...state, session: action.payload }
     case WalletConnectActionType.DELETE_SESSION:
-      return { ...state, session: undefined }
+      // A modal can't exist without a session. Ensure it's closed when removing the session.
+      return { ...state, session: undefined, activeModal: undefined }
     case WalletConnectActionType.UPDATE_SESSION:
       const { session } = state
       // A session cannot be updated if it is not initialized

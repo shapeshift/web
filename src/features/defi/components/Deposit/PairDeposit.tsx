@@ -139,7 +139,7 @@ export const PairDeposit = ({
   const handleInputChange = (value: string, isForAsset0: boolean, isFiat?: boolean) => {
     const assetMarketData = isForAsset0 ? marketData0 : marketData1
     const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount0
+    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
 
     // for keeping inputs synced
     const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1

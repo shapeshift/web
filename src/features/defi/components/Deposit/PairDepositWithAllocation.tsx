@@ -303,7 +303,7 @@ export const PairDepositWithAllocation = ({
     .times(asset1MarketData.price)
     .toString()
   const fiatAmountAvailable2 = bnOrZero(underlyingAsset2CryptoAmountAvailablePrecision)
-    .times(asset1MarketData.price)
+    .times(asset2MarketData.price)
     .toString()
 
   return (

@@ -12,7 +12,7 @@ type AccountAssetsProps = {
   accountId: AccountId
 }
 
-const TOKENS_SUPPORTING_CHAIN_NAMESPACES: ChainNamespace[] = [
+const CHAIN_NAMESPACE_SUPPORTS_TOKENS: ChainNamespace[] = [
   CHAIN_NAMESPACE.Evm,
   CHAIN_NAMESPACE.CosmosSdk,
 ]
@@ -22,7 +22,7 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   const { chainNamespace } = fromAssetId(assetId)
-  if (!TOKENS_SUPPORTING_CHAIN_NAMESPACES.includes(chainNamespace) || assetIds.length === 0)
+  if (!CHAIN_NAMESPACE_SUPPORTS_TOKENS.includes(chainNamespace) || assetIds.length === 0)
     return null
 
   return (

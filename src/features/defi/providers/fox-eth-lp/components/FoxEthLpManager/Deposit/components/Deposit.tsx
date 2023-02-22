@@ -160,7 +160,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = (value: string, isForAsset0: boolean) => {
     const crypto = bnOrZero(isForAsset0 ? ethBalance : foxBalance).div(
-      `1e+${(isForAsset0 ? foxAsset : ethAsset).precision}`,
+      bn(10).pow((isForAsset0 ? foxAsset : ethAsset).precision),
     )
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -170,7 +170,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = (value: string, isForAsset0: boolean) => {
     const crypto = bnOrZero(isForAsset0 ? ethBalance : foxBalance).div(
-      `1e+${(isForAsset0 ? foxAsset : ethAsset).precision}`,
+      bn(10).pow((isForAsset0 ? foxAsset : ethAsset).precision),
     )
     const fiat = crypto.times((isForAsset0 ? ethMarketData : foxMarketData).price)
     const _value = bnOrZero(value)

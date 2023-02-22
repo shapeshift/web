@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.0.1...@shapeshiftoss/swapper-v17.0.2) (2023-02-22)
+
+
+### Bug Fixes
+
+* magic strings and mutation are bad ([#1203](https://github.com/shapeshift/lib/issues/1203)) ([000eb40](https://github.com/shapeshift/lib/commit/000eb407ba9effbfa4481a58ae5746ea09f753e9))
+
 # [@shapeshiftoss/swapper-v17.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.0.0...@shapeshiftoss/swapper-v17.0.1) (2023-02-11)
 
 # [@shapeshiftoss/swapper-v17.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v16.0.2...@shapeshiftoss/swapper-v17.0.0) (2023-02-08)

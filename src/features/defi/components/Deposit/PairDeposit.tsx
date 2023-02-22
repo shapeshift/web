@@ -105,7 +105,7 @@ export const PairDeposit = ({
       [Field.FiatAmount0]: '',
       [Field.FiatAmount1]: '',
       [Field.CryptoAmount0]: '',
-      [Field.CryptoAmount0]: '',
+      [Field.CryptoAmount1]: '',
     },
   })
 

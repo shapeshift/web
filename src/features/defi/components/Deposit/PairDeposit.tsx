@@ -76,10 +76,10 @@ export const PairDeposit = ({
   destAsset,
   marketData0,
   marketData1,
-  cryptoAmountAvailable0: cryptoAmountAvailable1,
-  cryptoAmountAvailable1: cryptoAmountAvailable2,
-  fiatAmountAvailable0: fiatAmountAvailable1,
-  fiatAmountAvailable1: fiatAmountAvailable2,
+  cryptoAmountAvailable0,
+  cryptoAmountAvailable1,
+  fiatAmountAvailable0,
+  fiatAmountAvailable1,
   cryptoInputValidation0,
   cryptoInputValidation1,
   fiatInputValidation0,
@@ -180,7 +180,7 @@ export const PairDeposit = ({
     const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
     const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
     const cryptoAmount = bnOrZero(
-      isForAsset0 ? cryptoAmountAvailable1 : cryptoAmountAvailable2,
+      isForAsset0 ? cryptoAmountAvailable0 : cryptoAmountAvailable1,
     ).times(percent)
     const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
     setValue(fiatField, fiatAmount.toString(), {
@@ -223,8 +223,8 @@ export const PairDeposit = ({
             assetId={asset0.assetId}
             assetIcon={asset0.icon}
             assetSymbol={asset0.symbol}
-            balance={cryptoAmountAvailable1}
-            fiatBalance={fiatAmountAvailable1}
+            balance={cryptoAmountAvailable0}
+            fiatBalance={fiatAmountAvailable0}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
@@ -239,8 +239,8 @@ export const PairDeposit = ({
             assetId={asset1.assetId}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
-            balance={cryptoAmountAvailable2}
-            fiatBalance={fiatAmountAvailable2}
+            balance={cryptoAmountAvailable1}
+            fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}

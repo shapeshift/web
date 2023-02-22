@@ -2,9 +2,7 @@ import { adapters, thorchainAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorType } from '../../../../api'
 import { THORCHAIN_AFFILIATE_BIPS, THORCHAIN_AFFILIATE_NAME } from '../constants'
-
-// BTC (and likely other utxo coins) can only support up to 80 character (byte) memos
-const MAX_MEMO_LENGTH = 80
+import { assertIsValidMemo } from './assertIsValidMemo'
 
 /**
  * definition of THORChain asset notation
@@ -78,12 +76,7 @@ export const makeSwapMemo: MakeSwapMemo = ({ buyAssetId, destinationAddress, lim
   const abbreviatedThorAssetId = abbreviateThorAssetId(fullThorAssetId)
 
   const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${THORCHAIN_AFFILIATE_BIPS}`
-
-  if (memo.length > MAX_MEMO_LENGTH) {
-    throw new SwapError(`[makeSwapMemo] - memo length exceeds ${MAX_MEMO_LENGTH} characters`, {
-      code: SwapErrorType.MAKE_MEMO_FAILED,
-    })
-  }
+  assertIsValidMemo(memo)
 
   return memo
 }

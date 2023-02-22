@@ -38,9 +38,11 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
         <RawText>
           {asset.name} {`(${asset.symbol})`}
         </RawText>
-        <RawText variant='sub-text' size='xs'>
-          {`on ${networkName}`}
-        </RawText>
+        {networkName !== asset.name ? (
+          <RawText variant='sub-text' size='xs'>
+            {`on ${networkName}`}
+          </RawText>
+        ) : null}
       </Flex>
     </Flex>
   )

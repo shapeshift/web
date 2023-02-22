@@ -45,11 +45,11 @@ type DepositProps = {
       }
     | undefined
   // Validation rules for the crypto input
+  cryptoInputValidation0?: ControllerProps['rules']
   cryptoInputValidation1?: ControllerProps['rules']
-  cryptoInputValidation2?: ControllerProps['rules']
   // Validation rules for the fiat input
+  fiatInputValidation0?: ControllerProps['rules']
   fiatInputValidation1?: ControllerProps['rules']
-  fiatInputValidation2?: ControllerProps['rules']
   // enables slippage UI (defaults to true)
   enableSlippage?: boolean
   // Array of the % options
@@ -63,19 +63,19 @@ type DepositProps = {
 }
 
 enum Field {
+  FiatAmount0 = 'fiatAmount0',
   FiatAmount1 = 'fiatAmount1',
-  FiatAmount2 = 'fiatAmount2',
+  CryptoAmount0 = 'cryptoAmount0',
   CryptoAmount1 = 'cryptoAmount1',
-  CryptoAmount2 = 'cryptoAmount2',
   AllocationFraction = 'allocationFraction',
   ShareOutAmount = 'shareOutAmount',
 }
 
 export type DepositValues = {
+  [Field.FiatAmount0]: string
+  [Field.CryptoAmount0]: string
   [Field.FiatAmount1]: string
   [Field.CryptoAmount1]: string
-  [Field.FiatAmount2]: string
-  [Field.CryptoAmount2]: string
   [Field.AllocationFraction]: string
   [Field.ShareOutAmount]: string
 }
@@ -83,11 +83,11 @@ export type DepositValues = {
 export const PairDepositWithAllocation = ({
   accountId,
   calculateAllocations,
+  cryptoInputValidation0,
   cryptoInputValidation1,
-  cryptoInputValidation2,
   destAssetId,
+  fiatInputValidation0,
   fiatInputValidation1,
-  fiatInputValidation2,
   isLoading,
   opportunity,
   onAccountIdChange: handleAccountIdChange,
@@ -106,10 +106,10 @@ export const PairDepositWithAllocation = ({
   } = useForm<DepositValues>({
     mode: 'onChange',
     defaultValues: {
+      [Field.FiatAmount0]: '',
       [Field.FiatAmount1]: '',
-      [Field.FiatAmount2]: '',
+      [Field.CryptoAmount0]: '',
       [Field.CryptoAmount1]: '',
-      [Field.CryptoAmount2]: '',
       [Field.AllocationFraction]: '',
       [Field.ShareOutAmount]: '',
     },
@@ -117,63 +117,63 @@ export const PairDepositWithAllocation = ({
 
   const apy = opportunity.apy?.toString() ?? ''
   const destAsset: Asset | undefined = useAppSelector(state => selectAssetById(state, destAssetId))
-  const asset1 = useAppSelector(state =>
+  const asset0 = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetIds[0] ?? ''),
   )
-  const asset2 = useAppSelector(state =>
+  const asset1 = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetIds[1] ?? ''),
   )
 
-  const underlyingAsset1Balance = useAppSelector(state =>
+  const underlyingAsset0Balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
       assetId: opportunity?.underlyingAssetIds[0],
       accountId: accountId ?? '',
     }),
   )
-  const underlyingAsset2Balance = useAppSelector(state =>
+  const underlyingAsset1Balance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
       assetId: opportunity?.underlyingAssetIds[1],
       accountId: accountId ?? '',
     }),
   )
 
+  const underlyingAsset0CryptoAmountAvailablePrecision = bnOrZero(underlyingAsset0Balance)
+    .div(bn(10).pow(asset0?.precision ?? '0'))
+    .toString()
+
   const underlyingAsset1CryptoAmountAvailablePrecision = bnOrZero(underlyingAsset1Balance)
     .div(bn(10).pow(asset1?.precision ?? '0'))
     .toString()
 
-  const underlyingAsset2CryptoAmountAvailablePrecision = bnOrZero(underlyingAsset2Balance)
-    .div(bn(10).pow(asset2?.precision ?? '0'))
-    .toString()
-
+  const asset0MarketData = useAppSelector(state =>
+    selectMarketDataById(state, asset0?.assetId ?? ''),
+  )
   const asset1MarketData = useAppSelector(state =>
     selectMarketDataById(state, asset1?.assetId ?? ''),
-  )
-  const asset2MarketData = useAppSelector(state =>
-    selectMarketDataById(state, asset2?.assetId ?? ''),
   )
 
   const icons = opportunity.icons
 
   const values = useWatch({ control })
+  const { field: cryptoAmount0 } = useController({
+    name: 'cryptoAmount0',
+    control,
+    rules: cryptoInputValidation0,
+  })
   const { field: cryptoAmount1 } = useController({
     name: 'cryptoAmount1',
     control,
     rules: cryptoInputValidation1,
   })
-  const { field: cryptoAmount2 } = useController({
-    name: 'cryptoAmount2',
+  const { field: fiatAmount0 } = useController({
+    name: 'fiatAmount0',
     control,
-    rules: cryptoInputValidation2,
+    rules: fiatInputValidation0,
   })
   const { field: fiatAmount1 } = useController({
     name: 'fiatAmount1',
     control,
     rules: fiatInputValidation1,
-  })
-  const { field: fiatAmount2 } = useController({
-    name: 'fiatAmount2',
-    control,
-    rules: fiatInputValidation2,
   })
 
   const { field: allocationFraction } = useController({
@@ -185,25 +185,25 @@ export const PairDepositWithAllocation = ({
     control,
   })
 
-  if (!(asset1 && asset2 && destAsset)) return null
+  if (!(asset0 && asset1 && destAsset)) return null
 
+  const cryptoError0 = get(errors, 'cryptoAmount0.message', null)
   const cryptoError1 = get(errors, 'cryptoAmount1.message', null)
-  const cryptoError2 = get(errors, 'cryptoAmount2.message', null)
+  const fiatError0 = get(errors, 'fiatAmount0.message', null)
   const fiatError1 = get(errors, 'fiatAmount1.message', null)
-  const fiatError2 = get(errors, 'fiatAmount2.message', null)
-  const fieldError = cryptoError1 || cryptoError2 || fiatError1 || fiatError2
+  const fieldError = cryptoError0 || cryptoError1 || fiatError0 || fiatError1
 
-  const handleInputChange = (value: string, isForAsset1: boolean, isFiat?: boolean) => {
-    const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
-    const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
-    const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-    const selectedAsset = isForAsset1 ? asset1 : asset2
+  const handleInputChange = (value: string, isForAsset0: boolean, isFiat?: boolean) => {
+    const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
+    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+    const selectedAsset = isForAsset0 ? asset0 : asset1
 
     // for keeping inputs synced
-    const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
-    const otherCryptoInput = !isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-    const otherAssetMarketData = !isForAsset1 ? asset1MarketData : asset2MarketData
-    const otherAsset = !isForAsset1 ? asset1 : asset2
+    const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+    const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+    const otherAssetMarketData = !isForAsset0 ? asset0MarketData : asset1MarketData
+    const otherAsset = !isForAsset0 ? asset0 : asset1
     if (isFiat) {
       setValue(fiatField, value, { shouldValidate: true })
       setValue(
@@ -257,16 +257,16 @@ export const PairDepositWithAllocation = ({
     setValue(Field.ShareOutAmount, allocations.shareOutAmountCryptoPrecision)
   }
 
-  const handlePercentClick = (percent: number, isForAsset1: boolean) => {
-    const assetMarketData = isForAsset1 ? asset1MarketData : asset2MarketData
-    const fiatField = isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
-    const cryptoField = isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-    const selectedAsset = isForAsset1 ? asset1 : asset2
+  const handlePercentClick = (percent: number, isForAsset0: boolean) => {
+    const assetMarketData = isForAsset0 ? asset0MarketData : asset1MarketData
+    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+    const selectedAsset = isForAsset0 ? asset0 : asset1
 
     const cryptoAmount = bnOrZero(
-      isForAsset1
-        ? underlyingAsset1CryptoAmountAvailablePrecision
-        : underlyingAsset2CryptoAmountAvailablePrecision,
+      isForAsset0
+        ? underlyingAsset0CryptoAmountAvailablePrecision
+        : underlyingAsset1CryptoAmountAvailablePrecision,
     ).times(percent)
     const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
     setValue(fiatField, fiatAmount.toString(), {
@@ -277,9 +277,9 @@ export const PairDepositWithAllocation = ({
     })
     if (syncPair) {
       // for keeping inputs synced
-      const otherFiatInput = !isForAsset1 ? Field.FiatAmount1 : Field.FiatAmount2
-      const otherCryptoInput = !isForAsset1 ? Field.CryptoAmount1 : Field.CryptoAmount2
-      const otherAssetMarketData = !isForAsset1 ? asset1MarketData : asset2MarketData
+      const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+      const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+      const otherAssetMarketData = !isForAsset0 ? asset0MarketData : asset1MarketData
       setValue(otherFiatInput, fiatAmount.toString(), {
         shouldValidate: true,
       })
@@ -298,12 +298,12 @@ export const PairDepositWithAllocation = ({
   }
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
-  const fiatYield = bnOrZero(cryptoYield).times(asset1MarketData.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield).times(asset0MarketData.price).toFixed(2)
+  const fiatAmountAvailable0 = bnOrZero(underlyingAsset0CryptoAmountAvailablePrecision)
+    .times(asset0MarketData.price)
+    .toString()
   const fiatAmountAvailable1 = bnOrZero(underlyingAsset1CryptoAmountAvailablePrecision)
     .times(asset1MarketData.price)
-    .toString()
-  const fiatAmountAvailable2 = bnOrZero(underlyingAsset2CryptoAmountAvailablePrecision)
-    .times(asset2MarketData.price)
     .toString()
 
   return (
@@ -312,8 +312,24 @@ export const PairDepositWithAllocation = ({
         <FormField label={translate('modals.deposit.amountToDeposit')}>
           <AssetInput
             {...(accountId ? { accountId } : {})}
-            cryptoAmount={cryptoAmount1?.value}
+            cryptoAmount={cryptoAmount0?.value}
             onChange={(value, isFiat) => handleInputChange(value, true, isFiat)}
+            fiatAmount={fiatAmount0?.value}
+            showFiatAmount={true}
+            assetId={asset0.assetId}
+            assetIcon={asset0.icon}
+            assetSymbol={asset0.symbol}
+            balance={underlyingAsset0CryptoAmountAvailablePrecision}
+            fiatBalance={fiatAmountAvailable0}
+            onAccountIdChange={handleAccountIdChange}
+            onPercentOptionClick={value => handlePercentClick(value, true)}
+            percentOptions={percentOptions}
+            errors={cryptoError0 || fiatError0}
+          />
+          <AssetInput
+            {...(accountId ? { accountId } : {})}
+            cryptoAmount={cryptoAmount1?.value}
+            onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
             fiatAmount={fiatAmount1?.value}
             showFiatAmount={true}
             assetId={asset1.assetId}
@@ -322,35 +338,19 @@ export const PairDepositWithAllocation = ({
             balance={underlyingAsset1CryptoAmountAvailablePrecision}
             fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
-            onPercentOptionClick={value => handlePercentClick(value, true)}
-            percentOptions={percentOptions}
-            errors={cryptoError1 || fiatError1}
-          />
-          <AssetInput
-            {...(accountId ? { accountId } : {})}
-            cryptoAmount={cryptoAmount2?.value}
-            onChange={(value, isFiat) => handleInputChange(value, false, isFiat)}
-            fiatAmount={fiatAmount2?.value}
-            showFiatAmount={true}
-            assetId={asset2.assetId}
-            assetIcon={asset2.icon}
-            assetSymbol={asset2.symbol}
-            balance={underlyingAsset2CryptoAmountAvailablePrecision}
-            fiatBalance={fiatAmountAvailable2}
-            onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}
-            errors={cryptoError2 || fiatError2}
+            errors={cryptoError1 || fiatError1}
           />
         </FormField>
         <Allocation
           {...(accountId ? { accountId } : {})}
           allocationFraction={allocationFraction?.value}
           assetId={destAsset.assetId}
-          assetSymbol={`${asset1.symbol}-${asset2.symbol}`}
+          assetSymbol={`${asset0.symbol}-${asset1.symbol}`}
           cryptoAmount={shareOutAmount.value}
-          errors={cryptoError2 || fiatError2}
-          fiatAmount={bnOrZero(fiatAmount1?.value).plus(bnOrZero(fiatAmount2?.value)).toString()}
+          errors={cryptoError1 || fiatError1}
+          fiatAmount={bnOrZero(fiatAmount1?.value).plus(bnOrZero(fiatAmount1?.value)).toString()}
           icons={icons}
           isReadOnly={true}
           onAccountIdChange={handleAccountIdChange}

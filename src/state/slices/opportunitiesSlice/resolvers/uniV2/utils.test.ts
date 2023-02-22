@@ -74,7 +74,6 @@ describe('resolvers/univ2/utils', () => {
   it('should calculate correct APR from given reserves', async () => {
     const input = {
       blockNumber,
-      // uniswapLPContract: mockContract,
       pairAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
       token0Decimals,
       token0Reserves: mockToken0Reserves,

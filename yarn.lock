@@ -4196,10 +4196,10 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^17.0.0":
-  version "17.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.0.1.tgz#be7e89d9e76972b2c73523b12f854cfc700920e4"
-  integrity sha512-XRak4hD+sSaYGQp9CrAg5F5oplz+nzhZJgndDOjMPFY3aSKhpcnUYWcDARlV5RqwM2vJf2KuY8T//F7titxAXg==
+"@shapeshiftoss/swapper@^17.1.0":
+  version "17.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.1.0.tgz#901489a843df290c3b12f380626b8159973c4251"
+  integrity sha512-TSpBwM42gKDhfqeQlbD5CXTA5z6Kx7WTLMbCHrEu+dVxfy71oUbh7lETVEMje8kOt7+g8e3nBUlu3s6dCYIa0A==
   dependencies:
     axios "^0.26.1"
     axios-cache-adapter "^2.7.3"

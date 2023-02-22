@@ -179,17 +179,10 @@ export type LpEarnOpportunityType = OpportunityMetadataBase & {
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  // TODO(0xdef1cafe): strings?
-  netApy: number
-  fiatAmount: number
-  cryptoBalancePrecision: number
-  rewards: number
-  opportunities: Record<DefiType, OpportunityId[]>
-}
-
-// TODO(0xdef1cafe): wip
-export type AggregatedOpportunitiesByProvider = {
-  provider: DefiProvider
+  netApy: string
+  fiatAmount: string
+  cryptoBalancePrecision: string
+  fiatRewardsAmount: string
   opportunities: Record<DefiType, OpportunityId[]>
 }
 

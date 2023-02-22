@@ -48,10 +48,10 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId] = {
               assetId,
               underlyingAssetIds: cur.underlyingAssetIds,
-              netApy: 0,
-              fiatAmount: 0,
-              cryptoBalancePrecision: 0,
-              rewards: 0,
+              netApy: '0',
+              fiatAmount: '0',
+              cryptoBalancePrecision: '0',
+              fiatRewardsAmount: '0',
               opportunities: {
                 staking: [],
                 lp: [],
@@ -62,9 +62,9 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
           const asset = assets[assetId]
           if (!asset) return acc
-          acc[assetId].netApy = bnOrZero(acc[assetId].netApy).plus(cur.apy).toNumber()
+          acc[assetId].netApy = bnOrZero(acc[assetId].netApy).plus(cur.apy).toFixed(2)
           acc[assetId].opportunities[cur.type].push(cur.assetId as OpportunityId)
-          acc[assetId].rewards = 0
+          acc[assetId].fiatRewardsAmount = '0'
           if (cur.type === DefiType.Staking) {
             const stakingOpportunity = cur as StakingEarnOpportunityType
             const rewardsFiatAmount = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
@@ -82,7 +82,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               },
               0,
             )
-            acc[assetId].rewards = rewardsFiatAmount
+            acc[assetId].fiatRewardsAmount = bnOrZero(rewardsFiatAmount).toFixed(2)
           }
           const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
             ...cur,
@@ -100,7 +100,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
                   : cur.fiatAmount,
               ),
             )
-            .toNumber()
+            .toFixed(2)
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
             .plus(
               bnOrZero(
@@ -109,7 +109,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
                   : cryptoBalancePrecision,
               ),
             )
-            .toNumber()
+            .toString()
         })
         return acc
       },

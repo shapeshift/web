@@ -98,12 +98,12 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
       },
       {
         Header: translate('defi.claimableRewards'),
-        accessor: 'rewards',
+        accessor: 'fiatRewardsAmount',
         display: { base: 'none', md: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => {
-          const hasRewards = bnOrZero(row.original.rewards).gt(0)
+          const hasRewards = bnOrZero(row.original.fiatRewardsAmount).gt(0)
           return hasRewards ? (
-            <Amount.Fiat value={row.original.rewards} />
+            <Amount.Fiat value={row.original.fiatRewardsAmount} />
           ) : (
             <RawText variant='sub-text'>-</RawText>
           )

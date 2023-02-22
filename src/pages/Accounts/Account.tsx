@@ -12,6 +12,7 @@ export type MatchParams = {
 }
 
 export const Account = ({ route }: { route?: Route }) => {
+  console.log('here')
   const { accountId } = useParams<MatchParams>()
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)

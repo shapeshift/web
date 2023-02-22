@@ -224,11 +224,11 @@ export const Deposit: React.FC<DepositProps> = ({
       const allocations = await calculateAllocations(underlyingAsset0, formValues.cryptoAmount1)
       if (!allocations) return
 
-      const asset0AmountBaseUnit = bnOrZero(formValues.cryptoAmount1)
+      const asset0AmountBaseUnit = bnOrZero(formValues.cryptoAmount0)
         .multipliedBy(bn(10).pow(bnOrZero(underlyingAsset0.precision)))
         .toFixed()
 
-      const asset1AmountBaseUnit = bnOrZero(formValues.cryptoAmount2)
+      const asset1AmountBaseUnit = bnOrZero(formValues.cryptoAmount1)
         .multipliedBy(bn(10).pow(bnOrZero(underlyingAsset1.precision)))
         .toFixed()
 
@@ -360,21 +360,21 @@ export const Deposit: React.FC<DepositProps> = ({
       opportunity={osmosisOpportunity}
       destAssetId={lpAssetId}
       calculateAllocations={calculateAllocations}
+      cryptoInputValidation0={{
+        required: true,
+        validate: { validateCryptoAmount0: (val: string) => validateCryptoAmount(val, true) },
+      }}
       cryptoInputValidation1={{
         required: true,
-        validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, true) },
+        validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, false) },
       }}
-      cryptoInputValidation2={{
+      fiatInputValidation0={{
         required: true,
-        validate: { validateCryptoAmount2: (val: string) => validateCryptoAmount(val, false) },
+        validate: { validateFiatAmount0: (val: string) => validateFiatAmount(val, true) },
       }}
       fiatInputValidation1={{
         required: true,
-        validate: { validateFiatAmount1: (val: string) => validateFiatAmount(val, true) },
-      }}
-      fiatInputValidation2={{
-        required: true,
-        validate: { validateFiatAmount2: (val: string) => validateFiatAmount(val, false) },
+        validate: { validateFiatAmount1: (val: string) => validateFiatAmount(val, false) },
       }}
       onCancel={handleCancel}
       onAccountIdChange={handleAccountIdChange}

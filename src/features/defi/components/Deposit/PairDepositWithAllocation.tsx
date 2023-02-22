@@ -299,10 +299,10 @@ export const PairDepositWithAllocation = ({
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
   const fiatYield = bnOrZero(cryptoYield).times(asset0MarketData.price).toFixed(2)
-  const fiatAmountAvailable1 = bnOrZero(underlyingAsset0CryptoAmountAvailablePrecision)
+  const fiatAmountAvailable0 = bnOrZero(underlyingAsset0CryptoAmountAvailablePrecision)
     .times(asset0MarketData.price)
     .toString()
-  const fiatAmountAvailable2 = bnOrZero(underlyingAsset1CryptoAmountAvailablePrecision)
+  const fiatAmountAvailable1 = bnOrZero(underlyingAsset1CryptoAmountAvailablePrecision)
     .times(asset1MarketData.price)
     .toString()
 
@@ -320,7 +320,7 @@ export const PairDepositWithAllocation = ({
             assetIcon={asset0.icon}
             assetSymbol={asset0.symbol}
             balance={underlyingAsset0CryptoAmountAvailablePrecision}
-            fiatBalance={fiatAmountAvailable1}
+            fiatBalance={fiatAmountAvailable0}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
@@ -336,7 +336,7 @@ export const PairDepositWithAllocation = ({
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
             balance={underlyingAsset1CryptoAmountAvailablePrecision}
-            fiatBalance={fiatAmountAvailable2}
+            fiatBalance={fiatAmountAvailable1}
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, false)}
             percentOptions={percentOptions}

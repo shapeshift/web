@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { BN } from '@shapeshiftoss/investor-foxy'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
@@ -114,3 +115,26 @@ export const makeOpportunityIcons = ({
   opportunity.icon
     ? [opportunity.icon]
     : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')
+
+type MakeDefiProviderDisplayNameArgs = {
+  provider: DefiProvider
+  assetName: string
+}
+
+type MakeDefiProviderDisplayName = (args: MakeDefiProviderDisplayNameArgs) => string
+
+export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
+  provider,
+  assetName,
+}) => {
+  switch (provider) {
+    case DefiProvider.Cosmos:
+      return assetName
+    case DefiProvider.Yearn:
+      return 'Yearn Finance'
+    case DefiProvider.Idle:
+      return 'Idle Finance'
+    default:
+      return provider
+  }
+}

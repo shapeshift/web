@@ -19,7 +19,11 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -199,7 +203,10 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
       underlyingAssetsCryptoPrecision={underlyingAssets}
-      provider='Yearn Finance'
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: vaultAsset.name,
+      })}
       description={{
         description: underlyingAsset?.description,
         isLoaded: !descriptionQuery.isLoading,

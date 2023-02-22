@@ -166,6 +166,14 @@ const mergeRelease = async () => {
   await git().tag(['-a', nextVersion, '-m', nextVersion])
   console.log(chalk.green('Pushing main...'))
   await git().push(['origin', 'main', '--tags'])
+  /**
+   * we want private to track main, as Cloudflare builds with different env vars
+   * based off the branch name, and there's in sufficient information with a single branch name.
+   */
+  console.log(chalk.green('Resetting private to main...'))
+  await git().checkout(['-B', 'private'])
+  console.log(chalk.green('Pushing private...'))
+  await git().push(['--force', 'origin', 'private', '--tags'])
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))

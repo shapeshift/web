@@ -226,13 +226,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return null
 
   const underlyingAsset0AmountPrecision = bnOrZero(state.withdraw.underlyingAsset0.amount)
-    .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
+    .dividedBy(bn(10).pow(underlyingAsset0.precision ?? '0'))
     .toString()
   const underlyingAsset1AmountPrecision = bnOrZero(state.withdraw.underlyingAsset1.amount)
-    .dividedBy(bn(10).pow(lpAsset.precision ?? '0'))
+    .dividedBy(bn(10).pow(underlyingAsset1.precision ?? '0'))
     .toString()
 
-  if (!(feeAsset && lpAsset)) return null
+  if (!(feeAsset && lpAsset && underlyingAsset0AmountPrecision && underlyingAsset1AmountPrecision))
+    return null
 
   return (
     <ReusableConfirm

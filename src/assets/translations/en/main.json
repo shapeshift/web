@@ -88,7 +88,9 @@
     "slippage": "Slippage",
     "best": "Best",
     "alternative": "Alternative",
-    "validator": "the %{name} Validator"
+    "validator": "the %{name} Validator",
+    "needAsset": "Need some %{asset}?",
+    "buyNow": "Buy Now"
   },
   "errorPage": {
     "title": "Oops!",
@@ -1353,19 +1355,19 @@
         "skip": "Skip",
         "shapeShiftNativeWallet": "ShapeShift Native Wallet",
         "selfCustody": {
-          "title": "Self-custody",
+          "title": "Your ShapeShift Wallet is Self-Custody",
           "subTitle": "You hold the keys and you're the only one who can access it.",
           "body": "A self-custody wallet means that you own it, and only you have access to your funds. Your secret recovery phrase is your key to accessing it. Nobody can block you from accessing your funds.",
           "cta": "Next"
         },
         "multiChain": {
-          "title": "Multi-chain",
+          "title": "Multiple chains are supported simultaneously",
           "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
           "body": "When a new chain is added on ShapeShift, your Native Wallet will automatically support it.",
           "cta": "Next"
         },
         "easyToUse": {
-          "title": "Easy-to-use",
+          "title": "It's easy to use!",
           "subTitle": "With ShapeShift Native Wallet you can:",
           "trackBalance": "Track your balances",
           "sendReceive": "Send/receive crypto",
@@ -1715,6 +1717,11 @@
       "title": "Buy Crypto with NO KYC",
       "body": "Purchase up to $1,000 with Apple Pay",
       "cta": "Buy Now"
+    },
+    "savers": {
+      "title": "Earn rewards on your %{asset}",
+      "body": "Stake to THORChain savers vault. No lock-up time.",
+      "cta": "Deposit Now"
     }
   },
   "arkeo": {

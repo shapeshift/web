@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.0.2...@shapeshiftoss/swapper-v17.1.0) (2023-02-22)
+
+
+### Features
+
+* **swapper:** add memo assertion ([#1204](https://github.com/shapeshift/lib/issues/1204)) ([caec5ed](https://github.com/shapeshift/lib/commit/caec5ed7b8e3b420d557b157567801750430d949))
+
 # [@shapeshiftoss/swapper-v17.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.0.1...@shapeshiftoss/swapper-v17.0.2) (2023-02-22)
 
 

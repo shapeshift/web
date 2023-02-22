@@ -104,9 +104,6 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
           return (
             <Flex alignItems='center' gap={4}>
               <Flex>
-                {/* {row.original.underlyingAssetIds.map(assetId => (
-                  <AssetIcon key={assetId} assetId={assetId} size='sm' _last={{ marginLeft: -4 }} />
-                ))} */}
                 <Avatar bg='transparent' size='sm' src={providerIcon} />
               </Flex>
               <Flex flexDir='column'>

@@ -228,7 +228,7 @@ export const PairDeposit = ({
             onAccountIdChange={handleAccountIdChange}
             onPercentOptionClick={value => handlePercentClick(value, true)}
             percentOptions={percentOptions}
-            errors={cryptoError0 || fiatError1}
+            errors={cryptoError0 || fiatError0}
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}

@@ -32,4 +32,12 @@ describe('convertPrecision', () => {
     const result = convertPrecision(value, 18, 12)
     expect(result).toEqual(expectation)
   })
+
+  it('does not remove decimals with rounding', () => {
+    const value = '1234567'
+    const expectation = '1234.567'
+
+    const result = convertPrecision(value, 6, 3)
+    expect(result).toEqual(expectation)
+  })
 })

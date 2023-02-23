@@ -6,13 +6,19 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
-import { DEFAULT_SOURCE } from 'lib/swapper/LifiSwapper/utils/constants'
+import {
+  DEFAULT_SOURCE,
+  MIN_AMOUNT_THRESHOLD_USD_HUMAN,
+} from 'lib/swapper/LifiSwapper/utils/constants'
 import { convertPrecision } from 'lib/swapper/LifiSwapper/utils/convertPrecision/convertPrecision'
 import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/common-selectors'
-import { selectAccountIdByAccountNumberAndChainId } from 'state/slices/selectors'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export async function getTradeQuote(
@@ -57,7 +63,7 @@ export async function getTradeQuote(
     })
   }
 
-  const fromAmountLifi = (() => {
+  const fromAmountLifi: BigNumber = (() => {
     if (sendMax) {
       const accountId = selectAccountIdByAccountNumberAndChainId(store.getState(), {
         accountNumber,
@@ -75,19 +81,32 @@ export async function getTradeQuote(
         assetId: sellAsset.assetId,
       })
 
-      return convertPrecision(balance, sellAsset.precision, fromLifiToken.decimals).toString()
+      return convertPrecision(balance, sellAsset.precision, fromLifiToken.decimals)
     }
 
-    // TODO: remove this once minimum amounts are handled below
-    const nonZeroAmount =
-      sellAmountBeforeFeesCryptoBaseUnit === '0'
-        ? bn(0.001).times(bn(10).exponentiatedBy(sellAsset.precision)).toString()
-        : sellAmountBeforeFeesCryptoBaseUnit
-
-    return convertPrecision(nonZeroAmount, sellAsset.precision, fromLifiToken.decimals).toString()
+    return convertPrecision(
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset.precision,
+      fromLifiToken.decimals,
+    )
   })()
 
-  // TODO: handle quotes that dont meet the minimum amount here
+  // handle quotes that dont meet the minimum amount
+  const { price } = selectMarketDataById(store.getState(), sellAsset.assetId)
+  const minimumAmountThresholdCryptoHuman = bn(MIN_AMOUNT_THRESHOLD_USD_HUMAN).dividedBy(price)
+  const minimumAmountThresholdCryptoLifi = convertPrecision(
+    minimumAmountThresholdCryptoHuman,
+    0,
+    sellAsset.precision,
+  )
+
+  // TODO: write a fat comment explaining why this is necessary
+  const thresholdedAmountCryptoLifi = BigNumber.max(
+    fromAmountLifi,
+    minimumAmountThresholdCryptoLifi,
+  )
+    .integerValue()
+    .toString()
 
   const quoteRequest: QuoteRequest = {
     fromChain: fromLifiChainKey,
@@ -96,7 +115,7 @@ export async function getTradeQuote(
     toToken: toLifiToken.symbol,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
-    fromAmount: fromAmountLifi,
+    fromAmount: thresholdedAmountCryptoLifi,
     slippage: DEFAULT_SLIPPAGE,
   }
 

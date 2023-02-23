@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.1.0...@shapeshiftoss/swapper-v17.2.0) (2023-02-23)
+
+
+### Features
+
+* **swapper:** update default slippage to .2% ([#1207](https://github.com/shapeshift/lib/issues/1207)) ([fc9eade](https://github.com/shapeshift/lib/commit/fc9eade5083c5e04c061cac69790ceb6eb5527e6))
+
 # [@shapeshiftoss/swapper-v17.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.0.2...@shapeshiftoss/swapper-v17.1.0) (2023-02-22)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.2.0...@shapeshiftoss/swapper-v17.3.0) (2023-02-23)
+
+
+### Features
+
+* enable Avalanche on THORSwapper ([#1208](https://github.com/shapeshift/lib/issues/1208)) ([95ae357](https://github.com/shapeshift/lib/commit/95ae3577254f37ff4fe7ede70dc2271148f026cf))
+
 # [@shapeshiftoss/swapper-v17.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.1.0...@shapeshiftoss/swapper-v17.2.0) (2023-02-23)
 
 

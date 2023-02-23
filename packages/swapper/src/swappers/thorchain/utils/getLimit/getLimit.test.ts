@@ -51,7 +51,7 @@ describe('getLimit', () => {
       buyAssetTradeFeeUsd: '6.2049517907881932',
     }
     const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('574407')
+    expect(limit).toBe('592056')
   })
 
   it('should get limit when buy asset is EVM non-fee asset and sell asset is a UTXO', async () => {
@@ -71,7 +71,7 @@ describe('getLimit', () => {
       buyAssetTradeFeeUsd: '6.2049517907881932',
     }
     const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('56613')
+    expect(limit).toBe('59316')
   })
 
   it('should get limit when buy asset is RUNE and sell asset is not', async () => {
@@ -91,7 +91,7 @@ describe('getLimit', () => {
       buyAssetTradeFeeUsd: '0.0318228582',
     }
     const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('2388981500')
+    expect(limit).toBe('2459464864')
   })
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
@@ -113,6 +113,6 @@ describe('getLimit', () => {
       buyAssetTradeFeeUsd: '0.0000000026',
     }
     const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('35991584136')
+    expect(limit).toBe('37051458730')
   })
 })

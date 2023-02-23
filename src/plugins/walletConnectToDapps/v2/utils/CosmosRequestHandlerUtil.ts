@@ -7,8 +7,6 @@ import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-cor
 import type { SignClientTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type {
-  CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
   CustomTransactionData,
   SupportedSessionRequest,
 } from 'plugins/walletConnectToDapps/v2/types'
@@ -17,7 +15,7 @@ import { assertIsDefined } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 type ApproveCosmosRequestArgs = {
-  requestEvent: SupportedSessionRequest<CosmosSignAminoCallRequest | CosmosSignDirectCallRequest>
+  requestEvent: SupportedSessionRequest
   wallet: HDWallet
   chainAdapter: ChainAdapter<CosmosSdkChainId>
   accountMetadata?: AccountMetadata

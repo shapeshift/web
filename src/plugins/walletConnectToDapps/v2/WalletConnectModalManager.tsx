@@ -1,5 +1,6 @@
 import { Modal, ModalContent } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react'
+import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type {
   ChainAdapter,
   CosmosSdkChainId,
@@ -7,6 +8,7 @@ import type {
   EvmChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
+import { getSdkError } from '@walletconnect/utils'
 import { CosmosSignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155SignTypedDataConfirmation'
@@ -21,20 +23,13 @@ import type {
   EthSignCallRequest,
   EthSignTransactionCallRequest,
   EthSignTypedDataCallRequest,
-  SupportedSessionRequest,
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/v2/types'
-import {
-  approveCosmosRequest,
-  rejectCosmosRequest,
-} from 'plugins/walletConnectToDapps/v2/utils/CosmosRequestHandlerUtil'
-import {
-  approveEIP155Request,
-  rejectEIP155Request,
-} from 'plugins/walletConnectToDapps/v2/utils/EIP155RequestHandlerUtil'
+import { approveCosmosRequest } from 'plugins/walletConnectToDapps/v2/utils/CosmosRequestHandlerUtil'
+import { approveEIP155Request } from 'plugins/walletConnectToDapps/v2/utils/EIP155RequestHandlerUtil'
 import type { Dispatch, FC } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
@@ -94,27 +89,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleClose()
   }
 
-  const handleRejectEIP155Request = async () => {
-    if (!requestEvent || !web3wallet) return
-
-    const topic = requestEvent.topic
-    const response = rejectEIP155Request(requestEvent)
-    await web3wallet.respondSessionRequest({
-      topic,
-      response,
-    })
-    handleClose()
-  }
-
   const handleConfirmCosmosRequest = async (customTransactionData?: CustomTransactionData) => {
     if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return
 
     const topic = requestEvent.topic
     const response = await approveCosmosRequest({
       wallet,
-      requestEvent: requestEvent as SupportedSessionRequest<
-        CosmosSignAminoCallRequest | CosmosSignDirectCallRequest
-      >,
+      requestEvent,
       chainAdapter: chainAdapter as ChainAdapter<CosmosSdkChainId>,
       accountMetadata,
       customTransactionData,
@@ -127,11 +108,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleClose()
   }
 
-  const handleRejectCosmosRequest = async () => {
+  const handleRejectRequest = async () => {
     if (!requestEvent || !web3wallet) return
 
     const topic = requestEvent.topic
-    const response = rejectCosmosRequest(requestEvent)
+    const { id } = requestEvent
+    const response = formatJsonRpcError(id, getSdkError('USER_REJECTED_METHODS').message)
+
     await web3wallet.respondSessionRequest({
       topic,
       response,
@@ -149,7 +132,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <EIP155SignMessageConfirmationModal
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectEIP155Request}
+            onReject={handleRejectRequest}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignCallRequest>>}
           />
@@ -158,7 +141,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <EIP155SignTypedDataConfirmation
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectEIP155Request}
+            onReject={handleRejectRequest}
             dispatch={dispatch}
             state={state as Required<WalletConnectState<EthSignTypedDataCallRequest>>}
           />
@@ -168,7 +151,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <EIP155TransactionConfirmation
             onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectEIP155Request}
+            onReject={handleRejectRequest}
             dispatch={dispatch}
             state={
               state as Required<
@@ -181,7 +164,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
-            onReject={handleRejectCosmosRequest}
+            onReject={handleRejectRequest}
             dispatch={dispatch}
             state={
               state as Required<

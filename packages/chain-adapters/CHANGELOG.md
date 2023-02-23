@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v11.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.1.0...@shapeshiftoss/chain-adapters-v11.1.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* **chain-adapters:** use snake_case for all osmosis tx fields ([#1205](https://github.com/shapeshift/lib/issues/1205)) ([957569a](https://github.com/shapeshift/lib/commit/957569a5e3460ae56a40d6d8337398504f741a8f))
+
 # [@shapeshiftoss/chain-adapters-v11.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.0.0...@shapeshiftoss/chain-adapters-v11.1.0) (2023-02-17)
 
 

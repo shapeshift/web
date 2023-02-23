@@ -509,7 +509,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             cryptoAmount={
               bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit).gt(0)
                 ? bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit)
-                    .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+                    .div(bn(10).pow(underlyingAsset1.precision ?? '0'))
                     .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)
                 : '0'
             }

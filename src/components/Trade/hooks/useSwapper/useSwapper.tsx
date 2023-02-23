@@ -191,7 +191,7 @@ export const useSwapper = () => {
       slippage,
     }
     const sellAssetChainId = sellAsset.chainId
-    if (isSupportedCosmosSdkSwappingChain(sellAsset?.chainId)) {
+    if (isSupportedCosmosSdkSwappingChain(sellAssetChainId)) {
       const { accountNumber } = sellAccountBip44Params
       const { accountNumber: receiveAccountNumber } = buyAccountBip44Params
       return bestTradeSwapper.buildTrade({

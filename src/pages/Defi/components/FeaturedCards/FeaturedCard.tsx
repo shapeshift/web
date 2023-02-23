@@ -10,6 +10,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   underlyingAssetIds,
@@ -35,6 +38,10 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       <AssetIcon size='2xl' key={assetId} assetId={assetId} />
     ))
   }, [underlyingAssetIds])
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetName = asset?.name ?? ''
+  const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })
 
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)
@@ -76,7 +83,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
         <Tag mt={2} textTransform='capitalize'>
-          {provider}
+          {providerDisplayName}
         </Tag>
       </Card.Header>
       <Card.Body py={0}>

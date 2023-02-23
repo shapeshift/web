@@ -6,10 +6,28 @@ import type {
   FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
-import { convertNumberToHex } from '@walletconnect/utils'
-import type { TransactionParams } from 'plugins/walletConnectToDapps/bridge/types'
-import type { ConfirmData } from 'plugins/walletConnectToDapps/components/modal/callRequest/CallRequestCommon'
+import { utils } from 'ethers'
+import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
+import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
+import type {
+  CosmosSignAminoCallRequestParams,
+  CosmosSignDirectCallRequestParams,
+  CustomTransactionData,
+  EthSignParams,
+  WalletConnectState,
+} from 'plugins/walletConnectToDapps/v2/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+
+/**
+ * Converts hex to utf8 string if it is valid bytes
+ */
+export const convertHexToUtf8 = (value: string) =>
+  utils.isHexString(value) ? utils.toUtf8String(value) : value
+
+export const convertNumberToHex = (value: number | string): string =>
+  typeof value === 'number' ? utils.hexlify(value) : utils.hexlify(utils.hexlify(parseInt(value)))
+
+export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 
 export const getFeesForTx = async (
   tx: TransactionParams,
@@ -26,8 +44,11 @@ export const getFeesForTx = async (
   })
 }
 
-export const getGasData = (approveData: ConfirmData, fees: FeeDataEstimate<EvmChainId>) => {
-  const { speed, customFee } = approveData
+export const getGasData = (
+  customTransactionData: ConfirmData | CustomTransactionData,
+  fees: FeeDataEstimate<EvmChainId>,
+) => {
+  const { speed, customFee } = customTransactionData
   return speed === 'custom' && customFee?.baseFee && customFee?.baseFee
     ? {
         maxPriorityFeePerGas: convertNumberToHex(
@@ -40,4 +61,63 @@ export const getGasData = (approveData: ConfirmData, fees: FeeDataEstimate<EvmCh
     : {
         gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice),
       }
+}
+
+/**
+ * Gets message from various signing request methods by filtering out
+ * a value that is not an address (thus is a message).
+ * If it is a hex string, it gets converted to utf8 string
+ */
+export const getSignParamsMessage = (params: [string, string]) => {
+  const message = params.filter(p => !utils.isAddress(p))[0]
+  return convertHexToUtf8(message)
+}
+
+export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {
+  const namespaces = session?.namespaces ?? []
+  const requiredNamespacesValues = Object.values(namespaces)
+  return requiredNamespacesValues
+    .map(v => v.accounts)
+    .reduce(
+      (acc, namespaceAccounts) => (acc && namespaceAccounts ? acc.concat(namespaceAccounts) : []),
+      [],
+    )
+}
+
+// Get our account from params by checking if the params string contains an account from our wallet
+export const getWalletAccountFromEthParams = (
+  accountIds: AccountId[],
+  params: EthSignParams | TransactionParams[],
+): AccountId => {
+  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
+  return (
+    accountIds.find(accountId =>
+      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    ) || ''
+  )
+}
+
+export const getWalletAccountFromCosmosParams = (
+  accountIds: AccountId[],
+  params: CosmosSignDirectCallRequestParams | CosmosSignAminoCallRequestParams,
+): AccountId => {
+  const paramsString = params ? params.signerAddress : undefined
+  return (
+    accountIds.find(accountId =>
+      paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
+    ) || ''
+  )
+}
+
+/**
+ * Get our address from params checking if params string contains one
+ * of our wallet addresses
+ */
+export const getWalletAddressFromEthSignParams = (
+  accountIds: AccountId[],
+  params: EthSignParams,
+): string => {
+  const addresses = accountIds.map(accountId => fromAccountId(accountId).account)
+  const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
+  return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
 }

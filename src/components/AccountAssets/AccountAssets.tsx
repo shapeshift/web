@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
@@ -12,12 +12,18 @@ type AccountAssetsProps = {
   accountId: AccountId
 }
 
+const CHAIN_NAMESPACE_SUPPORTS_TOKENS: ChainNamespace[] = [
+  CHAIN_NAMESPACE.Evm,
+  CHAIN_NAMESPACE.CosmosSdk,
+]
+
 export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, { accountId }),
   )
   const { chainNamespace } = fromAssetId(assetId)
-  if (!(chainNamespace === CHAIN_NAMESPACE.Evm) || assetIds.length === 0) return null
+  if (!CHAIN_NAMESPACE_SUPPORTS_TOKENS.includes(chainNamespace) || assetIds.length === 0)
+    return null
 
   return (
     <Card>

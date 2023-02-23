@@ -8,7 +8,11 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProvider,
+  DefiType,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -18,9 +22,12 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { makeTotalCosmosSdkBondingsCryptoBaseUnit } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
+  getDefaultValidatorAddressFromChainId,
+  makeTotalCosmosSdkBondingsCryptoBaseUnit,
+} from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import {
+  makeDefiProviderDisplayName,
   makeOpportunityIcons,
   serializeUserStakingId,
   toValidatorId,
@@ -32,7 +39,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
-  selectStakingOpportunitiesById,
+  selectStakingOpportunityByFilter,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -86,10 +93,20 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
   const assets = useAppSelector(selectAssets)
 
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[stakingAssetId as StakingId],
-    [opportunitiesMetadata, stakingAssetId],
+  const filteredOpportunitiesMetadataFilter = useMemo(() => {
+    return {
+      defiProvider: DefiProvider.Cosmos,
+      defiType: DefiType.Staking,
+      assetId: stakingAssetId,
+      validatorId: toValidatorId({
+        chainId,
+        account: getDefaultValidatorAddressFromChainId(chainId),
+      }),
+    }
+  }, [chainId, stakingAssetId])
+
+  const defaultOpportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
   )
 
   const hasClaim = useAppSelector(state =>
@@ -97,8 +114,8 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   )
 
   const loaded = useMemo(
-    () => Boolean(opportunityData || opportunitiesMetadata),
-    [opportunitiesMetadata, opportunityData],
+    () => Boolean(opportunityData || defaultOpportunityMetadata),
+    [defaultOpportunityMetadata, opportunityData],
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -139,7 +156,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     return (
       <CosmosEmpty
         assets={[stakingAsset]}
-        apy={opportunityMetadata?.apy ?? ''}
+        apy={defaultOpportunityMetadata?.apy ?? ''}
         onStakeClick={() =>
           history.push({
             pathname: location.pathname,
@@ -179,7 +196,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
           allocationPercentage: '1',
         },
       ]}
-      provider={`${stakingAsset.name} Staking`}
+      provider={makeDefiProviderDisplayName({
+        provider: opportunityData.provider,
+        assetName: stakingAsset.name,
+      })}
       menu={[
         {
           label: 'common.deposit',

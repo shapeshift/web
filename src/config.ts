@@ -57,6 +57,7 @@ const validators = {
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
+  REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
@@ -67,6 +68,9 @@ const validators = {
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
+  REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
+  REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),
+  REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
@@ -123,6 +127,8 @@ const validators = {
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),
+  REACT_APP_FEATURE_CONSENT_BANNER: bool({ default: false }),
+  REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

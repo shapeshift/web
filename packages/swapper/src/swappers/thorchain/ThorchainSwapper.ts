@@ -70,7 +70,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
-    [KnownChainIds.AvalancheMainnet]: false,
+    [KnownChainIds.AvalancheMainnet]: true,
     [KnownChainIds.OptimismMainnet]: false,
   }
 
@@ -82,7 +82,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.BitcoinCashMainnet]: true,
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
-    [KnownChainIds.AvalancheMainnet]: false,
+    [KnownChainIds.AvalancheMainnet]: true,
     [KnownChainIds.OptimismMainnet]: false,
   }
 

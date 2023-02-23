@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.2...@shapeshiftoss/swapper-v17.3.3) (2023-02-23)
+
+
+### Bug Fixes
+
+* **swapper:** osmosis account 0 receiveAccountNumber ([#1211](https://github.com/shapeshift/lib/issues/1211)) ([125141c](https://github.com/shapeshift/lib/commit/125141c8e316b172c32fb6e5101eb1d1817a5b44))
+
 # [@shapeshiftoss/swapper-v17.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.1...@shapeshiftoss/swapper-v17.3.2) (2023-02-23)
 
 

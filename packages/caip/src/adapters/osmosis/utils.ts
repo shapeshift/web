@@ -1,7 +1,7 @@
 import axios from 'axios'
 import fs from 'fs'
 
-import { AssetNamespace, toAssetId } from '../../assetId/assetId'
+import { AssetNamespace, AssetReference, toAssetId } from '../../assetId/assetId'
 import { toChainId } from '../../chainId/chainId'
 import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 
@@ -112,4 +112,14 @@ export const parseData = (d: OsmosisCoin[]) => {
   return {
     [osmosisMainnet]: parseOsmosisData(d),
   }
+}
+
+export const isOsmosisLpAsset = (assetReference: AssetReference | string): boolean => {
+  return assetReference.startsWith('gamm/pool/')
+}
+
+export const isNumeric = (s: string): boolean => {
+  if (typeof s !== 'string') return false
+  if (s.trim() === '') return false
+  return !Number.isNaN(Number(s))
 }

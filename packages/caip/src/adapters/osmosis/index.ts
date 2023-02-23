@@ -1,4 +1,6 @@
+import { AssetId, fromAssetId } from '../../assetId/assetId'
 import * as adapters from './generated'
+import { isNumeric, isOsmosisLpAsset } from './utils'
 
 export const osmosisGetTokensUrl = 'https://api-osmosis.imperator.co/tokens/v2/all'
 export const osmosisGetLpTokensUrl =
@@ -18,3 +20,16 @@ export const osmosisToAssetId = (id: string): string | undefined => generatedOsm
 
 export const assetIdToOsmosis = (assetId: string): string | undefined =>
   generatedAssetIdToOsmosisMap[assetId]
+
+export const osmosisLpAssetIdToPoolId = (lpAssetId: AssetId | string): string | undefined => {
+  const { assetReference } = fromAssetId(lpAssetId)
+  if (!isOsmosisLpAsset(assetReference)) return undefined
+
+  const segments = assetReference.split('/')
+  if (segments.length !== 3) return undefined
+
+  const poolId: string = segments[2]
+  if (!isNumeric(poolId)) return undefined
+
+  return poolId
+}

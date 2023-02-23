@@ -86,7 +86,11 @@
     "all": "Hepsi",
     "viewAll": "Hepsini Gör",
     "slippage": "Kayma",
-    "validator": "%{name} Doğrulayıcı"
+    "best": "En iyi",
+    "alternative": "Alternatif",
+    "validator": "%{name} Doğrulayıcı",
+    "needAsset": "%{asset}'e mi ihtiyacınız var?",
+    "buyNow": "Şimdi al"
   },
   "errorPage": {
     "title": "Hata!",
@@ -465,6 +469,7 @@
     "explore": "Keşfet",
     "trade": "Takas",
     "buyCrypto": "Kripto Al/Sat",
+    "buySell": "Al/Sat",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
@@ -581,6 +586,10 @@
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
+    "from": "'dan",
+    "to": "'a",
+    "youPay": "Öde",
+    "youGet": "Al",
     "tradeTo": "Buraya Takasla",
     "minerFee": "Madenci Ücreti",
     "protocolFee": "Protokol Ücreti",
@@ -1341,6 +1350,33 @@
         "twoFactorRequired": "2FA gerekli",
         "invalidTwoFactor": "6 haneli kod geçersiz",
         "twoFactorDescription": "Hesabınız için iki faktörlü kimlik doğrulama etkinleştirildi. Lütfen kimlik doğrulama uygulamanızdan gelen kodu girin."
+      },
+      "onboarding": {
+        "skip": "Geç",
+        "shapeShiftNativeWallet": "ShapeShift Native Cüzdanı",
+        "selfCustody": {
+          "title": "Kişisel Velayet",
+          "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
+          "body": "Kişisel velayet cüzdanı, ona sahip olduğunuz ve paranıza yalnızca sizin erişebileceğiniz anlamına gelir. Gizli kurtarma ifadeniz, ona erişmenin anahtarıdır. Paranıza erişmenizi kimse engelleyemez.",
+          "cta": "Sonraki"
+        },
+        "multiChain": {
+          "title": "Çoklu zincir",
+          "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
+          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Native Cüzdanınız bunu otomatik olarak destekleyecektir.",
+          "cta": "Sonraki"
+        },
+        "easyToUse": {
+          "title": "Kullanımı kolay",
+          "subTitle": "ShapeShift Native Cüzdan ile şunları yapabilirsiniz:",
+          "trackBalance": "Bakiyenizi takip edin",
+          "sendReceive": "Kripto gönder/al",
+          "buyCrypto": "Kripto Satın Al",
+          "tradeAssets": "Takas varlıkları",
+          "earnYield": "Boştaki varlıklarınızdan getiri elde edin",
+          "cta": "Kripto Satın Al",
+          "secondaryCta": "Kontrol Panelime Git"
+        }
       }
     },
     "selectModal": {
@@ -1681,6 +1717,11 @@
       "title": "Kripto Satın Alın(KYC OLMADAN )",
       "body": "Apple Pay ile 1.000 dolara kadar satın alma",
       "cta": "Hemen Satın Al"
+    },
+    "savers": {
+      "title": "%{asset} ile ödüller kazanın",
+      "body": "THORChain Savers Vault'a bahis yapın. Kilitlenme süresi yok.",
+      "cta": "Para Yatırma"
     }
   },
   "arkeo": {

@@ -297,7 +297,7 @@ export const PairDepositWithAllocation = ({
     })()
   }
 
-  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount1)
+  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount0)
   const fiatYield = bnOrZero(cryptoYield).times(asset0MarketData.price).toFixed(2)
   const fiatAmountAvailable0 = bnOrZero(underlyingAsset0CryptoAmountAvailablePrecision)
     .times(asset0MarketData.price)

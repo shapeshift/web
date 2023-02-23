@@ -86,7 +86,11 @@
     "all": "Todos",
     "viewAll": "Ver todos",
     "slippage": "Slippage",
-    "validator": "o %{name} validador"
+    "best": "Melhor",
+    "alternative": "Alternativa",
+    "validator": "o %{name} validador",
+    "needAsset": "Precisa de algum %{asset}?",
+    "buyNow": "Comprar agora"
   },
   "errorPage": {
     "title": "Opa!",
@@ -465,6 +469,7 @@
     "explore": "Explorar",
     "trade": "Negocie",
     "buyCrypto": "Compre Cripto",
+    "buySell": "Compre/venda",
     "arkeo": "Airdrop da Arkeo"
   },
   "transactionRow": {
@@ -581,6 +586,10 @@
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "tradeFrom": "Negocie de",
+    "from": "De",
+    "to": "Para",
+    "youPay": "Você paga",
+    "youGet": "Você ganha",
     "tradeTo": "Negocie para",
     "minerFee": "Taxa de Mineração",
     "protocolFee": "Taxa do Protocolo",
@@ -1341,6 +1350,33 @@
         "twoFactorRequired": "2FA (Two-Factor) é necessário",
         "invalidTwoFactor": "O código de 6 dígitos é inválido",
         "twoFactorDescription": "A autenticação de dois fatores está habilitada para sua conta. Insira o código do seu aplicativo de autenticação."
+      },
+      "onboarding": {
+        "skip": "Pular",
+        "shapeShiftNativeWallet": "Carteira nativa ShapeShift",
+        "selfCustody": {
+          "title": "Auto-custódia",
+          "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
+          "body": "Uma carteira de autocustódia significa que você a possui e somente você tem acesso aos seus fundos. Sua frase de recuperação secreta é a chave para acessá-la. Ninguém pode impedir que você acesse seus fundos.",
+          "cta": "Próximo"
+        },
+        "multiChain": {
+          "title": "Multi-chain",
+          "subTitle": "Você nunca precisa trocar de corrente na carteira, funciona perfeitamente com cada rede.",
+          "body": "Quando uma nova rede é adicionada ao ShapeShift, sua carteira será compatível com ela automaticamente.",
+          "cta": "Próximo"
+        },
+        "easyToUse": {
+          "title": "Fácil de usar",
+          "subTitle": "Com a carteira nativa da ShapeShift você pode:",
+          "trackBalance": "Acompanhar seu saldo",
+          "sendReceive": "Enviar/receber cripto",
+          "buyCrypto": "Comprar cripto",
+          "tradeAssets": "Negociar ativos",
+          "earnYield": "Ganhar recompensas em seu dinheiro parado",
+          "cta": "Comprar cripto",
+          "secondaryCta": "Ir para o meu painel"
+        }
       }
     },
     "selectModal": {
@@ -1681,6 +1717,11 @@
       "title": "Compre Cripto SEM KYC",
       "body": "Compre até US$ 1.000 com o Apple Pay",
       "cta": "Compre Agora"
+    },
+    "savers": {
+      "title": "Ganhe recompensas com seu %{asset}",
+      "body": "Deposite na THORChain savers vault. Sem tempo mínimo de depósito.",
+      "cta": "Deposite agora"
     }
   },
   "arkeo": {

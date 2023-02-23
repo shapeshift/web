@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v7.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.1...@shapeshiftoss/investor-foxy-v7.1.2) (2023-02-23)
+
+
+### Bug Fixes
+
+* **chain-adapters:** use snake_case for all osmosis tx fields ([#1205](https://github.com/shapeshift/lib/issues/1205)) ([957569a](https://github.com/shapeshift/lib/commit/957569a5e3460ae56a40d6d8337398504f741a8f))
+
 # [@shapeshiftoss/investor-foxy-v7.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.0...@shapeshiftoss/investor-foxy-v7.1.1) (2023-02-11)
 
 # [@shapeshiftoss/investor-foxy-v7.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.0.4...@shapeshiftoss/investor-foxy-v7.1.0) (2023-01-13)

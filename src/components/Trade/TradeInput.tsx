@@ -60,7 +60,7 @@ export const TradeInput = () => {
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
-  const { isTradingActiveOnSellPool } = useIsTradingActive()
+  const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
   const {
     checkApprovalNeeded,
     getTrade,
@@ -349,6 +349,15 @@ export const TradeInput = () => {
         },
       ]
     }
+    if (!isTradingActiveOnBuyPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+      return [
+        'trade.errors.tradingNotActive',
+        {
+          assetSymbol: buyTradeAsset?.asset?.symbol ?? '',
+        },
+      ]
+    }
+
     if (!hasValidTradeBalance) return 'common.insufficientFunds'
     if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [
@@ -379,6 +388,7 @@ export const TradeInput = () => {
     isBelowMinSellAmount,
     isSwapperApiPending,
     isTradeQuotePending,
+    isTradingActiveOnBuyPool,
     isTradingActiveOnSellPool,
     quote?.feeData.networkFeeCryptoBaseUnit,
     quote?.minimum,

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.0...@shapeshiftoss/swapper-v17.3.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* **swapper:** osmosis multi-account swaps ([#1210](https://github.com/shapeshift/lib/issues/1210)) ([6b5a7ab](https://github.com/shapeshift/lib/commit/6b5a7abfd50a77f1b3dfeef556e5ebac679891eb))
+
 # [@shapeshiftoss/swapper-v17.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.2.0...@shapeshiftoss/swapper-v17.3.0) (2023-02-23)
 
 

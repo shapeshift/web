@@ -40,6 +40,7 @@ export const reducer = (
           ...state.cosmosOpportunity,
           ...action.payload,
           tvl: bnOrZero(action.payload?.tvl),
+          apr: action.payload?.apy ?? '',
         },
       }
     case CosmosDepositActionType.SET_DEPOSIT:

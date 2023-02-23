@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 // common CLI dev tool utils
 import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
-import gitSemverTags from 'git-semver-tags'
-import pify from 'pify'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'
 
@@ -10,16 +8,21 @@ export const exit = (reason?: string) => Boolean(reason && console.log(reason)) 
 
 export const getLatestSemverTag = async (): Promise<string> => {
   const tags = await getSemverTags()
-  const tag = tags[0]
+  const tag = tags.slice(-1)[0] // get the latest tag
   semver.valid(tag) || exit(chalk.red(`${tag} is not a valid semver tag.`))
-  return tags[0]
+  return tag
 }
 
 export const getHeadShortCommitHash = async (): Promise<string> =>
   git().revparse(['--short', 'HEAD'])
 
 export const getSemverTags = async (): Promise<string[]> => {
-  const tags = await pify(gitSemverTags)()
-  if (!tags.length) exit(chalk.red('No semver release tags found.'))
-  return tags
+  // safety in case we pick up other tags from other packages
+  const WEB_VERSION_RANGES = '>1.0.0 <2.0.0'
+  const tags = await git().tags()
+  const allTags: string[] = tags.all
+  const validTags: string[] = allTags
+    .filter(t => semver.valid(t))
+    .filter(t => semver.satisfies(t, WEB_VERSION_RANGES))
+  return validTags
 }

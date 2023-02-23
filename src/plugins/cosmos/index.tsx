@@ -7,11 +7,6 @@ import { getConfig } from 'config'
 import { type Plugins } from 'plugins/types'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { CosmosAccount } from './CosmosAccount'
-import { CosmosAccountTxHistory } from './CosmosAccountTxHistory'
-import { CosmosAsset } from './CosmosAsset'
-import { CosmosAssetTxHistory } from './CosmostAssetTxHistory'
-
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
   return [
@@ -43,65 +38,6 @@ export default function register(): Plugins {
             ],
           ],
         },
-        routes: [
-          {
-            path: '/assets/cosmos::chainRef/:assetSubId',
-            hide: true,
-            label: '',
-            main: null,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
-            routes: [
-              {
-                path: '/',
-                label: 'navBar.overview',
-                main: () => <CosmosAsset />,
-              },
-              {
-                path: '/transactions',
-                label: 'navBar.transactions',
-                main: () => <CosmosAssetTxHistory />,
-              },
-            ],
-          },
-          {
-            path: '/accounts/cosmos::accountSubId',
-            label: '',
-            hide: true,
-            main: null,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
-            routes: [
-              {
-                path: '/',
-                label: 'navBar.overview',
-                main: () => <CosmosAccount />,
-              },
-              {
-                path: '/transactions',
-                label: 'navBar.transactions',
-                main: () => <CosmosAccountTxHistory />,
-              },
-            ],
-          },
-          {
-            path: '/accounts/cosmos::accountSubId/:assetId',
-            label: '',
-            hide: true,
-            main: null,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
-            routes: [
-              {
-                path: '/',
-                label: 'navBar.overview',
-                main: () => <CosmosAccount />,
-              },
-              {
-                path: '/transactions',
-                label: 'navBar.transactions',
-                main: () => <CosmosAccountTxHistory />,
-              },
-            ],
-          },
-        ],
       },
     ],
   ]

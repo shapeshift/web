@@ -81,7 +81,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(state.deposit.foxCryptoAmount, state.deposit.ethCryptoAmount)
+      const txid = await addLiquidity(state.deposit.ethCryptoAmount, state.deposit.foxCryptoAmount)
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)

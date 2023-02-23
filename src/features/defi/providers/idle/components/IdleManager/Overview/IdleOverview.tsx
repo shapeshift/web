@@ -38,6 +38,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectSelectedLocale,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -155,15 +156,8 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const underlyingAssets: AssetWithBalance[] = useMemo(
-    () => [
-      {
-        ...underlyingAsset,
-        cryptoBalancePrecision: cryptoAmountAvailable.toPrecision(),
-        allocationPercentage: '1',
-      },
-    ],
-    [cryptoAmountAvailable, underlyingAsset],
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingStakingAssetsWithBalancesAndIcons(state, opportunityDataFilter),
   )
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -240,7 +234,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     )
   }
 
-  if (!underlyingAssets || !opportunityData) return null
+  if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
 
   return (
     <Overview
@@ -249,7 +243,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
       asset={vaultAsset}
       name={opportunityData.name ?? ''}
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}
-      underlyingAssetsCryptoPrecision={underlyingAssets}
+      underlyingAssetsCryptoPrecision={underlyingAssetsWithBalancesAndIcons}
       provider={makeDefiProviderDisplayName({
         provider: opportunityData.provider,
         assetName: vaultAsset.name,

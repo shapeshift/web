@@ -57,6 +57,7 @@ const validators = {
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
+  REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_STAKING: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),

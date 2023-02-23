@@ -7,6 +7,7 @@ import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
+import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
@@ -58,5 +59,10 @@ export const App = () => {
     }
   }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
 
-  return <Routes />
+  return (
+    <>
+      <ConsentBanner />
+      <Routes />
+    </>
+  )
 }

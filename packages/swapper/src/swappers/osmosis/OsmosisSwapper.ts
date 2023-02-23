@@ -274,7 +274,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       receiveAddress,
     } = trade
 
-    if (!receiveAccountNumber)
+    if (receiveAccountNumber === undefined)
       throw new SwapError('Receive account number not provided', {
         code: SwapErrorType.RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED,
       })

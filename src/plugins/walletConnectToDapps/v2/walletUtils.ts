@@ -2,6 +2,7 @@ import { Core } from '@walletconnect/core'
 import type { ICore } from '@walletconnect/types'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { Web3Wallet } from '@walletconnect/web3wallet'
+import { getConfig } from 'config'
 import { getLogLevel, logger } from 'lib/logger'
 
 const moduleLogger = logger.child({ namespace: ['walletConnectToDapps', 'walletUtils'] })
@@ -13,9 +14,10 @@ let core: ICore
 export const getWalletConnectCore = () => {
   const logLevel = getLogLevel()
   const isDebug = logLevel === 'debug'
+  const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
   core = new Core({
     logger: isDebug ? 'debug' : undefined,
-    projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
+    projectId: walletConnectProjectId,
   })
 
   return core

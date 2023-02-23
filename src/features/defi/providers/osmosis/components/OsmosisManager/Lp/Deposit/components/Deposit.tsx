@@ -221,7 +221,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!(state && contextDispatch && osmosisOpportunity && underlyingAsset0 && underlyingAsset1))
         return
 
-      const allocations = await calculateAllocations(underlyingAsset0, formValues.cryptoAmount1)
+      const allocations = calculateAllocations(underlyingAsset0, formValues.cryptoAmount0)
       if (!allocations) return
 
       const asset0AmountBaseUnit = bnOrZero(formValues.cryptoAmount0)

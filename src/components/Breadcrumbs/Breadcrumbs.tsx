@@ -80,11 +80,11 @@ const options: Options = {
   excludePaths: [
     '/assets/:chainId',
     '/trade/:chainId',
-    // If it's an Osmosis pool asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
-    '/assets/:chainId/ibc:gamm',
-    '/assets/:chainId/ibc:gamm/pool',
-    '/trade/:chainId/ibc:gamm',
-    '/trade/:chainId/ibc:gamm/pool',
+    // If it's an Osmosis IBC asset we need to ignore the segments 3 and 4 (ibc:gamm and pool)
+    '/assets/:chainId/ibc\\:gamm',
+    '/assets/:chainId/ibc\\:gamm/pool',
+    '/trade/:chainId/ibc\\:gamm',
+    '/trade/:chainId/ibc\\:gamm/pool',
   ],
 }
 

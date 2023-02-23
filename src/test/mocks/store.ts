@@ -68,6 +68,8 @@ export const mockStore: ReduxState = {
       Yearn: false,
       ArkeoAirdrop: false,
       TradeRates: false,
+      ConsentBanner: false,
+      MixPanel: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

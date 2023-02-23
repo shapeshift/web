@@ -45,26 +45,19 @@ export const DappHeaderMenuSummaryV2 = () => {
     if (!session || !web3wallet || !core) return
 
     /*
-     TODO: this is a hack to clear out all sessions, as the MVP supports only one at a time.
+     TODO: we only support one session at a time (the most recent)
      In the future we want to support multiple pairings and sessions at once.
      */
     const activeTopics = Object.values(web3wallet.getActiveSessions()).map(session => session.topic)
-    for await (const topic of activeTopics) {
-      try {
-        // This currently throws, and does not work: https://github.com/WalletConnect/walletconnect-monorepo/issues/1772
-        await web3wallet.disconnectSession({ topic, reason: getSdkError('USER_DISCONNECTED') })
-      } catch (e) {
-        throw new Error(`Error disconnecting session: ${e}, topic: ${topic}`)
-      }
-    }
+    const mostRecentTopic = activeTopics.slice(-1)[0]
 
-    const pairedTopics = core.pairing.getPairings().map(pairing => pairing.topic)
-    for await (const topic of pairedTopics) {
-      try {
-        await core.pairing.disconnect({ topic })
-      } catch (e) {
-        throw new Error(`Error disconnecting pairing: ${e}, topic: ${topic}`)
-      }
+    try {
+      await web3wallet.disconnectSession({
+        topic: mostRecentTopic,
+        reason: getSdkError('USER_DISCONNECTED'),
+      })
+    } catch (e) {
+      throw new Error(`Error disconnecting session: ${e}, topic: ${mostRecentTopic}`)
     }
   }, [core, dispatch, session, web3wallet])
 

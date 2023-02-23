@@ -1,12 +1,4 @@
-import type {
-  ChainKey,
-  LifiError,
-  QuoteRequest,
-  Step,
-  Token,
-  TokenAmount,
-  TokensResponse,
-} from '@lifi/sdk'
+import type { ChainKey, LifiError, QuoteRequest, Step, TokensResponse } from '@lifi/sdk'
 import type LIFI from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import { fromChainId } from '@shapeshiftoss/caip'
@@ -19,15 +11,19 @@ import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import { DEFAULT_SOURCE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { convertPrecision } from 'lib/swapper/LifiSwapper/utils/convertPrecision/convertPrecision'
 import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
+import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/common-selectors'
+import { selectAccountIdByAccountNumberAndChainId } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-  lifiEvmTokens: TokensResponse['tokens'],
-  chainMap: Map<number, ChainKey>,
+  lifiTokens: TokensResponse['tokens'],
+  lifiChainMap: Map<number, ChainKey>,
   lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
   lifi: LIFI,
 ): Promise<TradeQuote<EvmChainId>> {
   const {
+    chainId,
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit,
@@ -38,18 +34,18 @@ export async function getTradeQuote(
 
   const fromLifiChainId = +fromChainId(sellAsset.chainId).chainReference
   const toLifiChainId = +fromChainId(buyAsset.chainId).chainReference
-  const fromLifiChainKey = chainMap.get(+fromChainId(sellAsset.chainId).chainReference)
-  const toLifiChainKey = chainMap.get(+fromChainId(buyAsset.chainId).chainReference)
-  const fromToken = lifiEvmTokens[fromLifiChainId].find(token => token.symbol === sellAsset.symbol)
-  const toToken = lifiEvmTokens[toLifiChainId].find(token => token.symbol === buyAsset.symbol)
+  const fromLifiChainKey = lifiChainMap.get(+fromChainId(sellAsset.chainId).chainReference)
+  const toLifiChainKey = lifiChainMap.get(+fromChainId(buyAsset.chainId).chainReference)
+  const fromLifiToken = lifiTokens[fromLifiChainId].find(token => token.symbol === sellAsset.symbol)
+  const toLifiToken = lifiTokens[toLifiChainId].find(token => token.symbol === buyAsset.symbol)
 
-  if (fromLifiChainKey === undefined || fromToken === undefined) {
+  if (fromLifiChainKey === undefined || fromLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (toLifiChainKey === undefined || toToken === undefined) {
+  if (toLifiChainKey === undefined || toLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
@@ -61,16 +57,25 @@ export async function getTradeQuote(
     })
   }
 
-  const fromAmountLifi = await (async () => {
+  const fromAmountLifi = (() => {
     if (sendMax) {
-      // TODO: use redux to find balance instead of fetching
-      // Would selectMarketDataById, which takes an AssetId and returns an object with a price key (in USD) give you what you need?
-      // You'd still need to do the conversion from crypto amount to human amount, and then times that amount by the price (the rate)
-      const token: Token = await lifi.getToken(fromLifiChainId, sellAsset.symbol)
-      // TODO: this is failing due to CSP
-      const balance: TokenAmount | null = await lifi.getTokenBalance(receiveAddress, token)
-      if (balance === null) return '0'
-      return balance.amount
+      const accountId = selectAccountIdByAccountNumberAndChainId(store.getState(), {
+        accountNumber,
+        chainId,
+      })
+
+      if (accountId === undefined) {
+        throw new SwapError('[getTradeQuote] no account id found', {
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+        })
+      }
+
+      const balance = selectPortfolioCryptoBalanceByFilter(store.getState(), {
+        accountId,
+        assetId: sellAsset.assetId,
+      })
+
+      return convertPrecision(balance, sellAsset.precision, fromLifiToken.decimals).toString()
     }
 
     // TODO: remove this once minimum amounts are handled below
@@ -79,7 +84,7 @@ export async function getTradeQuote(
         ? bn(0.001).times(bn(10).exponentiatedBy(sellAsset.precision)).toString()
         : sellAmountBeforeFeesCryptoBaseUnit
 
-    return convertPrecision(nonZeroAmount, sellAsset.precision, fromToken.decimals).toString()
+    return convertPrecision(nonZeroAmount, sellAsset.precision, fromLifiToken.decimals).toString()
   })()
 
   // TODO: handle quotes that dont meet the minimum amount here
@@ -87,8 +92,8 @@ export async function getTradeQuote(
   const quoteRequest: QuoteRequest = {
     fromChain: fromLifiChainKey,
     toChain: toLifiChainKey,
-    fromToken: fromToken.symbol,
-    toToken: toToken.symbol,
+    fromToken: fromLifiToken.symbol,
+    toToken: toLifiToken.symbol,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: fromAmountLifi,
@@ -138,7 +143,7 @@ export async function getTradeQuote(
 
   const minimumCryptoHuman = convertPrecision(
     getMinimumAmountFromStep(quote, lifiToolMap) ?? Infinity,
-    fromToken.decimals,
+    fromLifiToken.decimals,
     0,
   ).toString()
 

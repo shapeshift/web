@@ -10,6 +10,7 @@ import {
   foxyAssetId,
   fromAccountId,
   fromAssetId,
+  isChainId,
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
@@ -770,6 +771,23 @@ export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
         fiatAmount: v.fiatAmount,
         implementations,
       }
+    })
+  },
+)
+
+export const selectAccountIdByAccountNumberAndChainId = createSelector(
+  selectWalletAccountIds,
+  selectPortfolioAccountMetadata,
+  selectAccountNumberParamFromFilter,
+  selectChainIdParamFromFilter,
+  (walletAccountIds, accountMetadata, accountNumber, chainId): AccountId | undefined => {
+    if (!isValidAccountNumber(accountNumber)) throw new Error('invalid account number')
+    if (chainId === undefined || !isChainId(chainId)) throw new Error('invalid chain id')
+
+    return walletAccountIds.find(accountId => {
+      if (fromAccountId(accountId).chainId !== chainId) return false
+      if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
+      return true
     })
   },
 )

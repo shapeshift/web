@@ -69,7 +69,9 @@ export const DappHeaderMenuSummaryV2 = () => {
   }, [core, dispatch, session, web3wallet])
 
   const renderConnectedAddresses = useMemo(() => {
-    return connectedAccounts.map(accountId => <AddressAndChain accountId={accountId} />)
+    return connectedAccounts.map(accountId => (
+      <AddressAndChain key={accountId} accountId={accountId} />
+    ))
   }, [connectedAccounts])
 
   if (!session || !web3wallet) return null

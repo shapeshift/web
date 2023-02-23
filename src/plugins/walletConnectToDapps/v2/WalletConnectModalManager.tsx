@@ -1,6 +1,11 @@
 import { Modal, ModalContent } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainAdapter,
+  CosmosSdkChainId,
+  EvmBaseAdapter,
+  EvmChainId,
+} from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { CosmosSignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from 'plugins/walletConnectToDapps/v2/components/modals/EIP155SignMessageConfirmation'
@@ -16,11 +21,16 @@ import type {
   EthSignCallRequest,
   EthSignTransactionCallRequest,
   EthSignTypedDataCallRequest,
+  SupportedSessionRequest,
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType, WalletConnectModal } from 'plugins/walletConnectToDapps/v2/types'
+import {
+  approveCosmosRequest,
+  rejectCosmosRequest,
+} from 'plugins/walletConnectToDapps/v2/utils/CosmosRequestHandlerUtil'
 import {
   approveEIP155Request,
   rejectEIP155Request,
@@ -96,6 +106,39 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleClose()
   }
 
+  const handleConfirmCosmosRequest = async (customTransactionData?: CustomTransactionData) => {
+    if (!requestEvent || !chainAdapter || !wallet || !chainAdapter || !web3wallet) return
+
+    const topic = requestEvent.topic
+    const response = await approveCosmosRequest({
+      wallet,
+      requestEvent: requestEvent as SupportedSessionRequest<
+        CosmosSignAminoCallRequest | CosmosSignDirectCallRequest
+      >,
+      chainAdapter: chainAdapter as ChainAdapter<CosmosSdkChainId>,
+      accountMetadata,
+      customTransactionData,
+      accountId,
+    })
+    await web3wallet.respondSessionRequest({
+      topic,
+      response,
+    })
+    handleClose()
+  }
+
+  const handleRejectCosmosRequest = async () => {
+    if (!requestEvent || !web3wallet) return
+
+    const topic = requestEvent.topic
+    const response = rejectCosmosRequest(requestEvent)
+    await web3wallet.respondSessionRequest({
+      topic,
+      response,
+    })
+    handleClose()
+  }
+
   if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
 
   const modalContent = (() => {
@@ -137,8 +180,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SendCosmosTransactionConfirmation:
         return (
           <CosmosSignMessageConfirmationModal
-            onConfirm={handleConfirmEIP155Request}
-            onReject={handleRejectEIP155Request}
+            onConfirm={handleConfirmCosmosRequest}
+            onReject={handleRejectCosmosRequest}
             dispatch={dispatch}
             state={
               state as Required<

@@ -133,8 +133,15 @@ export const CosmosSignMessageConfirmationModal: FC<
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>
-        <Button size='lg' width='full' colorScheme='blue' type='submit' onClick={handleConfirm}>
-          {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+        <Button
+          size='lg'
+          width='full'
+          colorScheme='blue'
+          type='submit'
+          onClick={handleConfirm}
+          disabled={true}
+        >
+          {translate('plugins.walletConnectToDapps.modal.signMessage.comingSoon')}
         </Button>
         <Button size='lg' width='full' onClick={handleReject}>
           {translate('plugins.walletConnectToDapps.modal.signMessage.reject')}

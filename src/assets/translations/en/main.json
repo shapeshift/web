@@ -1623,7 +1623,8 @@
           "accountNumber": "Account number",
           "chainId": "Chain ID",
           "authInfo": "Auth info",
-          "body": "Body"
+          "body": "Body",
+          "comingSoon": "Coming soon"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",

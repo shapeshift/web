@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v8.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.13.0...@shapeshiftoss/caip-v8.14.0) (2023-02-23)
+
+
+### Features
+
+* **caip:** add osmosis lp asset id to pool id adapter ([#1209](https://github.com/shapeshift/lib/issues/1209)) ([cbde52a](https://github.com/shapeshift/lib/commit/cbde52a8d46d64e67c02a25a9b0909516a43d9af))
+
 # [@shapeshiftoss/caip-v8.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v8.12.0...@shapeshiftoss/caip-v8.13.0) (2023-02-06)
 
 

@@ -23,7 +23,10 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
-  const isWalletConnectToDappsEnabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isWalletConnectToDappsEnabled =
+    isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
   const handleClick = (onClick?: () => void) => {
     onClose && onClose()

@@ -1596,9 +1596,12 @@
         "menu": {
           "disconnect": "Disconnect",
           "address": "Address",
+          "addresses": "Addresses",
           "connected": "Connected",
           "network": "Network",
-          "unsupportedNetwork": "Unsupported Network"
+          "networks": "Networks",
+          "unsupportedNetwork": "Unsupported Network",
+          "expiry": "Session expiry"
         }
       },
       "modal": {
@@ -1612,7 +1615,16 @@
           "confirm": "Confirm",
           "reject": "Reject",
           "messageData": "Message data",
-          "domain": "Domain"
+          "domain": "Domain",
+          "memo": "Memo",
+          "messages": "Messages",
+          "noMessages": "No messages",
+          "sequence": "Sequence",
+          "accountNumber": "Account number",
+          "chainId": "Chain ID",
+          "authInfo": "Auth info",
+          "body": "Body",
+          "comingSoon": "Coming soon"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",
@@ -1649,7 +1661,20 @@
           "howTo": "How to connect to a dApp?",
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
-          "connectionError": "Can't connect to provided URI."
+          "connectionError": "Can't connect to provided URI.",
+          "invalidUri": "Invalid URI",
+          "v1UriUnsupported": "WalletConnect V1 URI not enabled",
+          "v2UriUnsupported": "WalletConnect V2 URI not enabled"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Info",
+          "permissions": "Permissions",
+          "accountSelection": "Choose accounts",
+          "unsupportedChain": "Unsupported chain namespace in session proposal.",
+          "methods": "Methods",
+          "events": "Events",
+          "selectedAccounts": "Selected Accounts",
+          "permissionMessage": "Please select at least one account per chain."
         }
       },
       "registry": {

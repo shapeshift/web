@@ -83,7 +83,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
     try {
-      const gasData = await getDepositGasData(deposit.cryptoAmount1, deposit.cryptoAmount2)
+      const gasData = await getDepositGasData(deposit.cryptoAmount0, deposit.cryptoAmount1)
       if (!gasData) return
       return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
@@ -106,10 +106,10 @@ export const Deposit: React.FC<DepositProps> = ({
     dispatch({
       type: FoxEthLpDepositActionType.SET_DEPOSIT,
       payload: {
+        ethCryptoAmount: formValues.cryptoAmount0,
+        ethFiatAmount: formValues.fiatAmount0,
         foxCryptoAmount: formValues.cryptoAmount1,
         foxFiatAmount: formValues.fiatAmount1,
-        ethCryptoAmount: formValues.cryptoAmount2,
-        ethFiatAmount: formValues.fiatAmount2,
       },
     })
     dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
@@ -158,9 +158,9 @@ export const Deposit: React.FC<DepositProps> = ({
     browserHistory.goBack()
   }
 
-  const validateCryptoAmount = (value: string, isForAsset1: boolean) => {
-    const crypto = bnOrZero(isForAsset1 ? foxBalance : ethBalance).div(
-      `1e+${(isForAsset1 ? foxAsset : ethAsset).precision}`,
+  const validateCryptoAmount = (value: string, isForAsset0: boolean) => {
+    const crypto = bnOrZero(isForAsset0 ? ethBalance : foxBalance).div(
+      bn(10).pow((isForAsset0 ? foxAsset : ethAsset).precision),
     )
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -168,11 +168,11 @@ export const Deposit: React.FC<DepositProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const validateFiatAmount = (value: string, isForAsset1: boolean) => {
-    const crypto = bnOrZero(isForAsset1 ? foxBalance : ethBalance).div(
-      `1e+${(isForAsset1 ? foxAsset : ethAsset).precision}`,
+  const validateFiatAmount = (value: string, isForAsset0: boolean) => {
+    const crypto = bnOrZero(isForAsset0 ? ethBalance : foxBalance).div(
+      bn(10).pow((isForAsset0 ? foxAsset : ethAsset).precision),
     )
-    const fiat = crypto.times((isForAsset1 ? foxMarketData : ethMarketData).price)
+    const fiat = crypto.times((isForAsset0 ? ethMarketData : foxMarketData).price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -197,33 +197,33 @@ export const Deposit: React.FC<DepositProps> = ({
   return (
     <PairDeposit
       accountId={accountId}
+      asset0={ethAsset}
       asset1={foxAsset}
-      asset2={ethAsset}
       icons={opportunity?.icons}
       destAsset={asset}
       apy={opportunity?.apy?.toString() ?? ''}
+      cryptoAmountAvailable0={ethCryptoAmountAvailable.toPrecision()}
       cryptoAmountAvailable1={foxCryptoAmountAvailable.toPrecision()}
-      cryptoAmountAvailable2={ethCryptoAmountAvailable.toPrecision()}
+      cryptoInputValidation0={{
+        required: true,
+        validate: { validateCryptoAmount0: (val: string) => validateCryptoAmount(val, true) },
+      }}
       cryptoInputValidation1={{
         required: true,
-        validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, true) },
+        validate: { validateCryptoAmount1: (val: string) => validateCryptoAmount(val, false) },
       }}
-      cryptoInputValidation2={{
-        required: true,
-        validate: { validateCryptoAmount2: (val: string) => validateCryptoAmount(val, false) },
-      }}
+      fiatAmountAvailable0={ethFiatAmountAvailable.toFixed(2)}
       fiatAmountAvailable1={foxFiatAmountAvailable.toFixed(2)}
-      fiatAmountAvailable2={ethFiatAmountAvailable.toFixed(2)}
+      fiatInputValidation0={{
+        required: true,
+        validate: { validateFiatAmount0: (val: string) => validateFiatAmount(val, true) },
+      }}
       fiatInputValidation1={{
         required: true,
-        validate: { validateFiatAmount1: (val: string) => validateFiatAmount(val, true) },
+        validate: { validateFiatAmount1: (val: string) => validateFiatAmount(val, false) },
       }}
-      fiatInputValidation2={{
-        required: true,
-        validate: { validateFiatAmount2: (val: string) => validateFiatAmount(val, false) },
-      }}
+      marketData0={ethMarketData}
       marketData1={foxMarketData}
-      marketData2={ethMarketData}
       onCancel={handleCancel}
       onAccountIdChange={handleAccountIdChange}
       onContinue={handleContinue}

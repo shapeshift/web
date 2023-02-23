@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.5.1...@shapeshiftoss/investor-idle-v2.5.2) (2023-02-23)
+
+
+### Bug Fixes
+
+* **chain-adapters:** use snake_case for all osmosis tx fields ([#1205](https://github.com/shapeshift/lib/issues/1205)) ([957569a](https://github.com/shapeshift/lib/commit/957569a5e3460ae56a40d6d8337398504f741a8f))
+
 # [@shapeshiftoss/investor-idle-v2.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.5.0...@shapeshiftoss/investor-idle-v2.5.1) (2023-02-11)
 
 # [@shapeshiftoss/investor-idle-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.4.1...@shapeshiftoss/investor-idle-v2.5.0) (2023-01-13)

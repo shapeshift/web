@@ -317,15 +317,15 @@ export const buildTradeTx = async ({
           sender: osmoAddress,
           routes: [
             {
-              poolId: '1', // TODO: should probably get this from the util pool call
-              tokenOutDenom: buyAssetDenom,
+              pool_id: '1', // TODO: should probably get this from the util pool call
+              token_out_denom: buyAssetDenom,
             },
           ],
-          tokenIn: {
+          token_in: {
             denom: sellAssetDenom,
             amount: sellAmount,
           },
-          tokenOutMinAmount: '1', // slippage tolerance
+          token_out_min_amount: '1', // slippage tolerance
         },
       },
     ],

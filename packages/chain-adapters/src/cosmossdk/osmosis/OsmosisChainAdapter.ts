@@ -285,9 +285,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         type: 'osmosis/gamm/join-pool',
         value: {
           sender: from,
-          poolId,
-          shareOutAmount,
-          tokenInMaxs,
+          pool_id: poolId,
+          share_out_amount: shareOutAmount,
+          token_in_maxs: tokenInMaxs,
         },
       }
 
@@ -310,9 +310,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         type: 'osmosis/gamm/exit-pool',
         value: {
           sender: from,
-          poolId,
-          shareOutAmount,
-          tokenOutMins,
+          pool_id: poolId,
+          share_out_amount: shareOutAmount,
+          token_out_mins: tokenOutMins,
         },
       }
 

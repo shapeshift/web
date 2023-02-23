@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.1...@shapeshiftoss/swapper-v17.3.2) (2023-02-23)
+
+
+### Bug Fixes
+
+* **chain-adapters:** use snake_case for all osmosis tx fields ([#1205](https://github.com/shapeshift/lib/issues/1205)) ([957569a](https://github.com/shapeshift/lib/commit/957569a5e3460ae56a40d6d8337398504f741a8f))
+
 # [@shapeshiftoss/swapper-v17.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.0...@shapeshiftoss/swapper-v17.3.1) (2023-02-23)
 
 

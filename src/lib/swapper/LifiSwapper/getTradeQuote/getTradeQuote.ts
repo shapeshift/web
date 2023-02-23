@@ -1,18 +1,30 @@
-import type { ChainKey, LifiError, QuoteRequest, Step, Token, TokenAmount } from '@lifi/sdk'
+import type {
+  ChainKey,
+  LifiError,
+  QuoteRequest,
+  Step,
+  Token,
+  TokenAmount,
+  TokensResponse,
+} from '@lifi/sdk'
 import type LIFI from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import { DEFAULT_SOURCE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { convertPrecision } from 'lib/swapper/LifiSwapper/utils/convertPrecision/convertPrecision'
+import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
+  lifiEvmTokens: TokensResponse['tokens'],
   chainMap: Map<number, ChainKey>,
-  tokenMap: Map<string, Pick<Token, 'decimals' | 'symbol'>>,
+  lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
   lifi: LIFI,
 ): Promise<TradeQuote<EvmChainId>> {
   const {
@@ -24,66 +36,66 @@ export async function getTradeQuote(
     accountNumber,
   } = input
 
-  const fromChain = chainMap.get(+fromChainId(sellAsset.chainId).chainReference)
-  const toChain = chainMap.get(+fromChainId(buyAsset.chainId).chainReference)
-  const fromToken = tokenMap.get(sellAsset.symbol)
-  const toToken = tokenMap.get(buyAsset.symbol)
+  const fromLifiChainId = +fromChainId(sellAsset.chainId).chainReference
+  const toLifiChainId = +fromChainId(buyAsset.chainId).chainReference
+  const fromLifiChainKey = chainMap.get(+fromChainId(sellAsset.chainId).chainReference)
+  const toLifiChainKey = chainMap.get(+fromChainId(buyAsset.chainId).chainReference)
+  const fromToken = lifiEvmTokens[fromLifiChainId].find(token => token.symbol === sellAsset.symbol)
+  const toToken = lifiEvmTokens[toLifiChainId].find(token => token.symbol === buyAsset.symbol)
 
-  if (fromChain === undefined || fromToken === undefined) {
+  if (fromLifiChainKey === undefined || fromToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (toChain === undefined || toToken === undefined) {
+  if (toLifiChainKey === undefined || toToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (fromChain === toChain) {
+  if (fromLifiChainKey === toLifiChainKey) {
     throw new SwapError('[getTradeQuote] same chains swaps not supported', {
       code: SwapErrorType.UNSUPPORTED_PAIR,
     })
   }
 
-  // TODO:
-  // @woodenfurniture: reached out to lifi to figure out how we can get the minimum trade amount for a given pair.
-  // Currently only a minimum sell amount is given AFTER we fetch a quote,
-  // and it seems to be "the minimum amount you'll get after fees", not "the minimum amount allowed for a swap".
-  // Since the api cannot provide a quote without a valid amount higher than the minimum, this must be resolved.
-  const minimumCryptoHuman = '1'
+  const fromAmountLifi = await (async () => {
+    if (sendMax) {
+      // TODO: use redux to find balance instead of fetching
+      // Would selectMarketDataById, which takes an AssetId and returns an object with a price key (in USD) give you what you need?
+      // You'd still need to do the conversion from crypto amount to human amount, and then times that amount by the price (the rate)
+      const token: Token = await lifi.getToken(fromLifiChainId, sellAsset.symbol)
+      // TODO: this is failing due to CSP
+      const balance: TokenAmount | null = await lifi.getTokenBalance(receiveAddress, token)
+      if (balance === null) return '0'
+      return balance.amount
+    }
 
-  let fromAmount = convertPrecision(
-    sellAmountBeforeFeesCryptoBaseUnit,
-    sellAsset.precision,
-    fromToken.decimals,
-  )
+    // TODO: remove this once minimum amounts are handled below
+    const nonZeroAmount =
+      sellAmountBeforeFeesCryptoBaseUnit === '0'
+        ? bn(0.001).times(bn(10).exponentiatedBy(sellAsset.precision)).toString()
+        : sellAmountBeforeFeesCryptoBaseUnit
 
-  if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
-    fromAmount = bn(minimumCryptoHuman).times(bn(10).exponentiatedBy(fromToken.decimals)).toString()
-  }
+    return convertPrecision(nonZeroAmount, sellAsset.precision, fromToken.decimals).toString()
+  })()
 
-  if (sendMax) {
-    const token: Token = await lifi.getToken(fromChain, fromToken.symbol)
-    const balance: TokenAmount | null = await lifi.getTokenBalance(receiveAddress, token)
-    if (balance === null)
-      throw new SwapError('[getTradeQuote]', { code: SwapErrorType.TRADE_QUOTE_FAILED })
-    fromAmount = balance.amount
-  }
+  // TODO: handle quotes that dont meet the minimum amount here
 
-  // return result.data
-  const request: QuoteRequest = {
-    fromChain,
-    toChain,
+  const quoteRequest: QuoteRequest = {
+    fromChain: fromLifiChainKey,
+    toChain: toLifiChainKey,
     fromToken: fromToken.symbol,
     toToken: toToken.symbol,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
-    fromAmount,
+    fromAmount: fromAmountLifi,
+    slippage: DEFAULT_SLIPPAGE,
   }
 
-  const quote: Step = await lifi.getQuote(request).catch((e: LifiError) => {
+  const quote: Step = await lifi.getQuote(quoteRequest).catch((e: LifiError) => {
     const code = (() => {
       switch (e.code) {
         case LifiErrorCode.ValidationError:
@@ -98,9 +110,20 @@ export async function getTradeQuote(
     throw new SwapError(`[getTradeQuote] ${e.message}`, { code })
   })
 
+  const buyAssetTradeFeeUsd =
+    quote.estimate.feeCosts
+      ?.filter(feeData => feeData.name === 'Gas Fee')
+      .reduce((acc, feeData) => acc.plus(bnOrZero(feeData.amount)), bn(0))
+      .toString() ?? '0'
+  const sellAssetTradeFeeUsd =
+    quote.estimate.feeCosts
+      ?.filter(feeData => feeData.name === 'Relay Fee')
+      .reduce((acc, feeData) => acc.plus(bnOrZero(feeData.amount)), bn(0))
+      .toString() ?? '0'
+
   const feeData: QuoteFeeData<EvmChainId> = {
-    buyAssetTradeFeeUsd: '0',
-    sellAssetTradeFeeUsd: '0',
+    buyAssetTradeFeeUsd,
+    sellAssetTradeFeeUsd,
     networkFeeCryptoBaseUnit: quote.estimate.data?.gasFeeInReceivingToken ?? '0',
     chainSpecific: {
       approvalFeeCryptoBaseUnit: '0',
@@ -112,6 +135,12 @@ export async function getTradeQuote(
           : undefined,
     },
   }
+
+  const minimumCryptoHuman = convertPrecision(
+    getMinimumAmountFromStep(quote, lifiToolMap) ?? Infinity,
+    fromToken.decimals,
+    0,
+  ).toString()
 
   return {
     accountNumber,

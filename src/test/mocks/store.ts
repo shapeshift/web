@@ -73,6 +73,7 @@ export const mockStore: ReduxState = {
       ConsentBanner: false,
       MixPanel: false,
       LiveSupport: false,
+      LifiSwap: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

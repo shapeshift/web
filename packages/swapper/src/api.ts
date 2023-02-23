@@ -89,6 +89,7 @@ type CommonTradeInput = {
   sendMax: boolean
   receiveAddress: string
   accountNumber: number
+  receiveAccountNumber?: number
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -139,6 +140,7 @@ export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
 
 export interface Trade<C extends ChainId> extends TradeBase<C> {
   receiveAddress: string
+  receiveAccountNumber?: number
 }
 
 export type ExecuteTradeInput<C extends ChainId> = {
@@ -230,6 +232,7 @@ export enum SwapErrorType {
   POOL_NOT_FOUND = 'POOL_NOT_FOUND',
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
+  RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */

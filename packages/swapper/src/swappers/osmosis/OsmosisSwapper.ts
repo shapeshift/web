@@ -163,6 +163,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       receiveAddress,
       accountNumber,
+      receiveAccountNumber,
     } = args
 
     if (!sellAmountCryptoBaseUnit) {
@@ -206,6 +207,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBase, // TODO(gomes): wat?
       sellAsset,
       accountNumber,
+      receiveAccountNumber,
       sources: [{ name: SwapperName.Osmosis, proportion: '100' }],
     }
   }
@@ -268,8 +270,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       accountNumber,
+      receiveAccountNumber,
       receiveAddress,
     } = trade
+
+    if (!receiveAccountNumber)
+      throw new SwapError('Receive account number not provided', {
+        code: SwapErrorType.RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED,
+      })
 
     const isFromOsmo = sellAsset.assetId === osmosisAssetId
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
@@ -357,7 +365,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const cosmosAddress = isFromOsmo ? receiveAddress : sellAddress
     const signTxInput = await buildTradeTx({
       osmoAddress,
-      accountNumber,
+      accountNumber: receiveAccountNumber,
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,

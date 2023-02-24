@@ -4089,10 +4089,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.14.0.tgz#b424bd262d9f2a02785e9b192f9a5f9938b8903b"
   integrity sha512-O+j4zILWoIdK658Q707sJNNQpkzsVPHotcjm06QT5GGLHOizfRH3PA3hFaxQI4To3DuzLELuSlxWdWzLQ/eR6g==
 
-"@shapeshiftoss/chain-adapters@11.1.1":
-  version "11.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-11.1.1.tgz#f374414dedd538aef8f33996850f76762a035902"
-  integrity sha512-+EaehEGj3zT2IDhPx+vDHxdnKrovpWbaa6R0YVV/Bq2fg+Wrf0I6wqtL7O045IyZC/dgGRzymq7RqqHMsy7WLg==
+"@shapeshiftoss/chain-adapters@11.1.2":
+  version "11.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-11.1.2.tgz#78091f71f09b181d6710abfb0887ddb95dd6b628"
+  integrity sha512-srSZGmQdlsRBtz+e3jGW/zuvXTljpXE21oK0g6dxc5ilrlBjITLfr5fBQhI2PhhJjoYaRwfmGlEgyx0gdLnTvA==
   dependencies:
     axios "^0.26.1"
     bech32 "^2.0.0"

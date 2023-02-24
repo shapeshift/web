@@ -55,7 +55,6 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
     if (state.adapters) {
-
       const adapters = state.adapters.get(KeyManager.KeepKey)
       if (!adapters) return
       const wallet = await (async () => {
@@ -81,10 +80,10 @@ export const KeepKeyConnect = () => {
             setErrorLoading('walletProvider.errors.walletNotFound')
             return
           }
-        return wallet
+          return wallet
         }
       })()
-      if(!wallet) return
+      if (!wallet) return
       const { name, icon } = KeepKeyConfig
       try {
         const deviceId = await wallet.getDeviceID()

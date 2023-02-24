@@ -1,6 +1,7 @@
 import { Button, Container, Flex, Link, Portal, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Link as NavLink } from 'react-router-dom'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { store } from 'state/store'
 
@@ -34,11 +35,15 @@ export const ConsentBanner: React.FC = () => {
           <RawText flex={1}>
             {translate('consentBanner.body.1')}
             {` `}
-            <Link color='blue.200'>{translate('consentBanner.body.2')}</Link>
+            <Link color='blue.200' href='https://private.shapeshift.com' isExternal target='_self'>
+              {translate('consentBanner.body.2')}
+            </Link>
             {` `}
             {translate('consentBanner.body.3')}
             {` `}
-            <Link color='blue.200'>{translate('consentBanner.body.4')}</Link>
+            <Link as={NavLink} to='/legal/privacy-policy' color='blue.200'>
+              {translate('consentBanner.body.4')}
+            </Link>
             {` `}
             {translate('consentBanner.body.5')}
           </RawText>

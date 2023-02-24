@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v11.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.1.1...@shapeshiftoss/chain-adapters-v11.1.2) (2023-02-24)
+
+
+### Bug Fixes
+
+* **chain-adapters:** field name in osmosis lp remove transaction ([#1214](https://github.com/shapeshift/lib/issues/1214)) ([6b32018](https://github.com/shapeshift/lib/commit/6b32018aed52b4bf6f4b92b716fb13f80d56bd83))
+
 # [@shapeshiftoss/chain-adapters-v11.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.1.0...@shapeshiftoss/chain-adapters-v11.1.1) (2023-02-23)
 
 

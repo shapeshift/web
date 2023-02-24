@@ -134,7 +134,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (!asset || !marketData)
+  if (!asset || !marketData || !opportunityData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -146,7 +146,7 @@ export const IdleWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: opportunityData.name,
           })}
           onBack={handleBack}
         />

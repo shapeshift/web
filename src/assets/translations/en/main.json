@@ -94,10 +94,11 @@
   },
   "consentBanner": {
     "body": {
-      "1": "We use anonymized click tracking in our DApp to analyze performance, user journeys and improve our product. If you prefer not to be tracked anonymously, visit",
-      "2": "private.shapeshift.com.",
-      "3": "By continuing on app.shapeshift.com, you agree to our tracking. For more information, please read our",
-      "4": "Privacy Policy."
+      "1": "Our DApp uses anonymized click tracking to analyze performance and improve our product. By using app.shapeshift.com, you agree to our tracking. Visit",
+      "2": "private.shapeshift.com",
+      "3": "if you don't want to be anonymously tracked. See our",
+      "4": "Privacy Policy",
+      "5": "for more details."
     }
   },
   "errorPage": {

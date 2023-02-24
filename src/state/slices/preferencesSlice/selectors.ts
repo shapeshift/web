@@ -16,3 +16,4 @@ export const selectSelectedCurrency = (state: ReduxState) => state.preferences.s
 export const selectBalanceThreshold = (state: ReduxState) => state.preferences.balanceThreshold
 export const selectCurrencyFormat = (state: ReduxState) => state.preferences.currencyFormat
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
+export const selectShowConsentBanner = (state: ReduxState) => state.preferences.showConsentBanner

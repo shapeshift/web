@@ -44,6 +44,7 @@ export type Preferences = {
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
   showWelcomeModal: boolean
+  showConsentBanner: boolean
 }
 
 const initialState: Preferences = {
@@ -74,6 +75,7 @@ const initialState: Preferences = {
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
   showWelcomeModal: false,
+  showConsentBanner: false,
 }
 
 export const preferences = createSlice({

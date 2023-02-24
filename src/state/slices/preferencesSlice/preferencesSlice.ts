@@ -79,7 +79,7 @@ const initialState: Preferences = {
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
   showWelcomeModal: false,
-  showConsentBanner: false,
+  showConsentBanner: true,
 }
 
 export const preferences = createSlice({
@@ -106,6 +106,9 @@ export const preferences = createSlice({
     },
     setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
       state.showWelcomeModal = payload.show
+    },
+    setConsentBanner(state, { payload }: { payload: { show: boolean } }) {
+      state.showConsentBanner = payload.show
     },
   },
 })

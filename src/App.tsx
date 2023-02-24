@@ -9,10 +9,11 @@ import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
-import { selectShowWelcomeModal } from 'state/slices/selectors'
+import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
   const shouldUpdate = useHasAppUpdated()
@@ -21,6 +22,8 @@ export const App = () => {
   const updateId = 'update-app'
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
+  const showConsentBanner = useSelector(selectShowConsentBanner)
+  const isConsentBannerEnabled = useFeatureFlag('ConsentBanner')
   const {
     nativeOnboard: { isOpen: isNativeOnboardOpen, open: openNativeOnboard },
   } = useModal()
@@ -61,7 +64,7 @@ export const App = () => {
 
   return (
     <>
-      <ConsentBanner />
+      {showConsentBanner && isConsentBannerEnabled && <ConsentBanner />}
       <Routes />
     </>
   )

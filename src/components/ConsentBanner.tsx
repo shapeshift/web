@@ -1,10 +1,16 @@
 import { Button, Container, Flex, Link, Portal, useColorModeValue } from '@chakra-ui/react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { store } from 'state/store'
 
 import { RawText } from './Text'
 
 export const ConsentBanner: React.FC = () => {
   const translate = useTranslate()
+  const handleDimiss = useCallback(() => {
+    store.dispatch(preferences.actions.setConsentBanner({ show: false }))
+  }, [])
   return (
     <Portal>
       <Flex
@@ -36,7 +42,9 @@ export const ConsentBanner: React.FC = () => {
             {` `}
             {translate('consentBanner.body.5')}
           </RawText>
-          <Button colorScheme='blue'>Got It</Button>
+          <Button colorScheme='blue' onClick={handleDimiss}>
+            {translate('consentBanner.cta')}
+          </Button>
         </Container>
       </Flex>
     </Portal>

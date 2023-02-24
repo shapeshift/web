@@ -435,7 +435,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   const maybeWallet = state.keyring.get(localWalletDeviceId)
                   if (maybeWallet) return maybeWallet
                   const keepKeyAdapters = state.adapters?.get(KeyManager.KeepKey)
-                  if (!keepKeyAdapters) return void disconnect()
+                  if (!keepKeyAdapters) return
                   const sdk = await setupKeepKeySDK()
                   return await keepKeyAdapters[0]?.pairDevice(sdk)
                 })()

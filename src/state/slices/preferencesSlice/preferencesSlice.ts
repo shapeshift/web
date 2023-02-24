@@ -15,6 +15,8 @@ export type FeatureFlags = {
   OsmosisLPAdditionalPools: boolean
   Optimism: boolean
   OptimismZrx: boolean
+  BnbSmartChain: boolean
+  BnbSmartChainZrx: boolean
   ThorSwap: boolean
   Pendo: boolean
   IdleFinance: boolean
@@ -54,6 +56,8 @@ const initialState: Preferences = {
     OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     OptimismZrx: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
+    BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
+    BnbSmartChainZrx: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,

@@ -2,6 +2,7 @@ import arkeoAirdrop from 'plugins/arkeo'
 import avalanche from 'plugins/avalanche'
 import bitcoin from 'plugins/bitcoin'
 import bitcoincash from 'plugins/bitcoincash'
+import bnbsmartchain from 'plugins/bnbsmartchain'
 import cosmos from 'plugins/cosmos'
 import dogecoin from 'plugins/dogecoin'
 import ethereum from 'plugins/ethereum'
@@ -30,4 +31,5 @@ export const activePlugins = [
   mobile,
   optimism,
   arkeoAirdrop,
+  bnbsmartchain,
 ]

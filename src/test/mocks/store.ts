@@ -50,6 +50,8 @@ export const mockStore: ReduxState = {
     featureFlags: {
       Optimism: false,
       OptimismZrx: false,
+      BnbSmartChain: false,
+      BnbSmartChainZrx: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,

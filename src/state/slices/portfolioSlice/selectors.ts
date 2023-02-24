@@ -3,6 +3,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   bchAssetId,
+  bscAssetId,
   btcAssetId,
   cosmosAssetId,
   dogeAssetId,
@@ -78,6 +79,7 @@ const FEE_ASSET_IDS = [
   ltcAssetId,
   avalancheAssetId,
   optimismAssetId,
+  bscAssetId,
 ]
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(

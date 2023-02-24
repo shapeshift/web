@@ -3,6 +3,7 @@ import {
   accountIdToChainId,
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
@@ -21,6 +22,7 @@ import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
+  supportsBSC,
   supportsBTC,
   supportsCosmos,
   supportsETH,
@@ -255,6 +257,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsAvalanche(wallet)
     case optimismChainId:
       return supportsOptimism(wallet)
+    case bscChainId:
+      return supportsBSC(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

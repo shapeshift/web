@@ -28,6 +28,8 @@ export type FeatureFlags = {
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
+  ConsentBanner: boolean
+  MixPanel: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -69,6 +71,8 @@ const initialState: Preferences = {
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
+    ConsentBanner: getConfig().REACT_APP_FEATURE_CONSENT_BANNER,
+    MixPanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.5.2...@shapeshiftoss/investor-idle-v2.6.0) (2023-02-24)
+
+
+### Features
+
+* **investor-idle:** expose IdleOpportunity strategy ([#1212](https://github.com/shapeshift/lib/issues/1212)) ([4fab669](https://github.com/shapeshift/lib/commit/4fab669dccec73d35519f74b32bc726809436152))
+
 # [@shapeshiftoss/investor-idle-v2.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.5.1...@shapeshiftoss/investor-idle-v2.5.2) (2023-02-23)
 
 

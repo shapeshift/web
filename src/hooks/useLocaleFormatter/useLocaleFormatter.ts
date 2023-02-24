@@ -187,14 +187,19 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         minimumFractionDigits,
         lessThanMin ? 6 : getFiatNumberFractionDigits(number),
       )
+      // Filter out undefined options caused by optional component props so they do not override the defaults
+      const filteredOptions = options
+        ? Object.fromEntries(Object.entries(options).filter(([_, value]) => value !== undefined))
+        : {}
       const formatter = new Intl.NumberFormat(deviceLocale, {
         notation: number < bounds.min || noDecimals ? 'standard' : 'compact',
         compactDisplay: fiatType || number < longCompactDisplayLowerBound ? 'short' : 'long',
         style: fiatType ? 'currency' : 'decimal',
         currency: fiatType,
         minimumFractionDigits,
+        // Force enough fractional digits to truncate it properly without rounding off below
         maximumFractionDigits: 10,
-        ...options,
+        ...filteredOptions,
       })
 
       const parts = formatter.formatToParts(formatNumber)

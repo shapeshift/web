@@ -789,8 +789,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               const adapters = await acc
               const options = getKeyManagerOptions(keyManager)
               const adapter = cur.useKeyring(state.keyring, options)
-              await adapter?.initialize?.()
-              adapters.push(adapter)
+              try {
+                await adapter?.initialize?.()
+                adapters.push(adapter)
+              } catch (e) {
+                moduleLogger.info(e, 'Error initializing HDWallet adapter')
+              }
               return acc
             }, Promise.resolve([]))
 

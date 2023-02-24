@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.3...@shapeshiftoss/swapper-v17.3.4) (2023-02-24)
+
+
+### Bug Fixes
+
+* **swapper:** unrug osmo->atom cross-chain swaps ([#1213](https://github.com/shapeshift/lib/issues/1213)) ([9548be7](https://github.com/shapeshift/lib/commit/9548be7cb1b8bb2ae723cd4534491837fb9c4fc0))
+
 # [@shapeshiftoss/swapper-v17.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.2...@shapeshiftoss/swapper-v17.3.3) (2023-02-23)
 
 

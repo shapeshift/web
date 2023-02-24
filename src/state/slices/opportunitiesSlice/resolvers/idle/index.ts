@@ -110,6 +110,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           version: opportunity.version,
           provider: DefiProvider.Idle,
           type: DefiType.Staking,
+          tags: [opportunity.strategy],
         }
       : {
           apy: opportunity.apy.toFixed(),
@@ -138,6 +139,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           ],
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
+          tags: [opportunity.strategy],
         }
   }
 

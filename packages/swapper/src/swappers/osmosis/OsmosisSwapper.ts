@@ -365,7 +365,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const cosmosAddress = isFromOsmo ? receiveAddress : sellAddress
     const signTxInput = await buildTradeTx({
       osmoAddress,
-      accountNumber: receiveAccountNumber,
+      accountNumber: isFromOsmo ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,

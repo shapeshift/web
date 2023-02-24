@@ -301,7 +301,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     tx: BuildLPRemoveTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
-      const { wallet, accountNumber, poolId, shareOutAmount, tokenOutMins } = tx
+      const { wallet, accountNumber, poolId, shareInAmount, tokenOutMins } = tx
 
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
@@ -311,7 +311,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         value: {
           sender: from,
           pool_id: poolId,
-          share_out_amount: shareOutAmount,
+          share_in_amount: shareInAmount,
           token_out_mins: tokenOutMins,
         },
       }

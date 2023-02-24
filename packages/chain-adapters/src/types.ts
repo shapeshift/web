@@ -175,15 +175,16 @@ export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, '
 
 type BuildLPTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to' | 'value'> & {
   poolId: string
-  shareOutAmount: string
 }
 
 export type BuildLPAddTxInput<T extends ChainId> = BuildLPTxInput<T> & {
   tokenInMaxs: [{ denom: string; amount: string }, { denom: string; amount: string }]
+  shareOutAmount: string
 }
 
 export type BuildLPRemoveTxInput<T extends ChainId> = BuildLPTxInput<T> & {
   tokenOutMins: [{ denom: string; amount: string }, { denom: string; amount: string }]
+  shareInAmount: string
 }
 
 export type SignTxInput<TxType> = {

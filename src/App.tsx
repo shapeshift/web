@@ -12,6 +12,7 @@ import { IconCircle } from 'components/IconCircle'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
+import { isMobile as isMobileApp } from 'lib/globals'
 import { logger } from 'lib/logger'
 import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
 
@@ -64,7 +65,7 @@ export const App = () => {
 
   return (
     <>
-      {showConsentBanner && isConsentBannerEnabled && <ConsentBanner />}
+      {showConsentBanner && isConsentBannerEnabled && !isMobileApp && <ConsentBanner />}
       <Routes />
     </>
   )

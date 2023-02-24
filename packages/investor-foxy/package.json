@@ -29,7 +29,7 @@
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",
     "axios": "^0.26.1",
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "^9.1.1",
     "lodash": "^4.17.21",
     "web3": "1.7.4",
     "web3-core": "1.7.4",

@@ -25,7 +25,7 @@
   "dependencies": {
     "axios": "^0.26.1",
     "axios-cache-adapter": "^2.7.3",
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "^9.1.1",
     "lodash": "^4.17.21",
     "retry-axios": "^2.6.0",
     "web3": "1.7.4"

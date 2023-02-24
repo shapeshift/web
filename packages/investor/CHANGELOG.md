@@ -1,3 +1,5 @@
+# [@shapeshiftoss/investor-v3.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v3.1.1...@shapeshiftoss/investor-v3.1.2) (2023-02-24)
+
 # [@shapeshiftoss/investor-v3.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-v3.1.0...@shapeshiftoss/investor-v3.1.1) (2023-02-23)
 
 

@@ -82,6 +82,7 @@ export class IdleOpportunity
    */
   readonly id: string
   readonly version: string
+  readonly strategy: string
   readonly name: string
   readonly displayName: string
   readonly isApprovalRequired: true
@@ -152,6 +153,7 @@ export class IdleOpportunity
       },
     }
     this.version = `${vault.protocolName} ${vault.strategy}`.trim()
+    this.strategy = vault.strategy
     this.name = vault.poolName
     this.displayName = vault.poolName
     this.isNew = false

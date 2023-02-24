@@ -55,33 +55,36 @@ export const KeepKeyConnect = () => {
     setError(null)
     setLoading(true)
     if (state.adapters) {
-      let wallet
+
       const adapters = state.adapters.get(KeyManager.KeepKey)
       if (!adapters) return
-
-      try {
-        const sdk = await setupKeepKeySDK()
-        wallet = await adapters[0]?.pairDevice(sdk)
-        if (!wallet) {
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          return
-        }
-      } catch (e) {
-        wallet = await adapters[1]?.pairDevice().catch(err => {
-          if (err.name === 'ConflictingApp') {
-            setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+      const wallet = await (async () => {
+        try {
+          const sdk = await setupKeepKeySDK()
+          const wallet = await adapters[0]?.pairDevice(sdk)
+          if (!wallet) {
+            setErrorLoading('walletProvider.errors.walletNotFound')
             return
           }
-          moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          return
-        })
-        if (!wallet) {
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          return
+          return wallet
+        } catch (e) {
+          const wallet = await adapters[1]?.pairDevice().catch(err => {
+            if (err.name === 'ConflictingApp') {
+              setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+              return
+            }
+            moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
+            setErrorLoading('walletProvider.errors.walletNotFound')
+            return
+          })
+          if (!wallet) {
+            setErrorLoading('walletProvider.errors.walletNotFound')
+            return
+          }
+        return wallet
         }
-      }
-
+      })()
+      if(!wallet) return
       const { name, icon } = KeepKeyConfig
       try {
         const deviceId = await wallet.getDeviceID()

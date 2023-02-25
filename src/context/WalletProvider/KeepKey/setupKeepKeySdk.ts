@@ -23,13 +23,18 @@ export const setupKeepKeySDK: SetupKeepKeySDK = async () => {
     },
   }
 
-  const sdk = await KeepKeySdk.create(config)
-
-  /**
-   * NOTE - the KeepKeySdk.create() call mutates the config it's passed in...
-   * so even though this may have been an empty string before, it might be populated now
-   */
-  config.apiKey && window.localStorage.setItem('@app/serviceKey', config.apiKey)
-
-  return sdk
+  try {
+    const sdk = await KeepKeySdk.create(config)
+    /**
+     * NOTE - the KeepKeySdk.create() call mutates the config it's passed in...
+     * so even though this may have been an empty string before, it might be populated now
+     */
+    config.apiKey && window.localStorage.setItem('@app/serviceKey', config.apiKey)
+    return sdk
+  } catch (e) {
+    /**
+     * this is expected to happen without the KK desktop client running
+     */
+    return undefined
+  }
 }

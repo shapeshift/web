@@ -421,7 +421,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               const localNativeWallet = await nativeAdapters?.[0]?.pairDevice(localWalletDeviceId)
               if (localNativeWallet) {
                 /**
-                 * This will eventually fire an event, which the native wallet
+                 * This will eventually fire an event, which the ShapeShift wallet
                  * password modal will be shown
                  */
                 await localNativeWallet.initialize()

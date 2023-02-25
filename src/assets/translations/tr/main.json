@@ -1353,7 +1353,7 @@
       },
       "onboarding": {
         "skip": "Geç",
-        "shapeShiftNativeWallet": "ShapeShift Native Cüzdanı",
+        "shapeshiftWallet": "ShapeShift Native Cüzdanı",
         "selfCustody": {
           "title": "Kişisel Velayet",
           "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",

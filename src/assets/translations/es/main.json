@@ -1353,7 +1353,7 @@
       },
       "onboarding": {
         "skip": "Saltar",
-        "shapeShiftNativeWallet": "Billetera Nativa ShapeShift",
+        "shapeshiftWallet": "Billetera Nativa ShapeShift",
         "selfCustody": {
           "title": "Auto-custodia",
           "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",

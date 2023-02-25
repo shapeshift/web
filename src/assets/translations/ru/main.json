@@ -1353,7 +1353,7 @@
       },
       "onboarding": {
         "skip": "Пропустить",
-        "shapeShiftNativeWallet": "Нативный кошелек ShapeShift",
+        "shapeshiftWallet": "Нативный кошелек ShapeShift",
         "selfCustody": {
           "title": "Самостоятельная защита ",
           "subTitle": "Ключи находятся у вас, и только вы можете получить к ним доступ.",

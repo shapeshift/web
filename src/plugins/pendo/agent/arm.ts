@@ -1,4 +1,4 @@
-import * as ssri from 'ssri'
+// import * as ssri from 'ssri'
 import { logger } from 'lib/logger'
 
 import { deferred } from '../utils'
@@ -65,25 +65,25 @@ export function armPendoAgent(
 
     const agentSrc = await originalAgent.text()
 
-    const agentIntegrity = (await ssri.fromData(agentSrc, { algorithms: ['sha256'] })).toString()
-    moduleLogger.trace({ fn: 'armPendoAgent', agentIntegrity }, 'parsing agent')
+    // const agentIntegrity = (await ssri.fromData(agentSrc, { algorithms: ['sha256'] })).toString()
+    // moduleLogger.trace({ fn: 'armPendoAgent', agentIntegrity }, 'parsing agent')
     pendoEnv.PendoConfig = pendoConfig
     Object.freeze(pendoEnv)
 
-    moduleLogger.trace(
-      {
-        fn: 'armPendoAgent',
-        parsedAgentIntegrity: agentIntegrity,
-        PendoConfig: pendoEnv.PendoConfig,
-      },
-      'loading parsed agent',
-    )
+    // moduleLogger.trace(
+    //   {
+    //     fn: 'armPendoAgent',
+    //     parsedAgentIntegrity: agentIntegrity,
+    //     PendoConfig: pendoEnv.PendoConfig,
+    //   },
+    //   'loading parsed agent',
+    // )
 
     const agentScriptNode = document.createElement('script')
     agentScriptNode.async = true
     agentScriptNode.src = URL.createObjectURL(new Blob([agentSrc], { type: 'text/javascript' }))
 
-    agentScriptNode.integrity = agentIntegrity
+    // agentScriptNode.integrity = agentIntegrity
     agentScriptNode.crossOrigin = 'anonymous'
     document.body.appendChild(agentScriptNode)
   })().then(

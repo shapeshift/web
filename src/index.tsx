@@ -11,7 +11,7 @@ import { logger } from './lib/logger'
 import { reportWebVitals } from './lib/reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
-const root = createRoot(document.getElementById('root')!)
+const root = createRoot(window.document.getElementById('root')!)
 
 root.render(
   <React.StrictMode>

@@ -86,7 +86,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   useEffect(() => {
-    require(`dayjs/locale/${selectedLocale}.js`)
+    // require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
 
   useEffect(() => {

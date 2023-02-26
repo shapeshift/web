@@ -1,4 +1,6 @@
-on: [push]
+on:
+  workflow_call:
+
 jobs:
   deploy:
     runs-on: size-bertha

@@ -1,14 +1,14 @@
 import './wdyr'
-import 'lib/polyfills'
+import './lib/polyfills'
 
-import { App } from 'App'
-import { AppProviders } from 'AppProviders'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { renderConsoleArt } from 'lib/consoleArt'
-import { logger } from 'lib/logger'
-import { reportWebVitals } from 'lib/reportWebVitals'
 
+import { App } from './App'
+import { AppProviders } from './AppProviders'
+import { renderConsoleArt } from './lib/consoleArt'
+import { logger } from './lib/logger'
+import { reportWebVitals } from './lib/reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
 const root = createRoot(document.getElementById('root')!)

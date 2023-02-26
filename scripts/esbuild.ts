@@ -54,7 +54,7 @@ const runEsbuild = async (
     sourcemap: isDev ? 'linked' : undefined,
     legalComments: isDev ? 'linked' : undefined,
     minify: !isDev,
-    format: 'iife',
+    format: 'esm',
     assetNames: 'static/media/[name].[hash]',
     charset: 'utf8',
     metafile: true,

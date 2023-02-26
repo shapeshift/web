@@ -1,0 +1,21 @@
+on: [push]
+jobs:
+  deploy:
+    runs-on: size-bertha
+    permissions:
+      contents: read
+      deployments: write
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: yarn env dev && yarn build # TODO(0xdef1cafe): use branch name
+      - name: Publish
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: web-29e # e.g. 'my-project'
+          directory: buidl # e.g. 'dist'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

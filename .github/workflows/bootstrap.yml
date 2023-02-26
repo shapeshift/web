@@ -38,3 +38,8 @@ jobs:
     name: Call
     uses: ./.github/workflows/pr.yml
     needs: [install-and-cache]
+
+  call-cloudflare-workflow:
+    name: Call
+    uses: ./.github/workflows/cloudflare.yml
+    needs: [install-and-cache]

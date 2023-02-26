@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn env dev && yarn build # TODO(0xdef1cafe): use branch name
       - name: Publish

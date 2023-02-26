@@ -8,7 +8,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 
 process.env.NODE_ENV ??= 'production'
-const isDev = process.env.NODE_ENV === 'production'
+const isDev = false // process.env.NODE_ENV === 'production'
 
 const workspacePath = path.resolve(__dirname, '..')
 const buildPath = path.join(workspacePath, 'build')

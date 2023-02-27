@@ -49,20 +49,18 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   private readonly lifi: LIFI
   private chainMap: Map<number, ChainKey> = new Map()
   private tokens: TokensResponse['tokens'] = {}
-  private readonly assetIdMap: Partial<Record<AssetId, Asset>>
 
   // describes metadata about a token and possible swaps
   // sellToken -> buyToken -> tool -> metadata
   // TODO: this needs to also be indexed by fromChainId and toChainId
   private lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>> = new Map()
 
-  constructor(assetIdMap: Partial<Record<AssetId, Asset>>) {
+  constructor() {
     const config: ConfigUpdate = {
       disableVersionCheck: true, // prevent console notifying client about updates
     }
 
     this.lifi = new LIFI(config)
-    this.assetIdMap = assetIdMap
   }
 
   /** perform any necessary async initialization */
@@ -175,14 +173,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input, this.tokens, this.assetIdMap)
+    return filterBuyAssetsBySellAssetId(input, this.tokens)
   }
 
   /**
    * Get supported sell assetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds, this.tokens, this.assetIdMap)
+    return filterAssetIdsBySellable(assetIds, this.tokens)
   }
 
   /**

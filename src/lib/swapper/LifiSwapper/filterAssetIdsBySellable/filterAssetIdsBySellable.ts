@@ -1,16 +1,17 @@
 import type { TokensResponse } from '@lifi/sdk'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export function filterAssetIdsBySellable(
   assetIds: AssetId[],
   tokens: TokensResponse['tokens'],
-  assetIdMap: Partial<Record<AssetId, Asset>>,
 ): AssetId[] {
+  const assets = selectAssets(store.getState())
   const result = assetIds.filter(id => {
-    const asset = assetIdMap[id]
+    const asset = assets[id]
 
     if (asset === undefined) return false
 

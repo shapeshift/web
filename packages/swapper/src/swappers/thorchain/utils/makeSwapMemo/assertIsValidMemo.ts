@@ -41,7 +41,10 @@ export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: st
     }
     case thorId.startsWith('GAIA.'):
       return address.startsWith('cosmos')
-    case thorId.startsWith('RUNE.'):
+    // Note that this case doesn't contain a dot
+    // See https://github.com/shapeshift/lib/blob/6b5c9c8e855ffb68d865cfae8f545e7a819a9667/packages/swapper/src/swappers/thorchain/utils/makeSwapMemo/makeSwapMemo.ts#L10
+    // RUNE isn't a pool, it is the native asset of the THORChain network
+    case thorId.startsWith('RUNE'):
       return address.startsWith('thor')
     default:
       return false

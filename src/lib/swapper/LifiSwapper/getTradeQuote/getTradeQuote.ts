@@ -5,13 +5,12 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import {
   DEFAULT_SOURCE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
 } from 'lib/swapper/LifiSwapper/utils/constants'
-import { convertPrecision } from 'lib/swapper/LifiSwapper/utils/convertPrecision/convertPrecision'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/common-selectors'

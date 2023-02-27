@@ -4395,14 +4395,14 @@
     google-protobuf "^3.17.0"
     osmojs "^0.37.0"
 
-"@shapeshiftoss/swapper@^17.3.4":
-  version "17.3.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.3.4.tgz#8991d947a6a045ef6f86129fceea167dad746085"
-  integrity sha512-vWCUaOILQ+iwQYVqoGB0M7ZueX08Z2HswetgMv3LnJ5WkCtHkUczPr7i+r6biGNB7he8MBrxcdPvIFHEN136nw==
+"@shapeshiftoss/swapper@^17.4.0":
+  version "17.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.4.0.tgz#9990e9bc0a9660f903024323193dcc4216d573d3"
+  integrity sha512-K4ZyD8+/8wXMardC8JhcAy8K2BSP6UIFk8TCbNvPDEVzQ7VbeP8DdaBTDm9o55xfEVN3qA5xDnlb6r/uzpaiJg==
   dependencies:
     axios "^0.26.1"
     axios-cache-adapter "^2.7.3"
-    bignumber.js "^9.0.2"
+    bignumber.js "^9.1.1"
     lodash "^4.17.21"
     retry-axios "^2.6.0"
     web3 "1.7.4"
@@ -7540,7 +7540,7 @@ bigint-buffer@^1.1.5:
   dependencies:
     bindings "^1.3.0"
 
-bignumber.js@*, bignumber.js@^9.0.0, bignumber.js@^9.0.1, bignumber.js@^9.0.2:
+bignumber.js@*, bignumber.js@^9.0.0, bignumber.js@^9.0.1, bignumber.js@^9.0.2, bignumber.js@^9.1.1:
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.1.tgz#c4df7dc496bd849d4c9464344c1aa74228b4dac6"
   integrity sha512-pHm4LsMJ6lzgNGVfZHjMoO8sdoRhOzOH4MLmY65Jg70bpxCKu5iOHNJyfF6OyvYw7t8Fpf35RuzUyqnQsj8Vig==

@@ -1,5 +1,11 @@
 on:
   workflow_call:
+    branches:
+    - 'develop'
+    - 'release'
+    - 'yeet'
+    - 'main'
+    - 'private'
 
 jobs:
   deploy:
@@ -19,7 +25,8 @@ jobs:
       - name: Yarn Install
         run: yarn install --frozen-lockfile
       - name: Build
-        run: yarn env dev && yarn build # TODO(0xdef1cafe): use branch name
+        # ref_name is branch name https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
+        run: yarn env ${{ github.ref_name }} && yarn build
       # - name: Publish
       #   uses: cloudflare/pages-action@1
       #   with:
@@ -28,4 +35,4 @@ jobs:
       #     projectName: web-29e # e.g. 'my-project'
       #     directory: build # e.g. 'dist'
       #     gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-      #     branch: # TODO(0xdef1cafe): use branch name from actions context
+      #     branch: ${{ github.ref_name }}

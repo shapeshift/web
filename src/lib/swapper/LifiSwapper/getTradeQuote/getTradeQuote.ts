@@ -1,5 +1,6 @@
 import type { ChainKey, LifiError, QuoteRequest, Step, Token } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
@@ -23,7 +24,7 @@ import { store } from 'state/store'
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiTokens: Token[],
-  lifiChainMap: Map<number, ChainKey>,
+  lifiChainMap: Map<ChainId, ChainKey>,
   lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
 ): Promise<TradeQuote<EvmChainId>> {
   const {
@@ -38,8 +39,8 @@ export async function getTradeQuote(
 
   const fromLifiChainId = Number(fromChainId(sellAsset.chainId).chainReference)
   const toLifiChainId = Number(fromChainId(buyAsset.chainId).chainReference)
-  const fromLifiChainKey = lifiChainMap.get(Number(fromChainId(sellAsset.chainId).chainReference))
-  const toLifiChainKey = lifiChainMap.get(Number(fromChainId(buyAsset.chainId).chainReference))
+  const fromLifiChainKey = lifiChainMap.get(sellAsset.chainId)
+  const toLifiChainKey = lifiChainMap.get(buyAsset.chainId)
   const fromLifiToken = lifiTokens.find(
     token => token.symbol === sellAsset.symbol && token.chainId === fromLifiChainId,
   )

@@ -1,7 +1,7 @@
 import type { ChainId as LifiChainId, ChainKey, Token } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId, toChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type {
@@ -46,8 +46,8 @@ const getOrHyrdate = <Key, Value>(
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
-  private chainMap: Map<LifiChainId, ChainKey> = new Map()
-  private tokens: Token[] = []
+  private lifiChainMap: Map<ChainId, ChainKey> = new Map()
+  private lifiTokens: Token[] = []
 
   // describes metadata about a token and possible swaps
   // sellToken -> buyToken -> tool -> metadata
@@ -56,25 +56,33 @@ export class LifiSwapper implements Swapper<EvmChainId> {
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
-    const supportedChainRefs = evmChainIds.map(chainId =>
-      // TODO: dont cast to number here, instead do a proper lookup
-      Number(fromChainId(chainId).chainReference),
-    ) as LifiChainId[]
-    const lifi = getLifi()
-    const supportedLifiChains = await lifi.getChains()
-    this.chainMap = new Map(
-      supportedLifiChains
-        .filter(({ chainType, id }) => chainType === 'EVM' && supportedChainRefs.includes(id))
-        .map(({ id, key }) => [id, key]),
+    const supportedChainRefs = evmChainIds.map(
+      chainId =>
+        // TODO: dont cast to number here, instead do a proper lookup
+        Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
-    // TODO: fetch tokens, chains and bridges in 1 request by adding 'tokens', chains' to the array for getPossibilities
-    const { bridges, tokens } = await lifi.getPossibilities({
-      include: ['bridges', 'tokens'],
+    const { bridges, chains, tokens } = await getLifi().getPossibilities({
+      include: ['bridges', 'chains', 'tokens'],
       chains: supportedChainRefs,
     })
 
-    this.tokens = tokens ?? []
+    if (chains !== undefined) {
+      this.lifiChainMap = new Map(
+        chains.map(({ id, key }) => {
+          const chainId = toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            // TODO: create explicit mapping instead of casting?
+            chainReference: id.toString() as ChainReference,
+          })
+          return [chainId, key]
+        }),
+      )
+    }
+
+    if (tokens !== undefined) {
+      this.lifiTokens = tokens
+    }
 
     // TODO: move this into a util
     if (bridges !== undefined) {
@@ -117,14 +125,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get a trade quote
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.tokens, this.chainMap, this.lifiToolMap)
+    return await getTradeQuote(input, this.lifiTokens, this.lifiChainMap, this.lifiToolMap)
   }
 
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
   async getUsdRate(asset: Asset): Promise<string> {
-    return await getUsdRate(asset, this.chainMap)
+    return await getUsdRate(asset, this.lifiChainMap)
   }
 
   /**
@@ -160,14 +168,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input, this.tokens)
+    return filterBuyAssetsBySellAssetId(input, this.lifiTokens)
   }
 
   /**
    * Get supported sell assetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds, this.tokens)
+    return filterAssetIdsBySellable(assetIds, this.lifiTokens)
   }
 
   /**

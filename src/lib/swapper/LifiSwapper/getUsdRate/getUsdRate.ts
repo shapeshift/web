@@ -1,11 +1,14 @@
 import type { ChainKey, LifiError, Token } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { fromChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
-export async function getUsdRate(asset: Asset, chainMap: Map<number, ChainKey>): Promise<string> {
-  const chainKey = chainMap.get(Number(fromChainId(asset.chainId).chainReference))
+export async function getUsdRate(
+  asset: Asset,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<string> {
+  const chainKey = lifiChainMap.get(asset.chainId)
 
   if (chainKey === undefined) return '0'
 

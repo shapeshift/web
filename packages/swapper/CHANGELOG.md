@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.5...@shapeshiftoss/swapper-v17.4.0) (2023-02-27)
+
+
+### Features
+
+* **swapper:** unrug THOR swaps to RUNE ([#1217](https://github.com/shapeshift/lib/issues/1217)) ([d2aa35d](https://github.com/shapeshift/lib/commit/d2aa35d572ec003d80af047c95a940ffa76c923b))
+
 # [@shapeshiftoss/swapper-v17.3.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.4...@shapeshiftoss/swapper-v17.3.5) (2023-02-24)
 
 # [@shapeshiftoss/swapper-v17.3.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.3.3...@shapeshiftoss/swapper-v17.3.4) (2023-02-24)

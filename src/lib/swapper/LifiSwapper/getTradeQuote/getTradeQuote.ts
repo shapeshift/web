@@ -1,5 +1,4 @@
 import type { ChainKey, LifiError, QuoteRequest, Step, TokensResponse } from '@lifi/sdk'
-import type LIFI from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -13,6 +12,7 @@ import {
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
 } from 'lib/swapper/LifiSwapper/utils/constants'
 import { convertPrecision } from 'lib/swapper/LifiSwapper/utils/convertPrecision/convertPrecision'
+import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
 import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/common-selectors'
 import {
@@ -26,7 +26,6 @@ export async function getTradeQuote(
   lifiTokens: TokensResponse['tokens'],
   lifiChainMap: Map<number, ChainKey>,
   lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
-  lifi: LIFI,
 ): Promise<TradeQuote<EvmChainId>> {
   const {
     chainId,
@@ -118,6 +117,8 @@ export async function getTradeQuote(
     fromAmount: thresholdedAmountCryptoLifi,
     slippage: DEFAULT_SLIPPAGE,
   }
+
+  const lifi = getLifi()
 
   const quote: Step = await lifi.getQuote(quoteRequest).catch((e: LifiError) => {
     const code = (() => {

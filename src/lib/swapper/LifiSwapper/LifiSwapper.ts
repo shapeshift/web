@@ -1,5 +1,4 @@
-import type { ChainId as LifiChainId, ChainKey, ConfigUpdate, TokensResponse } from '@lifi/sdk'
-import LIFI from '@lifi/sdk'
+import type { ChainId as LifiChainId, ChainKey, TokensResponse } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
@@ -26,6 +25,7 @@ import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuo
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
 // TODO: move into utility
 const getOrHyrdate = <Key, Value>(
@@ -46,7 +46,6 @@ const getOrHyrdate = <Key, Value>(
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
-  private readonly lifi: LIFI
   private chainMap: Map<number, ChainKey> = new Map()
   private tokens: TokensResponse['tokens'] = {}
 
@@ -55,21 +54,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   // TODO: this needs to also be indexed by fromChainId and toChainId
   private lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>> = new Map()
 
-  constructor() {
-    const config: ConfigUpdate = {
-      disableVersionCheck: true, // prevent console notifying client about updates
-    }
-
-    this.lifi = new LIFI(config)
-  }
-
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
     const supportedChainRefs = evmChainIds.map(chainId =>
       // TODO: dont cast to number here, instead do a proper lookup
       Number(fromChainId(chainId).chainReference),
     ) as LifiChainId[]
-    const chains = await this.lifi.getChains()
+    const lifi = getLifi()
+    const chains = await lifi.getChains()
     this.chainMap = new Map(
       chains
         .filter(({ chainType, id }) => chainType === 'EVM' && supportedChainRefs.includes(id))
@@ -78,10 +70,10 @@ export class LifiSwapper implements Swapper<EvmChainId> {
 
     // TODO: fetch tokens, chains and bridges in 1 request by adding 'tokens', chains' to the array for getPossibilities
     const [{ tokens }, { bridges }] = await Promise.all([
-      this.lifi.getTokens({
+      lifi.getTokens({
         chains: [...this.chainMap.keys()] as LifiChainId[],
       }),
-      this.lifi.getPossibilities({
+      lifi.getPossibilities({
         include: ['bridges'],
         chains: supportedChainRefs,
       }),
@@ -130,14 +122,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get a trade quote
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.tokens, this.chainMap, this.lifiToolMap, this.lifi)
+    return await getTradeQuote(input, this.tokens, this.chainMap, this.lifiToolMap)
   }
 
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
   async getUsdRate(asset: Asset): Promise<string> {
-    return await getUsdRate(asset, this.chainMap, this.lifi)
+    return await getUsdRate(asset, this.chainMap)
   }
 
   /**

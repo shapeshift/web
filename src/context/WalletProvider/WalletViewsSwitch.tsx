@@ -116,7 +116,7 @@ export const WalletViewsSwitch = () => {
         isOpen={modal}
         onClose={onClose}
         isCentered
-        trapFocus={false}
+        trapFocus={true}
         closeOnOverlayClick={false}
       >
         <ModalOverlay />

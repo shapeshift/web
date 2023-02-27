@@ -50,6 +50,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
           },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(walletLabel)

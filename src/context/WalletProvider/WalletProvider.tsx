@@ -166,7 +166,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet)?.ethAddress ?? '',
           },
         },
       }
@@ -226,6 +226,12 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
+      }
+    case WalletActions.SET_NATIVE_DEVICE_ID:
+      return {
+        ...state,
+        type: KeyManager.Native,
+        deviceId: action.payload.deviceId,
       }
     case WalletActions.OPEN_KEEPKEY_PIN: {
       const { showBackButton, deviceId, pinRequestType } = action.payload

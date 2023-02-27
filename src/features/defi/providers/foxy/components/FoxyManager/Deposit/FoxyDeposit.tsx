@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -89,16 +89,14 @@ export const FoxyDeposit: React.FC<{
             !isFoxyAprLoading &&
             chainAdapter &&
             foxyApi &&
-            bip44Params
+            bip44Params &&
+            accountId
           )
         )
           return
-        const { accountNumber } = bip44Params
-        const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          foxyApi.getFoxyOpportunityByStakingAddress(contractAddress),
-        ])
-        dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
+        const accountAddress = fromAccountId(accountId).account
+        const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(contractAddress)
+        dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: accountAddress })
         dispatch({
           type: FoxyDepositActionType.SET_OPPORTUNITY,
           payload: { ...foxyOpportunity, apy: foxyAprData?.foxyApr ?? '' },
@@ -116,6 +114,7 @@ export const FoxyDeposit: React.FC<{
     walletState.wallet,
     foxyAprData?.foxyApr,
     isFoxyAprLoading,
+    accountId,
   ])
 
   const handleBack = () => {

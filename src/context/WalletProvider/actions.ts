@@ -13,6 +13,8 @@ export enum WalletActions {
   SET_PROVIDER = 'SET_PROVIDER',
   SET_IS_LOCKED = 'SET_IS_LOCKED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
+  SET_NATIVE_DEVICE_ID = 'SET_NATIVE_DEVICE_ID',
+  SET_IS_UNLOCKED = 'SET_IS_UNLOCKED',
   RESET_STATE = 'RESET_STATE',
   RESET_LAST_DEVICE_INTERACTION_STATE = 'RESET_LAST_DEVICE_INTERACTION_STATE',
   SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
@@ -49,6 +51,12 @@ export type ActionTypes =
       type: WalletActions.NATIVE_PASSWORD_OPEN
       payload: {
         modal: boolean
+        deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.SET_NATIVE_DEVICE_ID
+      payload: {
         deviceId: string
       }
     }

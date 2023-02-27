@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -23,7 +23,6 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -79,11 +78,8 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       : undefined,
   )
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   useEffect(() => {
-    ;(async () => {
+    ;(() => {
       try {
         if (!earnOpportunityData) return
 
@@ -95,12 +91,11 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
             validatorAddress &&
             chainAdapter &&
             earnOpportunityData?.apy &&
-            bip44Params
+            accountId
           )
         )
           return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
+        const address = fromAccountId(accountId).account
 
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
@@ -112,7 +107,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
         moduleLogger.error(error, 'CosmosDeposit error')
       }
     })()
-  }, [bip44Params, chainId, validatorAddress, walletState.wallet, earnOpportunityData])
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData, accountId])
 
   const handleBack = () => {
     history.push({

@@ -1,10 +1,9 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
-import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { SignClientTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type {
   CustomTransactionData,
@@ -71,9 +70,4 @@ export const approveCosmosRequest = async ({
     default:
       throw new Error(getSdkError('INVALID_METHOD').message)
   }
-}
-
-export const rejectCosmosRequest = (request: SignClientTypes.EventArguments['session_request']) => {
-  const { id } = request
-  return formatJsonRpcError(id, getSdkError('USER_REJECTED_METHODS').message)
 }

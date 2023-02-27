@@ -1353,7 +1353,6 @@
       },
       "onboarding": {
         "skip": "Sauter",
-        "shapeshiftWallet": "Porte-monnaie natif ShapeShift",
         "selfCustody": {
           "title": "Auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",

@@ -1353,7 +1353,6 @@
       },
       "onboarding": {
         "skip": "Pular",
-        "shapeshiftWallet": "Carteira nativa ShapeShift",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",

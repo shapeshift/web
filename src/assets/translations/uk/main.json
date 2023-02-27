@@ -1353,7 +1353,6 @@
       },
       "onboarding": {
         "skip": "Пропустити",
-        "shapeshiftWallet": "Гаманець ShapeShift Native",
         "selfCustody": {
           "title": "Самозахист",
           "subTitle": "Ви володієте ключами, і тільки ви маєте доступ до нього.",

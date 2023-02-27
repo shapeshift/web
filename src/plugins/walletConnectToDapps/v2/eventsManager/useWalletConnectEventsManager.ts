@@ -82,6 +82,7 @@ export const useWalletConnectEventsManager = (
         // Auth
         web3wallet.off('auth_request', handleAuthRequest)
 
+        // Pairing
         pairingEvents.off('pairing_ping', pairingPingListener)
         pairingEvents.off('pairing_delete', pairingDeleteListener)
         pairingEvents.off('pairing_expire', pairingExpireListener)

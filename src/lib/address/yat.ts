@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getConfig } from 'config'
+import GraphemeSplitter from 'grapheme-splitter'
 import { toChecksumAddress } from 'web3-utils'
 
 // validate a yat
@@ -25,8 +26,15 @@ type YatResponse = {
   error: string | null
 }
 
-export const validateYat: ValidateYat = ({ value }) =>
-  Promise.resolve(/^\p{Extended_Pictographic}{1,5}$/u.test(value))
+const graphemeSplitter = new GraphemeSplitter()
+export const validateYat: ValidateYat = ({ value }) => {
+  const graphemeCount = graphemeSplitter.countGraphemes(value)
+  const isValidYatLength = graphemeCount && graphemeCount <= 5
+  if (!isValidYatLength) return Promise.resolve(false)
+  const graphemes = graphemeSplitter.splitGraphemes(value)
+  const isYat = graphemes.every(grapheme => /\p{Extended_Pictographic}/u.test(grapheme))
+  return Promise.resolve(isYat)
+}
 
 export const resolveYat: ResolveYat = async args => {
   try {

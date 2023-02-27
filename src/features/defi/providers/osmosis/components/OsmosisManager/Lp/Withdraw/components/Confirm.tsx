@@ -125,7 +125,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (!(walletState && walletState.wallet)) return
         return await chainAdapter.buildLPRemoveTransaction({
           poolId: poolData.id,
-          shareOutAmount: state.withdraw.shareOutAmountBaseUnit,
+          shareInAmount: state.withdraw.shareInAmountBaseUnit,
           tokenOutMins: [
             {
               amount: bnOrZero(state.withdraw.underlyingAsset0.amount)

@@ -1,24 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Fetcher, Token, TokenAmount } from '@uniswap/sdk'
+import type { TokenAmount } from '@uniswap/sdk'
 import type { IUniswapV2Pair } from 'contracts/__generated'
 import type { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContract } from 'contracts/contractManager'
-import type { providers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { TRADING_FEE_RATE } from './constants'
-
-export const fetchPairData = memoize(
-  async (
-    tokenA: Token,
-    tokenB: Token,
-    fetchPairData: typeof Fetcher['fetchPairData'],
-    provider: providers.Web3Provider,
-  ) => await fetchPairData(tokenA, tokenB, provider),
-)
 
 export const getToken0Volume24Hr = async ({
   blockNumber,

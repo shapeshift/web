@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { getInboundAddressDataForChain, SwapperName } from '@shapeshiftoss/swapper'
+import { getInboundAddressDataForChain } from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
@@ -28,7 +28,6 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -44,7 +43,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -63,7 +62,6 @@ export const Deposit: React.FC<DepositProps> = ({
 }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
-  const appDispatch = useAppDispatch()
   const history = useHistory()
   const translate = useTranslate()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
@@ -215,18 +213,6 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
-        const { getIsTradingActive } = getIsTradingActiveApi.endpoints
-        const { data: isTradingActive } = await appDispatch(
-          getIsTradingActive.initiate({
-            assetId,
-            swapperName: SwapperName.Thorchain,
-          }),
-        )
-
-        if (!isTradingActive) {
-          throw new Error(`THORChain pool halted for assetId: ${assetId}`)
-        }
-
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         contextDispatch({
@@ -250,8 +236,6 @@ export const Deposit: React.FC<DepositProps> = ({
       userAddress,
       opportunityData,
       contextDispatch,
-      appDispatch,
-      assetId,
       getDepositGasEstimate,
       onNext,
       toast,

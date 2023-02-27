@@ -1,6 +1,7 @@
 import type { TokensResponse } from '@lifi/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from '@shapeshiftoss/swapper'
 import { selectAssets } from 'state/slices/selectors'
@@ -18,17 +19,17 @@ export function filterBuyAssetsBySellAssetId(
 
   if (sellAsset === undefined) return []
 
-  const result = assetIds.filter(id => {
-    const buyAsset = assets[id]
+  const result = assetIds.filter(assetId => {
+    const buyAsset = assets[assetId]
 
     if (buyAsset === undefined) return false
 
-    const { chainReference } = fromAssetId(id)
+    const { chainReference } = fromAssetId(assetId)
 
     return (
       buyAsset.chainId !== sellAsset.chainId && // no same-chain swaps
-      (evmChainIds as readonly string[]).includes(buyAsset.chainId) &&
-      (evmChainIds as readonly string[]).includes(sellAsset.chainId) &&
+      evmChainIds.includes(buyAsset.chainId as EvmChainId) &&
+      evmChainIds.includes(sellAsset.chainId as EvmChainId) &&
       // TODO: dont coerce to number here, instead do a proper lookup
       tokens[Number(chainReference)].some(token => token.symbol === buyAsset.symbol)
     )

@@ -46,7 +46,7 @@ const getOrHyrdate = <Key, Value>(
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
-  private chainMap: Map<number, ChainKey> = new Map()
+  private chainMap: Map<LifiChainId, ChainKey> = new Map()
   private tokens: TokensResponse['tokens'] = {}
 
   // describes metadata about a token and possible swaps
@@ -61,9 +61,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       Number(fromChainId(chainId).chainReference),
     ) as LifiChainId[]
     const lifi = getLifi()
-    const chains = await lifi.getChains()
+    const supportedLifiChains = await lifi.getChains()
     this.chainMap = new Map(
-      chains
+      supportedLifiChains
         .filter(({ chainType, id }) => chainType === 'EVM' && supportedChainRefs.includes(id))
         .map(({ id, key }) => [id, key]),
     )

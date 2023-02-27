@@ -37,10 +37,10 @@ export async function getTradeQuote(
     accountNumber,
   } = input
 
-  const fromLifiChainId = +fromChainId(sellAsset.chainId).chainReference
-  const toLifiChainId = +fromChainId(buyAsset.chainId).chainReference
-  const fromLifiChainKey = lifiChainMap.get(+fromChainId(sellAsset.chainId).chainReference)
-  const toLifiChainKey = lifiChainMap.get(+fromChainId(buyAsset.chainId).chainReference)
+  const fromLifiChainId = Number(fromChainId(sellAsset.chainId).chainReference)
+  const toLifiChainId = Number(fromChainId(buyAsset.chainId).chainReference)
+  const fromLifiChainKey = lifiChainMap.get(Number(fromChainId(sellAsset.chainId).chainReference))
+  const toLifiChainKey = lifiChainMap.get(Number(fromChainId(buyAsset.chainId).chainReference))
   const fromLifiToken = lifiTokens[fromLifiChainId].find(token => token.symbol === sellAsset.symbol)
   const toLifiToken = lifiTokens[toLifiChainId].find(token => token.symbol === buyAsset.symbol)
 

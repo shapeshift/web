@@ -5,7 +5,7 @@ import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
 export async function getUsdRate(asset: Asset, chainMap: Map<number, ChainKey>): Promise<string> {
-  const chainKey = chainMap.get(+fromChainId(asset.chainId).chainReference)
+  const chainKey = chainMap.get(Number(fromChainId(asset.chainId).chainReference))
 
   if (chainKey === undefined) return '0'
 

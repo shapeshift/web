@@ -28,3 +28,4 @@ jobs:
       #     projectName: web-29e # e.g. 'my-project'
       #     directory: build # e.g. 'dist'
       #     gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: # TODO(0xdef1cafe): use branch name from actions context

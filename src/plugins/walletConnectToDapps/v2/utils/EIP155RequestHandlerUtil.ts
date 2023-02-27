@@ -1,5 +1,5 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
-import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -7,7 +7,6 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { SignClientTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import {
   convertNumberToHex,
@@ -147,9 +146,4 @@ export const approveEIP155Request = async ({
     default:
       throw new Error(getSdkError('INVALID_METHOD').message)
   }
-}
-
-export const rejectEIP155Request = (request: SignClientTypes.EventArguments['session_request']) => {
-  const { id } = request
-  return formatJsonRpcError(id, getSdkError('USER_REJECTED_METHODS').message)
 }

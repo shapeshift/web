@@ -6,6 +6,7 @@ import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
+import { LiveChatSupportModal } from 'components/Modals/LiveChatSupport/LiveChatSupport'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
 import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
@@ -32,6 +33,7 @@ const MODALS = {
   assetSearch: AssetSearchModal,
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
+  liveChatSupport: LiveChatSupportModal,
 }
 
 // state

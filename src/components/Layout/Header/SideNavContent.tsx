@@ -1,4 +1,4 @@
-import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
+import { ChatIcon, CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
@@ -23,6 +23,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
+  const { liveChatSupport } = useModal()
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isWalletConnectToDappsEnabled =
@@ -84,6 +85,14 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
         />
         <MainNavLink
           isCompact={isCompact}
+          size='sm'
+          onClick={() => handleClick(() => liveChatSupport.open({}))}
+          label={translate('common.liveChatSupport')}
+          leftIcon={<ChatIcon />}
+          data-test='navigation-live-chat-support-button'
+        />
+        <MainNavLink
+          isCompact={isCompact}
           as={Link}
           isExternal
           size='sm'
@@ -93,7 +102,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           data-test='navigation-join-discord-button'
         />
         <MainNavLink
-          leftIcon={<ChatIcon />}
+          leftIcon={<EditIcon />}
           isCompact={isCompact}
           as={Link}
           size='sm'

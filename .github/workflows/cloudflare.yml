@@ -14,6 +14,9 @@ jobs:
       contents: read
       deployments: write
     name: Build
+    env:
+      # ref_name is branch name https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
+      GITHUB_BRANCH_NAME: ${{ github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,8 +28,7 @@ jobs:
       - name: Yarn Install
         run: yarn install --frozen-lockfile
       - name: Build
-        # ref_name is branch name https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
-        run: yarn env ${{ github.ref_name }} && yarn build
+        run: yarn env && yarn build
       # - name: Publish
       #   uses: cloudflare/pages-action@1
       #   with:

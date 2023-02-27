@@ -123,7 +123,7 @@ export const OsmosisLpDeposit: React.FC<OsmosisDepositProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [underlyingAsset0, underlyingAsset1, translate, accountId, handleAccountIdChange])

@@ -11,7 +11,7 @@ export default function register(): Plugins {
       'walletConnect',
       {
         name: 'walletConnect',
-        featureFlag: ['WalletConnectToDapps'],
+        featureFlag: ['WalletConnectToDapps', 'WalletConnectToDappsV2'],
         icon: <WalletConnectCurrentColorIcon />,
         routes: [
           {

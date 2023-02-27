@@ -86,7 +86,11 @@
     "all": "Tout",
     "viewAll": "Tout voir",
     "slippage": "Glissement/Slippage",
-    "validator": "le validateur %{name}"
+    "best": "Meilleur",
+    "alternative": "Alternatif",
+    "validator": "le validateur %{name}",
+    "needAsset": "Besoin de %{asset} ?",
+    "buyNow": "Acheter maintenant"
   },
   "errorPage": {
     "title": "Oups !",
@@ -465,6 +469,7 @@
     "explore": "Explorer",
     "trade": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
+    "buySell": "Acheter/Vendre",
     "arkeo": "Airdrop Arkeo"
   },
   "transactionRow": {
@@ -581,6 +586,10 @@
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
     "tradeFrom": "Échanger de",
+    "from": "De",
+    "to": "À",
+    "youPay": "Vous payez",
+    "youGet": "Vous obtenez",
     "tradeTo": "Échanger en",
     "minerFee": "Frais de minage",
     "protocolFee": "Frais de protocole",
@@ -1341,6 +1350,33 @@
         "twoFactorRequired": "La 2FA est requise",
         "invalidTwoFactor": "Le code à 6 chiffres est invalide",
         "twoFactorDescription": "L'authentification à deux facteurs est activée pour votre compte. Veuillez saisir le code de votre application d'authentification."
+      },
+      "onboarding": {
+        "skip": "Sauter",
+        "shapeShiftNativeWallet": "Porte-monnaie natif ShapeShift",
+        "selfCustody": {
+          "title": "Auto-dépositaire",
+          "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
+          "body": "Un porte-monnaie auto-dépositaire signifie que vous le possédez et qu'uniquement vous avez accès à vos fonds. Votre phrase de récupération secrète est votre clé pour y accéder. Personne ne peut vous empêcher d'accéder à vos fonds.",
+          "cta": "Suivant"
+        },
+        "multiChain": {
+          "title": "Multi-chaînes",
+          "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
+          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie natif la prend en charge automatiquement.",
+          "cta": "Suivant"
+        },
+        "easyToUse": {
+          "title": "Facile à utiliser",
+          "subTitle": "Avec le porte-monnaie natif ShapeShift, vous pouvez :",
+          "trackBalance": "Suivre vos soldes",
+          "sendReceive": "Envoyer/recevoir des cryptos",
+          "buyCrypto": "Acheter des cryptos",
+          "tradeAssets": "Échanger des actifs",
+          "earnYield": "Gagnez du rendement sur vos actifs inutilisés",
+          "cta": "Acheter des cryptos",
+          "secondaryCta": "Accéder à mon tableau de bord"
+        }
       }
     },
     "selectModal": {
@@ -1681,6 +1717,11 @@
       "title": "Achetez des cryptos sans KYC",
       "body": "Achats jusqu'à 1000 $ avec Apple Pay",
       "cta": "Achetez maintenant"
+    },
+    "savers": {
+      "title": "Gagner des récompenses sur vos %{asset}",
+      "body": "Misez dans les THORChain Savers Vaults. Sans temps de blocage.",
+      "cta": "Déposer maintenant"
     }
   },
   "arkeo": {

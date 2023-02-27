@@ -1,5 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -17,23 +18,21 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectMarketDataById,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { OsmosisDepositActionType } from '../LpDepositCommon'
 import { DepositContext } from '../LpDepositContext'
 
-export const Status = () => {
+type StatusProps = {
+  accountId: AccountId | undefined
+}
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId } = query
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const opportunity = state?.opportunity
 
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
@@ -53,7 +52,6 @@ export const Status = () => {
   if (!underlyingAsset1)
     throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
 
-  const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {

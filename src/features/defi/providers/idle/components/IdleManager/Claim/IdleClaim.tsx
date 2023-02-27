@@ -15,7 +15,12 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectStakingOpportunitiesById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimContext } from './ClaimContext'
@@ -50,6 +55,12 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
 
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
+  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
+  const opportunityMetadata = useMemo(
+    () => opportunitiesMetadata[assetId as StakingId],
+    [assetId, opportunitiesMetadata],
+  )
+
   // user info
   const handleBack = useCallback(() => {
     history.push({
@@ -78,7 +89,7 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
     // We only need this to update on symbol change
   }, [accountId, translate, underlyingAsset.symbol])
 
-  if (!asset || !marketData)
+  if (!asset || !marketData || !opportunityMetadata)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -90,7 +101,7 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.claim.claimFrom', {
-            opportunity: `${underlyingAsset.symbol} Vault`,
+            opportunity: opportunityMetadata.name,
           })}
           onBack={handleBack}
         />

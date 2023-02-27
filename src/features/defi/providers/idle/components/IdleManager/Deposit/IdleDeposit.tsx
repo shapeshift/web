@@ -142,7 +142,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
 
   const value = useMemo(() => ({ state, dispatch }), [state])
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData || !opportunityData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
@@ -154,7 +154,7 @@ export const IdleDeposit: React.FC<IdleDepositProps> = ({
     <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          title={translate('modals.deposit.depositInto', { opportunity: opportunityData.name })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

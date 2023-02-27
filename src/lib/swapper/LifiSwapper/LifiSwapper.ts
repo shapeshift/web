@@ -1,4 +1,4 @@
-import type { ChainId as LifiChainId, ChainKey, TokensResponse } from '@lifi/sdk'
+import type { ChainId as LifiChainId, ChainKey, Token } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
@@ -47,7 +47,7 @@ const getOrHyrdate = <Key, Value>(
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
   private chainMap: Map<LifiChainId, ChainKey> = new Map()
-  private tokens: TokensResponse['tokens'] = {}
+  private tokens: Token[] = []
 
   // describes metadata about a token and possible swaps
   // sellToken -> buyToken -> tool -> metadata
@@ -69,17 +69,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     )
 
     // TODO: fetch tokens, chains and bridges in 1 request by adding 'tokens', chains' to the array for getPossibilities
-    const [{ tokens }, { bridges }] = await Promise.all([
-      lifi.getTokens({
-        chains: [...this.chainMap.keys()] as LifiChainId[],
-      }),
-      lifi.getPossibilities({
-        include: ['bridges'],
-        chains: supportedChainRefs,
-      }),
-    ])
+    const { bridges, tokens } = await lifi.getPossibilities({
+      include: ['bridges', 'tokens'],
+      chains: supportedChainRefs,
+    })
 
-    this.tokens = tokens
+    this.tokens = tokens ?? []
 
     // TODO: move this into a util
     if (bridges !== undefined) {

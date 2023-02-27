@@ -1,4 +1,4 @@
-import type { TokensResponse } from '@lifi/sdk'
+import type { Token } from '@lifi/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -9,7 +9,7 @@ import { store } from 'state/store'
 
 export function filterBuyAssetsBySellAssetId(
   input: BuyAssetBySellIdInput,
-  tokens: TokensResponse['tokens'],
+  tokens: Token[],
 ): AssetId[] {
   const { assetIds = [], sellAssetId } = input
 
@@ -31,7 +31,9 @@ export function filterBuyAssetsBySellAssetId(
       evmChainIds.includes(buyAsset.chainId as EvmChainId) &&
       evmChainIds.includes(sellAsset.chainId as EvmChainId) &&
       // TODO: dont coerce to number here, instead do a proper lookup
-      tokens[Number(chainReference)].some(token => token.symbol === buyAsset.symbol)
+      tokens.some(
+        token => token.symbol === buyAsset.symbol && token.chainId === Number(chainReference),
+      )
     )
   })
 

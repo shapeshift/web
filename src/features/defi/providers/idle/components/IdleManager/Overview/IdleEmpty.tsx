@@ -91,6 +91,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const { open: openFiatRamp } = useModal().fiatRamps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
+  const bgImage = useColorModeValue('none', IdleBg)
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const cryptoBalance =
     useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
@@ -185,7 +186,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   return (
     <SlideTransition>
       <DefiModalContent
-        backgroundImage={IdleBg}
+        backgroundImage={bgImage}
         backgroundSize='cover'
         backgroundPosition='center -120px'
         backgroundRepeat='no-repeat'

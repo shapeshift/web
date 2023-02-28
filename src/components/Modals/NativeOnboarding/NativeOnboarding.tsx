@@ -40,7 +40,7 @@ export const NativeOnboarding = () => {
       <ModalContent>
         <ModalHeader display='flex' alignItems='center' justifyContent='space-between'>
           <Tag size='sm' colorScheme='blue'>
-            {translate('walletProvider.shapeShift.onboarding.shapeShiftNativeWallet')}
+            {translate('walletProvider.shapeShift.onboarding.shapeshiftWallet')}
           </Tag>
           <Button size='sm' onClick={handleClose} variant='ghost'>
             {translate('common.skip')}

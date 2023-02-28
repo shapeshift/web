@@ -1,11 +1,12 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Context, Dispatch, FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useReducer } from 'react'
 import type { DisplayFeeData, TradeAsset } from 'components/Trade/types'
 
-export type SwapperState<C extends ChainId = ChainId> = {
+export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
   quote?: TradeQuote<C>
   buyTradeAsset?: TradeAsset
@@ -20,6 +21,7 @@ export type SwapperState<C extends ChainId = ChainId> = {
   buyAssetFiatRate?: string
   feeAssetFiatRate?: string
   fees?: DisplayFeeData<C>
+  trade?: Trade<C> | CowTrade<C>
 }
 
 export enum SwapperActionType {
@@ -60,7 +62,7 @@ export type SwapperAction =
       }
     }
 
-export type SwapperContextType<T extends ChainId = ChainId> = {
+export type SwapperContextType<T extends KnownChainIds = KnownChainIds> = {
   state: SwapperState<T>
   dispatch: Dispatch<SwapperAction>
 }
@@ -125,7 +127,7 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
 
 const SwapperContext = createContext<SwapperContextType | undefined>(undefined)
 
-export function useSwapperState<T extends ChainId = ChainId>() {
+export function useSwapperState<T extends KnownChainIds = KnownChainIds>() {
   const context = useContext<SwapperContextType<T> | undefined>(
     SwapperContext as Context<SwapperContextType<T> | undefined>,
   )

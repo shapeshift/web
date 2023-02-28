@@ -4,7 +4,6 @@ import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   type BuildTradeInput,
-  type CowTrade,
   type GetTradeQuoteInput,
   type QuoteFeeData,
   type Trade,
@@ -31,16 +30,15 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
   networkFeeCryptoHuman: string
 }
 
-export type TradeState<C extends ChainId> = {
+export type TradeState = {
   action: TradeAmountInputField | undefined
   isExactAllowance?: boolean
-  trade?: Trade<C> | CowTrade<C>
   amount: string
   slippage: string
   isSendMax: boolean
 }
 
-export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>
+export type TS = TradeState
 
 export enum TradeRoutePaths {
   Input = '/trade/input',

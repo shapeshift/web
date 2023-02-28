@@ -57,6 +57,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         sellAssetFiatRate: undefined,
         buyAssetFiatRate: undefined,
         feeAssetFiatRate: undefined,
+        trade: undefined,
       }
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
@@ -72,7 +73,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       }
       methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('trade', undefined)
       methods.setValue('isSendMax', false)
     })()
   }, [

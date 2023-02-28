@@ -25,7 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -53,7 +53,7 @@ export const Approval = () => {
     handleSubmit,
     control,
     formState: { isSubmitting },
-  } = useFormContext<TS<EvmChainId>>()
+  } = useFormContext<TS>()
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
@@ -64,7 +64,7 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const { quote, feeAssetFiatRate, fees } = useSwapperState<EvmChainId>()
+  const { dispatch: dispatchSwapper, quote, feeAssetFiatRate, fees } = useSwapperState<EvmChainId>()
 
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
 
@@ -113,7 +113,7 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        setValue('trade', trade as TS<EvmChainId>['trade'])
+        dispatchSwapper({ type: SwapperActionType.SET_VALUES, payload: { trade } })
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
@@ -123,11 +123,11 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
+    dispatchSwapper,
     getTrade,
     history,
     isConnected,
     quote,
-    setValue,
     showErrorToast,
   ])
 

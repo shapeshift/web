@@ -74,9 +74,14 @@ export const useTradeRoutes = (): {
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
       setValue('amount', '0')
-      swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          quote: undefined,
+          trade: undefined,
+        },
+      })
       swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
-      setValue('trade', undefined)
       setValue('isSendMax', false)
 
       history.push(TradeRoutePaths.Input)

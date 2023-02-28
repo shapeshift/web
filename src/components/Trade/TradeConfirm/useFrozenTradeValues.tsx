@@ -8,7 +8,6 @@ import type { TS } from 'components/Trade/types'
 
 export const useFrozenTradeValues = () => {
   const { control } = useFormContext<TS>()
-  const formTrade = useWatch({ control, name: 'trade' })
   const formSlippage = useWatch({ control, name: 'slippage' })
 
   const {
@@ -19,11 +18,12 @@ export const useFrozenTradeValues = () => {
     feeAssetFiatRate: stateFeeAssetFiatRate,
     buyAssetFiatRate: stateBuyAssetFiatRate,
     fees: formFees,
+    trade: formTrade,
   } = useSwapperState()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
-  const [frozenTrade, setFrozenTrade] = useState<TS['trade']>()
+  const [frozenTrade, setFrozenTrade] = useState<SwapperState['trade']>()
   const [frozenFees, setFrozenFees] = useState<SwapperState['fees']>()
   const [frozenSellAssetFiatRate, setFrozenSellAssetFiatRate] =
     useState<SwapperState['sellAssetFiatRate']>()

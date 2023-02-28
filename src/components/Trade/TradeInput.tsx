@@ -3,7 +3,6 @@ import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } fro
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -69,7 +68,6 @@ export const TradeInput = () => {
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
   } = useSwapper()
-  const { dispatch: swapperDispatch, receiveAddress } = useSwapperState()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -82,12 +80,13 @@ export const TradeInput = () => {
   const { handleAssetClick } = useTradeRoutes()
 
   const {
-    dispatch,
+    dispatch: swapperDispatch,
     sellAssetAccountId,
     buyAssetAccountId,
     feeAssetFiatRate,
     fiatSellAmount,
     fiatBuyAmount,
+    receiveAddress,
   } = useSwapperState()
 
   // Watched form fields
@@ -187,7 +186,7 @@ export const TradeInput = () => {
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      dispatch({
+      swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
           buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
@@ -196,25 +195,23 @@ export const TradeInput = () => {
           fiatBuyAmount: '0',
           buyAssetFiatRate: currentValues.sellAssetFiatRate,
           sellAssetFiatRate: currentValues.buyAssetFiatRate,
+          // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
           feeAssetFiatRate: undefined,
           quote: undefined,
           fees: undefined,
+          trade: undefined,
         },
       })
-
-      // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
-      setValue('trade', undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
   }, [
     buyAssetFiatRate,
     buyTradeAsset,
-    dispatch,
+    swapperDispatch,
     getValues,
     sellAssetFiatRate,
     sellTradeAsset,
-    setValue,
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
@@ -226,7 +223,7 @@ export const TradeInput = () => {
       sellAssetBalanceCrypto,
     )
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
-    dispatch({
+    swapperDispatch({
       type: SwapperActionType.SET_VALUES,
       payload: {
         sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
@@ -245,7 +242,7 @@ export const TradeInput = () => {
     })
   }, [
     buyTradeAsset?.asset?.assetId,
-    dispatch,
+    swapperDispatch,
     quote,
     sellAssetBalanceCrypto,
     sellFeeAsset,
@@ -255,7 +252,7 @@ export const TradeInput = () => {
   ])
 
   const onSubmit = useCallback(
-    async (values: TradeState<KnownChainIds>) => {
+    async (values: TradeState) => {
       setIsLoading(true)
       moduleLogger.info(values, 'debugging logger')
       try {
@@ -265,7 +262,7 @@ export const TradeInput = () => {
           return
         }
         const trade = await getTrade()
-        setValue('trade', trade)
+        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
         history.push({ pathname: TradeRoutePaths.Confirm })
       } catch (e) {
         moduleLogger.error(e, 'onSubmit error')
@@ -273,7 +270,7 @@ export const TradeInput = () => {
         setIsLoading(false)
       }
     },
-    [checkApprovalNeeded, getTrade, history, setValue],
+    [checkApprovalNeeded, getTrade, history, swapperDispatch],
   )
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

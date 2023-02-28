@@ -67,7 +67,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           acc[assetId].fiatRewardsAmount = '0'
           if (cur.type === DefiType.Staking) {
             const stakingOpportunity = cur as StakingEarnOpportunityType
-            const rewardsFiatAmount = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
+            const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
               (sum, assetId, index) => {
                 const asset = assets[assetId]
                 if (!asset) return sum

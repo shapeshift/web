@@ -3,7 +3,7 @@ on:
 
 jobs:
   deploy:
-    if: contains(fromJSON('['develop', 'release', 'yeet', 'main', 'private']'), github.ref_name)
+    if: contains(fromJSON('["develop", "release", "yeet", "main", "private"]'), github.ref_name)
     runs-on: size-bertha
     permissions:
       contents: read

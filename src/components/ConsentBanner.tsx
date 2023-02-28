@@ -16,7 +16,7 @@ export const ConsentBanner: React.FC = () => {
     <Portal>
       <Flex
         zIndex='banner'
-        bg={useColorModeValue('white', 'gray.700')}
+        bg={useColorModeValue('white', 'blue.900')}
         position='fixed'
         bottom={0}
         left={0}
@@ -27,12 +27,12 @@ export const ConsentBanner: React.FC = () => {
         <Container
           display='flex'
           flexDir={{ base: 'column', md: 'row' }}
-          py={4}
+          py={6}
           maxWidth='container.xl'
           alignItems={{ base: 'flex-start', md: 'center' }}
           gap={4}
         >
-          <RawText flex={1}>
+          <RawText flex={1} fontSize='sm' fontWeight='medium' letterSpacing='0.02em'>
             {translate('consentBanner.body.1')}
             {` `}
             <Link color='blue.200' href='https://private.shapeshift.com' isExternal target='_self'>

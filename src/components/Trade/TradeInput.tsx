@@ -5,7 +5,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
@@ -71,7 +71,7 @@ export const TradeInput = () => {
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { control, setValue, getValues, handleSubmit } = useFormContext<TS>()
+  const { setValue, getValues, handleSubmit } = useFormContext<TS>()
   const {
     state: { wallet },
   } = useWallet()
@@ -87,13 +87,14 @@ export const TradeInput = () => {
     fiatSellAmount,
     fiatBuyAmount,
     receiveAddress,
+    slippage,
+    quote,
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    fees,
   } = useSwapperState()
-
-  // Watched form fields
-  const slippage = useWatch({ control, name: 'slippage' })
-
-  const { quote, sellTradeAsset, buyTradeAsset, sellAssetFiatRate, buyAssetFiatRate, fees } =
-    useSwapperState()
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -153,10 +154,15 @@ export const TradeInput = () => {
 
   const handleInputChange = useCallback(
     async (action: TradeAmountInputField, amount: string) => {
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          action,
+          // If we've overridden the input we are no longer in sendMax mode
+          isSendMax: false,
+        },
+      })
       setValue('amount', amount)
-      setValue('action', action)
-      // If we've overridden the input we are no longer in sendMax mode
-      setValue('isSendMax', false)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -165,6 +171,7 @@ export const TradeInput = () => {
       }
     },
     [
+      swapperDispatch,
       setValue,
       isSwapperApiPending,
       quoteAvailableForCurrentAssetPair,
@@ -222,15 +229,15 @@ export const TradeInput = () => {
       quote,
       sellAssetBalanceCrypto,
     )
-    setValue('action', TradeAmountInputField.SELL_CRYPTO)
     swapperDispatch({
       type: SwapperActionType.SET_VALUES,
       payload: {
         sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
+        action: TradeAmountInputField.SELL_CRYPTO,
+        isSendMax: true,
       },
     })
     setValue('amount', maxSendAmount)
-    setValue('isSendMax', true)
 
     // We need to get a fresh quote with the sendMax flag true
     await setTradeAmountsRefetchData({

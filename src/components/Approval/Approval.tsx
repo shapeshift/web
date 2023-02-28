@@ -15,7 +15,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -49,9 +49,7 @@ export const Approval = () => {
   const translate = useTranslate()
 
   const {
-    setValue,
     handleSubmit,
-    control,
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
@@ -64,9 +62,13 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const { dispatch: dispatchSwapper, quote, feeAssetFiatRate, fees } = useSwapperState<EvmChainId>()
-
-  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
+  const {
+    dispatch: swapperDispatch,
+    quote,
+    feeAssetFiatRate,
+    fees,
+    isExactAllowance,
+  } = useSwapperState<EvmChainId>()
 
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -77,6 +79,12 @@ export const Approval = () => {
   const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
     bn(10).pow(sellFeeAsset?.precision ?? 0),
   )
+
+  const handleExactAllowanceToggle = () =>
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: { isExactAllowance: !isExactAllowance },
+    })
 
   const approveContract = useCallback(async () => {
     if (!quote) {
@@ -113,7 +121,7 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        dispatchSwapper({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
@@ -123,7 +131,7 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
-    dispatchSwapper,
+    swapperDispatch,
     getTrade,
     history,
     isConnected,
@@ -223,7 +231,7 @@ export const Approval = () => {
                     size='sm'
                     mx={2}
                     isChecked={isExactAllowance}
-                    onChange={() => setValue('isExactAllowance', !isExactAllowance)}
+                    onChange={handleExactAllowanceToggle}
                   />
                   <Text
                     color={isExactAllowance ? 'white' : 'gray.500'}

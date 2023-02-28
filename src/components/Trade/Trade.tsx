@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
@@ -26,10 +25,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     mode: 'onChange',
     defaultValues: {
       amount: '0',
-      isExactAllowance: false,
-      slippage: DEFAULT_SLIPPAGE,
-      action: TradeAmountInputField.SELL_CRYPTO,
-      isSendMax: false,
     },
   })
 
@@ -42,7 +37,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const result = await getDefaultAssets()
       if (!result) return
       const { buyAsset, sellAsset } = result
-      const swapperState: SwapperState = {
+      const swapperState: Partial<SwapperState> = {
         sellTradeAsset: {
           asset: sellAsset,
           amountCryptoPrecision: '0',
@@ -58,6 +53,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         buyAssetFiatRate: undefined,
         feeAssetFiatRate: undefined,
         trade: undefined,
+        action: TradeAmountInputField.SELL_FIAT,
+        isExactAllowance: false,
       }
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
@@ -71,9 +68,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         // Else, we know the default values have been set, so don't run this again unless the route changes
         setHasSetDefaultValues(true)
       }
-      methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('isSendMax', false)
     })()
   }, [
     defaultBuyAssetId,

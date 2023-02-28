@@ -2,9 +2,11 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import type { Context, Dispatch, FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useReducer } from 'react'
 import type { DisplayFeeData, TradeAsset } from 'components/Trade/types'
+import { TradeAmountInputField } from 'components/Trade/types'
 
 export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
@@ -22,6 +24,10 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   feeAssetFiatRate?: string
   fees?: DisplayFeeData<C>
   trade?: Trade<C> | CowTrade<C>
+  action?: TradeAmountInputField | undefined
+  isExactAllowance?: boolean
+  slippage: string
+  isSendMax: boolean
 }
 
 export enum SwapperActionType {
@@ -139,7 +145,17 @@ export function useSwapperState<T extends KnownChainIds = KnownChainIds>() {
 }
 
 export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [state, dispatch] = useReducer(swapperReducer, {})
+  const [state, dispatch] = useReducer(swapperReducer, {
+    // amount: '0',
+    isExactAllowance: false,
+    slippage: DEFAULT_SLIPPAGE,
+    action: TradeAmountInputField.SELL_CRYPTO,
+    isSendMax: false,
+    sellTradeAsset: { amountCryptoPrecision: '0' },
+    buyTradeAsset: { amountCryptoPrecision: '0' },
+    fiatSellAmount: '0',
+    fiatBuyAmount: '0',
+  })
 
   const value: SwapperContextType = useMemo(() => ({ state, dispatch }), [state])
   // all services would go here, and receive the dispatch function and state

@@ -31,11 +31,7 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
 }
 
 export type TradeState = {
-  action: TradeAmountInputField | undefined
-  isExactAllowance?: boolean
   amount: string
-  slippage: string
-  isSendMax: boolean
 }
 
 export type TS = TradeState

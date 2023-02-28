@@ -22,13 +22,10 @@ The Trade Quote Service is responsible for reacting to changes to trade assets a
 The only mutation is on TradeState's quote property.
 */
 export const useTradeQuoteService = () => {
-  // Form hooks
   const { control, setValue } = useFormContext<TS>()
-  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId } = useSwapperState()
   const amount = useWatch({ control, name: 'amount' })
-  const action = useWatch({ control, name: 'action' })
-  const isSendMax = useWatch({ control, name: 'isSendMax' })
-  const { quote } = useSwapperState()
+  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, action, isSendMax, quote } =
+    useSwapperState()
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -37,7 +34,7 @@ export const useTradeQuoteService = () => {
   // State
   const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-  const { dispatch, receiveAddress } = useSwapperState()
+  const { dispatch: swapperDispatch, receiveAddress } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -112,25 +109,31 @@ export const useTradeQuoteService = () => {
 
   // Update trade quote
   useEffect(
-    () => dispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote }),
-    [tradeQuote, setValue, dispatch],
+    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } }),
+    [tradeQuote, swapperDispatch],
   )
 
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
     () =>
-      setValue(
-        'slippage',
-        tradeQuote?.recommendedSlippage ? tradeQuote.recommendedSlippage : DEFAULT_SLIPPAGE,
-      ),
-    [tradeQuote, setValue],
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          slippage: tradeQuote?.recommendedSlippage
+            ? tradeQuote.recommendedSlippage
+            : DEFAULT_SLIPPAGE,
+        },
+      }),
+    [tradeQuote, swapperDispatch],
   )
 
   // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
     // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote && tradeQuote && dispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote })
-  }, [dispatch, quote, setValue, tradeQuote])
+    !quote &&
+      tradeQuote &&
+      swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote })
+  }, [swapperDispatch, quote, tradeQuote])
 
   return {
     isLoadingTradeQuote,

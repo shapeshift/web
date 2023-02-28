@@ -32,8 +32,6 @@ export const useTradeAmounts = () => {
   // Form hooks
   const { control } = useFormContext<TS>()
   const amountFormState = useWatch({ control, name: 'amount' })
-  const actionFormState = useWatch({ control, name: 'action' })
-  const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
 
   // Hooks
   const featureFlags = useAppSelector(selectFeatureFlags)
@@ -45,6 +43,8 @@ export const useTradeAmounts = () => {
     sellTradeAsset,
     buyTradeAsset,
     fees: feesFormState,
+    action: actionFormState,
+    isSendMax: isSendMaxFormState,
   } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet

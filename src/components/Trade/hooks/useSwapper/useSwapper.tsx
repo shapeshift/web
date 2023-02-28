@@ -3,7 +3,6 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import { type Swapper, SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
@@ -15,7 +14,6 @@ import {
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,13 +32,8 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
   const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, buyAssetAccountId } = useSwapperState()
-  const { quote } = useSwapperState()
-  const isSendMax = useWatch({ control, name: 'isSendMax' })
-  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
-  const slippage = useWatch({ control, name: 'slippage' })
+  const { quote, isSendMax, isExactAllowance, slippage } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

@@ -190,8 +190,8 @@ export const useGetTradeAmounts = () => {
     buyAssetFiatRate: buyAssetUsdRate,
     sellAssetFiatRate: sellAssetUsdRate,
     fees,
+    action,
   } = useSwapperState()
-  const action = useWatch({ control, name: 'action' })
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 

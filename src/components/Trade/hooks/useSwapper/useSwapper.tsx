@@ -36,8 +36,7 @@ It does not mutate state.
 export const useSwapper = () => {
   // Form hooks
   const { control } = useFormContext<TS>()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
   const { quote } = useSwapperState()
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })

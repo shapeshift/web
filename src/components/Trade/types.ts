@@ -32,12 +32,10 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
 }
 
 export type TradeState<C extends ChainId> = {
-  sellTradeAsset: TradeAsset | undefined
   sellAssetAccountId: AccountId | undefined
   buyAssetAccountId: AccountId | undefined
   selectedSellAssetAccountId?: AccountId
   selectedBuyAssetAccountId?: AccountId
-  buyTradeAsset: TradeAsset | undefined
   fiatSellAmount: string
   fiatBuyAmount: string
   sellAssetFiatRate?: string
@@ -46,12 +44,10 @@ export type TradeState<C extends ChainId> = {
   fees?: DisplayFeeData<C>
   action: TradeAmountInputField | undefined
   isExactAllowance?: boolean
-  quote?: TradeQuote<C>
   trade?: Trade<C> | CowTrade<C>
   /** @deprecated use native react hook form errors instead */
   quoteError: string | null
   amount: string
-  receiveAddress: string | null // TODO: Implement
   slippage: string
   isSendMax: boolean
 }

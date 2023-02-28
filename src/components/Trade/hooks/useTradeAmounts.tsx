@@ -33,8 +33,7 @@ export const useTradeAmounts = () => {
   const { control, setValue } = useFormContext<TS>()
   const buyAssetFiatRateFormState = useWatch({ control, name: 'buyAssetFiatRate' })
   const sellAssetFiatRateFormState = useWatch({ control, name: 'sellAssetFiatRate' })
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
   const feesFormState = useWatch({ control, name: 'fees' })
   const amountFormState = useWatch({ control, name: 'amount' })
   const actionFormState = useWatch({ control, name: 'action' })
@@ -88,10 +87,15 @@ export const useTradeAmounts = () => {
       )
       setValue('fiatSellAmount', fiatSellAmount)
       setValue('fiatBuyAmount', fiatBuyAmount)
-      setValue('buyTradeAsset.amountCryptoPrecision', buyTradeAssetAmount)
-      setValue('sellTradeAsset.amountCryptoPrecision', sellTradeAssetAmount)
+      swapperDispatch({
+        type: SwapperActionType.SET_TRADE_AMOUNTS,
+        payload: {
+          buyAmountCryptoPrecision: buyTradeAssetAmount,
+          sellAmountCryptoPrecision: sellTradeAssetAmount,
+        },
+      })
     },
-    [setValue],
+    [setValue, swapperDispatch],
   )
 
   // Use the existing fiat rates and quote without waiting for fresh data
@@ -145,11 +149,17 @@ export const useTradeAmounts = () => {
       switch (action) {
         case TradeAmountInputField.SELL_FIAT:
         case TradeAmountInputField.SELL_CRYPTO:
-          setValue('sellTradeAsset.amountCryptoPrecision', amount)
+          swapperDispatch({
+            type: SwapperActionType.SET_TRADE_AMOUNTS,
+            payload: { sellAmountCryptoPrecision: amount },
+          })
           break
         case TradeAmountInputField.BUY_FIAT:
         case TradeAmountInputField.BUY_CRYPTO:
-          setValue('buyTradeAsset.amountCryptoPrecision', amount)
+          swapperDispatch({
+            type: SwapperActionType.SET_TRADE_AMOUNTS,
+            payload: { buyAmountCryptoPrecision: amount },
+          })
           break
         default:
           break
@@ -270,15 +280,15 @@ export const useTradeAmounts = () => {
       wallet,
       assets,
       getReceiveAddressFromBuyAsset,
-      sellTradeAsset?.amountCryptoPrecision,
+      sellTradeAsset,
       isSendMaxFormState,
       appDispatch,
       getAvailableSwappers,
       featureFlags,
       getTradeQuote,
       getUsdRates,
-      setValue,
       swapperDispatch,
+      setValue,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
     ],

@@ -19,7 +19,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const location = useLocation()
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
 
-  const { dispatch } = useSwapperState()
+  const { dispatch: swapperDispatch } = useSwapperState()
 
   const methods = useForm<TS>({
     mode: 'onChange',
@@ -27,8 +27,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
       amount: '0',
-      sellTradeAsset: { amountCryptoPrecision: '0' },
-      buyTradeAsset: { amountCryptoPrecision: '0' },
       isExactAllowance: false,
       slippage: DEFAULT_SLIPPAGE,
       action: TradeAmountInputField.SELL_CRYPTO,
@@ -45,8 +43,20 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const result = await getDefaultAssets()
       if (!result) return
       const { buyAsset, sellAsset } = result
-      methods.setValue('sellTradeAsset.asset', sellAsset)
-      methods.setValue('buyTradeAsset.asset', buyAsset)
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          sellTradeAsset: {
+            asset: sellAsset,
+            amountCryptoPrecision: '0',
+          },
+          buyTradeAsset: {
+            asset: buyAsset,
+            amountCryptoPrecision: '0',
+          },
+          quote: undefined,
+        },
+      })
       const defaultAssetsAreChainDefaults =
         sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
@@ -57,11 +67,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       }
       methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('sellTradeAsset.amountCryptoPrecision', '0')
-      methods.setValue('buyTradeAsset.amountCryptoPrecision', '0')
       methods.setValue('fiatBuyAmount', '0')
       methods.setValue('fiatSellAmount', '0')
-      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       methods.setValue('trade', undefined)
       methods.setValue('sellAssetFiatRate', undefined)
       methods.setValue('buyAssetFiatRate', undefined)
@@ -77,7 +84,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
-    dispatch,
+    swapperDispatch,
   ])
 
   if (!methods) return null

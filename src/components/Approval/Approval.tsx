@@ -25,6 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -63,7 +64,9 @@ export const Approval = () => {
     dispatch,
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
-  const { quote, fees } = getValues()
+  const { fees } = getValues()
+
+  const { quote } = useSwapperState()
 
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })

@@ -17,7 +17,7 @@ export const useReceiveAddress = () => {
   // Form hooks
   const { control } = useFormContext<TS>()
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const { buyTradeAsset } = useSwapperState()
 
   // Hooks
   const wallet = useWallet().state.wallet

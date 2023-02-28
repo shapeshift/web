@@ -9,6 +9,7 @@ import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import type { TradeState } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WithBackButton } from 'components/Trade/WithBackButton'
@@ -17,8 +18,9 @@ import { useAppSelector } from 'state/store'
 
 export const SelectAccount = () => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState<KnownChainIds>>()
-  const assetId = getValues('sellTradeAsset')?.asset?.assetId
+  const { setValue } = useFormContext<TradeState<KnownChainIds>>()
+  const { sellTradeAsset } = useSwapperState()
+  const assetId = sellTradeAsset?.asset?.assetId
   const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))

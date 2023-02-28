@@ -17,7 +17,7 @@ export const useFeesService = () => {
   const { control, setValue } = useFormContext<TS>()
   const trade = useWatch({ control, name: 'trade' })
   const { quote } = useSwapperState()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
+  const { sellTradeAsset } = useSwapperState()
 
   // Hooks
   const { bestTradeSwapper } = useSwapper()

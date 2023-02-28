@@ -16,12 +16,9 @@ export const useTradeRoutes = (): {
   handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TS>()
+  const { setValue } = useFormContext<TS>()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
-  const { dispatch } = useSwapperState()
-
-  const buyTradeAsset = getValues('buyTradeAsset')
-  const sellTradeAsset = getValues('sellTradeAsset')
+  const { dispatch: swapperDispatch, buyTradeAsset, sellTradeAsset } = useSwapperState()
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -29,30 +26,43 @@ export const useTradeRoutes = (): {
       const isSell = action === AssetClickAction.Sell
       const isSameAsset =
         asset.assetId === (isBuy ? sellTradeAsset?.asset?.assetId : buyTradeAsset?.asset?.assetId)
-      const previousSellTradeAsset = { ...getValues('sellTradeAsset') }
-      const previousBuyTradeAsset = { ...getValues('buyTradeAsset') }
+      const previousSellTradeAsset = sellTradeAsset
+      const previousBuyTradeAsset = buyTradeAsset
 
       if (isBuy) {
-        setValue('buyTradeAsset.asset', asset)
-        isSameAsset && setValue('sellTradeAsset.asset', previousBuyTradeAsset.asset)
+        swapperDispatch({
+          type: SwapperActionType.SET_BUY_ASSET,
+          payload: asset,
+        })
+        isSameAsset &&
+          swapperDispatch({
+            type: SwapperActionType.SET_SELL_ASSET,
+            payload: previousBuyTradeAsset?.asset,
+          })
         setValue('selectedBuyAssetAccountId', undefined)
         setValue('buyAssetAccountId', undefined)
       }
 
       if (isSell) {
-        setValue('sellTradeAsset.asset', asset)
-        isSameAsset && setValue('buyTradeAsset.asset', previousSellTradeAsset.asset)
+        swapperDispatch({
+          type: SwapperActionType.SET_SELL_ASSET,
+          payload: asset,
+        })
+        isSameAsset &&
+          swapperDispatch({
+            type: SwapperActionType.SET_BUY_ASSET,
+            payload: previousSellTradeAsset?.asset,
+          })
         setValue('selectedSellAssetAccountId', undefined)
         setValue('sellAssetAccountId', undefined)
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
       setValue('amount', '0')
-      setValue('sellTradeAsset.amountCryptoPrecision', '0')
-      setValue('buyTradeAsset.amountCryptoPrecision', '0')
       setValue('fiatBuyAmount', '0')
       setValue('fiatSellAmount', '0')
-      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
+      swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
+      swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
       setValue('trade', undefined)
       setValue('sellAssetFiatRate', undefined)
       setValue('buyAssetFiatRate', undefined)
@@ -68,15 +78,7 @@ export const useTradeRoutes = (): {
         action: TradeAmountInputField.SELL_FIAT,
       })
     },
-    [
-      sellTradeAsset?.asset?.assetId,
-      buyTradeAsset?.asset?.assetId,
-      getValues,
-      setValue,
-      dispatch,
-      history,
-      setTradeAmountsRefetchData,
-    ],
+    [sellTradeAsset, buyTradeAsset, setValue, swapperDispatch, history, setTradeAmountsRefetchData],
   )
 
   return { handleAssetClick }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { useAppDispatch } from 'state/store'
 
@@ -12,9 +11,7 @@ export const useIsTradingActive = () => {
   const { bestTradeSwapper } = useSwapper()
   const dispatch = useAppDispatch()
 
-  const { control } = useFormContext<TS>()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
   const sellTradeAssetId = sellTradeAsset?.asset?.assetId
   const buyTradeAssetId = buyTradeAsset?.asset?.assetId
 

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
+import type { SwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 
 export const useFrozenTradeValues = () => {
@@ -14,7 +16,8 @@ export const useFrozenTradeValues = () => {
   const formSlippage = useWatch({ control, name: 'slippage' })
   const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const formSellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const formBuyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+
+  const { buyTradeAsset: formBuyTradeAsset } = useSwapperState()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
@@ -27,7 +30,7 @@ export const useFrozenTradeValues = () => {
   const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] = useState<TS['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
     useState<TS['sellAssetAccountId']>()
-  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<TS['buyTradeAsset']>()
+  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()
 

@@ -84,8 +84,6 @@ export const TradeInput = () => {
   const { dispatch } = useSwapperState()
 
   // Watched form fields
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
@@ -94,7 +92,7 @@ export const TradeInput = () => {
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
 
-  const { quote } = useSwapperState()
+  const { quote, sellTradeAsset, buyTradeAsset } = useSwapperState()
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -176,13 +174,18 @@ export const TradeInput = () => {
 
   const handleToggle = useCallback(() => {
     try {
-      const currentValues = Object.freeze(getValues())
+      const currentValues = Object.freeze({ ...getValues(), sellTradeAsset, buyTradeAsset })
       const currentSellTradeAsset = currentValues.sellTradeAsset
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' })
-      setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' })
+      dispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
+          sellTradeAsset: { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' },
+        },
+      })
       setValue('fiatSellAmount', '0')
       setValue('fiatBuyAmount', '0')
       setValue('buyAssetFiatRate', currentValues.sellAssetFiatRate)
@@ -196,7 +199,7 @@ export const TradeInput = () => {
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [dispatch, getValues, setValue])
+  }, [buyTradeAsset, dispatch, getValues, sellTradeAsset, setValue])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
@@ -207,7 +210,12 @@ export const TradeInput = () => {
       sellAssetBalanceCrypto,
     )
     setValue('action', TradeAmountInputField.SELL_CRYPTO)
-    setValue('sellTradeAsset.amountCryptoPrecision', maxSendAmount)
+    dispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
+      },
+    })
     setValue('amount', maxSendAmount)
     setValue('isSendMax', true)
 
@@ -221,10 +229,11 @@ export const TradeInput = () => {
     })
   }, [
     buyTradeAsset?.asset?.assetId,
+    dispatch,
     quote,
     sellAssetBalanceCrypto,
     sellFeeAsset,
-    sellTradeAsset?.asset,
+    sellTradeAsset,
     setTradeAmountsRefetchData,
     setValue,
   ])

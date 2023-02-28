@@ -29,6 +29,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -73,8 +74,10 @@ export const TradeConfirm = () => {
 
   const {
     state: { isConnected, wallet },
-    dispatch,
+    dispatch: walletDispatch,
   } = useWallet()
+
+  const { dispatch: swapperDispatch } = useSwapperState()
 
   const {
     tradeAmounts,
@@ -95,10 +98,9 @@ export const TradeConfirm = () => {
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   const reset = useCallback(() => {
-    setValue('buyTradeAsset.amountCryptoPrecision', '')
-    setValue('sellTradeAsset.amountCryptoPrecision', '')
+    swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
     setValue('fiatSellAmount', '')
-  }, [setValue])
+  }, [setValue, swapperDispatch])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -166,7 +168,7 @@ export const TradeConfirm = () => {
          * before opening the connect wallet modal.
          */
         handleBack()
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 

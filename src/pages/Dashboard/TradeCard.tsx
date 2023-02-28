@@ -31,7 +31,7 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
   )
 
   // TODO: We should be able to let users proceed with trades to unlock their wallet
-  if (isLocked) return
+  if (isLocked) return null
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Card flex={1} {...rest}>

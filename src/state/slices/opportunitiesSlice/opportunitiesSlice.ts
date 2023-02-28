@@ -201,7 +201,7 @@ export const opportunitiesApi = createApi({
           const resolver = getUserDataResolversByDefiProviderAndDefiType(defiProvider, defiType)
 
           if (!resolver) {
-            throw new Error(`resolver for ${DefiProvider.FoxFarming}::${defiType} not implemented`)
+            throw new Error(`resolver for ${DefiProvider.UniV2}::${defiType} not implemented`)
           }
 
           const resolved = await resolver({

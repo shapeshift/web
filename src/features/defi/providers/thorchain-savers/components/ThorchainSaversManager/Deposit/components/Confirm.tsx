@@ -445,13 +445,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               return chainId === bchChainId ? `bitcoincash:${asset_address}` : asset_address
             })
             .catch(async () => {
-              const firstReceiveAddress = await chainAdapter.getAddress({
-                wallet: walletState.wallet!,
-                accountNumber: bip44Params.accountNumber,
-                accountType,
-                index: 0,
-              })
-
+              const account = await chainAdapter.getAccount(fromAccountId(accountId).account)
+              const firstReceiveAddress = account.chainSpecific.addresses?.[0]?.pubkey ?? ''
               return firstReceiveAddress
             })
         : ''

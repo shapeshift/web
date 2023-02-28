@@ -20,7 +20,7 @@ type TradeCardProps = {
 export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
   const { Axelar } = useSelector(selectFeatureFlags)
   const {
-    state: { wallet },
+    state: { isLocked, wallet },
   } = useWallet()
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
 
@@ -30,6 +30,8 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
     [translate],
   )
 
+  // TODO: We should be able to let users proceed with trades to unlock their wallet
+  if (isLocked) return
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Card flex={1} {...rest}>

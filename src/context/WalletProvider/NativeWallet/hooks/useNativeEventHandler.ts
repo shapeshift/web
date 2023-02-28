@@ -37,6 +37,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           // 3. Since hooks aren't singletons, we need an additional safety
           // When this hook will render from a different context, then
           if (location.pathname !== '/connect-wallet' && !hasDismissedNativePassword) {
+            dispatch({ type: WalletActions.SET_NATIVE_DEVICE_ID, payload: { deviceId } })
             if (state.deviceId) {
               setHasDismissedNativePassword(true)
               break

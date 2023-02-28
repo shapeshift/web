@@ -30,7 +30,6 @@ const opportunities: OpportunityReturn = {
   staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV5, osmosisAssetId, cosmosAssetId],
   lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
   vault: [],
-  token_staking: [],
 }
 
 export const ArkeoPage = () => {

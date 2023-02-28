@@ -136,7 +136,7 @@ export const useTradeQuoteService = () => {
     // Checking that no quote has been set and tradeQuote exists prevents an infinite render
     !quote &&
       tradeQuote &&
-      swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote })
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } })
   }, [swapperDispatch, quote, tradeQuote])
 
   return {

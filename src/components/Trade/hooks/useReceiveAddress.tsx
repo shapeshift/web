@@ -64,9 +64,12 @@ export const useReceiveAddress = () => {
     ;(async () => {
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        swapperDispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: receiveAddress })
+        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { receiveAddress } })
       } catch (e) {
-        swapperDispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: undefined })
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: { receiveAddress: undefined },
+        })
       }
     })()
   }, [buyTradeAsset?.asset, swapperDispatch, getReceiveAddressFromBuyAsset])

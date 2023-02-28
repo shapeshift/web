@@ -5,10 +5,6 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
   switch (action.type) {
     case SwapperActionType.SET_VALUES:
       return { ...state, ...action.payload }
-    case SwapperActionType.SET_RECEIVE_ADDRESS:
-      return { ...state, receiveAddress: action.payload }
-    case SwapperActionType.SET_QUOTE:
-      return { ...state, quote: action.payload }
     case SwapperActionType.SET_BUY_ASSET:
     case SwapperActionType.SET_SELL_ASSET:
       const actionKey =
@@ -19,6 +15,11 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
           ...state[actionKey],
           asset: action.payload,
         },
+      }
+    case SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE:
+      return {
+        ...state,
+        isExactAllowance: !state.isExactAllowance,
       }
     case SwapperActionType.SET_TRADE_AMOUNTS:
       const buyAmountCryptoPrecision = action.payload.buyAmountCryptoPrecision

@@ -82,10 +82,7 @@ export const Approval = () => {
   )
 
   const handleExactAllowanceToggle = () =>
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: { isExactAllowance: !isExactAllowance },
-    })
+    swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE })
 
   const approveContract = useCallback(async () => {
     if (!quote) {

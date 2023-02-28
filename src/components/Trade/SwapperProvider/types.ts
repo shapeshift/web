@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Dispatch } from 'react'
@@ -30,26 +30,17 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
 
 export enum SwapperActionType {
   SET_VALUES = 'SET_VALUES',
-  SET_RECEIVE_ADDRESS = 'SET_RECEIVE_ADDRESS',
-  SET_QUOTE = 'SET_QUOTE',
   CLEAR_AMOUNTS = 'CLEAR_AMOUNTS',
   SET_BUY_ASSET = 'SET_BUY_ASSET',
   SET_SELL_ASSET = 'SET_SELL_ASSET',
   SET_TRADE_AMOUNTS = 'SET_TRADE_AMOUNTS',
+  TOGGLE_IS_EXACT_ALLOWANCE = 'TOGGLE_IS_EXACT_ALLOWANCE',
 }
 
 export type SwapperAction =
   | {
       type: SwapperActionType.SET_VALUES
       payload: Partial<SwapperState>
-    }
-  | {
-      type: SwapperActionType.SET_RECEIVE_ADDRESS
-      payload: string | undefined
-    }
-  | {
-      type: SwapperActionType.SET_QUOTE
-      payload: TradeQuote<ChainId> | undefined
     }
   | { type: SwapperActionType.CLEAR_AMOUNTS }
   | {
@@ -65,6 +56,8 @@ export type SwapperAction =
         fiatBuyAmount?: string
       }
     }
+  | { type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }
+
 export type SwapperContextType<T extends KnownChainIds = KnownChainIds> = {
   state: SwapperState<T>
   dispatch: Dispatch<SwapperAction>

@@ -58,19 +58,50 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
+      const idleCdoContractAddresses = Object.values(stakingOpportunitiesById)
+        .map(opportunity => (opportunity as IdleStakingSpecificMetadata | undefined)?.cdoAddress)
+        .filter(isSome)
       const idleContractAddresses = [
-        ...Object.values(stakingOpportunitiesById)
-          .map(opportunity => (opportunity as IdleStakingSpecificMetadata | undefined)?.cdoAddress)
-          .filter(isSome),
+        ...idleCdoContractAddresses,
         IDLE_PROXY_1_CONTRACT_ADDRESS,
         IDLE_PROXY_2_CONTRACT_ADDRESS,
       ]
-      if (
+      const shouldRefetchIdleOpportunities = transfers.some(
+        ({ from, to }) =>
+          idleContractAddresses.includes(from) || idleContractAddresses.includes(to),
+      )
+      const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
+      const shouldRefetchSaversOpportunities =
+        isSupportedThorchainSaversChainId(chainId) &&
+        transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
+
+      // Ugly catch-all that should go away now that we are fully migrated to the opportunities slice and know the Tx shape of the opportunities we're dealing with
+      const shouldRefetchAllOpportunities = !(
+        chainId === ethChainId &&
+        // We don't parse FOX farming Txs with any specific parser, hence we're unable to discriminate by parser type
+        // This will refetch opportunities user data on any FOX/ FOX LP token transfer Tx
+        // But this is the best we can do at the moment to be reactive
         transfers.some(
-          ({ from, to }) =>
-            idleContractAddresses.includes(from) || idleContractAddresses.includes(to),
+          ({ assetId }) =>
+            [foxAssetId, foxEthLpAssetId].includes(assetId) ||
+            Object.values(stakingOpportunitiesById).some(opportunity =>
+              // Detect Txs including a transfer either of either
+              // - an asset being wrapped into an Idle token
+              // - Idle reward assets being claimed
+              // - the Idle AssetId being withdrawn
+              Boolean(
+                opportunity?.assetId === assetId ||
+                  opportunity?.underlyingAssetId === assetId ||
+                  (opportunity?.underlyingAssetIds?.length &&
+                    opportunity?.underlyingAssetIds.includes(assetId)) ||
+                  (opportunity?.rewardAssetIds?.length &&
+                    opportunity?.rewardAssetIds.includes(assetId)),
+              ),
+            ),
         )
-      ) {
+      )
+
+      if (shouldRefetchIdleOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
             {
@@ -82,8 +113,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             { forceRefetch: true },
           ),
         )
-      }
-      if (data?.parser === 'staking') {
+      } else if (shouldRefetchCosmosSdkOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
             {
@@ -95,12 +125,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             { forceRefetch: true },
           ),
         )
-      }
-
-      if (
-        isSupportedThorchainSaversChainId(chainId) &&
-        transfers.some(({ assetId }) => isSupportedThorchainSaversAssetId(assetId))
-      ) {
+      } else if (shouldRefetchSaversOpportunities) {
         // Artificial longer completion time, since THORChain Txs take around 15s after confirmation to be picked in the API
         // This way, we ensure "View Position" actually routes to the updated position
         waitForSaversUpdate().then(() => {
@@ -116,34 +141,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             ),
           )
         })
-      }
-      if (
-        !(
-          chainId === ethChainId &&
-          // We don't parse FOX farming Txs with any specific parser, hence we're unable to discriminate by parser type
-          // This will refetch opportunities user data on any FOX/ FOX LP token transfer Tx
-          // But this is the best we can do at the moment to be reactive
-          transfers.some(
-            ({ assetId }) =>
-              [foxAssetId, foxEthLpAssetId].includes(assetId) ||
-              Object.values(stakingOpportunitiesById).some(opportunity =>
-                // Detect Txs including a transfer either of either
-                // - an asset being wrapped into an Idle token
-                // - Idle reward assets being claimed
-                // - the Idle AssetId being withdrawn
-                Boolean(
-                  opportunity?.assetId === assetId ||
-                    opportunity?.underlyingAssetId === assetId ||
-                    (opportunity?.underlyingAssetIds?.length &&
-                      opportunity?.underlyingAssetIds.includes(assetId)) ||
-                    (opportunity?.rewardAssetIds?.length &&
-                      opportunity?.rewardAssetIds.includes(assetId)),
-                ),
-              ),
-          )
-        )
-      )
-        return
+      } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         await fetchAllOpportunitiesIds({ forceRefetch: true })
         await fetchAllOpportunitiesMetadata({ forceRefetch: true })

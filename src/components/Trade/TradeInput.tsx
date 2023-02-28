@@ -15,11 +15,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -48,7 +48,7 @@ import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import type { TS } from './types'
-import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
+import { TradeAmountInputField, TradeRoutePaths, type TradeState } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
@@ -69,7 +69,7 @@ export const TradeInput = () => {
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
   } = useSwapper()
-  const { receiveAddress } = useReceiveAddress()
+  const { receiveAddress } = useSwapperState()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')

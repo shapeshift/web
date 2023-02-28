@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   isSupportedCosmosSdkSwappingChain,
@@ -15,6 +14,7 @@ import {
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -62,7 +62,7 @@ export const useSwapper = () => {
   const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
   const { tradeQuoteArgs } = useTradeQuoteService()
-  const { receiveAddress } = useReceiveAddress()
+  const { receiveAddress } = useSwapperState()
   const dispatch = useAppDispatch()
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper

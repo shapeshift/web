@@ -14,6 +14,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
+import { SwapperProvider } from 'components/Trade/swapperProvider'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
@@ -51,23 +52,25 @@ export function AppProviders({ children }: ProvidersProps) {
                   <BrowserRouterProvider>
                     <I18nProvider>
                       <WalletProvider>
-                        <WalletConnectBridgeProvider>
-                          <WalletConnectV2Provider>
-                            <KeepKeyProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage}>
-                                <ModalProvider>
-                                  <TransactionsProvider>
-                                    <AppProvider>
-                                      <FoxEthProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
-                                      </FoxEthProvider>
-                                    </AppProvider>
-                                  </TransactionsProvider>
-                                </ModalProvider>
-                              </ErrorBoundary>
-                            </KeepKeyProvider>
-                          </WalletConnectV2Provider>
-                        </WalletConnectBridgeProvider>
+                        <SwapperProvider>
+                          <WalletConnectBridgeProvider>
+                            <WalletConnectV2Provider>
+                              <KeepKeyProvider>
+                                <ErrorBoundary FallbackComponent={ErrorPage}>
+                                  <ModalProvider>
+                                    <TransactionsProvider>
+                                      <AppProvider>
+                                        <FoxEthProvider>
+                                          <DefiManagerProvider>{children}</DefiManagerProvider>
+                                        </FoxEthProvider>
+                                      </AppProvider>
+                                    </TransactionsProvider>
+                                  </ModalProvider>
+                                </ErrorBoundary>
+                              </KeepKeyProvider>
+                            </WalletConnectV2Provider>
+                          </WalletConnectBridgeProvider>
+                        </SwapperProvider>
                       </WalletProvider>
                     </I18nProvider>
                   </BrowserRouterProvider>

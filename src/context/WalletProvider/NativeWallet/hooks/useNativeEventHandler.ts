@@ -40,7 +40,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
             !['/connect-wallet', '/trade'].includes(location.pathname) &&
             !hasDismissedNativePassword
           ) {
-            dispatch({ type: WalletActions.SET_NATIVE_DEVICE_ID, payload: true })
+            dispatch({ type: WalletActions.SET_NATIVE_DEVICE_ID, payload: { deviceId } })
             if (state.deviceId) {
               setHasDismissedNativePassword(true)
               break

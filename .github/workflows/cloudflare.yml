@@ -1,11 +1,11 @@
 on:
   workflow_call:
     branches:
-    - 'develop'
-    - 'release'
-    - 'yeet'
-    - 'main'
-    - 'private'
+      - 'develop'
+      - 'release'
+      - 'yeet'
+      - 'main'
+      - 'private'
 
 jobs:
   deploy:

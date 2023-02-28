@@ -37,7 +37,7 @@ import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
@@ -81,7 +81,7 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
-  const dispatch = useAppDispatch()
+  const { dispatch } = useSwapperState()
 
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })

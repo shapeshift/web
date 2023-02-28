@@ -9,7 +9,7 @@ import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmo
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { SwapperActionType } from 'components/Trade/swapperProvider'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -41,8 +41,9 @@ export const useTradeAmounts = () => {
   const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
 
   // Hooks
-  const dispatch = useAppDispatch()
   const featureFlags = useAppSelector(selectFeatureFlags)
+  const appDispatch = useAppDispatch()
+  const { dispatch: swapperDispatch } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
 
@@ -196,7 +197,7 @@ export const useTradeAmounts = () => {
 
       const availableSwappers = tradeQuoteArgs
         ? (
-            await dispatch(
+            await appDispatch(
               getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 feeAsset,
@@ -212,13 +213,13 @@ export const useTradeAmounts = () => {
       const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
 
       if (!bestTradeSwapper) {
-        dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
+        swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
         setValue('fees', undefined)
         return
       }
 
       const quoteResponse = tradeQuoteArgs
-        ? await dispatch(getTradeQuote.initiate(tradeQuoteArgs))
+        ? await appDispatch(getTradeQuote.initiate(tradeQuoteArgs))
         : undefined
 
       // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
@@ -232,7 +233,7 @@ export const useTradeAmounts = () => {
         : undefined
 
       const { data: usdRates = undefined } = tradeQuoteArgs
-        ? await dispatch(
+        ? await appDispatch(
             getUsdRates.initiate({
               feeAssetId,
               tradeQuoteArgs,
@@ -241,7 +242,7 @@ export const useTradeAmounts = () => {
         : {}
 
       if (usdRates) {
-        dispatch({ type: SwapperActionType.SET_QUOTE, payload: quoteResponse?.data })
+        swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: quoteResponse?.data })
         setValue('fees', formFees)
         setTradeAmounts({
           amount: amountToUse,
@@ -262,23 +263,24 @@ export const useTradeAmounts = () => {
       }
     },
     [
-      actionFormState,
-      amountFormState,
-      assets,
       buyAssetFormState?.assetId,
-      dispatch,
-      featureFlags,
-      getAvailableSwappers,
+      sellAssetFormState?.assetId,
+      amountFormState,
+      actionFormState,
+      wallet,
+      assets,
       getReceiveAddressFromBuyAsset,
+      sellTradeAsset?.amountCryptoPrecision,
+      isSendMaxFormState,
+      appDispatch,
+      getAvailableSwappers,
+      featureFlags,
       getTradeQuote,
       getUsdRates,
-      isSendMaxFormState,
-      selectedCurrencyToUsdRate,
-      sellAssetFormState?.assetId,
-      sellTradeAsset?.amountCryptoPrecision,
-      setTradeAmounts,
       setValue,
-      wallet,
+      swapperDispatch,
+      setTradeAmounts,
+      selectedCurrencyToUsdRate,
     ],
   )
 

@@ -1,36 +1,44 @@
-import type { Step } from '@lifi/sdk'
+import type { BridgeDefinition, CrossStep, LifiStep, Step } from '@lifi/sdk'
 import { isCrossStep, isLifiStep } from '@lifi/sdk'
+import { bn } from '@shapeshiftoss/investor-foxy'
 import { BigNumber } from 'lib/bignumber/bignumber'
-import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
+
+const findMinimumTransfer = (
+  lifiStep: LifiStep | CrossStep,
+  crossStep: CrossStep,
+  bridges: BridgeDefinition[],
+): BigNumber | undefined => {
+  const bridge = bridges.find(bridge => {
+    return (
+      bridge.fromToken.symbol === lifiStep.action.fromToken.symbol &&
+      bridge.toToken.symbol === lifiStep.action.toToken.symbol &&
+      bridge.fromChainId === lifiStep.action.fromChainId &&
+      bridge.toChainId === lifiStep.action.toChainId &&
+      bridge.tool === crossStep.tool
+    )
+  })
+
+  if (bridge === undefined) return
+
+  return bn(bridge.minimumTransfer)
+}
 
 export const getMinimumAmountFromStep = (
   step: Step,
-  lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
+  lifiBridges: BridgeDefinition[],
 ): BigNumber | undefined => {
   const stepValues: (BigNumber | undefined)[] = []
 
   if (isLifiStep(step)) {
     for (const innerStep of step.includedSteps) {
       if (isCrossStep(innerStep)) {
-        const tool = innerStep.tool
-        const toolMetadata = lifiToolMap
-          .get(innerStep.action.fromToken.symbol)
-          ?.get(innerStep.action.toToken.symbol)
-          ?.get(tool)
-
-        stepValues.push(toolMetadata?.minimumTransfer)
+        stepValues.push(findMinimumTransfer(step, innerStep, lifiBridges))
       }
     }
   }
 
   if (isCrossStep(step)) {
-    const tool = step.tool
-    const toolMetadata = lifiToolMap
-      .get(step.action.fromToken.symbol)
-      ?.get(step.action.toToken.symbol)
-      ?.get(tool)
-
-    stepValues.push(toolMetadata?.minimumTransfer)
+    stepValues.push(findMinimumTransfer(step, step, lifiBridges))
   }
 
   // exclude zero and undefined amounts

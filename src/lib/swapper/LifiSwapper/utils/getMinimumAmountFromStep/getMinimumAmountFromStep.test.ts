@@ -1,15 +1,11 @@
-import type { Step } from '@lifi/sdk'
-import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
+import type { BridgeDefinition as LifiBridgeDefinition, Step as LifiStep } from '@lifi/sdk'
 
 import { getMinimumAmountFromStep } from './getMinimumAmountFromStep'
 
 describe('getMinimumAmountFromStep', () => {
   it('handles 0 values in step', done => {
     // TODO:
-    getMinimumAmountFromStep(
-      null as unknown as Step,
-      null as unknown as Map<string, Map<string, Map<string, LifiToolMeta>>>,
-    )
+    getMinimumAmountFromStep(null as unknown as LifiStep, null as unknown as LifiBridgeDefinition[])
     done.fail()
   })
 

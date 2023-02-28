@@ -1,7 +1,12 @@
-import type { ChainId as LifiChainId, ChainKey, Token } from '@lifi/sdk'
+import type {
+  BridgeDefinition as LifiBridgeDefinition,
+  ChainId as LifiChainId,
+  ChainKey as LifiChainKey,
+  Token as LifiToken,
+} from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId, ChainId, ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId, toChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type {
@@ -18,47 +23,25 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapError } from '@shapeshiftoss/swapper'
-import { bn } from 'lib/bignumber/bignumber'
 import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
-import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-
-// TODO: move into utility
-const getOrHyrdate = <Key, Value>(
-  map: Map<Key, Value>,
-  key: Key,
-  getNewValue: () => Value,
-): Value => {
-  const item = map.get(key)
-
-  if (item === undefined) {
-    const newItem = getNewValue()
-    map.set(key, newItem)
-    return newItem
-  }
-
-  return item
-}
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
-  private lifiChainMap: Map<ChainId, ChainKey> = new Map()
-  private lifiTokens: Token[] = []
-
-  // describes metadata about a token and possible swaps
-  // sellToken -> buyToken -> tool -> metadata
-  // TODO: this needs to also be indexed by fromChainId and toChainId
-  private lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>> = new Map()
+  private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
+  private lifiTokens: LifiToken[] = []
+  private lifiBridges: LifiBridgeDefinition[] = []
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
     const supportedChainRefs = evmChainIds.map(
       chainId =>
-        // TODO: dont cast to number here, instead do a proper lookup
+        // TODO: dont cast to number here, instead do a proper lookup?
         Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
@@ -67,46 +50,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       chains: supportedChainRefs,
     })
 
-    if (chains !== undefined) {
-      this.lifiChainMap = new Map(
-        chains.map(({ id, key }) => {
-          const chainId = toChainId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            // TODO: create explicit mapping instead of casting?
-            chainReference: id.toString() as ChainReference,
-          })
-          return [chainId, key]
-        }),
-      )
-    }
-
-    if (tokens !== undefined) {
-      this.lifiTokens = tokens
-    }
-
-    // TODO: move this into a util
-    if (bridges !== undefined) {
-      for (const bridge of bridges) {
-        const { fromToken, toToken, maximumTransfer, minimumTransfer, tool } = bridge
-
-        const toTokenIndex = getOrHyrdate<string, Map<string, Map<string, LifiToolMeta>>>(
-          this.lifiToolMap,
-          fromToken.symbol,
-          () => new Map(),
-        )
-
-        const toolIndex = getOrHyrdate<string, Map<string, LifiToolMeta>>(
-          toTokenIndex,
-          toToken.symbol,
-          () => new Map(),
-        )
-
-        toolIndex.set(tool, {
-          maximumTransfer: bn(maximumTransfer),
-          minimumTransfer: bn(minimumTransfer),
-        })
-      }
-    }
+    if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
+    if (tokens !== undefined) this.lifiTokens = tokens
+    if (bridges !== undefined) this.lifiBridges = bridges
   }
 
   /** Returns the swapper type */
@@ -125,7 +71,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get a trade quote
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.lifiTokens, this.lifiChainMap, this.lifiToolMap)
+    return await getTradeQuote(input, this.lifiTokens, this.lifiChainMap, this.lifiBridges)
   }
 
   /**

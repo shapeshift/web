@@ -1,4 +1,4 @@
-import type { ChainKey, LifiError, QuoteRequest, Step, Token } from '@lifi/sdk'
+import type { BridgeDefinition, ChainKey, LifiError, QuoteRequest, Step, Token } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
@@ -7,7 +7,6 @@ import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshif
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { LifiToolMeta } from 'lib/swapper/LifiSwapper/types'
 import {
   DEFAULT_SOURCE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
@@ -25,7 +24,7 @@ export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiTokens: Token[],
   lifiChainMap: Map<ChainId, ChainKey>,
-  lifiToolMap: Map<string, Map<string, Map<string, LifiToolMeta>>>,
+  lifiBridges: BridgeDefinition[],
 ): Promise<TradeQuote<EvmChainId>> {
   const {
     chainId,
@@ -166,7 +165,7 @@ export async function getTradeQuote(
   }
 
   const minimumCryptoHuman = convertPrecision(
-    getMinimumAmountFromStep(quote, lifiToolMap) ?? Infinity,
+    getMinimumAmountFromStep(quote, lifiBridges) ?? Infinity,
     fromLifiToken.decimals,
     0,
   ).toString()

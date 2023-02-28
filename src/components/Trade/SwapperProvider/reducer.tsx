@@ -17,10 +17,7 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
         },
       }
     case SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE:
-      return {
-        ...state,
-        isExactAllowance: !state.isExactAllowance,
-      }
+      return { ...state, isExactAllowance: !state.isExactAllowance }
     case SwapperActionType.SET_TRADE_AMOUNTS:
       const buyAmountCryptoPrecision = action.payload.buyAmountCryptoPrecision
       const sellAmountCryptoPrecision = action.payload.sellAmountCryptoPrecision

@@ -19,7 +19,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())
       .map((opportunity, i) => (
-        <FeaturedCard key={`${opportunity.assetId}-${i}`} {...opportunity} />
+        <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
       ))
   }, [eligibleOpportunities])
 

@@ -25,7 +25,7 @@ export interface TallyHoSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
+const moduleLogger = logger.child({ namespace: ['WalletProvider', 'TallyHo', 'Connect'] })
 
 export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
   const { dispatch, state, onProviderChange } = useWallet()
@@ -56,7 +56,9 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.TallyHo)) {
-      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.pairDevice()) as TallyHoHDWallet
+      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.[0]?.pairDevice()) as
+        | TallyHoHDWallet
+        | undefined
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-tally::pairDevice returned null or undefined')

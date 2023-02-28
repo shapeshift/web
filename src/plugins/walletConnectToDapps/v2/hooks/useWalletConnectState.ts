@@ -27,6 +27,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const params = requestEvent?.params
   const request = params?.request
+  // Unlike V1, V2 uses CAIP2 standards strings
   const chainId = params?.chainId
   const requestParams = request?.params
   const transaction = isTransactionParamsArray(requestParams) ? requestParams?.[0] : undefined

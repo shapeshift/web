@@ -52,7 +52,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
-      const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()
+      const wallet = await state.adapters.get(KeyManager.MetaMask)?.[0].pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')

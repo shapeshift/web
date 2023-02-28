@@ -15,6 +15,7 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -37,6 +38,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -56,7 +59,7 @@ import {
   selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
 
@@ -69,11 +72,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
+  const [isHalted, setIsHalted] = useState(false)
 
   const assetId = toAssetId({
     chainId,
@@ -101,6 +106,22 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
+
+  useEffect(() => {
+    ;(async () => {
+      const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+      const { data: isTradingActive } = await appDispatch(
+        getIsTradingActive.initiate({
+          assetId,
+          swapperName: SwapperName.Thorchain,
+        }),
+      )
+
+      if (!isTradingActive) {
+        setIsHalted(true)
+      }
+    })()
+  }, [appDispatch, assetId])
 
   useEffect(() => {
     if (!maybeAccountId) return
@@ -193,15 +214,19 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       .length,
   )
 
+  const isTradingActiveQueryPending = useAppSelector(selectSwapperApiTradingActivePending)
+
   const makeDefaultMenu = useCallback(
     ({
       isFull,
       hasPendingTxs,
       hasPendingQueries,
+      isHalted,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
       hasPendingQueries?: boolean
+      isHalted?: boolean
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -210,11 +235,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               label: 'common.deposit',
               icon: <ArrowUpIcon />,
               action: DefiAction.Deposit,
-              isDisabled: isFull || hasPendingTxs || hasPendingQueries,
-              toolTip:
-                hasPendingTxs || hasPendingQueries
-                  ? translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
-                  : undefined,
+              isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHalted,
+              toolTip: (() => {
+                if (hasPendingTxs || hasPendingQueries)
+                  return translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
+                if (isHalted) return translate('defi.modals.saversVaults.haltedTitle')
+              })(),
             },
           ]),
       {
@@ -237,6 +263,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull,
       hasPendingTxs,
       hasPendingQueries,
+      isHalted,
     })
   }, [
     earnOpportunityData,
@@ -244,6 +271,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     opportunityMetadata?.isFull,
     hasPendingTxs,
     hasPendingQueries,
+    isHalted,
   ])
 
   const renderVaultCap = useMemo(() => {
@@ -299,7 +327,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     underlyingAsset?.symbol,
   ])
 
-  if (!earnOpportunityData) {
+  if (!earnOpportunityData || isTradingActiveQueryPending) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />

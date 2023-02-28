@@ -68,7 +68,7 @@ export type ConstructorArgs = {
 
 export const transformData = ({ tvl, apy, expired, ...contractData }: FoxyOpportunityInputData) => {
   return {
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     provider: 'ShapeShift',
     version: '1',
     contractAddress: contractData.staking,

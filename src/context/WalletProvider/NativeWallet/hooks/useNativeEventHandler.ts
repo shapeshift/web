@@ -31,7 +31,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           break
         default:
           // If there wasn't an enum value, then we'll check the message type
-          moduleLogger.info({ e }, 'Native Wallet Unknown Event')
+          moduleLogger.info({ e }, 'ShapeShift Wallet Unknown Event')
       }
     }
 

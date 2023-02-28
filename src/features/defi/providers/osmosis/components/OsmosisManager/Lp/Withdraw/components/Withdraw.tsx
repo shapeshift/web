@@ -332,7 +332,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         payload: {
           underlyingAsset0: tokenOutMinsCryptoBaseUnit[0],
           underlyingAsset1: tokenOutMinsCryptoBaseUnit[1],
-          shareOutAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
+          shareInAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
             .multipliedBy(bn(10).pow(lpAsset.precision))
             .toFixed(0, BigNumber.ROUND_DOWN)
             .toString(),
@@ -509,7 +509,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             cryptoAmount={
               bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit).gt(0)
                 ? bnOrZero(receiveAmounts?.[1]?.cryptoAmountBaseUnit)
-                    .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+                    .div(bn(10).pow(underlyingAsset1.precision ?? '0'))
                     .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)
                 : '0'
             }

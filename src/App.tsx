@@ -7,11 +7,12 @@ import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
+import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { logger } from 'lib/logger'
-import { selectShowWelcomeModal } from 'state/slices/selectors'
+import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
   const shouldUpdate = useHasAppUpdated()
@@ -20,6 +21,7 @@ export const App = () => {
   const updateId = 'update-app'
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
+  const showConsentBanner = useSelector(selectShowConsentBanner)
   const {
     nativeOnboard: { isOpen: isNativeOnboardOpen, open: openNativeOnboard },
   } = useModal()
@@ -58,5 +60,10 @@ export const App = () => {
     }
   }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
 
-  return <Routes />
+  return (
+    <>
+      {showConsentBanner && <ConsentBanner />}
+      <Routes />
+    </>
+  )
 }

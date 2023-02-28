@@ -86,7 +86,11 @@
     "all": "Todo",
     "viewAll": "Ver todo",
     "slippage": "Deslizamiento",
-    "validator": "el validador %{name}"
+    "best": "Mejor",
+    "alternative": "Alternativa",
+    "validator": "el validador %{name}",
+    "needAsset": "¿Necesita %{asset}?",
+    "buyNow": "Comprar ahora"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -465,6 +469,7 @@
     "explore": "Explore",
     "trade": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
+    "buySell": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo "
   },
   "transactionRow": {
@@ -581,6 +586,10 @@
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "tradeFrom": "Intercambia desde",
+    "from": "De",
+    "to": "A",
+    "youPay": "Tu pagas",
+    "youGet": "Obtiene",
     "tradeTo": "Intercambia a",
     "minerFee": "Tarifa de minero",
     "protocolFee": "Tarifa de protocolo",
@@ -1341,6 +1350,32 @@
         "twoFactorRequired": "Se requiere 2FA",
         "invalidTwoFactor": "El código de 6 dígitos no es válido",
         "twoFactorDescription": "La autenticación de dos factores está habilitada para su cuenta. Ingrese el código de su aplicación de autenticación."
+      },
+      "onboarding": {
+        "skip": "Saltar",
+        "selfCustody": {
+          "title": "Auto-custodia",
+          "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",
+          "body": "Una billetera de autocustodia significa que es de su propiedad y solo usted tiene acceso a sus fondos. Su frase de recuperación secreta es su clave para acceder. Nadie puede bloquear acceso a sus fondos.",
+          "cta": "Siguiente"
+        },
+        "multiChain": {
+          "title": "Multi-cadena",
+          "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
+          "body": "Al agregar una nueva cadena a ShapeShift, su billetera Nativa la admitirá automáticamente.",
+          "cta": "Siguiente"
+        },
+        "easyToUse": {
+          "title": "Fácil-de-usar",
+          "subTitle": "Con la Billetera Nativa ShapeShift puede:",
+          "trackBalance": "Seguir sus saldos",
+          "sendReceive": "Enviar/recibir cripto",
+          "buyCrypto": "Comprar cripto",
+          "tradeAssets": "Intercambiar activos",
+          "earnYield": "Obtener rendimiento de sus activos inactivos",
+          "cta": "Comprar Cripto",
+          "secondaryCta": "Ir a mi tablero"
+        }
       }
     },
     "selectModal": {
@@ -1681,6 +1716,11 @@
       "title": "Compra cripto sin KYC",
       "body": "Compra hasta $1,000 con Apple Pay",
       "cta": "Compra ahora"
+    },
+    "savers": {
+      "title": "Obtenga recompensas por su %{asset}",
+      "body": "Stake en bóvedas Savers de THORChain. Sin plazo fijo.",
+      "cta": "Depositar Ahora"
     }
   },
   "arkeo": {

@@ -1,5 +1,5 @@
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'

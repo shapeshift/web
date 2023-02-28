@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -17,8 +18,9 @@ export const useAccountsService = () => {
     selectedBuyAssetAccountId,
     sellAssetAccountId: stateSellAssetAccountId,
     buyAssetAccountId: stateBuyAssetAccountId,
+    sellTradeAsset,
+    buyTradeAsset,
   } = useSwapperState()
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
 
   // Custom hooks
   const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()

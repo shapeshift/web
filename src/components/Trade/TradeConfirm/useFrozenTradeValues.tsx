@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import type { SwapperState } from 'components/Trade/swapperProvider'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 
 export const useFrozenTradeValues = () => {
   const {

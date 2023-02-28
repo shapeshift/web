@@ -7,7 +7,7 @@ import {
   isSupportedNonUtxoSwappingChain,
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
-import type { SwapperState } from 'components/Trade/swapperProvider'
+import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'

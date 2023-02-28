@@ -3,7 +3,7 @@ import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { isSome } from 'lib/utils'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -15,6 +15,7 @@ type AvailableSwapperArgs = { feeAsset: Asset | undefined }
 export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   // Form hooks
   const { sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -25,8 +26,6 @@ export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   const [swappersWithQuoteMetadata, setSwappersWithQuoteMetadata] =
     useState<GetSwappersWithQuoteMetadataReturn>()
   const dispatch = useAppDispatch()
-
-  const { tradeQuoteArgs } = useTradeQuoteService()
 
   const featureFlags = useAppSelector(selectFeatureFlags)
   const { getAvailableSwappers } = getSwappersApi.endpoints

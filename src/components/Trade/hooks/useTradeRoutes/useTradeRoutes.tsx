@@ -2,7 +2,8 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
 export enum AssetClickAction {

@@ -25,7 +25,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -51,6 +52,15 @@ export const Approval = () => {
     handleSubmit,
     formState: { isSubmitting },
   } = useFormContext()
+
+  const {
+    dispatch: swapperDispatch,
+    quote,
+    feeAssetFiatRate,
+    fees,
+    isExactAllowance,
+  } = useSwapperState<EvmChainId>()
+
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
@@ -60,14 +70,6 @@ export const Approval = () => {
     dispatch,
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
-
-  const {
-    dispatch: swapperDispatch,
-    quote,
-    feeAssetFiatRate,
-    fees,
-    isExactAllowance,
-  } = useSwapperState<EvmChainId>()
 
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)

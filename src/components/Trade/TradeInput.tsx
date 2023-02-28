@@ -18,7 +18,8 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -59,6 +60,24 @@ export const TradeInput = () => {
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
+
+  const {
+    dispatch: swapperDispatch,
+    sellAssetAccountId,
+    buyAssetAccountId,
+    feeAssetFiatRate,
+    fiatSellAmount,
+    fiatBuyAmount,
+    receiveAddress,
+    slippage,
+    quote,
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    fees,
+  } = useSwapperState()
+
   const {
     checkApprovalNeeded,
     getTrade,
@@ -77,23 +96,6 @@ export const TradeInput = () => {
   const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
-
-  const {
-    dispatch: swapperDispatch,
-    sellAssetAccountId,
-    buyAssetAccountId,
-    feeAssetFiatRate,
-    fiatSellAmount,
-    fiatBuyAmount,
-    receiveAddress,
-    slippage,
-    quote,
-    sellTradeAsset,
-    buyTradeAsset,
-    sellAssetFiatRate,
-    buyAssetFiatRate,
-    fees,
-  } = useSwapperState()
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>

@@ -4,7 +4,8 @@ import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
@@ -20,8 +21,17 @@ The Trade Quote Service is responsible for reacting to changes to trade assets a
 The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
-  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, action, isSendMax, quote, amount } =
-    useSwapperState()
+  const {
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetAccountId,
+    action,
+    isSendMax,
+    quote,
+    amount,
+    dispatch: swapperDispatch,
+    receiveAddress,
+  } = useSwapperState()
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -30,7 +40,6 @@ export const useTradeQuoteService = () => {
   // State
   const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-  const { dispatch: swapperDispatch, receiveAddress } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

@@ -3,7 +3,7 @@ import { Avatar, Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import {
@@ -29,7 +29,6 @@ import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
   selectCryptoMarketData,
-  selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -81,13 +80,6 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   )
   const filteredDown = stakingOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
-  const cosmosAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, cosmosChainId),
-  )
-  const osmosisAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, osmosisChainId),
-  )
-
   const handleClick = useCallback(
     (opportunity: RowProps, action: DefiAction) => {
       const {
@@ -102,7 +94,6 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         },
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
-      const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -115,7 +106,6 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           type,
           provider,
           chainId,
-          defaultAccountId,
           contractAddress,
           assetNamespace,
           assetReference,
@@ -126,7 +116,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         state: { background: location },
       })
     },
-    [cosmosAccountId, dispatch, history, isConnected, isDemoWallet, location, osmosisAccountId],
+    [dispatch, history, isConnected, isDemoWallet, location],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

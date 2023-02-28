@@ -18,8 +18,8 @@ import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
 export type TableHeaderProps = {
-  globalFilter: any
-  setGlobalFilter: (filterValue: any) => void
+  searchQuery: any
+  setSearchQuery: (filterValue: any) => void
 }
 
 type ReactTableProps<T extends {}> = {

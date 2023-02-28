@@ -35,10 +35,15 @@ export const DefiProviderMetadata = {
     icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
     name: 'ShapeShift',
   },
-  [DefiProvider.FoxFarming]: {
-    type: DefiProvider.FoxFarming,
+  [DefiProvider.EthFoxStaking]: {
+    type: DefiProvider.EthFoxStaking,
     icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
     name: 'FOX Farming',
+  },
+  [DefiProvider.UniV2]: {
+    type: DefiProvider.UniV2,
+    icon: 'https://assets.coingecko.com/coins/images/12504/thumb/uniswap-uni.png?1600306604',
+    name: 'UNI-V2',
   },
   [DefiProvider.Cosmos]: {
     type: DefiProvider.Cosmos,

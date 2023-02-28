@@ -23,7 +23,7 @@ import { useAppSelector } from 'state/store'
 import { PositionTable } from './PositionTable'
 import { StakingTable } from './StakingTable'
 
-const renderHeader = ({ setGlobalFilter, globalFilter }: TableHeaderProps) => {
+const renderHeader = ({ setSearchQuery, searchQuery }: TableHeaderProps) => {
   return (
     <Flex
       justifyContent='space-around'
@@ -40,7 +40,7 @@ const renderHeader = ({ setGlobalFilter, globalFilter }: TableHeaderProps) => {
         <Text color='gray.500' translation='defi.earnBody' />
       </Box>
       <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full'>
-        <GlobalFilter setSearchQuery={setGlobalFilter} searchQuery={globalFilter} />
+        <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
       </Flex>
     </Flex>
   )

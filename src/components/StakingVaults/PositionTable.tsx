@@ -134,7 +134,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
 
   const filterRowsBySearchTerm = useCallback(
     (rows: AggregatedOpportunitiesByAssetIdReturn[], filterValue: any) => {
-      if (filterValue === '' || filterValue === null || filterValue === undefined) return rows
+      if (!filterValue) return rows
       if (typeof filterValue !== 'string') {
         return []
       }
@@ -155,21 +155,20 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
     [assets],
   )
 
-  const searching = useMemo(() => searchQuery.length > 0, [searchQuery])
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const rows = useMemo(() => {
-    return searching ? filterRowsBySearchTerm(positions, searchQuery) : positions
-  }, [filterRowsBySearchTerm, positions, searchQuery, searching])
+    return isSearching ? filterRowsBySearchTerm(positions, searchQuery) : positions
+  }, [filterRowsBySearchTerm, positions, searchQuery, isSearching])
 
   return (
     <>
-      {headerComponent &&
-        headerComponent({ setGlobalFilter: setSearchQuery, globalFilter: searchQuery })}
+      {headerComponent && headerComponent({ setSearchQuery, searchQuery })}
       <ReactTable
         onRowClick={row => row.toggleRowExpanded()}
         data={rows}
         columns={columns}
-        renderSubComponent={PositionDetails}
+        renderSubComponent={({ original }) => <PositionDetails {...original} />}
         initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
       />
     </>

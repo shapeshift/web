@@ -1,7 +1,7 @@
 import { Avatar, Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import {
   DefiAction,
   DefiProviderMetadata,
@@ -22,7 +22,6 @@ import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
   selectCryptoMarketData,
-  selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,13 +45,6 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
-  const cosmosAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, cosmosChainId),
-  )
-  const osmosisAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, osmosisChainId),
-  )
-
   const handleClick = useCallback(
     (opportunity: RowProps, action: DefiAction) => {
       const {
@@ -67,7 +59,6 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         },
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
-      const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
       if (!isConnected && isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -80,7 +71,6 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
           type,
           provider,
           chainId,
-          defaultAccountId,
           contractAddress,
           assetNamespace,
           assetReference,
@@ -91,8 +81,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         state: { background: location },
       })
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, history, isConnected, location],
+    [dispatch, history, isConnected, isDemoWallet, location],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

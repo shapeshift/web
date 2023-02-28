@@ -10,8 +10,10 @@ import { YearnManager } from 'features/defi/providers/yearn/components/YearnMana
 import { DefiProvider, DefiType } from './DefiCommon'
 
 export const DefiProviderToDefiModuleResolverByDeFiType = {
-  [`${DefiProvider.FoxFarming}`]: {
+  [`${DefiProvider.UniV2}`]: {
     [`${DefiType.LiquidityPool}`]: FoxEthLpManager,
+  },
+  [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: FoxFarmingManager,
   },
   [DefiProvider.Idle]: {

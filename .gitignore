@@ -28,4 +28,4 @@ yarn-error.log*
 .idea/
 
 # typechain codegen contracts
-src/state/slices/opportunitiesSlice/resolvers/foxFarming/contracts/**/*
+src/contracts/__generated/**/*

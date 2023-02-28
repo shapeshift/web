@@ -4,6 +4,7 @@ import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router'
 import { Bridge } from 'components/Bridge/Bridge'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
@@ -23,6 +24,8 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
     state: { isLocked, wallet },
   } = useWallet()
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
+  const location = useLocation()
+  const isTradePage = /trade/.test(location.pathname)
 
   const translate = useTranslate()
   const overlayTitle = useMemo(
@@ -31,7 +34,8 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
   )
 
   // TODO: We should be able to let users proceed with trades to unlock their wallet
-  if (isLocked) return null
+  // For now, we hide the card in dashboard but display it in trade page
+  if (isLocked && !isTradePage) return null
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Card flex={1} {...rest}>

@@ -36,8 +36,11 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           // 2. We're reacting on keyring state, so isLocked being falsy (il.e not set yet) is a good way to check we're dealing with the initial useEffect cycle here, but not enough:
           // 3. Since hooks aren't singletons, we need an additional safety
           // When this hook will render from a different context, then
-          if (location.pathname !== '/connect-wallet' && !hasDismissedNativePassword) {
-            dispatch({ type: WalletActions.SET_NATIVE_DEVICE_ID, payload: { deviceId } })
+          if (
+            !['/connect-wallet', '/trade'].includes(location.pathname) &&
+            !hasDismissedNativePassword
+          ) {
+            dispatch({ type: WalletActions.SET_NATIVE_DEVICE_ID, payload: true })
             if (state.deviceId) {
               setHasDismissedNativePassword(true)
               break

@@ -30,7 +30,7 @@ export const ConsentBanner: React.FC = () => {
           py={6}
           maxWidth='container.xl'
           alignItems={{ base: 'flex-start', md: 'center' }}
-          gap={4}
+          gap={6}
         >
           <RawText flex={1} fontSize='sm' fontWeight='medium' letterSpacing='0.02em'>
             {translate('consentBanner.body.1')}

@@ -25,7 +25,7 @@ export interface TallyHoSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
+const moduleLogger = logger.child({ namespace: ['WalletProvider', 'TallyHo', 'Connect'] })
 
 export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
   const { dispatch, state, onProviderChange } = useWallet()

@@ -1353,7 +1353,6 @@
       },
       "onboarding": {
         "skip": "Überspringen",
-        "shapeShiftNativeWallet": "ShapeShift Native Wallet",
         "selfCustody": {
           "title": "Selbstverwaltung",
           "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",

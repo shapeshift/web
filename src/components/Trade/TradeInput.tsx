@@ -91,10 +91,9 @@ export const TradeInput = () => {
   } = useSwapperState()
 
   // Watched form fields
-  const fees = useWatch({ control, name: 'fees' })
   const slippage = useWatch({ control, name: 'slippage' })
 
-  const { quote, sellTradeAsset, buyTradeAsset, sellAssetFiatRate, buyAssetFiatRate } =
+  const { quote, sellTradeAsset, buyTradeAsset, sellAssetFiatRate, buyAssetFiatRate, fees } =
     useSwapperState()
 
   // Selectors
@@ -199,12 +198,12 @@ export const TradeInput = () => {
           sellAssetFiatRate: currentValues.buyAssetFiatRate,
           feeAssetFiatRate: undefined,
           quote: undefined,
+          fees: undefined,
         },
       })
 
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
       setValue('trade', undefined)
-      setValue('fees', undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }

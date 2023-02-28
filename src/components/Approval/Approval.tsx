@@ -49,7 +49,6 @@ export const Approval = () => {
   const translate = useTranslate()
 
   const {
-    getValues,
     setValue,
     handleSubmit,
     control,
@@ -64,9 +63,8 @@ export const Approval = () => {
     dispatch,
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
-  const { fees } = getValues()
 
-  const { quote, feeAssetFiatRate } = useSwapperState()
+  const { quote, feeAssetFiatRate, fees } = useSwapperState<EvmChainId>()
 
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
 

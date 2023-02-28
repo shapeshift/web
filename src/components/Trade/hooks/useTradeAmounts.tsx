@@ -30,8 +30,7 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TS>()
-  const feesFormState = useWatch({ control, name: 'fees' })
+  const { control } = useFormContext<TS>()
   const amountFormState = useWatch({ control, name: 'amount' })
   const actionFormState = useWatch({ control, name: 'action' })
   const isSendMaxFormState = useWatch({ control, name: 'isSendMax' })
@@ -45,6 +44,7 @@ export const useTradeAmounts = () => {
     sellAssetFiatRate: sellAssetFiatRateFormState,
     sellTradeAsset,
     buyTradeAsset,
+    fees: feesFormState,
   } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
@@ -226,8 +226,13 @@ export const useTradeAmounts = () => {
       const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
 
       if (!bestTradeSwapper) {
-        swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
-        setValue('fees', undefined)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            quote: undefined,
+            fees: undefined,
+          },
+        })
         return
       }
 
@@ -255,8 +260,13 @@ export const useTradeAmounts = () => {
         : {}
 
       if (usdRates) {
-        swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: quoteResponse?.data })
-        setValue('fees', formFees)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            quote: quoteResponse?.data,
+            fees: formFees,
+          },
+        })
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,
@@ -275,9 +285,9 @@ export const useTradeAmounts = () => {
             sellAssetFiatRate: undefined,
             buyAssetFiatRate: undefined,
             feeAssetFiatRate: undefined,
+            fees: undefined,
           },
         })
-        setValue('fees', undefined)
       }
     },
     [
@@ -296,7 +306,6 @@ export const useTradeAmounts = () => {
       getTradeQuote,
       getUsdRates,
       swapperDispatch,
-      setValue,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
     ],

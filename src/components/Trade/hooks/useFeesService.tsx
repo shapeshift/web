@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,10 +14,10 @@ The only mutation is on TradeState's fees property.
 */
 export const useFeesService = () => {
   // Form hooks
-  const { control, setValue } = useFormContext<TS>()
+  const { control } = useFormContext<TS>()
   const trade = useWatch({ control, name: 'trade' })
   const { quote } = useSwapperState()
-  const { sellTradeAsset } = useSwapperState()
+  const { dispatch: swapperDispatch, sellTradeAsset } = useSwapperState()
 
   // Hooks
   const { bestTradeSwapper } = useSwapper()
@@ -39,7 +39,7 @@ export const useFeesService = () => {
         tradeFeeSource: bestTradeSwapper.name,
         feeAsset: sellFeeAsset,
       })
-      setValue('fees', formFees)
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fees: formFees } })
     }
-  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, setValue, trade])
+  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, trade, swapperDispatch])
 }

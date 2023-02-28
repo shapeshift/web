@@ -1,9 +1,9 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import type { Dispatch, FC, PropsWithChildren } from 'react'
+import type { Context, Dispatch, FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useReducer } from 'react'
-import type { TradeAsset } from 'components/Trade/types'
+import type { DisplayFeeData, TradeAsset } from 'components/Trade/types'
 
 export type SwapperState<C extends ChainId = ChainId> = {
   receiveAddress?: string
@@ -19,7 +19,9 @@ export type SwapperState<C extends ChainId = ChainId> = {
   sellAssetFiatRate?: string
   buyAssetFiatRate?: string
   feeAssetFiatRate?: string
+  fees?: DisplayFeeData<C>
 }
+
 export enum SwapperActionType {
   SET_VALUES = 'SET_VALUES',
   SET_RECEIVE_ADDRESS = 'SET_RECEIVE_ADDRESS',
@@ -58,12 +60,10 @@ export type SwapperAction =
       }
     }
 
-export type SwapperContextType = {
-  state: SwapperState
+export type SwapperContextType<T extends ChainId = ChainId> = {
+  state: SwapperState<T>
   dispatch: Dispatch<SwapperAction>
 }
-
-const SwapperContext = createContext<SwapperContextType | undefined>(undefined)
 
 export const swapperReducer = (state: SwapperState, action: SwapperAction): SwapperState => {
   switch (action.type) {
@@ -123,8 +123,12 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
   }
 }
 
-export function useSwapperState() {
-  const context = useContext(SwapperContext)
+const SwapperContext = createContext<SwapperContextType | undefined>(undefined)
+
+export function useSwapperState<T extends ChainId = ChainId>() {
+  const context = useContext<SwapperContextType<T> | undefined>(
+    SwapperContext as Context<SwapperContextType<T> | undefined>,
+  )
   if (context === undefined) {
     throw new Error('useSwapperState must be used within a SwapperProvider')
   }

@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
@@ -10,7 +9,7 @@ import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuo
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
-import type { DisplayFeeData, TS } from 'components/Trade/types'
+import type { DisplayFeeData } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -29,10 +28,6 @@ import {
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useTradeAmounts = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
-  const amountFormState = useWatch({ control, name: 'amount' })
-
   // Hooks
   const featureFlags = useAppSelector(selectFeatureFlags)
   const appDispatch = useAppDispatch()
@@ -45,6 +40,7 @@ export const useTradeAmounts = () => {
     fees: feesFormState,
     action: actionFormState,
     isSendMax: isSendMaxFormState,
+    amount: amountFormState,
   } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet

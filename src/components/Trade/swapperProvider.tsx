@@ -28,6 +28,7 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   isExactAllowance?: boolean
   slippage: string
   isSendMax: boolean
+  amount: string
 }
 
 export enum SwapperActionType {
@@ -145,8 +146,8 @@ export function useSwapperState<T extends KnownChainIds = KnownChainIds>() {
 }
 
 export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [state, dispatch] = useReducer(swapperReducer, {
-    // amount: '0',
+  const initialState: SwapperState = {
+    amount: '0',
     isExactAllowance: false,
     slippage: DEFAULT_SLIPPAGE,
     action: TradeAmountInputField.SELL_CRYPTO,
@@ -155,7 +156,8 @@ export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {
     buyTradeAsset: { amountCryptoPrecision: '0' },
     fiatSellAmount: '0',
     fiatBuyAmount: '0',
-  })
+  }
+  const [state, dispatch] = useReducer(swapperReducer, initialState)
 
   const value: SwapperContextType = useMemo(() => ({ state, dispatch }), [state])
   // all services would go here, and receive the dispatch function and state

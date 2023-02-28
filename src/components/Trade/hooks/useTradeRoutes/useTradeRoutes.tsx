@@ -1,10 +1,8 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
-import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
 export enum AssetClickAction {
@@ -16,7 +14,6 @@ export const useTradeRoutes = (): {
   handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
-  const { setValue } = useFormContext<TS>()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
   const { dispatch: swapperDispatch, buyTradeAsset, sellTradeAsset } = useSwapperState()
 
@@ -72,7 +69,6 @@ export const useTradeRoutes = (): {
         })
       }
 
-      setValue('amount', '0')
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
@@ -80,6 +76,7 @@ export const useTradeRoutes = (): {
           trade: undefined,
           action: TradeAmountInputField.SELL_FIAT,
           isSendMax: false,
+          amount: '0',
         },
       })
       swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
@@ -93,7 +90,7 @@ export const useTradeRoutes = (): {
         action: TradeAmountInputField.SELL_FIAT,
       })
     },
-    [sellTradeAsset, buyTradeAsset, setValue, swapperDispatch, history, setTradeAmountsRefetchData],
+    [sellTradeAsset, buyTradeAsset, swapperDispatch, history, setTradeAmountsRefetchData],
   )
 
   return { handleAssetClick }

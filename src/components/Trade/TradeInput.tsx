@@ -46,8 +46,7 @@ import { TradeAssetInput } from './Components/TradeAssetInput'
 import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
-import type { TS } from './types'
-import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
+import { TradeAmountInputField, TradeRoutePaths } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
@@ -71,7 +70,7 @@ export const TradeInput = () => {
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { setValue, getValues, handleSubmit } = useFormContext<TS>()
+  const { handleSubmit } = useFormContext()
   const {
     state: { wallet },
   } = useWallet()
@@ -160,9 +159,9 @@ export const TradeInput = () => {
           action,
           // If we've overridden the input we are no longer in sendMax mode
           isSendMax: false,
+          amount,
         },
       })
-      setValue('amount', amount)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -172,7 +171,6 @@ export const TradeInput = () => {
     },
     [
       swapperDispatch,
-      setValue,
       isSwapperApiPending,
       quoteAvailableForCurrentAssetPair,
       setTradeAmountsRefetchData,
@@ -183,7 +181,6 @@ export const TradeInput = () => {
   const handleToggle = useCallback(() => {
     try {
       const currentValues = Object.freeze({
-        ...getValues(),
         sellTradeAsset,
         buyTradeAsset,
         sellAssetFiatRate,
@@ -212,14 +209,7 @@ export const TradeInput = () => {
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [
-    buyAssetFiatRate,
-    buyTradeAsset,
-    swapperDispatch,
-    getValues,
-    sellAssetFiatRate,
-    sellTradeAsset,
-  ])
+  }, [buyAssetFiatRate, buyTradeAsset, swapperDispatch, sellAssetFiatRate, sellTradeAsset])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
@@ -235,9 +225,9 @@ export const TradeInput = () => {
         sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
         action: TradeAmountInputField.SELL_CRYPTO,
         isSendMax: true,
+        amount: maxSendAmount,
       },
     })
-    setValue('amount', maxSendAmount)
 
     // We need to get a fresh quote with the sendMax flag true
     await setTradeAmountsRefetchData({
@@ -255,30 +245,25 @@ export const TradeInput = () => {
     sellFeeAsset,
     sellTradeAsset,
     setTradeAmountsRefetchData,
-    setValue,
   ])
 
-  const onSubmit = useCallback(
-    async (values: TradeState) => {
-      setIsLoading(true)
-      moduleLogger.info(values, 'debugging logger')
-      try {
-        const isApproveNeeded = await checkApprovalNeeded()
-        if (isApproveNeeded) {
-          history.push({ pathname: TradeRoutePaths.Approval })
-          return
-        }
-        const trade = await getTrade()
-        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
-        history.push({ pathname: TradeRoutePaths.Confirm })
-      } catch (e) {
-        moduleLogger.error(e, 'onSubmit error')
-      } finally {
-        setIsLoading(false)
+  const onSubmit = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const isApproveNeeded = await checkApprovalNeeded()
+      if (isApproveNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval })
+        return
       }
-    },
-    [checkApprovalNeeded, getTrade, history, swapperDispatch],
-  )
+      const trade = await getTrade()
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+      history.push({ pathname: TradeRoutePaths.Confirm })
+    } catch (e) {
+      moduleLogger.error(e, 'onSubmit error')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [checkApprovalNeeded, getTrade, history, swapperDispatch])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
     async (value: string, isFiat: boolean | undefined) => {

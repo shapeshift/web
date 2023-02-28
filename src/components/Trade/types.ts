@@ -30,12 +30,6 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
   networkFeeCryptoHuman: string
 }
 
-export type TradeState = {
-  amount: string
-}
-
-export type TS = TradeState
-
 export enum TradeRoutePaths {
   Input = '/trade/input',
   Confirm = '/trade/confirm',

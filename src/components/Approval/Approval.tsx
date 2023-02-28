@@ -26,7 +26,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -51,7 +50,7 @@ export const Approval = () => {
   const {
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TS>()
+  } = useFormContext()
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },

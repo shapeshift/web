@@ -7,7 +7,6 @@ import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProv
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
 import { TradeRoutes } from './TradeRoutes/TradeRoutes'
-import type { TS } from './types'
 import { TradeAmountInputField } from './types'
 
 export type TradeProps = {
@@ -21,12 +20,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
 
   const { dispatch: swapperDispatch } = useSwapperState()
 
-  const methods = useForm<TS>({
-    mode: 'onChange',
-    defaultValues: {
-      amount: '0',
-    },
-  })
+  const methods = useForm({ mode: 'onChange' })
 
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
@@ -55,6 +49,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         trade: undefined,
         action: TradeAmountInputField.SELL_FIAT,
         isExactAllowance: false,
+        amount: '0',
       }
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
@@ -68,7 +63,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         // Else, we know the default values have been set, so don't run this again unless the route changes
         setHasSetDefaultValues(true)
       }
-      methods.setValue('amount', '0')
     })()
   }, [
     defaultBuyAssetId,

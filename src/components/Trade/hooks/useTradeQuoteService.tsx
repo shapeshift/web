@@ -3,10 +3,8 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
@@ -19,12 +17,10 @@ import { useAppSelector } from 'state/store'
 
 /*
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
-The only mutation is on TradeState's quote property.
+The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
-  const { control, setValue } = useFormContext<TS>()
-  const amount = useWatch({ control, name: 'amount' })
-  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, action, isSendMax, quote } =
+  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, action, isSendMax, quote, amount } =
     useSwapperState()
 
   // Types
@@ -102,7 +98,6 @@ export const useTradeQuoteService = () => {
     selectedCurrencyToUsdRate,
     sellAsset,
     sellTradeAsset,
-    setValue,
     wallet,
     isSendMax,
   ])

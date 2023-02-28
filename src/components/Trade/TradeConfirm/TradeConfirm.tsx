@@ -48,7 +48,6 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
@@ -63,7 +62,7 @@ export const TradeConfirm = () => {
   const {
     handleSubmit,
     formState: { isSubmitting },
-  } = useFormContext<TS>()
+  } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
 

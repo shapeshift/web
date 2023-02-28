@@ -8,7 +8,7 @@ import { useAppSelector } from 'state/store'
 
 /*
 The Fees Service is responsible for reacting to changes to quote and trades, and updating the fees accordingly.
-The only mutation is on TradeState's fees property.
+The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
   const { dispatch: swapperDispatch, sellTradeAsset, quote, trade } = useSwapperState()

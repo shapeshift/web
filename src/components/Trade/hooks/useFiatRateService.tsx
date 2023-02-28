@@ -9,7 +9,7 @@ import { useAppSelector } from 'state/store'
 
 /*
 The Fiat Rate Service is responsible for fetching and setting fiat rates.
-It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of TradeState.
+It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of SwapperState.
 It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {

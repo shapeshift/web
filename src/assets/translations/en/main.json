@@ -94,7 +94,7 @@
   },
   "consentBanner": {
     "body": {
-      "1": "Our DApp uses anonymized click tracking to analyze performance and improve our product. By using app.shapeshift.com, you agree to our tracking. Visit",
+      "1": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit",
       "2": "private.shapeshift.com",
       "3": "if you don't want to be anonymously tracked. See our",
       "4": "Privacy Policy",

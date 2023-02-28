@@ -38,3 +38,9 @@ jobs:
     name: Call
     uses: ./.github/workflows/pr.yml
     needs: [install-and-cache]
+
+  call-cloudflare-workflow:
+    name: Call
+    uses: ./.github/workflows/cloudflare.yml
+    secrets: inherit # pass org/repo secrets to the called workflow
+    needs: [install-and-cache]

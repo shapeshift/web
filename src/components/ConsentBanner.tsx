@@ -10,7 +10,7 @@ import { RawText } from './Text'
 export const ConsentBanner: React.FC = () => {
   const translate = useTranslate()
   const handleDimiss = useCallback(() => {
-    store.dispatch(preferences.actions.setConsentBanner({ show: false }))
+    store.dispatch(preferences.actions.setShowConsentBanner(false))
   }, [])
   return (
     <Portal>

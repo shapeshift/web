@@ -107,8 +107,8 @@ export const preferences = createSlice({
     setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
       state.showWelcomeModal = payload.show
     },
-    setConsentBanner(state, { payload }: { payload: { show: boolean } }) {
-      state.showConsentBanner = payload.show
+    setShowConsentBanner(state, { payload }: { payload: boolean }) {
+      state.showConsentBanner = payload
     },
   },
 })

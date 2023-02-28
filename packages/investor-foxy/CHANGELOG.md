@@ -1,3 +1,15 @@
+# [@shapeshiftoss/investor-foxy-v8.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.3...@shapeshiftoss/investor-foxy-v8.0.0) (2023-02-28)
+
+
+### Features
+
+* **investor-foxy:** rename Token_Staking provider to Staking ([#1218](https://github.com/shapeshift/lib/issues/1218)) ([d17ffe5](https://github.com/shapeshift/lib/commit/d17ffe582a5f6c27043079cca0e13d63703c22f4))
+
+
+### BREAKING CHANGES
+
+* **investor-foxy:** rename DefiType.TokenStaking to DefiType.Staking
+
 # [@shapeshiftoss/investor-foxy-v7.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.2...@shapeshiftoss/investor-foxy-v7.1.3) (2023-02-24)
 
 # [@shapeshiftoss/investor-foxy-v7.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.1...@shapeshiftoss/investor-foxy-v7.1.2) (2023-02-23)

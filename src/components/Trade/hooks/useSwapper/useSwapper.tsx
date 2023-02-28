@@ -38,7 +38,7 @@ export const useSwapper = () => {
   const { control } = useFormContext<TS>()
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const quote = useWatch({ control, name: 'quote' })
+  const { quote } = useSwapperState()
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
   const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })

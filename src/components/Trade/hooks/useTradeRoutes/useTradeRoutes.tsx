@@ -3,8 +3,10 @@ import { useCallback } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { SwapperActionType } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
+import { useAppDispatch } from 'state/store'
 
 export enum AssetClickAction {
   Buy = 'buy',
@@ -17,6 +19,8 @@ export const useTradeRoutes = (): {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TS>()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
+  const dispatch = useAppDispatch()
+
   const buyTradeAsset = getValues('buyTradeAsset')
   const sellTradeAsset = getValues('sellTradeAsset')
 
@@ -49,7 +53,7 @@ export const useTradeRoutes = (): {
       setValue('buyTradeAsset.amountCryptoPrecision', '0')
       setValue('fiatBuyAmount', '0')
       setValue('fiatSellAmount', '0')
-      setValue('quote', undefined)
+      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       setValue('trade', undefined)
       setValue('sellAssetFiatRate', undefined)
       setValue('buyAssetFiatRate', undefined)
@@ -70,8 +74,9 @@ export const useTradeRoutes = (): {
       buyTradeAsset?.asset?.assetId,
       getValues,
       setValue,
-      setTradeAmountsRefetchData,
+      dispatch,
       history,
+      setTradeAmountsRefetchData,
     ],
   )
 

@@ -19,7 +19,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -37,7 +37,7 @@ import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
@@ -48,7 +48,7 @@ import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import type { TS } from './types'
-import { TradeAmountInputField, TradeRoutePaths, type TradeState } from './types'
+import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
@@ -81,10 +81,11 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
+  const dispatch = useAppDispatch()
+
   // Watched form fields
   const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
   const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const quote = useWatch({ control, name: 'quote' })
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
   const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
@@ -92,6 +93,8 @@ export const TradeInput = () => {
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
+
+  const { quote } = useSwapperState()
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -187,13 +190,13 @@ export const TradeInput = () => {
 
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
       setValue('feeAssetFiatRate', undefined)
-      setValue('quote', undefined)
+      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       setValue('trade', undefined)
       setValue('fees', undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [getValues, setValue])
+  }, [dispatch, getValues, setValue])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return

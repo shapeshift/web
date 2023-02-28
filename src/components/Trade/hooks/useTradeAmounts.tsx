@@ -9,6 +9,7 @@ import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmo
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
+import { SwapperActionType } from 'components/Trade/swapperProvider'
 import type { DisplayFeeData, TS } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -211,7 +212,7 @@ export const useTradeAmounts = () => {
       const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
 
       if (!bestTradeSwapper) {
-        setValue('quote', undefined)
+        dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
         setValue('fees', undefined)
         return
       }
@@ -240,7 +241,7 @@ export const useTradeAmounts = () => {
         : {}
 
       if (usdRates) {
-        setValue('quote', quoteResponse?.data)
+        dispatch({ type: SwapperActionType.SET_QUOTE, payload: quoteResponse?.data })
         setValue('fees', formFees)
         setTradeAmounts({
           amount: amountToUse,

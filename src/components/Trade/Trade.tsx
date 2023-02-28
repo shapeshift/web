@@ -3,6 +3,7 @@ import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
 import { TradeRoutes } from './TradeRoutes/TradeRoutes'
@@ -17,6 +18,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const { getDefaultAssets, defaultAssetIdPair } = useDefaultAssets(defaultBuyAssetId)
   const location = useLocation()
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
+
+  const { dispatch } = useSwapperState()
 
   const methods = useForm<TS>({
     mode: 'onChange',
@@ -58,7 +61,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       methods.setValue('buyTradeAsset.amountCryptoPrecision', '0')
       methods.setValue('fiatBuyAmount', '0')
       methods.setValue('fiatSellAmount', '0')
-      methods.setValue('quote', undefined)
+      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       methods.setValue('trade', undefined)
       methods.setValue('sellAssetFiatRate', undefined)
       methods.setValue('buyAssetFiatRate', undefined)
@@ -74,6 +77,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
+    dispatch,
   ])
 
   if (!methods) return null

@@ -5,7 +5,7 @@ import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useSwapperState } from 'components/Trade/swapperProvider'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import type { TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -30,7 +30,7 @@ export const useTradeQuoteService = () => {
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })
-  const quote = useWatch({ control, name: 'quote' })
+  const { quote } = useSwapperState()
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -39,7 +39,7 @@ export const useTradeQuoteService = () => {
   // State
   const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-  const { receiveAddress } = useSwapperState()
+  const { dispatch, receiveAddress } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -113,7 +113,10 @@ export const useTradeQuoteService = () => {
   ])
 
   // Update trade quote
-  useEffect(() => setValue('quote', tradeQuote), [tradeQuote, setValue])
+  useEffect(
+    () => dispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote }),
+    [tradeQuote, setValue, dispatch],
+  )
 
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
@@ -128,8 +131,8 @@ export const useTradeQuoteService = () => {
   // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
     // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote && tradeQuote && setValue('quote', tradeQuote)
-  }, [quote, setValue, tradeQuote])
+    !quote && tradeQuote && dispatch({ type: SwapperActionType.SET_QUOTE, payload: tradeQuote })
+  }, [dispatch, quote, setValue, tradeQuote])
 
   return {
     isLoadingTradeQuote,

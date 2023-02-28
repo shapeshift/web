@@ -1,14 +1,9 @@
 on:
   workflow_call:
-    branches:
-      - 'develop'
-      - 'release'
-      - 'yeet'
-      - 'main'
-      - 'private'
 
 jobs:
   deploy:
+    if: contains(fromJSON('['develop', 'release', 'yeet', 'main', 'private']'), github.ref_name)
     runs-on: size-bertha
     permissions:
       contents: read

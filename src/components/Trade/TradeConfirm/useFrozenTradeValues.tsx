@@ -14,10 +14,12 @@ export const useFrozenTradeValues = () => {
   const formFeeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const formBuyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
   const formSlippage = useWatch({ control, name: 'slippage' })
-  const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const formSellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
 
-  const { buyTradeAsset: formBuyTradeAsset } = useSwapperState()
+  const {
+    buyTradeAsset: formBuyTradeAsset,
+    buyAssetAccountId: formBuyAssetAccountId,
+    sellAssetAccountId: formSellAssetAccountId,
+  } = useSwapperState()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
@@ -27,9 +29,10 @@ export const useFrozenTradeValues = () => {
   const [frozenBuyAssetFiatRate, setFrozenBuyAssetFiatRate] = useState<TS['buyAssetFiatRate']>()
   const [frozenFeeAssetFiatRate, setFrozenFeeAssetFiatRate] = useState<TS['feeAssetFiatRate']>()
   const [frozenSlippage, setFrozenSlippage] = useState<TS['slippage']>()
-  const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] = useState<TS['buyAssetAccountId']>()
+  const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] =
+    useState<SwapperState['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
-    useState<TS['sellAssetAccountId']>()
+    useState<SwapperState['sellAssetAccountId']>()
   const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()

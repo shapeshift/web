@@ -39,8 +39,13 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_SELL_ASSET,
             payload: previousBuyTradeAsset?.asset,
           })
-        setValue('selectedBuyAssetAccountId', undefined)
-        setValue('buyAssetAccountId', undefined)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            selectedBuyAssetAccountId: undefined,
+            buyAssetAccountId: undefined,
+          },
+        })
       }
 
       if (isSell) {
@@ -53,8 +58,13 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_BUY_ASSET,
             payload: previousSellTradeAsset?.asset,
           })
-        setValue('selectedSellAssetAccountId', undefined)
-        setValue('sellAssetAccountId', undefined)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            selectedSellAssetAccountId: undefined,
+            sellAssetAccountId: undefined,
+          },
+        })
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)

@@ -1,5 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Dispatch, FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useReducer } from 'react'
@@ -10,6 +10,10 @@ export type SwapperState<C extends ChainId = ChainId> = {
   quote?: TradeQuote<C>
   buyTradeAsset?: TradeAsset
   sellTradeAsset?: TradeAsset
+  sellAssetAccountId?: AccountId | undefined
+  buyAssetAccountId?: AccountId | undefined
+  selectedSellAssetAccountId?: AccountId
+  selectedBuyAssetAccountId?: AccountId
 }
 export enum SwapperActionType {
   SET_VALUES = 'SET_VALUES',

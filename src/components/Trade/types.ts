@@ -1,5 +1,5 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -32,10 +32,6 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
 }
 
 export type TradeState<C extends ChainId> = {
-  sellAssetAccountId: AccountId | undefined
-  buyAssetAccountId: AccountId | undefined
-  selectedSellAssetAccountId?: AccountId
-  selectedBuyAssetAccountId?: AccountId
   fiatSellAmount: string
   fiatBuyAmount: string
   sellAssetFiatRate?: string

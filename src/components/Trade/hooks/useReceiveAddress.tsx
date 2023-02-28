@@ -1,10 +1,8 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -14,14 +12,9 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 export const useReceiveAddress = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const { buyTradeAsset } = useSwapperState()
-
   // Hooks
   const wallet = useWallet().state.wallet
-  const { dispatch } = useSwapperState()
+  const { dispatch: swapperDispatch, buyTradeAsset, buyAssetAccountId } = useSwapperState()
 
   // Constants
   const buyAsset = buyTradeAsset?.asset
@@ -70,12 +63,12 @@ export const useReceiveAddress = () => {
     ;(async () => {
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        dispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: receiveAddress })
+        swapperDispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: receiveAddress })
       } catch (e) {
-        dispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: undefined })
+        swapperDispatch({ type: SwapperActionType.SET_RECEIVE_ADDRESS, payload: undefined })
       }
     })()
-  }, [buyTradeAsset?.asset, dispatch, getReceiveAddressFromBuyAsset])
+  }, [buyTradeAsset?.asset, swapperDispatch, getReceiveAddressFromBuyAsset])
 
   return { getReceiveAddressFromBuyAsset }
 }

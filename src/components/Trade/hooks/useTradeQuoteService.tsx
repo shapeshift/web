@@ -24,8 +24,7 @@ The only mutation is on TradeState's quote property.
 export const useTradeQuoteService = () => {
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
+  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId } = useSwapperState()
   const amount = useWatch({ control, name: 'amount' })
   const action = useWatch({ control, name: 'action' })
   const isSendMax = useWatch({ control, name: 'isSendMax' })

@@ -69,7 +69,7 @@ export const TradeInput = () => {
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
   } = useSwapper()
-  const { receiveAddress } = useSwapperState()
+  const { dispatch: swapperDispatch, receiveAddress } = useSwapperState()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -81,13 +81,11 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
-  const { dispatch } = useSwapperState()
+  const { dispatch, sellAssetAccountId, buyAssetAccountId } = useSwapperState()
 
   // Watched form fields
   const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
   const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
   const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
@@ -277,10 +275,20 @@ export const TradeInput = () => {
   )
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    setValue('selectedSellAssetAccountId', accountId)
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        selectedSellAssetAccountId: accountId,
+      },
+    })
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    setValue('selectedBuyAssetAccountId', accountId)
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        selectedBuyAssetAccountId: accountId,
+      },
+    })
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)

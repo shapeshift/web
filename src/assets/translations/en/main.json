@@ -92,6 +92,16 @@
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now"
   },
+  "consentBanner": {
+    "body": {
+      "1": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit",
+      "2": "private.shapeshift.com",
+      "3": "if you don't want to be anonymously tracked. See our",
+      "4": "Privacy Policy",
+      "5": "for more details."
+    },
+    "cta": "Got It"
+  },
   "errorPage": {
     "title": "Oops!",
     "body": "Something went wrong",

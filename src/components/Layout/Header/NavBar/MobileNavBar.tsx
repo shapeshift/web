@@ -34,6 +34,7 @@ export const MobileNavBar = () => {
           _active={{ bg: 'transparent', svg: { color: 'blue.200' } }}
           py={2}
           width='full'
+          zIndex='sticky'
         >
           {route.icon}
           <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'gray.500'}>

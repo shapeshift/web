@@ -184,9 +184,12 @@ export const useGetTradeAmounts = () => {
   // Form hooks
   const { control } = useFormContext<TS>()
   const amount = useWatch({ control, name: 'amount' })
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
-  const buyAssetUsdRate = useWatch({ control, name: 'buyAssetFiatRate' })
-  const sellAssetUsdRate = useWatch({ control, name: 'sellAssetFiatRate' })
+  const {
+    sellTradeAsset,
+    buyTradeAsset,
+    buyAssetFiatRate: buyAssetUsdRate,
+    sellAssetFiatRate: sellAssetUsdRate,
+  } = useSwapperState()
   const fees = useWatch({ control, name: 'fees' })
   const action = useWatch({ control, name: 'action' })
 

@@ -3,6 +3,7 @@ import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
+import type { SwapperState } from 'components/Trade/swapperProvider'
 import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
@@ -24,8 +25,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const methods = useForm<TS>({
     mode: 'onChange',
     defaultValues: {
-      fiatSellAmount: '0',
-      fiatBuyAmount: '0',
       amount: '0',
       isExactAllowance: false,
       slippage: DEFAULT_SLIPPAGE,
@@ -43,19 +42,25 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const result = await getDefaultAssets()
       if (!result) return
       const { buyAsset, sellAsset } = result
+      const swapperState: SwapperState = {
+        sellTradeAsset: {
+          asset: sellAsset,
+          amountCryptoPrecision: '0',
+        },
+        buyTradeAsset: {
+          asset: buyAsset,
+          amountCryptoPrecision: '0',
+        },
+        quote: undefined,
+        fiatBuyAmount: '0',
+        fiatSellAmount: '0',
+        sellAssetFiatRate: undefined,
+        buyAssetFiatRate: undefined,
+        feeAssetFiatRate: undefined,
+      }
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
-        payload: {
-          sellTradeAsset: {
-            asset: sellAsset,
-            amountCryptoPrecision: '0',
-          },
-          buyTradeAsset: {
-            asset: buyAsset,
-            amountCryptoPrecision: '0',
-          },
-          quote: undefined,
-        },
+        payload: swapperState,
       })
       const defaultAssetsAreChainDefaults =
         sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
@@ -67,12 +72,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       }
       methods.setValue('action', TradeAmountInputField.SELL_FIAT)
       methods.setValue('amount', '0')
-      methods.setValue('fiatBuyAmount', '0')
-      methods.setValue('fiatSellAmount', '0')
       methods.setValue('trade', undefined)
-      methods.setValue('sellAssetFiatRate', undefined)
-      methods.setValue('buyAssetFiatRate', undefined)
-      methods.setValue('feeAssetFiatRate', undefined)
       methods.setValue('isSendMax', false)
     })()
   }, [

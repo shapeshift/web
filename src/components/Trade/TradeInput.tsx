@@ -81,16 +81,21 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
-  const { dispatch, sellAssetAccountId, buyAssetAccountId } = useSwapperState()
+  const {
+    dispatch,
+    sellAssetAccountId,
+    buyAssetAccountId,
+    feeAssetFiatRate,
+    fiatSellAmount,
+    fiatBuyAmount,
+  } = useSwapperState()
 
   // Watched form fields
-  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
   const fees = useWatch({ control, name: 'fees' })
-  const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
-  const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
   const slippage = useWatch({ control, name: 'slippage' })
 
-  const { quote, sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const { quote, sellTradeAsset, buyTradeAsset, sellAssetFiatRate, buyAssetFiatRate } =
+    useSwapperState()
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -172,7 +177,13 @@ export const TradeInput = () => {
 
   const handleToggle = useCallback(() => {
     try {
-      const currentValues = Object.freeze({ ...getValues(), sellTradeAsset, buyTradeAsset })
+      const currentValues = Object.freeze({
+        ...getValues(),
+        sellTradeAsset,
+        buyTradeAsset,
+        sellAssetFiatRate,
+        buyAssetFiatRate,
+      })
       const currentSellTradeAsset = currentValues.sellTradeAsset
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
@@ -182,22 +193,30 @@ export const TradeInput = () => {
         payload: {
           buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
           sellTradeAsset: { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' },
+          fiatSellAmount: '0',
+          fiatBuyAmount: '0',
+          buyAssetFiatRate: currentValues.sellAssetFiatRate,
+          sellAssetFiatRate: currentValues.buyAssetFiatRate,
+          feeAssetFiatRate: undefined,
+          quote: undefined,
         },
       })
-      setValue('fiatSellAmount', '0')
-      setValue('fiatBuyAmount', '0')
-      setValue('buyAssetFiatRate', currentValues.sellAssetFiatRate)
-      setValue('sellAssetFiatRate', currentValues.buyAssetFiatRate)
 
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
-      setValue('feeAssetFiatRate', undefined)
-      dispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       setValue('trade', undefined)
       setValue('fees', undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [buyTradeAsset, dispatch, getValues, sellTradeAsset, setValue])
+  }, [
+    buyAssetFiatRate,
+    buyTradeAsset,
+    dispatch,
+    getValues,
+    sellAssetFiatRate,
+    sellTradeAsset,
+    setValue,
+  ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return

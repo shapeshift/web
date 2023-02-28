@@ -1,10 +1,8 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/swapperProvider'
-import type { TS } from 'components/Trade/types'
+import { SwapperActionType, useSwapperState } from 'components/Trade/swapperProvider'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -22,12 +20,9 @@ export const useFiatRateService = () => {
   // Hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
-  // Form hooks
-  const { setValue } = useFormContext<TS>()
-
   // State
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const { dispatch: swapperDispatch, sellTradeAsset, buyTradeAsset } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -58,11 +53,16 @@ export const useFiatRateService = () => {
   // Set fiat rates
   useEffect(() => {
     if (usdRates) {
-      setValue('buyAssetFiatRate', usdRates.buyAssetUsdRate)
-      setValue('sellAssetFiatRate', usdRates.sellAssetUsdRate)
-      setValue('feeAssetFiatRate', usdRates.feeAssetUsdRate)
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          buyAssetFiatRate: usdRates.buyAssetUsdRate,
+          sellAssetFiatRate: usdRates.sellAssetUsdRate,
+          feeAssetFiatRate: usdRates.feeAssetUsdRate,
+        },
+      })
     }
-  }, [usdRates, setValue])
+  }, [usdRates, swapperDispatch])
 
   return { isLoadingFiatRateData }
 }

@@ -63,20 +63,20 @@ export const useTradeRoutes = (): {
           payload: {
             selectedSellAssetAccountId: undefined,
             sellAssetAccountId: undefined,
+            fiatBuyAmount: '0',
+            fiatSellAmount: '0',
+            sellAssetFiatRate: undefined,
+            buyAssetFiatRate: undefined,
+            feeAssetFiatRate: undefined,
           },
         })
       }
 
       setValue('action', TradeAmountInputField.SELL_FIAT)
       setValue('amount', '0')
-      setValue('fiatBuyAmount', '0')
-      setValue('fiatSellAmount', '0')
       swapperDispatch({ type: SwapperActionType.SET_QUOTE, payload: undefined })
       swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
       setValue('trade', undefined)
-      setValue('sellAssetFiatRate', undefined)
-      setValue('buyAssetFiatRate', undefined)
-      setValue('feeAssetFiatRate', undefined)
       setValue('isSendMax', false)
 
       history.push(TradeRoutePaths.Input)

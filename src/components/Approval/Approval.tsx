@@ -66,10 +66,9 @@ export const Approval = () => {
   const { showErrorToast } = useErrorHandler()
   const { fees } = getValues()
 
-  const { quote } = useSwapperState()
+  const { quote, feeAssetFiatRate } = useSwapperState()
 
   const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
-  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
 
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)

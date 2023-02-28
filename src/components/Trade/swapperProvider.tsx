@@ -14,6 +14,11 @@ export type SwapperState<C extends ChainId = ChainId> = {
   buyAssetAccountId?: AccountId | undefined
   selectedSellAssetAccountId?: AccountId
   selectedBuyAssetAccountId?: AccountId
+  fiatSellAmount?: string
+  fiatBuyAmount?: string
+  sellAssetFiatRate?: string
+  buyAssetFiatRate?: string
+  feeAssetFiatRate?: string
 }
 export enum SwapperActionType {
   SET_VALUES = 'SET_VALUES',
@@ -48,6 +53,8 @@ export type SwapperAction =
       payload: {
         buyAmountCryptoPrecision?: string
         sellAmountCryptoPrecision?: string
+        fiatSellAmount?: string
+        fiatBuyAmount?: string
       }
     }
 
@@ -80,6 +87,8 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
     case SwapperActionType.SET_TRADE_AMOUNTS:
       const buyAmountCryptoPrecision = action.payload.buyAmountCryptoPrecision
       const sellAmountCryptoPrecision = action.payload.sellAmountCryptoPrecision
+      const fiatSellAmount = action.payload.fiatSellAmount
+      const fiatBuyAmount = action.payload.fiatBuyAmount
       return {
         ...state,
         buyTradeAsset: {
@@ -94,6 +103,8 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
               ? { amountCryptoPrecision: sellAmountCryptoPrecision }
               : {})(),
         },
+        ...(() => (fiatSellAmount ? { fiatSellAmount } : {}))(),
+        ...(() => (fiatBuyAmount ? { fiatBuyAmount } : {}))(),
       }
     case SwapperActionType.CLEAR_AMOUNTS:
       return {

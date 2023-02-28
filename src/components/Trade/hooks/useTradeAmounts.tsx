@@ -31,9 +31,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 export const useTradeAmounts = () => {
   // Form hooks
   const { control, setValue } = useFormContext<TS>()
-  const buyAssetFiatRateFormState = useWatch({ control, name: 'buyAssetFiatRate' })
-  const sellAssetFiatRateFormState = useWatch({ control, name: 'sellAssetFiatRate' })
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
   const feesFormState = useWatch({ control, name: 'fees' })
   const amountFormState = useWatch({ control, name: 'amount' })
   const actionFormState = useWatch({ control, name: 'action' })
@@ -42,7 +39,13 @@ export const useTradeAmounts = () => {
   // Hooks
   const featureFlags = useAppSelector(selectFeatureFlags)
   const appDispatch = useAppDispatch()
-  const { dispatch: swapperDispatch } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    buyAssetFiatRate: buyAssetFiatRateFormState,
+    sellAssetFiatRate: sellAssetFiatRateFormState,
+    sellTradeAsset,
+    buyTradeAsset,
+  } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
 
@@ -85,17 +88,17 @@ export const useTradeAmounts = () => {
         sellAmountSellAssetBaseUnit,
         args.sellAsset.precision,
       )
-      setValue('fiatSellAmount', fiatSellAmount)
-      setValue('fiatBuyAmount', fiatBuyAmount)
       swapperDispatch({
         type: SwapperActionType.SET_TRADE_AMOUNTS,
         payload: {
           buyAmountCryptoPrecision: buyTradeAssetAmount,
           sellAmountCryptoPrecision: sellTradeAssetAmount,
+          fiatSellAmount,
+          fiatBuyAmount,
         },
       })
     },
-    [setValue, swapperDispatch],
+    [swapperDispatch],
   )
 
   // Use the existing fiat rates and quote without waiting for fresh data
@@ -266,9 +269,14 @@ export const useTradeAmounts = () => {
           sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
       } else {
-        setValue('sellAssetFiatRate', undefined)
-        setValue('buyAssetFiatRate', undefined)
-        setValue('feeAssetFiatRate', undefined)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            sellAssetFiatRate: undefined,
+            buyAssetFiatRate: undefined,
+            feeAssetFiatRate: undefined,
+          },
+        })
         setValue('fees', undefined)
       }
     },

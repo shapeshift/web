@@ -32,11 +32,6 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
 }
 
 export type TradeState<C extends ChainId> = {
-  fiatSellAmount: string
-  fiatBuyAmount: string
-  sellAssetFiatRate?: string
-  buyAssetFiatRate?: string
-  feeAssetFiatRate?: string
   fees?: DisplayFeeData<C>
   action: TradeAmountInputField | undefined
   isExactAllowance?: boolean

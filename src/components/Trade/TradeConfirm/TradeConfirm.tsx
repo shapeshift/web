@@ -62,7 +62,6 @@ export const TradeConfirm = () => {
   const [buyTxid, setBuyTxid] = useState('')
   const {
     handleSubmit,
-    setValue,
     formState: { isSubmitting },
   } = useFormContext<TS>()
   const translate = useTranslate()
@@ -99,8 +98,8 @@ export const TradeConfirm = () => {
 
   const reset = useCallback(() => {
     swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
-    setValue('fiatSellAmount', '')
-  }, [setValue, swapperDispatch])
+    swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fiatSellAmount: '' } })
+  }, [swapperDispatch])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(

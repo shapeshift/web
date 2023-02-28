@@ -5,7 +5,6 @@ export enum DefiType {
   LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
-  TokenStaking = 'token_staking', // TODO(0xdef1cafe): delete - what is this?
 }
 
 export enum DefiProvider {

@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -41,6 +41,8 @@ import {
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { IdleEmpty } from './IdleEmpty'
 
 const defaultMenu: DefiButtonProps[] = [
   {
@@ -82,6 +84,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, contractAddress, assetReference } = query
 
   const assetNamespace = 'erc20'
@@ -218,8 +221,12 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         const tagDetails = idleTagDescriptions[tag as IdleTag]
         return (
           <Flex flexDir='column' px={8} py={4} key={tag}>
-            <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
-            <Text color='gray.500' translation={tagDetails.description} />
+            {tagDetails.title && (
+              <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
+            )}
+            {tagDetails.description && (
+              <Text color='gray.500' translation={tagDetails.description} />
+            )}
           </Flex>
         )
       } else return <Tag key={tag}>{tag}</Tag>
@@ -235,6 +242,17 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   }
 
   if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
+
+  if (bnOrZero(fiatAmountAvailable).eq(0) && !hideEmptyState) {
+    return (
+      <IdleEmpty
+        tags={opportunityData.tags}
+        apy={opportunityData.apy}
+        assetId={underlyingAssetId ?? ''}
+        onClick={() => setHideEmptyState(true)}
+      />
+    )
+  }
 
   return (
     <Overview

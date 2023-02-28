@@ -184,6 +184,7 @@ export type GroupedEligibleOpportunityReturnType = {
 
 export type TagDescription = {
   title: string
-  description: string
-  icon?: string
+  description?: string
+  icon?: JSX.Element
+  bullets?: string[]
 }

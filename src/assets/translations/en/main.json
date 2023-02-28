@@ -1724,6 +1724,44 @@
     "custom": "Custom"
   },
   "idle": {
+    "emptyTitle": "Earn %{apy}% on your %{asset} with Idle Finance",
+    "emptyBody": {
+      "bestYield": {
+        "page-1": {
+          "title": "Best Yield Strategy",
+          "body": "The Best-Yield allocation strategy maximizes returns by detecting interest rate changes on different lending protocols."
+        },
+        "page-2": {
+          "title": "Best yield strategies:"
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranche Strategy",
+          "body": "Senior tranches provide great opportunities with lower risk than junior tranches."
+        },
+        "page-2": {
+          "title": "Senior Tranche strategies:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranche Strategy",
+          "body": "Junior tranches provide amplified optimized DeFi yields by carrying a higher grade of risks."
+        },
+        "page-2": {
+          "title": "Junior Tranche strategies:"
+        }
+      },
+      "monitorSystem": "Utilize Idle finance's monitoring system to find better-performing allocations and trigger a rebalance",
+      "offerHighReturn": "Offer high returns without the user constantly checking rates and burning gas on every transfer",
+      "leverageYield": "Leverage yield using Senior tranches funds",
+      "higherRisk": "Higher risk exposure by protecting senior tranches",
+      "minRisk": "Minimized risk exposure",
+      "builtInCoverage": "Built-in coverage for variable rate rewards",
+      "noLockingPeriod": "No locking period or epochs",
+      "autoReinvest": "Auto-Reinvest accrued tokens"
+    },
     "bestYield": {
       "title": "What is Best Yield?",
       "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."

@@ -136,7 +136,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
               <LazyLoadAvatar
                 size='sm'
                 bg='transparent'
-                src={DefiProviderMetadata[row.original.provider].icon}
+                src={row.original.icon ?? DefiProviderMetadata[row.original.provider].icon}
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>

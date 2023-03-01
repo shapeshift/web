@@ -13,7 +13,7 @@ describe('The Dashboard', () => {
     cy.visit('')
   })
 
-  it('supports log in via an imported Native wallet', () => {
+  it('supports log in via an imported ShapeShift wallet', () => {
     cy.clearIndexedDB()
     cy.clearLocalStorage()
 
@@ -61,8 +61,8 @@ describe('The Dashboard', () => {
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
 
-  it('supports login via locally stored Native wallet', () => {
-    // This will use the wallet created in `supports log in via an imported Native wallet`
+  it('supports login via locally stored ShapeShift wallet', () => {
+    // This will use the wallet created in `supports log in via an imported ShapeShift wallet`
     cy.getBySel('connect-wallet-button').click()
     cy.getBySel('consent-optin-continue-button').click()
     cy.getBySel('connect-wallet-native-button').click()

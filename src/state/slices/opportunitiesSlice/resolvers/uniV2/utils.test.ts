@@ -1,14 +1,26 @@
 import { Contract } from '@ethersproject/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
+import type { IUniswapV2Pair } from 'contracts/__generated'
+import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
+import {
+  calculateAPRFromToken0,
+  getToken0Volume24Hr,
+} from 'state/slices/opportunitiesSlice/resolvers/uniV2/utils'
 
-import { TRADING_FEE_RATE } from './const'
-import { calculateAPRFromToken0, getToken0Volume24Hr } from './utils'
+jest.mock('contracts/contractManager', () => ({
+  getOrCreateContract: () => ({
+    filters: {
+      Swap: jest.fn(() => {}),
+    },
+    queryFilter: mockGetPastEvents,
+  }),
+}))
 
 jest.mock('@ethersproject/contracts', () => ({
   Contract: jest.fn().mockImplementation(() => ({
     filters: {
-      Swap: jest.fn(),
+      Swap: jest.fn(() => {}),
     },
     queryFilter: mockGetPastEvents,
   })),
@@ -43,11 +55,11 @@ const mockGetPastEvents = () =>
     ])
   })
 
-const mockContract = new Contract('', '')
+const mockContract = new Contract('', '') as IUniswapV2Pair
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(new Token(1, '', token0Decimals), tokenAmount)
 
-describe('foxpage-utils', () => {
+describe('resolvers/univ2/utils', () => {
   it('should calculate correct token0Volume24hr', async () => {
     const expectedVolume = new BigNumber(amount0In)
       .plus(new BigNumber(amount0Out).div(1 - TRADING_FEE_RATE).decimalPlaces(0))
@@ -62,7 +74,7 @@ describe('foxpage-utils', () => {
   it('should calculate correct APR from given reserves', async () => {
     const input = {
       blockNumber,
-      uniswapLPContract: mockContract,
+      pairAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
       token0Decimals,
       token0Reserves: mockToken0Reserves,
     }

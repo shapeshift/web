@@ -92,6 +92,16 @@
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now"
   },
+  "consentBanner": {
+    "body": {
+      "1": "Our dApp uses anonymized click tracking to analyze performance and improve your experience. By using app.shapeshift.com, you agree to our tracking. Visit",
+      "2": "private.shapeshift.com",
+      "3": "if you don't want to be anonymously tracked. See our",
+      "4": "Privacy Policy",
+      "5": "for more details."
+    },
+    "cta": "Got It"
+  },
   "errorPage": {
     "title": "Oops!",
     "body": "Something went wrong",
@@ -1343,7 +1353,7 @@
         "captchaRequired": "Captcha is required",
         "tooManyAttempts": "Too many attempts, please try again later.",
         "invalidLogin": "Invalid login",
-        "noWallet": "Could not find a ShapeShift Native wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
+        "noWallet": "Could not find a ShapeShift Wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
         "decryptionError": "Something went wrong decrypting your wallet.",
         "twoFactorAuthentication": "Two-Factor Authentication",
         "twoFactorPlaceholder": "6-digit code",
@@ -1353,7 +1363,7 @@
       },
       "onboarding": {
         "skip": "Skip",
-        "shapeShiftNativeWallet": "ShapeShift Native Wallet",
+        "shapeshiftWallet": "ShapeShift Wallet",
         "selfCustody": {
           "title": "Your ShapeShift Wallet is Self-Custody",
           "subTitle": "You hold the keys and you're the only one who can access it.",
@@ -1363,12 +1373,12 @@
         "multiChain": {
           "title": "Multiple chains are supported simultaneously",
           "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
-          "body": "When a new chain is added on ShapeShift, your Native Wallet will automatically support it.",
+          "body": "When a new chain is added on ShapeShift, your ShapeShift Wallet will automatically support it.",
           "cta": "Next"
         },
         "easyToUse": {
           "title": "It's easy to use!",
-          "subTitle": "With ShapeShift Native Wallet you can:",
+          "subTitle": "With ShapeShift Wallet you can:",
           "trackBalance": "Track your balances",
           "sendReceive": "Send/receive crypto",
           "buyCrypto": "Buy crypto",

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -9,17 +9,20 @@ import { useAppSelector } from 'state/store'
 
 /*
 The Accounts Service is responsible for reacting to changes to trade assets and selected accounts.
-It mutates TradeState's sellAssetAccountId and buyAssetAccountId properties.
+It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
-  // Form hooks
-  const { control, setValue } = useFormContext<TS>()
-  const selectedSellAssetAccountId = useWatch({ control, name: 'selectedSellAssetAccountId' })
-  const selectedBuyAssetAccountId = useWatch({ control, name: 'selectedBuyAssetAccountId' })
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const formSellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
+  const {
+    dispatch: swapperDispatch,
+    state: {
+      selectedSellAssetAccountId,
+      selectedBuyAssetAccountId,
+      sellAssetAccountId: stateSellAssetAccountId,
+      buyAssetAccountId: stateBuyAssetAccountId,
+      sellTradeAsset,
+      buyTradeAsset,
+    },
+  } = useSwapperState()
 
   // Custom hooks
   const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
@@ -60,32 +63,35 @@ export const useAccountsService = () => {
 
   // Set sellAssetAccountId
   useEffect(
-    () => setValue('sellAssetAccountId', sellAssetAccountId),
+    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { sellAssetAccountId } }),
     // formSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
-    [sellAssetAccountId, setValue, formSellAssetAccountId],
+    [sellAssetAccountId, stateSellAssetAccountId, swapperDispatch],
   )
 
   // Set buyAssetAccountId
   useEffect(() => {
-    setValue(
-      'buyAssetAccountId',
-      /*
-        This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
-        if we have a swapper, and that swapper does not do either of:
-          - Trades between assets on the same chain but different accounts
-          - Trades between assets on different chains (and possibly different accounts)
-       */
-      swapperSupportsCrossAccountTrade || !bestTradeSwapper
-        ? buyAssetAccountId
-        : sellAssetAccountId,
-    )
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        buyAssetAccountId:
+          /*
+            This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
+            if we have a swapper, and that swapper does not do either of:
+              - Trades between assets on the same chain but different accounts
+              - Trades between assets on different chains (and possibly different accounts)
+           */
+          swapperSupportsCrossAccountTrade || !bestTradeSwapper
+            ? buyAssetAccountId
+            : sellAssetAccountId,
+      },
+    })
     // formBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
   }, [
     buyAssetAccountId,
     sellAssetAccountId,
-    setValue,
+    swapperDispatch,
     swapperSupportsCrossAccountTrade,
-    formBuyAssetAccountId,
+    stateBuyAssetAccountId,
     bestTradeSwapper,
   ])
 }

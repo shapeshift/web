@@ -196,7 +196,7 @@ export const hashPassword = (email: string, password: string): Promise<string | 
 }
 
 /**
- * Decrypt a legacy ShapeShift native wallet
+ * Decrypt a legacy ShapeShift wallet
  */
 export const decryptWallet = (
   email: string,

@@ -28,21 +28,20 @@ import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyA
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SWAPPER_NAME
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
-  private lifiTokens: LifiToken[] = []
+  private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
   private lifiBridges: LifiBridgeDefinition[] = []
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
     const supportedChainRefs = evmChainIds.map(
-      chainId =>
-        // TODO: dont cast to number here, instead do a proper lookup?
-        Number(fromChainId(chainId).chainReference) as LifiChainId,
+      chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
     const { bridges, chains, tokens } = await getLifi().getPossibilities({
@@ -51,7 +50,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
-    if (tokens !== undefined) this.lifiTokens = tokens
+    if (tokens !== undefined) this.lifiAssetMap = createLifiAssetMap(tokens)
     if (bridges !== undefined) this.lifiBridges = bridges
   }
 
@@ -71,7 +70,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get a trade quote
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.lifiTokens, this.lifiChainMap, this.lifiBridges)
+    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
   }
 
   /**
@@ -114,14 +113,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input, this.lifiTokens)
+    return filterBuyAssetsBySellAssetId(input, this.lifiAssetMap)
   }
 
   /**
    * Get supported sell assetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds, this.lifiTokens)
+    return filterAssetIdsBySellable(assetIds, this.lifiAssetMap)
   }
 
   /**

@@ -3,10 +3,9 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
@@ -19,18 +18,20 @@ import { useAppSelector } from 'state/store'
 
 /*
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
-The only mutation is on TradeState's quote property.
+The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
-  // Form hooks
-  const { control, setValue } = useFormContext<TS>()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const amount = useWatch({ control, name: 'amount' })
-  const action = useWatch({ control, name: 'action' })
-  const isSendMax = useWatch({ control, name: 'isSendMax' })
-  const quote = useWatch({ control, name: 'quote' })
+  const {
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetAccountId,
+    action,
+    isSendMax,
+    quote,
+    amount,
+    dispatch: swapperDispatch,
+    receiveAddress,
+  } = useSwapperState()
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
@@ -39,7 +40,6 @@ export const useTradeQuoteService = () => {
   // State
   const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
-  const { receiveAddress } = useReceiveAddress()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -107,29 +107,37 @@ export const useTradeQuoteService = () => {
     selectedCurrencyToUsdRate,
     sellAsset,
     sellTradeAsset,
-    setValue,
     wallet,
     isSendMax,
   ])
 
   // Update trade quote
-  useEffect(() => setValue('quote', tradeQuote), [tradeQuote, setValue])
+  useEffect(
+    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } }),
+    [tradeQuote, swapperDispatch],
+  )
 
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
     () =>
-      setValue(
-        'slippage',
-        tradeQuote?.recommendedSlippage ? tradeQuote.recommendedSlippage : DEFAULT_SLIPPAGE,
-      ),
-    [tradeQuote, setValue],
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          slippage: tradeQuote?.recommendedSlippage
+            ? tradeQuote.recommendedSlippage
+            : DEFAULT_SLIPPAGE,
+        },
+      }),
+    [tradeQuote, swapperDispatch],
   )
 
   // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
     // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote && tradeQuote && setValue('quote', tradeQuote)
-  }, [quote, setValue, tradeQuote])
+    !quote &&
+      tradeQuote &&
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } })
+  }, [swapperDispatch, quote, tradeQuote])
 
   return {
     isLoadingTradeQuote,

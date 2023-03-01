@@ -19,6 +19,7 @@ export const getHeadShortCommitHash = async (): Promise<string> =>
 export const getSemverTags = async (): Promise<string[]> => {
   // safety in case we pick up other tags from other packages
   const WEB_VERSION_RANGES = '>1.0.0 <2.0.0'
+  await git().fetch(['origin', '--tags', '--force'])
   const tags = await git().tags()
   const allTags: string[] = tags.all
   const validTags: string[] = allTags

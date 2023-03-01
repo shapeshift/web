@@ -1,0 +1,53 @@
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    env:
+      # base_ref is target branch name
+      # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
+      TARGET_BRANCH_NAME: ${{ github.base_ref }}
+      PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    if: contains(fromJSON('["develop", "release", "yeet", "main", "private"]'), ${{ github.head_ref }})
+    runs-on: size-bertha
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Environment (PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        # github actions run in the context of a special magical merge commit between the head of the PR
+        # and the base branch. this means that the commit hash is not the same as the head of the PR.
+        # we have to conditionally grab the head of the PR and truncate it to 7 characters.
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> ${GITHUB_ENV}
+        # in the case of a direct push to a branch, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
+        # of the branch and we can use that directly.
+      - name: Setup Environment (Push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
+      - name: Build
+        run: yarn env && yarn build
+      # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
+      # passing more params directly to wrangler to control commit hash and message
+      # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
+      - name: Deploy
+        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.TARGET_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.TARGET_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"

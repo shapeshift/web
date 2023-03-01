@@ -1,22 +1,18 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
 The Fees Service is responsible for reacting to changes to quote and trades, and updating the fees accordingly.
-The only mutation is on TradeState's fees property.
+The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
-  // Form hooks
-  const { control, setValue } = useFormContext<TS>()
-  const trade = useWatch({ control, name: 'trade' })
-  const quote = useWatch({ control, name: 'quote' })
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
+  const { dispatch: swapperDispatch, sellTradeAsset, quote, trade } = useSwapperState()
 
   // Hooks
   const { bestTradeSwapper } = useSwapper()
@@ -38,7 +34,7 @@ export const useFeesService = () => {
         tradeFeeSource: bestTradeSwapper.name,
         feeAsset: sellFeeAsset,
       })
-      setValue('fees', formFees)
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fees: formFees } })
     }
-  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, setValue, trade])
+  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, trade, swapperDispatch])
 }

@@ -4,7 +4,6 @@ export enum DefiType {
   LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
-  TokenStaking = 'token_staking',
 }
 
 export enum DefiProvider {

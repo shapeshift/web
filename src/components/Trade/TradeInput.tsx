@@ -3,10 +3,9 @@ import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } fro
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
@@ -15,11 +14,12 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -47,8 +47,7 @@ import { TradeAssetInput } from './Components/TradeAssetInput'
 import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { AssetClickAction, useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
-import type { TS } from './types'
-import { type TradeState, TradeAmountInputField, TradeRoutePaths } from './types'
+import { TradeAmountInputField, TradeRoutePaths } from './types'
 
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
@@ -61,6 +60,24 @@ export const TradeInput = () => {
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
+
+  const {
+    dispatch: swapperDispatch,
+    sellAssetAccountId,
+    buyAssetAccountId,
+    feeAssetFiatRate,
+    fiatSellAmount,
+    fiatBuyAmount,
+    receiveAddress,
+    slippage,
+    quote,
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    fees,
+  } = useSwapperState()
+
   const {
     checkApprovalNeeded,
     getTrade,
@@ -69,29 +86,16 @@ export const TradeInput = () => {
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
   } = useSwapper()
-  const { receiveAddress } = useReceiveAddress()
   const translate = useTranslate()
   const history = useHistory()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const { control, setValue, getValues, handleSubmit } = useFormContext<TS>()
+  const { handleSubmit } = useFormContext()
   const {
     state: { wallet },
   } = useWallet()
   const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
-
-  // Watched form fields
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const quote = useWatch({ control, name: 'quote' })
-  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
-  const fees = useWatch({ control, name: 'fees' })
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const fiatSellAmount = useWatch({ control, name: 'fiatSellAmount' })
-  const fiatBuyAmount = useWatch({ control, name: 'fiatBuyAmount' })
-  const slippage = useWatch({ control, name: 'slippage' })
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -151,10 +155,15 @@ export const TradeInput = () => {
 
   const handleInputChange = useCallback(
     async (action: TradeAmountInputField, amount: string) => {
-      setValue('amount', amount)
-      setValue('action', action)
-      // If we've overridden the input we are no longer in sendMax mode
-      setValue('isSendMax', false)
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          action,
+          // If we've overridden the input we are no longer in sendMax mode
+          isSendMax: false,
+          amount,
+        },
+      })
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -163,7 +172,7 @@ export const TradeInput = () => {
       }
     },
     [
-      setValue,
+      swapperDispatch,
       isSwapperApiPending,
       quoteAvailableForCurrentAssetPair,
       setTradeAmountsRefetchData,
@@ -173,27 +182,36 @@ export const TradeInput = () => {
 
   const handleToggle = useCallback(() => {
     try {
-      const currentValues = Object.freeze(getValues())
+      const currentValues = Object.freeze({
+        sellTradeAsset,
+        buyTradeAsset,
+        sellAssetFiatRate,
+        buyAssetFiatRate,
+      })
       const currentSellTradeAsset = currentValues.sellTradeAsset
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      setValue('buyTradeAsset', { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' })
-      setValue('sellTradeAsset', { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' })
-      setValue('fiatSellAmount', '0')
-      setValue('fiatBuyAmount', '0')
-      setValue('buyAssetFiatRate', currentValues.sellAssetFiatRate)
-      setValue('sellAssetFiatRate', currentValues.buyAssetFiatRate)
-
-      // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
-      setValue('feeAssetFiatRate', undefined)
-      setValue('quote', undefined)
-      setValue('trade', undefined)
-      setValue('fees', undefined)
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
+          sellTradeAsset: { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' },
+          fiatSellAmount: '0',
+          fiatBuyAmount: '0',
+          buyAssetFiatRate: currentValues.sellAssetFiatRate,
+          sellAssetFiatRate: currentValues.buyAssetFiatRate,
+          // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
+          feeAssetFiatRate: undefined,
+          quote: undefined,
+          fees: undefined,
+          trade: undefined,
+        },
+      })
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [getValues, setValue])
+  }, [buyAssetFiatRate, buyTradeAsset, swapperDispatch, sellAssetFiatRate, sellTradeAsset])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return
@@ -203,10 +221,15 @@ export const TradeInput = () => {
       quote,
       sellAssetBalanceCrypto,
     )
-    setValue('action', TradeAmountInputField.SELL_CRYPTO)
-    setValue('sellTradeAsset.amountCryptoPrecision', maxSendAmount)
-    setValue('amount', maxSendAmount)
-    setValue('isSendMax', true)
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
+        action: TradeAmountInputField.SELL_CRYPTO,
+        isSendMax: true,
+        amount: maxSendAmount,
+      },
+    })
 
     // We need to get a fresh quote with the sendMax flag true
     await setTradeAmountsRefetchData({
@@ -218,35 +241,31 @@ export const TradeInput = () => {
     })
   }, [
     buyTradeAsset?.asset?.assetId,
+    swapperDispatch,
     quote,
     sellAssetBalanceCrypto,
     sellFeeAsset,
-    sellTradeAsset?.asset,
+    sellTradeAsset,
     setTradeAmountsRefetchData,
-    setValue,
   ])
 
-  const onSubmit = useCallback(
-    async (values: TradeState<KnownChainIds>) => {
-      setIsLoading(true)
-      moduleLogger.info(values, 'debugging logger')
-      try {
-        const isApproveNeeded = await checkApprovalNeeded()
-        if (isApproveNeeded) {
-          history.push({ pathname: TradeRoutePaths.Approval })
-          return
-        }
-        const trade = await getTrade()
-        setValue('trade', trade)
-        history.push({ pathname: TradeRoutePaths.Confirm })
-      } catch (e) {
-        moduleLogger.error(e, 'onSubmit error')
-      } finally {
-        setIsLoading(false)
+  const onSubmit = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const isApprovalNeeded = await checkApprovalNeeded()
+      if (isApprovalNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval })
+        return
       }
-    },
-    [checkApprovalNeeded, getTrade, history, setValue],
-  )
+      const trade = await getTrade()
+      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+      history.push({ pathname: TradeRoutePaths.Confirm })
+    } catch (e) {
+      moduleLogger.error(e, 'onSubmit error')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [checkApprovalNeeded, getTrade, history, swapperDispatch])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
     async (value: string, isFiat: boolean | undefined) => {
@@ -265,10 +284,20 @@ export const TradeInput = () => {
   )
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    setValue('selectedSellAssetAccountId', accountId)
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        selectedSellAssetAccountId: accountId,
+      },
+    })
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    setValue('selectedBuyAssetAccountId', accountId)
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        selectedBuyAssetAccountId: accountId,
+      },
+    })
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)

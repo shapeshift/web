@@ -15,7 +15,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -25,7 +25,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -48,12 +49,18 @@ export const Approval = () => {
   const translate = useTranslate()
 
   const {
-    getValues,
-    setValue,
     handleSubmit,
-    control,
     formState: { isSubmitting },
-  } = useFormContext<TS<EvmChainId>>()
+  } = useFormContext()
+
+  const {
+    dispatch: swapperDispatch,
+    quote,
+    feeAssetFiatRate,
+    fees,
+    isExactAllowance,
+  } = useSwapperState<EvmChainId>()
+
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
@@ -63,10 +70,6 @@ export const Approval = () => {
     dispatch,
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
-  const { quote, fees } = getValues()
-
-  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
-  const feeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
 
   const symbol = quote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
@@ -76,6 +79,11 @@ export const Approval = () => {
 
   const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
     bn(10).pow(sellFeeAsset?.precision ?? 0),
+  )
+
+  const handleExactAllowanceToggle = useCallback(
+    () => swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }),
+    [swapperDispatch],
   )
 
   const approveContract = useCallback(async () => {
@@ -113,7 +121,7 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        setValue('trade', trade as TS<EvmChainId>['trade'])
+        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
@@ -123,11 +131,11 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
+    swapperDispatch,
     getTrade,
     history,
     isConnected,
     quote,
-    setValue,
     showErrorToast,
   ])
 
@@ -223,7 +231,7 @@ export const Approval = () => {
                     size='sm'
                     mx={2}
                     isChecked={isExactAllowance}
-                    onChange={() => setValue('isExactAllowance', !isExactAllowance)}
+                    onChange={handleExactAllowanceToggle}
                   />
                   <Text
                     color={isExactAllowance ? 'white' : 'gray.500'}

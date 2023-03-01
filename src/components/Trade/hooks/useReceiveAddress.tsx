@@ -1,9 +1,9 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useCallback, useEffect, useMemo } from 'react'
 import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -13,14 +13,9 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 export const useReceiveAddress = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-
   // Hooks
-  const [receiveAddress, setReceiveAddress] = useState<string | null>()
   const wallet = useWallet().state.wallet
+  const { dispatch: swapperDispatch, buyTradeAsset, buyAssetAccountId } = useSwapperState()
 
   // Constants
   const buyAsset = buyTradeAsset?.asset
@@ -69,12 +64,15 @@ export const useReceiveAddress = () => {
     ;(async () => {
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        setReceiveAddress(receiveAddress)
+        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { receiveAddress } })
       } catch (e) {
-        setReceiveAddress(null)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: { receiveAddress: undefined },
+        })
       }
     })()
-  }, [buyTradeAsset?.asset, getReceiveAddressFromBuyAsset])
+  }, [buyTradeAsset?.asset, swapperDispatch, getReceiveAddressFromBuyAsset])
 
-  return { receiveAddress, getReceiveAddressFromBuyAsset }
+  return { getReceiveAddressFromBuyAsset }
 }

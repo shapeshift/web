@@ -159,14 +159,21 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
           if (!opportunity.underlyingAssetIds.length) return null
           const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
+          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
           const cryptoAmountPrecision = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
             .times(
               fromBaseUnit(
                 opportunity.underlyingAssetRatiosBaseUnit[underlyingAssetIndex],
-                assets[assetId]?.precision ?? 18,
+                assets[opportunity.underlyingAssetIds[underlyingAssetIndex]]?.precision ?? 18,
               ) ?? '1',
             )
-            .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
+            .div(
+              bn(10).pow(
+                assets[opportunityAssetId]?.precision ??
+                  assets[opportunityUnderlyingAssetId]?.precision ??
+                  18,
+              ),
+            )
             .toFixed()
 
           return hasValue ? (

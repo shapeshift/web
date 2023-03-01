@@ -51,7 +51,10 @@ export const ReactTable = <T extends {}>({
   const tableColumns = useMemo(
     () =>
       isLoading
-        ? columns.map(column => ({ ...column, Cell: () => <Skeleton height='16px' /> }))
+        ? columns.map((column, index) => ({
+            ...column,
+            Cell: () => <Skeleton key={index} height='16px' />,
+          }))
         : columns,
     [columns, isLoading],
   )

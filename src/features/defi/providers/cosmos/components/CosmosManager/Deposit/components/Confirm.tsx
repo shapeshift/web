@@ -1,4 +1,12 @@
-import { Alert, AlertDescription, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
+  Stack,
+  usePrevious,
+  useToast,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -11,7 +19,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -55,6 +63,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   })
 
   const wallet = useWallet().state.wallet
+  const isLocked = useWallet().state.isLocked
+
+  const previousIsLocked = usePrevious(isLocked)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
@@ -104,6 +115,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         action: StakingAction.Stake,
       })
 
+      // We've tried broadcasting a Tx, which emitted a needsMnemonic event
+      // At this point, the native password modal will kick in
+      if (isLocked) return
+
       dispatch({
         type: CosmosDepositActionType.SET_DEPOSIT,
         payload: {
@@ -125,8 +140,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         status: 'error',
       })
     } finally {
-      onNext(DefiStep.Status)
-      dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      if (!isLocked) {
+        onNext(DefiStep.Status)
+        dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      }
     }
   }, [
     asset,
@@ -135,14 +152,21 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     contractAddress,
     dispatch,
     handleStakingAction,
-    marketData,
+    isLocked,
+    marketData.price,
     onNext,
     state?.deposit.cryptoAmount,
     state?.userAddress,
     toast,
     translate,
-    walletState?.wallet,
+    walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleDeposit())()
+    }
+  }, [handleDeposit, isLocked, previousIsLocked, state?.loading])
 
   if (!state || !dispatch) return null
 

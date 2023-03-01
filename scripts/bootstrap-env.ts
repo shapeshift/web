@@ -61,7 +61,7 @@ const getSpecifiedEnvironment = (): Environment => {
     return targetEnvironment
   } else {
     const specifiedEnvironment = args[0] as Environment
-    assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), 'invalid environment')
+    assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), `invalid environment: ${specifiedEnvironment}`)
     return specifiedEnvironment
   }
 }

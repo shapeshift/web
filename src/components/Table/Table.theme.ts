@@ -107,7 +107,7 @@ export const TableStyle = {
           'tr.expanded-details': {
             bg: mode('white', 'gray.785')(props),
             '> td': {
-              bg: mode('white.100', 'blackAlpha.400')(props),
+              bg: mode('gray.100', 'blackAlpha.400')(props),
             },
             table: {
               tbody: {

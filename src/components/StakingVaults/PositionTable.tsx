@@ -1,5 +1,5 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, IconButton, Tag } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon, Search2Icon } from '@chakra-ui/icons'
+import { Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
@@ -12,7 +12,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails'
 import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
@@ -44,6 +44,32 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
             {`on ${networkName}`}
           </RawText>
         ) : null}
+      </Flex>
+    </Flex>
+  )
+}
+
+const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
+  const bgColor = useColorModeValue('gray.100', 'gray.750')
+  return (
+    <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
+      <Flex>
+        <Circle bg={bgColor} size='40px'>
+          <Search2Icon />
+        </Circle>
+      </Flex>
+      <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
+        <Text
+          fontWeight='bold'
+          fontSize='lg'
+          letterSpacing='0.02em'
+          translation='common.noResultsFound'
+        />
+        <Text
+          color='gray.500'
+          letterSpacing='0.012em'
+          translation={['common.noResultsBody', { searchQuery: `"${searchQuery}"` }]}
+        />
       </Flex>
     </Flex>
   )
@@ -173,6 +199,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
         renderSubComponent={({ original }) => (
           <PositionDetails key={original.assetId} {...original} />
         )}
+        renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
         initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
       />
     </>

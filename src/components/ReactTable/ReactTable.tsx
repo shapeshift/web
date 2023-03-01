@@ -32,6 +32,7 @@ type ReactTableProps<T extends {}> = {
   onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
+  renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
 }
 
@@ -44,6 +45,7 @@ export const ReactTable = <T extends {}>({
   onRowClick,
   initialState,
   renderSubComponent,
+  renderEmptyComponent,
   isLoading = false,
 }: ReactTableProps<T>) => {
   const tableRef = useRef<HTMLTableElement | null>(null)
@@ -183,6 +185,15 @@ export const ReactTable = <T extends {}>({
         </Thead>
       )}
       <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+      {page.length === 0 && !isLoading && renderEmptyComponent && (
+        <Tfoot>
+          <Tr>
+            <Td colSpan={visibleColumns.length} py={0}>
+              {renderEmptyComponent()}
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
       {(canNextPage || canPreviousPage) && (
         <Tfoot>
           <Tr>

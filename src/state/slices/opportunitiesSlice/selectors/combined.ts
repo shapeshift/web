@@ -1,6 +1,8 @@
+import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectAssets } from '../../assetsSlice/selectors'
@@ -20,7 +22,7 @@ type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportuni
 
 const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
   if (type === DefiType.Staking) {
-    if (provider === DefiProvider.FoxFarming) {
+    if (provider === DefiProvider.EthFoxStaking) {
       return 'underlyingAssetId'
     }
   }
@@ -55,7 +57,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               opportunities: {
                 staking: [],
                 lp: [],
-                token_staking: [],
                 vault: [],
               },
             }
@@ -82,7 +83,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               },
               0,
             )
-            acc[assetId].fiatRewardsAmount = bnOrZero(rewardsFiatAmount).toFixed(2)
+            acc[assetId].fiatRewardsAmount = bnOrZero(rewardsAmountFiat).toFixed(2)
           }
           const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
             ...cur,
@@ -119,3 +120,5 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     return Object.values(byAssetId)
   },
 )
+export const selectOpportunityApiPending = (state: ReduxState) =>
+  Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)

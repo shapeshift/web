@@ -21,8 +21,11 @@ import {
   selectAssetById,
   selectAssetsByMarketCap,
   selectFeeAssetByChainId,
+  selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { TableSkeletonLoader } from './TableLoadingSkeleton'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
@@ -56,6 +59,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
   const [searchQuery, setSearchQuery] = useState('')
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
+  const isLoading = useAppSelector(selectOpportunityApiPending)
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -164,13 +168,17 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
   return (
     <>
       {headerComponent && headerComponent({ setSearchQuery, searchQuery })}
-      <ReactTable
-        onRowClick={row => row.toggleRowExpanded()}
-        data={rows}
-        columns={columns}
-        renderSubComponent={({ original }) => <PositionDetails {...original} />}
-        initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-      />
+      {isLoading ? (
+        <TableSkeletonLoader />
+      ) : (
+        <ReactTable
+          onRowClick={row => row.toggleRowExpanded()}
+          data={rows}
+          columns={columns}
+          renderSubComponent={({ original }) => <PositionDetails {...original} />}
+          initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+        />
+      )}
     </>
   )
 }

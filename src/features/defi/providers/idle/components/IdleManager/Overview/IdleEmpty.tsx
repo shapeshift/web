@@ -29,11 +29,17 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
-import type { TagDescription } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const idleTagDescriptions: Record<IdleTag, TagDescription[]> = {
+type OnboardingStep = {
+  title: string
+  description?: string
+  icon?: JSX.Element
+  bullets?: string[]
+}
+
+const idleTagToOnboardingSteps: Record<IdleTag, OnboardingStep[]> = {
   [IdleTag.BestYield]: [
     {
       title: 'idle.emptyBody.bestYield.page-1.title',
@@ -141,8 +147,8 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
 
   const renderTags = useMemo(() => {
     return tags?.map(tag => {
-      if (idleTagDescriptions[tag]) {
-        const tagDetails = idleTagDescriptions[tag]
+      if (idleTagToOnboardingSteps[tag]) {
+        const tagDetails = idleTagToOnboardingSteps[tag]
         return (
           <Carousel key={tag} showDots options={{ loop: false, skipSnaps: false }}>
             {tagDetails.map((page, i) => (

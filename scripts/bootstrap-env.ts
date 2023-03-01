@@ -50,7 +50,11 @@ const getSerializedEnvVars = (environment: Environment) => {
  */
 const getSpecifiedEnvironment = (): Environment => {
   const args = process.argv.slice(2)
-  const branch = process.env.CF_PAGES_BRANCH || process.env.TARGET_BRANCH_NAME
+  const targetBranch = process.env.CF_PAGES_BRANCH || process.env.TARGET_BRANCH_NAME
+  const sourceBranch = process.env.SOURCE_BRANCH_NAME
+
+  // If we have no target branch, we are likely deploying a commit from a valid branch - use the source branch
+  const branch = targetBranch || sourceBranch
 
   // we're in a CI environment - we called the script as `yarn env` and hope the branch is set
   if (branch) {

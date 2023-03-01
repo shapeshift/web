@@ -221,9 +221,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         const tagDetails = idleTagDescriptions[tag as IdleTag]
         return (
           <Flex flexDir='column' px={8} py={4} key={tag}>
-            {tagDetails.title && (
-              <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
-            )}
+            <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
             {tagDetails.description && (
               <Text color='gray.500' translation={tagDetails.description} />
             )}
@@ -243,10 +241,10 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
 
   if (!underlyingAssetsWithBalancesAndIcons || !opportunityData) return null
 
-  if (bnOrZero(fiatAmountAvailable).eq(0) && !hideEmptyState) {
+  if (fiatAmountAvailable.eq(0) && !hideEmptyState) {
     return (
       <IdleEmpty
-        tags={opportunityData.tags}
+        tags={opportunityData.tags as IdleTag[]}
         apy={opportunityData.apy}
         assetId={underlyingAssetId ?? ''}
         onClick={() => setHideEmptyState(true)}

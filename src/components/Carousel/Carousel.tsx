@@ -65,7 +65,7 @@ export const Carousel = ({
 
   useEffect(() => {
     if (!embla) return
-    // Re-initilize the carousel when slides change
+    // Re-initialize the carousel when slides change
     embla.reInit()
   }, [embla, childrens])
 

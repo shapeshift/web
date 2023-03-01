@@ -19,7 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import BestYieldIcon from 'assets/best-yield.svg'
 import IdleBg from 'assets/idle-bg.png'
 import JuniorTrancheIcon from 'assets/junior-tranche.svg'
-import SeniorTranceIcon from 'assets/senior-tranche.svg'
+import SeniorTrancheIcon from 'assets/senior-tranche.svg'
 import { AssetIcon } from 'components/AssetIcon'
 import { Carousel } from 'components/Carousel/Carousel'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -65,7 +65,7 @@ const idleTagDescriptions: Record<IdleTag, TagDescription[]> = {
     {
       title: 'idle.emptyBody.seniorTranche.page-1.title',
       description: 'idle.emptyBody.seniorTranche.page-1.body',
-      icon: <Image src={SeniorTranceIcon} />,
+      icon: <Image src={SeniorTrancheIcon} />,
     },
     {
       title: 'idle.emptyBody.seniorTranche.page-2.title',
@@ -82,19 +82,21 @@ const idleTagDescriptions: Record<IdleTag, TagDescription[]> = {
 type IdleEmptyProps = {
   assetId: AssetId
   onClick?: () => void
-  tags?: string[]
+  tags?: IdleTag[]
   apy: string
 }
 
 export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const translate = useTranslate()
-  const { open: openFiatRamp } = useModal().fiatRamps
+  const { fiatRamps } = useModal()
+  const { open: openFiatRamp } = fiatRamps
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
   const bgImage = useColorModeValue('none', IdleBg)
-  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
+  const assetSupportsFiatRamp = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const cryptoBalance =
     useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
+  const hasZeroCryptoBalance = bnOrZero(cryptoBalance).eq(0)
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',
     '--chakra-colors-blackAlpha-400',
@@ -107,7 +109,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const renderFooter = useMemo(() => {
     return (
       <Flex flexDir='column' gap={4} width='full'>
-        {bnOrZero(cryptoBalance).eq(0) && assetSupportsBuy && (
+        {hasZeroCryptoBalance && assetSupportsFiatRamp && (
           <Alert status='info' justifyContent='space-between' borderRadius='xl'>
             <Flex gap={2} alignItems='center'>
               <AssetIcon assetId={asset?.assetId} size='sm' />
@@ -130,8 +132,8 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   }, [
     asset?.assetId,
     asset?.name,
-    assetSupportsBuy,
-    cryptoBalance,
+    assetSupportsFiatRamp,
+    hasZeroCryptoBalance,
     handleAssetBuyClick,
     onClick,
     translate,
@@ -139,8 +141,8 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
 
   const renderTags = useMemo(() => {
     return tags?.map(tag => {
-      if (idleTagDescriptions[tag as IdleTag]) {
-        const tagDetails = idleTagDescriptions[tag as IdleTag]
+      if (idleTagDescriptions[tag]) {
+        const tagDetails = idleTagDescriptions[tag]
         return (
           <Carousel key={tag} showDots options={{ loop: false, skipSnaps: false }}>
             {tagDetails.map((page, i) => (
@@ -166,7 +168,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
                   {page.bullets && (
                     <List spacing={3}>
                       {page.bullets.map(item => (
-                        <ListItem>
+                        <ListItem key={item}>
                           <ListIcon color='green.500' as={MdCheckCircle} />
                           {translate(item)}
                         </ListItem>

@@ -30,6 +30,9 @@ jobs:
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
           echo "TARGET_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+      - name: Debug GitHub Context
+        env: { CONTENT : "${{ toJson(github) }}" }
+        run: "echo $CONTENT"
       - name: Setup Node
         uses: actions/setup-node@v3
         with:

@@ -54,14 +54,14 @@ const getSpecifiedEnvironment = (): Environment => {
 
   // we're in a CI environment - we called the script as `yarn env` and hope the branch is set
   if (branch) {
-    assert(VALID_BRANCHES.includes(branch as Branch), 'invalid branch')
+    assert(VALID_BRANCHES.includes(branch as Branch), `invalid branch: ${branch}`)
     const targetEnvironment = BRANCH_TO_ENVIRONMENT[branch as Branch]
     assert(Boolean(targetEnvironment))
     console.log(`Using branch ${branch} to determine environment ${targetEnvironment}`)
     return targetEnvironment
   } else {
     const specifiedEnvironment = args[0] as Environment
-    assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), 'invalid environment')
+    assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), `invalid environment: ${specifiedEnvironment}`)
     return specifiedEnvironment
   }
 }

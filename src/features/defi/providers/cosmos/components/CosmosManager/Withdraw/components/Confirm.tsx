@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Stack, usePrevious } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -52,6 +52,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const wallet = useWallet().state.wallet
+  const isLocked = useWallet().state.isLocked
+
+  const previousIsLocked = usePrevious(isLocked)
 
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Asset info
@@ -108,7 +111,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const handleConfirm = useCallback(async () => {
     if (
-      state?.loading ||
       !(
         bip44Params &&
         dispatch &&
@@ -135,6 +137,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         action: StakingAction.Unstake,
       })
 
+      // We've tried broadcasting a Tx, which emitted a needsMnemonic event
+      // At this point, the native password modal will kick in
+      if (isLocked) return
+
       dispatch({
         type: CosmosWithdrawActionType.SET_WITHDRAW,
         payload: {
@@ -150,8 +156,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
-      dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
-      onNext(DefiStep.Status)
+      if (!isLocked) {
+        dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
+        onNext(DefiStep.Status)
+      }
     }
   }, [
     asset,
@@ -161,12 +169,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     gasLimit,
     gasPrice,
     handleStakingAction,
+    isLocked,
     onNext,
-    state?.loading,
     state?.userAddress,
     state?.withdraw.cryptoAmount,
     walletState?.wallet,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleConfirm())()
+    }
+  }, [handleConfirm, isLocked, previousIsLocked, state?.loading])
 
   if (!state || !dispatch) return null
 

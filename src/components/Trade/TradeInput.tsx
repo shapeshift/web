@@ -63,19 +63,21 @@ export const TradeInput = () => {
 
   const {
     dispatch: swapperDispatch,
-    sellAssetAccountId,
-    buyAssetAccountId,
-    feeAssetFiatRate,
-    fiatSellAmount,
-    fiatBuyAmount,
-    receiveAddress,
-    slippage,
-    quote,
-    sellTradeAsset,
-    buyTradeAsset,
-    sellAssetFiatRate,
-    buyAssetFiatRate,
-    fees,
+    state: {
+      sellAssetAccountId,
+      buyAssetAccountId,
+      feeAssetFiatRate,
+      fiatSellAmount,
+      fiatBuyAmount,
+      receiveAddress,
+      slippage,
+      quote,
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetFiatRate,
+      buyAssetFiatRate,
+      fees,
+    },
   } = useSwapperState()
 
   const {

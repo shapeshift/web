@@ -14,12 +14,14 @@ It sets sellAssetAccountId and buyAssetAccountId properties.
 export const useAccountsService = () => {
   const {
     dispatch: swapperDispatch,
-    selectedSellAssetAccountId,
-    selectedBuyAssetAccountId,
-    sellAssetAccountId: stateSellAssetAccountId,
-    buyAssetAccountId: stateBuyAssetAccountId,
-    sellTradeAsset,
-    buyTradeAsset,
+    state: {
+      selectedSellAssetAccountId,
+      selectedBuyAssetAccountId,
+      sellAssetAccountId: stateSellAssetAccountId,
+      buyAssetAccountId: stateBuyAssetAccountId,
+      sellTradeAsset,
+      buyTradeAsset,
+    },
   } = useSwapperState()
 
   // Custom hooks

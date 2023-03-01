@@ -15,7 +15,10 @@ import { useAppSelector } from 'state/store'
 export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
-  const { dispatch: swapperDispatch, buyTradeAsset, buyAssetAccountId } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    state: { buyTradeAsset, buyAssetAccountId },
+  } = useSwapperState()
 
   // Constants
   const buyAsset = buyTradeAsset?.asset

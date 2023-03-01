@@ -28,7 +28,7 @@ export function useSwapperState<T extends KnownChainIds = KnownChainIds>() {
     throw new Error('useSwapperState must be used within a SwapperProvider')
   }
 
-  return { ...context.state, dispatch: context.dispatch }
+  return context
 }
 
 export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {

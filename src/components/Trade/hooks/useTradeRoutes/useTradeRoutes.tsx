@@ -16,7 +16,10 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
-  const { dispatch: swapperDispatch, buyTradeAsset, sellTradeAsset } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    state: { buyTradeAsset, sellTradeAsset },
+  } = useSwapperState()
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {

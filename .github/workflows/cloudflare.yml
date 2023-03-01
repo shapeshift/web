@@ -4,9 +4,9 @@ on:
 jobs:
   deploy:
     env:
-      # head_ref is current branch name
+      # base_ref is target branch name
       # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
-      GITHUB_BRANCH_NAME: ${{ github.head_ref }}
+      TARGET_BRANCH_NAME: ${{ github.base_ref }}
       PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -50,4 +50,4 @@ jobs:
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
       - name: Deploy
-        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.GITHUB_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.GITHUB_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"
+        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.TARGET_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.TARGET_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"

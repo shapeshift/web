@@ -136,6 +136,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
                 size='sm'
                 bg='transparent'
                 src={DefiProviderMetadata[row.original.provider].icon}
+                key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>
                 <RawText>{row.original.version ?? row.original.provider}</RawText>

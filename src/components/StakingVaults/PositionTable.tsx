@@ -34,7 +34,7 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
   if (!asset) return null
   return (
     <Flex alignItems='center' gap={4}>
-      <AssetIcon size='sm' assetId={assetId} />
+      <AssetIcon size='sm' assetId={assetId} key={assetId} />
       <Flex flexDir='column'>
         <RawText>
           {asset.name} {`(${asset.symbol})`}
@@ -171,7 +171,9 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
         data={rows}
         columns={columns}
         isLoading={isLoading}
-        renderSubComponent={({ original }) => <PositionDetails {...original} />}
+        renderSubComponent={({ original }) => (
+          <PositionDetails key={original.assetId} {...original} />
+        )}
         initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
       />
     </>

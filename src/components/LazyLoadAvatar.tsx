@@ -7,7 +7,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = props => {
   const [imageLoaded, setImageLoaded] = useState(false)
   return (
     <SkeletonCircle isLoaded={imageLoaded}>
-      <Avatar onLoad={() => setImageLoaded(true)} {...props} />
+      <Avatar onLoad={() => (!imageLoaded ? setImageLoaded(true) : null)} {...props} />
     </SkeletonCircle>
   )
 }

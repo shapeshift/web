@@ -94,7 +94,12 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
           return (
             <Flex alignItems='center' gap={4}>
               <Flex>
-                <LazyLoadAvatar size='sm' bg='transparent' src={providerIcon} />
+                <LazyLoadAvatar
+                  size='sm'
+                  bg='transparent'
+                  src={providerIcon}
+                  key={`provider-icon-${row.original.id}`}
+                />
               </Flex>
               <Flex flexDir='column'>
                 <RawText>{row.original.opportunityName}</RawText>

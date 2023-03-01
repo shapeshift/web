@@ -252,8 +252,8 @@ export const TradeInput = () => {
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
     try {
-      const isApproveNeeded = await checkApprovalNeeded()
-      if (isApproveNeeded) {
+      const isApprovalNeeded = await checkApprovalNeeded()
+      if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return
       }

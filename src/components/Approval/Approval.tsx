@@ -81,8 +81,10 @@ export const Approval = () => {
     bn(10).pow(sellFeeAsset?.precision ?? 0),
   )
 
-  const handleExactAllowanceToggle = () =>
-    swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE })
+  const handleExactAllowanceToggle = useCallback(
+    () => swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }),
+    [swapperDispatch],
+  )
 
   const approveContract = useCallback(async () => {
     if (!quote) {

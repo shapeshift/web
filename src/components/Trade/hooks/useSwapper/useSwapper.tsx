@@ -3,10 +3,8 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import { type Swapper, SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   isSupportedCosmosSdkSwappingChain,
@@ -15,7 +13,7 @@ import {
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,16 +32,18 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const quote = useWatch({ control, name: 'quote' })
-  const sellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const buyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const isSendMax = useWatch({ control, name: 'isSendMax' })
-  const isExactAllowance = useWatch({ control, name: 'isExactAllowance' })
-  const slippage = useWatch({ control, name: 'slippage' })
+  const {
+    state: {
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetAccountId,
+      buyAssetAccountId,
+      quote,
+      isSendMax,
+      isExactAllowance,
+      slippage,
+    },
+  } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -62,7 +62,9 @@ export const useSwapper = () => {
   const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
   const { tradeQuoteArgs } = useTradeQuoteService()
-  const { receiveAddress } = useReceiveAddress()
+  const {
+    state: { receiveAddress },
+  } = useSwapperState()
   const dispatch = useAppDispatch()
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper

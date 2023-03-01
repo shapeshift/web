@@ -60,7 +60,7 @@ const createDraftPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('minor')
-  const title = `chore: release ${nextVersion} [DO NOT MERGE]`
+  const title = `chore: release ${nextVersion}`
   const command = `gh pr create --draft --base "main" --title "${title}" --body "${messages}"`
   console.log(chalk.green('Creating draft PR...'))
   await pify(exec)(command)

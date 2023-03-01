@@ -5,6 +5,7 @@ import type { Nominal } from 'types/common'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
+import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
 export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
@@ -47,7 +48,10 @@ export type OpportunityMetadataBase = {
   tags?: string[]
 }
 
-export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStakingSpecificMetadata
+export type OpportunityMetadata =
+  | OpportunityMetadataBase
+  | ThorchainSaversStakingSpecificMetadata
+  | IdleStakingSpecificMetadata
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {

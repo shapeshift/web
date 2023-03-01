@@ -149,6 +149,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
               {row.original.underlyingAssetIds.map(assetId => (
                 <Amount.Crypto
                   variant='sub-text'
+                  key={`${assetId}-balance`}
                   size='xs'
                   value={underlyingBalances[assetId].cryptoBalancePrecision}
                   symbol={assets[assetId]?.symbol ?? ''}

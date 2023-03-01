@@ -276,7 +276,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
      * we don't want to disconnect, as the walletconnect connector is
      * the same thing, whether we are acting as a dapp, or a wallet.
      *
-     * e.g. we had a native wallet connected, and we were connected to a dapp
+     * e.g. we had a ShapeShift wallet connected, and we were connected to a dapp
      * via walletconnect, and a user switches from native to walletconnect wallet.
      * hdwallet will overwrite the connector/session in local storage,
      * leave it alone, and let hdwallet manage it.

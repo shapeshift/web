@@ -1,6 +1,5 @@
-import { useFormContext, useWatch } from 'react-hook-form'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -180,15 +179,17 @@ export const getTradeAmountConstants = ({
 }
 
 export const useGetTradeAmounts = () => {
-  // Form hooks
-  const { control } = useFormContext<TS>()
-  const amount = useWatch({ control, name: 'amount' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyAssetUsdRate = useWatch({ control, name: 'buyAssetFiatRate' })
-  const sellAssetUsdRate = useWatch({ control, name: 'sellAssetFiatRate' })
-  const fees = useWatch({ control, name: 'fees' })
-  const action = useWatch({ control, name: 'action' })
+  const {
+    state: {
+      sellTradeAsset,
+      buyTradeAsset,
+      buyAssetFiatRate: buyAssetUsdRate,
+      sellAssetFiatRate: sellAssetUsdRate,
+      fees,
+      action,
+      amount,
+    },
+  } = useSwapperState()
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 

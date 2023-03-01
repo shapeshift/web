@@ -78,6 +78,7 @@ export const mockStore: ReduxState = {
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
     showWelcomeModal: false,
+    showConsentBanner: true,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

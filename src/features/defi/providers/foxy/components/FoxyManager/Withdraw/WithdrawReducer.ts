@@ -1,5 +1,5 @@
-import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
@@ -12,7 +12,7 @@ export const initialState: FoxyWithdrawState = {
     stakingToken: '',
     provider: '',
     chain: KnownChainIds.EthereumMainnet,
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     expired: false,
     version: '',
     rewardToken: '',

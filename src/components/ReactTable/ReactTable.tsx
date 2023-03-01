@@ -2,6 +2,7 @@ import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@ch
 import {
   Flex,
   IconButton,
+  Skeleton,
   Table,
   Tbody,
   Td,
@@ -31,6 +32,7 @@ type ReactTableProps<T extends {}> = {
   onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
   renderSubComponent?: (row: Row<T>) => ReactNode
+  isLoading?: boolean
 }
 
 export const ReactTable = <T extends {}>({
@@ -42,9 +44,17 @@ export const ReactTable = <T extends {}>({
   onRowClick,
   initialState,
   renderSubComponent,
+  isLoading = false,
 }: ReactTableProps<T>) => {
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
+  const tableColumns = useMemo(
+    () =>
+      isLoading
+        ? columns.map(column => ({ ...column, Cell: () => <Skeleton height='16px' /> }))
+        : columns,
+    [columns, isLoading],
+  )
   const {
     getTableProps,
     getTableBodyProps,
@@ -60,7 +70,7 @@ export const ReactTable = <T extends {}>({
     state: { pageIndex },
   } = useTable<T>(
     {
-      columns,
+      columns: tableColumns,
       data,
       initialState,
     },

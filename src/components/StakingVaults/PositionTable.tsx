@@ -25,8 +25,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TableSkeletonLoader } from './TableLoadingSkeleton'
-
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
 
 const AssetCell = ({ assetId }: { assetId: AssetId }) => {
@@ -168,17 +166,14 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
   return (
     <>
       {headerComponent && headerComponent({ setSearchQuery, searchQuery })}
-      {isLoading ? (
-        <TableSkeletonLoader />
-      ) : (
-        <ReactTable
-          onRowClick={row => row.toggleRowExpanded()}
-          data={rows}
-          columns={columns}
-          renderSubComponent={({ original }) => <PositionDetails {...original} />}
-          initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-        />
-      )}
+      <ReactTable
+        onRowClick={row => row.toggleRowExpanded()}
+        data={rows}
+        columns={columns}
+        isLoading={isLoading}
+        renderSubComponent={({ original }) => <PositionDetails {...original} />}
+        initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+      />
     </>
   )
 }

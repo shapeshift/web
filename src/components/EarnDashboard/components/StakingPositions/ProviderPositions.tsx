@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Avatar, Button, Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -131,9 +132,9 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           if (row.original.opportunityName) subText.push(row.original.opportunityName)
           return (
             <Flex gap={4} alignItems='center'>
-              <Avatar
-                bg='transparent'
+              <LazyLoadAvatar
                 size='sm'
+                bg='transparent'
                 src={DefiProviderMetadata[row.original.provider].icon}
               />
               <Flex flexDir='column'>

@@ -1,4 +1,4 @@
-import { Avatar, Button, Flex, Stack } from '@chakra-ui/react'
+import { Button, Flex, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -12,6 +12,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -93,7 +94,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
           return (
             <Flex alignItems='center' gap={4}>
               <Flex>
-                <Avatar bg='transparent' size='sm' src={providerIcon} />
+                <LazyLoadAvatar size='sm' bg='transparent' src={providerIcon} />
               </Flex>
               <Flex flexDir='column'>
                 <RawText>{row.original.opportunityName}</RawText>

@@ -29,6 +29,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -47,7 +49,6 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import type { TS } from '../types'
 import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
@@ -61,9 +62,8 @@ export const TradeConfirm = () => {
   const [buyTxid, setBuyTxid] = useState('')
   const {
     handleSubmit,
-    setValue,
     formState: { isSubmitting },
-  } = useFormContext<TS>()
+  } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
 
@@ -73,8 +73,10 @@ export const TradeConfirm = () => {
 
   const {
     state: { isConnected, wallet },
-    dispatch,
+    dispatch: walletDispatch,
   } = useWallet()
+
+  const { dispatch: swapperDispatch } = useSwapperState()
 
   const {
     tradeAmounts,
@@ -95,10 +97,9 @@ export const TradeConfirm = () => {
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   const reset = useCallback(() => {
-    setValue('buyTradeAsset.amountCryptoPrecision', '')
-    setValue('sellTradeAsset.amountCryptoPrecision', '')
-    setValue('fiatSellAmount', '')
-  }, [setValue])
+    swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
+    swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fiatSellAmount: '' } })
+  }, [swapperDispatch])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -166,7 +167,7 @@ export const TradeConfirm = () => {
          * before opening the connect wallet modal.
          */
         handleBack()
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
 

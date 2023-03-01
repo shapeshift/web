@@ -1,57 +1,62 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 
 export const useFrozenTradeValues = () => {
-  const { control } = useFormContext<TS>()
-  const formTrade = useWatch({ control, name: 'trade' })
-  const formFees = useWatch({ control, name: 'fees' })
-  const formSellAssetFiatRate = useWatch({ control, name: 'sellAssetFiatRate' })
-  const formFeeAssetFiatRate = useWatch({ control, name: 'feeAssetFiatRate' })
-  const formBuyAssetFiatRate = useWatch({ control, name: 'buyAssetFiatRate' })
-  const formSlippage = useWatch({ control, name: 'slippage' })
-  const formBuyAssetAccountId = useWatch({ control, name: 'buyAssetAccountId' })
-  const formSellAssetAccountId = useWatch({ control, name: 'sellAssetAccountId' })
-  const formBuyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
+  const {
+    buyTradeAsset: stateBuyTradeAsset,
+    buyAssetAccountId: stateBuyAssetAccountId,
+    sellAssetAccountId: stateSellAssetAccountId,
+    sellAssetFiatRate: stateSellAssetFiatRate,
+    feeAssetFiatRate: stateFeeAssetFiatRate,
+    buyAssetFiatRate: stateBuyAssetFiatRate,
+    fees: stateFees,
+    trade: stateTrade,
+    slippage: stateSlippage,
+  } = useSwapperState()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
-  const [frozenTrade, setFrozenTrade] = useState<TS['trade']>()
-  const [frozenFees, setFrozenFees] = useState<TS['fees']>()
-  const [frozenSellAssetFiatRate, setFrozenSellAssetFiatRate] = useState<TS['sellAssetFiatRate']>()
-  const [frozenBuyAssetFiatRate, setFrozenBuyAssetFiatRate] = useState<TS['buyAssetFiatRate']>()
-  const [frozenFeeAssetFiatRate, setFrozenFeeAssetFiatRate] = useState<TS['feeAssetFiatRate']>()
-  const [frozenSlippage, setFrozenSlippage] = useState<TS['slippage']>()
-  const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] = useState<TS['buyAssetAccountId']>()
+  const [frozenTrade, setFrozenTrade] = useState<SwapperState['trade']>()
+  const [frozenFees, setFrozenFees] = useState<SwapperState['fees']>()
+  const [frozenSellAssetFiatRate, setFrozenSellAssetFiatRate] =
+    useState<SwapperState['sellAssetFiatRate']>()
+  const [frozenBuyAssetFiatRate, setFrozenBuyAssetFiatRate] =
+    useState<SwapperState['buyAssetFiatRate']>()
+  const [frozenFeeAssetFiatRate, setFrozenFeeAssetFiatRate] =
+    useState<SwapperState['feeAssetFiatRate']>()
+  const [frozenSlippage, setFrozenSlippage] = useState<SwapperState['slippage']>()
+  const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] =
+    useState<SwapperState['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
-    useState<TS['sellAssetAccountId']>()
-  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<TS['buyTradeAsset']>()
+    useState<SwapperState['sellAssetAccountId']>()
+  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()
 
   useEffect(() => {
     !frozenTradeAmountConstants && setFrozenTradeAmountConstants(tradeAmountConstants)
-    !frozenTrade && setFrozenTrade(formTrade)
-    !frozenFees && setFrozenFees(formFees)
-    !frozenSellAssetFiatRate && setFrozenSellAssetFiatRate(formSellAssetFiatRate)
-    !frozenBuyAssetFiatRate && setFrozenBuyAssetFiatRate(formBuyAssetFiatRate)
-    !frozenFeeAssetFiatRate && setFrozenFeeAssetFiatRate(formFeeAssetFiatRate)
-    !frozenSlippage && setFrozenSlippage(formSlippage)
-    !frozenBuyAssetAccountId && setFrozenBuyAssetAccountId(formBuyAssetAccountId)
-    !frozenSellAssetAccountId && setFrozenSellAssetAccountId(formSellAssetAccountId)
-    !frozenBuyTradeAsset && setFrozenBuyTradeAsset(formBuyTradeAsset)
+    !frozenTrade && setFrozenTrade(stateTrade)
+    !frozenFees && setFrozenFees(stateFees)
+    !frozenSellAssetFiatRate && setFrozenSellAssetFiatRate(stateSellAssetFiatRate)
+    !frozenBuyAssetFiatRate && setFrozenBuyAssetFiatRate(stateBuyAssetFiatRate)
+    !frozenFeeAssetFiatRate && setFrozenFeeAssetFiatRate(stateFeeAssetFiatRate)
+    !frozenSlippage && setFrozenSlippage(stateSlippage)
+    !frozenBuyAssetAccountId && setFrozenBuyAssetAccountId(stateBuyAssetAccountId)
+    !frozenSellAssetAccountId && setFrozenSellAssetAccountId(stateSellAssetAccountId)
+    !frozenBuyTradeAsset && setFrozenBuyTradeAsset(stateBuyTradeAsset)
   }, [
-    formBuyAssetAccountId,
-    formBuyAssetFiatRate,
-    formBuyTradeAsset,
-    formFeeAssetFiatRate,
-    formFees,
-    formSellAssetAccountId,
-    formSellAssetFiatRate,
-    formSlippage,
-    formTrade,
+    stateBuyAssetAccountId,
+    stateBuyAssetFiatRate,
+    stateBuyTradeAsset,
+    stateFeeAssetFiatRate,
+    stateFees,
+    stateSellAssetAccountId,
+    stateSellAssetFiatRate,
+    stateSlippage,
+    stateTrade,
     frozenBuyAssetAccountId,
     frozenBuyAssetFiatRate,
     frozenBuyTradeAsset,
@@ -70,32 +75,32 @@ export const useFrozenTradeValues = () => {
     () => frozenTradeAmountConstants ?? tradeAmountConstants,
     [frozenTradeAmountConstants, tradeAmountConstants],
   )
-  const trade = useMemo(() => frozenTrade ?? formTrade, [frozenTrade, formTrade])
-  const fees = useMemo(() => frozenFees ?? formFees, [frozenFees, formFees])
+  const trade = useMemo(() => frozenTrade ?? stateTrade, [frozenTrade, stateTrade])
+  const fees = useMemo(() => frozenFees ?? stateFees, [frozenFees, stateFees])
   const sellAssetFiatRate = useMemo(
-    () => frozenSellAssetFiatRate ?? formSellAssetFiatRate,
-    [frozenSellAssetFiatRate, formSellAssetFiatRate],
+    () => frozenSellAssetFiatRate ?? stateSellAssetFiatRate,
+    [frozenSellAssetFiatRate, stateSellAssetFiatRate],
   )
   const buyAssetFiatRate = useMemo(
-    () => frozenBuyAssetFiatRate ?? formBuyAssetFiatRate,
-    [frozenBuyAssetFiatRate, formBuyAssetFiatRate],
+    () => frozenBuyAssetFiatRate ?? stateBuyAssetFiatRate,
+    [frozenBuyAssetFiatRate, stateBuyAssetFiatRate],
   )
   const feeAssetFiatRate = useMemo(
-    () => frozenFeeAssetFiatRate ?? formFeeAssetFiatRate,
-    [frozenFeeAssetFiatRate, formFeeAssetFiatRate],
+    () => frozenFeeAssetFiatRate ?? stateFeeAssetFiatRate,
+    [frozenFeeAssetFiatRate, stateFeeAssetFiatRate],
   )
-  const slippage = useMemo(() => frozenSlippage ?? formSlippage, [frozenSlippage, formSlippage])
+  const slippage = useMemo(() => frozenSlippage ?? stateSlippage, [frozenSlippage, stateSlippage])
   const buyAssetAccountId = useMemo(
-    () => frozenBuyAssetAccountId ?? formBuyAssetAccountId,
-    [frozenBuyAssetAccountId, formBuyAssetAccountId],
+    () => frozenBuyAssetAccountId ?? stateBuyAssetAccountId,
+    [frozenBuyAssetAccountId, stateBuyAssetAccountId],
   )
   const sellAssetAccountId = useMemo(
-    () => frozenSellAssetAccountId ?? formSellAssetAccountId,
-    [frozenSellAssetAccountId, formSellAssetAccountId],
+    () => frozenSellAssetAccountId ?? stateSellAssetAccountId,
+    [frozenSellAssetAccountId, stateSellAssetAccountId],
   )
   const buyTradeAsset = useMemo(
-    () => frozenBuyTradeAsset ?? formBuyTradeAsset,
-    [frozenBuyTradeAsset, formBuyTradeAsset],
+    () => frozenBuyTradeAsset ?? stateBuyTradeAsset,
+    [frozenBuyTradeAsset, stateBuyTradeAsset],
   )
 
   return {

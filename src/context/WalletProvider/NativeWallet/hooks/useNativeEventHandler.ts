@@ -28,6 +28,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
     const handleEvent = async (e: [deviceId: string, message: Event]) => {
       moduleLogger.info({ e }, 'Event')
       const deviceId = e[0]
+      console.log({ message: e[1].message_type })
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
@@ -66,6 +67,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
           break
         case NativeEvents.READY:
+          dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
           if (modal) {
             dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           }

@@ -62,6 +62,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case avalancheChainId:
     case optimismChainId:
     case ethChainId:
+    case bscChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
     case btcChainId:

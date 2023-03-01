@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, release, yeet, private]
   pull_request:
     branches: [main, develop, release, yeet, private]
 

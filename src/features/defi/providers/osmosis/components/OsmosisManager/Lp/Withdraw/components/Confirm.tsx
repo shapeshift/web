@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -73,6 +73,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const { state: walletState } = useWallet()
+
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   const toast = useToast()
 
@@ -177,12 +180,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         }
       })()
 
+      // We've tried broadcasting a Tx, which emitted a needsMnemonic event
+      // At this point, the native password modal will kick in
+      if (isLocked) return
+
       if (!txid) {
         throw new Error('Broadcast failed')
       }
 
       contextDispatch({ type: OsmosisWithdrawActionType.SET_TXID, payload: txid })
-      onNext(DefiStep.Status)
     } catch (error) {
       moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
       toast({
@@ -192,7 +198,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+      if (!isLocked) {
+        contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+        onNext(DefiStep.Status)
+      }
     }
   }, [
     contextDispatch,
@@ -201,10 +210,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     osmosisOpportunity,
     chainAdapter,
     bip44Params,
-    onNext,
+    isLocked,
     toast,
     translate,
+    onNext,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleWithdraw())()
+    }
+  }, [handleWithdraw, isLocked, previousIsLocked, state?.loading])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)

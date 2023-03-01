@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -22,7 +22,6 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -92,31 +91,24 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
       : undefined,
   )
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   useEffect(() => {
-    if (!bip44Params) return
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
+    try {
+      if (!(walletState.wallet && validatorAddress && chainAdapter && accountId)) return
+      const address = fromAccountId(accountId).account
 
-        dispatch({
-          type: CosmosWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
-        })
-        dispatch({
-          type: CosmosWithdrawActionType.SET_OPPORTUNITY,
-          payload: { ...earnOpportunityData },
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosWithdraw error')
-      }
-    })()
-  }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
+      dispatch({
+        type: CosmosWithdrawActionType.SET_USER_ADDRESS,
+        payload: address,
+      })
+      dispatch({
+        type: CosmosWithdrawActionType.SET_OPPORTUNITY,
+        payload: { ...earnOpportunityData },
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'CosmosWithdraw error')
+    }
+  }, [chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData, accountId])
 
   const StepConfig: DefiStepProps = useMemo(() => {
     return {

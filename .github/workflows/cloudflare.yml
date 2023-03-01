@@ -4,7 +4,6 @@ on:
 jobs:
   deploy:
     env:
-      # base_ref is target branch name
       # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
       PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -20,16 +19,18 @@ jobs:
         # github actions run in the context of a special magical merge commit between the head of the PR
         # and the base branch. this means that the commit hash is not the same as the head of the PR.
         # we have to conditionally grab the head of the PR and truncate it to 7 characters.
+        # in a `pull_request`` event trigger, base_ref is target branch name, head_ref is current
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> ${GITHUB_ENV}
-          echo "TARGET_BRANCH_NAME=${{ github.base_ref }}" >> ${GITHUB_ENV}
-        # in the case of a direct push to a branch, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
+          echo "CURRENT_BRANCH_NAME=${{ github.head_ref }}" >> ${GITHUB_ENV}
+        # in a `pull` event trigger, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
         # of the branch and we can use that directly.
+        # ref_name is the name of the branch, e.g. develop, main, etc.
       - name: Setup Environment (Push)
         if: ${{ github.event_name == 'push' }}
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
-          echo "TARGET_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+          echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
       - name: Debug GitHub Context
         env: { CONTENT : "${{ toJson(github) }}" }
         run: "echo $CONTENT"
@@ -54,4 +55,4 @@ jobs:
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
       - name: Deploy
-        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.TARGET_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="todo"
+        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.CURRENT_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="todo"

@@ -9,9 +9,9 @@ import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwapper
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
-  isSupportedCosmosSdkSwappingChain,
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
+  isCosmosSdkSwap,
+  isEvmSwap,
+  isUtxoSwap,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
@@ -190,39 +190,37 @@ export const useSwapper = () => {
       receiveAddress,
       slippage,
     }
-    const sellAssetChainId = sellAsset.chainId
-    if (isSupportedCosmosSdkSwappingChain(sellAssetChainId)) {
-      const { accountNumber } = sellAccountBip44Params
-      const { accountNumber: receiveAccountNumber } = buyAccountBip44Params
-      return bestTradeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
-        accountNumber,
-        receiveAccountNumber,
-      })
-    } else if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
-      const { accountNumber } = sellAccountBip44Params
-      return bestTradeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
-        accountNumber,
-      })
-    } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
+
+    if (isUtxoSwap(sellAsset.chainId)) {
       const { accountType, bip44Params } = sellAccountMetadata
+
+      if (!accountType) throw new Error('accountType required')
+      if (!bip44Params) throw new Error('bip44Params required')
+
       const { accountNumber } = bip44Params
-      if (!bip44Params) throw new Error('no bip44Params')
-      if (!accountType) throw new Error('no accountType')
+
       const sellAssetChainAdapter = getChainAdapterManager().get(
-        sellAssetChainId,
+        sellAsset.chainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
       const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
+
       return bestTradeSwapper.buildTrade({
         ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
+        chainId: sellAsset.chainId,
         accountNumber,
         accountType,
         xpub,
       })
+    } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
+      return bestTradeSwapper.buildTrade({
+        ...buildTradeCommonArgs,
+        chainId: sellAsset.chainId,
+        accountNumber: sellAccountBip44Params.accountNumber,
+        receiveAccountNumber: buyAccountBip44Params.accountNumber,
+      })
+    } else {
+      throw new Error('unsupported sellAsset.chainId')
     }
   }, [
     sellAsset,

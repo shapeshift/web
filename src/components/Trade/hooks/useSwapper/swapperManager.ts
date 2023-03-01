@@ -1,5 +1,5 @@
-import { avalancheChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
-import type { avalanche, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,
@@ -73,6 +73,20 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       adapter: optimismChainAdapter,
     })
     _swapperManager.addSwapper(zrxOptimismSwapper)
+  }
+
+  if (flags.BnbSmartChainZrx) {
+    const bscWeb3 = getWeb3InstanceByChainId(bscChainId)
+
+    const bscChainAdapter = adapterManager.get(
+      KnownChainIds.BnbSmartChainMainnet,
+    ) as unknown as bnbsmartchain.ChainAdapter
+
+    const zrxBscSwapper = new ZrxSwapper({
+      web3: bscWeb3,
+      adapter: bscChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxBscSwapper)
   }
 
   if (flags.ThorSwap) {

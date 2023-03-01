@@ -4,8 +4,8 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import {
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
+  isEvmSwap,
+  isUtxoSwap,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import type { TradeQuoteInputCommonArgs, TS } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -44,12 +44,12 @@ export const getTradeQuoteArgs = async ({
     receiveAddress,
     accountNumber: sellAccountNumber,
   }
-  if (isSupportedNonUtxoSwappingChain(sellAsset?.chainId)) {
+  if (isEvmSwap(sellAsset?.chainId)) {
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
     }
-  } else if (isSupportedUtxoSwappingChain(sellAsset?.chainId)) {
+  } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,

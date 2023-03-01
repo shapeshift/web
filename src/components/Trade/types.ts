@@ -67,12 +67,6 @@ export enum TradeRoutePaths {
   AccountSelect = '/trade/select/account',
 }
 
-export type SupportedSwappingChain =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.OsmosisMainnet
-  | KnownChainIds.CosmosMainnet
-
 export type GetReceiveAddressArgs = {
   asset: Asset
   wallet: HDWallet | null

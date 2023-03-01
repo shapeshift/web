@@ -4,7 +4,7 @@ on:
 jobs:
   deploy:
     env:
-      # head_ref is current branch name
+      # base_ref is target branch name
       # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
       TARGET_BRANCH_NAME: ${{ github.base_ref }}
       PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"

@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
@@ -115,6 +115,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   // notify
   const toast = useToast()
@@ -408,6 +410,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       sendInput: depositInput,
       wallet: walletState.wallet,
     }).catch(async e => {
+      // We've tried broadcasting a Tx, which emitted a needsMnemonic event
+      // At this point, the native password modal will kick in
+      if (isLocked) return
       if (!isUtxoChainId(chainId)) throw e
 
       // 2. coinselect threw when building a Tx, meaning there's not enough value in the picked address - send funds to it
@@ -432,7 +437,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })
 
     return txId
-  }, [chainId, getDepositInput, getPreDepositInput, walletState.wallet])
+  }, [chainId, getDepositInput, getPreDepositInput, isLocked, walletState.wallet])
 
   useEffect(() => {
     if (!(accountId && chainAdapter && walletState?.wallet && bip44Params && accountType)) return
@@ -523,7 +528,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      if (!isLocked) {
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      }
     }
   }, [
     contextDispatch,
@@ -531,6 +538,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     userAddress,
+    isLocked,
     assetReference,
     walletState.wallet,
     opportunity,
@@ -547,6 +555,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     toast,
     translate,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleDeposit())()
+    }
+  }, [handleDeposit, isLocked, previousIsLocked, state?.loading])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)

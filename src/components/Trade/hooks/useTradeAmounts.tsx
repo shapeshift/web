@@ -204,7 +204,7 @@ export const useTradeAmounts = () => {
           ).data
         : undefined
 
-      const bestSwapperType = availableSwappers?.[0].swapperType
+      const bestSwapperType = availableSwappers?.[0]?.swapperType
 
       const swapperManager = await getSwapperManager(featureFlags)
       const swappers = swapperManager.swappers

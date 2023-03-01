@@ -12,7 +12,10 @@ The Fees Service is responsible for reacting to changes to quote and trades, and
 The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
-  const { dispatch: swapperDispatch, sellTradeAsset, quote, trade } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    state: { sellTradeAsset, quote, trade },
+  } = useSwapperState()
 
   // Hooks
   const { bestTradeSwapper } = useSwapper()

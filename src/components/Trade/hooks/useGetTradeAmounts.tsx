@@ -180,13 +180,15 @@ export const getTradeAmountConstants = ({
 
 export const useGetTradeAmounts = () => {
   const {
-    sellTradeAsset,
-    buyTradeAsset,
-    buyAssetFiatRate: buyAssetUsdRate,
-    sellAssetFiatRate: sellAssetUsdRate,
-    fees,
-    action,
-    amount,
+    state: {
+      sellTradeAsset,
+      buyTradeAsset,
+      buyAssetFiatRate: buyAssetUsdRate,
+      sellAssetFiatRate: sellAssetUsdRate,
+      fees,
+      action,
+      amount,
+    },
   } = useSwapperState()
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)

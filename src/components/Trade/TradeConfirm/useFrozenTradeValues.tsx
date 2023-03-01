@@ -6,15 +6,17 @@ import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 
 export const useFrozenTradeValues = () => {
   const {
-    buyTradeAsset: stateBuyTradeAsset,
-    buyAssetAccountId: stateBuyAssetAccountId,
-    sellAssetAccountId: stateSellAssetAccountId,
-    sellAssetFiatRate: stateSellAssetFiatRate,
-    feeAssetFiatRate: stateFeeAssetFiatRate,
-    buyAssetFiatRate: stateBuyAssetFiatRate,
-    fees: stateFees,
-    trade: stateTrade,
-    slippage: stateSlippage,
+    state: {
+      buyTradeAsset: stateBuyTradeAsset,
+      buyAssetAccountId: stateBuyAssetAccountId,
+      sellAssetAccountId: stateSellAssetAccountId,
+      sellAssetFiatRate: stateSellAssetFiatRate,
+      feeAssetFiatRate: stateFeeAssetFiatRate,
+      buyAssetFiatRate: stateBuyAssetFiatRate,
+      fees: stateFees,
+      trade: stateTrade,
+      slippage: stateSlippage,
+    },
   } = useSwapperState()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =

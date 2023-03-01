@@ -16,7 +16,9 @@ import { useAppSelector } from 'state/store'
 
 export const SelectAccount = () => {
   const history = useHistory()
-  const { sellTradeAsset } = useSwapperState()
+  const {
+    state: { sellTradeAsset },
+  } = useSwapperState()
   const assetId = sellTradeAsset?.asset?.assetId
   const filter = useMemo(() => ({ assetId: assetId ?? '' }), [assetId])
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, filter), isEqual)

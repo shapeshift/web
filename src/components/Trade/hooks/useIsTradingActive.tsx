@@ -12,7 +12,9 @@ export const useIsTradingActive = () => {
 
   const dispatch = useAppDispatch()
 
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const {
+    state: { sellTradeAsset, buyTradeAsset },
+  } = useSwapperState()
   const sellTradeAssetId = sellTradeAsset?.asset?.assetId
   const buyTradeAssetId = buyTradeAsset?.asset?.assetId
 

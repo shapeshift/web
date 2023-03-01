@@ -14,7 +14,10 @@ It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate propert
 It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
-  const { dispatch: swapperDispatch, sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    state: { sellTradeAsset, buyTradeAsset },
+  } = useSwapperState()
   const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Types

@@ -6,7 +6,6 @@ jobs:
     env:
       # base_ref is target branch name
       # https://docs.github.com/en/actions/learn-github-actions/contexts#example-contents-of-the-github-context
-      TARGET_BRANCH_NAME: ${{ github.base_ref }}
       PROJECT_NAME: web # cloudflare bug? our project name/alias is web-29e but wrangler wants just "web"
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -23,12 +22,14 @@ jobs:
         # we have to conditionally grab the head of the PR and truncate it to 7 characters.
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "TARGET_BRANCH_NAME=${{ github.base_ref }}" >> ${GITHUB_ENV}
         # in the case of a direct push to a branch, e.g. yoloing to develop or main, GITHUB_SHA is the head commit
         # of the branch and we can use that directly.
       - name: Setup Environment (Push)
         if: ${{ github.event_name == 'push' }}
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
+          echo "TARGET_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -50,4 +51,4 @@ jobs:
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
       - name: Deploy
-        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.TARGET_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.TARGET_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"
+        run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.TARGET_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="todo"

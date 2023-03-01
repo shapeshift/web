@@ -146,12 +146,14 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
                   {'('} <Amount.Fiat value={row.original.fiatAmount} /> {')'}
                 </Flex>
               </Flex>
-              <Amount.Crypto
-                variant='sub-text'
-                size='xs'
-                value={underlyingBalances[assetId].cryptoBalancePrecision ?? 0}
-                symbol={assets[assetId]?.symbol ?? ''}
-              />
+              {row.original.underlyingAssetIds.map(assetId => (
+                <Amount.Crypto
+                  variant='sub-text'
+                  size='xs'
+                  value={underlyingBalances[assetId].cryptoBalancePrecision}
+                  symbol={assets[assetId]?.symbol ?? ''}
+                />
+              ))}
             </Flex>
           )
         },
@@ -171,8 +173,8 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         Cell: ({ row }: { row: RowProps }) => (
           <Flex gap={4} justifyContent='flex-end' width='full'>
             <Button
-              width='full'
               variant='ghost'
+              width={{ base: 'full', md: 'auto' }}
               size='sm'
               colorScheme='blue'
               onClick={() => handleClick(row, DefiAction.Overview)}

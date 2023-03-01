@@ -64,7 +64,6 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
     () => [
       {
         Header: '#',
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         ),

@@ -22,6 +22,7 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -153,16 +154,28 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Header: translate('defi.totalValue'),
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
-          const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
+          const opportunity = row.original
+          const opportunityAssetId = opportunity.assetId
+          const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
+          if (!opportunity.underlyingAssetIds.length) return null
+          const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
+          const cryptoAmountPrecision = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+            .times(
+              fromBaseUnit(
+                opportunity.underlyingAssetRatiosBaseUnit[underlyingAssetIndex],
+                assets[assetId]?.precision ?? 18,
+              ) ?? '1',
+            )
+            .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
+            .toFixed()
+
           return hasValue ? (
             <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
               <Amount.Fiat value={row.original.fiatAmount} />
               <Amount.Crypto
                 variant='sub-text'
                 size='xs'
-                value={bnOrZero(row.original.cryptoAmountBaseUnit)
-                  .div(bnOrZero(10).pow(assets[assetId]?.precision ?? 0))
-                  .toString()}
+                value={cryptoAmountPrecision.toString()}
                 symbol={assets[assetId]?.symbol ?? ''}
               />
             </Flex>
@@ -235,7 +248,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
               variant='ghost'
               size='sm'
               colorScheme='blue'
-              width='full'
+              width={{ base: 'full', md: 'auto' }}
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
               {translate('common.manage')}

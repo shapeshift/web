@@ -1,5 +1,6 @@
 import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
+import { CloseButton, Flex } from '@chakra-ui/react'
 import type { ToastId } from '@chakra-ui/toast'
 import { useToast } from '@chakra-ui/toast'
 import { useEffect, useRef } from 'react'
@@ -28,25 +29,34 @@ export const App = () => {
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')
-    if (shouldUpdate && !toast.isActive(updateId)) {
+    if (!shouldUpdate && !toast.isActive(updateId)) {
       const toastId = toast({
-        render: () => {
+        render: ({ onClose }) => {
           return (
-            <Alert status='info' variant='update-box' borderRadius='lg'>
+            <Alert status='info' variant='update-box' borderRadius='lg' gap={3}>
               <IconCircle boxSize={8} color='gray.500'>
                 <FaSync />
               </IconCircle>
-              <AlertDescription ml={3}>{translate('updateToast.body')}</AlertDescription>
+              <Flex
+                gap={{ base: 2, md: 3 }}
+                flexDir={{ base: 'column', md: 'row' }}
+                alignItems={{ base: 'flex-start', md: 'center' }}
+              >
+                <AlertDescription letterSpacing='0.02em'>
+                  {translate('updateToast.body')}
+                </AlertDescription>
 
-              <Button colorScheme='blue' size='sm' onClick={() => window.location.reload()} ml={4}>
-                {translate('updateToast.cta')}
-              </Button>
+                <Button colorScheme='blue' size='sm' onClick={() => window.location.reload()}>
+                  {translate('updateToast.cta')}
+                </Button>
+              </Flex>
+              <CloseButton onClick={onClose} size='sm' />
             </Alert>
           )
         },
         id: updateId,
         duration: null,
-        isClosable: false,
+        isClosable: true,
         position: 'bottom-right',
       })
       if (!toastId) return

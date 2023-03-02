@@ -22,15 +22,17 @@ The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
   const {
-    sellTradeAsset,
-    buyTradeAsset,
-    sellAssetAccountId,
-    action,
-    isSendMax,
-    quote,
-    amount,
+    state: {
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetAccountId,
+      action,
+      isSendMax,
+      quote,
+      amount,
+      receiveAddress,
+    },
     dispatch: swapperDispatch,
-    receiveAddress,
   } = useSwapperState()
 
   // Types

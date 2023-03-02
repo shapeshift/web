@@ -34,14 +34,16 @@ export const useTradeAmounts = () => {
   const appDispatch = useAppDispatch()
   const {
     dispatch: swapperDispatch,
-    buyAssetFiatRate: buyAssetFiatRateFormState,
-    sellAssetFiatRate: sellAssetFiatRateFormState,
-    sellTradeAsset,
-    buyTradeAsset,
-    fees: feesFormState,
-    action: actionFormState,
-    isSendMax: isSendMaxFormState,
-    amount: amountFormState,
+    state: {
+      buyAssetFiatRate: buyAssetFiatRateFormState,
+      sellAssetFiatRate: sellAssetFiatRateFormState,
+      sellTradeAsset,
+      buyTradeAsset,
+      fees: feesFormState,
+      action: actionFormState,
+      isSendMax: isSendMaxFormState,
+      amount: amountFormState,
+    },
   } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet

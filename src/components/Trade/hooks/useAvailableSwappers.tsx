@@ -14,7 +14,9 @@ type AvailableSwapperArgs = { feeAsset: Asset | undefined }
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
 export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   // Form hooks
-  const { sellTradeAsset, buyTradeAsset } = useSwapperState()
+  const {
+    state: { sellTradeAsset, buyTradeAsset },
+  } = useSwapperState()
   const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Constants

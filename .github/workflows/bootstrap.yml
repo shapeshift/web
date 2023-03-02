@@ -2,14 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main, develop, release, yeet, private]
   pull_request:
-  merge_group:
-    branches:
-      - main
-      - develop
-      - release
+    branches: [main, develop, release, yeet, private]
 
 jobs:
   install-and-cache:

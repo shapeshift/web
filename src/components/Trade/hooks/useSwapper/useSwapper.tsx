@@ -32,8 +32,18 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
-  const { sellTradeAsset, buyTradeAsset, sellAssetAccountId, buyAssetAccountId } = useSwapperState()
-  const { quote, isSendMax, isExactAllowance, slippage } = useSwapperState()
+  const {
+    state: {
+      sellTradeAsset,
+      buyTradeAsset,
+      sellAssetAccountId,
+      buyAssetAccountId,
+      quote,
+      isSendMax,
+      isExactAllowance,
+      slippage,
+    },
+  } = useSwapperState()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -52,7 +62,9 @@ export const useSwapper = () => {
   const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
   const { tradeQuoteArgs } = useTradeQuoteService()
-  const { receiveAddress } = useSwapperState()
+  const {
+    state: { receiveAddress },
+  } = useSwapperState()
   const dispatch = useAppDispatch()
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper

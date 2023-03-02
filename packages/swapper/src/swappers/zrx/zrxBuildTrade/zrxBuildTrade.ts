@@ -44,7 +44,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       })
     }
 
-    const slippagePercentage = slippage ? bnOrZero(slippage).div(100).toString() : DEFAULT_SLIPPAGE
+    const slippagePercentage = slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE
 
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
     const zrxService = zrxServiceFactory(baseUrl)

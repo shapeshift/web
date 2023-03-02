@@ -3,7 +3,7 @@ import { PortisIcon } from 'components/Icons/PortisIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const PortisConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapters: [PortisAdapter],
+  adapter: PortisAdapter,
   supportsMobile: 'browser',
   icon: PortisIcon,
   name: 'Portis',

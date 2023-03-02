@@ -56,9 +56,7 @@ export const TallyHoConnect = ({ history }: TallyHoSetupProps) => {
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.TallyHo)) {
-      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.[0]?.pairDevice()) as
-        | TallyHoHDWallet
-        | undefined
+      const wallet = (await state.adapters.get(KeyManager.TallyHo)?.pairDevice()) as TallyHoHDWallet
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-tally::pairDevice returned null or undefined')

@@ -29,7 +29,7 @@ export const App = () => {
 
   useEffect(() => {
     logger.debug({ shouldUpdate, updateId }, 'Update Check')
-    if (!shouldUpdate && !toast.isActive(updateId)) {
+    if (shouldUpdate && !toast.isActive(updateId)) {
       const toastId = toast({
         render: ({ onClose }) => {
           return (

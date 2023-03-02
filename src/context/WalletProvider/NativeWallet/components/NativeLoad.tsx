@@ -72,12 +72,12 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
-    const adapters = state.adapters?.get(KeyManager.Native)
+    const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
-    if (adapters?.length) {
+    if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        const wallet = await adapters[0].pairDevice(deviceId)
+        const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
           // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will

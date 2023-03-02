@@ -32,7 +32,7 @@ import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 const moduleLogger = logger.child({ namespace: ['BackupPassphrasePassword'] })
 
 /**
- * This component only works for NATIVE wallets encrypted using hdwallet Vault
+ * This component only works for ShapeShift wallets encrypted using hdwallet Vault
  */
 export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const { revocableWallet } = props

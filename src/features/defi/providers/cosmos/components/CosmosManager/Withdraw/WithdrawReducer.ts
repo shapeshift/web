@@ -12,7 +12,7 @@ export const initialState: CosmosWithdrawState = {
     stakingToken: '',
     provider: '',
     chain: KnownChainIds.CosmosMainnet,
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     expired: false,
     version: '',
     tvl: bn(0),

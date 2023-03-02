@@ -7,6 +7,7 @@ export type CarouselProps = {
   showDots?: boolean
   options?: EmblaOptionsType
   autoPlay?: boolean
+  isVisible?: boolean
 }
 
 export type ArrowProps = {

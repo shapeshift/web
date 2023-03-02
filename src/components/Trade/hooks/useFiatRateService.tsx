@@ -1,30 +1,28 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import type { TS } from 'components/Trade/types'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 /*
 The Fiat Rate Service is responsible for fetching and setting fiat rates.
-It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of TradeState.
+It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of SwapperState.
 It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
+  const {
+    dispatch: swapperDispatch,
+    state: { sellTradeAsset, buyTradeAsset },
+  } = useSwapperState()
+  const { tradeQuoteArgs } = useTradeQuoteService()
+
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
   type UsdRatesInputArgs = UsdRatesQueryInput[0]
-
-  // Hooks
-  const { tradeQuoteArgs } = useTradeQuoteService()
-
-  // Form hooks
-  const { control, setValue } = useFormContext<TS>()
-  const sellTradeAsset = useWatch({ control, name: 'sellTradeAsset' })
-  const buyTradeAsset = useWatch({ control, name: 'buyTradeAsset' })
 
   // State
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
@@ -58,11 +56,16 @@ export const useFiatRateService = () => {
   // Set fiat rates
   useEffect(() => {
     if (usdRates) {
-      setValue('buyAssetFiatRate', usdRates.buyAssetUsdRate)
-      setValue('sellAssetFiatRate', usdRates.sellAssetUsdRate)
-      setValue('feeAssetFiatRate', usdRates.feeAssetUsdRate)
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: {
+          buyAssetFiatRate: usdRates.buyAssetUsdRate,
+          sellAssetFiatRate: usdRates.sellAssetUsdRate,
+          feeAssetFiatRate: usdRates.feeAssetUsdRate,
+        },
+      })
     }
-  }, [usdRates, setValue])
+  }, [usdRates, swapperDispatch])
 
   return { isLoadingFiatRateData }
 }

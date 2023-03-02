@@ -34,7 +34,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 /*
 The Default Asset Hook is responsible for populating the trade widget with initial assets.
-It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of TradeState.
+It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of SwapperState.
 */
 export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   // Hooks

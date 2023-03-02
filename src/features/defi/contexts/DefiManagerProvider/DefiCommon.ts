@@ -4,14 +4,14 @@ export enum DefiType {
   LiquidityPool = 'lp',
   Vault = 'vault',
   Staking = 'staking',
-  TokenStaking = 'token_staking',
 }
 
 export enum DefiProvider {
   Idle = 'idle',
   Yearn = 'yearn',
   ShapeShift = 'ShapeShift',
-  FoxFarming = 'ShapeShift Farming',
+  EthFoxStaking = 'ETH/FOX Staking',
+  UniV2 = 'Uniswap V2',
   Cosmos = 'Cosmos',
   Osmosis = 'Osmosis',
   ThorchainSavers = 'THORChain Savers',

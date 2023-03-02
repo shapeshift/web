@@ -2,9 +2,9 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import WidgetBot from '@widgetbot/react-embed'
 import { useModal } from 'hooks/useModal/useModal'
 
-const LiveChatSupport = () => {
-  const { liveChatSupport } = useModal()
-  const { close, isOpen } = liveChatSupport
+const LiveSupport = () => {
+  const { liveSupport } = useModal()
+  const { close, isOpen } = liveSupport
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
@@ -20,4 +20,4 @@ const LiveChatSupport = () => {
   )
 }
 
-export const LiveChatSupportModal = LiveChatSupport
+export const LiveSupportModal = LiveSupport

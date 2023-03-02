@@ -9966,6 +9966,11 @@ elliptic@6.5.4, elliptic@^6.0.0, elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+embla-carousel-auto-height@^7.0.9:
+  version "7.0.9"
+  resolved "https://registry.yarnpkg.com/embla-carousel-auto-height/-/embla-carousel-auto-height-7.0.9.tgz#22a5933a68e74d20b175ac122711b14e0f9eefc9"
+  integrity sha512-ZCFF+vgm7gV6zCRBqHA6Ytv6ZeSr97KeifGlghaaCGQjv4lQtEmqE3z2HA6ogOrvI1BQKKv2CUj3RNwewEx9eg==
+
 embla-carousel-autoplay@^7.0.5:
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/embla-carousel-autoplay/-/embla-carousel-autoplay-7.0.5.tgz#d411cd7d3ea8edd907ef26330ad8524c5ebf174b"

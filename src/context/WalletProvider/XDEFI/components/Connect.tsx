@@ -42,7 +42,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
       try {
-        const wallet = (await state.adapters.get(KeyManager.XDefi)?.pairDevice()) as
+        const wallet = (await state.adapters.get(KeyManager.XDefi)?.[0]?.pairDevice()) as
           | XDEFIHDWallet
           | undefined
         if (!wallet) {

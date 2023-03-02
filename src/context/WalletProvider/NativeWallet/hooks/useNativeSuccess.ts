@@ -27,13 +27,13 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
 
   useEffect(() => {
     ;(async () => {
-      const adapters = state.adapters?.get(KeyManager.Native)
+      const adapter = state.adapters?.get(KeyManager.Native)!
       try {
         await new Promise(resolve => setTimeout(resolve, 250))
         await Promise.all([navigator.storage?.persist?.(), vault.save()])
 
         const deviceId = vault.id
-        const wallet = (await adapters?.[0].pairDevice?.(deviceId)) as NativeHDWallet
+        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })

@@ -31,7 +31,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
     setError(null)
     setLoading(true)
     if (state.adapters && state.adapters?.has(KeyManager.Portis)) {
-      const wallet = await state.adapters.get(KeyManager.Portis)?.[0].pairDevice()
+      const wallet = await state.adapters.get(KeyManager.Portis)?.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-portis::pairDevice returned null or undefined')

@@ -3,7 +3,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 
 export const NativeConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapters: [NativeAdapter],
+  adapter: NativeAdapter,
   supportsMobile: 'browser',
   icon: FoxIcon,
   name: 'ShapeShift',

@@ -4,7 +4,7 @@ import type { SupportedWalletInfo } from 'context/WalletProvider/config'
 import { logger } from 'lib/logger'
 
 export const MobileConfig: Omit<SupportedWalletInfo, 'routes'> = {
-  adapters: [NativeAdapter],
+  adapter: NativeAdapter,
   supportsMobile: 'app',
   icon: FoxIcon,
   name: 'ShapeShift Mobile',

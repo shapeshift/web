@@ -31,7 +31,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
     setError(null)
     setLoading(true)
     if (state.adapters && state.adapters?.has(KeyManager.Keplr)) {
-      const wallet = await state.adapters.get(KeyManager.Keplr)?.[0].pairDevice()
+      const wallet = await state.adapters.get(KeyManager.Keplr)?.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error('Call to hdwallet-keplr::pairDevice returned null or undefined')

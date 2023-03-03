@@ -86,7 +86,7 @@ const getEvmFees = <T extends EvmChainId>(
 
   return {
     chainSpecific: {
-      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
+      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
       gasPriceCryptoBaseUnit,
       estimatedGas: estimatedGasCryptoBaseUnit,
       totalFee: totalFeeCryptoPrecision,

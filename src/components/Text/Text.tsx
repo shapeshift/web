@@ -28,3 +28,17 @@ export const Text = forwardRef<TextPropTypes, 'p'>((props, ref) => {
     </CText>
   )
 })
+
+export const SubText = forwardRef<TextProps, 'p'>((props, ref) => {
+  return (
+    <CText
+      color='gray.500'
+      fontWeight='semibold'
+      letterSpacing='0.025em'
+      fontSize='xs'
+      lineHeight='base'
+      ref={ref}
+      {...props}
+    />
+  )
+})

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v6.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.4.3...@shapeshiftoss/investor-yearn-v6.4.4) (2023-03-03)
+
+
+### Bug Fixes
+
+* **common:** osmosis keepkey swaps ([#1221](https://github.com/shapeshift/lib/issues/1221)) ([156f2ac](https://github.com/shapeshift/lib/commit/156f2acf815fe05a74fdfbe7238f813936f2a2b9))
+
 # [@shapeshiftoss/investor-yearn-v6.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.4.2...@shapeshiftoss/investor-yearn-v6.4.3) (2023-02-24)
 
 # [@shapeshiftoss/investor-yearn-v6.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v6.4.1...@shapeshiftoss/investor-yearn-v6.4.2) (2023-02-23)

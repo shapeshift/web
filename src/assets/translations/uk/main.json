@@ -469,7 +469,7 @@
     "explore": "Дослідити",
     "trade": "Обмін",
     "buyCrypto": "Купити / продати криптовалюту",
-    "buySell": "Купити/продати",
+    "buyCryptoShort": "Купити/продати",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {

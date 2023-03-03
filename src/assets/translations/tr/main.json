@@ -469,7 +469,7 @@
     "explore": "Keşfet",
     "trade": "Takas",
     "buyCrypto": "Kripto Al/Sat",
-    "buySell": "Al/Sat",
+    "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {

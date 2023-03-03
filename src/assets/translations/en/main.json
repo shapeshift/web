@@ -459,6 +459,7 @@
   "navBar": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "dashboardShort": "Dashboard",
     "assets": "Assets",
     "assetDetails": "Asset Details",
     "accounts": "Accounts",
@@ -479,7 +480,7 @@
     "explore": "Explore",
     "trade": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
-    "buySell": "Buy/Sell",
+    "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {

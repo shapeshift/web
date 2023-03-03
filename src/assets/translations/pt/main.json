@@ -469,7 +469,7 @@
     "explore": "Explorar",
     "trade": "Negocie",
     "buyCrypto": "Compre Cripto",
-    "buySell": "Compre/venda",
+    "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo"
   },
   "transactionRow": {

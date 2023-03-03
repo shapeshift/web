@@ -180,10 +180,14 @@ export type LpEarnOpportunityType = OpportunityMetadataBase & {
   isVisible?: boolean
 } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 
-export type GroupedEligibleOpportunityReturnType = {
+export type AggregatedOpportunitiesByAssetIdReturn = {
+  assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  opportunityIds: OpportunityId[]
-  netApy: number
+  netApy: string
+  fiatAmount: string
+  cryptoBalancePrecision: string
+  fiatRewardsAmount: string
+  opportunities: Record<DefiType, OpportunityId[]>
 }
 
 export type TagDescription = {

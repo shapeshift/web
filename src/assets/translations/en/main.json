@@ -13,6 +13,7 @@
     "connected": "Connected",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
+    "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
@@ -90,7 +91,8 @@
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "manage": "Manage"
   },
   "consentBanner": {
     "body": {
@@ -401,6 +403,12 @@
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Total Value",
+    "netApy": "Net APY",
+    "claimableRewards": "Claimable Rewards",
+    "reawrds": "Rewards",
+    "stakingPosition": "Staking Position",
+    "liquidityPool": "Liquidity Pool",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {
@@ -868,7 +876,7 @@
     "deposit": {
       "allocation": {
         "heading": "Your Allocation",
-        "fractionDescription":"% of pool"
+        "fractionDescription": "% of pool"
       },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
@@ -1779,7 +1787,7 @@
     "seniorTranche": {
       "title": "What is a Senior Tranche?",
       "body": "Enjoy DeFi yields across multiple protocols while keeping your deposit protected. Senior Tranches offer built-in protection on funds and provide full-spectrum coverage thanks to their Junior counterparty."
-    }, 
+    },
     "juniorTranche": {
       "title": "What is a Junior Tranche?",
       "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
@@ -1866,6 +1874,5 @@
         "cta": "Create one"
       }
     }
-
   }
 }

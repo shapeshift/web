@@ -23,6 +23,7 @@ import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
 import { TagStyle as Tag } from 'components/Tag/Tag.theme'
+import { TextStyle as Text } from 'components/Text/text.theme'
 import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
 import { TooltipStyle as Tooltip } from 'components/Tooltip/Tooltip.theme'
 
@@ -126,6 +127,7 @@ export const theme = extendTheme({
     Row,
     Drawer,
     Divider,
+    Text,
     Textarea,
     Tooltip,
     Table,

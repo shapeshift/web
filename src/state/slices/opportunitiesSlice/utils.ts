@@ -3,8 +3,10 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { BN } from '@shapeshiftoss/investor-foxy'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import type { MarketData } from '@shapeshiftoss/types'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
 import type {
@@ -14,7 +16,7 @@ import type {
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type {
   OpportunityId,
-  OpportunityMetadata,
+  OpportunityMetadataBase,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -54,6 +56,46 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
 
+type GetUnderlyingAssetIdsBalancesArgs = {
+  cryptoAmountBaseUnit: string
+  assets: Partial<Record<AssetId, Asset>>
+  marketData: Partial<Record<AssetId, MarketData>>
+} & Pick<OpportunityMetadataBase, 'underlyingAssetRatiosBaseUnit' | 'underlyingAssetIds'>
+
+type UnderlyingAssetIdsBalances = { fiatAmount: string; cryptoBalancePrecision: string }
+type GetUnderlyingAssetIdsBalancesReturn = Record<AssetId, UnderlyingAssetIdsBalances>
+
+type GetUnderlyingAssetIdsBalances = (
+  args: GetUnderlyingAssetIdsBalancesArgs,
+) => GetUnderlyingAssetIdsBalancesReturn
+
+export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
+  underlyingAssetIds,
+  underlyingAssetRatiosBaseUnit,
+  cryptoAmountBaseUnit,
+  assets,
+  marketData,
+}) => {
+  return Object.values(underlyingAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
+    (acc, underlyingAssetId, index) => {
+      const underlyingAsset = assets[underlyingAssetId]
+      const marketDataPrice = marketData[underlyingAssetId]?.price
+      if (!underlyingAsset) return acc
+      const fiatAmount = bnOrZero(cryptoAmountBaseUnit)
+        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
+        .div(bnOrZero(10).pow(underlyingAsset?.precision))
+        .times(marketDataPrice ?? 0)
+        .toString()
+      const cryptoBalancePrecision = bnOrZero(cryptoAmountBaseUnit)
+        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
+        .div(bnOrZero(10).pow(underlyingAsset?.precision))
+        .toString()
+      acc[underlyingAssetId] = { fiatAmount, cryptoBalancePrecision }
+      return acc
+    },
+    {},
+  )
+}
 // An OpportunityId as a ValidatorId
 // Currently used with Cosmos SDK opportunities, where the opportunity is a validator, e.g an Address
 // Since AccountId is generally used to represent portfolio accounts and not other, arbitrary on-chain accounts, we give this some flavour
@@ -109,7 +151,7 @@ export const makeOpportunityIcons = ({
   opportunity,
   assets,
 }: {
-  opportunity: OpportunityMetadata | UserStakingOpportunityWithMetadata
+  opportunity: OpportunityMetadataBase | UserStakingOpportunityWithMetadata
   assets: Partial<Record<AssetId, Asset>>
 }) =>
   opportunity.icon

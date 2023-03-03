@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v8.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v8.0.0...@shapeshiftoss/investor-foxy-v8.0.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* **common:** osmosis keepkey swaps ([#1221](https://github.com/shapeshift/lib/issues/1221)) ([156f2ac](https://github.com/shapeshift/lib/commit/156f2acf815fe05a74fdfbe7238f813936f2a2b9))
+
 # [@shapeshiftoss/investor-foxy-v8.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v7.1.3...@shapeshiftoss/investor-foxy-v8.0.0) (2023-02-28)
 
 

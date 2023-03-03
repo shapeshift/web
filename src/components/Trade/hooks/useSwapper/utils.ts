@@ -68,7 +68,7 @@ const getEvmFees = <T extends EvmChainId>(
     .div(bn(10).exponentiatedBy(feeAsset.precision))
     .toFixed()
 
-  if (!trade.feeData.chainSpecific) {
+  if (trade.feeData && !trade.feeData.chainSpecific) {
     moduleLogger.debug({ trade }, 'feeData.chainSpecific undefined for trade')
   }
   const approvalFeeCryptoPrecision = bnOrZero(

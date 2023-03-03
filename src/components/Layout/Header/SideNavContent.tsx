@@ -27,6 +27,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const { liveSupport } = useModal()
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isLiveSupportEnabled = useFeatureFlag('LiveSupport')
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
@@ -84,14 +85,16 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
         />
-        <MainNavLink
-          isCompact={isCompact}
-          size='sm'
-          onClick={() => handleClick(() => liveSupport.open({}))}
-          label={translate('common.liveSupport')}
-          leftIcon={<CircleQuestionIcon />}
-          data-test='navigation-live-chat-support-button'
-        />
+        {isLiveSupportEnabled && (
+          <MainNavLink
+            isCompact={isCompact}
+            size='sm'
+            onClick={() => handleClick(() => liveSupport.open({}))}
+            label={translate('common.liveSupport')}
+            leftIcon={<CircleQuestionIcon />}
+            data-test='navigation-live-chat-support-button'
+          />
+        )}
         <MainNavLink
           isCompact={isCompact}
           as={Link}

@@ -30,6 +30,7 @@ export type FeatureFlags = {
   Cowswap: boolean
   ConsentBanner: boolean
   MixPanel: boolean
+  LiveSupport: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -73,6 +74,7 @@ const initialState: Preferences = {
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ConsentBanner: getConfig().REACT_APP_FEATURE_CONSENT_BANNER,
     MixPanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
+    LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

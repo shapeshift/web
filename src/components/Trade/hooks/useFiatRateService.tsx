@@ -1,7 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
@@ -16,9 +15,8 @@ It also triggers an update of calculated trade amounts when fiat rates change.
 export const useFiatRateService = () => {
   const {
     dispatch: swapperDispatch,
-    state: { sellTradeAsset, buyTradeAsset },
+    state: { sellTradeAsset, buyTradeAsset, tradeQuoteInputArgs },
   } = useSwapperState()
-  const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
@@ -45,13 +43,13 @@ export const useFiatRateService = () => {
 
   // Trigger fiat rate query
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteArgs) {
+    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteInputArgs) {
       setUsdRatesArgs({
-        tradeQuoteArgs,
+        tradeQuoteArgs: tradeQuoteInputArgs,
         feeAssetId: sellAssetFeeAssetId,
       })
     }
-  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
+  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteInputArgs])
 
   // Set fiat rates
   useEffect(() => {

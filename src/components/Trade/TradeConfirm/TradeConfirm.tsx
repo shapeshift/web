@@ -28,7 +28,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
@@ -76,7 +75,10 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const { dispatch: swapperDispatch } = useSwapperState()
+  const {
+    dispatch: swapperDispatch,
+    state: { activeSwapperWithMetadata },
+  } = useSwapperState()
 
   const {
     tradeAmounts,
@@ -93,8 +95,7 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
+  const bestSwapper = activeSwapperWithMetadata?.swapper
 
   const reset = useCallback(() => {
     swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })

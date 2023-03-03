@@ -2,6 +2,8 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import type { Context, FC, PropsWithChildren } from 'react'
 import { createContext, useContext, useMemo, useReducer } from 'react'
+import { useAvailableSwappersService } from 'components/Trade/hooks/useAvailableSwappersService'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { swapperReducer } from 'components/Trade/SwapperProvider/reducer'
 import type { SwapperContextType, SwapperState } from 'components/Trade/SwapperProvider/types'
 import { TradeAmountInputField } from 'components/Trade/types'
@@ -34,7 +36,9 @@ export function useSwapperState<T extends KnownChainIds = KnownChainIds>() {
 export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = useReducer(swapperReducer, initialState)
 
-  const value: SwapperContextType = useMemo(() => ({ state, dispatch }), [state])
+  const context: SwapperContextType = useMemo(() => ({ state, dispatch }), [state])
+  useTradeQuoteService(context)
+  useAvailableSwappersService(context)
 
-  return <SwapperContext.Provider value={value}>{children}</SwapperContext.Provider>
+  return <SwapperContext.Provider value={context}>{children}</SwapperContext.Provider>
 }

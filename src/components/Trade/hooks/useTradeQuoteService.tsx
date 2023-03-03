@@ -2,9 +2,9 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -20,7 +20,7 @@ import { useAppSelector } from 'state/store'
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
 The only mutation is on the quote property of SwapperState.
 */
-export const useTradeQuoteService = () => {
+export const useTradeQuoteService = (context: SwapperContextType) => {
   const {
     state: {
       sellTradeAsset,
@@ -31,17 +31,13 @@ export const useTradeQuoteService = () => {
       quote,
       amount,
       receiveAddress,
+      tradeQuoteInputArgs,
     },
     dispatch: swapperDispatch,
-  } = useSwapperState()
-
-  // Types
-  type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
-  type TradeQuoteInputArg = TradeQuoteQueryInput[0]
+  } = context
 
   // State
   const wallet = useWallet().state.wallet
-  const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -61,10 +57,9 @@ export const useTradeQuoteService = () => {
   )
 
   // API
-  const { data: tradeQuote, isLoading: isLoadingTradeQuote } = useGetTradeQuoteQuery(
-    tradeQuoteArgs,
-    { pollingInterval: 30000 },
-  )
+  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteInputArgs ?? skipToken, {
+    pollingInterval: 30000,
+  })
 
   // Effects
   // Set trade quote args and trigger trade quote query
@@ -96,7 +91,11 @@ export const useTradeQuoteService = () => {
           sellAmountBeforeFeesCryptoPrecision: sellTradeAssetAmountCryptoPrecision,
           isSendMax,
         })
-        tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
+        tradeQuoteInputArgs &&
+          swapperDispatch({
+            type: SwapperActionType.SET_VALUES,
+            payload: { tradeQuoteInputArgs },
+          })
       })()
     }
   }, [
@@ -111,6 +110,7 @@ export const useTradeQuoteService = () => {
     sellTradeAsset,
     wallet,
     isSendMax,
+    swapperDispatch,
   ])
 
   // Update trade quote
@@ -140,9 +140,4 @@ export const useTradeQuoteService = () => {
       tradeQuote &&
       swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } })
   }, [swapperDispatch, quote, tradeQuote])
-
-  return {
-    isLoadingTradeQuote,
-    tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,
-  }
 }

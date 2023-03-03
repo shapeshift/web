@@ -4,7 +4,6 @@ import { type Swapper, SwapperManager, SwapperName } from '@shapeshiftoss/swappe
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   isSupportedCosmosSdkSwappingChain,
@@ -12,7 +11,6 @@ import {
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -42,6 +40,7 @@ export const useSwapper = () => {
       isSendMax,
       isExactAllowance,
       slippage,
+      tradeQuoteInputArgs,
     },
   } = useSwapperState()
 
@@ -61,13 +60,11 @@ export const useSwapper = () => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
   const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
-  const { tradeQuoteArgs } = useTradeQuoteService()
   const {
-    state: { receiveAddress },
+    state: { receiveAddress, activeSwapperWithMetadata },
   } = useSwapperState()
   const dispatch = useAppDispatch()
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
+  const bestSwapper = activeSwapperWithMetadata?.swapper
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -248,7 +245,15 @@ export const useSwapper = () => {
     if (buyAssetId && sellAssetId) {
       setBestTradeSwapper(bestSwapper)
     }
-  }, [bestSwapper, buyAssetId, feeAsset, dispatch, sellAssetId, swapperManager, tradeQuoteArgs])
+  }, [
+    bestSwapper,
+    buyAssetId,
+    feeAsset,
+    dispatch,
+    sellAssetId,
+    swapperManager,
+    tradeQuoteInputArgs,
+  ])
 
   useEffect(() => {
     ;(async () => {

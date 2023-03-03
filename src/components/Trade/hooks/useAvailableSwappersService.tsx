@@ -1,29 +1,30 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { isSome } from 'lib/utils'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
+import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type AvailableSwapperArgs = { feeAsset: Asset | undefined }
-
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
-export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
+export const useAvailableSwappersService = (context: SwapperContextType) => {
   // Form hooks
   const {
-    state: { sellTradeAsset, buyTradeAsset },
-  } = useSwapperState()
-  const { tradeQuoteArgs } = useTradeQuoteService()
+    state: { sellTradeAsset, buyTradeAsset, tradeQuoteInputArgs },
+    dispatch: swapperDispatch,
+  } = context
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
+  const sellAssetChainId = sellAsset?.chainId
+
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
 
   const [swappersWithQuoteMetadata, setSwappersWithQuoteMetadata] =
     useState<GetSwappersWithQuoteMetadataReturn>()
@@ -35,11 +36,11 @@ export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   useEffect(() => {
     ;(async () => {
       const availableSwapperTypesWithQuoteMetadata =
-        tradeQuoteArgs && feeAsset
+        tradeQuoteInputArgs && feeAsset
           ? (
               await dispatch(
                 getAvailableSwappers.initiate({
-                  ...tradeQuoteArgs,
+                  ...tradeQuoteInputArgs,
                   feeAsset,
                 }),
               )
@@ -62,10 +63,18 @@ export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
         .filter(isSome)
       // Handle a race condition between form state and useTradeQuoteService
       if (
-        tradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
-        tradeQuoteArgs?.sellAsset.assetId === sellAssetId
+        tradeQuoteInputArgs?.buyAsset.assetId === buyAssetId &&
+        tradeQuoteInputArgs?.sellAsset.assetId === sellAssetId
       ) {
         setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
+        const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            activeSwapperWithMetadata: bestSwapperWithQuoteMetadata,
+            availableSwappersWithMetadata: swappersWithQuoteMetadata,
+          },
+        })
       }
     })()
   }, [
@@ -75,10 +84,8 @@ export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
     feeAsset,
     getAvailableSwappers,
     sellAssetId,
-    tradeQuoteArgs,
+    swapperDispatch,
+    swappersWithQuoteMetadata,
+    tradeQuoteInputArgs,
   ])
-
-  const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
-
-  return { bestSwapperWithQuoteMetadata, swappersWithQuoteMetadata }
 }

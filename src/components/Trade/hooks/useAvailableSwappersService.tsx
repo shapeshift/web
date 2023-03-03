@@ -67,14 +67,6 @@ export const useAvailableSwappersService = (context: SwapperContextType) => {
         tradeQuoteInputArgs?.sellAsset.assetId === sellAssetId
       ) {
         setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
-        const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            activeSwapperWithMetadata: bestSwapperWithQuoteMetadata,
-            availableSwappersWithMetadata: swappersWithQuoteMetadata,
-          },
-        })
       }
     })()
   }, [
@@ -85,7 +77,17 @@ export const useAvailableSwappersService = (context: SwapperContextType) => {
     getAvailableSwappers,
     sellAssetId,
     swapperDispatch,
-    swappersWithQuoteMetadata,
     tradeQuoteInputArgs,
   ])
+
+  useEffect(() => {
+    const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
+    swapperDispatch({
+      type: SwapperActionType.SET_VALUES,
+      payload: {
+        activeSwapperWithMetadata: bestSwapperWithQuoteMetadata,
+        availableSwappersWithMetadata: swappersWithQuoteMetadata,
+      },
+    })
+  }, [swapperDispatch, swappersWithQuoteMetadata])
 }

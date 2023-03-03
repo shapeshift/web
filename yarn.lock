@@ -4166,8 +4166,8 @@
 
 "@shapeshiftoss/hdwallet-core@1.46.0", "@shapeshiftoss/hdwallet-core@^1.46.0":
   version "1.46.0"
-  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.46.0.tgz#5d677deda6369c29dfbfdddb8995994f4a3b6474"
-  integrity sha512-3LTOEhTx4yQdiKRSMOUYh2pSKXdyAcScdgIRWIu2ryXfgkvlXSv5s+oK43NI3fT1Qgz5tRCwoy8SWIy2eBsFmg==
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.46.0.tgz#183233df1d0856125bbf5132eb981a3afecd4890"
+  integrity sha512-Pf/LNZbsrIU0Ex4oVlGTxuX5KZ3uUMhfjQiWZ7gEt964MfABxc46bm2TOiCJTxd0FhHpgCUSGTLztZ0Qj6DMIQ==
   dependencies:
     eip-712 "^1.0.0"
     eventemitter2 "^5.0.1"
@@ -4195,8 +4195,8 @@
 
 "@shapeshiftoss/hdwallet-keepkey@1.46.0", "@shapeshiftoss/hdwallet-keepkey@^1.46.0":
   version "1.46.0"
-  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.46.0.tgz#ec8c3018531d51200c33ec2f465984cb06d66e95"
-  integrity sha512-hpZX8dG6vPYF/NLxb8/fnTXipnahkq4MTHrPhZzIb76etSMzfSZiuyKXzBidYTjw6Klotq6bNxnnEX9Z+yEmEw==
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.46.0.tgz#d14ae228c960a64719e3412df720249f9ee51732"
+  integrity sha512-fUEsEZmER368NzSy7hV4JELPd50jxZ77tGuYkF9qKpqtMdS+tEUvL/65qxH1kaPsSduMFwbaHuI6V1GU9SdSuQ==
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"

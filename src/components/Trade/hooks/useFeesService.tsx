@@ -1,6 +1,5 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
@@ -14,11 +13,10 @@ The only mutation is on Swapper State's fees property.
 export const useFeesService = () => {
   const {
     dispatch: swapperDispatch,
-    state: { sellTradeAsset, quote, trade },
+    state: { sellTradeAsset, quote, trade, activeSwapperWithMetadata },
   } = useSwapperState()
 
-  // Hooks
-  const { bestTradeSwapper } = useSwapper()
+  const activeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -30,14 +28,14 @@ export const useFeesService = () => {
 
   useEffect(() => {
     const feeTrade = trade ?? quote
-    if (sellTradeAsset?.asset && bestTradeSwapper && feeTrade) {
+    if (sellTradeAsset?.asset && activeSwapper && feeTrade) {
       const formFees = getFormFees({
         trade: feeTrade,
         sellAsset: sellTradeAsset?.asset,
-        tradeFeeSource: bestTradeSwapper.name,
+        tradeFeeSource: activeSwapper.name,
         feeAsset: sellFeeAsset,
       })
       swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fees: formFees } })
     }
-  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, trade, swapperDispatch])
+  }, [activeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, trade, swapperDispatch])
 }

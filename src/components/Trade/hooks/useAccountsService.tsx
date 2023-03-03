@@ -21,15 +21,17 @@ export const useAccountsService = () => {
       buyAssetAccountId: stateBuyAssetAccountId,
       sellTradeAsset,
       buyTradeAsset,
+      activeSwapperWithMetadata,
     },
   } = useSwapperState()
 
   // Custom hooks
-  const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
+  const { swapperSupportsCrossAccountTrade } = useSwapper()
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
   const buyAssetId = buyTradeAsset?.asset?.assetId
+  const activeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
@@ -80,7 +82,7 @@ export const useAccountsService = () => {
               - Trades between assets on the same chain but different accounts
               - Trades between assets on different chains (and possibly different accounts)
            */
-          swapperSupportsCrossAccountTrade || !bestTradeSwapper
+          swapperSupportsCrossAccountTrade || !activeSwapper
             ? buyAssetAccountId
             : sellAssetAccountId,
       },
@@ -92,6 +94,6 @@ export const useAccountsService = () => {
     swapperDispatch,
     swapperSupportsCrossAccountTrade,
     stateBuyAssetAccountId,
-    bestTradeSwapper,
+    activeSwapper,
   ])
 }

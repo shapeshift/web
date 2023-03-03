@@ -222,9 +222,9 @@ export const useTradeAmounts = () => {
 
       const swapperManager = await getSwapperManager(featureFlags)
       const swappers = swapperManager.swappers
-      const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
+      const activeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
 
-      if (!bestTradeSwapper) {
+      if (!activeSwapper) {
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
@@ -244,7 +244,7 @@ export const useTradeAmounts = () => {
         ? getFormFees({
             trade: quoteResponse.data,
             sellAsset,
-            tradeFeeSource: bestTradeSwapper.name,
+            tradeFeeSource: activeSwapper.name,
             feeAsset,
           })
         : undefined

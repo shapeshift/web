@@ -77,13 +77,13 @@ export const TradeInput = () => {
       sellAssetFiatRate,
       buyAssetFiatRate,
       fees,
+      activeSwapperWithMetadata,
     },
   } = useSwapperState()
 
   const {
     checkApprovalNeeded,
     getTrade,
-    bestTradeSwapper,
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
@@ -98,6 +98,8 @@ export const TradeInput = () => {
   const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
+
+  const activeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
@@ -371,8 +373,8 @@ export const TradeInput = () => {
             buyTradeAsset?.asset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
-    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
-    if (!isTradingActiveOnSellPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+    if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!isTradingActiveOnSellPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -380,7 +382,7 @@ export const TradeInput = () => {
         },
       ]
     }
-    if (!isTradingActiveOnBuyPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+    if (!isTradingActiveOnBuyPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -411,7 +413,7 @@ export const TradeInput = () => {
 
     return 'trade.previewTrade'
   }, [
-    bestTradeSwapper,
+    activeSwapper,
     buyTradeAsset?.asset?.symbol,
     feeAssetBalance,
     feesExceedsSellAmount,
@@ -473,7 +475,7 @@ export const TradeInput = () => {
     },
     [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
   )
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
+  const swapperName = useMemo(() => activeSwapper?.name ?? '', [activeSwapper])
 
   return (
     <SlideTransition>

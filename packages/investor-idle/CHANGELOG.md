@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.6.1...@shapeshiftoss/investor-idle-v2.6.2) (2023-03-03)
+
+
+### Bug Fixes
+
+* **common:** osmosis keepkey swaps ([#1221](https://github.com/shapeshift/lib/issues/1221)) ([156f2ac](https://github.com/shapeshift/lib/commit/156f2acf815fe05a74fdfbe7238f813936f2a2b9))
+
 # [@shapeshiftoss/investor-idle-v2.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.6.0...@shapeshiftoss/investor-idle-v2.6.1) (2023-02-24)
 
 # [@shapeshiftoss/investor-idle-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.5.2...@shapeshiftoss/investor-idle-v2.6.0) (2023-02-24)

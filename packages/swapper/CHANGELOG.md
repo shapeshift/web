@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.4.1...@shapeshiftoss/swapper-v17.4.2) (2023-03-03)
+
+
+### Bug Fixes
+
+* **common:** osmosis keepkey swaps ([#1221](https://github.com/shapeshift/lib/issues/1221)) ([156f2ac](https://github.com/shapeshift/lib/commit/156f2acf815fe05a74fdfbe7238f813936f2a2b9))
+
 # [@shapeshiftoss/swapper-v17.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.4.0...@shapeshiftoss/swapper-v17.4.1) (2023-03-02)
 
 

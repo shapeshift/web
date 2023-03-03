@@ -68,7 +68,12 @@ const getEvmFees = <T extends EvmChainId>(
     .div(bn(10).exponentiatedBy(feeAsset.precision))
     .toFixed()
 
-  const approvalFeeCryptoPrecision = bnOrZero(trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit)
+  if (!trade.feeData.chainSpecific) {
+    moduleLogger.debug({ trade }, 'feeData.chainSpecific undefined for trade')
+  }
+  const approvalFeeCryptoPrecision = bnOrZero(
+    trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
+  )
     .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
     .toString()
   const totalFeeCryptoPrecision = bnOrZero(networkFeeCryptoPrecision)

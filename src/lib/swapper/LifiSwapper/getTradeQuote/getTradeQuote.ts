@@ -170,6 +170,15 @@ export async function getTradeQuote(
     0,
   ).toString()
 
+  // for the rate to be valid, both amounts must be converted to the same precision
+  const estimateRate = convertPrecision(
+    quote.estimate.toAmount,
+    toLifiToken.decimals,
+    fromLifiToken.decimals,
+  )
+    .dividedBy(bn(quote.estimate.fromAmount))
+    .toString()
+
   return {
     accountNumber,
     allowanceContract: quote.estimate.approvalAddress,
@@ -178,9 +187,7 @@ export async function getTradeQuote(
     feeData,
     maximum: '0', // not used
     minimumCryptoHuman,
-    rate: bnOrZero(quote.estimate.toAmount)
-      .dividedBy(bnOrZero(quote.estimate.fromAmount))
-      .toString(),
+    rate: estimateRate,
     recommendedSlippage: bnOrZero(quote.action.slippage).toString(),
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,

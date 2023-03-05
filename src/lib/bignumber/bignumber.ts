@@ -6,8 +6,8 @@ export type BN = BigNumber
 
 export const bn = (n: BigNumber.Value, base = 10): BN => new BigNumber(n, base)
 
-export const bnOrZero = (n: BigNumber.Value | null | undefined): BN => {
-  const value = bn(n || 0)
+export const bnOrZero = (n: BigNumber.Value | null | undefined, base = 10): BN => {
+  const value = bn(n || 0, base)
   return value.isFinite() ? value : bn(0)
 }
 
@@ -23,6 +23,11 @@ export const convertPrecision = (
 ): BigNumber => {
   return bnOrZero(value)
     .dividedBy(bn(10).exponentiatedBy(inputPrecision))
-    .times(bn(10).exponentiatedBy(outputPrecision))
-    .integerValue()
+    .multipliedBy(bn(10).exponentiatedBy(outputPrecision))
 }
+
+export const toHuman = (value: BigNumber.Value, inputPrecision: number) =>
+  convertPrecision(value, inputPrecision, 0)
+
+export const fromHuman = (value: BigNumber.Value, outputPrecision: number) =>
+  convertPrecision(value, 0, outputPrecision)

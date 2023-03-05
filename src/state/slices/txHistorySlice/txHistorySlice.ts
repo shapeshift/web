@@ -6,6 +6,8 @@ import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
+import identity from 'lodash/identity'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -234,7 +236,7 @@ export const txHistoryApi = createApi({
       },
     }),
     getAllTxHistory: build.query<Transaction[], AccountId[]>({
-      queryFn: async (accountIds, { dispatch }) => {
+      queryFn: async (accountIds, { dispatch, getState }) => {
         if (!accountIds.length) {
           return { error: { data: 'getAllTxHistory: no account ids provided', status: 400 } }
         }
@@ -262,9 +264,24 @@ export const txHistoryApi = createApi({
 
                 currentCursor = cursor
 
-                // TODO(0xdef1cafe): check if data exists in store and stop paginating before upserting
-                // to reduce load on backend
-                dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
+                const txState = (getState() as any).txHistory.txs as TxsState
+                // the existing tx indexes for this account
+                const existingTxIndexes = Object.values(
+                  txState?.byAccountIdAssetId?.[accountId] ?? {},
+                ).flatMap(identity)
+                // freshly fetched - unchained returns latest txs first
+                const fetchedTxIndexes: TxId[] = transactions.map(tx =>
+                  serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+                )
+                // diff the two - if we haven't seen any of these txs before, upsert them
+                const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
+                if (diffedTxIds.length) {
+                  // new txs to upsert
+                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
+                } else {
+                  // we've previously fetched all txs for this account, don't keep paginating
+                  break
+                }
               } while (currentCursor)
             } catch (err) {
               throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)

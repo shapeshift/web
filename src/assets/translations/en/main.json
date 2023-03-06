@@ -93,7 +93,8 @@
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now",
-    "manage": "Manage"
+    "manage": "Manage",
+    "selectedAccount": "Selected Account"
   },
   "consentBanner": {
     "body": {

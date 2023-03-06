@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Stack, Tooltip } from '@chakra-ui/react'
+import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import type {
   DefiAction,
   DefiParams,
@@ -41,7 +41,7 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
   const renderMenu = useMemo(() => {
     return menu.map(({ action, icon, label, toolTip, isDisabled, ...rest }) => (
       <Tooltip key={action} label={toolTip} isDisabled={!isDisabled} hasArrow>
-        <Box width='full'>
+        <Box flex={1}>
           <Button
             width='full'
             onClick={() => handleClick(action)}
@@ -57,8 +57,8 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
   }, [handleClick, menu, translate])
 
   return (
-    <Stack width='full' direction={{ base: 'column', md: 'row' }}>
+    <Flex gap={2} width='full' flexWrap='wrap'>
       {renderMenu}
-    </Stack>
+    </Flex>
   )
 }

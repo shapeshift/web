@@ -1,9 +1,10 @@
-import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
+import { CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import { CircleQuestionIcon } from 'components/Icons/CircleQuestion'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -23,8 +24,10 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { settings } = useModal()
+  const { liveSupport } = useModal()
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
+  const isLiveSupportEnabled = useFeatureFlag('LiveSupport')
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
@@ -82,6 +85,16 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
         />
+        {isLiveSupportEnabled && (
+          <MainNavLink
+            isCompact={isCompact}
+            size='sm'
+            onClick={() => handleClick(() => liveSupport.open({}))}
+            label={translate('common.liveSupport')}
+            leftIcon={<CircleQuestionIcon />}
+            data-test='navigation-live-chat-support-button'
+          />
+        )}
         <MainNavLink
           isCompact={isCompact}
           as={Link}
@@ -93,7 +106,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
           data-test='navigation-join-discord-button'
         />
         <MainNavLink
-          leftIcon={<ChatIcon />}
+          leftIcon={<EditIcon />}
           isCompact={isCompact}
           as={Link}
           size='sm'

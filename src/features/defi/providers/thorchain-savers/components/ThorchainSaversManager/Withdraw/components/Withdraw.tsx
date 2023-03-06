@@ -256,7 +256,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
-    [userAddress, opportunityData, dispatch, translate, getWithdrawGasEstimate, onNext, toast],
+    [userAddress, opportunityData, dispatch, getWithdrawGasEstimate, onNext, toast, translate],
   )
 
   const handleCancel = useCallback(() => {

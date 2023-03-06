@@ -55,6 +55,7 @@ const validators = {
   REACT_APP_MTPELERIN_REFERRAL_CODE: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
+  REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
@@ -124,6 +125,7 @@ const validators = {
   }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
   REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
+  REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_FEATURE_TRADE_RATES: bool({ default: false }),
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',

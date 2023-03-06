@@ -22,6 +22,7 @@ const initialState: SwapperState = {
   buyTradeAsset: { amountCryptoPrecision: '0' },
   fiatSellAmount: '0',
   fiatBuyAmount: '0',
+  getReceiveAddressFromBuyAsset: () => Promise.resolve(undefined),
 }
 
 const SwapperContext = createContext<SwapperContextType | undefined>(undefined)

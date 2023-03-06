@@ -60,22 +60,26 @@ export const useReceiveAddressService = (context: SwapperContextType) => {
     [buyAssetAccountId, buyAccountMetadata, wallet],
   )
 
-  // Set the receiveAddress when the buy asset changes
+  // Set the receiveAddress & getReceiveAddressFromBuyAsset when the buy asset changes
   useEffect(() => {
     const buyAsset = buyTradeAsset?.asset
     if (!buyAsset) return
     ;(async () => {
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { receiveAddress } })
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: { receiveAddress, getReceiveAddressFromBuyAsset },
+        })
       } catch (e) {
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
-          payload: { receiveAddress: undefined },
+          payload: {
+            receiveAddress: undefined,
+            getReceiveAddressFromBuyAsset: () => Promise.resolve(undefined),
+          },
         })
       }
     })()
   }, [buyTradeAsset?.asset, swapperDispatch, getReceiveAddressFromBuyAsset])
-
-  return { getReceiveAddressFromBuyAsset }
 }

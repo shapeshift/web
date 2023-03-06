@@ -35,6 +35,7 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   activeSwapperWithMetadata?: SwapperWithQuoteMetadata | undefined
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[] | undefined
   tradeQuoteInputArgs?: GetTradeQuoteInput
+  getReceiveAddressFromBuyAsset: (buyAsset: Asset) => Promise<string | undefined>
 }
 
 export enum SwapperActionType {

@@ -16,6 +16,7 @@ import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
 import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
@@ -264,7 +265,8 @@ export const txHistoryApi = createApi({
 
                 currentCursor = cursor
 
-                const txState = (getState() as any).txHistory.txs as TxsState
+                const state = getState() as State
+                const txState = state.txHistory.txs
                 // the existing tx indexes for this account
                 const existingTxIndexes = Object.values(
                   txState?.byAccountIdAssetId?.[accountId] ?? {},

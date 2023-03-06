@@ -1,10 +1,9 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   type BuildTradeInput,
-  type CowTrade,
   type GetTradeQuoteInput,
   type QuoteFeeData,
   type Trade,
@@ -30,33 +29,6 @@ export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFe
   tradeFeeSource: string
   networkFeeCryptoHuman: string
 }
-
-export type TradeState<C extends ChainId> = {
-  sellTradeAsset: TradeAsset | undefined
-  sellAssetAccountId: AccountId | undefined
-  buyAssetAccountId: AccountId | undefined
-  selectedSellAssetAccountId?: AccountId
-  selectedBuyAssetAccountId?: AccountId
-  buyTradeAsset: TradeAsset | undefined
-  fiatSellAmount: string
-  fiatBuyAmount: string
-  sellAssetFiatRate?: string
-  buyAssetFiatRate?: string
-  feeAssetFiatRate?: string
-  fees?: DisplayFeeData<C>
-  action: TradeAmountInputField | undefined
-  isExactAllowance?: boolean
-  quote?: TradeQuote<C>
-  trade?: Trade<C> | CowTrade<C>
-  /** @deprecated use native react hook form errors instead */
-  quoteError: string | null
-  amount: string
-  receiveAddress: string | null // TODO: Implement
-  slippage: string
-  isSendMax: boolean
-}
-
-export type TS<T extends KnownChainIds = KnownChainIds> = TradeState<T>
 
 export enum TradeRoutePaths {
   Input = '/trade/input',

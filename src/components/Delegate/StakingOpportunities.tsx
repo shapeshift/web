@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId, fromAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import qs from 'qs'
@@ -30,41 +30,16 @@ type StakingOpportunitiesProps = {
 }
 
 type ValidatorNameProps = {
-  chainId: ChainId
+  iconSrc: string
   moniker: string
-  isStaking: boolean
-  validatorAddress: string
   apr?: string
 }
 
-export const ValidatorName = ({
-  moniker,
-  isStaking,
-  validatorAddress,
-  chainId,
-  apr,
-}: ValidatorNameProps) => {
-  const assetIcon = useMemo(() => {
-    if (!isStaking) return 'https://assets.coincap.io/assets/icons/256/atom.png'
-
-    const cosmostationChainName = (() => {
-      switch (chainId) {
-        case cosmosChainId:
-          return 'cosmoshub'
-        case osmosisChainId:
-          return 'osmosis'
-        default:
-          return ''
-      }
-    })()
-
-    return `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`
-  }, [isStaking, validatorAddress, chainId])
-
+export const ValidatorName = ({ iconSrc, moniker, apr }: ValidatorNameProps) => {
   return (
     <Box cursor='pointer'>
       <Flex alignItems='center' maxWidth='180px' gap={4}>
-        <AssetIcon src={assetIcon} boxSize='8' />
+        <AssetIcon src={iconSrc} boxSize='8' />
         <Stack spacing={2} alignItems='flex-start'>
           <RawText fontWeight='bold'>{`${moniker}`}</RawText>
           {apr && (
@@ -137,21 +112,15 @@ export const StakingOpportunities = ({
         // @ts-ignore this isn't a standard property of column but is somehow used by our <ReactTable /> implementation and passed down
         // to Chakra components
         display: { base: 'table-cell' },
-        Cell: ({ row: { original: opportunityData } }) => {
-          const { account: validatorAddress, chainId } = fromAccountId(opportunityData.id)
-
-          return (
-            <Skeleton isLoaded={Boolean(opportunityData)}>
-              <ValidatorName
-                validatorAddress={validatorAddress}
-                moniker={opportunityData?.name!}
-                isStaking={true}
-                chainId={chainId}
-                apr={opportunityData?.apy}
-              />
-            </Skeleton>
-          )
-        },
+        Cell: ({ row: { original: opportunityData } }) => (
+          <Skeleton isLoaded={Boolean(opportunityData)}>
+            <ValidatorName
+              iconSrc={opportunityData.icon ?? ''}
+              moniker={opportunityData?.name!}
+              apr={opportunityData?.apy}
+            />
+          </Skeleton>
+        ),
         disableSortBy: true,
       },
       {

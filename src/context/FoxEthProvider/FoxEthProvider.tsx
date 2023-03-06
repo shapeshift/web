@@ -138,7 +138,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
                 }),
                 opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
-                defiProvider: DefiProvider.FoxFarming,
+                defiProvider: DefiProvider.EthFoxStaking,
               },
               // Any previous query without portfolio loaded will be rejected
               // The first successful one will be cached unless forceRefetch is overriden with queryOptions

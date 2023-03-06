@@ -86,7 +86,11 @@
     "all": "Alle",
     "viewAll": "Alle ansehen",
     "slippage": "Marktabweichung",
-    "validator": "der %{name} Prüfer"
+    "best": "Beste",
+    "alternative": "Alternative",
+    "validator": "der %{name} Prüfer",
+    "needAsset": "Brauchen Sie %{asset}?",
+    "buyNow": "Kaufe jetzt"
   },
   "errorPage": {
     "title": "Hoppala!",
@@ -465,6 +469,7 @@
     "explore": "Entdecken",
     "trade": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
+    "buySell": "Kaufen/Verkaufen",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
@@ -581,6 +586,10 @@
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
+    "from": "von",
+    "to": "zu",
+    "youPay": "Sie bezahlen",
+    "youGet": "Sie bekommen",
     "tradeTo": "Handel bis",
     "minerFee": "Miner-Gebühr",
     "protocolFee": "Protokollgebühr",
@@ -978,7 +987,7 @@
       "currencyFormat": "Währungsformat",
       "language": "Sprache",
       "balanceThreshold": "Kontostand Schwellwert",
-      "balanceThresholdTooltip": "Blenden Sie auf Dashboards und Diagrammen Salden unterhalb dieses Werts aus",
+      "balanceThresholdTooltip": "auf Dashboard und Diagrammen Salden unterhalb dieses Werts ausblenden",
       "currencies": {
         "CNY": "Chinesische Yuan",
         "USD": "US-Dollar (Standard)",
@@ -1341,6 +1350,32 @@
         "twoFactorRequired": "2FA ist erforderlich",
         "invalidTwoFactor": "6-stelliger Code ist ungültig",
         "twoFactorDescription": "Die Zwei-Faktor-Authentifizierung ist für Ihr Konto aktiviert. Bitte geben Sie den Code aus Ihrer Authentifizierungs-App ein."
+      },
+      "onboarding": {
+        "skip": "Überspringen",
+        "selfCustody": {
+          "title": "Selbstverwaltung",
+          "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",
+          "body": "Eine selbstverwaltete Wallet bedeutet, dass Sie sie besitzen und nur Sie Zugriff auf Ihr Geld haben. Ihre geheime Wiederherstellungsphrase ist Ihr Schlüssel zum Zugriff darauf. Niemand kann Sie daran hindern, auf Ihr Geld zuzugreifen.",
+          "cta": "Weiter"
+        },
+        "multiChain": {
+          "title": "Multi-chain",
+          "subTitle": "Sie müssen nie das Netzwerk in der Wallet wechseln, es funktioniert mit jeder nahtlos.",
+          "body": "Wenn eine neues Netzwerk in ShapeShift hinzugefügt wird, wird Ihre Native Wallet es automatisch unterstützen.",
+          "cta": "Weiter"
+        },
+        "easyToUse": {
+          "title": "Einfach zu verwenden",
+          "subTitle": "Mit ShapeShift Native Wallet können Sie:",
+          "trackBalance": "Verfolgen Sie Ihre Salden",
+          "sendReceive": "Krypto senden/empfangen",
+          "buyCrypto": "Krypto kaufen",
+          "tradeAssets": "Vermögenswerte handeln",
+          "earnYield": "Verdienen Sie Rendite auf Ihr ungenutztes Vermögen",
+          "cta": "Krypto kaufen",
+          "secondaryCta": "zum Dashboard"
+        }
       }
     },
     "selectModal": {
@@ -1681,6 +1716,11 @@
       "title": "Kaufen Sie Krypto ohne KYC",
       "body": "Kaufen Sie bis zu 1.000 $ mit Apple Pay",
       "cta": "Kaufe jetzt"
+    },
+    "savers": {
+      "title": "Verdienen Sie Prämien für Ihr %{asset}",
+      "body": "Staken Sie auf den THORChain-Vault. Keine Sperrzeit.",
+      "cta": "Jetzt einzahlen"
     }
   },
   "arkeo": {

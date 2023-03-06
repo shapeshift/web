@@ -11,7 +11,7 @@ export const initialState: CosmosDepositState = {
     stakingToken: '',
     provider: '',
     chain: KnownChainIds.CosmosMainnet,
-    type: DefiType.TokenStaking,
+    type: DefiType.Staking,
     expired: false,
     version: '',
     tvl: bn(0),
@@ -40,6 +40,7 @@ export const reducer = (
           ...state.cosmosOpportunity,
           ...action.payload,
           tvl: bnOrZero(action.payload?.tvl),
+          apr: action.payload?.apy ?? '',
         },
       }
     case CosmosDepositActionType.SET_DEPOSIT:

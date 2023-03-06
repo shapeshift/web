@@ -3,8 +3,13 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  FOX_TOKEN_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+} from 'contracts/constants'
+import { getOrCreateContract } from 'contracts/contractManager'
 import isNumber from 'lodash/isNumber'
-import { FOX_TOKEN_CONTRACT_ADDRESS } from 'plugins/foxPage/const'
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
@@ -13,11 +18,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
   foxEthLpAssetId,
-  foxEthLpContractAddress,
   uniswapV2Router02AssetId,
-  uniswapV2Router02ContractAddress,
 } from 'state/slices/opportunitiesSlice/constants'
-import { getOrCreateContract } from 'state/slices/opportunitiesSlice/resolvers/foxFarming/contractManager'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -67,7 +69,7 @@ export const useFoxEthLiquidityPool = (
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(uniswapV2Router02ContractAddress)),
+    () => (skip ? null : getOrCreateContract(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
   )
 
@@ -77,25 +79,25 @@ export const useFoxEthLiquidityPool = (
   )
 
   const uniV2LPContract = useMemo(
-    () => (skip ? null : getOrCreateContract(foxEthLpContractAddress)),
+    () => (skip ? null : getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)),
     [skip],
   )
 
   const addLiquidity = useCallback(
-    async (foxAmount: string, ethAmount: string) => {
+    async (token0Amount: string, token1Amount: string) => {
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
         if (!adapter)
           throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
-        const value = bnOrZero(ethAmount)
+        const value = bnOrZero(token0Amount)
           .times(bn(10).exponentiatedBy(ethAsset.precision))
           .toFixed(0)
         const data = uniswapRouterContract?.interface.encodeFunctionData('addLiquidityETH', [
           FOX_TOKEN_CONTRACT_ADDRESS,
-          bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-          calculateSlippageMargin(foxAmount, foxAsset.precision),
-          calculateSlippageMargin(ethAmount, ethAsset.precision),
+          bnOrZero(token1Amount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
+          calculateSlippageMargin(token1Amount, foxAsset.precision),
+          calculateSlippageMargin(token0Amount, ethAsset.precision),
           fromAccountId(accountId).account,
           Date.now() + 1200000,
         ])
@@ -367,16 +369,18 @@ export const useFoxEthLiquidityPool = (
   )
 
   const getDepositGasData = useCallback(
-    async (foxAmount: string, ethAmount: string) => {
+    async (token0Amount: string, token1Amount: string) => {
       if (skip || !accountId || !uniswapRouterContract) return
-      const value = bnOrZero(ethAmount).times(bn(10).exponentiatedBy(ethAsset.precision)).toFixed(0)
+      const value = bnOrZero(token0Amount)
+        .times(bn(10).exponentiatedBy(ethAsset.precision))
+        .toFixed(0)
       const accountAddress = fromAccountId(accountId).account
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         fromAssetId(foxAssetId).assetReference,
-        bnOrZero(foxAmount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
-        calculateSlippageMargin(foxAmount, foxAsset.precision),
-        calculateSlippageMargin(ethAmount, ethAsset.precision),
+        bnOrZero(token1Amount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),
+        calculateSlippageMargin(token1Amount, foxAsset.precision),
+        calculateSlippageMargin(token0Amount, ethAsset.precision),
         accountAddress,
         Date.now() + 1200000,
       ])

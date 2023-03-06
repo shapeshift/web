@@ -31,7 +31,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
 
   const { title, body, cta } = (() => {
     switch (provider) {
-      case DefiProvider.FoxFarming:
+      case DefiProvider.UniV2:
         return {
           title: 'arkeo.foxEthProviders.title',
           body: 'arkeo.foxEthProviders.body',

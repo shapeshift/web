@@ -104,16 +104,19 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     stakingOpportunitiesById[opportunityId] = baseOpportunity
       ? {
           ...baseOpportunity,
+          cdoAddress: opportunity.metadata.cdoAddress,
           apy: opportunity.apy.toFixed(),
           tvl: opportunity.tvl.balanceUsdc.toFixed(),
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
           provider: DefiProvider.Idle,
           type: DefiType.Staking,
+          tags: [opportunity.strategy],
         }
       : {
           apy: opportunity.apy.toFixed(),
           assetId,
+          cdoAddress: opportunity.metadata.cdoAddress,
           id: opportunityId,
           provider: DefiProvider.Idle,
           tvl: opportunity.tvl.balance.toFixed(),
@@ -138,6 +141,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           ],
           name: `${underlyingAsset.symbol} Vault`,
           version: opportunity.version,
+          tags: [opportunity.strategy],
         }
   }
 

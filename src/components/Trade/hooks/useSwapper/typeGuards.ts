@@ -21,3 +21,9 @@ export const isSupportedNonUtxoSwappingChain = (
     chainId === KnownChainIds.ThorchainMainnet
   )
 }
+
+export const isSupportedCosmosSdkSwappingChain = (
+  chainId: ChainId,
+): chainId is SupportedSwappingChain => {
+  return chainId === KnownChainIds.OsmosisMainnet || chainId === KnownChainIds.CosmosMainnet
+}

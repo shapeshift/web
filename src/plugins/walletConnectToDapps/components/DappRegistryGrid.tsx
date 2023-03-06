@@ -1,6 +1,7 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Flex,
   Heading,
   Image,
   Input,
@@ -49,12 +50,23 @@ export const DappRegistryGrid: FC = () => {
 
   return (
     <Box>
-      <Stack direction='row' alignItems='center' mb={4}>
+      <Flex
+        justifyContent='space-between'
+        flexDir={{ base: 'column', md: 'row' }}
+        alignItems={{ base: 'flex-start', md: 'center' }}
+        mb={4}
+        gap={2}
+      >
         <Heading flex={1} fontSize='2xl'>
           <Text translation='plugins.walletConnectToDapps.registry.availableDapps' />
         </Heading>
-        <Box>
-          <InputGroup>
+        <Flex
+          gap={2}
+          flex={1}
+          width={{ base: 'full', md: 'auto' }}
+          flexDir={{ base: 'column', sm: 'row' }}
+        >
+          <InputGroup flex={1}>
             <InputLeftElement pointerEvents='none'>
               <SearchIcon color='gray.700' />
             </InputLeftElement>
@@ -67,9 +79,10 @@ export const DappRegistryGrid: FC = () => {
               variant='filled'
             />
           </InputGroup>
-        </Box>
-        <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
-      </Stack>
+
+          <PageInput value={page} max={maxPage} onChange={value => setValue('page', value)} />
+        </Flex>
+      </Flex>
       {!!filteredListings.length ? (
         <SimpleGrid columns={{ lg: 4, sm: 2, base: 1 }} spacing={4}>
           {filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(listing => (

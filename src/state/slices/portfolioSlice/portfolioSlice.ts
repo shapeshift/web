@@ -29,6 +29,7 @@ export const portfolio = createSlice({
       state.walletId = payload
       if (!payload) return
       state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
+      // @TODO: add identify tracking event for the walletId mixpanel
     },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')

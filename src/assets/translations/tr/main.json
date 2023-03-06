@@ -449,6 +449,7 @@
   "navBar": {
     "home": "Ana Sayfa",
     "dashboard": "Gösterge Paneli",
+    "dashboardShort": "Panel",
     "assets": "Varlıklar",
     "assetDetails": "Varlık Ayrıntıları",
     "accounts": "Hesaplar",

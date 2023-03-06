@@ -449,6 +449,7 @@
   "navBar": {
     "home": "На главную",
     "dashboard": "Панель управления",
+    "dashboardShort": "Сводка",
     "assets": "Активы",
     "assetDetails": "Детали активов",
     "accounts": "Аккаунты",

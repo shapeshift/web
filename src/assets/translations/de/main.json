@@ -449,6 +449,7 @@
   "navBar": {
     "home": "Startseite",
     "dashboard": "Dashboard",
+    "dashboardShort": "Dashboard",
     "assets": "Vermögenswerte",
     "assetDetails": "Details der Vermögenswerte ",
     "accounts": "Konten",

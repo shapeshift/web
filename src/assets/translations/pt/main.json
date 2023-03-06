@@ -449,6 +449,7 @@
   "navBar": {
     "home": "Início",
     "dashboard": "Painel de Controle",
+    "dashboardShort": "Painel",
     "assets": "Ativos",
     "assetDetails": "Detalhes do recurso",
     "accounts": "Contas",

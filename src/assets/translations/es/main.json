@@ -449,6 +449,7 @@
   "navBar": {
     "home": "Inicio",
     "dashboard": "Tablero de mandos",
+    "dashboardShort": "Panel",
     "assets": "Activos",
     "assetDetails": "Detalles de activos",
     "accounts": "Cuentas",

@@ -22,4 +22,4 @@ export const selectSwapperSupportsCrossAccountTrade = createCachedSelector(
         return false
     }
   },
-)(state => state.activeSwapperWithMetadata?.swapper?.name)
+)(state => state.activeSwapperWithMetadata?.swapper?.name ?? 'undefined')

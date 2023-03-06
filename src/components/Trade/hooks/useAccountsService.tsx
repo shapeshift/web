@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
@@ -11,8 +11,8 @@ import { useAppSelector } from 'state/store'
 The Accounts Service is responsible for reacting to changes to trade assets and selected accounts.
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
-export const useAccountsService = () => {
-  const { dispatch: swapperDispatch, state } = useSwapperState()
+export const useAccountsService = (context: SwapperContextType) => {
+  const { dispatch: swapperDispatch, state } = context
 
   const {
     selectedSellAssetAccountId,

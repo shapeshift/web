@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
@@ -12,11 +12,11 @@ The Fiat Rate Service is responsible for fetching and setting fiat rates.
 It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate properties of SwapperState.
 It also triggers an update of calculated trade amounts when fiat rates change.
 */
-export const useFiatRateService = () => {
+export const useFiatRateService = (context: SwapperContextType) => {
   const {
     dispatch: swapperDispatch,
     state: { sellTradeAsset, buyTradeAsset, tradeQuoteInputArgs },
-  } = useSwapperState()
+  } = context
 
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
@@ -37,7 +37,7 @@ export const useFiatRateService = () => {
   )?.assetId
 
   // API
-  const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
+  const { data: usdRates } = useGetUsdRatesQuery(usdRatesArgs, {
     pollingInterval: 30000,
   })
 
@@ -64,6 +64,4 @@ export const useFiatRateService = () => {
       })
     }
   }, [usdRates, swapperDispatch])
-
-  return { isLoadingFiatRateData }
 }

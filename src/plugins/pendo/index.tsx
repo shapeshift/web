@@ -3,7 +3,6 @@ import memoize from 'lodash/memoize'
 import { VisitorDataManager } from 'plugins/pendo/visitorData'
 import { type Plugins } from 'plugins/types'
 import { logger } from 'lib/logger'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 
 import { OptInIcon } from './components/OptInModal/OptInIcon'
 import { makePendoLauncher } from './launcher'
@@ -43,11 +42,6 @@ export const launch = memoize(() => {
   })
 
   launcher.launch(config.REACT_APP_PENDO_VISITOR_ID_PREFIX)
-  // If pendo is being launched they have opted in to tracking
-  // For mixpanel
-  if (!getMixPanel().has_opted_in_tracking()) {
-    getMixPanel().opt_in_tracking()
-  }
 })
 
 // eslint-disable-next-line import/no-default-export

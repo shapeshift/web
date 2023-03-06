@@ -28,6 +28,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixPanelSingleton'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -64,6 +65,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -74,7 +76,7 @@ export const Deposit: React.FC<DepositProps> = ({
   } | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference } = query
+  const { chainId, assetNamespace, assetReference, provider, type } = query
 
   const assetId = toAssetId({
     chainId,
@@ -221,6 +223,7 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        mixpanel && mixpanel.track('Deposit Continue', { provider, asset: asset.symbol, type })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -238,6 +241,10 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch,
       getDepositGasEstimate,
       onNext,
+      mixpanel,
+      provider,
+      asset.symbol,
+      type,
       toast,
       translate,
     ],

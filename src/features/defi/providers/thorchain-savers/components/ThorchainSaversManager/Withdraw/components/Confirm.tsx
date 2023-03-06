@@ -82,8 +82,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference } = query
+  const { chainId, assetNamespace, assetReference, provider, type } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -532,10 +533,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      getMixPanel().track('THORSavers.Withdraw', {
-        amount: withdrawFeeCryptoBaseUnit,
-        asset: assetId,
-      })
+      mixpanel && mixpanel.track('Withdraw Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -567,6 +565,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
     onNext,
+    mixpanel,
+    provider,
+    type,
+    asset.symbol,
     toast,
     translate,
   ])

@@ -175,7 +175,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     underlyingAsset,
     yearnInvestor,
     getDepositGasEstimate,
-    state.deposit,
+    state?.deposit,
     onNext,
     toast,
     translate,

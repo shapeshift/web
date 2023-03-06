@@ -1,8 +1,27 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import {
+  Flex,
+  IconButton,
+  Skeleton,
+  Table,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import type { ReactNode } from 'react'
+import { Fragment, useCallback, useMemo, useRef } from 'react'
 import type { Column, Row, TableState } from 'react-table'
-import { useSortBy, useTable } from 'react-table'
+import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
+import { RawText } from 'components/Text'
+
+export type TableHeaderProps = {
+  searchQuery: any
+  setSearchQuery: (filterValue: any) => void
+}
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -12,6 +31,9 @@ type ReactTableProps<T extends {}> = {
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<{}>>
+  renderSubComponent?: (row: Row<T>) => ReactNode
+  renderEmptyComponent?: () => ReactNode
+  isLoading?: boolean
 }
 
 export const ReactTable = <T extends {}>({
@@ -22,46 +44,116 @@ export const ReactTable = <T extends {}>({
   rowDataTestPrefix,
   onRowClick,
   initialState,
+  renderSubComponent,
+  renderEmptyComponent,
+  isLoading = false,
 }: ReactTableProps<T>) => {
+  const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable<T>(
+  const tableColumns = useMemo(
+    () =>
+      isLoading
+        ? columns.map((column, index) => ({
+            ...column,
+            Cell: () => <Skeleton key={index} height='16px' />,
+          }))
+        : columns,
+    [columns, isLoading],
+  )
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    visibleColumns,
+    pageOptions,
+    nextPage,
+    previousPage,
+    canNextPage,
+    canPreviousPage,
+    state: { pageIndex },
+  } = useTable<T>(
     {
-      columns,
+      columns: tableColumns,
       data,
       initialState,
     },
     useSortBy,
+    useExpanded,
+    usePagination,
   )
   const renderRows = useMemo(() => {
-    return rows.map(row => {
+    return page.map(row => {
       prepareRow(row)
       return (
-        <Tr
-          {...row.getRowProps()}
-          tabIndex={row.index}
-          onClick={() => onRowClick?.(row)}
-          {...(rowDataTestKey
-            ? {
-                'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
-                  .split(' ')
-                  .join('-')
-                  .toLowerCase()}`,
-              }
-            : {})}
-          cursor={onRowClick ? 'pointer' : undefined}
-        >
-          {row.cells.map(cell => (
-            <Td {...cell.getCellProps()} display={cell.column.display}>
-              {cell.render('Cell')}
-            </Td>
-          ))}
-        </Tr>
+        <Fragment key={row.id}>
+          <Tr
+            {...row.getRowProps()}
+            key={row.id}
+            tabIndex={row.index}
+            onClick={() => onRowClick?.(row)}
+            className={row.isExpanded ? 'expanded' : ''}
+            {...(rowDataTestKey
+              ? {
+                  'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
+                    .split(' ')
+                    .join('-')
+                    .toLowerCase()}`,
+                }
+              : {})}
+            cursor={onRowClick ? 'pointer' : undefined}
+          >
+            {row.cells.map(cell => (
+              <Td
+                {...cell.getCellProps()}
+                data-label={cell.column.Header ?? ''}
+                display={cell.column.display}
+                key={cell.column.id}
+              >
+                {cell.render('Cell')}
+              </Td>
+            ))}
+          </Tr>
+          {!!renderSubComponent && row.isExpanded ? (
+            <Tr className='expanded-details'>
+              <Td colSpan={visibleColumns.length} style={{ padding: 0 }}>
+                {renderSubComponent(row)}
+              </Td>
+            </Tr>
+          ) : null}
+        </Fragment>
       )
     })
-  }, [rows, prepareRow, rowDataTestKey, rowDataTestPrefix, onRowClick])
+  }, [
+    page,
+    prepareRow,
+    rowDataTestKey,
+    rowDataTestPrefix,
+    onRowClick,
+    renderSubComponent,
+    visibleColumns.length,
+  ])
+
+  const scrollToTableTop = useCallback(() => {
+    if (tableRef.current) {
+      const scrollY = tableRef.current.offsetTop - 80
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
+
+  const handlePrevious = useCallback(() => {
+    previousPage()
+    scrollToTableTop()
+  }, [previousPage, scrollToTableTop])
+
+  const handleNext = useCallback(() => {
+    nextPage()
+    scrollToTableTop()
+  }, [nextPage, scrollToTableTop])
 
   return (
-    <Table variant='clickable' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
+    <Table ref={tableRef} variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (
@@ -76,7 +168,7 @@ export const ReactTable = <T extends {}>({
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
                     {column.render('Header')}
-                    <Flex>
+                    <Flex alignItems='center'>
                       {column.isSorted ? (
                         column.isSortedDesc ? (
                           <ArrowDownIcon ml={2} aria-label='sorted descending' />
@@ -93,6 +185,42 @@ export const ReactTable = <T extends {}>({
         </Thead>
       )}
       <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+      {page.length === 0 && !isLoading && renderEmptyComponent && (
+        <Tfoot>
+          <Tr>
+            <Td colSpan={visibleColumns.length} py={0}>
+              {renderEmptyComponent()}
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
+      {(canNextPage || canPreviousPage) && (
+        <Tfoot>
+          <Tr>
+            <Td colSpan={visibleColumns.length} py={0}>
+              <Flex width='full' justifyContent='space-between' alignItems='center'>
+                <IconButton
+                  icon={<ArrowBackIcon />}
+                  size='sm'
+                  isDisabled={!canPreviousPage}
+                  onClick={handlePrevious}
+                  variant='ghost'
+                  aria-label='Previous Page'
+                />
+                <RawText fontSize='sm'>{`${pageIndex + 1} of ${pageOptions.length}`}</RawText>
+                <IconButton
+                  icon={<ArrowForwardIcon />}
+                  size='sm'
+                  isDisabled={!canNextPage}
+                  onClick={handleNext}
+                  variant='ghost'
+                  aria-label='Next Page'
+                />
+              </Flex>
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
     </Table>
   )
 }

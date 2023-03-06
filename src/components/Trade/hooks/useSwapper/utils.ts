@@ -68,20 +68,25 @@ const getEvmFees = <T extends EvmChainId>(
     .div(bn(10).exponentiatedBy(feeAsset.precision))
     .toFixed()
 
-  const approvalFeeCryptoPrecision = bnOrZero(trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit)
+  if (trade.feeData && !trade.feeData.chainSpecific) {
+    moduleLogger.debug({ trade }, 'feeData.chainSpecific undefined for trade')
+  }
+  const approvalFeeCryptoPrecision = bnOrZero(
+    trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit,
+  )
     .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
     .toString()
   const totalFeeCryptoPrecision = bnOrZero(networkFeeCryptoPrecision)
     .plus(approvalFeeCryptoPrecision)
     .toString()
   const gasPriceCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific.gasPriceCryptoBaseUnit,
+    trade.feeData.chainSpecific?.gasPriceCryptoBaseUnit,
   ).toString()
-  const estimatedGasCryptoBaseUnit = bnOrZero(trade.feeData.chainSpecific.estimatedGas).toString()
+  const estimatedGasCryptoBaseUnit = bnOrZero(trade.feeData.chainSpecific?.estimatedGas).toString()
 
   return {
     chainSpecific: {
-      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific.approvalFeeCryptoBaseUnit,
+      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
       gasPriceCryptoBaseUnit,
       estimatedGas: estimatedGasCryptoBaseUnit,
       totalFee: totalFeeCryptoPrecision,

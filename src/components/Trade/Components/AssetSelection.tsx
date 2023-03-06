@@ -52,7 +52,6 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const networkName = feeAsset?.networkName || feeAsset?.name
-
   return (
     <Card
       bg={useColorModeValue('white', 'gray.850')}

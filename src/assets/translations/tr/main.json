@@ -449,6 +449,7 @@
   "navBar": {
     "home": "Ana Sayfa",
     "dashboard": "Gösterge Paneli",
+    "dashboardShort": "Panel",
     "assets": "Varlıklar",
     "assetDetails": "Varlık Ayrıntıları",
     "accounts": "Hesaplar",
@@ -469,7 +470,7 @@
     "explore": "Keşfet",
     "trade": "Takas",
     "buyCrypto": "Kripto Al/Sat",
-    "buySell": "Al/Sat",
+    "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {

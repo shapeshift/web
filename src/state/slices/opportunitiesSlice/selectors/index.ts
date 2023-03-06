@@ -10,6 +10,7 @@ import type { GetOpportunityUserDataInput } from '../types'
 
 export * from './lpSelectors'
 export * from './stakingSelectors'
+export * from './combined'
 
 const selectOpportunitiesApiQueries = (state: ReduxState) => state.opportunitiesApi.queries
 

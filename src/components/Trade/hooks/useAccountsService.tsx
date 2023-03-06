@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -12,21 +12,17 @@ The Accounts Service is responsible for reacting to changes to trade assets and 
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
-  const {
-    dispatch: swapperDispatch,
-    state: {
-      selectedSellAssetAccountId,
-      selectedBuyAssetAccountId,
-      sellAssetAccountId: stateSellAssetAccountId,
-      buyAssetAccountId: stateBuyAssetAccountId,
-      sellTradeAsset,
-      buyTradeAsset,
-      activeSwapperWithMetadata,
-    },
-  } = useSwapperState()
+  const { dispatch: swapperDispatch, state } = useSwapperState()
 
-  // Custom hooks
-  const { swapperSupportsCrossAccountTrade } = useSwapper()
+  const {
+    selectedSellAssetAccountId,
+    selectedBuyAssetAccountId,
+    sellAssetAccountId: stateSellAssetAccountId,
+    buyAssetAccountId: stateBuyAssetAccountId,
+    sellTradeAsset,
+    buyTradeAsset,
+    activeSwapperWithMetadata,
+  } = state
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
@@ -52,6 +48,7 @@ export const useAccountsService = () => {
   const firstBuyAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
+  const swapperSupportsCrossAccountTrade = selectSwapperSupportsCrossAccountTrade(state)
 
   const sellAssetAccountId = useMemo(
     () => selectedSellAssetAccountId ?? highestFiatBalanceSellAccountId ?? firstSellAssetAccountId,

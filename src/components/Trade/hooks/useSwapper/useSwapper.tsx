@@ -1,6 +1,6 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperManager } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
@@ -99,26 +99,6 @@ export const useSwapper = () => {
   const buyAccountBip44Params = useAppSelector(state =>
     selectBIP44ParamsByAccountId(state, buyAccountFilter),
   )
-
-  /*
-  Cross-account trading means trades that are either:
-    - Trades between assets on the same chain but different accounts
-    - Trades between assets on different chains (and possibly different accounts)
-   When adding a new swapper, ensure that `true` is returned here if either of the above apply.
-   */
-  const swapperSupportsCrossAccountTrade = useMemo(() => {
-    if (!activeSwapper) return undefined
-    switch (activeSwapper.name) {
-      case SwapperName.Thorchain:
-      case SwapperName.Osmosis:
-        return true
-      case SwapperName.Zrx:
-      case SwapperName.CowSwap:
-        return false
-      default:
-        return false
-    }
-  }, [activeSwapper])
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
     (assets: Asset[]): Asset[] | undefined => {
@@ -245,7 +225,6 @@ export const useSwapper = () => {
     checkApprovalNeeded,
     activeSwapper,
     getTrade,
-    swapperSupportsCrossAccountTrade,
     approve,
   }
 }

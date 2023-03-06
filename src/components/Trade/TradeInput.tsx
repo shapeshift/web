@@ -18,6 +18,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
+import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -61,32 +62,32 @@ export const TradeInput = () => {
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
+  const { dispatch: swapperDispatch, state } = useSwapperState()
+
   const {
-    dispatch: swapperDispatch,
-    state: {
-      sellAssetAccountId,
-      buyAssetAccountId,
-      feeAssetFiatRate,
-      fiatSellAmount,
-      fiatBuyAmount,
-      receiveAddress,
-      slippage,
-      quote,
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetFiatRate,
-      buyAssetFiatRate,
-      fees,
-      activeSwapperWithMetadata,
-    },
-  } = useSwapperState()
+    sellAssetAccountId,
+    buyAssetAccountId,
+    feeAssetFiatRate,
+    fiatSellAmount,
+    fiatBuyAmount,
+    receiveAddress,
+    slippage,
+    quote,
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    fees,
+    activeSwapperWithMetadata,
+  } = state
+
+  const swapperSupportsCrossAccountTrade = selectSwapperSupportsCrossAccountTrade(state)
 
   const {
     checkApprovalNeeded,
     getTrade,
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
-    swapperSupportsCrossAccountTrade,
   } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()

@@ -1,4 +1,4 @@
-import { Tag } from '@chakra-ui/react'
+import { Flex, Tag } from '@chakra-ui/react'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -29,11 +29,18 @@ export const UnderlyingAssetTag = ({
     ) : (
       <AssetIcon src={asset.icon} size='2xs' />
     )}
-    <Amount.Crypto fontSize='sm' value={asset.cryptoBalancePrecision} symbol={asset.symbol} />
-    {showPercentage && asset.allocationPercentage && (
-      <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
-    )}
-    {children}
+    <Flex columnGap={2} flexWrap='wrap' flex={1} justifyContent='space-between'>
+      <Amount.Crypto
+        whiteSpace='nowrap'
+        fontSize='sm'
+        value={asset.cryptoBalancePrecision}
+        symbol={asset.symbol}
+      />
+      {showPercentage && asset.allocationPercentage && (
+        <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
+      )}
+      {children}
+    </Flex>
   </Tag>
 )
 export const UnderlyingAssetsTags = ({

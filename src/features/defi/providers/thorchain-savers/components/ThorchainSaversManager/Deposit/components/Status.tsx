@@ -18,7 +18,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
@@ -34,10 +33,8 @@ type StatusProps = {
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
-  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { provider, type } = query
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -88,13 +85,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
-
-  useEffect(() => {
-    if (state?.deposit.txStatus === 'success') {
-      // Track success event
-      mixpanel && mixpanel.track('Deposit Success', { provider, type, asset: asset?.symbol })
-    }
-  }, [asset?.symbol, mixpanel, provider, state?.deposit.txStatus, type])
 
   if (!state || !asset) return null
 

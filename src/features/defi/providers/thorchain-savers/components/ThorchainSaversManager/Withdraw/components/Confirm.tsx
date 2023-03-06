@@ -30,7 +30,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -82,9 +81,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference, provider, type } = query
+  const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -533,7 +531,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      mixpanel && mixpanel.track('Withdraw Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -565,10 +562,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
     onNext,
-    mixpanel,
-    provider,
-    type,
-    asset.symbol,
     toast,
     translate,
   ])

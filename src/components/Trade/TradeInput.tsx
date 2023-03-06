@@ -16,7 +16,6 @@ import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
@@ -53,7 +52,6 @@ import { TradeAmountInputField, TradeRoutePaths } from './types'
 const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
-  useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const [showQuotes, setShowQuotes] = useState(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })

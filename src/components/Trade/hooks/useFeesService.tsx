@@ -23,9 +23,6 @@ export const useFeesService = (context: SwapperContextType) => {
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
 
-  // if (!sellFeeAsset)
-  //   throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)
-
   useEffect(() => {
     const feeTrade = trade ?? quote
     if (sellTradeAsset?.asset && activeSwapper && feeTrade && sellFeeAsset) {

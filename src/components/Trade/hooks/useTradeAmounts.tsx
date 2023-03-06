@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
+import { useReceiveAddressService } from 'components/Trade/hooks/useReceiveAddressService'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
@@ -32,6 +32,7 @@ export const useTradeAmounts = () => {
   // Hooks
   const featureFlags = useAppSelector(selectFeatureFlags)
   const appDispatch = useAppDispatch()
+  const swapperContext = useSwapperState()
   const {
     dispatch: swapperDispatch,
     state: {
@@ -44,8 +45,8 @@ export const useTradeAmounts = () => {
       isSendMax: isSendMaxFormState,
       amount: amountFormState,
     },
-  } = useSwapperState()
-  const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
+  } = swapperContext
+  const { getReceiveAddressFromBuyAsset } = useReceiveAddressService(swapperContext)
   const wallet = useWallet().state.wallet
 
   // Types

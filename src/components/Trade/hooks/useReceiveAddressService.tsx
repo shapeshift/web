@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -12,13 +12,13 @@ import {
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
-export const useReceiveAddress = () => {
+export const useReceiveAddressService = (context: SwapperContextType) => {
   // Hooks
   const wallet = useWallet().state.wallet
   const {
     dispatch: swapperDispatch,
     state: { buyTradeAsset, buyAssetAccountId },
-  } = useSwapperState()
+  } = context
 
   // Constants
   const buyAsset = buyTradeAsset?.asset

@@ -6,6 +6,7 @@ import { useAccountsService } from 'components/Trade/hooks/useAccountsService'
 import { useAvailableSwappersService } from 'components/Trade/hooks/useAvailableSwappersService'
 import { useFeesService } from 'components/Trade/hooks/useFeesService'
 import { useFiatRateService } from 'components/Trade/hooks/useFiatRateService'
+import { useReceiveAddressService } from 'components/Trade/hooks/useReceiveAddressService'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { swapperReducer } from 'components/Trade/SwapperProvider/reducer'
 import type { SwapperContextType, SwapperState } from 'components/Trade/SwapperProvider/types'
@@ -45,6 +46,7 @@ export const SwapperProvider: FC<PropsWithChildren> = ({ children }) => {
   useAccountsService(context)
   useFeesService(context)
   useFiatRateService(context)
+  useReceiveAddressService(context)
 
   return <SwapperContext.Provider value={context}>{children}</SwapperContext.Provider>
 }

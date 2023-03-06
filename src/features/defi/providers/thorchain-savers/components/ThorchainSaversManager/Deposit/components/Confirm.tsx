@@ -37,7 +37,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -78,10 +77,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   // TODO: Allow user to set fee priority
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference, provider, type } = query
+  const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
 
   // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
@@ -509,8 +507,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
-      // track event
-      mixpanel && mixpanel.track('Deposit Confirm', { provider, asset: asset.symbol, type })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
       // TODO(gomes): UTXO reconciliation in a stacked PR
@@ -540,10 +536,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     depositFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,
-    mixpanel,
-    provider,
-    asset.symbol,
-    type,
     toast,
     translate,
   ])

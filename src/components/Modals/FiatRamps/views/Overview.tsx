@@ -31,7 +31,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
@@ -154,7 +153,6 @@ export const Overview: React.FC<OverviewProps> = ({
           currentUrl: window.location.href,
         },
       })
-      getMixPanel().track('fiatRampClick', { assetId, rampId })
       if (url) popup.open({ url, title: 'Buy' })
     },
     [assetId, colorMode, fiatRampAction, popup, selectedLocale],

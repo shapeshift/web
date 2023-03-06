@@ -24,7 +24,6 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getMixPanel } from 'lib/mixPanelSingleton'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -89,7 +88,6 @@ export const ClaimConfirm = ({
       const txid = await claimRewards()
       if (!txid) throw new Error(`Transaction failed`)
       onOngoingFarmingTxIdChange(txid, contractAddress)
-      getMixPanel().track('foxFarmingClaim', { amount })
       history.push('/status', {
         txid,
         assetId,

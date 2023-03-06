@@ -74,9 +74,13 @@ export const Approval = () => {
     selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
   )
 
-  const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
-    bn(10).pow(sellFeeAsset?.precision ?? 0),
-  )
+  if (fees && !fees.chainSpecific) {
+    moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
+  }
+
+  const approvalFeeCryptoPrecision = bnOrZero(
+    fees?.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
+  ).div(bn(10).pow(sellFeeAsset?.precision ?? 0))
 
   const handleExactAllowanceToggle = useCallback(
     () => swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }),

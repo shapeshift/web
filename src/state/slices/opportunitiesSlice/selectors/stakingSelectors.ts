@@ -3,9 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import chain from 'lodash/chain'
 import pickBy from 'lodash/pickBy'
-import sumBy from 'lodash/sumBy'
 import uniqBy from 'lodash/uniqBy'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -37,8 +35,6 @@ import { foxEthLpAssetId } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
 import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
 import type {
-  GroupedEligibleOpportunityReturnType,
-  OpportunityId,
   OpportunityMetadata,
   StakingEarnOpportunityType,
   StakingId,
@@ -649,27 +645,6 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
     return uniqBy(eligibleOpportunities, 'id')
   },
 )
-
-export const selectAggregatedEarnUserStakingEligibleOpportunitiesByAssetId =
-  createDeepEqualOutputSelector(
-    selectAggregatedEarnUserStakingEligibleOpportunities,
-    (userOpportunities): GroupedEligibleOpportunityReturnType[] => {
-      const eligibleOpportunitiesGroupedByUnderlyingAssetIds = chain(userOpportunities)
-        .groupBy('underlyingAssetIds')
-        .map(values => {
-          const netApy = sumBy(values, o => bn(o.apy).toNumber())
-          const opportunityIds: OpportunityId[] = values.map(o => o.assetId as OpportunityId)
-          const underlyingAssetIds = values[0].underlyingAssetIds
-          return {
-            underlyingAssetIds,
-            netApy,
-            opportunityIds,
-          }
-        })
-        .value()
-      return eligibleOpportunitiesGroupedByUnderlyingAssetIds
-    },
-  )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
 export const selectHighestBalanceAccountIdByStakingId = createSelector(

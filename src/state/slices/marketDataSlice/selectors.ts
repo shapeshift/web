@@ -14,7 +14,7 @@ import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 
-const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
+export const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
 export const selectMarketDataSortedByMarketCap = createDeepEqualOutputSelector(

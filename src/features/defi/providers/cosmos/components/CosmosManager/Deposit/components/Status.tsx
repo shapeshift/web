@@ -48,10 +48,10 @@ export const Status = () => {
         provider,
         type,
         assetIds: [asset.assetId],
-        assetSymbols: [asset.symbol],
+        assetSymbols: [asset?.symbol],
       })
     }
-  }, [asset.assetId, asset.symbol, mixpanel, provider, state?.deposit.txStatus, type])
+  }, [asset.assetId, asset?.symbol, mixpanel, provider, state?.deposit.txStatus, type])
 
   if (!state) return null
 

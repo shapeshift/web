@@ -20,6 +20,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -45,6 +47,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const assetNamespace = 'slip44'
@@ -137,6 +140,11 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+        mixpanel?.track(MixPanelEvents.DepositContinue, {
+          provider: opportunity?.provider,
+          type: opportunity?.type,
+          assets: [asset.symbol],
+        })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -148,7 +156,19 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
       }
     },
-    [asset, assetReference, dispatch, marketData.price, onNext, state, toast, translate],
+    [
+      asset,
+      assetReference,
+      dispatch,
+      marketData.price,
+      mixpanel,
+      onNext,
+      opportunity?.provider,
+      opportunity?.type,
+      state,
+      toast,
+      translate,
+    ],
   )
 
   if (!state || !dispatch) return null

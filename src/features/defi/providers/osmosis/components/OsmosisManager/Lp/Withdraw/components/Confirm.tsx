@@ -23,6 +23,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   getPool,
   getPoolIdFromAssetReference,
@@ -49,6 +51,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
   const osmosisOpportunity = state?.opportunity
@@ -183,6 +186,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       contextDispatch({ type: OsmosisWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider: osmosisOpportunity.provider,
+        type: osmosisOpportunity.type,
+        assets: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
       toast({
@@ -202,6 +210,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainAdapter,
     bip44Params,
     onNext,
+    mixpanel,
+    underlyingAsset0?.symbol,
+    underlyingAsset1?.symbol,
     toast,
     translate,
   ])

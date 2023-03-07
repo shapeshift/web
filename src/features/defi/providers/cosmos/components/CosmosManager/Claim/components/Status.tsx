@@ -4,7 +4,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,6 +16,8 @@ import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -45,6 +47,7 @@ export const Status = () => {
   const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const assetNamespace = 'slip44'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
@@ -55,6 +58,16 @@ export const Status = () => {
     if (state.txid) return TxStatus.SUCCESS
     return TxStatus.FAILED
   }, [state])
+
+  useEffect(() => {
+    if (txStatus === TxStatus.SUCCESS) {
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: [asset.symbol],
+      })
+    }
+  }, [asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, txStatus])
 
   if (!state || !opportunity || !dispatch) return null
 

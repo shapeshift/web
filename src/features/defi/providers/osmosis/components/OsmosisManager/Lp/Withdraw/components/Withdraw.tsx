@@ -22,6 +22,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
@@ -65,6 +67,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [opportunityBalances, setOpportunityBalances] = useState<
     OpportunityBalanceData | undefined
@@ -348,6 +351,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+          provider: osmosisOpportunity.provider,
+          type: osmosisOpportunity.type,
+          assets: [underlyingAsset0.symbol, underlyingAsset1.symbol],
+        })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -369,6 +377,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       calculateTokenOutMins,
       getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,
+      mixpanel,
       toast,
       translate,
     ],

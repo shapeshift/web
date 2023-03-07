@@ -23,6 +23,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
 import {
   selectAssetById,
@@ -44,8 +46,9 @@ type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
   const assetNamespace = 'slip44'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
@@ -127,6 +130,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } finally {
       onNext(DefiStep.Status)
       dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assets: [asset.symbol] })
     }
   }, [
     asset,
@@ -135,13 +139,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     contractAddress,
     dispatch,
     handleStakingAction,
-    marketData,
+    marketData.price,
+    mixpanel,
     onNext,
+    provider,
     state?.deposit.cryptoAmount,
     state?.userAddress,
     toast,
     translate,
-    walletState?.wallet,
+    type,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null

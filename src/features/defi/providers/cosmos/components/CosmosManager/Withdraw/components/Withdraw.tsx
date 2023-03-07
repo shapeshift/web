@@ -18,6 +18,8 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -46,8 +48,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress: validatorAddress } = query
+  const { chainId, assetReference, contractAddress: validatorAddress, provider, type } = query
   const toast = useToast()
 
   const methods = useForm<CosmosWithdrawValues>({ mode: 'onChange' })
@@ -167,6 +170,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,
         })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assets: [asset.symbol] })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
         dispatch({
@@ -181,7 +185,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
       }
     },
-    [dispatch, asset, marketData.price, onNext, state, toast, translate],
+    [state, dispatch, asset, marketData.price, toast, translate, onNext, mixpanel, provider, type],
   )
 
   if (!state || !dispatch) return null

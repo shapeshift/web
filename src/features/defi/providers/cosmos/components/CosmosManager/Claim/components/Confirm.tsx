@@ -22,6 +22,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -49,6 +51,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
   // Asset Info
@@ -124,6 +127,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, {
+        provider: opportunity.provider,
+        type: opportunity.type,
+        assets: [asset.symbol],
+      })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
       toast({
@@ -141,13 +149,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     claimAmount,
     contractAddress,
     dispatch,
-    feeMarketData?.price,
+    feeMarketData.price,
     handleStakingAction,
+    mixpanel,
     onNext,
+    opportunity.provider,
+    opportunity.type,
     state?.userAddress,
     toast,
     translate,
-    walletState?.wallet,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch || !asset) return null

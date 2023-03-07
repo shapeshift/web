@@ -22,6 +22,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   getPool,
   getPoolIdFromAssetReference,
@@ -47,8 +49,9 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId } = query
+  const { chainId, provider, type } = query
   const osmosisOpportunity = state?.opportunity
 
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
@@ -177,6 +180,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       }
       contextDispatch({ type: OsmosisDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.DepositConfirm, {
+        provider,
+        type,
+        assets: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')
       toast({

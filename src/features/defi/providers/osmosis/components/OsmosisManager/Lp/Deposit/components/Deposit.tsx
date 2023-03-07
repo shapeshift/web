@@ -26,6 +26,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
@@ -57,9 +59,10 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [poolData, setPoolData] = useState<OsmosisPool | undefined>(undefined)
-  const { chainId, assetNamespace, assetReference } = query
+  const { chainId, assetNamespace, assetReference, provider, type } = query
   const osmosisOpportunity = state?.opportunity
 
   const lpAssetId = toAssetId({
@@ -266,6 +269,11 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: false })
+        mixpanel?.track(MixPanelEvents.DepositContinue, {
+          provider,
+          type,
+          assets: [underlyingAsset0.symbol, underlyingAsset1.symbol],
+        })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -286,6 +294,9 @@ export const Deposit: React.FC<DepositProps> = ({
       calculateAllocations,
       getDepositFeeEstimateCryptoBaseUnit,
       onNext,
+      mixpanel,
+      provider,
+      type,
       toast,
       translate,
     ],

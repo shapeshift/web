@@ -26,6 +26,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
 import {
   selectAssetById,
@@ -49,8 +51,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const [gasPrice, setGasPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
   const wallet = useWallet().state.wallet
 
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
@@ -152,6 +155,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, assets: [asset.symbol] })
     }
   }, [
     asset,
@@ -161,10 +165,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     gasLimit,
     gasPrice,
     handleStakingAction,
+    mixpanel,
     onNext,
+    provider,
     state?.loading,
     state?.userAddress,
     state?.withdraw.cryptoAmount,
+    type,
     walletState?.wallet,
   ])
 

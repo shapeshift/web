@@ -17,6 +17,8 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -31,6 +33,7 @@ type StatusProps = {
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const opportunity = state?.opportunity
@@ -80,6 +83,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track(MixPanelEvents.DepositSuccess, {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: [underlyingAsset0.symbol, underlyingAsset1.symbol],
+      })
+    }
+  }, [
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    state?.deposit.txStatus,
+    underlyingAsset0.symbol,
+    underlyingAsset1.symbol,
+  ])
 
   if (!state || !feeAsset) return null
 

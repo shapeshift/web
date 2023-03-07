@@ -2,7 +2,7 @@ import type Mixpanel from 'mixpanel-browser'
 export type MixPanelType = typeof Mixpanel | undefined
 
 export enum MixPanelEvents {
-  DepositContinue = 'Deposit Contiune',
+  DepositContinue = 'Deposit Continue',
   DepositApprove = 'Deposit Approve',
   DepositConfirm = 'Deposit Confirm',
   DepositSuccess = 'Deposit Success',

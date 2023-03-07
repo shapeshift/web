@@ -63,6 +63,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference: contractAddress,
   })
 
+  const stakingAssetId = toAssetId({ chainId, assetNamespace, assetReference })
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId ?? ''))
+
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
@@ -206,7 +209,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, assetIds: [assetId] })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, {
+        provider,
+        type,
+        assetIds: opportunityData.underlyingAssetIds,
+        assetSymbols: [stakingAsset?.symbol],
+      })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {
@@ -225,7 +233,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     mixpanel,
     provider,
     type,
-    assetId,
+    stakingAsset?.symbol,
   ])
 
   if (!state || !dispatch) return null

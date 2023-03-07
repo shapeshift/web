@@ -65,6 +65,7 @@ export const Status = () => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
       })
     }
   }, [asset.assetId, asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, txStatus])

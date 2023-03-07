@@ -140,6 +140,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assetIds: [asset.assetId],
+        assetSymbols: [asset?.symbol],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
@@ -163,6 +164,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     contractAddress,
     asset.precision,
     asset.assetId,
+    asset?.symbol,
     getDepositGasEstimate,
     onNext,
     mixpanel,

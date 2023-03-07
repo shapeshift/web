@@ -44,9 +44,14 @@ export const Status = () => {
 
   useEffect(() => {
     if (state?.deposit.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.DepositSuccess, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.DepositSuccess, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
+      })
     }
-  }, [asset.assetId, mixpanel, provider, state?.deposit.txStatus, type])
+  }, [asset.assetId, asset.symbol, mixpanel, provider, state?.deposit.txStatus, type])
 
   if (!state) return null
 

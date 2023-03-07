@@ -534,7 +534,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset?.symbol],
+      })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -570,6 +575,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     provider,
     type,
     asset.assetId,
+    asset?.symbol,
     toast,
     translate,
   ])

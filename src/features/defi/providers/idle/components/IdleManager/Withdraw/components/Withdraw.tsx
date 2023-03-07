@@ -144,7 +144,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
+      })
     },
     [
       userAddress,
@@ -155,6 +160,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       provider,
       type,
       asset.assetId,
+      asset.symbol,
     ],
   )
 

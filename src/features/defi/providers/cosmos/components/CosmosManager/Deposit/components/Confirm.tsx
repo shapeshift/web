@@ -130,7 +130,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } finally {
       onNext(DefiStep.Status)
       dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
-      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
+      })
     }
   }, [
     asset,

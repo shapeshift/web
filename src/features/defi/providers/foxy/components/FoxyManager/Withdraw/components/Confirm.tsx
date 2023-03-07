@@ -109,7 +109,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [stakingAsset.assetId],
+        assetIds: [stakingAsset.assetId],
+        assetSymbols: [stakingAsset.symbol],
       })
 
       const transactionReceipt = await poll({
@@ -144,6 +145,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     opportunity?.provider,
     opportunity?.type,
     stakingAsset.assetId,
+    stakingAsset.symbol,
   ])
 
   if (!state || !dispatch) return null

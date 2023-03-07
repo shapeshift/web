@@ -44,9 +44,17 @@ export const Status = () => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assetIds: [asset.assetId],
+        assetSymbols: [asset?.symbol],
       })
     }
-  }, [asset.assetId, mixpanel, opportunity?.provider, opportunity?.type, state?.deposit.txStatus])
+  }, [
+    asset.assetId,
+    asset?.symbol,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    state?.deposit.txStatus,
+  ])
 
   if (!state) return null
 

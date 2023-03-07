@@ -47,6 +47,7 @@ export const Status = () => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assets: [stakingAsset.assetId],
+        symbols: [stakingAsset.symbol],
       })
     }
   }, [opportunity?.provider, opportunity?.type, stakingAsset.assetId, state?.withdraw.txStatus])

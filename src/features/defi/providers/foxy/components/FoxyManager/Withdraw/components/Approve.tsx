@@ -139,6 +139,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assetIds: [asset.assetId],
+        assetSymbols: [asset?.symbol],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
@@ -166,6 +167,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     opportunity?.provider,
     opportunity?.type,
     asset.assetId,
+    asset?.symbol,
     asset.precision,
     toast,
     translate,

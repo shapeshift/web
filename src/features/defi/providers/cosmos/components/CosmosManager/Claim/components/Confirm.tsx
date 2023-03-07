@@ -131,6 +131,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         provider: opportunity.provider,
         type: opportunity.type,
         assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')

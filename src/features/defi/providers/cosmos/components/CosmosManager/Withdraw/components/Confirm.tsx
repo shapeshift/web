@@ -155,7 +155,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset.symbol],
+      })
     }
   }, [
     asset,

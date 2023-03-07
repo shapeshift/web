@@ -99,7 +99,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track(MixPanelEvents.WithdrawApprove, { provider, type, assetIds: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawApprove, {
+        provider,
+        type,
+        assetIds: [asset.assetId],
+        assetSymbols: [asset?.symbol],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -125,6 +130,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     provider,
     type,
     asset.assetId,
+    asset?.symbol,
     asset?.precision,
     allowance,
     toast,

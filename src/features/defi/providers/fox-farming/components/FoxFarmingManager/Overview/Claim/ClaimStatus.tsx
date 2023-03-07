@@ -115,7 +115,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state.txStatus === TxStatus.SUCCESS) {
-      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, assets: [asset?.assetId] })
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, assetIds: [asset?.assetId] })
     }
   }, [asset?.assetId, mixpanel, provider, state.txStatus, type])
 

@@ -118,7 +118,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       mixpanel?.track(MixPanelEvents.DepositConfirm, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [asset.assetId],
+        assetIds: [asset.assetId],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')

@@ -64,7 +64,7 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.ClaimSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [asset.assetId],
+        assetIds: [asset.assetId],
       })
     }
   }, [asset.assetId, asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, txStatus])

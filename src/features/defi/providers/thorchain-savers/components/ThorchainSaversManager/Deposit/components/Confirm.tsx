@@ -510,7 +510,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assets: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assetIds: [asset.assetId] })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
       // TODO(gomes): UTXO reconciliation in a stacked PR

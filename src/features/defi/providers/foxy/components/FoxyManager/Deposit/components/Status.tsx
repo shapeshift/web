@@ -43,7 +43,7 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [asset.assetId],
+        assetIds: [asset.assetId],
       })
     }
   }, [asset.assetId, mixpanel, opportunity?.provider, opportunity?.type, state?.deposit.txStatus])

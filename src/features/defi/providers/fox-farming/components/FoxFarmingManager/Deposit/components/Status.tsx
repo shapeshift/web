@@ -79,7 +79,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state?.deposit.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.DepositSuccess, { provider, type, assets: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.DepositSuccess, { provider, type, assetIds: [asset.assetId] })
     }
   }, [asset.assetId, provider, state?.deposit.txStatus, type])
 

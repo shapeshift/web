@@ -92,7 +92,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.WithdrawSuccess, { provider, type, assets: [asset?.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, { provider, type, assetIds: [asset?.assetId] })
     }
   }, [asset?.assetId, mixpanel, provider, state?.withdraw.txStatus, type])
 

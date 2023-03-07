@@ -139,7 +139,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.DepositApprove, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [asset.assetId],
+        assetIds: [asset.assetId],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')

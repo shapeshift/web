@@ -144,7 +144,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assets: [asset.assetId] })
+      mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assetIds: [asset.assetId] })
     },
     [
       userAddress,

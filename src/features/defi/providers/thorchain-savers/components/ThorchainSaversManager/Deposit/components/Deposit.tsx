@@ -224,7 +224,7 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, assets: [asset.assetId] })
+        mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, assetIds: [asset.assetId] })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({

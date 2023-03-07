@@ -206,7 +206,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, assets: [assetId] })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, assetIds: [assetId] })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {

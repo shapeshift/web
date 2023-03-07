@@ -18,6 +18,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -30,6 +31,7 @@ type StatusProps = { accountId: AccountId | undefined }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -76,6 +78,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = () => {
     browserHistory.goBack()
   }
+
+  useEffect(() => {
+    if (state?.withdraw.txStatus === 'success') {
+      mixpanel?.track('Withdraw Success', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: [foxAsset.symbol, ethAsset.symbol],
+      })
+    }
+  }, [
+    ethAsset.symbol,
+    foxAsset.symbol,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state || !opportunity) return null
 

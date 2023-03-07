@@ -22,6 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -39,6 +40,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
@@ -86,6 +88,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
+      mixpanel?.track('Deposit Confirm', {
+        provider: opportunity.provider,
+        type: opportunity.type,
+        assets: [foxAsset.symbol, ethAsset.symbol],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')
       toast({

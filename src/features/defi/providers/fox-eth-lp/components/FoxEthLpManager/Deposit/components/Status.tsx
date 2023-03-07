@@ -23,6 +23,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -40,6 +41,7 @@ type StatusProps = { accountId: AccountId | undefined }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
@@ -98,6 +100,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }
 
   const handleCancel = browserHistory.goBack
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track('Deposit Success', {
+        provider: foxEthLpOpportunity?.provider,
+        type: foxEthLpOpportunity?.type,
+        assets: [foxAsset.symbol, ethAsset.symbol],
+      })
+    }
+  }, [
+    ethAsset.symbol,
+    foxAsset.symbol,
+    foxEthLpOpportunity?.provider,
+    foxEthLpOpportunity?.type,
+    mixpanel,
+    state?.deposit.txStatus,
+  ])
 
   if (!state) return null
 

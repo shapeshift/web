@@ -18,6 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -47,6 +48,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const mixpanel = getMixPanel()
 
   const assets = useAppSelector(selectAssets)
 
@@ -149,6 +151,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
+      mixpanel?.track('Withdraw Continue', {
+        provider: foxEthLpOpportunity.provider,
+        type: foxEthLpOpportunity.type,
+        assets: [foxAsset.symbol, ethAsset.symbol],
+      })
     } else {
       const estimatedGasCrypto = await getApproveGasData(true)
       if (!estimatedGasCrypto) return

@@ -18,6 +18,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -37,6 +38,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const opportunity = state?.opportunity
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountId)
 
@@ -85,6 +87,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
+      mixpanel?.track('Withdraw Confirm', {
+        provider: opportunity.provider,
+        type: opportunity.type,
+        assets: [foxAsset.symbol, ethAsset.symbol],
+      })
     } catch (error) {
       moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
     } finally {
@@ -92,6 +99,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     }
   }, [
     dispatch,
+    ethAsset.symbol,
+    foxAsset.symbol,
+    mixpanel,
     onNext,
     onOngoingLpTxIdChange,
     opportunity,

@@ -15,6 +15,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
@@ -34,6 +35,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
   const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
   const opportunity = state?.opportunity
@@ -83,6 +85,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Deposit Approve', {
+        provider: opportunity.provider,
+        type: opportunity.type,
+        asset: foxAsset.symbol,
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -95,19 +102,21 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    allowance,
-    approve,
     dispatch,
+    opportunity,
+    wallet,
+    approve,
     getDepositGasData,
-    foxAsset.precision,
-    feeAsset.precision,
     state?.deposit.foxCryptoAmount,
     state?.deposit.ethCryptoAmount,
+    feeAsset.precision,
     onNext,
-    opportunity,
+    mixpanel,
+    foxAsset.symbol,
+    foxAsset.precision,
+    allowance,
     toast,
     translate,
-    wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

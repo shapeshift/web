@@ -19,6 +19,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -44,8 +45,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, provider, type } = query
   const opportunity = state?.opportunity
   const { lpAccountId } = useFoxEth()
   const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
@@ -128,6 +130,11 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
+        mixpanel?.track('Deposit Continue', {
+          provider,
+          type,
+          assets: [foxAsset.symbol, ethAsset.symbol],
+        })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return

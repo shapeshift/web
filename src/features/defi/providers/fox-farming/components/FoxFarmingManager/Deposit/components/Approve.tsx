@@ -17,6 +17,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -37,8 +38,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
+  const { chainId, contractAddress, provider, type } = query
   const opportunity = state?.opportunity
 
   assertIsFoxEthStakingContractAddress(contractAddress)
@@ -93,6 +95,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Deposit Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -111,11 +114,14 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     dispatch,
     feeAsset.precision,
     getStakeGasData,
+    mixpanel,
     onNext,
     opportunity,
+    provider,
     state?.deposit.cryptoAmount,
     toast,
     translate,
+    type,
     wallet,
   ])
 

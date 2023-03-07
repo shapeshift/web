@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -42,8 +43,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, assetReference } = query
+  const { contractAddress, assetReference, provider, type } = query
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -91,6 +93,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
+      mixpanel?.track('Deposit Confirm', { provider, type, asset: asset?.symbol })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
@@ -104,15 +107,19 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
+    asset?.symbol,
     assetReference,
     contractAddress,
     dispatch,
+    mixpanel,
     onNext,
     onOngoingFarmingTxIdChange,
+    provider,
     stake,
     state,
     toast,
     translate,
+    type,
     walletState.wallet,
   ])
 

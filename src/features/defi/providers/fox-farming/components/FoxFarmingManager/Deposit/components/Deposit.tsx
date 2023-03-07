@@ -19,6 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
@@ -48,8 +49,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetReference, contractAddress } = query
+  const { assetReference, contractAddress, provider, type } = query
   const opportunity = state?.opportunity
 
   const asset = useAppSelector(state =>
@@ -131,6 +133,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
+          mixpanel?.track('Deposit Continue', { provider, type, asset: asset.symbol })
         } else {
           const estimatedGasCrypto = await getApproveGasData()
           if (!estimatedGasCrypto) return
@@ -164,11 +167,14 @@ export const Deposit: React.FC<DepositProps> = ({
       foxFarmingAllowance,
       getApproveGasData,
       getStakeGasData,
+      mixpanel,
       onNext,
       opportunity,
+      provider,
       state,
       toast,
       translate,
+      type,
     ],
   )
 

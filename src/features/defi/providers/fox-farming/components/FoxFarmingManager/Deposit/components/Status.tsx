@@ -9,6 +9,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import mixpanel from 'mixpanel-browser'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -31,7 +32,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const opportunity = state?.opportunity
   const history = useHistory()
-  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { provider, type } = query
   const feeAssetId = ethAssetId
 
   const asset = useAppSelector(state =>
@@ -73,6 +75,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track('Deposit Success', { provider, type, asset: asset.symbol })
+    }
+  }, [asset.symbol, provider, state?.deposit.txStatus, type])
 
   if (!state || !dispatch || !opportunity) return null
 

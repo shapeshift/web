@@ -18,6 +18,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -37,8 +38,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId, provider, type } = query
   const opportunity = state?.opportunity
 
   assertIsFoxEthStakingContractAddress(contractAddress)
@@ -96,6 +98,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Withdraw Approve', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -108,19 +111,23 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    allowance,
-    approve,
-    asset?.precision,
     dispatch,
-    feeAsset.precision,
-    getUnstakeGasData,
-    onNext,
     opportunity,
+    wallet,
+    approve,
+    getUnstakeGasData,
     state?.withdraw.lpAmount,
     state?.withdraw.isExiting,
+    feeAsset?.precision,
+    onNext,
+    mixpanel,
+    provider,
+    type,
+    asset.symbol,
+    asset?.precision,
+    allowance,
     toast,
     translate,
-    wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

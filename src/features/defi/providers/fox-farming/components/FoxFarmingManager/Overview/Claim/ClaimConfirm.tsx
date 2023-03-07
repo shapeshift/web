@@ -10,6 +10,10 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,9 +25,11 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -58,7 +64,10 @@ export const ClaimConfirm = ({
 
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const history = useHistory()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { provider, type } = query
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const accountAddress = useMemo(
@@ -97,6 +106,7 @@ export const ClaimConfirm = ({
         chainId,
         contractAddress,
       })
+      mixpanel?.track('Claim Confirm', { provider, type, asset: asset?.symbol })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({

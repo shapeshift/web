@@ -15,6 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -41,8 +42,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const [isExiting, setIsExiting] = useState<boolean>(false)
+  const mixpanel = getMixPanel()
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
+  const { chainId, contractAddress, provider, type } = query
 
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {
@@ -119,6 +121,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+        mixpanel?.track('Withdraw Continue', { provider, type, asset: asset.symbol })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return
@@ -142,8 +145,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       getApproveGasData,
       getWithdrawGasEstimate,
       isExiting,
+      mixpanel,
       onNext,
       opportunity,
+      provider,
+      type,
     ],
   )
 

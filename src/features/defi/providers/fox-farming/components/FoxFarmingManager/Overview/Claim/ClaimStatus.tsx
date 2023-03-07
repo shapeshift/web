@@ -1,6 +1,10 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -15,6 +19,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -62,8 +67,10 @@ const StatusInfo = {
 type ClaimStatusProps = { accountId: AccountId | undefined }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
-  const { history: browserHistory } = useBrowserRouter()
+  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { provider, type } = query
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress },
   } = useLocation<ClaimStatusState>()
@@ -104,6 +111,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, contractAddress, feeAsset.precision])
+
+  useEffect(() => {
+    if (state.txStatus === TxStatus.SUCCESS) {
+      mixpanel?.track('Claim Success', { provider, type, asset: asset?.symbol })
+    }
+  }, [asset?.symbol, mixpanel, provider, state.txStatus, type])
 
   return (
     <SlideTransition>

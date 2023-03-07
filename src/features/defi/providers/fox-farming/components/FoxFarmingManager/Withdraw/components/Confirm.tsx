@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -41,8 +42,9 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { chainId, contractAddress, rewardId, provider, type } = query
   const opportunity = state?.opportunity
 
   assertIsFoxEthStakingContractAddress(contractAddress)
@@ -90,19 +92,24 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      mixpanel?.track('Withdraw Confirm', { provider, type, asset: underlyingAsset?.symbol })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }, [
     contractAddress,
     dispatch,
+    mixpanel,
     onNext,
     onOngoingFarmingTxIdChange,
+    provider,
     rewardId,
     state?.loading,
     state?.userAddress,
     state?.withdraw.isExiting,
     state?.withdraw.lpAmount,
+    type,
+    underlyingAsset?.symbol,
     unstake,
     walletState.wallet,
   ])

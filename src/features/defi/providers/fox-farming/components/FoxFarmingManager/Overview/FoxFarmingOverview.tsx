@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -26,6 +26,7 @@ import {
 import {
   selectAssetById,
   selectAssets,
+  selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataSortedByMarketCap,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
@@ -53,7 +54,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, highestBalanceAccountAddress, contractAddress } = query
+  const { chainId, contractAddress } = query
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -90,11 +91,6 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
         .map(assetId => assets[assetId]?.icon)
         .map(icon => icon ?? '') ?? [],
     [assets, opportunityData?.underlyingAssetIds],
-  )
-
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId ?? '').account : ''),
-    [accountId],
   )
 
   const stakingAsset = useAppSelector(state =>
@@ -140,14 +136,16 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     ],
   )
 
-  // Making sure we don't display empty state if account 0 has no farming data for the current opportunity but another account has
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
+  )
   useEffect(() => {
-    if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
-      handleAccountIdChange(highestBalanceAccountId)
-    }
-    // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highestBalanceAccountId])
+    if (!maybeAccountId) return
+    if (!accountId && highestBalanceAccountId) handleAccountIdChange(highestBalanceAccountId)
+    else handleAccountIdChange(maybeAccountId)
+  }, [accountId, handleAccountIdChange, highestBalanceAccountId, maybeAccountId])
 
   const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)

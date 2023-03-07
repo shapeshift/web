@@ -1,3 +1,4 @@
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import type { SwapperAction, SwapperState } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 
@@ -52,6 +53,16 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
           amountCryptoPrecision: '',
         },
       }
+    case SwapperActionType.SET_ACTIVE_SWAPPER:
+      const slippage = action.payload.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+      return {
+        ...state,
+        activeSwapperWithMetadata: action.payload,
+        quote: action.payload.quote,
+        slippage,
+      }
+    case SwapperActionType.SET_AVAILABLE_SWAPPERS:
+      return { ...state, availableSwappersWithMetadata: action.payload }
     default:
       return state
   }

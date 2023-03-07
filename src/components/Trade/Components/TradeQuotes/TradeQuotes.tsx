@@ -17,12 +17,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     dispatch: swapperDispatch,
   } = useSwapperState()
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
-  // const [activeQuote, setActiveQuote] = useState('THORchain')
   const handleSelectSwapper = useCallback(
-    (value: SwapperWithQuoteMetadata) =>
+    (activeSwapperWithMetadata: SwapperWithQuoteMetadata) =>
       swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: value,
+        type: SwapperActionType.SET_ACTIVE_SWAPPER,
+        payload: activeSwapperWithMetadata,
       }),
     [swapperDispatch],
   )

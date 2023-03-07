@@ -1,14 +1,11 @@
-import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
 import {
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
@@ -17,8 +14,8 @@ import {
 import { useAppSelector } from 'state/store'
 
 /*
-The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
-The only mutation is on the quote property of SwapperState.
+The Trade Quote Service is responsible for reacting to changes to trade assets and updating the tradeQuoteArgs accordingly.
+The only mutation is on the tradeQuoteInputArgs property of SwapperState.
 */
 export const useTradeQuoteService = (context: SwapperContextType) => {
   const {
@@ -28,10 +25,8 @@ export const useTradeQuoteService = (context: SwapperContextType) => {
       sellAssetAccountId,
       action,
       isSendMax,
-      quote,
       amount,
       receiveAddress,
-      tradeQuoteInputArgs,
     },
     dispatch: swapperDispatch,
   } = context
@@ -56,13 +51,8 @@ export const useTradeQuoteService = (context: SwapperContextType) => {
     selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
   )
 
-  // API
-  const { data: tradeQuote } = useGetTradeQuoteQuery(tradeQuoteInputArgs ?? skipToken, {
-    pollingInterval: 30000,
-  })
-
   // Effects
-  // Set trade quote args and trigger trade quote query
+  // Set trade quote args
   useEffect(() => {
     const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoPrecision
     if (
@@ -112,32 +102,4 @@ export const useTradeQuoteService = (context: SwapperContextType) => {
     isSendMax,
     swapperDispatch,
   ])
-
-  // Update trade quote
-  useEffect(
-    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } }),
-    [tradeQuote, swapperDispatch],
-  )
-
-  // Set slippage if the quote contains a recommended value, else use the default
-  useEffect(
-    () =>
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          slippage: tradeQuote?.recommendedSlippage
-            ? tradeQuote.recommendedSlippage
-            : DEFAULT_SLIPPAGE,
-        },
-      }),
-    [tradeQuote, swapperDispatch],
-  )
-
-  // Set trade quote if not yet set (e.g. on page load)
-  useEffect(() => {
-    // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote &&
-      tradeQuote &&
-      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } })
-  }, [swapperDispatch, quote, tradeQuote])
 }

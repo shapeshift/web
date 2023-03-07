@@ -45,6 +45,8 @@ export enum SwapperActionType {
   SET_SELL_ASSET = 'SET_SELL_ASSET',
   SET_TRADE_AMOUNTS = 'SET_TRADE_AMOUNTS',
   TOGGLE_IS_EXACT_ALLOWANCE = 'TOGGLE_IS_EXACT_ALLOWANCE',
+  SET_AVAILABLE_SWAPPERS = 'SET_AVAILABLE_SWAPPERS',
+  SET_ACTIVE_SWAPPER = 'SET_ACTIVE_SWAPPER',
 }
 
 export type SwapperAction =
@@ -67,6 +69,8 @@ export type SwapperAction =
       }
     }
   | { type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }
+  | { type: SwapperActionType.SET_AVAILABLE_SWAPPERS; payload: SwapperWithQuoteMetadata[] }
+  | { type: SwapperActionType.SET_ACTIVE_SWAPPER; payload: SwapperWithQuoteMetadata }
 
 export type SwapperContextType<T extends KnownChainIds = KnownChainIds> = {
   state: SwapperState<T>

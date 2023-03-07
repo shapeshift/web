@@ -82,12 +82,15 @@ export const useAvailableSwappersService = (context: SwapperContextType) => {
 
   useEffect(() => {
     const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        activeSwapperWithMetadata: bestSwapperWithQuoteMetadata,
-        availableSwappersWithMetadata: swappersWithQuoteMetadata,
-      },
-    })
+    swappersWithQuoteMetadata &&
+      swapperDispatch({
+        type: SwapperActionType.SET_AVAILABLE_SWAPPERS,
+        payload: swappersWithQuoteMetadata,
+      })
+    bestSwapperWithQuoteMetadata &&
+      swapperDispatch({
+        type: SwapperActionType.SET_ACTIVE_SWAPPER,
+        payload: bestSwapperWithQuoteMetadata,
+      })
   }, [swapperDispatch, swappersWithQuoteMetadata])
 }

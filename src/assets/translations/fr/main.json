@@ -1364,7 +1364,7 @@
         "captchaRequired": "Le Capcha est requis",
         "tooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard.",
         "invalidLogin": "Identification invalide",
-        "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
+        "noWallet": "Impossible de trouver un porte-monnaie ShapeShift pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",
         "twoFactorAuthentication": "Authentification à deux facteurs",
         "twoFactorPlaceholder": "Code à 6 chiffres",
@@ -1384,12 +1384,12 @@
         "multiChain": {
           "title": "Multi-chaînes",
           "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie natif la prend en charge automatiquement.",
+          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie ShapeShift la prend en charge automatiquement.",
           "cta": "Suivant"
         },
         "easyToUse": {
           "title": "Facile à utiliser",
-          "subTitle": "Avec le porte-monnaie natif ShapeShift, vous pouvez :",
+          "subTitle": "Avec le porte-monnaie ShapeShift, vous pouvez :",
           "trackBalance": "Suivre vos soldes",
           "sendReceive": "Envoyer/recevoir des cryptos",
           "buyCrypto": "Acheter des cryptos",

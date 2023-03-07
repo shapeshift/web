@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -61,6 +61,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   // notify
   const toast = useToast()
@@ -73,13 +75,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  if (!state || !dispatch) return null
+  const handleDeposit = useCallback(async () => {
+    if (
+      !(
+        assetReference &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        opportunity &&
+        state?.deposit.ethCryptoAmount &&
+        dispatch
+      )
+    )
+      return
 
-  const handleDeposit = async () => {
     try {
-      if (!(assetReference && walletState.wallet && supportsETH(walletState.wallet) && opportunity))
-        return
-
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
       const txid = await addLiquidity(state.deposit.ethCryptoAmount, state.deposit.foxCryptoAmount)
       if (!txid) throw new Error('addLiquidity failed')
@@ -97,7 +106,27 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     } finally {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
-  }
+  }, [
+    addLiquidity,
+    assetReference,
+    dispatch,
+    onNext,
+    onOngoingLpTxIdChange,
+    opportunity,
+    state?.deposit.ethCryptoAmount,
+    state?.deposit.foxCryptoAmount,
+    toast,
+    translate,
+    walletState.wallet,
+  ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleDeposit())()
+    }
+  }, [handleDeposit, isLocked, previousIsLocked, state?.loading])
+
+  if (!state || !dispatch) return null
 
   const handleCancel = () => {
     onNext(DefiStep.Info)

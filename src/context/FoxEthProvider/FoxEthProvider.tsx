@@ -47,7 +47,7 @@ const FoxEthContext = createContext<IFoxEthContext>({
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const {
-    state: { wallet },
+    state: { isLocked, wallet },
   } = useWallet()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
@@ -83,6 +83,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     // Get initial account 0 address from wallet, TODO: nuke it?
     if (wallet && adapter && lpBip44Params) {
       ;(async () => {
+        if (isLocked) return
         if (!supportsETH(wallet)) return
         const { accountNumber } = lpBip44Params
         const address = await adapter.getAddress({ wallet, accountNumber })

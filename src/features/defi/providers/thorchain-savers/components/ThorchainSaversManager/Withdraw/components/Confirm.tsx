@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Skeleton, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Skeleton, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -138,6 +138,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   const assetBalanceFilter = useMemo(
     () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
@@ -543,7 +545,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
       })
     } catch (error) {
-      moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
+      moduleLogger.debug({ fn: 'handleConfirm' }, 'Error sending THORCHain savers Txs')
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -581,6 +583,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     toast,
     translate,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleConfirm())()
+    }
+  }, [handleConfirm, isLocked, previousIsLocked, state?.loading])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)

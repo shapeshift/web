@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -7,7 +7,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -53,6 +53,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: ethAssetId, accountId: accountId ?? '' }),
@@ -101,6 +103,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     state?.withdraw.lpAmount,
     walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleConfirm())()
+    }
+  }, [handleConfirm, isLocked, previousIsLocked, state?.loading])
 
   if (!state || !dispatch || !opportunity) return null
 

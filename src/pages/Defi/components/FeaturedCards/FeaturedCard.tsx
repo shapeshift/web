@@ -9,6 +9,9 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
+import { GetCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
@@ -30,6 +33,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
   const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
   const backgroundIcons = useMemo(() => {
@@ -45,6 +49,13 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)
 
+    mixpanel?.track(MixPanelEvents.ClickOpportunity, {
+      provider,
+      type,
+      assets: underlyingAssetIds.map(assetId => GetCompositeAssetSymbol(assetId)),
+      element: 'Featured Card',
+    })
+
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -59,7 +70,18 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
       }),
       state: { background: location },
     })
-  }, [assetId, chainId, contractAddress, history, location, provider, rewardAddress, type])
+  }, [
+    assetId,
+    chainId,
+    contractAddress,
+    history,
+    location,
+    mixpanel,
+    provider,
+    rewardAddress,
+    type,
+    underlyingAssetIds,
+  ])
 
   const subText = [provider as string]
   if (version) subText.push(version)

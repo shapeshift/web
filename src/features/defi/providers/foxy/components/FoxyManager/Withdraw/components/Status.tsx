@@ -19,6 +19,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -42,7 +43,7 @@ export const Status = () => {
 
   useEffect(() => {
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track('Withdraw Success', {
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         asset: stakingAsset.symbol,

@@ -38,6 +38,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -509,7 +510,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
-      mixpanel?.track('Deposit Confirm', { provider, type, asset: asset?.symbol })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, asset: asset?.symbol })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
       // TODO(gomes): UTXO reconciliation in a stacked PR

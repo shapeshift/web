@@ -17,6 +17,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -91,7 +92,7 @@ export const Status = () => {
 
   useEffect(() => {
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track('Withdraw Success', { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, { provider, type, asset: asset.symbol })
     }
   }, [asset.symbol, mixpanel, provider, state?.withdraw.txStatus, type])
 

@@ -25,6 +25,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -155,7 +156,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track('Withdraw Confirm', { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {

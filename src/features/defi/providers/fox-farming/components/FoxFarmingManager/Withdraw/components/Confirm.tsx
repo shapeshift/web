@@ -22,6 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -92,7 +93,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track('Withdraw Confirm', { provider, type, asset: underlyingAsset?.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider,
+        type,
+        asset: underlyingAsset?.symbol,
+      })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }

@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -194,7 +195,7 @@ export const Withdraw: React.FC<
             type: FoxyWithdrawActionType.SET_LOADING,
             payload: false,
           })
-          mixpanel?.track('Withdraw Continue', {
+          mixpanel?.track(MixPanelEvents.WithdrawContinue, {
             provider: opportunity?.provider,
             type: opportunity?.type,
             asset: asset.symbol,

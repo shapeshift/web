@@ -19,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -87,7 +88,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
-      mixpanel?.track('Withdraw Confirm', {
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: opportunity.provider,
         type: opportunity.type,
         assets: [foxAsset.symbol, ethAsset.symbol],

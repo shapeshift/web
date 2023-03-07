@@ -24,6 +24,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -156,7 +157,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state.txStatus === TxStatus.SUCCESS) {
-      mixpanel?.track('Claim Success', { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, asset: asset.symbol })
     }
   }, [asset.symbol, mixpanel, provider, state.txStatus, type])
 

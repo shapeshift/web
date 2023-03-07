@@ -23,6 +23,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -88,7 +89,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
-      mixpanel?.track('Deposit Confirm', {
+      mixpanel?.track(MixPanelEvents.DepositConfirm, {
         provider: opportunity.provider,
         type: opportunity.type,
         assets: [foxAsset.symbol, ethAsset.symbol],

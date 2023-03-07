@@ -19,6 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -105,7 +106,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track('Withdraw Confirm', {
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         asset: stakingAsset.symbol,

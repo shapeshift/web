@@ -29,6 +29,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -223,7 +224,7 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        mixpanel?.track('Deposit Continue', { provider, type, asset: asset?.symbol })
+        mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, asset: asset?.symbol })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({

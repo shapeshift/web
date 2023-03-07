@@ -13,6 +13,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectMarketDataById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -140,7 +141,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
-          mixpanel?.track('Deposit Continue', {
+          mixpanel?.track(MixPanelEvents.DepositContinue, {
             provider: opportunity?.provider,
             type: opportunity?.type,
             asset: asset.symbol,

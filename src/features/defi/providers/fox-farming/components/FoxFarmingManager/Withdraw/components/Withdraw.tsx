@@ -16,6 +16,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -121,7 +122,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-        mixpanel?.track('Withdraw Continue', { provider, type, asset: asset.symbol })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, asset: asset.symbol })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return

@@ -24,6 +24,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -103,7 +104,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state?.deposit.txStatus === 'success') {
-      mixpanel?.track('Deposit Success', {
+      mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: foxEthLpOpportunity?.provider,
         type: foxEthLpOpportunity?.type,
         assets: [foxAsset.symbol, ethAsset.symbol],

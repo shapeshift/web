@@ -20,6 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectMarketDataById,
@@ -130,7 +131,7 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
-        mixpanel?.track('Deposit Continue', {
+        mixpanel?.track(MixPanelEvents.DepositContinue, {
           provider,
           type,
           assets: [foxAsset.symbol, ethAsset.symbol],

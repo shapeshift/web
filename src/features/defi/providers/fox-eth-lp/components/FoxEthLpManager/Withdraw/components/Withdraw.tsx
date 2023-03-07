@@ -19,6 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -151,7 +152,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track('Withdraw Continue', {
+      mixpanel?.track(MixPanelEvents.WithdrawContinue, {
         provider: foxEthLpOpportunity.provider,
         type: foxEthLpOpportunity.type,
         assets: [foxAsset.symbol, ethAsset.symbol],

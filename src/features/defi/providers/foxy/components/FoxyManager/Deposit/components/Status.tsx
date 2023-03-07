@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import { DepositContext } from '../DepositContext'
 
@@ -39,7 +40,7 @@ export const Status = () => {
 
   useEffect(() => {
     if (state?.deposit.txStatus === 'success') {
-      mixpanel?.track('Deposit Success', {
+      mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         asset: asset.symbol,

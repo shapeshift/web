@@ -15,6 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -135,7 +136,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track('Deposit Approve', {
+      mixpanel?.track(MixPanelEvents.DepositApprove, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         asset: asset.symbol,

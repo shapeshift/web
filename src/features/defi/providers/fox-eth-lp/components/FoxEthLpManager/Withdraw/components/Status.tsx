@@ -19,6 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -81,7 +82,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track('Withdraw Success', {
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assets: [foxAsset.symbol, ethAsset.symbol],

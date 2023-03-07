@@ -17,6 +17,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -144,7 +145,7 @@ export const Status = () => {
 
   useEffect(() => {
     if (state.claim.txStatus === 'success') {
-      mixpanel?.track('Claim Success', { provider, type })
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type })
     }
   }, [mixpanel, provider, state.claim.txStatus, type])
 

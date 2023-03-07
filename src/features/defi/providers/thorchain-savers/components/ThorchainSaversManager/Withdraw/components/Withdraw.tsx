@@ -27,6 +27,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -247,7 +248,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
-        mixpanel?.track('Withdraw Continue', { provider, type, asset: asset?.symbol })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, asset: asset?.symbol })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({

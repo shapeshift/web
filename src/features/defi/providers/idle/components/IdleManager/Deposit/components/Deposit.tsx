@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -190,7 +191,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
-          mixpanel?.track('Deposit Continue', { provider, type, asset: asset.symbol })
+          mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, asset: asset.symbol })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return

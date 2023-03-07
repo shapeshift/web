@@ -20,6 +20,7 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -114,7 +115,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (state.txStatus === TxStatus.SUCCESS) {
-      mixpanel?.track('Claim Success', { provider, type, asset: asset?.symbol })
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, asset: asset?.symbol })
     }
   }, [asset?.symbol, mixpanel, provider, state.txStatus, type])
 

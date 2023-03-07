@@ -22,6 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -205,7 +206,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track('Claim Confirm', { provider, type })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {

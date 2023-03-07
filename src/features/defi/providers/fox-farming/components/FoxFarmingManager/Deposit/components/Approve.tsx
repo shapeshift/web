@@ -18,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -95,7 +96,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track('Deposit Confirm', { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.DepositApprove, { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({

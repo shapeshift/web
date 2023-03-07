@@ -31,6 +31,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -533,7 +534,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      mixpanel?.track('Withdraw Confirm', { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({

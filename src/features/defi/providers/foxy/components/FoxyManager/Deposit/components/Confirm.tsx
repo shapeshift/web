@@ -18,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -114,7 +115,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         },
       })
-      mixpanel?.track('Deposit Confirm', {
+      mixpanel?.track(MixPanelEvents.DepositConfirm, {
         provider: opportunity?.provider,
         type: opportunity?.type,
         asset: asset.symbol,

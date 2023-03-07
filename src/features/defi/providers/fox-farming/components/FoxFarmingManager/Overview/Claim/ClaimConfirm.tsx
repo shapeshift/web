@@ -30,6 +30,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -106,7 +107,7 @@ export const ClaimConfirm = ({
         chainId,
         contractAddress,
       })
-      mixpanel?.track('Claim Confirm', { provider, type, asset: asset?.symbol })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, asset: asset?.symbol })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({

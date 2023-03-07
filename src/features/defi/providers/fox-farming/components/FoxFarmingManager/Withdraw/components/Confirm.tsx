@@ -96,7 +96,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider,
         type,
-        asset: underlyingAsset?.symbol,
+        assets: [underlyingAsset?.assetId],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
@@ -114,7 +114,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.isExiting,
     state?.withdraw.lpAmount,
     type,
-    underlyingAsset?.symbol,
+    underlyingAsset?.assetId,
     unstake,
     walletState.wallet,
   ])

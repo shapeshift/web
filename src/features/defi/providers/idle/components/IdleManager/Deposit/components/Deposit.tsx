@@ -191,7 +191,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
-          mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, asset: asset.symbol })
+          mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, assets: [assetId] })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
@@ -219,12 +219,12 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       idleInvestor,
       asset.precision,
-      asset.symbol,
       getDepositGasEstimate,
       onNext,
       mixpanel,
       provider,
       type,
+      assetId,
       getApproveGasEstimate,
       toast,
       translate,

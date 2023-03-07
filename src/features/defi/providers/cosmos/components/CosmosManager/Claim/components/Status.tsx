@@ -64,10 +64,10 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.ClaimSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [asset.symbol],
+        assets: [asset.assetId],
       })
     }
-  }, [asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, txStatus])
+  }, [asset.assetId, asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, txStatus])
 
   if (!state || !opportunity || !dispatch) return null
 

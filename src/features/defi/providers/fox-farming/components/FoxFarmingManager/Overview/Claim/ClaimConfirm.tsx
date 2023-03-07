@@ -107,7 +107,7 @@ export const ClaimConfirm = ({
         chainId,
         contractAddress,
       })
-      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, asset: asset?.symbol })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, assets: [asset?.assetId] })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({

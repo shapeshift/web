@@ -96,7 +96,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track(MixPanelEvents.DepositApprove, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.DepositApprove, { provider, type, assets: [asset.assetId] })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({

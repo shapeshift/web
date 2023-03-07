@@ -107,12 +107,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: foxEthLpOpportunity?.provider,
         type: foxEthLpOpportunity?.type,
-        assets: [foxAsset.symbol, ethAsset.symbol],
+        assets: [foxAsset.assetId, ethAsset.assetId],
       })
     }
   }, [
-    ethAsset.symbol,
-    foxAsset.symbol,
+    ethAsset.assetId,
+    foxAsset.assetId,
     foxEthLpOpportunity?.provider,
     foxEthLpOpportunity?.type,
     mixpanel,

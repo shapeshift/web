@@ -170,7 +170,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,
         })
-        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assets: [asset.symbol] })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+          provider,
+          type,
+          assets: [asset.assetId],
+        })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
         dispatch({

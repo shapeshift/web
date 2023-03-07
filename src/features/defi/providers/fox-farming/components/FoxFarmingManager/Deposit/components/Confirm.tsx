@@ -94,7 +94,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, asset: asset?.symbol })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assets: [asset?.assetId] })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
@@ -108,7 +108,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
-    asset?.symbol,
+    asset?.assetId,
     assetReference,
     contractAddress,
     dispatch,

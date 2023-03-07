@@ -248,7 +248,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
-        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, asset: asset?.symbol })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+          provider,
+          type,
+          assets: [asset.assetId],
+        })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -269,7 +273,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       mixpanel,
       provider,
       type,
-      asset?.symbol,
+      asset?.assetId,
       toast,
       translate,
     ],

@@ -118,7 +118,7 @@ export const ClaimConfirm = ({
         estimatedGas,
         chainId,
       })
-      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.ClaimConfirm, { provider, type, assets: [asset.assetId] })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({
@@ -132,7 +132,7 @@ export const ClaimConfirm = ({
     }
   }, [
     amount,
-    asset.symbol,
+    asset.assetId,
     assetId,
     bip44Params,
     chainId,

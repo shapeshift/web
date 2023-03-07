@@ -134,7 +134,11 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
-          mixpanel?.track(MixPanelEvents.DepositContinue, { provider, type, asset: asset.symbol })
+          mixpanel?.track(MixPanelEvents.DepositContinue, {
+            provider,
+            type,
+            assets: [asset.assetId],
+          })
         } else {
           const estimatedGasCrypto = await getApproveGasData()
           if (!estimatedGasCrypto) return

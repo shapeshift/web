@@ -43,10 +43,10 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        asset: asset.symbol,
+        assets: [asset.assetId],
       })
     }
-  }, [asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, state?.deposit.txStatus])
+  }, [asset.assetId, mixpanel, opportunity?.provider, opportunity?.type, state?.deposit.txStatus])
 
   if (!state) return null
 

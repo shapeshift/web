@@ -148,7 +148,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.DepositConfirm, { provider, type, assets: [asset.assetId] })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
@@ -171,7 +171,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.deposit.cryptoAmount,
     idleInvestor,
     asset.precision,
-    asset.symbol,
+    asset.assetId,
     onNext,
     mixpanel,
     provider,

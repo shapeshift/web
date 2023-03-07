@@ -92,9 +92,9 @@ export const Status = () => {
 
   useEffect(() => {
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.WithdrawSuccess, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, { provider, type, assets: [asset.assetId] })
     }
-  }, [asset.symbol, mixpanel, provider, state?.withdraw.txStatus, type])
+  }, [asset.assetId, mixpanel, provider, state?.withdraw.txStatus, type])
 
   if (!state) return null
 

@@ -145,9 +145,9 @@ export const Status = () => {
 
   useEffect(() => {
     if (state.claim.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type })
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, assets: [assetId] })
     }
-  }, [mixpanel, provider, state.claim.txStatus, type])
+  }, [assetId, mixpanel, provider, state.claim.txStatus, type])
 
   if (!state) return null
 

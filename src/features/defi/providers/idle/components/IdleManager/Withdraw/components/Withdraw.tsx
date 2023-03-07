@@ -144,9 +144,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, assets: [asset.assetId] })
     },
-    [userAddress, dispatch, getWithdrawGasEstimate, onNext, mixpanel, provider, type, asset.symbol],
+    [
+      userAddress,
+      dispatch,
+      getWithdrawGasEstimate,
+      onNext,
+      mixpanel,
+      provider,
+      type,
+      asset.assetId,
+    ],
   )
 
   const handleCancel = useCallback(() => {

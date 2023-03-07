@@ -138,7 +138,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.WithdrawApprove, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        asset: asset.symbol,
+        assets: [asset.assetId],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
@@ -165,7 +165,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     mixpanel,
     opportunity?.provider,
     opportunity?.type,
-    asset.symbol,
+    asset.assetId,
     asset.precision,
     toast,
     translate,

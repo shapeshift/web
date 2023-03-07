@@ -183,7 +183,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       mixpanel?.track(MixPanelEvents.DepositConfirm, {
         provider,
         type,
-        assets: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
+        assets: [underlyingAsset0?.assetId, underlyingAsset1?.assetId],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')

@@ -85,12 +85,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [foxAsset.symbol, ethAsset.symbol],
+        assets: [foxAsset.assetId, ethAsset.assetId],
       })
     }
   }, [
-    ethAsset.symbol,
-    foxAsset.symbol,
+    ethAsset.assetId,
+    foxAsset.assetId,
     mixpanel,
     opportunity?.provider,
     opportunity?.type,

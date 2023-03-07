@@ -154,7 +154,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track(MixPanelEvents.DepositApprove, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.DepositApprove, { provider, type, assets: [asset.assetId] })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -182,7 +182,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     mixpanel,
     provider,
     type,
-    asset.symbol,
+    asset.assetId,
     toast,
     translate,
   ])

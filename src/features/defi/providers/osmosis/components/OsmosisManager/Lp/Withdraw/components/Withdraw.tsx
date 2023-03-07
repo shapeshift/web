@@ -354,7 +354,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         mixpanel?.track(MixPanelEvents.WithdrawContinue, {
           provider: osmosisOpportunity.provider,
           type: osmosisOpportunity.type,
-          assets: [underlyingAsset0.symbol, underlyingAsset1.symbol],
+          assets: [underlyingAsset0.assetId, underlyingAsset1.assetId],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

@@ -155,7 +155,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       mixpanel?.track(MixPanelEvents.WithdrawContinue, {
         provider: foxEthLpOpportunity.provider,
         type: foxEthLpOpportunity.type,
-        assets: [foxAsset.symbol, ethAsset.symbol],
+        assets: [foxAsset.assetId, ethAsset.assetId],
       })
     } else {
       const estimatedGasCrypto = await getApproveGasData(true)

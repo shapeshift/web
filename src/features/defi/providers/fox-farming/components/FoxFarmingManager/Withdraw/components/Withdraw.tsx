@@ -122,7 +122,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-        mixpanel?.track(MixPanelEvents.WithdrawContinue, { provider, type, asset: asset.symbol })
+        mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+          provider,
+          type,
+          assets: [asset.assetId],
+        })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return

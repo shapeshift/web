@@ -139,7 +139,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.DepositApprove, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        asset: asset.symbol,
+        assets: [asset.assetId],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
@@ -162,7 +162,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     state,
     contractAddress,
     asset.precision,
-    asset.symbol,
+    asset.assetId,
     getDepositGasEstimate,
     onNext,
     mixpanel,

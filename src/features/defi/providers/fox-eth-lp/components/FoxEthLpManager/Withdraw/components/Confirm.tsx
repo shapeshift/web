@@ -91,7 +91,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: opportunity.provider,
         type: opportunity.type,
-        assets: [foxAsset.symbol, ethAsset.symbol],
+        assets: [foxAsset.assetId, ethAsset.assetId],
       })
     } catch (error) {
       moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
@@ -100,8 +100,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     }
   }, [
     dispatch,
-    ethAsset.symbol,
-    foxAsset.symbol,
+    ethAsset.assetId,
+    foxAsset.assetId,
     mixpanel,
     onNext,
     onOngoingLpTxIdChange,

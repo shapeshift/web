@@ -272,7 +272,7 @@ export const Deposit: React.FC<DepositProps> = ({
         mixpanel?.track(MixPanelEvents.DepositContinue, {
           provider,
           type,
-          assets: [underlyingAsset0.symbol, underlyingAsset1.symbol],
+          assets: [underlyingAsset0.assetId, underlyingAsset1.assetId],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

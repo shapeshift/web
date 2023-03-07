@@ -156,7 +156,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, asset: asset.symbol })
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, { provider, type, assets: [asset.assetId] })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {

@@ -90,7 +90,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       mixpanel?.track(MixPanelEvents.WithdrawApprove, {
         provider: opportunity.provider,
         type: opportunity.type,
-        assets: [foxAsset.symbol],
+        assets: [foxAsset.assetId],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
@@ -115,7 +115,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     feeAsset.precision,
     onNext,
     mixpanel,
-    foxAsset.symbol,
+    foxAsset.assetId,
     foxAsset.precision,
     allowance,
     toast,

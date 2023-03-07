@@ -1,6 +1,8 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { useState } from 'react'
+import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
+import { useCallback } from 'react'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 
 import { TradeQuote } from './TradeQuote'
 
@@ -10,40 +12,42 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const [activeQuote, setActiveQuote] = useState('THORchain')
+  const {
+    state: { activeSwapperWithMetadata, availableSwappersWithMetadata },
+    dispatch: swapperDispatch,
+  } = useSwapperState()
+  const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+  // const [activeQuote, setActiveQuote] = useState('THORchain')
+  const handleSelectSwapper = useCallback(
+    (value: SwapperWithQuoteMetadata) =>
+      swapperDispatch({
+        type: SwapperActionType.SET_VALUES,
+        payload: value,
+      }),
+    [swapperDispatch],
+  )
+
+  console.log('xxx availableSwappersWithMetadata', availableSwappersWithMetadata)
+  const quotes = availableSwappersWithMetadata
+    ? availableSwappersWithMetadata?.map((swapperWithMetadata, i) => {
+        const isActive = activeSwapperName === swapperWithMetadata.swapper.name
+        return (
+          <TradeQuote
+            key={swapperWithMetadata.swapper.name}
+            isBest={i === 0}
+            isLoading={isLoading}
+            isActive={isActive}
+            onClick={handleSelectSwapper}
+            swapperWithMetadata={swapperWithMetadata}
+          />
+        )
+      })
+    : null
+
   return (
     <Collapse in={isOpen}>
       <Flex flexDir='column' gap={2} width='full' px={4} py={2}>
-        <TradeQuote
-          assetId={foxAssetId}
-          isBest
-          isActive={activeQuote === 'THORchain'}
-          quoteAmountCryptoPrecision='999.9374'
-          gasFiatPrice='13.35'
-          protocol='THORchain'
-          isLoading={isLoading}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
-        <TradeQuote
-          assetId={foxAssetId}
-          quoteAmountCryptoPrecision='999.9374'
-          quoteDifference='-0.08'
-          gasFiatPrice='13.35'
-          protocol='COW Swap'
-          isLoading={isLoading}
-          isActive={activeQuote === 'COW Swap'}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
-        <TradeQuote
-          assetId={foxAssetId}
-          quoteAmountCryptoPrecision='999.9374'
-          gasFiatPrice='13.35'
-          quoteDifference='-0.59'
-          protocol='0x'
-          isLoading={isLoading}
-          isActive={activeQuote === '0x'}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
+        {quotes}
       </Flex>
     </Collapse>
   )

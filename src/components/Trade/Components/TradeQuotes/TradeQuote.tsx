@@ -7,12 +7,15 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const TradeQuoteLoading = () => {
@@ -49,35 +52,64 @@ const TradeQuoteLoading = () => {
 }
 
 type TradeQuoteLoadedProps = {
-  assetId: AssetId
   isActive?: boolean
   isBest?: boolean
   quoteDifference?: string
-  protocol: string
   protocolIcon?: string
-  gasFiatPrice: string
-  quoteAmountCryptoPrecision: string
-  onClick: (protocol: string) => void
+  onClick: (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => void
+  swapperWithMetadata: SwapperWithQuoteMetadata
 }
 
 export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
-  assetId,
   isActive,
   isBest,
   quoteDifference,
-  protocol,
   protocolIcon,
-  gasFiatPrice,
-  quoteAmountCryptoPrecision,
-  onClick,
+  onClick: handleSelectSwapper,
+  swapperWithMetadata,
 }) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const greenColor = useColorModeValue('green.500', 'green.200')
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  return (
+
+  const {
+    state: { feeAssetFiatRate, buyAssetFiatRate, buyTradeAsset, sellTradeAsset },
+  } = useSwapperState()
+
+  const { quote } = swapperWithMetadata
+  const buyAssetId = buyTradeAsset?.asset?.assetId
+  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
+  const buyAmountCryptoPrecision = fromBaseUnit(
+    quote.buyAmountCryptoBaseUnit,
+    quote.buyAsset.precision,
+  )
+
+  const buyAssetTradeFeeCryptoPrecision = buyAssetFiatRate
+    ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
+    : undefined
+
+  const totalReceiveAmountCryptoPrecision = buyAssetTradeFeeCryptoPrecision
+    ? bnOrZero(buyAmountCryptoPrecision).minus(buyAssetTradeFeeCryptoPrecision).toString()
+    : undefined
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, sellTradeAsset?.asset?.chainId ?? ''),
+  )
+  if (!feeAsset)
+    throw new Error(
+      `TradeQuoteLoaded: no fee asset found for chainId ${sellTradeAsset?.asset?.chainId}!`,
+    )
+
+  const networkFeeFiat = feeAssetFiatRate
+    ? bnOrZero(fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision))
+        .times(feeAssetFiatRate)
+        .toString()
+    : undefined
+
+  const protocol = swapperWithMetadata.swapper.name
+  return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
       cursor='pointer'
@@ -91,7 +123,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       px={4}
       py={2}
       fontSize='sm'
-      onClick={() => onClick(protocol)}
+      onClick={() => handleSelectSwapper(swapperWithMetadata)}
       transitionProperty='common'
       transitionDuration='normal'
     >
@@ -114,7 +146,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          <Amount.Fiat value={gasFiatPrice} />
+          <Amount.Fiat value={networkFeeFiat} />
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>
@@ -123,13 +155,13 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText>{protocol}</RawText>
         </Flex>
         <Amount.Crypto
-          value={quoteAmountCryptoPrecision}
-          symbol={asset?.symbol ?? ''}
+          value={totalReceiveAmountCryptoPrecision}
+          symbol={buyAsset?.symbol ?? ''}
           color={isBest ? greenColor : 'inherit'}
         />
       </Flex>
     </Flex>
-  )
+  ) : null
 }
 type TradeQuoteProps = {
   isLoading?: boolean

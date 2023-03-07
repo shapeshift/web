@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -6,7 +6,7 @@ import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import isNil from 'lodash/isNil'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -55,6 +55,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   // notify
   const toast = useToast()
@@ -135,6 +137,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     translate,
     walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleDeposit())()
+    }
+  }, [handleDeposit, isLocked, previousIsLocked, state?.loading])
 
   if (!state || !dispatch) return null
 

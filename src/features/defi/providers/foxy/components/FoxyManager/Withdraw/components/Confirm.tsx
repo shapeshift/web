@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack, usePrevious } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
@@ -7,7 +7,7 @@ import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import isNil from 'lodash/isNil'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -45,6 +45,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
 
   // user info
   const { state: walletState } = useWallet()
+  const isLocked = walletState.isLocked
+  const previousIsLocked = usePrevious(isLocked)
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
@@ -131,6 +133,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     state,
     walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!isLocked && previousIsLocked && state?.loading) {
+      ;(async () => await handleConfirm())()
+    }
+  }, [handleConfirm, isLocked, previousIsLocked, state?.loading])
 
   if (!state || !dispatch) return null
 

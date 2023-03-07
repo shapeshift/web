@@ -92,7 +92,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
         setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))
       })()
     }
-  }, [adapter, wallet, lpBip44Params])
+  }, [adapter, isLocked, wallet, lpBip44Params])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

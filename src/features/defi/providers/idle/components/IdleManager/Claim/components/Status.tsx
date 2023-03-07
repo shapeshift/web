@@ -145,6 +145,7 @@ export const Status = () => {
 
   useEffect(() => {
     if (state.claim.txStatus === 'success') {
+      // @TODO: Need to get the symbols here for mixpanel
       mixpanel?.track(MixPanelEvents.ClaimSuccess, { provider, type, assetIds: [assetId] })
     }
   }, [assetId, mixpanel, provider, state.claim.txStatus, type])

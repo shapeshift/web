@@ -198,7 +198,8 @@ export const Withdraw: React.FC<
           mixpanel?.track(MixPanelEvents.WithdrawContinue, {
             provider: opportunity?.provider,
             type: opportunity?.type,
-            assets: [asset.assetId],
+            assetIds: [asset.assetId],
+            assetSymbols: [asset.symbol],
           })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
@@ -238,6 +239,7 @@ export const Withdraw: React.FC<
       translate,
       asset.precision,
       asset.assetId,
+      asset.symbol,
       onNext,
       mixpanel,
       opportunity?.provider,

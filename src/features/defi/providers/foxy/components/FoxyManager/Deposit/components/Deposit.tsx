@@ -144,7 +144,8 @@ export const Deposit: React.FC<DepositProps> = ({
           mixpanel?.track(MixPanelEvents.DepositContinue, {
             provider: opportunity?.provider,
             type: opportunity?.type,
-            assets: [asset.assetId],
+            assetIds: [asset.assetId],
+            assetSymbols: [asset.symbol],
           })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
@@ -178,6 +179,7 @@ export const Deposit: React.FC<DepositProps> = ({
       translate,
       asset.precision,
       asset.assetId,
+      asset.symbol,
       onNext,
       mixpanel,
       opportunity?.provider,

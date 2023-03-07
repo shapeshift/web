@@ -89,7 +89,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [underlyingAsset0.assetId, underlyingAsset1.assetId],
+        assetIds: [underlyingAsset0?.assetId, underlyingAsset1?.assetId],
+        assetSymbols: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
       })
     }
   }, [
@@ -97,8 +98,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     opportunity?.provider,
     opportunity?.type,
     state?.deposit.txStatus,
-    underlyingAsset0.assetId,
-    underlyingAsset1.assetId,
+    underlyingAsset0?.assetId,
+    underlyingAsset0?.symbol,
+    underlyingAsset1?.assetId,
+    underlyingAsset1?.symbol,
   ])
 
   if (!state || !feeAsset) return null

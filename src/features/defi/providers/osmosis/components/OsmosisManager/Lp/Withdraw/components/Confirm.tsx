@@ -189,7 +189,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: osmosisOpportunity.provider,
         type: osmosisOpportunity.type,
-        assets: [underlyingAsset0?.assetId, underlyingAsset1?.assetId],
+        assetIds: [underlyingAsset0?.assetId, underlyingAsset1?.assetId],
+        assetSymbols: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
@@ -212,7 +213,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     onNext,
     mixpanel,
     underlyingAsset0?.assetId,
+    underlyingAsset0?.symbol,
     underlyingAsset1?.assetId,
+    underlyingAsset1?.symbol,
     toast,
     translate,
   ])

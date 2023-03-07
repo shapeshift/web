@@ -46,11 +46,17 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: [stakingAsset.assetId],
-        symbols: [stakingAsset.symbol],
+        assetIds: [stakingAsset.assetId],
+        assetSymbols: [stakingAsset.symbol],
       })
     }
-  }, [opportunity?.provider, opportunity?.type, stakingAsset.assetId, state?.withdraw.txStatus])
+  }, [
+    opportunity?.provider,
+    opportunity?.type,
+    stakingAsset.assetId,
+    stakingAsset.symbol,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state || !dispatch) return null
 

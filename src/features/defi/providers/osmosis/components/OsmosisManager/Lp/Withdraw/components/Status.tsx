@@ -88,7 +88,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: osmosisOpportunity?.provider,
         type: osmosisOpportunity?.type,
-        assets: [underlyingAsset0.assetId, underlyingAsset1.assetId],
+        assetIds: [underlyingAsset0?.assetId, underlyingAsset1?.assetId],
+        assetSymbols: [underlyingAsset0?.symbol, underlyingAsset1?.symbol],
       })
     }
   }, [
@@ -96,8 +97,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     osmosisOpportunity?.provider,
     osmosisOpportunity?.type,
     state?.withdraw.txStatus,
-    underlyingAsset0.assetId,
-    underlyingAsset1.assetId,
+    underlyingAsset0?.assetId,
+    underlyingAsset0?.symbol,
+    underlyingAsset1?.assetId,
+    underlyingAsset1?.symbol,
   ])
 
   if (!state || !osmosisOpportunity) return null

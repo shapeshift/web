@@ -251,7 +251,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         mixpanel?.track(MixPanelEvents.WithdrawContinue, {
           provider,
           type,
-          assets: [asset.assetId],
+          assetIds: [asset.assetId],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

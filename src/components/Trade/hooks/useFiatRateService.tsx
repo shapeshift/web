@@ -15,8 +15,9 @@ It also triggers an update of calculated trade amounts when fiat rates change.
 export const useFiatRateService = (context: SwapperContextType) => {
   const {
     dispatch: swapperDispatch,
-    state: { sellTradeAsset, buyTradeAsset, tradeQuoteInputArgs },
+    state: { sellTradeAsset, buyTradeAsset, tradeQuoteInputArgs, activeSwapperWithMetadata },
   } = context
+  const activeSwapperType = activeSwapperWithMetadata?.swapper?.getType()
 
   // Types
   type UsdRatesQueryInput = Parameters<typeof useGetUsdRatesQuery>
@@ -43,13 +44,26 @@ export const useFiatRateService = (context: SwapperContextType) => {
 
   // Trigger fiat rate query
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteInputArgs) {
+    if (
+      sellTradeAssetId &&
+      buyTradeAssetId &&
+      sellAssetFeeAssetId &&
+      tradeQuoteInputArgs &&
+      activeSwapperType
+    ) {
       setUsdRatesArgs({
         tradeQuoteArgs: tradeQuoteInputArgs,
         feeAssetId: sellAssetFeeAssetId,
+        activeSwapperType,
       })
     }
-  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteInputArgs])
+  }, [
+    activeSwapperType,
+    buyTradeAssetId,
+    sellAssetFeeAssetId,
+    sellTradeAssetId,
+    tradeQuoteInputArgs,
+  ])
 
   // Set fiat rates
   useEffect(() => {

@@ -44,8 +44,10 @@ export const useTradeAmounts = () => {
       isSendMax: isSendMaxFormState,
       amount: amountFormState,
       getReceiveAddressFromBuyAsset,
+      activeSwapperWithMetadata,
     },
   } = swapperContext
+  const activeSwapperType = activeSwapperWithMetadata?.swapper?.getType()
   const wallet = useWallet().state.wallet
 
   // Types
@@ -249,14 +251,16 @@ export const useTradeAmounts = () => {
           })
         : undefined
 
-      const { data: usdRates = undefined } = tradeQuoteArgs
-        ? await appDispatch(
-            getUsdRates.initiate({
-              feeAssetId,
-              tradeQuoteArgs,
-            }),
-          )
-        : {}
+      const { data: usdRates = undefined } =
+        tradeQuoteArgs && activeSwapperType
+          ? await appDispatch(
+              getUsdRates.initiate({
+                feeAssetId,
+                tradeQuoteArgs,
+                activeSwapperType,
+              }),
+            )
+          : {}
 
       if (usdRates) {
         swapperDispatch({
@@ -297,12 +301,13 @@ export const useTradeAmounts = () => {
       wallet,
       assets,
       getReceiveAddressFromBuyAsset,
-      sellTradeAsset,
+      sellTradeAsset?.amountCryptoPrecision,
       isSendMaxFormState,
       appDispatch,
       getAvailableSwappers,
       featureFlags,
       getTradeQuote,
+      activeSwapperType,
       getUsdRates,
       swapperDispatch,
       setTradeAmounts,

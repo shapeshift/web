@@ -17,7 +17,7 @@ import { useAppSelector } from 'state/store'
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the tradeQuoteArgs accordingly.
 The only mutation is on the tradeQuoteInputArgs property of SwapperState.
 */
-export const useTradeQuoteService = (context: SwapperContextType) => {
+export const useTradeQuoteInputArgsService = (context: SwapperContextType) => {
   const {
     state: {
       sellTradeAsset,

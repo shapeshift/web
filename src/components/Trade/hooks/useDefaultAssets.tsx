@@ -17,6 +17,7 @@ import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
 } from 'components/Trade/hooks/useSwapper/utils'
+import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { type AssetIdTradePair } from 'components/Trade/types'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -39,6 +40,10 @@ It mutates the buyTradeAsset, sellTradeAsset, amount, and action properties of S
 export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   // Hooks
   const wallet = useWallet().state.wallet
+  const {
+    state: { activeSwapperWithMetadata },
+  } = useSwapperState()
+  const activeSwapperType = activeSwapperWithMetadata?.swapper?.getType()
   const { connectedEvmChainId } = useEvm()
   const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
   const featureFlags = useAppSelector(selectFeatureFlags)
@@ -139,11 +144,13 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
 
     const buyAssetFiatRateData =
       tradeQuoteArgs &&
+      activeSwapperType &&
       (
         await dispatch(
           getUsdRates.initiate({
             feeAssetId: defaultAssetIdPair.buyAssetId,
             tradeQuoteArgs,
+            activeSwapperType,
           }),
         )
       ).data

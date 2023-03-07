@@ -27,6 +27,16 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   },
 }))
 
+jest.mock('context/WalletProvider/NativeWallet/hooks/useNativeEventHandler', () => ({
+  useNativeEventHandler: () => {},
+}))
+
+// This mock fixes an issue with rendering the OptInModal in WalletViewsSwitch
+// when the Pendo plugin is disabled
+jest.mock('./WalletViewsRouter', () => ({
+  WalletViewsRouter: () => null,
+}))
+
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,

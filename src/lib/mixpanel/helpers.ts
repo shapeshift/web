@@ -4,7 +4,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-export const getCompositeAssetSymbol = (assetId?: AssetId) => {
+export const getCompositeAssetSymbol = (assetId: AssetId) => {
   const asset = selectAssetById(store.getState(), assetId ?? '')
   const { chainId } = fromAssetId(assetId ?? '')
   const networkName = getChainAdapterManager().get(chainId)?.getDisplayName()

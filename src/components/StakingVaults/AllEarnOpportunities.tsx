@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { GetCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
@@ -116,7 +116,7 @@ export const AllEarnOpportunities = () => {
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: [GetCompositeAssetSymbol(underlyingAssetId)],
+        assets: [getCompositeAssetSymbol(underlyingAssetId ?? '')],
         element: 'Table Row',
       })
 

@@ -17,7 +17,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { GetCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -73,7 +73,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: opportunity.original.underlyingAssetIds.map(GetCompositeAssetSymbolassetId)
+        assets: opportunity.original.underlyingAssetIds.map(getCompositeAssetSymbol),
         element: 'Table Row',
       })
 

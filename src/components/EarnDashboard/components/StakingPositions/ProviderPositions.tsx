@@ -23,7 +23,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { GetCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
@@ -108,9 +108,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: opportunity.original.underlyingAssetIds.map(assetId =>
-          GetCompositeAssetSymbol(assetId),
-        ),
+        assets: opportunity.original.underlyingAssetIds.map(getCompositeAssetSymbol),
         element: 'Table Row',
       })
 

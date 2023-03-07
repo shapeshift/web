@@ -1376,19 +1376,19 @@
         "skip": "Sauter",
         "shapeshiftWallet": "Porte-monnaie ShapeShift",
         "selfCustody": {
-          "title": "Auto-dépositaire",
+          "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
           "body": "Un porte-monnaie auto-dépositaire signifie que vous le possédez et qu'uniquement vous avez accès à vos fonds. Votre phrase de récupération secrète est votre clé pour y accéder. Personne ne peut vous empêcher d'accéder à vos fonds.",
           "cta": "Suivant"
         },
         "multiChain": {
-          "title": "Multi-chaînes",
+          "title": "Plusieurs chaînes sont prises en charge simultanément",
           "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
           "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie ShapeShift la prend en charge automatiquement.",
           "cta": "Suivant"
         },
         "easyToUse": {
-          "title": "Facile à utiliser",
+          "title": "Il est facile à utiliser !",
           "subTitle": "Avec le porte-monnaie ShapeShift, vous pouvez :",
           "trackBalance": "Suivre vos soldes",
           "sendReceive": "Envoyer/recevoir des cryptos",

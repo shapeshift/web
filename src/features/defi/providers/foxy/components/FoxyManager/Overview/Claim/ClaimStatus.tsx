@@ -1,6 +1,10 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useState } from 'react'
@@ -19,6 +23,7 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -73,9 +78,11 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
-  const { history: browserHistory } = useBrowserRouter()
+  const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { provider, type } = query
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId },
   } = useLocation<ClaimStatusState>()
@@ -146,6 +153,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       }
     })()
   }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid])
+
+  useEffect(() => {
+    if (state.txStatus === TxStatus.SUCCESS) {
+      mixpanel?.track('Claim Success', { provider, type, asset: asset.symbol })
+    }
+  }, [asset.symbol, mixpanel, provider, state.txStatus, type])
 
   return (
     <SlideTransition>

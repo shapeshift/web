@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -40,11 +41,14 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { stakingAsset, underlyingAsset, contractAddress, feeMarketData, rewardId, feeAsset } =
     useFoxyQuery()
 
   // user info
   const { state: walletState } = useWallet()
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
@@ -101,6 +105,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track('Withdraw Confirm', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: stakingAsset.symbol,
+      })
 
       const transactionReceipt = await poll({
         fn: () => foxyApi.getTxReceipt({ txid }),
@@ -120,16 +129,20 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }, [
+    state,
+    accountAddress,
+    rewardId,
+    walletState.wallet,
     foxyApi,
-    underlyingAsset.precision,
+    dispatch,
     bip44Params,
     contractAddress,
-    dispatch,
+    underlyingAsset.precision,
     onNext,
-    rewardId,
-    accountAddress,
-    state,
-    walletState.wallet,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    stakingAsset.symbol,
   ])
 
   if (!state || !dispatch) return null

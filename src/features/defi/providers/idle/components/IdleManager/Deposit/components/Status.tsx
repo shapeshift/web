@@ -16,6 +16,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -30,9 +31,10 @@ import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId } = query
+  const { chainId, provider, type } = query
 
   const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
 
@@ -77,6 +79,12 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track('Deposit Success', { provider, type, asset: asset.symbol })
+    }
+  }, [asset.symbol, mixpanel, provider, state?.deposit.txStatus, type])
 
   if (!state) return null
 

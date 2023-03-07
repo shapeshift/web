@@ -11,6 +11,10 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -21,9 +25,11 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectAssetById,
@@ -60,8 +66,11 @@ export const ClaimConfirm = ({
   const foxyApi = getFoxyApi()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const claimAmount = bnOrZero(amount).toString()
   const history = useHistory()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { provider, type } = query
 
   const chainAdapterManager = getChainAdapterManager()
 
@@ -108,6 +117,7 @@ export const ClaimConfirm = ({
         estimatedGas,
         chainId,
       })
+      mixpanel?.track('Claim Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({
@@ -121,6 +131,7 @@ export const ClaimConfirm = ({
     }
   }, [
     amount,
+    asset.symbol,
     assetId,
     bip44Params,
     chainId,
@@ -128,10 +139,13 @@ export const ClaimConfirm = ({
     estimatedGas,
     foxyApi,
     history,
+    mixpanel,
+    provider,
     toast,
     translate,
+    type,
     userAddress,
-    walletState?.wallet,
+    walletState.wallet,
   ])
 
   useEffect(() => {

@@ -14,6 +14,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -33,6 +34,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const toast = useToast()
   const {
     stakingAssetReference: assetReference,
@@ -50,6 +52,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
   )
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const getDepositGasEstimate = useCallback(
@@ -132,6 +135,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Deposit Approve', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: asset.symbol,
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
       toast({
@@ -144,19 +152,23 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    accountAddress,
-    foxyApi,
-    asset.precision,
     assetReference,
-    bip44Params,
-    contractAddress,
+    accountAddress,
+    walletState.wallet,
+    foxyApi,
     dispatch,
+    bip44Params,
+    state,
+    contractAddress,
+    asset.precision,
+    asset.symbol,
     getDepositGasEstimate,
     onNext,
-    state,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

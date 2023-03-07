@@ -17,6 +17,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -38,6 +39,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     stakingAssetReference: assetReference,
     feeMarketData,
@@ -55,6 +57,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   // user info
   const { state: walletState } = useWallet()
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   // notify
   const toast = useToast()
@@ -110,6 +114,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
         },
       })
+      mixpanel?.track('Deposit Confirm', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: asset.symbol,
+      })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
@@ -122,18 +131,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    foxyApi,
-    asset.precision,
-    assetReference,
-    bip44Params,
-    contractAddress,
-    dispatch,
-    onNext,
-    state?.deposit.cryptoAmount,
     accountAddress,
+    assetReference,
+    walletState.wallet,
+    foxyApi,
+    bip44Params,
+    dispatch,
+    state?.deposit.cryptoAmount,
+    asset.precision,
+    asset.symbol,
+    contractAddress,
+    onNext,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null

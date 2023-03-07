@@ -16,6 +16,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -35,9 +36,10 @@ import { ClaimableAsset } from './ClaimableAsset'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
 
   const assets = useAppSelector(selectAssets)
 
@@ -139,6 +141,12 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state.claim.txStatus === 'success') {
+      mixpanel?.track('Claim Success', { provider, type })
+    }
+  }, [mixpanel, provider, state.claim.txStatus, type])
 
   if (!state) return null
 

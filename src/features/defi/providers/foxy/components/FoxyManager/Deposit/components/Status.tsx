@@ -7,7 +7,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -17,6 +17,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 
 import { DepositContext } from '../DepositContext'
 
@@ -24,14 +25,27 @@ export const Status = () => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
   }, [browserHistory])
 
   const handleCancel = history.goBack
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track('Deposit Success', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: asset.symbol,
+      })
+    }
+  }, [asset.symbol, mixpanel, opportunity?.provider, opportunity?.type, state?.deposit.txStatus])
 
   if (!state) return null
 

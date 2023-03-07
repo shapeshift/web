@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -43,8 +44,9 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, provider, type } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -151,6 +153,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Deposit Approve', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -175,6 +178,10 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     getDepositGasEstimate,
     state?.deposit,
     onNext,
+    mixpanel,
+    provider,
+    type,
+    asset.symbol,
     toast,
     translate,
   ])

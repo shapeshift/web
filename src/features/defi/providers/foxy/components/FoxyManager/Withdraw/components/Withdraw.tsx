@@ -18,6 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -45,6 +46,7 @@ export const Withdraw: React.FC<
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const {
@@ -70,6 +72,8 @@ export const Withdraw: React.FC<
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   const handlePercentClick = useCallback(
     (percent: number) => {
@@ -190,6 +194,11 @@ export const Withdraw: React.FC<
             type: FoxyWithdrawActionType.SET_LOADING,
             payload: false,
           })
+          mixpanel?.track('Withdraw Continue', {
+            provider: opportunity?.provider,
+            type: opportunity?.type,
+            asset: asset.symbol,
+          })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
@@ -218,16 +227,20 @@ export const Withdraw: React.FC<
       }
     },
     [
+      accountAddress,
+      dispatch,
+      rewardId,
       foxyApi,
-      asset.precision,
       bip44Params,
       contractAddress,
-      dispatch,
-      onNext,
-      rewardId,
-      accountAddress,
       toast,
       translate,
+      asset.precision,
+      asset.symbol,
+      onNext,
+      mixpanel,
+      opportunity?.provider,
+      opportunity?.type,
     ],
   )
 

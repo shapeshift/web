@@ -12,6 +12,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -32,6 +33,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     underlyingAsset: asset,
     rewardId,
@@ -46,6 +48,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
@@ -130,6 +134,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         payload: { estimatedGasCrypto },
       })
       onNext(DefiStep.Confirm)
+      mixpanel?.track('Withdraw Approve', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: asset.symbol,
+      })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
       toast({
@@ -142,19 +151,23 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    foxyApi,
-    asset.precision,
-    bip44Params,
-    contractAddress,
-    dispatch,
-    getWithdrawGasEstimate,
-    onNext,
     rewardId,
     state?.userAddress,
     state?.withdraw,
+    walletState.wallet,
+    foxyApi,
+    dispatch,
+    bip44Params,
+    contractAddress,
+    getWithdrawGasEstimate,
+    onNext,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    asset.symbol,
+    asset.precision,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

@@ -8,7 +8,8 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
-import { useCallback, useContext, useMemo } from 'react'
+import mixpanel from 'mixpanel-browser'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -33,9 +34,21 @@ export const Status = () => {
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
+  const opportunity = useMemo(() => state?.foxyOpportunity, [state])
+
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.withdraw.txStatus === 'success') {
+      mixpanel?.track('Withdraw Success', {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        asset: stakingAsset.symbol,
+      })
+    }
+  }, [opportunity?.provider, opportunity?.type, stakingAsset.symbol, state?.withdraw.txStatus])
 
   if (!state || !dispatch) return null
 

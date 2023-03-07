@@ -26,6 +26,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -64,9 +65,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const toast = useToast()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetNamespace, assetReference } = query
+  const { chainId, assetNamespace, assetReference, provider, type } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -245,6 +247,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+        mixpanel?.track('Withdraw Continue', { provider, type, asset: asset?.symbol })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -256,7 +259,19 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
-    [userAddress, opportunityData, dispatch, getWithdrawGasEstimate, onNext, toast, translate],
+    [
+      userAddress,
+      opportunityData,
+      dispatch,
+      getWithdrawGasEstimate,
+      onNext,
+      mixpanel,
+      provider,
+      type,
+      asset?.symbol,
+      toast,
+      translate,
+    ],
   )
 
   const handleCancel = useCallback(() => {

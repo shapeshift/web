@@ -22,6 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -45,10 +46,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference, contractAddress, provider, type } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
 
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -145,6 +147,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track('Deposit Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
@@ -164,10 +167,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    state?.deposit.cryptoAmount,
     idleInvestor,
-    state,
     asset.precision,
+    asset.symbol,
     onNext,
+    mixpanel,
+    provider,
+    type,
     toast,
     translate,
   ])

@@ -15,6 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -36,10 +37,11 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
+  const mixpanel = getMixPanel()
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -141,8 +143,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
+      mixpanel?.track('Withdraw Continue', { provider, type, asset: asset.symbol })
     },
-    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
+    [userAddress, dispatch, getWithdrawGasEstimate, onNext, mixpanel, provider, type, asset.symbol],
   )
 
   const handleCancel = useCallback(() => {

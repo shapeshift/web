@@ -12,6 +12,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectMarketDataById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -35,6 +36,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     stakingAssetId: assetId,
     contractAddress,
@@ -138,6 +140,11 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
+          mixpanel?.track('Deposit Continue', {
+            provider: opportunity?.provider,
+            type: opportunity?.type,
+            asset: asset.symbol,
+          })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
@@ -160,16 +167,20 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
+      state,
       accountAddress,
+      dispatch,
       foxyApi,
-      asset.precision,
       assetReference,
       contractAddress,
-      dispatch,
-      onNext,
-      state,
       toast,
       translate,
+      asset.precision,
+      asset.symbol,
+      onNext,
+      mixpanel,
+      opportunity?.provider,
+      opportunity?.type,
     ],
   )
 

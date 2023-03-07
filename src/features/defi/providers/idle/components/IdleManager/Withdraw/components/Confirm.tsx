@@ -24,6 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -50,8 +51,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
 
@@ -153,6 +155,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track('Withdraw Confirm', { provider, type, asset: asset.symbol })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
@@ -171,6 +174,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     idleOpportunity,
     state?.withdraw.cryptoAmount,
     onNext,
+    mixpanel,
+    provider,
+    type,
   ])
 
   const handleCancel = useCallback(() => {

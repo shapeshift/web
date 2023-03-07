@@ -18,6 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -48,8 +49,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference, contractAddress } = query
+  const { chainId, assetReference, contractAddress, provider, type } = query
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -188,6 +190,7 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
+          mixpanel?.track('Deposit Continue', { provider, type, asset: asset.symbol })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
@@ -215,8 +218,12 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       idleInvestor,
       asset.precision,
+      asset.symbol,
       getDepositGasEstimate,
       onNext,
+      mixpanel,
+      provider,
+      type,
       getApproveGasEstimate,
       toast,
       translate,

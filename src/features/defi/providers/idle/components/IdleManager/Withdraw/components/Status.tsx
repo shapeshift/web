@@ -16,6 +16,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -30,9 +31,10 @@ import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, provider, type } = query
 
   const assetNamespace = 'erc20'
 
@@ -86,6 +88,12 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.withdraw.txStatus === 'success') {
+      mixpanel?.track('Withdraw Success', { provider, type, asset: asset.symbol })
+    }
+  }, [asset.symbol, mixpanel, provider, state?.withdraw.txStatus, type])
 
   if (!state) return null
 

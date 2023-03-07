@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -45,9 +46,10 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { chainId, contractAddress, assetReference, provider, type } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
 
   const assets = useAppSelector(selectAssets)
@@ -203,6 +205,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track('Claim Confirm', { provider, type })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {
@@ -215,9 +218,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference,
     walletState.wallet,
     opportunityData,
-    idleInvestor,
     bip44Params,
+    idleInvestor,
     onNext,
+    mixpanel,
+    provider,
+    type,
   ])
 
   if (!state || !dispatch) return null

@@ -12,4 +12,5 @@ export enum MixPanelEvents {
   WithdrawSuccess = 'Withdraw Success',
   ClaimConfirm = 'Claim Confirm',
   ClaimSuccess = 'Claim Success',
+  ClickOpportunity = 'Click Opportunity',
 }

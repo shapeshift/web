@@ -16,6 +16,9 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -30,6 +33,7 @@ import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
@@ -51,6 +55,8 @@ export const Status = () => {
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
+  const opportunity = state?.opportunity
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
@@ -77,6 +83,27 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.deposit.txStatus === 'success') {
+      mixpanel?.track(MixPanelEvents.DepositSuccess, {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+      })
+    }
+  }, [
+    assetId,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    opportunity?.underlyingAssetIds,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+  ])
 
   if (!state) return null
 

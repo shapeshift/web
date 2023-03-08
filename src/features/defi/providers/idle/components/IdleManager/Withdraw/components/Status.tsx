@@ -16,6 +16,9 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -30,6 +33,7 @@ import { WithdrawContext } from '../WithdrawContext'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -61,6 +65,8 @@ export const Status = () => {
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const opportunity = state?.opportunity
+
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, userAddress)
@@ -86,6 +92,27 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.withdraw.txStatus === 'success') {
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+      })
+    }
+  }, [
+    assetId,
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    opportunity?.underlyingAssetIds,
+    state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state) return null
 

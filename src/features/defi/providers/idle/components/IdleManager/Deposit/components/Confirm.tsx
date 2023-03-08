@@ -22,6 +22,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -45,6 +48,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
@@ -113,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch || !bip44Params) return
+    if (!dispatch || !bip44Params || !assetId) return
     try {
       if (
         !(
@@ -145,6 +149,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.DepositConfirm, {
+        provider: opportunityData?.provider,
+        type: opportunityData?.type,
+        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
@@ -164,10 +175,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     idleInvestor,
-    state,
     asset.precision,
     onNext,
+    mixpanel,
+    opportunityData?.provider,
+    opportunityData?.type,
+    opportunityData?.underlyingAssetIds,
+    assetId,
     toast,
     translate,
   ])

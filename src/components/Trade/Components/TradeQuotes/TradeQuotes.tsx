@@ -18,10 +18,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   const { activeSwapperWithMetadata, availableSwappersWithMetadata, buyAssetFiatRate } = state
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
   const handleSelectSwapper = useCallback(
-    (activeSwapperWithMetadata: SwapperWithQuoteMetadata) =>
+    (selectedSwapperWithMetadata: SwapperWithQuoteMetadata) =>
       swapperDispatch({
         type: SwapperActionType.SET_ACTIVE_SWAPPER,
-        payload: activeSwapperWithMetadata,
+        payload: selectedSwapperWithMetadata,
       }),
     [swapperDispatch],
   )

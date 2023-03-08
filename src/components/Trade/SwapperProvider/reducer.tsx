@@ -1,6 +1,7 @@
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import type { SwapperAction, SwapperState } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { fromBaseUnit } from 'lib/math'
 
 export const swapperReducer = (state: SwapperState, action: SwapperAction): SwapperState => {
   switch (action.type) {
@@ -53,19 +54,18 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
           amountCryptoPrecision: '',
         },
       }
-    case SwapperActionType.INIT_ACTIVE_SWAPPER: {
-      const slippage = action.payload.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
-      return {
-        ...state,
-        activeSwapperWithMetadata: action.payload,
-        quote: action.payload.quote,
-        slippage,
-      }
-    }
     case SwapperActionType.SET_ACTIVE_SWAPPER: {
       const slippage = action.payload.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
       const payload = action.payload
       const quote = payload.quote
+      const buyAmountCryptoPrecision = fromBaseUnit(
+        quote.buyAmountCryptoBaseUnit,
+        quote.buyAsset.precision,
+      )
+      const sellAmountCryptoPrecision = fromBaseUnit(
+        quote.sellAmountBeforeFeesCryptoBaseUnit,
+        quote.sellAsset.precision,
+      )
       return {
         ...state,
         activeSwapperWithMetadata: payload,
@@ -73,16 +73,43 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
         slippage,
         buyTradeAsset: {
           ...state.buyTradeAsset,
-          amountCryptoPrecision: quote.buyAmountCryptoBaseUnit,
+          amountCryptoPrecision: buyAmountCryptoPrecision,
         },
         sellTradeAsset: {
           ...state.sellTradeAsset,
-          amountCryptoPrecision: quote.sellAmountBeforeFeesCryptoBaseUnit,
+          amountCryptoPrecision: sellAmountCryptoPrecision,
         },
       }
     }
     case SwapperActionType.SET_AVAILABLE_SWAPPERS:
-      return { ...state, availableSwappersWithMetadata: action.payload }
+      const swappersWithQuoteMetadata = action.payload
+      const isCurrentSwapperStillAvailable = swappersWithQuoteMetadata.some(
+        swapperWithQuoteMetadata =>
+          swapperWithQuoteMetadata.swapper.getType() ===
+          state.activeSwapperWithMetadata?.swapper.getType(),
+      )
+      const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
+      const bestQuote = bestSwapperWithQuoteMetadata?.quote
+      const bestSlippage = bestQuote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+      // If the current swapper is still available, keep it as the active swapper and update the quote/slippage
+      // Otherwise, set the active swapper to the best swapper and update the quote/slippage
+      const bestSwapperSpreadable: Partial<SwapperState> = isCurrentSwapperStillAvailable
+        ? {
+            activeSwapperWithMetadata: state.activeSwapperWithMetadata,
+            slippage:
+              state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE,
+            quote: state.activeSwapperWithMetadata?.quote,
+          }
+        : {
+            activeSwapperWithMetadata: swappersWithQuoteMetadata?.[0],
+            slippage: bestSlippage,
+            quote: bestQuote,
+          }
+      return {
+        ...state,
+        ...bestSwapperSpreadable,
+        availableSwappersWithMetadata: swappersWithQuoteMetadata,
+      }
     default:
       return state
   }

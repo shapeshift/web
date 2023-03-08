@@ -1,6 +1,5 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
-import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
@@ -26,7 +25,6 @@ const MODALS = {
   fiatRamps: FiatRampsModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,
-  consentOptin: OptInModal,
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,

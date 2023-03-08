@@ -16,7 +16,6 @@ export type FeatureFlags = {
   Optimism: boolean
   OptimismZrx: boolean
   ThorSwap: boolean
-  Pendo: boolean
   IdleFinance: boolean
   Axelar: boolean
   Yat: boolean
@@ -61,7 +60,6 @@ const initialState: Preferences = {
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     OptimismZrx: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
-    Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,

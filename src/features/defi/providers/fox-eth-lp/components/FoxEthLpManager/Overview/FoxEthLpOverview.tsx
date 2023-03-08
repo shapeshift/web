@@ -1,17 +1,22 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
+  selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByLpId,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
@@ -28,12 +33,9 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId } = query
   const assets = useAppSelector(selectorState => selectorState.assets.byId)
-
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : ''),
-    [accountId],
-  )
 
   const opportunityId = foxEthLpAssetId
 
@@ -83,18 +85,17 @@ export const FoxEthLpOverview: React.FC<FoxEthLpOverviewProps> = ({
     selectPortfolioFiatBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
   )
 
-  const highestBalanceAccountAddress = useMemo(
-    () => (highestBalanceAccountId ? fromAccountId(highestBalanceAccountId).account : ''),
-    [highestBalanceAccountId],
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
   useEffect(() => {
-    if (highestBalanceAccountId && accountAddress !== highestBalanceAccountAddress) {
-      handleAccountIdChange(highestBalanceAccountId)
-    }
-    // This should NOT have accountAddress dep, else we won't be able to select another account than the defaulted highest balance one
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highestBalanceAccountId])
+    if (!maybeAccountId) return
+    if (!accountId && highestBalanceAccountId) handleAccountIdChange(highestBalanceAccountId)
+    else handleAccountIdChange(maybeAccountId)
+  }, [accountId, handleAccountIdChange, highestBalanceAccountId, maybeAccountId])
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({

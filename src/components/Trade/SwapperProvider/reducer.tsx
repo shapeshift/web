@@ -97,7 +97,7 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
         ? {
             activeSwapperWithMetadata: state.activeSwapperWithMetadata,
             slippage:
-              state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE,
+              state.activeSwapperWithMetadata?.quote?.recommendedSlippage ?? DEFAULT_SLIPPAGE,
             quote: state.activeSwapperWithMetadata?.quote,
           }
         : {

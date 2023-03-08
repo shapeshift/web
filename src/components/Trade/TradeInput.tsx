@@ -331,9 +331,15 @@ export const TradeInput = () => {
   const feesExceedsSellAmount = useMemo(
     () =>
       bnOrZero(sellTradeAsset?.amountCryptoPrecision).isGreaterThan(0) &&
-      bnOrZero(totalReceiveAmountCryptoPrecision).isLessThanOrEqualTo(0) &&
+      (bnOrZero(buyTradeAsset?.amountCryptoPrecision).isLessThanOrEqualTo(0) ||
+        bnOrZero(totalReceiveAmountCryptoPrecision).isLessThanOrEqualTo(0)) &&
       !isTradeQuotePending,
-    [sellTradeAsset?.amountCryptoPrecision, totalReceiveAmountCryptoPrecision, isTradeQuotePending],
+    [
+      sellTradeAsset?.amountCryptoPrecision,
+      buyTradeAsset?.amountCryptoPrecision,
+      totalReceiveAmountCryptoPrecision,
+      isTradeQuotePending,
+    ],
   )
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {

@@ -22,6 +22,7 @@ import {
 } from 'lib/bignumber/bignumber'
 import {
   DEFAULT_SOURCE,
+  MAX_LIFI_TRADE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/LifiSwapper/utils/constants'
@@ -110,7 +111,9 @@ export async function getTradeQuote(
     sellAsset.precision,
   )
 
-  // TODO: write a fat comment explaining why this is necessary
+  // LiFi cannot provide minimum trade amounts up front because the bridges and exhanges vary it
+  // constantly. We can determine what the minimum amount from a successful request though, but
+  // for a request to succeed the requested amount must be over the minimum.
   const thresholdedAmountCryptoLifi = BigNumber.max(
     fromAmountLifi,
     minimumAmountThresholdCryptoLifi,
@@ -163,26 +166,30 @@ export async function getTradeQuote(
     .toString()
 
   // TODO: ask lifi if there could be more than 1 approval
-  const uniqueApprovalAddresses = new Set(
-    selectedRoute.steps
-      .map(step => step.estimate.approvalAddress)
-      .filter(approvalAddress => approvalAddress !== undefined),
-  )
-
-  if (uniqueApprovalAddresses.size !== 1) {
-    throw new SwapError(
-      `[getTradeQuote] expected exactly 1 approval address, found ${uniqueApprovalAddresses.size}`,
-      {
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      },
+  const allowanceContract = (() => {
+    const uniqueApprovalAddresses = new Set(
+      selectedRoute.steps
+        .map(step => step.estimate.approvalAddress)
+        .filter(approvalAddress => approvalAddress !== undefined),
     )
-  }
+
+    if (uniqueApprovalAddresses.size !== 1) {
+      throw new SwapError(
+        `[getTradeQuote] expected exactly 1 approval address, found ${uniqueApprovalAddresses.size}`,
+        {
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+        },
+      )
+    }
+
+    return [...uniqueApprovalAddresses.values()][0]
+  })()
 
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
 
   return {
     accountNumber,
-    allowanceContract: [...uniqueApprovalAddresses.values()][0],
+    allowanceContract,
     buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmount).toString(),
     buyAsset,
     feeData: transformLifiFeeData(
@@ -191,12 +198,12 @@ export async function getTradeQuote(
       toLifiToken.address,
       fromLifiToken.address,
     ),
-    maximum: '0', // not used
+    maximum: MAX_LIFI_TRADE,
     minimumCryptoHuman,
     rate: estimateRate,
     recommendedSlippage: maxSlippage.toString(),
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
-    sources: DEFAULT_SOURCE,
+    sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
   }
 }

@@ -10,7 +10,10 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type {
+  ApprovalNeededInput,
   ApprovalNeededOutput,
+  ApproveAmountInput,
+  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -23,6 +26,8 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapError } from '@shapeshiftoss/swapper'
+import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
+import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
 import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
@@ -90,23 +95,23 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get a boolean if a quote needs approval
    */
-  async approvalNeeded(): Promise<ApprovalNeededOutput> {
-    return await Promise.resolve({ approvalNeeded: false })
+  async approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
+    return await approvalNeeded(input)
   }
 
   /**
    * Get the txid of an approve infinite transaction
    */
-  async approveInfinite(): Promise<string> {
-    return await Promise.reject(new SwapError('LifiSwapper: approveInfinite unimplemented'))
+  async approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
+    return await approveInfinite(input)
   }
 
   /**
    * Get the txid of an approve amount transaction
    * If no amount is specified the sell amount of the quote will be used
    */
-  async approveAmount(): Promise<string> {
-    return await Promise.reject(new SwapError('LifiSwapper: approveAmount unimplemented'))
+  async approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
+    return await approveAmount(input)
   }
 
   /**

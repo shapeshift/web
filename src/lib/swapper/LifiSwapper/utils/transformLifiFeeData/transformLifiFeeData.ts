@@ -50,6 +50,7 @@ export const transformLifiFeeData = (
   ).dividedBy(bnOrZero(selectedRoute.fromToken.priceUSD))
 
   // the sum of all 'APPROVE' gas fees
+  // TODO: validate this with lifi
   const approvalFeeCryptoBaseUnit =
     allRouteGasCosts
       .filter(gasCost => gasCost.type === 'APPROVE')
@@ -58,6 +59,9 @@ export const transformLifiFeeData = (
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this as $4.59 next to the gas icon
     chainSpecific: {
+      // the following are not required because gas is hardcoded downstream during approval
+      // estimatedGas: gas limit for approval
+      // gasPriceCryptoBaseUnit: gas price for approval
       approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(), // UI doesnt use this
     },
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(), // UI shows as "protocol fee"

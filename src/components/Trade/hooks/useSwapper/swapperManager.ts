@@ -31,6 +31,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
+  const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
 
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
@@ -76,8 +77,6 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   }
 
   if (ZrxOptimismSwap) {
-    const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
-
     const optimismChainAdapter = adapterManager.get(
       KnownChainIds.OptimismMainnet,
     ) as unknown as optimism.ChainAdapter

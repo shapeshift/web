@@ -11,6 +11,9 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { EarnOpportunityType, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -49,6 +52,7 @@ const renderHeader = ({ setSearchQuery, searchQuery }: TableHeaderProps) => {
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
+  const mixpanel = getMixPanel()
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const {
     state: { isConnected, isDemoWallet },
@@ -92,7 +96,15 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
+      const {
+        type,
+        provider,
+        contractAddress,
+        chainId,
+        rewardAddress,
+        assetId,
+        underlyingAssetId,
+      } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
@@ -100,6 +112,13 @@ export const AllEarnOpportunities = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
+
+      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
+        provider,
+        type,
+        assets: [getCompositeAssetSymbol(underlyingAssetId ?? '')],
+        element: 'Table Row',
+      })
 
       history.push({
         pathname: `/defi/earn`,

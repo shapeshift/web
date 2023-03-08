@@ -23,6 +23,9 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -71,6 +74,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -101,6 +105,12 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
+      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
+        provider,
+        type,
+        assets: opportunity.original.underlyingAssetIds.map(getCompositeAssetSymbol),
+        element: 'Table Row',
+      })
 
       history.push({
         pathname: location.pathname,
@@ -118,7 +128,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, isDemoWallet, location],
+    [dispatch, history, isConnected, isDemoWallet, location, mixpanel],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

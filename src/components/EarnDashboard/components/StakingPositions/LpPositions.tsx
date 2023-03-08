@@ -17,6 +17,9 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -37,6 +40,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -66,6 +70,13 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         return
       }
 
+      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
+        provider,
+        type,
+        assets: opportunity.original.underlyingAssetIds.map(getCompositeAssetSymbol),
+        element: 'Table Row',
+      })
+
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
@@ -82,7 +93,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, isDemoWallet, location],
+    [dispatch, history, isConnected, isDemoWallet, location, mixpanel],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

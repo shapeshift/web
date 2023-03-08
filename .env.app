@@ -1,5 +1,8 @@
 # feature flags
 
+# mixpanel
+REACT_APP_MIXPANEL_TOKEN=9d304465fc72224aead9e027e7c24356
+
 # unchained
 REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=https://api.ethereum.shapeshift.com
 REACT_APP_UNCHAINED_ETHEREUM_WS_URL=wss://api.ethereum.shapeshift.com

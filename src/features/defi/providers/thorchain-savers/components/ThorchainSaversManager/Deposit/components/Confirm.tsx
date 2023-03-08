@@ -515,6 +515,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         provider: opportunity.provider,
         type: opportunity.type,
         assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
       })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
@@ -539,6 +541,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     appDispatch,
     getDepositInput,
     handleMultiTxSend,

@@ -98,13 +98,18 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         provider: opportunity?.provider,
         type: opportunity?.type,
         assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
       })
     }
   }, [
+    assetId,
     mixpanel,
     opportunity?.provider,
     opportunity?.type,
     opportunity?.underlyingAssetIds,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     state?.deposit.txStatus,
   ])
 

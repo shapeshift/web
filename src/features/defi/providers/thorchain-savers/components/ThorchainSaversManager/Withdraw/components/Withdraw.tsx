@@ -253,6 +253,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           provider: opportunityData.provider,
           type: opportunityData.type,
           assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+          fiatAmounts: [bnOrZero(state?.withdraw.fiatAmount).toNumber()],
+          cryptoAmounts: [
+            `${state?.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`,
+          ],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
@@ -272,6 +276,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       getWithdrawGasEstimate,
       onNext,
       mixpanel,
+      state?.withdraw.fiatAmount,
+      state?.withdraw.cryptoAmount,
+      assetId,
       toast,
       translate,
     ],

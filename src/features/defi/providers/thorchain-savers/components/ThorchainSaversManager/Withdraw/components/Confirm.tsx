@@ -539,6 +539,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         provider: opportunityData?.provider,
         type: opportunityData?.type,
         assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
       })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
@@ -564,6 +566,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainId,
     maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
     expiry,
     appDispatch,
     getWithdrawInput,

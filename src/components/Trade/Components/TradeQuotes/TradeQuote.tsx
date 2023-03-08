@@ -54,10 +54,11 @@ const TradeQuoteLoading = () => {
 type TradeQuoteLoadedProps = {
   isActive?: boolean
   isBest?: boolean
-  quoteDifference?: string
+  quoteDifference: string
   protocolIcon?: string
   onClick: (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => void
   swapperWithMetadata: SwapperWithQuoteMetadata
+  totalReceiveAmountCryptoPrecision: string | undefined
 }
 
 export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
@@ -67,6 +68,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   protocolIcon,
   onClick: handleSelectSwapper,
   swapperWithMetadata,
+  totalReceiveAmountCryptoPrecision,
 }) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -75,24 +77,12 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
   const {
-    state: { feeAssetFiatRate, buyAssetFiatRate, buyTradeAsset, sellTradeAsset },
+    state: { feeAssetFiatRate, buyTradeAsset, sellTradeAsset, amount },
   } = useSwapperState()
 
-  const { quote } = swapperWithMetadata
+  const { quote, inputOutputRatio } = swapperWithMetadata
   const buyAssetId = buyTradeAsset?.asset?.assetId
   const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
-  const buyAmountCryptoPrecision = fromBaseUnit(
-    quote.buyAmountCryptoBaseUnit,
-    quote.buyAsset.precision,
-  )
-
-  const buyAssetTradeFeeCryptoPrecision = buyAssetFiatRate
-    ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
-    : undefined
-
-  const totalReceiveAmountCryptoPrecision = buyAssetTradeFeeCryptoPrecision
-    ? bnOrZero(buyAmountCryptoPrecision).minus(buyAssetTradeFeeCryptoPrecision).toString()
-    : undefined
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, sellTradeAsset?.asset?.chainId ?? ''),
@@ -109,6 +99,26 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
+  const amountEntered = amount !== '0'
+  const negativeRatio = !!inputOutputRatio && amountEntered && inputOutputRatio <= 0
+  const tag: JSX.Element = (() => {
+    switch (true) {
+      case negativeRatio:
+        return (
+          <Tag size='sm' colorScheme='red'>
+            {translate('trade.rates.tags.negativeRatio')}
+          </Tag>
+        )
+      case isBest:
+        return (
+          <Tag size='sm' colorScheme='green'>
+            {translate('common.best')}
+          </Tag>
+        )
+      default:
+        return <Tag size='sm'>{translate('common.alternative')}</Tag>
+    }
+  })()
   return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
@@ -129,16 +139,10 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     >
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2}>
-          {isBest ? (
-            <Tag size='sm' colorScheme='green'>
-              {translate('common.best')}
-            </Tag>
-          ) : (
-            <Tag size='sm'>{translate('common.alternative')}</Tag>
-          )}
-          {!isBest && (
+          {tag}
+          {!isBest && amountEntered && (
             <Tag size='sm' colorScheme='red' variant='xs-subtle'>
-              <Amount.Percent value={quoteDifference ?? '0'} />
+              <Amount.Percent value={quoteDifference} />
             </Tag>
           )}
         </Flex>
@@ -155,7 +159,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText>{protocol}</RawText>
         </Flex>
         <Amount.Crypto
-          value={totalReceiveAmountCryptoPrecision}
+          value={amountEntered ? totalReceiveAmountCryptoPrecision : '0'}
           symbol={buyAsset?.symbol ?? ''}
           color={isBest ? greenColor : 'inherit'}
         />

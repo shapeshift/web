@@ -35,13 +35,13 @@ import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type OpportunityCardProps = {
   isLoaded?: boolean
-} & EarnOpportunityType
+} & LpEarnOpportunityType
 
 const getOverrideIconFromAssetId = (assetId: AssetId, assets: AssetsById): string => {
   const overrideAssetIds: Record<AssetId, AssetId> = { [foxAssetId]: foxyAssetId }
@@ -66,6 +66,7 @@ export const OpportunityCard = ({
   version,
   highestBalanceAccountAddress,
   underlyingAssetId,
+  underlyingAssetIds,
 }: OpportunityCardProps) => {
   const history = useHistory()
   const mixpanel = getMixPanel()
@@ -87,7 +88,7 @@ export const OpportunityCard = ({
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: [getCompositeAssetSymbol(underlyingAssetId ?? '')],
+        assets: underlyingAssetIds.map(getCompositeAssetSymbol),
         element: 'Table Row',
       })
       history.push({

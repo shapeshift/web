@@ -40,6 +40,7 @@ import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
 
 const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
@@ -147,20 +148,20 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     )
   }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
-  const claimAmounts = useMemo(() => {
+  const claimAmounts: (ClaimAmount | null)[] | null = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
 
     return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
       if (!opportunityData?.rewardAssetIds?.[i]) return null
-      const cryptoAmount = bnOrZero(amount)
+      const amountCryptoHuman = bnOrZero(amount)
         .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
         .toNumber()
-      const fiatAmount = bnOrZero(cryptoAmount).times(
-        bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price),
-      )
+      const fiatAmount = bnOrZero(amountCryptoHuman)
+        .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
+        .toNumber()
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
-        cryptoAmount,
+        amountCryptoHuman,
         fiatAmount,
       }
       return token
@@ -179,7 +180,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       if (!rewardAsset?.assetId) return null
       const token = {
         assetId: rewardAsset.assetId,
-        amount: rewardAsset.cryptoAmount,
+        amount: rewardAsset.amountCryptoHuman,
       }
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
@@ -244,7 +245,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         fiatAmounts: claimAmounts?.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts?.map(
           rewardAsset =>
-            `${rewardAsset?.cryptoAmount} ${getCompositeAssetSymbol(rewardAsset?.assetId ?? '')}`,
+            `${rewardAsset?.amountCryptoHuman} ${getCompositeAssetSymbol(
+              rewardAsset?.assetId ?? '',
+            )}`,
         ),
       })
     } catch (error) {

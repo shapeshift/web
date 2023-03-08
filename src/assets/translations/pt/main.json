@@ -13,6 +13,7 @@
     "connected": "Conectado",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
+    "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
     "insufficientFunds": "Saldo insuficiente",
     "estimatedGas": "Taxa de gás estimada",
     "relayerGasFee": "Taxa de gás",
@@ -49,6 +50,7 @@
     "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
+    "liveSupport": "Ajuda",
     "submitFeedback": "Deixe um comentário",
     "send": "Enviar",
     "receive": "Receber",
@@ -90,7 +92,19 @@
     "alternative": "Alternativa",
     "validator": "o %{name} validador",
     "needAsset": "Precisa de algum %{asset}?",
-    "buyNow": "Comprar agora"
+    "buyNow": "Comprar agora",
+    "manage": "Gerenciar",
+    "selectedAccount": "Conta selecionada"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite",
+      "2": "private.shapeshift.com",
+      "3": "se você não quiser ser rastreado anonimamente. Veja nossa",
+      "4": "Politica de Privacidade",
+      "5": "para mais detalhes."
+    },
+    "cta": "Entendi"
   },
   "errorPage": {
     "title": "Opa!",
@@ -391,6 +405,12 @@
     "currentAPY": "APY atualizado",
     "currentAPR": "APR atualizado",
     "yearn": "Yearn Finance",
+    "totalValue": "Valor total",
+    "netApy": "APY Total",
+    "claimableRewards": "Recompensas Resgatáveis",
+    "reawrds": "Recompensas",
+    "stakingPosition": "Posição em Stake",
+    "liquidityPool": "Pool de Liquidez",
     "emptyEarn": "As oportunidades de ganhos aparecerão aqui.",
     "empty": {
       "farming": {
@@ -1354,6 +1374,7 @@
       },
       "onboarding": {
         "skip": "Pular",
+        "shapeshiftWallet": "Carteira ShapeShift",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
@@ -1596,9 +1617,12 @@
         "menu": {
           "disconnect": "Desconecte",
           "address": "Endereço",
+          "addresses": "Endereços",
           "connected": "Conectado",
           "network": "Rede",
-          "unsupportedNetwork": "Rede não suportada"
+          "networks": "Redes",
+          "unsupportedNetwork": "Rede não suportada",
+          "expiry": "Sessão expirada"
         }
       },
       "modal": {
@@ -1612,7 +1636,16 @@
           "confirm": "Confirmar",
           "reject": "Rejeitar",
           "messageData": "Dados da mensagem",
-          "domain": "Domínio"
+          "domain": "Domínio",
+          "memo": "Memo",
+          "messages": "Mensagens",
+          "noMessages": "Sem mensagens",
+          "sequence": "Seqüência",
+          "accountNumber": "Número de conta",
+          "chainId": "ID da rede",
+          "authInfo": "Informação Auth",
+          "body": "Corpo",
+          "comingSoon": "Em breve"
         },
         "sendTransaction": {
           "sendingFrom": "Enviando de",
@@ -1649,7 +1682,20 @@
           "howTo": "Como se conectar a um dApp?",
           "linkPlaceholder": "Código QR ou link para conectar-se",
           "connect": "Conectar",
-          "connectionError": "Não é possível conectar ao URI fornecido."
+          "connectionError": "Não é possível conectar ao URI fornecido.",
+          "invalidUri": "URL inválido",
+          "v1UriUnsupported": "URL da WalletConnect V1não habilitado",
+          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado"
+        },
+        "sessionProposal": {
+          "dAppInfo": "Informação do dApp",
+          "permissions": "Permissões",
+          "accountSelection": "Escolha as contas",
+          "unsupportedChain": "Rede não suportada.",
+          "methods": "Métodos",
+          "events": "Eventos",
+          "selectedAccounts": "Contas selecionadas",
+          "permissionMessage": "Selecione pelo menos uma conta por rede."
         }
       },
       "registry": {
@@ -1699,6 +1745,44 @@
     "custom": "Customizar"
   },
   "idle": {
+    "emptyTitle": "Ganhe %{apy}% no seu %{asset} com a Idle Finance",
+    "emptyBody": {
+      "bestYield": {
+        "page-1": {
+          "title": "Melhor Estratégia de Rendimento",
+          "body": "A estratégia de alocação de melhor rendimento maximiza os retornos detectando mudanças nas taxas de juros em diferentes protocolos de empréstimo."
+        },
+        "page-2": {
+          "title": "Melhores estratégias de rendimento:"
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Estratégia Senior Tranche",
+          "body": "As tranches seniors oferecem grandes oportunidades com menor risco do que as tranches juniors."
+        },
+        "page-2": {
+          "title": "Estratégias de tranches Senior:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Estratégia de tranche Junior",
+          "body": "As tranches júnior fornecem rendimentos DeFi otimizados e amplificados ao carregar um grau mais alto de riscos."
+        },
+        "page-2": {
+          "title": "Estratégias de tranche junior:"
+        }
+      },
+      "monitorSystem": "Utilize o sistema de monitoramento do Idle Finance para encontrar alocações de melhor desempenho e ter um balanceamento eficiente. ",
+      "offerHighReturn": "Ofereça altos retornos sem que o usuário gaste com taxas para gerenciar suas posições",
+      "leverageYield": "Alavancar o rendimento usando fundos de tranches seniores",
+      "higherRisk": "Maior exposição ao risco ao proteger tranches seniores",
+      "minRisk": "Exposição ao risco minimizada",
+      "builtInCoverage": "Cobertura integrada para recompensas de taxa variável",
+      "noLockingPeriod": "Sem período de bloqueio ou épocas",
+      "autoReinvest": "Tokens re-investidos"
+    },
     "bestYield": {
       "title": "Quais as Melhores Recompensas?",
       "body": "Maximize automaticamente o rendimento em vários protocolos DeFi testados. A estratégia Best-Yield otimiza o ganho de recompensas ao dividir os custos das taxas, automatizando a geração de incentivos ao transferir capital algoritmicamente à medida que surgem novas oportunidades."
@@ -1728,10 +1812,10 @@
     "whatIsArkeo": {
       "title": "O que é Arkeo?",
       "bodyParts": {
-        "1": "Último ano",
-        "2": "Coinbase Cloud",
-        "3": "A ShapeShift incubou um projeto chamado Arkeo. Lançamento na mainnet é logo logo!",
-        "4": "O Arkeo foi criado para ser um back-end descentralizado para todos os dados do nó. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
+        "1": "No ano passado, junto da",
+        "2": "Coinbase Cloud,",
+        "3": "a ShapeShift incubou um projeto chamado Arkeo. O lançamento na mainnet é logo logo!",
+        "4": "O Arkeo foi criado para ser um back-end descentralizado para dados de nós de uma blockchain. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
         "5": "coeficiente nakamoto",
         "6": "enquanto reduz a dependência de fontes de dados centralizadas."
       }

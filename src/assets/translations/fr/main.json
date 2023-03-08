@@ -13,6 +13,7 @@
     "connected": "Connecté",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
+    "noResultsBody": "Il n'y a pas de résultat pour %{searchQuery}. Essayez une nouvelle recherche.",
     "insufficientFunds": "Fonds insuffisants",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
@@ -49,6 +50,7 @@
     "retryQuestion": "Réessayer ?",
     "transactionFailed": "Échec de la transaction",
     "transactionFailedBody": "Échec de la transaction",
+    "liveSupport": "Support",
     "submitFeedback": "Envoyer un commentaire",
     "send": "Envoyer",
     "receive": "Recevoir",
@@ -90,7 +92,19 @@
     "alternative": "Alternatif",
     "validator": "le validateur %{name}",
     "needAsset": "Besoin de %{asset} ?",
-    "buyNow": "Acheter maintenant"
+    "buyNow": "Acheter maintenant",
+    "manage": "Gérer",
+    "selectedAccount": "Compte sélectionné"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez",
+      "2": "private.shapeshift.com",
+      "3": "si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre",
+      "4": "Politique de confidentialité",
+      "5": "pour plus de détails."
+    },
+    "cta": "J'ai compris"
   },
   "errorPage": {
     "title": "Oups !",
@@ -391,6 +405,12 @@
     "currentAPY": "APY actuel",
     "currentAPR": "APR actuel",
     "yearn": "Yearn Finance",
+    "totalValue": "Valeur totale",
+    "netApy": "APY Net",
+    "claimableRewards": "Récompenses réclamables",
+    "reawrds": "Récompenses",
+    "stakingPosition": "Position de mises",
+    "liquidityPool": "Pool de liquidités",
     "emptyEarn": "Les opportunités de gains apparaîtront ici.",
     "empty": {
       "farming": {
@@ -1344,7 +1364,7 @@
         "captchaRequired": "Le Capcha est requis",
         "tooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard.",
         "invalidLogin": "Identification invalide",
-        "noWallet": "Impossible de trouver un porte-monnaie ShapeShift Natif pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
+        "noWallet": "Impossible de trouver un porte-monnaie ShapeShift pour votre connexion. Si vous pensez que ce message est une erreur, veuillez contacter le support ShapeShift.",
         "decryptionError": "Une erreur s'est produite lors du décryptage de votre porte-monnaie.",
         "twoFactorAuthentication": "Authentification à deux facteurs",
         "twoFactorPlaceholder": "Code à 6 chiffres",
@@ -1354,21 +1374,22 @@
       },
       "onboarding": {
         "skip": "Sauter",
+        "shapeshiftWallet": "Porte-monnaie ShapeShift",
         "selfCustody": {
-          "title": "Auto-dépositaire",
+          "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
           "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder.",
           "body": "Un porte-monnaie auto-dépositaire signifie que vous le possédez et qu'uniquement vous avez accès à vos fonds. Votre phrase de récupération secrète est votre clé pour y accéder. Personne ne peut vous empêcher d'accéder à vos fonds.",
           "cta": "Suivant"
         },
         "multiChain": {
-          "title": "Multi-chaînes",
+          "title": "Plusieurs chaînes sont prises en charge simultanément",
           "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie natif la prend en charge automatiquement.",
+          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie ShapeShift la prend en charge automatiquement.",
           "cta": "Suivant"
         },
         "easyToUse": {
-          "title": "Facile à utiliser",
-          "subTitle": "Avec le porte-monnaie natif ShapeShift, vous pouvez :",
+          "title": "Il est facile à utiliser !",
+          "subTitle": "Avec le porte-monnaie ShapeShift, vous pouvez :",
           "trackBalance": "Suivre vos soldes",
           "sendReceive": "Envoyer/recevoir des cryptos",
           "buyCrypto": "Acheter des cryptos",
@@ -1596,9 +1617,12 @@
         "menu": {
           "disconnect": "Déconnecter",
           "address": "Adresse",
+          "addresses": "Adresses",
           "connected": "Connecté",
           "network": "Réseau",
-          "unsupportedNetwork": "Réseau non pris en charge"
+          "networks": "Réseaux",
+          "unsupportedNetwork": "Réseau non pris en charge",
+          "expiry": "Expiration de session"
         }
       },
       "modal": {
@@ -1612,7 +1636,16 @@
           "confirm": "Confirmer",
           "reject": "Rejeter",
           "messageData": "Données du message",
-          "domain": "Domaine"
+          "domain": "Domaine",
+          "memo": "Mémo",
+          "messages": "Messages",
+          "noMessages": "Pas de messages",
+          "sequence": "Séquence",
+          "accountNumber": "Numéro de compte",
+          "chainId": "ID de chaîne",
+          "authInfo": "Info auth",
+          "body": "Corps",
+          "comingSoon": "Bientôt disponible"
         },
         "sendTransaction": {
           "sendingFrom": "Envoi depuis",
@@ -1649,7 +1682,20 @@
           "howTo": "Comment se connecter à une dApp ?",
           "linkPlaceholder": "Code QR ou lien de connexion",
           "connect": "Connecter",
-          "connectionError": "Impossible de se connecter à l'URI fourni."
+          "connectionError": "Impossible de se connecter à l'URI fourni.",
+          "invalidUri": "URI invalide",
+          "v1UriUnsupported": "URI WalletConnect V1 non activé",
+          "v2UriUnsupported": "URI WalletConnect V2 non activé"
+        },
+        "sessionProposal": {
+          "dAppInfo": "Info de la dApp",
+          "permissions": "Permissions",
+          "accountSelection": "Choisir des comptes",
+          "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
+          "methods": "Méthodes",
+          "events": "Événements",
+          "selectedAccounts": "Comptes sélectionnés",
+          "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne."
         }
       },
       "registry": {
@@ -1699,6 +1745,44 @@
     "custom": "Personnalisé"
   },
   "idle": {
+    "emptyTitle": "Gagnez %{apy}% sur vos %{asset} avec Idle Finance",
+    "emptyBody": {
+      "bestYield": {
+        "page-1": {
+          "title": "Stratégie \"Best Yield\"",
+          "body": "La stratégie d'allocation \"Best Yield\" maximise les rendements en détectant les changements de taux sur différents protocoles de prêts."
+        },
+        "page-2": {
+          "title": "Stratégies \"Best Yield\" :"
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Stratégie \"Senior Tranche\"",
+          "body": "Les \"Senior Tranches\" offrent de grandes opportunités avec un risque réduit par rapport aux \"Junior Tranches\"."
+        },
+        "page-2": {
+          "title": "Stratégies \"Senior Tranche\" :"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Stratégie \"Junior Tranche\"",
+          "body": "Les \"Junior Tranches\" offrent des rendements DeFi optimisés amplifiés impliquant un degré de risque plus élevé."
+        },
+        "page-2": {
+          "title": "Stratégies \"Junior Tranche\" :"
+        }
+      },
+      "monitorSystem": "Utiliser le système de surveillance d'Idle Finance pour trouver des allocations plus performantes et déclencher un rééquilibrage",
+      "offerHighReturn": "Offrir des rendements élevés sans que l'utilisateur ne doive vérifier constamment les tarifs et ne brûle du carburant pour chaque transfert",
+      "leverageYield": "Obtenir des rendements en utilisant des fonds \"Senior Tranche\"",
+      "higherRisk": "Exposition aux risques plus élevée en protégeant les \"Senior Tranches\"",
+      "minRisk": "Exposition aux risques minimisée",
+      "builtInCoverage": "Couverture intégrée pour des récompenses à taux variable",
+      "noLockingPeriod": "Pas de période/epoch de verrouillage",
+      "autoReinvest": "Réinvestissement automatique des jetons accumulés"
+    },
     "bestYield": {
       "title": "Qu'est-ce que la stratégie \"Best Yield\" ?",
       "body": "Maximisez automatiquement le rendement sur plusieurs protocoles DeFi éprouvés. La stratégie \"Best Yield\" optimise la génération de rendement en socialisant les coûts de carburant, en automatisant la génération de rendement par le déplacement de capitaux de manière algorithmique à mesure que de nouvelles opportunités de rendement se présentent."

@@ -13,6 +13,7 @@
     "connected": "Conectado",
     "created": "Creado %{date}",
     "noResultsFound": "No se han encontrado resultados.",
+    "noResultsBody": "No resultados para %{searchQuery}. Intente de nuevo.",
     "insufficientFunds": "Fondos Insuficientes",
     "estimatedGas": "Tarifa Estimada de Gas",
     "relayerGasFee": "Tarifa de gas del repetidor",
@@ -49,6 +50,7 @@
     "retryQuestion": "¿Reintentar?",
     "transactionFailed": "Transacción fallida",
     "transactionFailedBody": "Transacción fallida",
+    "liveSupport": "Soporte",
     "submitFeedback": "Enviar Comentarios",
     "send": "Enviar",
     "receive": "Recibir",
@@ -90,7 +92,19 @@
     "alternative": "Alternativa",
     "validator": "el validador %{name}",
     "needAsset": "¿Necesita %{asset}?",
-    "buyNow": "Comprar ahora"
+    "buyNow": "Comprar ahora",
+    "manage": "Administre",
+    "selectedAccount": "Cuenta Seleccionada"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Nuestra dApp utiliza un seguimiento de clics anónimo para analizar rendimiento y mejorar experiencia. Al utilizar app.shapeshift.com, acepta nuestro seguimiento. Visita",
+      "2": "private.shapeshift.com",
+      "3": "si no quieres que te rastreen de forma anónima. Vea nuestra",
+      "4": "Política de Privacidad",
+      "5": "para más detalles."
+    },
+    "cta": "Entiendo"
   },
   "errorPage": {
     "title": "¡Ups!",
@@ -391,6 +405,12 @@
     "currentAPY": "APY Actual",
     "currentAPR": "APR Actual",
     "yearn": "Yearn Finance",
+    "totalValue": "Valor Total",
+    "netApy": "APY neto",
+    "claimableRewards": "Recompensas reclamables",
+    "reawrds": "Recompensas",
+    "stakingPosition": "Posición Staking",
+    "liquidityPool": "Pool de Liquidez",
     "emptyEarn": "Las oportunidades para Ganar recompensas aparecerán aquí.",
     "empty": {
       "farming": {
@@ -1254,37 +1274,37 @@
       },
       "import": {
         "header": "Importa tu billetera",
-        "body": "Ingrese su frase de recuperación secreta para importar una billetera existente",
+        "body": "Ingrese frase de recuperación secreta para importar billetera ",
         "button": "Siguiente",
-        "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita las comas, los retornos o cualquier carácter adicional.",
-        "secretRecoveryPhraseRequired": "Se requiere una Frase de Recuperación Secreta",
-        "secretRecoveryPhraseTooShort": "La Frase de Recuperación Secreta es demasiado corta"
+        "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita comas, retornos o carácter adicional.",
+        "secretRecoveryPhraseRequired": "Frase de Recuperación Secreta requerida",
+        "secretRecoveryPhraseTooShort": "Frase de Recuperación Secreta demasiado corta"
       },
       "password": {
         "header": "Crear una nueva contraseña",
-        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así es como accederá a su billetera.",
+        "body": "Ingrese una contraseña segura para encriptar su billetera importada. Así accederá a su billetera.",
         "warning": "Nota: si olvida su contraseña, ShapeShift no puede ayudarlo a recuperarla.",
         "button": "Siguiente",
-        "connect": "Conectarse a otra billetera"
+        "connect": "Conectar otra billetera"
       },
       "create": {
         "header": "Tu Frase Secreta de Recuperación",
-        "body": "Escriba estas 12 palabras y guárdelas de forma segura fuera de línea. Esta frase de 12 palabras se usa para recuperar las claves privadas de su billetera.",
+        "body": "Escriba estas 12 palabras y guárdelas fuera de línea. Esta frase de 12 palabras se usa para recuperar sus claves privadas.",
         "button": "Siguiente",
         "hideWords": "Ocultar Palabras",
         "showWords": "Mostrar Palabras"
       },
       "start": {
         "header": "Billetera ShapeShift",
-        "body": "Puede tener múltiples billeteras ShapeShift. Puede cargar una billetera, importar una billetera desde una Frase de recuperación secreta o crear una nueva billetera.",
-        "import": "Importar una billetera",
-        "create": "Crear una nueva billetera",
-        "load": "Carteras guardadas"
+        "body": "Puede tener múltiples billeteras ShapeShift. Puede cargar, crear o importar usando una Frase de recuperación secreta.",
+        "import": "Importar billetera",
+        "create": "Crear billetera nueva",
+        "load": "Billeteras guardadas"
       },
       "success": {
-        "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, haga clic en 'Permitir'.",
-        "header": "Monedero Conectado",
-        "success": "Ahora puede cerrar esta ventana o se cerrará automáticamente en breve",
+        "encryptingWallet": "Cifrando su billetera... si su navegador solicita almacenar datos en almacenamiento persistente, clic en 'Permitir'.",
+        "header": "Billetera Conectado",
+        "success": "Puede cerrar esta ventana o se cerrará automáticamente",
         "error": "Hubo un error al conectar tu billetera"
       },
       "testPhrase": {
@@ -1344,7 +1364,7 @@
         "captchaRequired": "Se requiere captcha",
         "tooManyAttempts": "Demasiados intentos. Por favor intente mas tarde.",
         "invalidLogin": "Ingreso invalido",
-        "noWallet": "No se pudo encontrar una billetera nativa de ShapeShift para su inicio de sesión. Si cree que este mensaje es un error, comuníquese con el soporte de ShapeShift.",
+        "noWallet": "No se encuentra la billetera ShapeShift para su sesión. Si cree que es un error, comuníquese con el soporte ShapeShift.",
         "decryptionError": "Algo salió mal al descifrar su billetera.",
         "twoFactorAuthentication": "Autenticación de dos factores",
         "twoFactorPlaceholder": "Código de 6 dígitos",
@@ -1354,21 +1374,22 @@
       },
       "onboarding": {
         "skip": "Saltar",
+        "shapeshiftWallet": "Billetera ShapeShift",
         "selfCustody": {
-          "title": "Auto-custodia",
+          "title": "Su Billetera ShapeShift es auto-custodia",
           "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",
           "body": "Una billetera de autocustodia significa que es de su propiedad y solo usted tiene acceso a sus fondos. Su frase de recuperación secreta es su clave para acceder. Nadie puede bloquear acceso a sus fondos.",
           "cta": "Siguiente"
         },
         "multiChain": {
-          "title": "Multi-cadena",
+          "title": "Se admiten varias cadenas simultáneamente",
           "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
-          "body": "Al agregar una nueva cadena a ShapeShift, su billetera Nativa la admitirá automáticamente.",
+          "body": "Al agregar una nueva cadena a ShapeShift, su billetera ShapeShift la admitirá automáticamente.",
           "cta": "Siguiente"
         },
         "easyToUse": {
-          "title": "Fácil-de-usar",
-          "subTitle": "Con la Billetera Nativa ShapeShift puede:",
+          "title": "¡Es fácil de usar!",
+          "subTitle": "Su Billetera ShapeShift puede:",
           "trackBalance": "Seguir sus saldos",
           "sendReceive": "Enviar/recibir cripto",
           "buyCrypto": "Comprar cripto",
@@ -1596,9 +1617,12 @@
         "menu": {
           "disconnect": "Desconectar",
           "address": "Dirección",
+          "addresses": "Direcciones",
           "connected": "Conectado",
           "network": "Red",
-          "unsupportedNetwork": "Red no soportada"
+          "networks": "Redes",
+          "unsupportedNetwork": "Red no soportada",
+          "expiry": "Sesión expirada"
         }
       },
       "modal": {
@@ -1612,7 +1636,16 @@
           "confirm": "Confirmar",
           "reject": "Rechazar",
           "messageData": "Datos del mensaje",
-          "domain": "Dominio"
+          "domain": "Dominio",
+          "memo": "Memo",
+          "messages": "Mensajes",
+          "noMessages": "No mensajes",
+          "sequence": "Secuencia",
+          "accountNumber": "Número de cuenta",
+          "chainId": "ID Cadena",
+          "authInfo": "Info Aut",
+          "body": "Cuerpo",
+          "comingSoon": "Muy pronto"
         },
         "sendTransaction": {
           "sendingFrom": "Enviar desde",
@@ -1649,7 +1682,20 @@
           "howTo": "¿Cómo conectar a una dApp?",
           "linkPlaceholder": "Código QR o enlace de conexión",
           "connect": "Conectar",
-          "connectionError": "No se puede conectar al URI proporcionado."
+          "connectionError": "No se puede conectar al URI proporcionado.",
+          "invalidUri": "URI no válido",
+          "v1UriUnsupported": "WalletConnect V1 URI no habilitado",
+          "v2UriUnsupported": "WalletConnect V2 URI no habilitado"
+        },
+        "sessionProposal": {
+          "dAppInfo": "Info dApp",
+          "permissions": "Permisos",
+          "accountSelection": "Elige cuentas",
+          "unsupportedChain": "Cadena no admitida en la sesión propuesta.",
+          "methods": "Métodos",
+          "events": "Eventos",
+          "selectedAccounts": "Cuentas seleccionadas",
+          "permissionMessage": "Seleccione al menos una cuenta por cadena."
         }
       },
       "registry": {
@@ -1699,6 +1745,44 @@
     "custom": "Personalizar"
   },
   "idle": {
+    "emptyTitle": "Gane %{apy}% en su %{asset} con Idle Finance",
+    "emptyBody": {
+      "bestYield": {
+        "page-1": {
+          "title": "Estrategia Mejor Rendimiento",
+          "body": "La estrategia Mejor-Rendimiento maximiza tasas de interés en diferentes protocolos de préstamos."
+        },
+        "page-2": {
+          "title": "Estrategias Mejor Rendimiento"
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Estrategia Senior Tranche",
+          "body": "Los tramos Senior brindan grandes oportunidades con menor riesgo que junior."
+        },
+        "page-2": {
+          "title": "Estrategias Senior Tranche"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Estrategia Junior Tranche",
+          "body": "Los tramos Junior proporcionan rendimientos DeFi optimizados y amplificados al conllevar mayor riesgo."
+        },
+        "page-2": {
+          "title": "Estrategias Junior Tranche:"
+        }
+      },
+      "monitorSystem": "Use el seguimiento Idle Finance para encontrar asignaciones con mejor rendimiento y desencadenar reequilibrio",
+      "offerHighReturn": "Ofrece altos rendimientos sin que el usuario controle constantemente tarifas y gaste gas",
+      "leverageYield": "Rendimiento de apalancamiento utilizando fondos Senior",
+      "higherRisk": "Mayor exposición a riesgo al proteger tramos Senior",
+      "minRisk": "Exposición al riesgo minimizada",
+      "builtInCoverage": "Cobertura integrada para recompensas de tasa variable",
+      "noLockingPeriod": "Sin período de bloqueo o epochs",
+      "autoReinvest": "Tokens acumulados de Reinversión"
+    },
     "bestYield": {
       "title": "¿Cual es el mejor rendimiento?",
       "body": "Maximice automáticamente el rendimiento a través de múltiples protocolos DeFi probados en batalla. La estrategia del Mejor-Rendimiento optimiza la generación de rendimiento socializando los costos del gas, automatizando la generación de rendimiento mediante el desplazamiento algorítmico de capital a medida que surgen nuevas oportunidades de rendimiento."

@@ -10,7 +10,6 @@ import litecoin from 'plugins/litecoin'
 import mobile from 'plugins/mobile'
 import optimism from 'plugins/optimism'
 import osmosis from 'plugins/osmosis'
-import pendo from 'plugins/pendo'
 import thorchain from 'plugins/thorchain'
 import walletConnectToDapps from 'plugins/walletConnectToDapps'
 
@@ -24,7 +23,6 @@ export const activePlugins = [
   foxPage,
   osmosis,
   avalanche,
-  pendo,
   walletConnectToDapps,
   thorchain,
   mobile,

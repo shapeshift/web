@@ -201,6 +201,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
   )
 
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
+
   if (!state || !dispatch) return null
 
   return (

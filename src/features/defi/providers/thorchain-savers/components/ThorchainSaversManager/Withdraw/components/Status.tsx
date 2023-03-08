@@ -92,6 +92,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
+    if (!assetId) return
     if (state?.withdraw.txStatus === 'success') {
       mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,

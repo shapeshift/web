@@ -16,6 +16,9 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -24,6 +27,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -35,6 +39,7 @@ import { ClaimableAsset } from './ClaimableAsset'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
@@ -66,6 +71,7 @@ export const Status = () => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const marketData = useAppSelector(state => selectMarketDataSortedByMarketCap(state))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
@@ -116,21 +122,43 @@ export const Status = () => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const claimableAssets = useMemo(() => {
+  const claimAmounts = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
 
     return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
       if (!opportunityData?.rewardAssetIds?.[i]) return null
-
+      const cryptoAmount = bnOrZero(amount)
+        .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
+        .toNumber()
+      const fiatAmount = bnOrZero(cryptoAmount).times(
+        bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price),
+      )
       const token = {
         assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount)
-          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
-          .toNumber(),
+        cryptoAmount,
+        fiatAmount,
       }
-      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+      return token
     })
-  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [
+    assets,
+    marketData,
+    opportunityData?.rewardAssetIds,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+  ])
+
+  const claimableAssets = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+
+    return claimAmounts?.map(rewardAsset => {
+      if (!rewardAsset?.assetId) return null
+      const token = {
+        assetId: rewardAsset.assetId,
+        amount: rewardAsset.cryptoAmount,
+      }
+      return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
+    })
+  }, [claimAmounts, opportunityData?.rewardsAmountsCryptoBaseUnit?.length])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -139,6 +167,28 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state.claim.txStatus === 'success') {
+      mixpanel?.track(MixPanelEvents.ClaimSuccess, {
+        provider: opportunityData?.provider,
+        type: opportunityData?.type,
+        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: claimAmounts?.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
+        cryptoAmounts: claimAmounts?.map(
+          rewardAsset =>
+            `${rewardAsset?.cryptoAmount} ${getCompositeAssetSymbol(rewardAsset?.assetId ?? '')}`,
+        ),
+      })
+    }
+  }, [
+    claimAmounts,
+    mixpanel,
+    opportunityData?.provider,
+    opportunityData?.type,
+    opportunityData?.underlyingAssetIds,
+    state.claim.txStatus,
+  ])
 
   if (!state) return null
 

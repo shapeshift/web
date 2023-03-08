@@ -15,6 +15,9 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -36,6 +39,7 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
+  const mixpanel = getMixPanel()
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -141,8 +145,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
+      mixpanel?.track(MixPanelEvents.WithdrawContinue, {
+        provider: opportunityData?.provider,
+        type: opportunityData?.type,
+        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
+        cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(asset.assetId)}`],
+      })
     },
-    [userAddress, getWithdrawGasEstimate, onNext, dispatch],
+    [
+      userAddress,
+      dispatch,
+      getWithdrawGasEstimate,
+      onNext,
+      mixpanel,
+      opportunityData?.provider,
+      opportunityData?.type,
+      opportunityData?.underlyingAssetIds,
+      asset.assetId,
+    ],
   )
 
   const handleCancel = useCallback(() => {

@@ -24,6 +24,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -50,6 +53,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
@@ -153,6 +157,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider: opportunityData.provider,
+        type: opportunityData.type,
+        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
+        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(asset.assetId)}`],
+      })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
@@ -167,10 +178,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     opportunityData?.assetId,
+    opportunityData?.provider,
+    opportunityData?.type,
+    opportunityData?.underlyingAssetIds,
     asset,
     idleOpportunity,
     state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
     onNext,
+    mixpanel,
   ])
 
   const handleCancel = useCallback(() => {

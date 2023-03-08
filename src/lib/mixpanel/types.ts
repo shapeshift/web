@@ -6,6 +6,7 @@ export enum MixPanelEvents {
   DepositApprove = 'Deposit Approve',
   DepositConfirm = 'Deposit Confirm',
   DepositSuccess = 'Deposit Success',
+  DustConfirm = 'Dust Confirm',
   WithdrawContinue = 'Withdraw Continue',
   WithdrawApprove = 'Withdraw Approve',
   WithdrawConfirm = 'Withdraw Confirm',
@@ -13,4 +14,5 @@ export enum MixPanelEvents {
   ClaimConfirm = 'Claim Confirm',
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
+  InsufficientFunds = 'Insufficient Funds',
 }

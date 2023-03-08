@@ -127,7 +127,7 @@ export const Status = () => {
   const claimAmounts: ClaimAmount[] = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit
+    return opportunityData.rewardsAmountsCryptoBaseUnit
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         const amountCryptoHuman = bnOrZero(amount)

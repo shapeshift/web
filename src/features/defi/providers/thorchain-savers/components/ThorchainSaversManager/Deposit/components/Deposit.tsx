@@ -229,8 +229,8 @@ export const Deposit: React.FC<DepositProps> = ({
           provider: opportunityData.provider,
           type: opportunityData.type,
           assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
-          fiatAmounts: [bnOrZero(state?.deposit.fiatAmount).toNumber()],
-          cryptoAmounts: [`${state?.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+          fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
+          cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
@@ -250,8 +250,6 @@ export const Deposit: React.FC<DepositProps> = ({
       getDepositGasEstimate,
       onNext,
       mixpanel,
-      state?.deposit.fiatAmount,
-      state?.deposit.cryptoAmount,
       assetId,
       toast,
       translate,

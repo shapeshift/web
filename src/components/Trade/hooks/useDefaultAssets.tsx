@@ -204,7 +204,8 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
       return { sellAsset, buyAsset }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps - don't run when activeSwapperTypeChanges
+    // Don't run when activeSwapperTypeChanges
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     buyChainId,
     previousBuyChainId,

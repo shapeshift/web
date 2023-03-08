@@ -107,7 +107,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             .toFixed(2)
 
           totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
-          console.log({ curApy: cur.apy })
           projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
             projectedAnnualizedYieldByAssetId[assetId],
           ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck

@@ -18,6 +18,9 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
@@ -32,8 +35,10 @@ type StatusProps = {
 }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const opportunity = state?.opportunity
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
@@ -85,6 +90,22 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (state?.withdraw.txStatus === 'success') {
+      mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
+        provider: opportunity?.provider,
+        type: opportunity?.type,
+        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+      })
+    }
+  }, [
+    mixpanel,
+    opportunity?.provider,
+    opportunity?.type,
+    opportunity?.underlyingAssetIds,
+    state?.withdraw.txStatus,
+  ])
 
   if (!(state && asset)) return null
 

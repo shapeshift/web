@@ -30,6 +30,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -81,6 +84,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
@@ -531,6 +535,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
+      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
+        provider: opportunityData?.provider,
+        type: opportunityData?.type,
+        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+      })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -562,6 +571,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
     onNext,
+    mixpanel,
+    opportunityData?.provider,
+    opportunityData?.type,
+    opportunityData?.underlyingAssetIds,
     toast,
     translate,
   ])
@@ -580,6 +593,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const hasEnoughBalanceForGas = useMemo(() => missingBalanceForGas.lte(0), [missingBalanceForGas])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !contextDispatch) return null
 

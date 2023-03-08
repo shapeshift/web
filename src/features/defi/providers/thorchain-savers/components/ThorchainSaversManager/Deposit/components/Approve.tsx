@@ -22,6 +22,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import {
@@ -43,6 +46,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
@@ -153,6 +157,11 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       })
 
       onNext(DefiStep.Confirm)
+      mixpanel?.track(MixPanelEvents.DepositApprove, {
+        provider: opportunity.provider,
+        type: opportunity.type,
+        assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -177,6 +186,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     getDepositGasEstimate,
     state?.deposit,
     onNext,
+    mixpanel,
     toast,
     translate,
   ])

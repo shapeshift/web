@@ -140,7 +140,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2}>
           {tag}
-          {!isBest && amountEntered && (
+          {!isBest && amountEntered && !negativeRatio && (
             <Tag size='sm' colorScheme='red' variant='xs-subtle'>
               <Amount.Percent value={quoteDifference} />
             </Tag>
@@ -159,7 +159,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText>{protocol}</RawText>
         </Flex>
         <Amount.Crypto
-          value={amountEntered ? totalReceiveAmountCryptoPrecision : '0'}
+          value={amountEntered && !negativeRatio ? totalReceiveAmountCryptoPrecision : '0'}
           symbol={buyAsset?.symbol ?? ''}
           color={isBest ? greenColor : 'inherit'}
         />

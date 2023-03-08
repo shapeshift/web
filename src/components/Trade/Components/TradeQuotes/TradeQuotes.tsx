@@ -14,10 +14,8 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const {
-    state: { activeSwapperWithMetadata, availableSwappersWithMetadata, buyAssetFiatRate },
-    dispatch: swapperDispatch,
-  } = useSwapperState()
+  const { state, dispatch: swapperDispatch } = useSwapperState()
+  const { activeSwapperWithMetadata, availableSwappersWithMetadata, buyAssetFiatRate } = state
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
   const handleSelectSwapper = useCallback(
     (activeSwapperWithMetadata: SwapperWithQuoteMetadata) =>
@@ -28,7 +26,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     [swapperDispatch],
   )
 
-  console.log('xxx availableSwappersWithMetadata', availableSwappersWithMetadata)
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
     bestQuote && fromBaseUnit(bestQuote.buyAmountCryptoBaseUnit, bestQuote.buyAsset.precision)

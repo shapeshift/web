@@ -89,7 +89,7 @@ export const useAvailableSwappersService = (context: SwapperContextType) => {
       })
     bestSwapperWithQuoteMetadata &&
       swapperDispatch({
-        type: SwapperActionType.SET_ACTIVE_SWAPPER,
+        type: SwapperActionType.INIT_ACTIVE_SWAPPER,
         payload: bestSwapperWithQuoteMetadata,
       })
   }, [swapperDispatch, swappersWithQuoteMetadata])

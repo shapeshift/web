@@ -53,7 +53,7 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
           amountCryptoPrecision: '',
         },
       }
-    case SwapperActionType.SET_ACTIVE_SWAPPER:
+    case SwapperActionType.INIT_ACTIVE_SWAPPER: {
       const slippage = action.payload.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
       return {
         ...state,
@@ -61,6 +61,26 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
         quote: action.payload.quote,
         slippage,
       }
+    }
+    case SwapperActionType.SET_ACTIVE_SWAPPER: {
+      const slippage = action.payload.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+      const payload = action.payload
+      const quote = payload.quote
+      return {
+        ...state,
+        activeSwapperWithMetadata: payload,
+        quote,
+        slippage,
+        buyTradeAsset: {
+          ...state.buyTradeAsset,
+          amountCryptoPrecision: quote.buyAmountCryptoBaseUnit,
+        },
+        sellTradeAsset: {
+          ...state.sellTradeAsset,
+          amountCryptoPrecision: quote.sellAmountBeforeFeesCryptoBaseUnit,
+        },
+      }
+    }
     case SwapperActionType.SET_AVAILABLE_SWAPPERS:
       return { ...state, availableSwappersWithMetadata: action.payload }
     default:

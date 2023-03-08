@@ -17,7 +17,10 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
+import {
+  selectSwapperSupportsCrossAccountTrade,
+  selectTotalReceiveAmountCryptoPrecision,
+} from 'components/Trade/SwapperProvider/selectors'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -324,16 +327,13 @@ export const TradeInput = () => {
     sellTradeAsset?.asset?.precision,
   ])
 
+  const totalReceiveAmountCryptoPrecision = selectTotalReceiveAmountCryptoPrecision(state)
   const feesExceedsSellAmount = useMemo(
     () =>
       bnOrZero(sellTradeAsset?.amountCryptoPrecision).isGreaterThan(0) &&
-      bnOrZero(buyTradeAsset?.amountCryptoPrecision).isLessThanOrEqualTo(0) &&
+      bnOrZero(totalReceiveAmountCryptoPrecision).isLessThanOrEqualTo(0) &&
       !isTradeQuotePending,
-    [
-      sellTradeAsset?.amountCryptoPrecision,
-      buyTradeAsset?.amountCryptoPrecision,
-      isTradeQuotePending,
-    ],
+    [sellTradeAsset?.amountCryptoPrecision, totalReceiveAmountCryptoPrecision, isTradeQuotePending],
   )
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {

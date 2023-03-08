@@ -254,7 +254,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           type: opportunityData.type,
           assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
           fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-          cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
+          cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

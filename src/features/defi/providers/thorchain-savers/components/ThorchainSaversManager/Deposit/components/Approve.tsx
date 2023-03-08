@@ -14,7 +14,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -214,6 +214,12 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     ),
     [accountId, feeAsset, estimatedGasCrypto],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch || !estimatedGasCrypto) return null
 

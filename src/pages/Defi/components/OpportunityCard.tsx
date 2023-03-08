@@ -31,6 +31,9 @@ import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
@@ -65,6 +68,7 @@ export const OpportunityCard = ({
   underlyingAssetId,
 }: OpportunityCardProps) => {
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
@@ -80,6 +84,12 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
+      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
+        provider,
+        type,
+        assets: [getCompositeAssetSymbol(underlyingAssetId ?? '')],
+        element: 'Table Row',
+      })
       history.push({
         pathname: '/defi',
         search: qs.stringify({

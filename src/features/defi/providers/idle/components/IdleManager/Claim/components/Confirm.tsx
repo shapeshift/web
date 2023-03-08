@@ -204,6 +204,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     )
   }, [state.claim, feeAssetBalance, feeAsset])
 
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
+
   const handleConfirm = useCallback(async () => {
     if (!(dispatch && chainAdapter)) return
     try {

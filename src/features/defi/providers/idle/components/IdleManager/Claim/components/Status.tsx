@@ -16,7 +16,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -173,16 +173,10 @@ export const Status = () => {
   useEffect(() => {
     if (!opportunityData) return
     if (state.claim.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.ClaimSuccess, {
-        provider: opportunityData.provider,
-        type: opportunityData.type,
-        version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
-        cryptoAmounts: claimAmounts.map(
-          rewardAsset =>
-            `${rewardAsset.amountCryptoHuman} ${getMaybeCompositeAssetSymbol(rewardAsset.assetId)}`,
-        ),
+      trackOpportunityEvent(MixPanelEvents.ClaimSuccess, {
+        opportunity: opportunityData,
+        fiatAmounts: claimAmounts.map(claimAmount => claimAmount.fiatAmount),
+        cryptoAmounts: claimAmounts,
       })
     }
   }, [claimAmounts, mixpanel, opportunityData, state.claim.txStatus])

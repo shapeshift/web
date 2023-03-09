@@ -116,7 +116,7 @@ export const AllEarnOpportunities = () => {
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: [getMaybeCompositeAssetSymbol(underlyingAssetId ?? '')],
+        assets: [getMaybeCompositeAssetSymbol(underlyingAssetId)],
         element: 'Table Row',
       })
 

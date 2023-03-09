@@ -34,7 +34,7 @@ export type trackOpportunityProps = {
 
 export type AnonymizedPortfolio = {
   hashedWalletId: string // e.g. 2398734895
-  // walletType: KeyManager // e.g. 'Native' | 'Metamask' | 'WalletConnect'
+  walletName: string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
   chains: string[] // e.g. ['Bitcoin', 'Ethereum']
   assets: string[] // e.g. ['Bitcoin.BTC', 'Ethereum.ETH', 'Ethereum.USDC']
   portfolioBalance: string // e.g. '420.69'

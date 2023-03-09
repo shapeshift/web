@@ -56,6 +56,7 @@ import {
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
   selectWalletId,
+  selectWalletName,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
@@ -780,8 +781,9 @@ export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
 export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   selectAssets,
   selectWalletId,
+  selectWalletName,
   selectPortfolioFiatBalances,
-  (assetsById, walletId, portfolioBalances): AnonymizedPortfolio => {
+  (assetsById, walletId, walletName = '', portfolioBalances): AnonymizedPortfolio => {
     const hashedWalletId = hashCode(walletId || '')
 
     type AssetBalances = Record<string, string>
@@ -821,6 +823,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
 
     return {
       hashedWalletId,
+      walletName,
       portfolioBalance,
       chains,
       assets,

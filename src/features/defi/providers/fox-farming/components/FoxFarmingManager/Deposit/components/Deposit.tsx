@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -23,9 +23,10 @@ import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
 } from 'state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -52,25 +53,27 @@ export const Deposit: React.FC<DepositProps> = ({
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetReference, contractAddress } = query
 
-  const foxEthLpOpportunityFilter = useMemo(
+  const foxFarmingOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-      accountId,
+      stakingId: toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: contractAddress,
+        chainId: ethChainId,
+      }),
     }),
-    [accountId],
+    [contractAddress],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
 
   const filter = useMemo(
-    () => ({ assetId: foxEthLpOpportunity?.underlyingAssetId, accountId }),
-    [accountId, foxEthLpOpportunity?.underlyingAssetId],
+    () => ({ assetId: foxFarmingOpportunity?.underlyingAssetId, accountId }),
+    [accountId, foxFarmingOpportunity?.underlyingAssetId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -102,7 +105,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress && foxEthLpOpportunity)) return
+      if (!(state && dispatch && state.userAddress && foxFarmingOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
         if (!(state.userAddress && state.opportunity && assetReference)) return
@@ -177,7 +180,7 @@ export const Deposit: React.FC<DepositProps> = ({
       getApproveGasData,
       getStakeGasData,
       onNext,
-      foxEthLpOpportunity,
+      foxFarmingOpportunity,
       state,
       toast,
       translate,
@@ -228,7 +231,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch || !foxEthLpOpportunity || !asset || !marketData) return null
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   const handleCancel = browserHistory.goBack
 
@@ -237,8 +240,8 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       asset={asset}
       rewardAsset={rewardAsset}
-      inputIcons={foxEthLpOpportunity?.icons}
-      apy={String(foxEthLpOpportunity?.apy)}
+      inputIcons={foxFarmingOpportunity?.icons}
+      apy={String(foxFarmingOpportunity?.apy)}
       cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

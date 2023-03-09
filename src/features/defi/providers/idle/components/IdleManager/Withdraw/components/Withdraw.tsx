@@ -133,7 +133,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const handleContinue = useCallback(
     async (formValues: WithdrawValues) => {
-      if (!(userAddress && dispatch)) return
+      if (!(userAddress && dispatch && opportunityData)) return
       // set withdraw state for future use
       dispatch({ type: IdleWithdrawActionType.SET_WITHDRAW, payload: formValues })
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: true })
@@ -146,10 +146,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
       mixpanel?.track(MixPanelEvents.WithdrawContinue, {
-        provider: opportunityData?.provider,
-        type: opportunityData?.type,
-        version: opportunityData?.version,
-        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        provider: opportunityData.provider,
+        type: opportunityData.type,
+        version: opportunityData.version,
+        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
         cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(asset.assetId)}`],
       })
@@ -160,10 +160,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       getWithdrawGasEstimate,
       onNext,
       mixpanel,
-      opportunityData?.provider,
-      opportunityData?.type,
-      opportunityData?.underlyingAssetIds,
-      opportunityData?.version,
+      opportunityData,
       asset.assetId,
     ],
   )

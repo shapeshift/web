@@ -171,12 +171,13 @@ export const Status = () => {
   }, [browserHistory])
 
   useEffect(() => {
+    if (!opportunityData) return
     if (state.claim.txStatus === 'success') {
       mixpanel?.track(MixPanelEvents.ClaimSuccess, {
-        provider: opportunityData?.provider,
-        type: opportunityData?.type,
-        version: opportunityData?.version,
-        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        provider: opportunityData.provider,
+        type: opportunityData.type,
+        version: opportunityData.version,
+        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts.map(
           rewardAsset =>
@@ -184,15 +185,7 @@ export const Status = () => {
         ),
       })
     }
-  }, [
-    claimAmounts,
-    mixpanel,
-    opportunityData?.provider,
-    opportunityData?.type,
-    opportunityData?.underlyingAssetIds,
-    opportunityData?.version,
-    state.claim.txStatus,
-  ])
+  }, [claimAmounts, mixpanel, opportunityData, state.claim.txStatus])
 
   if (!state) return null
 

@@ -126,7 +126,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData
         )
       )
         return
@@ -150,10 +151,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
       mixpanel?.track(MixPanelEvents.DepositConfirm, {
-        provider: opportunityData?.provider,
-        type: opportunityData?.type,
-        version: opportunityData?.version,
-        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        provider: opportunityData.provider,
+        type: opportunityData.type,
+        version: opportunityData.version,
+        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
         cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
       })
@@ -182,10 +183,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset.precision,
     onNext,
     mixpanel,
-    opportunityData?.provider,
-    opportunityData?.type,
-    opportunityData?.underlyingAssetIds,
-    opportunityData?.version,
+    opportunityData,
     assetId,
     toast,
     translate,

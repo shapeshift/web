@@ -85,12 +85,13 @@ export const Status = () => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (state?.deposit.txStatus === 'success') {
+    if (!opportunity) return
+    if (state?.deposit.txStatus === 'success' && opportunity) {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
-        provider: opportunity?.provider,
-        type: opportunity?.type,
-        version: opportunity?.version,
-        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        provider: opportunity.provider,
+        type: opportunity.type,
+        version: opportunity.version,
+        assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
         cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
       })
@@ -98,10 +99,7 @@ export const Status = () => {
   }, [
     assetId,
     mixpanel,
-    opportunity?.provider,
-    opportunity?.type,
-    opportunity?.underlyingAssetIds,
-    opportunity?.version,
+    opportunity,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     state?.deposit.txStatus,

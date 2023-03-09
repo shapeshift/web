@@ -25,6 +25,7 @@ import {
 } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -50,15 +51,26 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetReference, contractAddress } = query
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
   )
 
   const filter = useMemo(
-    () => ({ assetId: opportunity?.underlyingAssetId, accountId }),
-    [accountId, opportunity?.underlyingAssetId],
+    () => ({ assetId: foxEthLpOpportunity?.underlyingAssetId, accountId }),
+    [accountId, foxEthLpOpportunity?.underlyingAssetId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -90,7 +102,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress && opportunity)) return
+      if (!(state && dispatch && state.userAddress && foxEthLpOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
         if (!(state.userAddress && state.opportunity && assetReference)) return
@@ -165,7 +177,7 @@ export const Deposit: React.FC<DepositProps> = ({
       getApproveGasData,
       getStakeGasData,
       onNext,
-      opportunity,
+      foxEthLpOpportunity,
       state,
       toast,
       translate,
@@ -216,7 +228,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch || !opportunity || !asset || !marketData) return null
+  if (!state || !dispatch || !foxEthLpOpportunity || !asset || !marketData) return null
 
   const handleCancel = browserHistory.goBack
 
@@ -225,8 +237,8 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       asset={asset}
       rewardAsset={rewardAsset}
-      inputIcons={opportunity?.icons}
-      apy={String(opportunity?.apy)}
+      inputIcons={foxEthLpOpportunity?.icons}
+      apy={String(foxEthLpOpportunity?.apy)}
       cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

@@ -143,14 +143,14 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
 export type EarnOpportunityType = {
-  type?: string
+  type: string
   provider: DefiProvider
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy?: number | string
+  apy: number | string
   tvl: string
-  underlyingAssetId?: AssetId
+  underlyingAssetId: AssetId
   assetId: AssetId
   id: OpportunityId
   fiatAmount: string
@@ -163,14 +163,12 @@ export type EarnOpportunityType = {
   isLoaded: boolean
   icons?: string[]
   // overrides any name down the road
-  opportunityName?: string
+  opportunityName: string
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
-    underlyingToken0AmountCryptoBaseUnit?: string
-    underlyingToken1AmountCryptoBaseUnit?: string
     isVisible?: boolean
   } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
 

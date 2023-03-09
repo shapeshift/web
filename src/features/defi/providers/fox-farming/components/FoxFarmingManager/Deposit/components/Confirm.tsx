@@ -21,9 +21,13 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import {
+  assertIsFoxEthStakingContractAddress,
+  foxEthLpAssetId,
+} from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -48,11 +52,23 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   assertIsFoxEthStakingContractAddress(contractAddress)
 
   const { stake } = useFoxFarming(contractAddress)
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
+
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${ethAssetId}`)
@@ -116,7 +132,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     walletState.wallet,
   ])
 
-  if (!state || !dispatch || !opportunity || !asset) return null
+  if (!state || !dispatch || !foxEthLpOpportunity || !asset) return null
 
   return (
     <ReusableConfirm
@@ -135,7 +151,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity?.icons!}
+                icons={foxEthLpOpportunity?.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

@@ -19,8 +19,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  assertIsFoxEthStakingContractAddress,
+  foxEthLpAssetId,
+} from 'state/slices/opportunitiesSlice/constants'
+import {
+  selectAssetById,
+  selectEarnUserLpOpportunity,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
@@ -39,7 +46,17 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress } = query
-  const opportunity = state?.opportunity
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -51,7 +68,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const asset = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
@@ -66,7 +83,14 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const toast = useToast()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
+    if (
+      !state?.deposit.cryptoAmount ||
+      !dispatch ||
+      !foxEthLpOpportunity ||
+      !wallet ||
+      !supportsETH(wallet)
+    )
+      return
 
     try {
       if (!asset) return
@@ -76,7 +100,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.deposit.cryptoAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state?.deposit.cryptoAmount))
         },
         interval: 15000,
         maxAttempts: 30,
@@ -112,7 +136,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     feeAsset.precision,
     getStakeGasData,
     onNext,
-    opportunity,
+    foxEthLpOpportunity,
     state?.deposit.cryptoAmount,
     toast,
     translate,
@@ -142,13 +166,13 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     ),
     [accountId, feeAsset, estimatedGasCrypto],
   )
-  if (!state || !dispatch || !opportunity || !asset) return null
+  if (!state || !dispatch || !foxEthLpOpportunity || !asset) return null
 
   return (
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      icons={opportunity?.icons}
+      icons={foxEthLpOpportunity?.icons}
       cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
@@ -161,7 +185,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={opportunity?.contractAddress ?? ''}
+      contractAddress={foxEthLpOpportunity?.contractAddress ?? ''}
     />
   )
 }

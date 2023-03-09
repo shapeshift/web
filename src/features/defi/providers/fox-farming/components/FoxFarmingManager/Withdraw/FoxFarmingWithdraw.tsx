@@ -82,10 +82,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
           type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
           payload: fromAccountId(farmingAccountId).account,
         })
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY,
-          payload: foxFarmingOpportunity,
-        })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingWithdraw error')
@@ -109,7 +105,13 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
         ? {
             label: translate('defi.steps.withdraw.info.title'),
             description: translate('defi.steps.withdraw.info.farmingExpiredDescription'),
-            component: ExpiredWithdraw,
+            component: ownProps => (
+              <ExpiredWithdraw
+                {...ownProps}
+                accountId={accountId}
+                onAccountIdChange={handleAccountIdChange}
+              />
+            ),
           }
         : {
             label: translate('defi.steps.withdraw.info.title'),

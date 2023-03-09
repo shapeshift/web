@@ -42,13 +42,16 @@ type OnboardingStep = {
 const idleTagToOnboardingSteps: Record<IdleTag, OnboardingStep[]> = {
   [IdleTag.BestYield]: [
     {
-      title: 'idle.emptyBody.bestYield.page-1.title',
-      description: 'idle.emptyBody.bestYield.page-1.body',
+      title: 'idle.emptyBody.seniorBestYield.page-1.title',
+      description: 'idle.emptyBody.seniorBestYield.page-1.body',
       icon: <Image src={BestYieldIcon} />,
     },
     {
-      title: 'idle.emptyBody.bestYield.page-2.title',
-      bullets: ['idle.emptyBody.monitorSystem', 'idle.emptyBody.offerHighReturn'],
+      title: 'idle.emptyBody.seniorBestYield.page-2.title',
+      bullets: [
+        'idle.emptyBody.seniorBestYield.page-2.bullets.one',
+        'idle.emptyBody.seniorBestYield.page-2.bullets.two',
+      ],
     },
   ],
   [IdleTag.JuniorTranche]: [
@@ -77,7 +80,7 @@ const idleTagToOnboardingSteps: Record<IdleTag, OnboardingStep[]> = {
       title: 'idle.emptyBody.seniorTranche.page-2.title',
       bullets: [
         'idle.emptyBody.minRisk',
-        'idle.emptyBody.builtInCoverage',
+        'idle.emptyBody.fundsCoveredJunior',
         'idle.emptyBody.noLockingPeriod',
         'idle.emptyBody.autoReinvest',
       ],

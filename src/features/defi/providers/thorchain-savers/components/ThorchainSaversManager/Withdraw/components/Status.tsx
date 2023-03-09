@@ -18,7 +18,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -92,22 +92,18 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!assetId) return
+    if (!assetId || !opportunity) return
     if (state?.withdraw.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
-        provider: opportunity?.provider,
-        type: opportunity?.type,
-        assets: opportunity?.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
+      trackOpportunityEvent(MixPanelEvents.WithdrawSuccess, {
+        opportunity,
+        fiatAmounts: [state.withdraw.fiatAmount],
+        cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
       })
     }
   }, [
     assetId,
     mixpanel,
-    opportunity?.provider,
-    opportunity?.type,
-    opportunity?.underlyingAssetIds,
+    opportunity,
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
     state?.withdraw.txStatus,

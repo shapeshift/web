@@ -1,4 +1,9 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type Mixpanel from 'mixpanel-browser'
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 export type MixPanelType = typeof Mixpanel | undefined
 
 export enum MixPanelEvents {
@@ -15,4 +20,14 @@ export enum MixPanelEvents {
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
   InsufficientFunds = 'Insufficient Funds',
+}
+
+export type trackOpportunityProps = {
+  opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
+  cryptoAmounts: {
+    assetId: AssetId
+    amountCryptoHuman: string | number
+    fiatAmount?: string | number
+  }[]
+  fiatAmounts: string[] | number[]
 }

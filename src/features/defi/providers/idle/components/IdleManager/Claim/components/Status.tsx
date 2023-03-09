@@ -16,6 +16,10 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { isSome } from 'lib/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -24,6 +28,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -31,10 +36,12 @@ import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
 
 export const Status = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
@@ -66,6 +73,7 @@ export const Status = () => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const marketData = useAppSelector(state => selectMarketDataSortedByMarketCap(state))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
@@ -116,21 +124,43 @@ export const Status = () => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const claimableAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+  const claimAmounts: ClaimAmount[] = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
-      if (!opportunityData?.rewardAssetIds?.[i]) return null
-
-      const token = {
-        assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount)
+    return opportunityData.rewardsAmountsCryptoBaseUnit
+      .map((amount, i) => {
+        if (!opportunityData?.rewardAssetIds?.[i]) return undefined
+        const amountCryptoHuman = bnOrZero(amount)
           .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
-          .toNumber(),
+          .toNumber()
+        const fiatAmount = bnOrZero(amountCryptoHuman)
+          .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
+          .toNumber()
+        const token = {
+          assetId: opportunityData.rewardAssetIds[i],
+          amountCryptoHuman,
+          fiatAmount,
+        }
+        return token
+      })
+      .filter(isSome)
+  }, [
+    assets,
+    marketData,
+    opportunityData?.rewardAssetIds,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+  ])
+
+  const claimableAssets = useMemo(() => {
+    return claimAmounts.map(rewardAsset => {
+      if (!rewardAsset?.assetId) return null
+      const token = {
+        assetId: rewardAsset.assetId,
+        amount: rewardAsset.amountCryptoHuman,
       }
-      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+      return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
-  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [claimAmounts])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -139,6 +169,17 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunityData) return
+    if (state.claim.txStatus === 'success') {
+      trackOpportunityEvent(MixPanelEvents.ClaimSuccess, {
+        opportunity: opportunityData,
+        fiatAmounts: claimAmounts.map(claimAmount => claimAmount.fiatAmount),
+        cryptoAmounts: claimAmounts,
+      })
+    }
+  }, [claimAmounts, mixpanel, opportunityData, state.claim.txStatus])
 
   if (!state) return null
 

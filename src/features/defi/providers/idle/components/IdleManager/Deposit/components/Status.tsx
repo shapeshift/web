@@ -16,6 +16,8 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -52,6 +54,8 @@ export const Status = () => {
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const opportunity = state?.opportunity
+
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, userAddress)
@@ -77,6 +81,23 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.deposit.txStatus === 'success' && opportunity) {
+      trackOpportunityEvent(MixPanelEvents.DepositSuccess, {
+        opportunity,
+        fiatAmounts: [state.deposit.fiatAmount],
+        cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+      })
+    }
+  }, [
+    assetId,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+  ])
 
   if (!state) return null
 

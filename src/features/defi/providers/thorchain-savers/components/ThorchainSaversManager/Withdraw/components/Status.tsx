@@ -18,7 +18,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -97,9 +97,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       mixpanel?.track(MixPanelEvents.WithdrawSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
-        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: opportunity?.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
       })
     }
   }, [

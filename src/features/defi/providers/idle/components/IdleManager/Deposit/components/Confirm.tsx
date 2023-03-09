@@ -10,7 +10,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -22,6 +22,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -45,6 +48,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   // TODO: Allow user to set fee priority
   const opportunity = useMemo(() => state?.opportunity, [state])
@@ -113,7 +117,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch || !bip44Params) return
+    if (!dispatch || !bip44Params || !assetId) return
     try {
       if (
         !(
@@ -122,7 +126,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           walletState.wallet &&
           supportsETH(walletState.wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          opportunityData
         )
       )
         return
@@ -145,6 +150,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(MixPanelEvents.DepositConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: [state.deposit.fiatAmount],
+        cryptoAmounts: [{ amountCryptoHuman: state.deposit.cryptoAmount, assetId }],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
@@ -164,10 +174,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     walletState.wallet,
     opportunity,
     chainAdapter,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     idleInvestor,
-    state,
     asset.precision,
     onNext,
+    opportunityData,
+    assetId,
     toast,
     translate,
   ])
@@ -183,6 +196,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         .gte(0),
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch) return null
 

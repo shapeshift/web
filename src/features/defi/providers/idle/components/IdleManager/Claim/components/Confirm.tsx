@@ -21,6 +21,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { isSome } from 'lib/utils'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -30,12 +34,14 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
+import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
 
 const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
@@ -45,6 +51,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(ClaimContext)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
@@ -63,6 +70,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataSortedByMarketCap(state))
 
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
@@ -141,21 +149,45 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     )
   }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
 
+  const claimAmounts: ClaimAmount[] = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
+
+    return opportunityData?.rewardsAmountsCryptoBaseUnit
+      .map((amount, i) => {
+        if (!opportunityData?.rewardAssetIds?.[i]) return undefined
+        const amountCryptoHuman = bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
+          .toNumber()
+        const fiatAmount = bnOrZero(amountCryptoHuman)
+          .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
+          .toNumber()
+        const token = {
+          assetId: opportunityData.rewardAssetIds[i],
+          amountCryptoHuman,
+          fiatAmount,
+        }
+        return token
+      })
+      .filter(isSome)
+  }, [
+    assets,
+    marketData,
+    opportunityData?.rewardAssetIds,
+    opportunityData?.rewardsAmountsCryptoBaseUnit,
+  ])
+
   const claimableAssets = useMemo(() => {
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
-      if (!opportunityData?.rewardAssetIds?.[i]) return null
-
+    return claimAmounts?.map(rewardAsset => {
+      if (!rewardAsset?.assetId) return null
       const token = {
-        assetId: opportunityData.rewardAssetIds[i],
-        amount: bnOrZero(amount)
-          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
-          .toNumber(),
+        assetId: rewardAsset.assetId,
+        amount: rewardAsset.amountCryptoHuman,
       }
-      return <ClaimableAsset key={opportunityData?.rewardAssetIds?.[i]} token={token} />
+      return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
-  }, [assets, opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [claimAmounts, opportunityData?.rewardsAmountsCryptoBaseUnit?.length])
 
   const handleCancel = useCallback(() => {
     history.push({
@@ -175,6 +207,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         .gte(0)
     )
   }, [state.claim, feeAssetBalance, feeAsset])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   const handleConfirm = useCallback(async () => {
     if (!(dispatch && chainAdapter)) return
@@ -203,6 +241,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(MixPanelEvents.ClaimConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: claimAmounts.map(rewardAsset => rewardAsset?.fiatAmount),
+        cryptoAmounts: claimAmounts,
+      })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {
@@ -215,9 +258,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     assetReference,
     walletState.wallet,
     opportunityData,
-    idleInvestor,
     bip44Params,
+    idleInvestor,
     onNext,
+    claimAmounts,
   ])
 
   if (!state || !dispatch) return null

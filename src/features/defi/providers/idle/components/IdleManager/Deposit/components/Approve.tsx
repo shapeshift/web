@@ -21,6 +21,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -151,6 +153,11 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(MixPanelEvents.DepositApprove, {
+        opportunity,
+        cryptoAmounts: [],
+        fiatAmounts: [],
+      })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({

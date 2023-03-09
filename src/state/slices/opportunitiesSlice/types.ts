@@ -150,7 +150,7 @@ export type EarnOpportunityType = {
   rewardAddress?: string
   apy?: number | string
   tvl: string
-  underlyingAssetId?: AssetId
+  underlyingAssetId: AssetId
   assetId: AssetId
   id: OpportunityId
   fiatAmount: string

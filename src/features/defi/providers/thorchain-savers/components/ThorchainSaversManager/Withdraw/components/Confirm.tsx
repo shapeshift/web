@@ -46,6 +46,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
@@ -89,6 +90,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+  const assets = useAppSelector(selectAssets)
 
   // Asset info
   const assetId = toAssetId({
@@ -535,11 +537,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      trackOpportunityEvent(MixPanelEvents.WithdrawConfirm, {
-        opportunity: opportunityData,
-        fiatAmounts: [state.withdraw.fiatAmount],
-        cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -552,6 +558,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
+    assets,
     contextDispatch,
     bip44Params,
     accountId,

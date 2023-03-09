@@ -173,13 +173,17 @@ export const Status = () => {
   useEffect(() => {
     if (!opportunityData) return
     if (state.claim.txStatus === 'success') {
-      trackOpportunityEvent(MixPanelEvents.ClaimSuccess, {
-        opportunity: opportunityData,
-        fiatAmounts: claimAmounts.map(claimAmount => claimAmount.fiatAmount),
-        cryptoAmounts: claimAmounts,
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimSuccess,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: claimAmounts.map(claimAmount => claimAmount.fiatAmount),
+          cryptoAmounts: claimAmounts,
+        },
+        assets,
+      )
     }
-  }, [claimAmounts, mixpanel, opportunityData, state.claim.txStatus])
+  }, [assets, claimAmounts, mixpanel, opportunityData, state.claim.txStatus])
 
   if (!state) return null
 

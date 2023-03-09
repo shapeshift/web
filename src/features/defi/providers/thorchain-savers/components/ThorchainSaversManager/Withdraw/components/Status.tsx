@@ -23,7 +23,12 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -46,6 +51,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const assetId = state?.opportunity?.assetId
   const feeAssetId = assetId
 
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const marketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
 
@@ -94,13 +100,18 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   useEffect(() => {
     if (!assetId || !opportunity) return
     if (state?.withdraw.txStatus === 'success') {
-      trackOpportunityEvent(MixPanelEvents.WithdrawSuccess, {
-        opportunity,
-        fiatAmounts: [state.withdraw.fiatAmount],
-        cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     }
   }, [
+    assets,
     assetId,
     mixpanel,
     opportunity,

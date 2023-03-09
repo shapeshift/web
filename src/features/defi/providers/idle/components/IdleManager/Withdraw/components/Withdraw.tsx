@@ -21,6 +21,7 @@ import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -42,6 +43,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
+  const assets = useAppSelector(selectAssets)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -143,13 +145,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-      trackOpportunityEvent(MixPanelEvents.WithdrawContinue, {
-        opportunity: opportunityData,
-        fiatAmounts: [formValues.fiatAmount],
-        cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawContinue,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [formValues.fiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount }],
+        },
+        assets,
+      )
     },
-    [userAddress, dispatch, getWithdrawGasEstimate, onNext, opportunityData, asset.assetId],
+    [userAddress, dispatch, getWithdrawGasEstimate, onNext, opportunityData, asset.assetId, assets],
   )
 
   const handleCancel = useCallback(() => {

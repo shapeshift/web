@@ -29,6 +29,7 @@ import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
@@ -55,6 +56,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { chainId, assetReference, contractAddress } = query
   const chainAdapter = getChainAdapterManager().get(chainId)
 
+  const assets = useAppSelector(selectAssets)
   const feeAssetId = chainAdapter?.getFeeAssetId()
 
   const opportunityId = useMemo(
@@ -150,11 +152,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      trackOpportunityEvent(MixPanelEvents.DepositConfirm, {
-        opportunity: opportunityData,
-        fiatAmounts: [state.deposit.fiatAmount],
-        cryptoAmounts: [{ amountCryptoHuman: state.deposit.cryptoAmount, assetId }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ amountCryptoHuman: state.deposit.cryptoAmount, assetId }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
       toast({
@@ -183,6 +189,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetId,
     toast,
     translate,
+    assets,
   ])
 
   const handleCancel = useCallback(() => {

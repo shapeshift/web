@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -241,16 +241,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.ClaimConfirm, {
-        provider: opportunityData.provider,
-        type: opportunityData.type,
-        version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
-        cryptoAmounts: claimAmounts.map(
-          rewardAsset =>
-            `${rewardAsset.amountCryptoHuman} ${getMaybeCompositeAssetSymbol(rewardAsset.assetId)}`,
-        ),
+      trackOpportunityEvent(MixPanelEvents.ClaimConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: claimAmounts.map(rewardAsset => rewardAsset?.fiatAmount),
+        cryptoAmounts: claimAmounts,
       })
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
@@ -267,7 +261,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     bip44Params,
     idleInvestor,
     onNext,
-    mixpanel,
     claimAmounts,
   ])
 

@@ -39,9 +39,10 @@ type trackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
   cryptoAmounts: {
     assetId: AssetId
-    amountCryptoHuman: string
+    amountCryptoHuman: string | number
+    fiatAmount?: string | number
   }[]
-  fiatAmounts: string[]
+  fiatAmounts: string[] | number[]
 }
 
 export const trackOpportunityEvent = (event: MixPanelEvents, properties: trackOpportunityProps) => {

@@ -1,6 +1,7 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -41,6 +42,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     assets,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
+    const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
+    const projectedAnnualizedYieldByAssetId: Record<AssetId, BN> = {}
     const byAssetId = combined.reduce<Record<AssetId, AggregatedOpportunitiesByAssetIdReturn>>(
       (acc, cur) => {
         const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
@@ -63,7 +66,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
           const asset = assets[assetId]
           if (!asset) return acc
-          acc[assetId].netApy = bnOrZero(acc[assetId].netApy).plus(cur.apy).toFixed(2)
+
           acc[assetId].opportunities[cur.type].push(cur.assetId as OpportunityId)
           acc[assetId].fiatRewardsAmount = '0'
           if (cur.type === DefiType.Staking) {
@@ -102,6 +105,12 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               ),
             )
             .toFixed(2)
+
+          totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
+          projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
+            projectedAnnualizedYieldByAssetId[assetId],
+          ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
             .plus(
               bnOrZero(
@@ -116,6 +125,13 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       },
       {},
     )
+
+    for (const [assetId, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByAssetId)) {
+      const netApy = bnOrZero(projectedAnnualizedYieldByAssetId[assetId]).div(
+        totalVirtualFiatAmount,
+      )
+      byAssetId[assetId].netApy = netApy.toFixed()
+    }
 
     return Object.values(byAssetId)
   },

@@ -19,6 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { isSome } from 'lib/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -123,24 +124,26 @@ export const Status = () => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const claimAmounts: (ClaimAmount | null)[] | null = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+  const claimAmounts: ClaimAmount[] = useMemo(() => {
+    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit.map((amount, i) => {
-      if (!opportunityData?.rewardAssetIds?.[i]) return null
-      const amountCryptoHuman = bnOrZero(amount)
-        .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
-        .toNumber()
-      const fiatAmount = bnOrZero(amountCryptoHuman)
-        .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
-        .toNumber()
-      const token = {
-        assetId: opportunityData.rewardAssetIds[i],
-        amountCryptoHuman,
-        fiatAmount,
-      }
-      return token
-    })
+    return opportunityData.rewardsAmountsCryptoBaseUnit
+      .map((amount, i) => {
+        if (!opportunityData?.rewardAssetIds?.[i]) return undefined
+        const amountCryptoHuman = bnOrZero(amount)
+          .div(bn(10).pow(assets[opportunityData.rewardAssetIds[i]]?.precision ?? 1))
+          .toNumber()
+        const fiatAmount = bnOrZero(amountCryptoHuman)
+          .times(bnOrZero(marketData[opportunityData.rewardAssetIds[i]]?.price))
+          .toNumber()
+        const token = {
+          assetId: opportunityData.rewardAssetIds[i],
+          amountCryptoHuman,
+          fiatAmount,
+        }
+        return token
+      })
+      .filter(isSome)
   }, [
     assets,
     marketData,
@@ -149,9 +152,7 @@ export const Status = () => {
   ])
 
   const claimableAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
-
-    return claimAmounts?.map(rewardAsset => {
+    return claimAmounts.map(rewardAsset => {
       if (!rewardAsset?.assetId) return null
       const token = {
         assetId: rewardAsset.assetId,
@@ -159,7 +160,7 @@ export const Status = () => {
       }
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
-  }, [claimAmounts, opportunityData?.rewardsAmountsCryptoBaseUnit?.length])
+  }, [claimAmounts])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
@@ -175,12 +176,10 @@ export const Status = () => {
         provider: opportunityData?.provider,
         type: opportunityData?.type,
         assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
-        fiatAmounts: claimAmounts?.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
-        cryptoAmounts: claimAmounts?.map(
+        fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
+        cryptoAmounts: claimAmounts.map(
           rewardAsset =>
-            `${rewardAsset?.amountCryptoHuman} ${getCompositeAssetSymbol(
-              rewardAsset?.assetId ?? '',
-            )}`,
+            `${rewardAsset.amountCryptoHuman} ${getCompositeAssetSymbol(rewardAsset.assetId)}`,
         ),
       })
     }

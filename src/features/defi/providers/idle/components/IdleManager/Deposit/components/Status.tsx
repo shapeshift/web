@@ -16,7 +16,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -91,9 +91,9 @@ export const Status = () => {
         provider: opportunity.provider,
         type: opportunity.type,
         version: opportunity.version,
-        assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: opportunity.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
       })
     }
   }, [

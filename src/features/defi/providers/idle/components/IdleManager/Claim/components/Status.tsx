@@ -16,7 +16,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -177,11 +177,11 @@ export const Status = () => {
         provider: opportunityData.provider,
         type: opportunityData.type,
         version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
         fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts.map(
           rewardAsset =>
-            `${rewardAsset.amountCryptoHuman} ${getCompositeAssetSymbol(rewardAsset.assetId)}`,
+            `${rewardAsset.amountCryptoHuman} ${getMaybeCompositeAssetSymbol(rewardAsset.assetId)}`,
         ),
       })
     }

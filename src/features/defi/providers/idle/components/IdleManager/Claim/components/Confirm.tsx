@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -245,11 +245,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         provider: opportunityData.provider,
         type: opportunityData.type,
         version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
         fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts.map(
           rewardAsset =>
-            `${rewardAsset.amountCryptoHuman} ${getCompositeAssetSymbol(rewardAsset.assetId)}`,
+            `${rewardAsset.amountCryptoHuman} ${getMaybeCompositeAssetSymbol(rewardAsset.assetId)}`,
         ),
       })
     } catch (error) {

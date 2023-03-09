@@ -30,7 +30,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
@@ -538,9 +538,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
         provider: opportunityData?.provider,
         type: opportunityData?.type,
-        assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: opportunityData?.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
+        cryptoAmounts: [`${state.withdraw.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId ?? '')}`],
       })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')

@@ -9,7 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
@@ -52,7 +52,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     mixpanel?.track(MixPanelEvents.ClickOpportunity, {
       provider,
       type,
-      assets: underlyingAssetIds.map(getCompositeAssetSymbol),
+      assets: underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
       element: 'Featured Card',
     })
 

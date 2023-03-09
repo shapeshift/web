@@ -26,7 +26,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -252,9 +252,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         mixpanel?.track(MixPanelEvents.WithdrawContinue, {
           provider: opportunityData.provider,
           type: opportunityData.type,
-          assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+          assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
           fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-          cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+          cryptoAmounts: [`${formValues.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
         })
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

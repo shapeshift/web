@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -159,7 +159,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         provider: opportunity.provider,
         type: opportunity.type,
         version: opportunity.version,
-        assets: [opportunity.underlyingAssetIds.map(getCompositeAssetSymbol)],
+        assets: [opportunity.underlyingAssetIds.map(getMaybeCompositeAssetSymbol)],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')

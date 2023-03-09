@@ -18,7 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -196,9 +196,9 @@ export const Deposit: React.FC<DepositProps> = ({
             provider: opportunityData.provider,
             type: opportunityData.type,
             version: opportunityData.version,
-            assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
+            assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
             fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-            cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
+            cryptoAmounts: [`${formValues.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
           })
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()

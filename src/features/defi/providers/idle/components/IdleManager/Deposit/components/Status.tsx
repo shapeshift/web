@@ -16,8 +16,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
@@ -33,7 +32,6 @@ import { DepositContext } from '../DepositContext'
 
 export const Status = () => {
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
@@ -87,18 +85,14 @@ export const Status = () => {
   useEffect(() => {
     if (!opportunity) return
     if (state?.deposit.txStatus === 'success' && opportunity) {
-      mixpanel?.track(MixPanelEvents.DepositSuccess, {
-        provider: opportunity.provider,
-        type: opportunity.type,
-        version: opportunity.version,
-        assets: opportunity.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
+      trackOpportunityEvent(MixPanelEvents.DepositSuccess, {
+        opportunity,
+        fiatAmounts: [state.deposit.fiatAmount],
+        cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
       })
     }
   }, [
     assetId,
-    mixpanel,
     opportunity,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,

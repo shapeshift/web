@@ -24,7 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -157,15 +157,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
-        provider: opportunityData.provider,
-        type: opportunityData.type,
-        version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
-        cryptoAmounts: [
-          `${state.withdraw.cryptoAmount} ${getMaybeCompositeAssetSymbol(asset.assetId)}`,
-        ],
+      trackOpportunityEvent(MixPanelEvents.WithdrawConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: [state.withdraw.fiatAmount],
+        cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
       })
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
@@ -180,17 +175,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetReference,
     opportunity,
     chainAdapter,
-    opportunityData?.assetId,
-    opportunityData?.provider,
-    opportunityData?.type,
-    opportunityData?.underlyingAssetIds,
-    opportunityData?.version,
+    opportunityData,
     asset,
     idleOpportunity,
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
     onNext,
-    mixpanel,
   ])
 
   const handleCancel = useCallback(() => {

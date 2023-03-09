@@ -22,7 +22,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -150,13 +150,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, {
-        provider: opportunityData.provider,
-        type: opportunityData.type,
-        version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
+      trackOpportunityEvent(MixPanelEvents.DepositConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: [state.deposit.fiatAmount],
+        cryptoAmounts: [{ amountCryptoHuman: state.deposit.cryptoAmount, assetId }],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
@@ -182,7 +179,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     idleInvestor,
     asset.precision,
     onNext,
-    mixpanel,
     opportunityData,
     assetId,
     toast,

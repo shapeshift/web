@@ -21,8 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
@@ -46,7 +45,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
@@ -155,11 +153,10 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track(MixPanelEvents.DepositApprove, {
-        provider: opportunity.provider,
-        type: opportunity.type,
-        version: opportunity.version,
-        assets: [opportunity.underlyingAssetIds.map(getMaybeCompositeAssetSymbol)],
+      trackOpportunityEvent(MixPanelEvents.DepositApprove, {
+        opportunity,
+        cryptoAmounts: [],
+        fiatAmounts: [],
       })
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
@@ -185,7 +182,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     getDepositGasEstimate,
     state?.deposit,
     onNext,
-    mixpanel,
     toast,
     translate,
   ])

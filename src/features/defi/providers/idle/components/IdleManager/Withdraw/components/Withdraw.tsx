@@ -15,8 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -39,7 +38,6 @@ type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
-  const mixpanel = getMixPanel()
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -145,26 +143,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: IdleWithdrawActionType.SET_LOADING, payload: false })
-      mixpanel?.track(MixPanelEvents.WithdrawContinue, {
-        provider: opportunityData.provider,
-        type: opportunityData.type,
-        version: opportunityData.version,
-        assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-        cryptoAmounts: [
-          `${formValues.cryptoAmount} ${getMaybeCompositeAssetSymbol(asset.assetId)}`,
-        ],
+      trackOpportunityEvent(MixPanelEvents.WithdrawContinue, {
+        opportunity: opportunityData,
+        fiatAmounts: [formValues.fiatAmount],
+        cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount }],
       })
     },
-    [
-      userAddress,
-      dispatch,
-      getWithdrawGasEstimate,
-      onNext,
-      mixpanel,
-      opportunityData,
-      asset.assetId,
-    ],
+    [userAddress, dispatch, getWithdrawGasEstimate, onNext, opportunityData, asset.assetId],
   )
 
   const handleCancel = useCallback(() => {

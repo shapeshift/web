@@ -9,7 +9,7 @@ import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, trackOpportunityProps } from './types'
 
 export const getMaybeCompositeAssetSymbol = (assetId: AssetId) => {
-  const asset = selectAssetById(store.getState(), assetId ?? '')
+  const asset = selectAssetById(store.getState(), assetId)
   if (!asset) return assetId
   const { chainId } = fromAssetId(assetId)
   const networkName = getChainAdapterManager().get(chainId)?.getDisplayName()

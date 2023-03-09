@@ -30,7 +30,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
@@ -475,7 +475,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [chainId, getPreWithdrawInput, getWithdrawInput, walletState.wallet])
 
   const handleConfirm = useCallback(async () => {
-    if (!contextDispatch || !bip44Params || !accountId || !assetId) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
     try {
       if (
         !(
@@ -535,14 +535,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.WithdrawConfirm, {
-        provider: opportunityData?.provider,
-        type: opportunityData?.type,
-        assets: opportunityData?.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.withdraw.fiatAmount).toNumber()],
-        cryptoAmounts: [
-          `${state.withdraw.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId ?? '')}`,
-        ],
+      trackOpportunityEvent(MixPanelEvents.WithdrawConfirm, {
+        opportunity: opportunityData,
+        fiatAmounts: [state.withdraw.fiatAmount],
+        cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
       })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
@@ -560,6 +556,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     bip44Params,
     accountId,
     assetId,
+    opportunityData,
     userAddress,
     assetReference,
     walletState.wallet,
@@ -576,10 +573,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dustAmountCryptoBaseUnit,
     withdrawFeeCryptoBaseUnit,
     onNext,
-    mixpanel,
-    opportunityData?.provider,
-    opportunityData?.type,
-    opportunityData?.underlyingAssetIds,
     toast,
     translate,
   ])

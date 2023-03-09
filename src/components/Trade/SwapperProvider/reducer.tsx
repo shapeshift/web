@@ -83,31 +83,15 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
     }
     case SwapperActionType.SET_AVAILABLE_SWAPPERS:
       const swappersWithQuoteMetadata = action.payload
-      const isCurrentSwapperStillAvailable = swappersWithQuoteMetadata.some(
-        swapperWithQuoteMetadata =>
-          swapperWithQuoteMetadata.swapper.getType() ===
-          state.activeSwapperWithMetadata?.swapper.getType(),
-      )
       const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
       const bestQuote = bestSwapperWithQuoteMetadata?.quote
       const bestSlippage = bestQuote.recommendedSlippage ?? DEFAULT_SLIPPAGE
-      // If the current swapper is still available, keep it as the active swapper and update the quote/slippage
-      // Otherwise, set the active swapper to the best swapper and update the quote/slippage
-      const bestSwapperSpreadable: Partial<SwapperState> = isCurrentSwapperStillAvailable
-        ? {
-            activeSwapperWithMetadata: state.activeSwapperWithMetadata,
-            slippage:
-              state.activeSwapperWithMetadata?.quote?.recommendedSlippage ?? DEFAULT_SLIPPAGE,
-            quote: state.activeSwapperWithMetadata?.quote,
-          }
-        : {
-            activeSwapperWithMetadata: swappersWithQuoteMetadata?.[0],
-            slippage: bestSlippage,
-            quote: bestQuote,
-          }
+      // Set the active swapper to the best available swapper, which is the first
       return {
         ...state,
-        ...bestSwapperSpreadable,
+        activeSwapperWithMetadata: bestSwapperWithQuoteMetadata,
+        slippage: bestSlippage,
+        quote: bestQuote,
         availableSwappersWithMetadata: swappersWithQuoteMetadata,
       }
     default:

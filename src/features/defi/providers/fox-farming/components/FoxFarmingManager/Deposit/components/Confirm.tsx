@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -21,13 +21,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
-  assertIsFoxEthStakingContractAddress,
-  foxEthLpAssetId,
-} from 'state/slices/opportunitiesSlice/constants'
-import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -53,22 +51,24 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 
   const { stake } = useFoxFarming(contractAddress)
 
-  const foxEthLpOpportunityFilter = useMemo(
+  const foxFarmingOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-      accountId,
+      stakingId: toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: contractAddress,
+        chainId: ethChainId,
+      }),
     }),
-    [accountId],
+    [contractAddress],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
 
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpOpportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${ethAssetId}`)
@@ -132,7 +132,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     walletState.wallet,
   ])
 
-  if (!state || !dispatch || !foxEthLpOpportunity || !asset) return null
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset) return null
 
   return (
     <ReusableConfirm
@@ -151,7 +151,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={foxEthLpOpportunity?.icons!}
+                icons={foxFarmingOpportunity?.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

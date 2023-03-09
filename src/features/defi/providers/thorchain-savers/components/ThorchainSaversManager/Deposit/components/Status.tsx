@@ -43,7 +43,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
-  const assetId = state?.opportunity?.assetId ?? ''
+  const assetId = state?.opportunity?.assetId
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
@@ -93,7 +93,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!opportunity) return
+    if (!opportunity || !assetId) return
     if (state?.deposit.txStatus === 'success') {
       trackOpportunityEvent(MixPanelEvents.DepositSuccess, {
         opportunity,

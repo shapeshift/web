@@ -195,6 +195,7 @@ export const Deposit: React.FC<DepositProps> = ({
           mixpanel?.track(MixPanelEvents.DepositContinue, {
             provider: opportunityData.provider,
             type: opportunityData.type,
+            version: opportunityData.version,
             assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
             fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
             cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],

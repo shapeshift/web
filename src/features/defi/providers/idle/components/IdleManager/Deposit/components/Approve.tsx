@@ -158,6 +158,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.DepositApprove, {
         provider: opportunity.provider,
         type: opportunity.type,
+        version: opportunity.version,
         assets: [opportunity.underlyingAssetIds.map(getCompositeAssetSymbol)],
       })
     } catch (error) {

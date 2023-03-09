@@ -175,6 +175,7 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.ClaimSuccess, {
         provider: opportunityData?.provider,
         type: opportunityData?.type,
+        version: opportunityData?.version,
         assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts.map(
@@ -189,6 +190,7 @@ export const Status = () => {
     opportunityData?.provider,
     opportunityData?.type,
     opportunityData?.underlyingAssetIds,
+    opportunityData?.version,
     state.claim.txStatus,
   ])
 

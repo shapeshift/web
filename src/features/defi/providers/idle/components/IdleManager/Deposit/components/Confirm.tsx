@@ -152,6 +152,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       mixpanel?.track(MixPanelEvents.DepositConfirm, {
         provider: opportunityData?.provider,
         type: opportunityData?.type,
+        version: opportunityData?.version,
         assets: opportunityData?.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
         cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
@@ -184,6 +185,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.provider,
     opportunityData?.type,
     opportunityData?.underlyingAssetIds,
+    opportunityData?.version,
     assetId,
     toast,
     translate,

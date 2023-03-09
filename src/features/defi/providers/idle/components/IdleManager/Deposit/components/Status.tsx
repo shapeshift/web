@@ -89,6 +89,7 @@ export const Status = () => {
       mixpanel?.track(MixPanelEvents.DepositSuccess, {
         provider: opportunity?.provider,
         type: opportunity?.type,
+        version: opportunity?.version,
         assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
         cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
@@ -100,6 +101,7 @@ export const Status = () => {
     opportunity?.provider,
     opportunity?.type,
     opportunity?.underlyingAssetIds,
+    opportunity?.version,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     state?.deposit.txStatus,

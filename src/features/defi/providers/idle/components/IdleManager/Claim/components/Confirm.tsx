@@ -244,6 +244,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       mixpanel?.track(MixPanelEvents.ClaimConfirm, {
         provider: opportunityData.provider,
         type: opportunityData.type,
+        version: opportunityData.version,
         assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
         fiatAmounts: claimAmounts.map(rewardAsset => bnOrZero(rewardAsset?.fiatAmount).toNumber()),
         cryptoAmounts: claimAmounts.map(

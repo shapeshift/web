@@ -33,13 +33,3 @@ export const trackOpportunityEvent = (event: MixPanelEvents, properties: trackOp
   }
   mixpanel?.track(event, eventData)
 }
-
-// TODO(0xdef1cafe): draft
-export type AnonymizedPortfolio = {
-  fiatBalance: number // $420.69
-  walletHash: string // e.g. '2398734895'
-  wallet: string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
-  chains: string[] // e.g. ['Bitcoin', 'Ethereum']
-  assets: string[] // e.g. ['Bitcoin.BTC', 'Ethereum.ETH', 'Ethereum.USDC']
-  fiatAssetBalances: Record<string, number> // e.g. { 'Bitcoin.BTC': 0.1, 'Ethereum.ETH': 2.13, 'Ethereum.USDC': 420.69 }
-}

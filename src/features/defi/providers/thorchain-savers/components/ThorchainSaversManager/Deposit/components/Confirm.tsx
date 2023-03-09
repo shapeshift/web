@@ -37,7 +37,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
@@ -511,12 +511,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, {
-        provider: opportunity.provider,
-        type: opportunity.type,
-        assets: opportunity.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
+      trackOpportunityEvent(MixPanelEvents.DepositConfirm, {
+        opportunity,
+        fiatAmounts: [state.deposit.fiatAmount],
+        cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
       })
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
@@ -548,7 +546,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     depositFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,
-    mixpanel,
     toast,
     translate,
   ])

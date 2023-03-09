@@ -52,7 +52,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     mixpanel?.track(MixPanelEvents.ClickOpportunity, {
       provider,
       type,
-      assets: underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
+      assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
       element: 'Featured Card',
     })
 

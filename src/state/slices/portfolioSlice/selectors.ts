@@ -26,10 +26,12 @@ import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
 import type { BridgeAsset } from 'components/Bridge/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { isValidAccountNumber } from 'lib/utils'
+import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
+import { hashCode, isValidAccountNumber } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -53,6 +55,7 @@ import {
   selectPortfolioAssetBalances,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
+  selectWalletId,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
@@ -771,5 +774,58 @@ export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
         implementations,
       }
     })
+  },
+)
+
+export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
+  selectAssets,
+  selectWalletId,
+  selectPortfolioFiatBalances,
+  (assetsById, walletId, portfolioBalances): AnonymizedPortfolio => {
+    const hashedWalletId = hashCode(walletId || '')
+
+    type AssetBalances = Record<string, string>
+    type ChainBalances = Record<string, string>
+
+    const [assetBalances, chainBalances, portfolioBalanceBN] = Object.entries(
+      portfolioBalances,
+    ).reduce<[AssetBalances, ChainBalances, BigNumber]>(
+      (acc, [assetId, balance]) => {
+        // by asset
+
+        const asset = assetsById[assetId]
+        if (!asset) return acc
+        const chainId = asset?.chainId
+        const networkName = getChainAdapterManager().get(chainId)?.getDisplayName()
+        // TODO(0xdef1cafe): use selectCompositeSymbolByAssetId
+        const assetName = `${networkName}.${asset?.symbol}`
+        acc[0][assetName] = balance
+
+        // by chain
+        const chain = getChainAdapterManager().get(chainId)?.getDisplayName()
+        if (!chain) return acc
+        if (!acc[1][chain]) acc[1][chain] = '0'
+        acc[1][chain] = bnOrZero(acc[1][chain]).plus(bnOrZero(balance)).toFixed(2)
+
+        // total
+        acc[2] = bnOrZero(acc[2]).plus(bnOrZero(balance))
+
+        return acc
+      },
+      [{}, {}, bn(0)],
+    )
+
+    const assets = Object.keys(assetBalances)
+    const chains = Object.keys(chainBalances)
+    const portfolioBalance = portfolioBalanceBN.toFixed(2)
+
+    return {
+      hashedWalletId,
+      portfolioBalance,
+      chains,
+      assets,
+      assetBalances,
+      chainBalances,
+    }
   },
 )

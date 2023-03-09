@@ -2,15 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, trackOpportunityProps } from './types'
 
+// TODO(0xdef1cafe): refactor to selector that returns Record<AssetId, string> where string is the composite symbol
 export const getMaybeCompositeAssetSymbol = (assetId: AssetId) => {
-  const asset = selectAssetById(store.getState(), assetId)
-  if (!asset) return assetId
+  const asset = store.getState().assets.byId[assetId]
   const { chainId } = fromAssetId(assetId)
   const networkName = getChainAdapterManager().get(chainId)?.getDisplayName()
   return `${networkName}.${asset?.symbol}`

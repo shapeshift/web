@@ -136,7 +136,7 @@ export const ClaimConfirm = ({
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],
-          cryptoAmounts: [{ assetId: asset?.assetId, amountCryptoHuman: amount }],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: amount }],
         },
         assets,
       )
@@ -198,7 +198,7 @@ export const ClaimConfirm = ({
   )
 
   useEffect(() => {
-    if (!hasEnoughBalanceForGas) {
+    if (mixpanel && !hasEnoughBalanceForGas) {
       mixpanel?.track(MixPanelEvents.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])

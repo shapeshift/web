@@ -121,6 +121,7 @@ export const useSwapper = () => {
     switch (bestTradeSwapper.name) {
       case SwapperName.Thorchain:
       case SwapperName.Osmosis:
+      case SwapperName.LIFI:
         return true
       case SwapperName.Zrx:
       case SwapperName.CowSwap:

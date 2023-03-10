@@ -160,7 +160,7 @@ export const getDefaultAssetIdPairByChainId = (
         buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
       }
     case KnownChainIds.OptimismMainnet:
-      return featureFlags.OptimismZrx
+      return featureFlags.ZrxOptimismSwap
         ? {
             sellAssetId: optimismAssetId,
             buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',

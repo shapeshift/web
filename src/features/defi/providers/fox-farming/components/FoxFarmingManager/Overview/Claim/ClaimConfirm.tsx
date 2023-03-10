@@ -199,7 +199,7 @@ export const ClaimConfirm = ({
 
   useEffect(() => {
     if (mixpanel && !hasEnoughBalanceForGas) {
-      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+      mixpanel.track(MixPanelEvents.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 

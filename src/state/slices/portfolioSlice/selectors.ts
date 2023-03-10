@@ -30,6 +30,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
 import { hashCode, isValidAccountNumber } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -794,16 +795,11 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
     ).reduce<[AssetBalances, ChainBalances, BigNumber]>(
       (acc, [assetId, balance]) => {
         // by asset
-
-        const asset = assetsById[assetId]
-        if (!asset) return acc
-        const chainId = asset?.chainId
-        const networkName = getChainAdapterManager().get(chainId)?.getDisplayName()
-        // TODO(0xdef1cafe): use selectCompositeSymbolByAssetId
-        const assetName = `${networkName}.${asset?.symbol}`
+        const assetName = getMaybeCompositeAssetSymbol(assetId, assetsById)
         acc[0][assetName] = balance
 
         // by chain
+        const { chainId } = fromAssetId(assetId)
         const chain = getChainAdapterManager().get(chainId)?.getDisplayName()
         if (!chain) return acc
         if (!acc[1][chain]) acc[1][chain] = '0'

@@ -8,7 +8,7 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, trackOpportunityProps } from './types'
 
-const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })
+const moduleLogger = logger.child({ namespace: ['Mixpanel'] })
 
 export const assetToCompositeSymbol = (asset: Asset): string => {
   const { chainId } = asset

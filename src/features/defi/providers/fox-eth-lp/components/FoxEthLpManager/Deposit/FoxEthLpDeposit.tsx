@@ -8,7 +8,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -29,7 +29,6 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { FoxEthLpDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
@@ -108,12 +107,6 @@ export const FoxEthLpDeposit: React.FC<FoxEthLpDepositProps> = ({
       },
     }
   }, [accountId, underlyingAsset, handleAccountIdChange, translate])
-
-  useEffect(() => {
-    if (!foxEthLpOpportunity) return
-
-    dispatch({ type: FoxEthLpDepositActionType.SET_OPPORTUNITY, payload: foxEthLpOpportunity })
-  }, [foxEthLpOpportunity])
 
   if (loading || !underlyingAsset || !marketData || !foxEthLpOpportunity || !StepConfig) {
     return (

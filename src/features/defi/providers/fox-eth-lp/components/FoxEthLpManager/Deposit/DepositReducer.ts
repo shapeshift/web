@@ -3,7 +3,6 @@ import { FoxEthLpDepositActionType } from './DepositCommon'
 
 export const initialState: FoxEthLpDepositState = {
   txid: null,
-  opportunity: null,
   userAddress: null,
   loading: false,
   approve: {},
@@ -22,8 +21,6 @@ export const reducer = (
   action: FoxEthLpDepositActions,
 ): FoxEthLpDepositState => {
   switch (action.type) {
-    case FoxEthLpDepositActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case FoxEthLpDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case FoxEthLpDepositActionType.SET_DEPOSIT:

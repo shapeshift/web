@@ -17,7 +17,12 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import {
+  selectAssetById,
+  selectEarnUserLpOpportunity,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxEthLpDepositActionType } from '../DepositCommon'
@@ -36,7 +41,18 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const translate = useTranslate()
   const { lpAccountId } = useFoxEth()
   const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
 
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -54,7 +70,8 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const toast = useToast()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
+    if (!dispatch || !state?.deposit || !foxEthLpOpportunity || !wallet || !supportsETH(wallet))
+      return
 
     try {
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
@@ -95,19 +112,18 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    allowance,
-    approve,
     dispatch,
+    state?.deposit,
+    foxEthLpOpportunity,
+    wallet,
+    approve,
     getDepositGasData,
-    foxAsset.precision,
     feeAsset.precision,
-    state?.deposit.foxCryptoAmount,
-    state?.deposit.ethCryptoAmount,
     onNext,
-    opportunity,
+    allowance,
+    foxAsset.precision,
     toast,
     translate,
-    wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

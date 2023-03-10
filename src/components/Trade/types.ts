@@ -36,7 +36,6 @@ export enum TradeRoutePaths {
   Approval = '/trade/approval',
   SellSelect = '/trade/select/sell',
   BuySelect = '/trade/select/buy',
-  AccountSelect = '/trade/select/account',
 }
 
 export type SupportedSwappingChain =

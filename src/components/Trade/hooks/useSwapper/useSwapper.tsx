@@ -18,7 +18,6 @@ import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
-import { SWAPPER_NAME as LIFI_SWAPPER_NAME } from 'lib/swapper/LifiSwapper/utils/constants'
 import { selectAssetIds, selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -122,7 +121,7 @@ export const useSwapper = () => {
     switch (bestTradeSwapper.name) {
       case SwapperName.Thorchain:
       case SwapperName.Osmosis:
-      case LIFI_SWAPPER_NAME:
+      case SwapperName.LIFI:
         return true
       case SwapperName.Zrx:
       case SwapperName.CowSwap:

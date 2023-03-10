@@ -10,7 +10,6 @@ import {
   foxyAssetId,
   fromAccountId,
   fromAssetId,
-  isChainId,
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
@@ -781,8 +780,9 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,
   (walletAccountIds, accountMetadata, accountNumber, chainId): AccountId | undefined => {
-    if (!isValidAccountNumber(accountNumber)) throw new Error('invalid account number')
-    if (chainId === undefined || !isChainId(chainId)) throw new Error('invalid chain id')
+    if (!isValidAccountNumber(accountNumber))
+      throw new Error(`invalid account number: ${accountNumber}`)
+    if (chainId === undefined) throw new Error('undefined chain id')
 
     return walletAccountIds.find(accountId => {
       if (fromAccountId(accountId).chainId !== chainId) return false

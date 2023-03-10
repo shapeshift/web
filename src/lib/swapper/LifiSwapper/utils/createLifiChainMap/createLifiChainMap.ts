@@ -1,14 +1,25 @@
 import type { ChainKey as LifiChainKey, EVMChain as LifiEVMChain } from '@lifi/sdk'
-import type { ChainId, ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, isChainReference, toChainId } from '@shapeshiftoss/caip'
+import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 
 export const createLifiChainMap = (lifiChains: LifiEVMChain[]): Map<ChainId, LifiChainKey> => {
   return new Map(
     lifiChains.map(({ id, key }) => {
+      const chainReference = (() => {
+        const maybeChainReference = id.toString()
+
+        if (!isChainReference(maybeChainReference))
+          throw new SwapError('[createLifiChainMap] invalid chainId', {
+            code: SwapErrorType.UNSUPPORTED_CHAIN,
+            details: { chainId: maybeChainReference },
+          })
+        return maybeChainReference
+      })()
+
       const chainId = toChainId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
-        // TODO: create explicit mapping instead of casting?
-        chainReference: id.toString() as ChainReference,
+        chainReference,
       })
       return [chainId, key]
     }),

@@ -19,26 +19,24 @@ import type {
   ExecuteTradeInput,
   GetEvmTradeQuoteInput,
   Swapper,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
-import { SwapError } from '@shapeshiftoss/swapper'
+import { SwapError, SwapperName, SwapperType } from '@shapeshiftoss/swapper'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
 import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
-import { SWAPPER_NAME, SWAPPER_TYPE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
-  readonly name = SWAPPER_NAME
+  readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
   private lifiBridges: LifiBridgeDefinition[] = []
@@ -61,7 +59,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
 
   /** Returns the swapper type */
   getType(): SwapperType {
-    return SWAPPER_TYPE
+    return SwapperType.LIFI
   }
 
   /**
@@ -100,7 +98,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   }
 
   /**
-   * Get the txid of an approve infinite transaction
+   * Broadcasts an infinite approval Tx and returns the Txid
    */
   async approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
     return await approveInfinite(input)
@@ -122,7 +120,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   }
 
   /**
-   * Get supported sell assetIds
+   * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return filterAssetIdsBySellable(assetIds, this.lifiAssetMap)

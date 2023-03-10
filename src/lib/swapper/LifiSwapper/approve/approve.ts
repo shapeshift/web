@@ -11,7 +11,7 @@ import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 const grantAllowanceForAmount = async (
   { quote, wallet }: ApproveInfiniteInput<EvmChainId>,
-  approvalAmount: string,
+  approvalAmountCryptoBaseUnit: string,
 ) => {
   const chainId = quote.sellAsset.chainId
   const adapterManager = getChainAdapterManager()
@@ -20,21 +20,21 @@ const grantAllowanceForAmount = async (
 
   if (!isEvmChainId(chainId)) {
     throw new SwapError('[approvalNeeded] - only EVM chains are supported', {
-      code: SwapErrorType.UNSUPPORTED_NAMESPACE,
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
     })
   }
 
   if (adapter === undefined) {
     throw new SwapError('[approvalNeeded] - getChainAdapterManager returned undefined', {
-      code: SwapErrorType.UNSUPPORTED_NAMESPACE,
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
     })
   }
 
   const approvalQuote: TradeQuote<EvmChainId> = {
     ...quote,
-    sellAmountBeforeFeesCryptoBaseUnit: approvalAmount,
+    sellAmountBeforeFeesCryptoBaseUnit: approvalAmountCryptoBaseUnit,
     feeData: {
       ...quote.feeData,
       chainSpecific: {
@@ -58,8 +58,9 @@ const grantAllowanceForAmount = async (
 export async function approveAmount(args: ApproveAmountInput<EvmChainId>) {
   try {
     // If no amount is specified we use the quotes sell amount
-    const approvalAmount = args.amount ?? args.quote.sellAmountBeforeFeesCryptoBaseUnit
-    return await grantAllowanceForAmount(args, approvalAmount)
+    const approvalAmountCryptoBaseUnit =
+      args.amount ?? args.quote.sellAmountBeforeFeesCryptoBaseUnit
+    return await grantAllowanceForAmount(args, approvalAmountCryptoBaseUnit)
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[approveAmount]', {

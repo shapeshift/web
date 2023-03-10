@@ -75,7 +75,7 @@ export async function getTradeQuote(
     })
   }
 
-  const fromAmountLifi: BigNumber = (() => {
+  const fromAmountCryptoLifiPrecision: BigNumber = (() => {
     if (sendMax) {
       const accountId = selectAccountIdByAccountNumberAndChainId(store.getState(), {
         accountNumber,
@@ -93,29 +93,33 @@ export async function getTradeQuote(
         assetId: sellAsset.assetId,
       })
 
-      return convertPrecision(balance, sellAsset.precision, fromLifiToken.decimals)
+      return convertPrecision({
+        value: balance,
+        inputPrecision: sellAsset.precision,
+        outputPrecision: fromLifiToken.decimals,
+      })
     }
 
-    return convertPrecision(
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sellAsset.precision,
-      fromLifiToken.decimals,
-    )
+    return convertPrecision({
+      value: sellAmountBeforeFeesCryptoBaseUnit,
+      inputPrecision: sellAsset.precision,
+      outputPrecision: fromLifiToken.decimals,
+    })
   })()
 
   // handle quotes that dont meet the minimum amount
   const { price } = selectMarketDataById(store.getState(), sellAsset.assetId)
   const minimumAmountThresholdCryptoHuman = bn(MIN_AMOUNT_THRESHOLD_USD_HUMAN).dividedBy(price)
-  const minimumAmountThresholdCryptoLifi = fromHuman(
-    minimumAmountThresholdCryptoHuman,
-    sellAsset.precision,
-  )
+  const minimumAmountThresholdCryptoLifi = fromHuman({
+    value: minimumAmountThresholdCryptoHuman,
+    outputPrecision: sellAsset.precision,
+  })
 
-  // LiFi cannot provide minimum trade amounts up front because the bridges and exhanges vary it
+  // LiFi cannot provide minimum trade amounts up front because the bridges and exchanges vary it
   // constantly. We can determine what the minimum amount from a successful request though, but
   // for a request to succeed the requested amount must be over the minimum.
   const thresholdedAmountCryptoLifi = BigNumber.max(
-    fromAmountLifi,
+    fromAmountCryptoLifiPrecision,
     minimumAmountThresholdCryptoLifi,
   )
     .integerValue()
@@ -151,17 +155,17 @@ export async function getTradeQuote(
 
   const selectedRoute = lifiRoutesResponse.routes[SELECTED_ROUTE_INDEX]
 
-  const minimumCryptoHuman = toHuman(
-    getMinimumAmountFromRoutes(lifiRoutesResponse.routes, lifiBridges) ?? Infinity,
-    fromLifiToken.decimals,
-  ).toString()
+  const minimumCryptoHuman = toHuman({
+    value: getMinimumAmountFromRoutes(lifiRoutesResponse.routes, lifiBridges) ?? Infinity,
+    inputPrecision: fromLifiToken.decimals,
+  }).toString()
 
   // for the rate to be valid, both amounts must be converted to the same precision
-  const estimateRate = convertPrecision(
-    selectedRoute.toAmount,
-    toLifiToken.decimals,
-    fromLifiToken.decimals,
-  )
+  const estimateRate = convertPrecision({
+    value: selectedRoute.toAmount,
+    inputPrecision: toLifiToken.decimals,
+    outputPrecision: fromLifiToken.decimals,
+  })
     .dividedBy(bn(selectedRoute.fromAmount))
     .toString()
 

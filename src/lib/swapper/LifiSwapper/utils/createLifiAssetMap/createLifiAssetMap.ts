@@ -9,6 +9,7 @@ import {
   toChainId,
 } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { DEFAULT_LIFI_TOKEN_ADDRESS } from 'lib/swapper/LifiSwapper/utils/constants'
 
 export const createLifiAssetMap = (lifiTokens: LifiToken[]): Map<AssetId, LifiToken> => {
   return new Map(
@@ -18,7 +19,7 @@ export const createLifiAssetMap = (lifiTokens: LifiToken[]): Map<AssetId, LifiTo
         chainReference: lifiToken.chainId.toString() as ChainReference,
       })
 
-      const isDefaultAddress = lifiToken.address === '0x0000000000000000000000000000000000000000'
+      const isDefaultAddress = lifiToken.address === DEFAULT_LIFI_TOKEN_ADDRESS
 
       const { assetReference, assetNamespace } = (() => {
         if (!isDefaultAddress)

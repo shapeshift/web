@@ -23,38 +23,39 @@ export const transformLifiFeeData = (
   )
 
   // this is the sum of all `feeCosts` against the buy asset in USD
-  // need to manually convert them to USD because lifi rounds to nearst dollar
+  // need to manually convert them to USD because lifi rounds to the nearest dollar
   const buyAssetTradeFeeUsd =
     buyAssetRouteFeeCosts
       .map(feeCost =>
-        toHuman(feeCost.amount, feeCost.token.decimals).multipliedBy(
+        toHuman({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
           bnOrZero(feeCost.token.priceUSD),
         ),
       )
-      .reduce((acc, amountUSD) => acc.plus(amountUSD), bn(0)) ?? bn(0)
+      .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
   // this is the sum of all `feeCosts` against the sell asset in USD
-  // need to manually convert them to USD because lifi rounds to nearst dollar
+  // need to manually convert them to USD because lifi rounds to the nearest dollar
   const sellAssetTradeFeeUsd =
     sellAssetRouteFeeCosts
       .map(feeCost =>
-        toHuman(feeCost.amount, feeCost.token.decimals).multipliedBy(
+        toHuman({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
           bnOrZero(feeCost.token.priceUSD),
         ),
       )
-      .reduce((acc, amountUSD) => acc.plus(amountUSD), bn(0)) ?? bn(0)
+      .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
-  const networkFeeCryptoBaseUnit = fromHuman(
-    selectedRoute.gasCostUSD ?? '0',
-    selectedRoute.fromToken.decimals,
-  ).dividedBy(bnOrZero(selectedRoute.fromToken.priceUSD))
+  const networkFeeCryptoBaseUnit = fromHuman({
+    value: selectedRoute.gasCostUSD ?? '0',
+    outputPrecision: selectedRoute.fromToken.decimals,
+  }).dividedBy(bnOrZero(selectedRoute.fromToken.priceUSD))
 
   // the sum of all 'APPROVE' gas fees
   // TODO: validate this with lifi
   const approvalFeeCryptoBaseUnit =
     allRouteGasCosts
       .filter(gasCost => gasCost.type === 'APPROVE')
-      .reduce((a, v) => a.plus(bnOrZero(v.estimate, LIFI_GAS_FEE_BASE)), bn(0)) ?? bn(0)
+      .reduce((a, v) => (v.estimate ? a.plus(bn(v.estimate, LIFI_GAS_FEE_BASE)) : a), bn(0)) ??
+    bn(0)
 
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this as $4.59 next to the gas icon
@@ -62,7 +63,7 @@ export const transformLifiFeeData = (
       // the following are not required because gas is hardcoded downstream during approval
       // estimatedGas: gas limit for approval
       // gasPriceCryptoBaseUnit: gas price for approval
-      approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(), // UI doesnt use this
+      approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(), // UI shows as "protocol fee"
     sellAssetTradeFeeUsd: sellAssetTradeFeeUsd.toString(),

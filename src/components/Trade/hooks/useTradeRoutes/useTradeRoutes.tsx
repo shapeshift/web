@@ -22,9 +22,13 @@ export const useTradeRoutes = (): {
     state: { buyTradeAsset, sellTradeAsset },
   } = useSwapperState()
 
-  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
-  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
-  const updateBuyAssetAccountId = useSwapperStore.use.updateBuyAssetAccountId()
+  const updateSelectedSellAssetAccountId = useSwapperStore(
+    state => state.updateSelectedSellAssetAccountId,
+  )
+  const updateSelectedBuyAssetAccountId = useSwapperStore(
+    state => state.updateSelectedBuyAssetAccountId,
+  )
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {

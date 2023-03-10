@@ -62,10 +62,14 @@ export const TradeInput = () => {
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
-  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
-  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
-  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
-  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
+  const sellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
+  const updateSelectedSellAssetAccountId = useSwapperStore(
+    state => state.updateSelectedSellAssetAccountId,
+  )
+  const updateSelectedBuyAssetAccountId = useSwapperStore(
+    state => state.updateSelectedBuyAssetAccountId,
+  )
 
   const {
     dispatch: swapperDispatch,

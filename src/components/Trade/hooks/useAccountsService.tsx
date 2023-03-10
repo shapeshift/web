@@ -19,12 +19,12 @@ export const useAccountsService = () => {
 
   // Custom hooks
   const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
-  const selectedSellAssetAccountId = useSwapperStore.use.selectedSellAssetAccountId?.()
-  const selectedBuyAssetAccountId = useSwapperStore.use.selectedBuyAssetAccountId?.()
-  const stateSellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
-  const stateBuyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
-  const updateBuyAssetAccountId = useSwapperStore.use.updateBuyAssetAccountId()
-  const updateSellAssetAccountId = useSwapperStore.use.updateSellAssetAccountId()
+  const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
+  const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
+  const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId

@@ -19,8 +19,8 @@ export const useFrozenTradeValues = () => {
     },
   } = useSwapperState()
 
-  const stateBuyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
-  const stateSellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
+  const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()

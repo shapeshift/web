@@ -1,9 +1,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import type { SwapperAction, UseSwapperStore } from 'state/zustand/swapperStore/types'
-import { createSelectors } from 'state/zustand/swapperStore/utils'
 
-const useSwapperStoreBase = create<UseSwapperStore & SwapperAction>()(
+export const useSwapperStore = create<UseSwapperStore & SwapperAction>()(
   devtools(
     set => ({
       // Actions
@@ -27,5 +26,3 @@ const useSwapperStoreBase = create<UseSwapperStore & SwapperAction>()(
     { name: 'SwapperStore' },
   ),
 )
-
-export const useSwapperStore = createSelectors(useSwapperStoreBase)

@@ -37,8 +37,8 @@ export const useSwapper = () => {
     state: { sellTradeAsset, buyTradeAsset, quote, isSendMax, isExactAllowance, slippage },
   } = useSwapperState()
 
-  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
-  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

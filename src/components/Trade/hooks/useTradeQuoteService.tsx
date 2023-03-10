@@ -26,7 +26,7 @@ export const useTradeQuoteService = () => {
     state: { sellTradeAsset, buyTradeAsset, action, isSendMax, quote, amount, receiveAddress },
     dispatch: swapperDispatch,
   } = useSwapperState()
-  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>

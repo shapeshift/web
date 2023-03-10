@@ -20,7 +20,7 @@ export const useReceiveAddress = () => {
     dispatch: swapperDispatch,
     state: { buyTradeAsset },
   } = useSwapperState()
-  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
 
   // Constants
   const buyAsset = buyTradeAsset?.asset

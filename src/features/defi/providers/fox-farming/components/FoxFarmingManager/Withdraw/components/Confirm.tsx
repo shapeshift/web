@@ -22,8 +22,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -43,7 +45,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
-  const opportunity = state?.opportunity
+
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 

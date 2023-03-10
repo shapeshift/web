@@ -3,7 +3,6 @@ import { FoxFarmingDepositActionType } from './DepositCommon'
 
 export const initialState: FoxFarmingDepositState = {
   txid: null,
-  opportunity: null,
   userAddress: null,
   loading: false,
   approve: {},
@@ -20,8 +19,6 @@ export const reducer = (
   action: FoxFarmingDepositActions,
 ): FoxFarmingDepositState => {
   switch (action.type) {
-    case FoxFarmingDepositActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case FoxFarmingDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case FoxFarmingDepositActionType.SET_DEPOSIT:

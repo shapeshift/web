@@ -108,7 +108,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!(state && dispatch && state.userAddress && foxFarmingOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-        if (!(state.userAddress && state.opportunity && assetReference)) return
+        if (!(state.userAddress && assetReference)) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return
@@ -157,8 +157,8 @@ export const Deposit: React.FC<DepositProps> = ({
                 .toPrecision(),
             },
           })
-          onNext(DefiStep.Approve)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
+          onNext(DefiStep.Approve)
         }
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')

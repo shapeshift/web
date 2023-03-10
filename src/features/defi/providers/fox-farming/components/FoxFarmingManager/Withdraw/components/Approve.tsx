@@ -21,7 +21,12 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -39,7 +44,18 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, rewardId } = query
-  const opportunity = state?.opportunity
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -70,7 +86,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   } = useWallet()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
+    if (!dispatch || !state?.withdraw.lpAmount || !opportunity || !wallet || !supportsETH(wallet))
+      return
 
     try {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
@@ -79,7 +96,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(bn(10).pow(asset?.precision ?? 0))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          return bnOrZero(allowance).gte(bnOrZero(state?.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,

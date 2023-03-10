@@ -64,6 +64,8 @@ const validators = {
   REACT_APP_FEATURE_OSMOSIS_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM_ZRX: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),

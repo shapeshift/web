@@ -14,7 +14,6 @@ export type FeatureFlags = {
   OsmosisLP: boolean
   OsmosisLPAdditionalPools: boolean
   Optimism: boolean
-  OptimismZrx: boolean
   ThorSwap: boolean
   IdleFinance: boolean
   Axelar: boolean
@@ -28,6 +27,9 @@ export type FeatureFlags = {
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
+  ZrxAvalancheSwap: boolean
+  ZrxEthereumSwap: boolean
+  ZrxOptimismSwap: boolean
   ConsentBanner: boolean
   MixPanel: boolean
   LiveSupport: boolean
@@ -58,7 +60,6 @@ const initialState: Preferences = {
     OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
-    OptimismZrx: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
@@ -72,6 +73,9 @@ const initialState: Preferences = {
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
+    ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP,
+    ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP,
+    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
     ConsentBanner: getConfig().REACT_APP_FEATURE_CONSENT_BANNER,
     MixPanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,

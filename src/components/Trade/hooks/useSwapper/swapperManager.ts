@@ -35,33 +35,39 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  const cowSwapper = new CowSwapper({
-    adapter: ethereumChainAdapter,
-    apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-    web3: ethWeb3,
-  })
+  const { Cowswap, ThorSwap, OsmosisSwap, ZrxAvalancheSwap, ZrxEthereumSwap, ZrxOptimismSwap } =
+    flags
 
-  const { Cowswap } = flags
+  if (Cowswap) {
+    const cowSwapper = new CowSwapper({
+      adapter: ethereumChainAdapter,
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      web3: ethWeb3,
+    })
+    _swapperManager.addSwapper(cowSwapper)
+  }
 
-  if (Cowswap) _swapperManager.addSwapper(cowSwapper)
+  if (ZrxEthereumSwap) {
+    const zrxEthereumSwapper = new ZrxSwapper({
+      web3: ethWeb3,
+      adapter: ethereumChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxEthereumSwapper)
+  }
 
-  const zrxEthereumSwapper = new ZrxSwapper({
-    web3: ethWeb3,
-    adapter: ethereumChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxEthereumSwapper)
+  if (ZrxAvalancheSwap) {
+    const avalancheChainAdapter = adapterManager.get(
+      KnownChainIds.AvalancheMainnet,
+    ) as unknown as avalanche.ChainAdapter
 
-  const avalancheChainAdapter = adapterManager.get(
-    KnownChainIds.AvalancheMainnet,
-  ) as unknown as avalanche.ChainAdapter
+    const zrxAvalancheSwapper = new ZrxSwapper({
+      web3: avaxWeb3,
+      adapter: avalancheChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxAvalancheSwapper)
+  }
 
-  const zrxAvalancheSwapper = new ZrxSwapper({
-    web3: avaxWeb3,
-    adapter: avalancheChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxAvalancheSwapper)
-
-  if (flags.OptimismZrx) {
+  if (ZrxOptimismSwap) {
     const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
 
     const optimismChainAdapter = adapterManager.get(
@@ -75,7 +81,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
-  if (flags.ThorSwap) {
+  if (ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -90,7 +96,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     })()
   }
 
-  if (flags.OsmosisSwap) {
+  if (OsmosisSwap) {
     const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
     const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })

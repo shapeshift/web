@@ -26,8 +26,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   BASE_BPS_POINTS,
@@ -38,6 +37,7 @@ import {
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -67,7 +67,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const toast = useToast()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
@@ -77,6 +76,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { setValue } = methods
   // Asset info
 
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -249,13 +249,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
-        mixpanel?.track(MixPanelEvents.WithdrawContinue, {
-          provider: opportunityData.provider,
-          type: opportunityData.type,
-          assets: opportunityData.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
-          fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-          cryptoAmounts: [`${formValues.cryptoAmount} ${getMaybeCompositeAssetSymbol(assetId)}`],
-        })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -268,12 +270,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
     },
     [
+      assets,
       userAddress,
       opportunityData,
       dispatch,
       getWithdrawGasEstimate,
       onNext,
-      mixpanel,
       assetId,
       toast,
       translate,

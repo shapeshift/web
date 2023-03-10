@@ -28,6 +28,7 @@ import { isSome } from 'lib/utils'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -54,6 +55,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -153,11 +155,15 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
-      trackOpportunityEvent(MixPanelEvents.DepositApprove, {
-        opportunity,
-        cryptoAmounts: [],
-        fiatAmounts: [],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity,
+          cryptoAmounts: [],
+          fiatAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -182,6 +188,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     getDepositGasEstimate,
     state?.deposit,
     onNext,
+    assets,
     toast,
     translate,
   ])

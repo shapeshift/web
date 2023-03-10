@@ -31,6 +31,7 @@ import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
@@ -58,6 +59,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+  const assets = useAppSelector(selectAssets)
 
   // Asset info
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -157,11 +159,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      trackOpportunityEvent(MixPanelEvents.WithdrawConfirm, {
-        opportunity: opportunityData,
-        fiatAmounts: [state.withdraw.fiatAmount],
-        cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [
+            { assetId: asset.assetId, amountCryptoHuman: state.withdraw.cryptoAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
@@ -181,6 +189,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
     onNext,
+    assets,
   ])
 
   const handleCancel = useCallback(() => {

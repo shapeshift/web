@@ -49,7 +49,9 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       Optimism: false,
-      OptimismZrx: false,
+      ZrxAvalancheSwap: false,
+      ZrxEthereumSwap: false,
+      ZrxOptimismSwap: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
@@ -71,6 +73,7 @@ export const mockStore: ReduxState = {
       ConsentBanner: false,
       MixPanel: false,
       LiveSupport: false,
+      LifiSwap: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

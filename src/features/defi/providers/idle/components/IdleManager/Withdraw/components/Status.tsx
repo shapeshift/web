@@ -20,6 +20,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
@@ -36,6 +37,7 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
 
   const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
@@ -94,13 +96,18 @@ export const Status = () => {
   useEffect(() => {
     if (!opportunity) return
     if (state?.withdraw.txStatus === 'success') {
-      trackOpportunityEvent(MixPanelEvents.WithdrawSuccess, {
-        opportunity,
-        fiatAmounts: [state.withdraw.fiatAmount],
-        cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     }
   }, [
+    assets,
     assetId,
     opportunity,
     state?.withdraw.cryptoAmount,

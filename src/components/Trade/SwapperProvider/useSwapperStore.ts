@@ -7,11 +7,13 @@ import { devtools } from 'zustand/middleware'
 
 type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
+  selectedBuyAssetAccountId?: AccountId
   quote?: TradeQuote<C>
 }
 
 type SwapperAction = {
   updateSelectedSellAssetAccountId: (accountId: SwapperStore['selectedSellAssetAccountId']) => void
+  updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/docs/guides/auto-generating-selectors.md
@@ -32,9 +34,6 @@ const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(_store: S) =
 const useSwapperStoreBase = create<SwapperStore & SwapperAction>()(
   devtools(
     set => ({
-      // State
-      selectedSellAssetAccountId: undefined,
-
       // Actions
       updateSelectedSellAssetAccountId: selectedSellAssetAccountId =>
         set(
@@ -42,6 +41,8 @@ const useSwapperStoreBase = create<SwapperStore & SwapperAction>()(
           false,
           'swapper/updateSelectedSellAssetAccountId',
         ),
+      updateSelectedBuyAssetAccountId: selectedBuyAssetAccountId =>
+        set(() => ({ selectedBuyAssetAccountId }), false, 'swapper/selectedBuyAssetAccountId'),
     }),
     { name: 'SwapperStore' },
   ),

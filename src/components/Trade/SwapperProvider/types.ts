@@ -18,8 +18,6 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   sellTradeAsset?: TradeAsset
   sellAssetAccountId?: AccountId | undefined
   buyAssetAccountId?: AccountId | undefined
-  selectedSellAssetAccountId?: AccountId
-  selectedBuyAssetAccountId?: AccountId
   fiatSellAmount?: string
   fiatBuyAmount?: string
   sellAssetFiatRate?: string

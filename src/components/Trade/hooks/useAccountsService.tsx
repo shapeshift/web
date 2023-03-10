@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
 import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -15,14 +16,15 @@ export const useAccountsService = (context: SwapperContextType) => {
   const { dispatch: swapperDispatch, state } = context
 
   const {
-    selectedSellAssetAccountId,
-    selectedBuyAssetAccountId,
     sellAssetAccountId: stateSellAssetAccountId,
     buyAssetAccountId: stateBuyAssetAccountId,
     sellTradeAsset,
     buyTradeAsset,
     activeSwapperWithMetadata,
   } = state
+
+  const selectedSellAssetAccountId = useSwapperStore.use.selectedSellAssetAccountId?.()
+  const selectedBuyAssetAccountId = useSwapperStore.use.selectedBuyAssetAccountId?.()
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId

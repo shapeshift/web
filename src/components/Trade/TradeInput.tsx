@@ -23,6 +23,7 @@ import {
 } from 'components/Trade/SwapperProvider/selectors'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -59,6 +60,9 @@ export const TradeInput = () => {
   const [showQuotes, setShowQuotes] = useState(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
+
+  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
+  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
@@ -290,20 +294,10 @@ export const TradeInput = () => {
   )
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        selectedSellAssetAccountId: accountId,
-      },
-    })
+    updateSelectedSellAssetAccountId(accountId)
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        selectedBuyAssetAccountId: accountId,
-      },
-    })
+    updateSelectedBuyAssetAccountId(accountId)
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)

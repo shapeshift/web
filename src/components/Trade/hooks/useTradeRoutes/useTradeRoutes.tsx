@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 
 export enum AssetClickAction {
@@ -20,6 +21,9 @@ export const useTradeRoutes = (): {
     dispatch: swapperDispatch,
     state: { buyTradeAsset, sellTradeAsset },
   } = useSwapperState()
+
+  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
+  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -40,10 +44,10 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_SELL_ASSET,
             payload: previousBuyTradeAsset?.asset,
           })
+        updateSelectedBuyAssetAccountId(undefined)
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
-            selectedBuyAssetAccountId: undefined,
             buyAssetAccountId: undefined,
           },
         })
@@ -59,10 +63,10 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_BUY_ASSET,
             payload: previousSellTradeAsset?.asset,
           })
+        updateSelectedSellAssetAccountId(undefined)
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
-            selectedSellAssetAccountId: undefined,
             sellAssetAccountId: undefined,
             fiatBuyAmount: '0',
             fiatSellAmount: '0',
@@ -94,7 +98,15 @@ export const useTradeRoutes = (): {
         action: TradeAmountInputField.SELL_FIAT,
       })
     },
-    [sellTradeAsset, buyTradeAsset, swapperDispatch, history, setTradeAmountsRefetchData],
+    [
+      sellTradeAsset,
+      buyTradeAsset,
+      swapperDispatch,
+      history,
+      setTradeAmountsRefetchData,
+      updateSelectedBuyAssetAccountId,
+      updateSelectedSellAssetAccountId,
+    ],
   )
 
   return { handleAssetClick }

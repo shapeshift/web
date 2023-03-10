@@ -1,5 +1,4 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
 import type {
   CowTrade,
   GetTradeQuoteInput,
@@ -16,8 +15,6 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   quote?: TradeQuote<C>
   buyTradeAsset?: TradeAsset
   sellTradeAsset?: TradeAsset
-  sellAssetAccountId?: AccountId | undefined
-  buyAssetAccountId?: AccountId | undefined
   fiatSellAmount?: string
   fiatBuyAmount?: string
   sellAssetFiatRate?: string

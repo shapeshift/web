@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { selectSwapperSupportsCrossAccountTrade } from 'components/Trade/SwapperProvider/selectors'
 import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
@@ -13,18 +12,16 @@ The Accounts Service is responsible for reacting to changes to trade assets and 
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = (context: SwapperContextType) => {
-  const { dispatch: swapperDispatch, state } = context
+  const { state } = context
 
-  const {
-    sellAssetAccountId: stateSellAssetAccountId,
-    buyAssetAccountId: stateBuyAssetAccountId,
-    sellTradeAsset,
-    buyTradeAsset,
-    activeSwapperWithMetadata,
-  } = state
+  const { sellTradeAsset, buyTradeAsset, activeSwapperWithMetadata } = state
 
   const selectedSellAssetAccountId = useSwapperStore.use.selectedSellAssetAccountId?.()
   const selectedBuyAssetAccountId = useSwapperStore.use.selectedBuyAssetAccountId?.()
+  const stateBuyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const stateSellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
+  const setBuyAssetAccountId = useSwapperStore.use.updateBuyAssetAccountId?.()
+  const setSellAssetAccountId = useSwapperStore.use.updateSellAssetAccountId?.()
 
   // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
@@ -64,35 +61,29 @@ export const useAccountsService = (context: SwapperContextType) => {
 
   // Set sellAssetAccountId
   useEffect(
-    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { sellAssetAccountId } }),
-    // formSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
-    [sellAssetAccountId, stateSellAssetAccountId, swapperDispatch],
+    () => setSellAssetAccountId(sellAssetAccountId),
+    // stateSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
+    [sellAssetAccountId, setSellAssetAccountId, stateSellAssetAccountId],
   )
 
   // Set buyAssetAccountId
   useEffect(() => {
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        buyAssetAccountId:
-          /*
-            This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
-            if we have a swapper, and that swapper does not do either of:
-              - Trades between assets on the same chain but different accounts
-              - Trades between assets on different chains (and possibly different accounts)
-           */
-          swapperSupportsCrossAccountTrade || !activeSwapper
-            ? buyAssetAccountId
-            : sellAssetAccountId,
-      },
-    })
-    // formBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
+    /*
+      This is extremely dangerous. We only want to substitute the buyAssetAccountId with the sellAssetAccountId
+      if we have a swapper, and that swapper does not do either of:
+        - Trades between assets on the same chain but different accounts
+        - Trades between assets on different chains (and possibly different accounts)
+    */
+    const buyAssetAccountIdToSet =
+      swapperSupportsCrossAccountTrade || !activeSwapper ? buyAssetAccountId : sellAssetAccountId
+    setBuyAssetAccountId(buyAssetAccountIdToSet)
+    // stateBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
   }, [
     buyAssetAccountId,
     sellAssetAccountId,
-    swapperDispatch,
     swapperSupportsCrossAccountTrade,
     stateBuyAssetAccountId,
     activeSwapper,
+    setBuyAssetAccountId,
   ])
 }

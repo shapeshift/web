@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -19,15 +20,7 @@ The only mutation is on the tradeQuoteInputArgs property of SwapperState.
 */
 export const useTradeQuoteInputArgsService = (context: SwapperContextType) => {
   const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetAccountId,
-      action,
-      isSendMax,
-      amount,
-      receiveAddress,
-    },
+    state: { sellTradeAsset, buyTradeAsset, action, isSendMax, amount, receiveAddress },
     dispatch: swapperDispatch,
   } = context
 
@@ -40,6 +33,7 @@ export const useTradeQuoteInputArgsService = (context: SwapperContextType) => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
 import type { SwapperContextType } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -17,7 +18,7 @@ export const useReceiveAddressService = (context: SwapperContextType) => {
   const wallet = useWallet().state.wallet
   const {
     dispatch: swapperDispatch,
-    state: { buyTradeAsset, buyAssetAccountId },
+    state: { buyTradeAsset },
   } = context
 
   // Constants
@@ -27,6 +28,7 @@ export const useReceiveAddressService = (context: SwapperContextType) => {
   const buyAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset?.assetId ?? '' }),
   )
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
 
   const buyAccountFilter = useMemo(
     () => ({ accountId: buyAssetAccountId ?? buyAssetAccountIds[0] }),

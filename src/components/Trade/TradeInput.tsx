@@ -63,6 +63,8 @@ export const TradeInput = () => {
 
   const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
   const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
 
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
@@ -70,8 +72,6 @@ export const TradeInput = () => {
   const { dispatch: swapperDispatch, state } = useSwapperState()
 
   const {
-    sellAssetAccountId,
-    buyAssetAccountId,
     feeAssetFiatRate,
     fiatSellAmount,
     fiatBuyAmount,

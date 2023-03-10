@@ -5,15 +5,19 @@ import type { StoreApi, UseBoundStore } from 'zustand'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
+export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
   selectedBuyAssetAccountId?: AccountId
+  sellAssetAccountId?: AccountId | undefined
+  buyAssetAccountId?: AccountId | undefined
   quote?: TradeQuote<C>
 }
 
 type SwapperAction = {
   updateSelectedSellAssetAccountId: (accountId: SwapperStore['selectedSellAssetAccountId']) => void
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
+  updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void
+  updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/docs/guides/auto-generating-selectors.md
@@ -31,18 +35,37 @@ const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(_store: S) =
   return store
 }
 
+// https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1
+type SetSwapperStoreAction<T> = {
+  (
+    partial:
+      | T
+      | Partial<T>
+      | {
+          (state: T): T | Partial<T>
+        },
+    replace?: boolean | undefined,
+    action?: string,
+  ): void
+}
+
+const createUpdateAction =
+  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: string) =>
+  (value: SwapperStore[T]): void =>
+    set(
+      () => ({ [key]: value }),
+      false,
+      `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
+    )
+
 const useSwapperStoreBase = create<SwapperStore & SwapperAction>()(
   devtools(
     set => ({
       // Actions
-      updateSelectedSellAssetAccountId: selectedSellAssetAccountId =>
-        set(
-          () => ({ selectedSellAssetAccountId }),
-          false,
-          'swapper/updateSelectedSellAssetAccountId',
-        ),
-      updateSelectedBuyAssetAccountId: selectedBuyAssetAccountId =>
-        set(() => ({ selectedBuyAssetAccountId }), false, 'swapper/selectedBuyAssetAccountId'),
+      updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
+      updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
+      updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
+      updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
     }),
     { name: 'SwapperStore' },
   ),

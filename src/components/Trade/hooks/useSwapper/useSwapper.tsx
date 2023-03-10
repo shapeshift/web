@@ -11,6 +11,7 @@ import {
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
+import { useSwapperStore } from 'components/Trade/SwapperProvider/useSwapperStore'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -30,17 +31,11 @@ It does not mutate state.
 */
 export const useSwapper = () => {
   const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetAccountId,
-      buyAssetAccountId,
-      quote,
-      isSendMax,
-      isExactAllowance,
-      slippage,
-    },
+    state: { sellTradeAsset, buyTradeAsset, quote, isSendMax, isExactAllowance, slippage },
   } = useSwapperState()
+
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

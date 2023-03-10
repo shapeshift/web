@@ -3,7 +3,7 @@ import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTrade
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import type { SwapperState } from 'components/Trade/SwapperProvider/types'
-import type { UseSwapperStore } from 'state/zustand/swapperStore/types'
+import type { SwapperStore } from 'state/zustand/swapperStore/types'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useFrozenTradeValues = () => {
@@ -34,9 +34,9 @@ export const useFrozenTradeValues = () => {
     useState<SwapperState['feeAssetFiatRate']>()
   const [frozenSlippage, setFrozenSlippage] = useState<SwapperState['slippage']>()
   const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] =
-    useState<UseSwapperStore['buyAssetAccountId']>()
+    useState<SwapperStore['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
-    useState<UseSwapperStore['sellAssetAccountId']>()
+    useState<SwapperStore['sellAssetAccountId']>()
   const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()

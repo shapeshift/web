@@ -1,27 +1,28 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import type { SwapperAction, UseSwapperStore } from 'state/zustand/swapperStore/types'
+import type {
+  SetSwapperStoreAction,
+  SwapperAction,
+  SwapperStore,
+} from 'state/zustand/swapperStore/types'
 
-export const useSwapperStore = create<UseSwapperStore & SwapperAction>()(
+const createUpdateAction =
+  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: string) =>
+  (value: SwapperStore[T]): void =>
+    set(
+      () => ({ [key]: value }),
+      false,
+      `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
+    )
+
+export const useSwapperStore = create<SwapperStore & SwapperAction>()(
   devtools(
     set => ({
       // Actions
-      updateSelectedSellAssetAccountId: selectedSellAssetAccountId =>
-        set(
-          () => ({ selectedSellAssetAccountId }),
-          false,
-          'swapper/updateSelectedSellAssetAccountId',
-        ),
-      updateSelectedBuyAssetAccountId: selectedBuyAssetAccountId =>
-        set(
-          () => ({ selectedBuyAssetAccountId }),
-          false,
-          'swapper/updateSelectedBuyAssetAccountId',
-        ),
-      updateSellAssetAccountId: sellAssetAccountId =>
-        set(() => ({ sellAssetAccountId }), false, 'swapper/updateSellAssetAccountId'),
-      updateBuyAssetAccountId: buyAssetAccountId =>
-        set(() => ({ buyAssetAccountId }), false, 'swapper/updateBuyAssetAccountId'),
+      updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
+      updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
+      updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
+      updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
     }),
     { name: 'SwapperStore' },
   ),

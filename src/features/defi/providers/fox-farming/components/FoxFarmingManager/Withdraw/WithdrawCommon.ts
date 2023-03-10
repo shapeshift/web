@@ -4,6 +4,7 @@ type EstimatedGas = {
 
 type WithdrawValues = {
   lpAmount: string
+  fiatAmount: string
 }
 
 type FoxFarmingWithdrawValues = WithdrawValues &

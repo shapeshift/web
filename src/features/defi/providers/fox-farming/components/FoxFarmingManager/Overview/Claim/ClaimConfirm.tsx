@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Button,
   Link,
   ModalBody,
@@ -24,8 +26,18 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
@@ -54,16 +66,33 @@ export const ClaimConfirm = ({
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
 
+  const assets = useAppSelector(selectAssets)
+
   assertIsFoxEthStakingContractAddress(contractAddress)
 
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
+  )
+
+  // Get Opportunity
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
   )
 
   // Asset Info
@@ -79,10 +108,15 @@ export const ClaimConfirm = ({
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
+  const claimFiatAmount = useMemo(
+    () => bnOrZero(amount).times(assetMarketData.price).toString(),
+    [amount, assetMarketData.price],
+  )
+
   const toast = useToast()
 
   const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !accountAddress) return
+    if (!walletState.wallet || !contractAddress || !accountAddress || !opportunity || !asset) return
     setLoading(true)
     try {
       const txid = await claimRewards()
@@ -97,6 +131,15 @@ export const ClaimConfirm = ({
         chainId,
         contractAddress,
       })
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimConfirm,
+        {
+          opportunity,
+          fiatAmounts: [claimFiatAmount],
+          cryptoAmounts: [{ assetId: asset?.assetId, amountCryptoHuman: amount }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, 'ClaimWithdraw error')
       toast({
@@ -140,6 +183,26 @@ export const ClaimConfirm = ({
     foxFarmingContract,
   ])
 
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset?.assetId],
+  )
+
+  const feeAssetBalance = useAppSelector(s =>
+    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+  )
+
+  const hasEnoughBalanceForGas = useMemo(
+    () => bnOrZero(feeAssetBalance).minus(bnOrZero(estimatedGas)).gte(0),
+    [feeAssetBalance, estimatedGas],
+  )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
+
   if (!asset) return null
 
   return (
@@ -159,11 +222,7 @@ export const ClaimConfirm = ({
             </Skeleton>
           </Stack>
           <Skeleton minWidth='100px' isLoaded={!!amount} textAlign='center'>
-            <Amount.Fiat
-              value={bnOrZero(amount).times(assetMarketData.price).toString()}
-              color='gray.500'
-              prefix='≈'
-            />
+            <Amount.Fiat value={claimFiatAmount} color='gray.500' prefix='≈' />
           </Skeleton>
         </Stack>
       </ModalBody>
@@ -211,6 +270,14 @@ export const ClaimConfirm = ({
               </SkeletonText>
             </Row.Value>
           </Row>
+          {!hasEnoughBalanceForGas && (
+            <Alert status='error' borderRadius='lg'>
+              <AlertIcon />
+              <Text
+                translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]}
+              />
+            </Alert>
+          )}
           <Stack direction='row' width='full' justifyContent='space-between'>
             <Button size='lg' onClick={onBack}>
               {translate('common.cancel')}
@@ -218,7 +285,7 @@ export const ClaimConfirm = ({
             <Button
               size='lg'
               colorScheme='blue'
-              isDisabled={!canClaim}
+              isDisabled={!canClaim || !hasEnoughBalanceForGas}
               onClick={handleConfirm}
               isLoading={loading}
             >

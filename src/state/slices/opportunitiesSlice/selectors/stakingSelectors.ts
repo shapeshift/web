@@ -96,10 +96,10 @@ export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
     return Object.values(stakingOpportunitiesById).find(
       stakingOpportunity =>
         stakingOpportunity &&
-        defiProvider === stakingOpportunity.provider &&
-        defiType === stakingOpportunity.type &&
-        assetId === stakingOpportunity.assetId &&
-        [validatorId, stakingId].includes(stakingOpportunity.id),
+        (!defiProvider || defiProvider === stakingOpportunity.provider) &&
+        (!defiType || defiType === stakingOpportunity.type) &&
+        (!assetId || assetId === stakingOpportunity.assetId) &&
+        (!(validatorId || stakingId) || [validatorId, stakingId].includes(stakingOpportunity.id)),
     )
   },
 )

@@ -55,7 +55,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectOpportunitiesApiQueriesByFilter,
-  selectStakingOpportunitiesById,
+  selectStakingOpportunityByFilter,
   selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
@@ -149,12 +149,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       : undefined,
   )
 
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[assetId as StakingId],
-    [assetId, opportunitiesMetadata],
-  ) as ThorchainSaversStakingSpecificMetadata | undefined
+  const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  ) as ThorchainSaversStakingSpecificMetadata
 
   const currentCapFillPercentage = bnOrZero(opportunityMetadata?.tvl)
     .div(bnOrZero(opportunityMetadata?.saversMaxSupplyFiat))

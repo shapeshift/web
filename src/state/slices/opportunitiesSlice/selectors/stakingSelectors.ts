@@ -84,12 +84,14 @@ export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
   selectDefiTypeParamFromFilter,
   selectAssetIdParamFromFilter,
   selectValidatorIdParamFromFilter,
+  selectStakingIdParamFromFilter,
   (
     stakingOpportunitiesById,
     defiProvider,
     defiType,
     assetId,
     validatorId,
+    stakingId,
   ): OpportunityMetadata | undefined => {
     return Object.values(stakingOpportunitiesById).find(
       stakingOpportunity =>
@@ -97,7 +99,7 @@ export const selectStakingOpportunityByFilter = createDeepEqualOutputSelector(
         defiProvider === stakingOpportunity.provider &&
         defiType === stakingOpportunity.type &&
         assetId === stakingOpportunity.assetId &&
-        validatorId === stakingOpportunity.id,
+        [validatorId, stakingId].includes(stakingOpportunity.id),
     )
   },
 )

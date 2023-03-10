@@ -1,5 +1,3 @@
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }
@@ -16,7 +14,6 @@ type FoxFarmingDepositValues = DepositValues &
   }
 
 export type FoxFarmingDepositState = {
-  opportunity: EarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   deposit: FoxFarmingDepositValues
@@ -25,17 +22,11 @@ export type FoxFarmingDepositState = {
 }
 
 export enum FoxFarmingDepositActionType {
-  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
-}
-
-type SetOpportunityAction = {
-  type: FoxFarmingDepositActionType.SET_OPPORTUNITY
-  payload: EarnOpportunityType
 }
 
 type SetApprove = {
@@ -64,7 +55,6 @@ type SetTxid = {
 }
 
 export type FoxFarmingDepositActions =
-  | SetOpportunityAction
   | SetApprove
   | SetDeposit
   | SetUserAddress

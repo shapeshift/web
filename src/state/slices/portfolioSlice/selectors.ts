@@ -832,3 +832,21 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
     }
   },
 )
+
+export const selectAccountIdByAccountNumberAndChainId = createSelector(
+  selectWalletAccountIds,
+  selectPortfolioAccountMetadata,
+  selectAccountNumberParamFromFilter,
+  selectChainIdParamFromFilter,
+  (walletAccountIds, accountMetadata, accountNumber, chainId): AccountId | undefined => {
+    if (!isValidAccountNumber(accountNumber))
+      throw new Error(`invalid account number: ${accountNumber}`)
+    if (chainId === undefined) throw new Error('undefined chain id')
+
+    return walletAccountIds.find(accountId => {
+      if (fromAccountId(accountId).chainId !== chainId) return false
+      if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
+      return true
+    })
+  },
+)

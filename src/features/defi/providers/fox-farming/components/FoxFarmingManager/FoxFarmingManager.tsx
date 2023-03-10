@@ -25,7 +25,7 @@ export const FoxFarmingManager = () => {
     return () => {
       handleFarmingAccountIdChange(undefined)
     }
-  })
+  }, [handleFarmingAccountIdChange])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

@@ -37,6 +37,7 @@ import {
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -75,6 +76,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { setValue } = methods
   // Asset info
 
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -247,11 +249,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
-        trackOpportunityEvent(MixPanelEvents.WithdrawContinue, {
-          opportunity: opportunityData,
-          fiatAmounts: [formValues.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
-        })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -264,6 +270,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       }
     },
     [
+      assets,
       userAddress,
       opportunityData,
       dispatch,

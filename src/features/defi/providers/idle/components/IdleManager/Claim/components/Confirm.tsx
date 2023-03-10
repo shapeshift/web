@@ -241,11 +241,15 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       })
       dispatch({ type: IdleClaimActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
-      trackOpportunityEvent(MixPanelEvents.ClaimConfirm, {
-        opportunity: opportunityData,
-        fiatAmounts: claimAmounts.map(rewardAsset => rewardAsset?.fiatAmount),
-        cryptoAmounts: claimAmounts,
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: claimAmounts.map(rewardAsset => rewardAsset?.fiatAmount),
+          cryptoAmounts: claimAmounts,
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
     } finally {
@@ -262,6 +266,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     idleInvestor,
     onNext,
     claimAmounts,
+    assets,
   ])
 
   if (!state || !dispatch) return null

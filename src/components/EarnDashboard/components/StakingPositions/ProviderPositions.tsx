@@ -108,7 +108,9 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: opportunity.original.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
+        assets: opportunity.original.underlyingAssetIds.map(assetId =>
+          getMaybeCompositeAssetSymbol(assetId),
+        ),
         element: 'Table Row',
       })
 

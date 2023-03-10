@@ -88,7 +88,7 @@ export const OpportunityCard = ({
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
+        assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
         element: 'Table Row',
       })
       history.push({

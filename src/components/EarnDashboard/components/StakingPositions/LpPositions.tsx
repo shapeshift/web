@@ -73,7 +73,9 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: opportunity.original.underlyingAssetIds.map(getMaybeCompositeAssetSymbol),
+        assets: opportunity.original.underlyingAssetIds.map(assetId =>
+          getMaybeCompositeAssetSymbol(assetId),
+        ),
         element: 'Table Row',
       })
 

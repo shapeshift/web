@@ -40,6 +40,7 @@ import {
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -77,6 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const assets = useAppSelector(selectAssets)
 
   const assetId = toAssetId({
     chainId,
@@ -223,11 +225,15 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        trackOpportunityEvent(MixPanelEvents.DepositContinue, {
-          opportunity: opportunityData,
-          fiatAmounts: [formValues.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
-        })
+        trackOpportunityEvent(
+          MixPanelEvents.DepositContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -240,6 +246,7 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
+      assets,
       userAddress,
       opportunityData,
       contextDispatch,

@@ -11,14 +11,16 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
   const {
     dispatch: swapperDispatch,
-    state: { buyTradeAsset, buyAssetAccountId },
+    state: { buyTradeAsset },
   } = useSwapperState()
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
 
   // Constants
   const buyAsset = buyTradeAsset?.asset

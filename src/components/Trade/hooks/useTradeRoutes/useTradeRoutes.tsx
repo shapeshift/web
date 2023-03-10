@@ -5,6 +5,7 @@ import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export enum AssetClickAction {
   Buy = 'buy',
@@ -20,6 +21,10 @@ export const useTradeRoutes = (): {
     dispatch: swapperDispatch,
     state: { buyTradeAsset, sellTradeAsset },
   } = useSwapperState()
+
+  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
+  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
+  const updateBuyAssetAccountId = useSwapperStore.use.updateBuyAssetAccountId()
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -40,13 +45,8 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_SELL_ASSET,
             payload: previousBuyTradeAsset?.asset,
           })
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            selectedBuyAssetAccountId: undefined,
-            buyAssetAccountId: undefined,
-          },
-        })
+        updateSelectedBuyAssetAccountId(undefined)
+        updateBuyAssetAccountId(undefined)
       }
 
       if (isSell) {
@@ -59,11 +59,10 @@ export const useTradeRoutes = (): {
             type: SwapperActionType.SET_BUY_ASSET,
             payload: previousSellTradeAsset?.asset,
           })
+        updateSelectedSellAssetAccountId(undefined)
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
-            selectedSellAssetAccountId: undefined,
-            sellAssetAccountId: undefined,
             fiatBuyAmount: '0',
             fiatSellAmount: '0',
             sellAssetFiatRate: undefined,
@@ -94,7 +93,16 @@ export const useTradeRoutes = (): {
         action: TradeAmountInputField.SELL_FIAT,
       })
     },
-    [sellTradeAsset, buyTradeAsset, swapperDispatch, history, setTradeAmountsRefetchData],
+    [
+      sellTradeAsset,
+      buyTradeAsset,
+      swapperDispatch,
+      history,
+      setTradeAmountsRefetchData,
+      updateSelectedBuyAssetAccountId,
+      updateBuyAssetAccountId,
+      updateSelectedSellAssetAccountId,
+    ],
   )
 
   return { handleAssetClick }

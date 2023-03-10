@@ -3,13 +3,13 @@ import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTrade
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import type { SwapperState } from 'components/Trade/SwapperProvider/types'
+import type { UseSwapperStore } from 'state/zustand/swapperStore/types'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useFrozenTradeValues = () => {
   const {
     state: {
       buyTradeAsset: stateBuyTradeAsset,
-      buyAssetAccountId: stateBuyAssetAccountId,
-      sellAssetAccountId: stateSellAssetAccountId,
       sellAssetFiatRate: stateSellAssetFiatRate,
       feeAssetFiatRate: stateFeeAssetFiatRate,
       buyAssetFiatRate: stateBuyAssetFiatRate,
@@ -18,6 +18,9 @@ export const useFrozenTradeValues = () => {
       slippage: stateSlippage,
     },
   } = useSwapperState()
+
+  const stateBuyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const stateSellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
@@ -31,9 +34,9 @@ export const useFrozenTradeValues = () => {
     useState<SwapperState['feeAssetFiatRate']>()
   const [frozenSlippage, setFrozenSlippage] = useState<SwapperState['slippage']>()
   const [frozenBuyAssetAccountId, setFrozenBuyAssetAccountId] =
-    useState<SwapperState['buyAssetAccountId']>()
+    useState<UseSwapperStore['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
-    useState<SwapperState['sellAssetAccountId']>()
+    useState<UseSwapperStore['sellAssetAccountId']>()
   const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()

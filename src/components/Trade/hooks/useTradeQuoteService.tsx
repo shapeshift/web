@@ -15,6 +15,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Trade Quote Service is responsible for reacting to changes to trade assets and updating the quote accordingly.
@@ -22,18 +23,10 @@ The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
   const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetAccountId,
-      action,
-      isSendMax,
-      quote,
-      amount,
-      receiveAddress,
-    },
+    state: { sellTradeAsset, buyTradeAsset, action, isSendMax, quote, amount, receiveAddress },
     dispatch: swapperDispatch,
   } = useSwapperState()
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
 
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>

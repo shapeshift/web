@@ -26,6 +26,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
@@ -33,17 +34,11 @@ It does not mutate state.
 */
 export const useSwapper = () => {
   const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetAccountId,
-      buyAssetAccountId,
-      quote,
-      isSendMax,
-      isExactAllowance,
-      slippage,
-    },
+    state: { sellTradeAsset, buyTradeAsset, quote, isSendMax, isExactAllowance, slippage },
   } = useSwapperState()
+
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

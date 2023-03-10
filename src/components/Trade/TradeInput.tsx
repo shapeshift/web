@@ -38,6 +38,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
@@ -61,11 +62,14 @@ export const TradeInput = () => {
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
+  const sellAssetAccountId = useSwapperStore.use.sellAssetAccountId?.()
+  const buyAssetAccountId = useSwapperStore.use.buyAssetAccountId?.()
+  const updateSelectedSellAssetAccountId = useSwapperStore.use.updateSelectedSellAssetAccountId()
+  const updateSelectedBuyAssetAccountId = useSwapperStore.use.updateSelectedBuyAssetAccountId()
+
   const {
     dispatch: swapperDispatch,
     state: {
-      sellAssetAccountId,
-      buyAssetAccountId,
       feeAssetFiatRate,
       fiatSellAmount,
       fiatBuyAmount,
@@ -286,20 +290,10 @@ export const TradeInput = () => {
   )
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        selectedSellAssetAccountId: accountId,
-      },
-    })
+    updateSelectedSellAssetAccountId(accountId)
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        selectedBuyAssetAccountId: accountId,
-      },
-    })
+    updateSelectedBuyAssetAccountId(accountId)
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)

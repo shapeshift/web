@@ -28,8 +28,7 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   BASE_BPS_POINTS,
@@ -41,6 +40,7 @@ import {
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -67,7 +67,6 @@ export const Deposit: React.FC<DepositProps> = ({
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const history = useHistory()
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
@@ -79,6 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+  const assets = useAppSelector(selectAssets)
 
   const assetId = toAssetId({
     chainId,
@@ -225,13 +225,15 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        mixpanel?.track(MixPanelEvents.DepositContinue, {
-          provider: opportunityData.provider,
-          type: opportunityData.type,
-          assets: opportunityData.underlyingAssetIds.map(getCompositeAssetSymbol),
-          fiatAmounts: [bnOrZero(formValues.fiatAmount).toNumber()],
-          cryptoAmounts: [`${formValues.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
-        })
+        trackOpportunityEvent(
+          MixPanelEvents.DepositContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -244,12 +246,12 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
+      assets,
       userAddress,
       opportunityData,
       contextDispatch,
       getDepositGasEstimate,
       onNext,
-      mixpanel,
       assetId,
       toast,
       translate,

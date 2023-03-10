@@ -31,7 +31,7 @@ import { getOverrideNameFromAssetId } from 'components/StakingVaults/utils'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
@@ -88,7 +88,7 @@ export const OpportunityCard = ({
       mixpanel?.track(MixPanelEvents.ClickOpportunity, {
         provider,
         type,
-        assets: underlyingAssetIds.map(getCompositeAssetSymbol),
+        assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
         element: 'Table Row',
       })
       history.push({

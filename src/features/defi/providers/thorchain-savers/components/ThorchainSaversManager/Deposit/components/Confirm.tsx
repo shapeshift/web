@@ -37,7 +37,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
@@ -51,6 +51,7 @@ import {
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceByFilter,
@@ -85,6 +86,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = useMemo(() => state?.opportunity, [state])
+  const assets = useAppSelector(selectAssets)
 
   // Technically any chain adapter, but is only used for UTXO ChainIds in this file, so effectively an UTXO adapter
   const chainAdapter = getChainAdapterManager().get(
@@ -511,13 +513,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: maybeTxId })
       onNext(DefiStep.Status)
-      mixpanel?.track(MixPanelEvents.DepositConfirm, {
-        provider: opportunity.provider,
-        type: opportunity.type,
-        assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId)}`],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
       // TODO(gomes): UTXO reconciliation in a stacked PR
@@ -531,6 +535,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
+    assets,
     contextDispatch,
     bip44Params,
     accountId,
@@ -548,7 +553,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     depositFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,
-    mixpanel,
     toast,
     translate,
   ])

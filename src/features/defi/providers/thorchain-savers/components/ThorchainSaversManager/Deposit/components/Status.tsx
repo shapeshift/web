@@ -18,12 +18,17 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -43,6 +48,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
+  const assets = useAppSelector(selectAssets)
   const assetId = state?.opportunity?.assetId
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -93,21 +99,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
+    if (!opportunity || !assetId) return
     if (state?.deposit.txStatus === 'success') {
-      mixpanel?.track(MixPanelEvents.DepositSuccess, {
-        provider: opportunity?.provider,
-        type: opportunity?.type,
-        assets: opportunity?.underlyingAssetIds.map(getCompositeAssetSymbol),
-        fiatAmounts: [bnOrZero(state.deposit.fiatAmount).toNumber()],
-        cryptoAmounts: [`${state.deposit.cryptoAmount} ${getCompositeAssetSymbol(assetId ?? '')}`],
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
     }
   }, [
+    assets,
     assetId,
     mixpanel,
-    opportunity?.provider,
-    opportunity?.type,
-    opportunity?.underlyingAssetIds,
+    opportunity,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     state?.deposit.txStatus,

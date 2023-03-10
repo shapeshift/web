@@ -22,13 +22,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { getCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -56,6 +57,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -157,11 +159,15 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       })
 
       onNext(DefiStep.Confirm)
-      mixpanel?.track(MixPanelEvents.DepositApprove, {
-        provider: opportunity.provider,
-        type: opportunity.type,
-        assets: opportunity.underlyingAssetIds.map(getCompositeAssetSymbol),
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity,
+          cryptoAmounts: [],
+          fiatAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -174,6 +180,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
+    assets,
     dispatch,
     bip44Params,
     assetReference,
@@ -186,7 +193,6 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     getDepositGasEstimate,
     state?.deposit,
     onNext,
-    mixpanel,
     toast,
     translate,
   ])

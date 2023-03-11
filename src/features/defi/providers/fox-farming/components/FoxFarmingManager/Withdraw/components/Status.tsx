@@ -18,9 +18,12 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectTxById,
@@ -41,6 +44,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress } = query
+
+  const assets = useAppSelector(selectAssets)
 
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {
@@ -99,6 +104,28 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: state.withdraw.lpAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    asset.assetId,
+    assets,
+    opportunity,
+    state?.withdraw.fiatAmount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state || !dispatch || !opportunity) return null
 

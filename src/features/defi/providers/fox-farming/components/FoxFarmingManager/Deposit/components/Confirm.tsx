@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -21,11 +21,15 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -44,6 +48,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { contractAddress, assetReference } = query
 
@@ -66,6 +71,8 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   )
 
   const { onOngoingFarmingTxIdChange } = useFoxEth()
+
+  const assets = useAppSelector(selectAssets)
 
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
@@ -99,7 +106,16 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   )
 
   const handleDeposit = useCallback(async () => {
-    if (!dispatch || !state || !accountAddress || !assetReference || !walletState.wallet) return
+    if (
+      !dispatch ||
+      !state ||
+      !accountAddress ||
+      !assetReference ||
+      !walletState.wallet ||
+      !asset ||
+      !foxFarmingOpportunity
+    )
+      return
     try {
       dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: true })
       const txid = await stake(state.deposit.cryptoAmount)
@@ -107,6 +123,20 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
       dispatch({ type: FoxFarmingDepositActionType.SET_TXID, payload: txid })
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity: foxFarmingOpportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [
+            {
+              assetId: asset.assetId,
+              amountCryptoHuman: state.deposit.cryptoAmount,
+            },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
       toast({
@@ -120,9 +150,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     }
   }, [
     accountAddress,
+    asset,
     assetReference,
+    assets,
     contractAddress,
     dispatch,
+    foxFarmingOpportunity,
     onNext,
     onOngoingFarmingTxIdChange,
     stake,
@@ -131,6 +164,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     translate,
     walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch || !foxFarmingOpportunity || !asset) return null
 

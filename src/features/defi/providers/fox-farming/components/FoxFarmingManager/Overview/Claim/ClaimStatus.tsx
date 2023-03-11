@@ -15,7 +15,16 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -71,8 +80,25 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     txStatus: TxStatus.PENDING,
   })
 
+  const assets = useAppSelector(selectAssets)
+
+  // Get Opportunity
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace: 'erc20',
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
+
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -86,6 +112,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
+  )
+
+  const claimFiatAmount = useMemo(
+    () => bnOrZero(amount).times(assetMarketData.price).toString(),
+    [amount, assetMarketData.price],
   )
 
   const serializedTxIndex = useMemo(() => {
@@ -104,6 +135,21 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, contractAddress, feeAsset.precision])
+
+  useEffect(() => {
+    if (!opportunity || !asset) return
+    if (state.txStatus === TxStatus.SUCCESS) {
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimSuccess,
+        {
+          opportunity,
+          fiatAmounts: [claimFiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: amount }],
+        },
+        assets,
+      )
+    }
+  }, [amount, asset, assets, claimFiatAmount, opportunity, state.txStatus])
 
   return (
     <SlideTransition>

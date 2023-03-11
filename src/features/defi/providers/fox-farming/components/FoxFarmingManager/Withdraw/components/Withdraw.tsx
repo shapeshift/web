@@ -1,5 +1,4 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -79,7 +78,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
   if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!feeAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),

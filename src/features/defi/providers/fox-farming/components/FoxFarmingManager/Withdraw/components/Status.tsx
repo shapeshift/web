@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -70,7 +70,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
   if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!feeAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 

@@ -1,5 +1,3 @@
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }
@@ -17,7 +15,6 @@ type FoxEthLpWithdrawValues = WithdrawValues &
   }
 
 export type FoxEthLpWithdrawState = {
-  opportunity: EarnOpportunityType | null
   userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxEthLpWithdrawValues
@@ -26,18 +23,12 @@ export type FoxEthLpWithdrawState = {
 }
 
 export enum FoxEthLpWithdrawActionType {
-  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_APPROVE = 'SET_APPROVE',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS',
-}
-
-type SetOpportunityAction = {
-  type: FoxEthLpWithdrawActionType.SET_OPPORTUNITY
-  payload: EarnOpportunityType
 }
 
 type SetWithdraw = {
@@ -66,7 +57,6 @@ type SetApprove = {
 }
 
 export type FoxEthLpWithdrawActions =
-  | SetOpportunityAction
   | SetWithdraw
   | SetUserAddress
   | SetApprove

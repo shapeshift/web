@@ -24,7 +24,7 @@ export const FoxEthLpManager = () => {
     return () => {
       handleLpAccountIdChange(undefined)
     }
-  })
+  }, [handleLpAccountIdChange])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

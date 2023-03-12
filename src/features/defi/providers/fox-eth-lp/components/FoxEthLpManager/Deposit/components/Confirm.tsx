@@ -22,8 +22,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -42,7 +44,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
-  const opportunity = useMemo(() => state?.opportunity, [state])
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { chainId, assetReference } = query
 
   const feeAssetId = toAssetId({
@@ -77,7 +89,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const handleDeposit = async () => {
     try {
-      if (!(assetReference && walletState.wallet && supportsETH(walletState.wallet) && opportunity))
+      if (
+        !(
+          assetReference &&
+          walletState.wallet &&
+          supportsETH(walletState.wallet) &&
+          foxEthLpOpportunity
+        )
+      )
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })

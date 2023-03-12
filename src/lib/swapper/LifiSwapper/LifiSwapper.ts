@@ -16,17 +16,17 @@ import type {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
-  ExecuteTradeInput,
   GetEvmTradeQuoteInput,
   Swapper,
-  Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
-import { SwapError, SwapperName, SwapperType } from '@shapeshiftoss/swapper'
+import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
+import { buildTrade } from 'lib/swapper/LifiSwapper/buildTrade/buildTrade'
+import { executeTrade } from 'lib/swapper/LifiSwapper/executeTrade/executeTrade'
 import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
@@ -34,6 +34,7 @@ import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
+import type { LifiExecuteTradeInput, LifiTrade } from 'lib/swapper/LifiSwapper/utils/types'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
@@ -65,8 +66,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  async buildTrade(_args: BuildTradeInput): Promise<Trade<EvmChainId>> {
-    return await Promise.reject(new SwapError('LifiSwapper: buildTrade unimplemented'))
+  async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
+    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
   }
 
   /**
@@ -86,8 +87,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  async executeTrade(_args: ExecuteTradeInput<ChainId>): Promise<TradeResult> {
-    return await Promise.reject(new SwapError('LifiSwapper: executeTrade unimplemented'))
+  async executeTrade(input: LifiExecuteTradeInput): Promise<TradeResult> {
+    return await executeTrade(input)
   }
 
   /**
@@ -129,7 +130,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get transactions related to a trade
    */
-  async getTradeTxs(_tradeResult: TradeResult): Promise<TradeTxs> {
-    return await Promise.reject(new SwapError('LifiSwapper: getTradeTxs unimplemented'))
+  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+    // the tradeId is currently a lifi route ID
+    // TODO: determine a way to return actual txId per step (there could be mulitple)
+    return await Promise.resolve({
+      sellTxid: tradeResult.tradeId,
+      buyTxid: tradeResult.tradeId,
+    })
   }
 }

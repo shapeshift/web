@@ -2,6 +2,7 @@ import type {
   BridgeDefinition,
   ChainKey,
   LifiError,
+  Route,
   RoutesRequest,
   Token as LifiToken,
 } from '@lifi/sdk'
@@ -41,7 +42,7 @@ export async function getTradeQuote(
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
   lifiBridges: BridgeDefinition[],
-): Promise<TradeQuote<EvmChainId>> {
+): Promise<TradeQuote<EvmChainId> & { route: Route }> {
   const {
     chainId,
     sellAsset,
@@ -209,5 +210,6 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
     sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
+    route: selectedRoute,
   }
 }

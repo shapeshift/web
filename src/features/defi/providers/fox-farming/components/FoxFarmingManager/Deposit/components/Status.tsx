@@ -18,10 +18,13 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectTxById,
 } from 'state/slices/selectors'
@@ -56,6 +59,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const feeAssetId = ethAssetId
 
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
@@ -96,6 +100,30 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
+
+  useEffect(() => {
+    if (!foxFarmingOpportunity) return
+    if (state?.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity: foxFarmingOpportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [
+            { assetId: asset.assetId, amountCryptoHuman: state.deposit.cryptoAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    asset.assetId,
+    assets,
+    foxFarmingOpportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+  ])
 
   if (!state || !dispatch || !foxFarmingOpportunity) return null
 

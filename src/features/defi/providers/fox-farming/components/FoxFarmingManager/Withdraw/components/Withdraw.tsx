@@ -15,10 +15,13 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -43,6 +46,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const [isExiting, setIsExiting] = useState<boolean>(false)
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress } = query
+
+  const assets = useAppSelector(selectAssets)
 
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {
@@ -101,7 +106,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { lpAmount: formValues.cryptoAmount, isExiting },
+        payload: {
+          lpAmount: formValues.cryptoAmount,
+          isExiting,
+          fiatAmount: formValues.fiatAmount,
+        },
       })
       const lpAllowance = await allowance()
       const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset.precision))
@@ -119,6 +128,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } else {
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return
@@ -137,6 +155,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [
       allowance,
       asset,
+      assets,
       dispatch,
       ethAsset.precision,
       getApproveGasData,

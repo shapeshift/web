@@ -1,11 +1,12 @@
-import type { ChainKey, LifiError, Token } from '@lifi/sdk'
+import type { ChainKey, LifiError, Token as LifiToken } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 
 export async function getUsdRate(
   asset: Asset,
+  lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<string> {
   const chainKey = lifiChainMap.get(asset.chainId)
@@ -14,10 +15,21 @@ export async function getUsdRate(
 
   const lifi = getLifi()
 
-  const token: Token = await lifi.getToken(chainKey, asset.symbol).catch((e: LifiError) => {
-    throw new SwapError(`[getUsdRate] ${e.message}`, {
+  const lifiAsset = lifiAssetMap.get(asset.assetId)
+
+  if (lifiAsset === undefined) {
+    throw new SwapError('[getUsdRate] unsupported asset', {
       code: SwapErrorType.USD_RATE_FAILED,
+      details: { asset },
     })
-  })
+  }
+
+  const token: LifiToken = await lifi
+    .getToken(chainKey, lifiAsset.address)
+    .catch((e: LifiError) => {
+      throw new SwapError(`[getUsdRate] ${e.message}`, {
+        code: SwapErrorType.USD_RATE_FAILED,
+      })
+    })
   return token.priceUSD ?? '0'
 }

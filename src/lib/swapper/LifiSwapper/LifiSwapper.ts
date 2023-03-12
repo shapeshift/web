@@ -80,7 +80,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get the usd rate from either the assets symbol or tokenId
    */
   async getUsdRate(asset: Asset): Promise<string> {
-    return await getUsdRate(asset, this.lifiChainMap)
+    return await getUsdRate(asset, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**

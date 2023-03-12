@@ -27,6 +27,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useTradeAmounts = () => {
   // Hooks
@@ -65,6 +66,7 @@ export const useTradeAmounts = () => {
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const assets = useSelector(selectAssets)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset
@@ -225,10 +227,10 @@ export const useTradeAmounts = () => {
       const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
 
       if (!bestTradeSwapper) {
+        updateQuote(undefined)
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
-            quote: undefined,
             fees: undefined,
           },
         })
@@ -259,10 +261,10 @@ export const useTradeAmounts = () => {
         : {}
 
       if (usdRates) {
+        updateQuote(quoteResponse?.data)
         swapperDispatch({
           type: SwapperActionType.SET_VALUES,
           payload: {
-            quote: quoteResponse?.data,
             fees: formFees,
           },
         })
@@ -297,7 +299,7 @@ export const useTradeAmounts = () => {
       wallet,
       assets,
       getReceiveAddressFromBuyAsset,
-      sellTradeAsset,
+      sellTradeAsset?.amountCryptoPrecision,
       isSendMaxFormState,
       appDispatch,
       getAvailableSwappers,
@@ -305,6 +307,7 @@ export const useTradeAmounts = () => {
       getTradeQuote,
       getUsdRates,
       swapperDispatch,
+      updateQuote,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
     ],

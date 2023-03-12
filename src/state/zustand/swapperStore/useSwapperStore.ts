@@ -23,6 +23,7 @@ export const useSwapperStore = create<SwapperStore & SwapperAction>()(
       updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
       updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
       updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
+      updateQuote: createUpdateAction(set, 'quote'),
     }),
     { name: 'SwapperStore' },
   ),

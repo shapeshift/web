@@ -36,6 +36,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
@@ -55,8 +56,10 @@ export const Approval = () => {
 
   const {
     dispatch: swapperDispatch,
-    state: { quote, feeAssetFiatRate, fees, isExactAllowance },
+    state: { feeAssetFiatRate, fees, isExactAllowance },
   } = useSwapperState<EvmChainId>()
+
+  const quote = useSwapperStore(state => state.quote)
 
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {

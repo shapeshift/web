@@ -23,7 +23,7 @@ The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
   const {
-    state: { sellTradeAsset, buyTradeAsset, action, isSendMax, quote, amount, receiveAddress },
+    state: { sellTradeAsset, buyTradeAsset, action, isSendMax, amount, receiveAddress },
     dispatch: swapperDispatch,
   } = useSwapperState()
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
@@ -42,6 +42,8 @@ export const useTradeQuoteService = () => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const quote = useSwapperStore(state => state.quote)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {
@@ -107,10 +109,7 @@ export const useTradeQuoteService = () => {
   ])
 
   // Update trade quote
-  useEffect(
-    () => swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } }),
-    [tradeQuote, swapperDispatch],
-  )
+  useEffect(() => updateQuote(tradeQuote), [tradeQuote, updateQuote])
 
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
@@ -129,10 +128,8 @@ export const useTradeQuoteService = () => {
   // Set trade quote if not yet set (e.g. on page load)
   useEffect(() => {
     // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote &&
-      tradeQuote &&
-      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { quote: tradeQuote } })
-  }, [swapperDispatch, quote, tradeQuote])
+    !quote && tradeQuote && updateQuote(tradeQuote)
+  }, [quote, tradeQuote, updateQuote])
 
   return {
     isLoadingTradeQuote,

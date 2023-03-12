@@ -5,6 +5,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
 import { TradeRoutes } from './TradeRoutes/TradeRoutes'
@@ -20,6 +21,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
 
   const { dispatch: swapperDispatch } = useSwapperState()
+
+  const updateQuote = useSwapperStore(state => state.updateQuote)
 
   const methods = useForm({ mode: 'onChange' })
 
@@ -41,7 +44,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
           asset: buyAsset,
           amountCryptoPrecision: '0',
         },
-        quote: undefined,
         fiatBuyAmount: '0',
         fiatSellAmount: '0',
         sellAssetFiatRate: undefined,
@@ -52,6 +54,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
         isExactAllowance: false,
         amount: '0',
       }
+      updateQuote(undefined)
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: swapperState,
@@ -75,6 +78,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
     swapperDispatch,
+    updateQuote,
   ])
 
   if (!methods) return null

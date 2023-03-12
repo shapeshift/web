@@ -70,6 +70,8 @@ export const TradeInput = () => {
   const updateSelectedBuyAssetAccountId = useSwapperStore(
     state => state.updateSelectedBuyAssetAccountId,
   )
+  const quote = useSwapperStore(state => state.quote)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
 
   const {
     dispatch: swapperDispatch,
@@ -79,7 +81,6 @@ export const TradeInput = () => {
       fiatBuyAmount,
       receiveAddress,
       slippage,
-      quote,
       sellTradeAsset,
       buyTradeAsset,
       sellAssetFiatRate,
@@ -202,6 +203,8 @@ export const TradeInput = () => {
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
+      updateQuote(undefined)
+
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
@@ -213,7 +216,6 @@ export const TradeInput = () => {
           sellAssetFiatRate: currentValues.buyAssetFiatRate,
           // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
           feeAssetFiatRate: undefined,
-          quote: undefined,
           fees: undefined,
           trade: undefined,
         },
@@ -221,7 +223,14 @@ export const TradeInput = () => {
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
-  }, [buyAssetFiatRate, buyTradeAsset, swapperDispatch, sellAssetFiatRate, sellTradeAsset])
+  }, [
+    sellTradeAsset,
+    buyTradeAsset,
+    sellAssetFiatRate,
+    buyAssetFiatRate,
+    updateQuote,
+    swapperDispatch,
+  ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellTradeAsset?.asset && quote)) return

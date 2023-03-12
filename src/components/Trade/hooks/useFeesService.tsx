@@ -6,6 +6,7 @@ import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvide
 import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Fees Service is responsible for reacting to changes to quote and trades, and updating the fees accordingly.
@@ -14,7 +15,7 @@ The only mutation is on Swapper State's fees property.
 export const useFeesService = () => {
   const {
     dispatch: swapperDispatch,
-    state: { sellTradeAsset, quote, trade },
+    state: { sellTradeAsset, trade },
   } = useSwapperState()
 
   // Hooks
@@ -24,6 +25,7 @@ export const useFeesService = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
+  const quote = useSwapperStore(state => state.quote)
 
   if (!sellFeeAsset)
     throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)

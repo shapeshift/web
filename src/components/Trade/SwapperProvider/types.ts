@@ -1,12 +1,11 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { CowTrade, Trade } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Dispatch } from 'react'
 import type { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 
 export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
-  quote?: TradeQuote<C>
   buyTradeAsset?: TradeAsset
   sellTradeAsset?: TradeAsset
   fiatSellAmount?: string

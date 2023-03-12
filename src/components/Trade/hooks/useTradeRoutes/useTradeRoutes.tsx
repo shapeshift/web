@@ -29,6 +29,7 @@ export const useTradeRoutes = (): {
     state => state.updateSelectedBuyAssetAccountId,
   )
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -79,13 +80,13 @@ export const useTradeRoutes = (): {
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
-          quote: undefined,
           trade: undefined,
           action: TradeAmountInputField.SELL_FIAT,
           isSendMax: false,
           amount: '0',
         },
       })
+      updateQuote(undefined)
       swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
 
       history.push(TradeRoutePaths.Input)
@@ -101,6 +102,7 @@ export const useTradeRoutes = (): {
       sellTradeAsset,
       buyTradeAsset,
       swapperDispatch,
+      updateQuote,
       history,
       setTradeAmountsRefetchData,
       updateSelectedBuyAssetAccountId,

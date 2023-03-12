@@ -15,6 +15,7 @@ export type SwapperAction = {
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
   updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void
   updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
+  updateQuote: (quote: SwapperStore['quote']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

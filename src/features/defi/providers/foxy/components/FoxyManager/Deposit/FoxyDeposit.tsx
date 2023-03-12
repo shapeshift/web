@@ -29,7 +29,7 @@ import {
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioLoading,
-  selectStakingOpportunitiesById,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,11 +57,9 @@ export const FoxyDeposit: React.FC<{
   // ContractAssetId
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[assetId as StakingId],
-    [assetId, opportunitiesMetadata],
+  const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
   const stakingAssetId = opportunityMetadata?.underlyingAssetIds[0] ?? ''

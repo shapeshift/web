@@ -2,7 +2,6 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import { useEffect, useState } from 'react'
 import { createSelector } from 'reselect'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { ReduxState } from 'state/reducer'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectPortfolioAnonymized, selectPortfolioAssetIds } from 'state/slices/selectors'
@@ -36,7 +35,8 @@ export const useMixpanelPortfolioTracking = () => {
     if (isTracked) return
     // only track if market data is loaded
     if (isMarketDataLoaded && !isTracked) {
-      getMixPanel()?.track(MixPanelEvents.Portfolio, anonymizedPortfolio)
+      getMixPanel()?.identify()
+      getMixPanel()?.people.set(anonymizedPortfolio)
       setIsTracked(true)
     }
   }, [anonymizedPortfolio, isMarketDataLoaded, isTracked, wallet])

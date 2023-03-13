@@ -818,13 +818,13 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
     const portfolioBalance = Number(portfolioBalanceBN.toFixed(2))
 
     return {
-      hashedWalletId,
-      walletName,
-      portfolioBalance,
-      chains,
-      assets,
-      assetBalances,
-      chainBalances,
+      'Wallet ID': hashedWalletId,
+      'Wallet Name': walletName,
+      'Portfolio Balance': portfolioBalance,
+      Chains: chains,
+      Assets: assets,
+      'Asset Balances': assetBalances,
+      'Chain Balances': chainBalances,
     }
   },
 )

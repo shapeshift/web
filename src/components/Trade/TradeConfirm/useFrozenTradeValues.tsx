@@ -1,16 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { getTradeAmountConstants } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 import type { SwapperStore } from 'state/zustand/swapperStore/types'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useFrozenTradeValues = () => {
-  const {
-    state: { fees: stateFees, trade: stateTrade },
-  } = useSwapperState()
-
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const stateSellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
@@ -18,11 +12,13 @@ export const useFrozenTradeValues = () => {
   const stateFeeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const stateBuyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const stateSlippage = useSwapperStore(state => state.slippage)
+  const stateFees = useSwapperStore(state => state.fees)
+  const stateTrade = useSwapperStore(state => state.trade)
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
-  const [frozenTrade, setFrozenTrade] = useState<SwapperState['trade']>()
-  const [frozenFees, setFrozenFees] = useState<SwapperState['fees']>()
+  const [frozenTrade, setFrozenTrade] = useState<SwapperStore['trade']>()
+  const [frozenFees, setFrozenFees] = useState<SwapperStore['fees']>()
   const [frozenSellAssetFiatRate, setFrozenSellAssetFiatRate] =
     useState<SwapperStore['sellAssetFiatRate']>()
   const [frozenBuyAssetFiatRate, setFrozenBuyAssetFiatRate] =

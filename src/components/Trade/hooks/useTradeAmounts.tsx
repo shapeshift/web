@@ -8,8 +8,6 @@ import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmo
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import type { DisplayFeeData } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -33,10 +31,6 @@ export const useTradeAmounts = () => {
   // Hooks
   const featureFlags = useAppSelector(selectFeatureFlags)
   const appDispatch = useAppDispatch()
-  const {
-    dispatch: swapperDispatch,
-    state: { fees: feesFormState },
-  } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
 
@@ -69,6 +63,8 @@ export const useTradeAmounts = () => {
   const actionFormState = useSwapperStore(state => state.action)
   const isSendMaxFormState = useSwapperStore(state => state.isSendMax)
   const amountFormState = useSwapperStore(state => state.amount)
+  const updateFees = useSwapperStore(state => state.updateFees)
+  const feesFormState = useSwapperStore(state => state.fees)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset
@@ -225,12 +221,7 @@ export const useTradeAmounts = () => {
 
       if (!bestTradeSwapper) {
         updateQuote(undefined)
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            fees: undefined,
-          },
-        })
+        updateFees(undefined)
         return
       }
 
@@ -259,12 +250,7 @@ export const useTradeAmounts = () => {
 
       if (usdRates) {
         updateQuote(quoteResponse?.data)
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            fees: formFees,
-          },
-        })
+        updateFees(formFees)
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,
@@ -299,7 +285,7 @@ export const useTradeAmounts = () => {
       getUsdRates,
       updateTradeAmounts,
       updateQuote,
-      swapperDispatch,
+      updateFees,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
       updateBuyAssetFiatRate,

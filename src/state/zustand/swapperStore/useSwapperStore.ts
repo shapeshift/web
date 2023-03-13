@@ -1,3 +1,4 @@
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
@@ -18,7 +19,9 @@ const createUpdateAction =
       `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
     )
 
-export const useSwapperStore = create<SwapperStore & SwapperAction>()(
+export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
+export const useSwapperStore = (<T extends KnownChainIds = KnownChainIds>() =>
+  create<SwapperState<T>>())()(
   immer(
     devtools(
       set => ({
@@ -94,6 +97,8 @@ export const useSwapperStore = create<SwapperStore & SwapperAction>()(
         updateAction: createUpdateAction(set, 'action'),
         updateIsSendMax: createUpdateAction(set, 'isSendMax'),
         updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
+        updateFees: createUpdateAction(set, 'fees'),
+        updateTrade: createUpdateAction(set, 'trade'),
       }),
       { name: 'SwapperStore' },
     ),

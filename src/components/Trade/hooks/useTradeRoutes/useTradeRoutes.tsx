@@ -2,8 +2,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -17,7 +15,6 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
-  const { dispatch: swapperDispatch } = useSwapperState()
 
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
@@ -25,19 +22,21 @@ export const useTradeRoutes = (): {
   const updateSelectedBuyAssetAccountId = useSwapperStore(
     state => state.updateSelectedBuyAssetAccountId,
   )
-  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateFees = useSwapperStore(state => state.updateFees)
   const updateQuote = useSwapperStore(state => state.updateQuote)
-  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
-  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
-  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
-  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
+  const updateTrade = useSwapperStore(state => state.updateTrade)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const updateAction = useSwapperStore(state => state.updateAction)
-  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
   const updateAmount = useSwapperStore(state => state.updateAmount)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
+  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
+  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -75,23 +74,13 @@ export const useTradeRoutes = (): {
         updateBuyAssetFiatRate(undefined)
         updateSellAssetFiatRate(undefined)
         updateFeeAssetFiatRate(undefined)
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            fees: undefined,
-          },
-        })
+        updateFees(undefined)
       }
 
       updateAction(TradeAmountInputField.SELL_FIAT)
       updateIsSendMax(false)
       updateAmount('0')
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          trade: undefined,
-        },
-      })
+      updateTrade(undefined)
       updateQuote(undefined)
       clearAmounts()
 
@@ -110,7 +99,7 @@ export const useTradeRoutes = (): {
       updateAction,
       updateIsSendMax,
       updateAmount,
-      swapperDispatch,
+      updateTrade,
       updateQuote,
       clearAmounts,
       history,
@@ -123,6 +112,7 @@ export const useTradeRoutes = (): {
       updateBuyAssetFiatRate,
       updateSellAssetFiatRate,
       updateFeeAssetFiatRate,
+      updateFees,
     ],
   )
 

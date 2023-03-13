@@ -18,8 +18,6 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -71,32 +69,29 @@ export const TradeInput = () => {
     state => state.updateSelectedBuyAssetAccountId,
   )
   const quote = useSwapperStore(state => state.quote)
+  const fees = useSwapperStore(state => state.fees)
+  const slippage = useSwapperStore(state => state.slippage)
+  const updateFees = useSwapperStore(state => state.updateFees)
   const updateQuote = useSwapperStore(state => state.updateQuote)
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const fiatSellAmount = useSwapperStore(state => state.fiatSellAmount)
+  const updateTrade = useSwapperStore(state => state.updateTrade)
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
   const fiatBuyAmount = useSwapperStore(state => state.fiatBuyAmount)
-  const sellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const fiatSellAmount = useSwapperStore(state => state.fiatSellAmount)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const receiveAddress = useSwapperStore(state => state.receiveAddress)
+  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
-  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const sellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
   const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
-  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
-  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
-
-  const {
-    dispatch: swapperDispatch,
-    state: { fees },
-  } = useSwapperState()
-
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const receiveAddress = useSwapperStore(state => state.receiveAddress)
-  const slippage = useSwapperStore(state => state.slippage)
-  const updateAction = useSwapperStore(state => state.updateAction)
-  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
-  const updateAmount = useSwapperStore(state => state.updateAmount)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
 
   const {
     checkApprovalNeeded,
@@ -209,24 +204,18 @@ export const TradeInput = () => {
       const currentBuyTradeAsset = currentValues.buyTradeAsset
       if (!(currentSellTradeAsset && currentBuyTradeAsset)) return
 
-      updateQuote(undefined)
-
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          fees: undefined,
-          trade: undefined,
-        },
-      })
       updateSellTradeAsset({ asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' })
       updateBuyTradeAsset({ asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' })
+      updateBuyAssetFiatRate(currentValues.sellAssetFiatRate)
+      updateSellAssetFiatRate(currentValues.buyAssetFiatRate)
 
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
       updateFiatSellAmount('0')
       updateFiatBuyAmount('0')
-      updateBuyAssetFiatRate(currentValues.sellAssetFiatRate)
-      updateSellAssetFiatRate(currentValues.buyAssetFiatRate)
       updateFeeAssetFiatRate(undefined)
+      updateQuote(undefined)
+      updateFees(undefined)
+      updateTrade(undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -235,15 +224,16 @@ export const TradeInput = () => {
     buyTradeAsset,
     sellAssetFiatRate,
     buyAssetFiatRate,
-    updateQuote,
-    swapperDispatch,
     updateSellTradeAsset,
     updateBuyTradeAsset,
-    updateFiatSellAmount,
-    updateFiatBuyAmount,
     updateBuyAssetFiatRate,
     updateSellAssetFiatRate,
+    updateFiatSellAmount,
+    updateFiatBuyAmount,
     updateFeeAssetFiatRate,
+    updateQuote,
+    updateFees,
+    updateTrade,
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
@@ -289,14 +279,14 @@ export const TradeInput = () => {
         return
       }
       const trade = await getTrade()
-      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+      updateTrade(trade)
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
     } finally {
       setIsLoading(false)
     }
-  }, [checkApprovalNeeded, getTrade, history, swapperDispatch])
+  }, [checkApprovalNeeded, getTrade, history, updateTrade])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
     async (value: string, isFiat: boolean | undefined) => {

@@ -1,5 +1,4 @@
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -182,14 +181,11 @@ export const getTradeAmountConstants = ({
 export const useGetTradeAmounts = () => {
   const buyAssetUsdRate = useSwapperStore(state => state.buyAssetFiatRate)
   const sellAssetUsdRate = useSwapperStore(state => state.sellAssetFiatRate)
-  const {
-    state: { fees },
-  } = useSwapperState()
-
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const action = useSwapperStore(state => state.action)
   const amount = useSwapperStore(state => state.amount)
+  const fees = useSwapperStore(state => state.fees)
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 

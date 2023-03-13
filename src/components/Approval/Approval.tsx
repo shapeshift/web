@@ -25,8 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import type { DisplayFeeData } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -54,15 +53,12 @@ export const Approval = () => {
     formState: { isSubmitting },
   } = useFormContext()
 
-  const {
-    dispatch: swapperDispatch,
-    state: { fees },
-  } = useSwapperState<EvmChainId>()
-
   const quote = useSwapperStore(state => state.quote)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
+  const fees = useSwapperStore(state => state.fees) as DisplayFeeData<EvmChainId> | undefined
+  const updateTrade = useSwapperStore(state => state.updateTrade)
 
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
@@ -123,7 +119,7 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+        updateTrade(trade)
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
@@ -133,12 +129,12 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
-    swapperDispatch,
     getTrade,
     history,
     isConnected,
     quote,
     showErrorToast,
+    updateTrade,
   ])
 
   return (

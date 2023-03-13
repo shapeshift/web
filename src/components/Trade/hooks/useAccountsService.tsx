@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -12,20 +11,18 @@ The Accounts Service is responsible for reacting to changes to trade assets and 
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
-  const { dispatch: swapperDispatch } = useSwapperState()
-
   // Custom hooks
   const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
 
   // Selectors
-  const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
-  const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
-  const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-  const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
-  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
-  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
+  const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
+  const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
 
   const sellAssetId = sellTradeAsset?.asset?.assetId
   const buyAssetId = buyTradeAsset?.asset?.assetId
@@ -63,7 +60,7 @@ export const useAccountsService = () => {
   useEffect(
     () => updateSellAssetAccountId(sellAssetAccountId),
     // stateSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
-    [sellAssetAccountId, stateSellAssetAccountId, swapperDispatch, updateSellAssetAccountId],
+    [sellAssetAccountId, stateSellAssetAccountId, updateSellAssetAccountId],
   )
 
   // Set buyAssetAccountId
@@ -81,7 +78,6 @@ export const useAccountsService = () => {
   }, [
     buyAssetAccountId,
     sellAssetAccountId,
-    swapperDispatch,
     swapperSupportsCrossAccountTrade,
     stateBuyAssetAccountId,
     bestTradeSwapper,

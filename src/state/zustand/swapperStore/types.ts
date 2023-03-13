@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { TradeAmountInputField, TradeAsset } from 'components/Trade/types'
+import type { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
@@ -22,6 +22,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   isSendMax: boolean
   amount: string
   receiveAddress?: string
+  fees?: DisplayFeeData<C>
+  trade?: Trade<C> | CowTrade<C>
 }
 
 type TradeAmounts = {
@@ -53,6 +55,8 @@ export type SwapperAction = {
   updateAmount: (amount: SwapperStore['amount']) => void
   updateReceiveAddress: (receiveAddress: SwapperStore['receiveAddress']) => void
   toggleIsExactAllowance: () => void
+  updateFees: (fees: SwapperStore['fees']) => void
+  updateTrade: (trade: SwapperStore['trade']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

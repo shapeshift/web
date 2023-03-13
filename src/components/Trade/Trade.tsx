@@ -2,9 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import type { SwapperState } from 'components/Trade/SwapperProvider/types'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
@@ -20,10 +17,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const location = useLocation()
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
 
-  const { dispatch: swapperDispatch } = useSwapperState()
-
-  const updateQuote = useSwapperStore(state => state.updateQuote)
-
   const methods = useForm({ mode: 'onChange' })
 
   const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
@@ -36,6 +29,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
   const updateAmount = useSwapperStore(state => state.updateAmount)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
+  const updateTrade = useSwapperStore(state => state.updateTrade)
 
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
@@ -49,9 +44,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       updateAction(TradeAmountInputField.SELL_FIAT)
       updateIsExactAllowance(false)
       updateAmount('0')
-      const swapperState: Partial<SwapperState> = {
-        trade: undefined,
-      }
       updateBuyTradeAsset({
         asset: buyAsset,
         amountCryptoPrecision: '0',
@@ -66,10 +58,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       updateSellAssetFiatRate(undefined)
       updateBuyAssetFiatRate(undefined)
       updateFeeAssetFiatRate(undefined)
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: swapperState,
-      })
+      updateTrade(undefined)
       const defaultAssetsAreChainDefaults =
         sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
@@ -88,7 +77,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
-    swapperDispatch,
     updateQuote,
     updateFiatBuyAmount,
     updateFiatSellAmount,
@@ -100,6 +88,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     updateAction,
     updateIsExactAllowance,
     updateAmount,
+    updateTrade,
   ])
 
   if (!methods) return null

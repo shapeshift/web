@@ -1,7 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
-import isEmpty from 'lodash/isEmpty'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
@@ -76,12 +75,6 @@ export const selectMarketDataByFilter = createCachedSelector(
 export const selectCryptoMarketDataIdsSortedByMarketCap = createDeepEqualOutputSelector(
   selectMarketDataSortedByMarketCap,
   (marketData): AssetId[] => Object.keys(marketData),
-)
-
-// if we don't have it, it's loading
-export const selectMarketDataLoadingById = createSelector(
-  selectMarketDataById,
-  (assetMarketData): boolean => isEmpty(assetMarketData),
 )
 
 export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory

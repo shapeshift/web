@@ -1757,8 +1757,7 @@
       },
       "seniorTranche": {
         "page-1": {
-          "title": "Estrategia Senior Tranche",
-          "body": "Los tramos Senior brindan grandes oportunidades con menor riesgo que junior."
+          "title": "Estrategia Senior Tranche"
         },
         "page-2": {
           "title": "Estrategias Senior Tranche"
@@ -1766,15 +1765,13 @@
       },
       "juniorTranche": {
         "page-1": {
-          "title": "Estrategia Junior Tranche",
-          "body": "Los tramos Junior proporcionan rendimientos DeFi optimizados y amplificados al conllevar mayor riesgo."
+          "title": "Estrategia Junior Tranche"
         },
         "page-2": {
           "title": "Estrategias Junior Tranche:"
         }
       },
       "monitorSystem": "Use el seguimiento Idle Finance para encontrar asignaciones con mejor rendimiento y desencadenar reequilibrio",
-      "offerHighReturn": "Ofrece altos rendimientos sin que el usuario controle constantemente tarifas y gaste gas",
       "leverageYield": "Rendimiento de apalancamiento utilizando fondos Senior",
       "higherRisk": "Mayor exposición a riesgo al proteger tramos Senior",
       "minRisk": "Exposición al riesgo minimizada",
@@ -1787,12 +1784,10 @@
       "body": "Maximice automáticamente el rendimiento a través de múltiples protocolos DeFi probados en batalla. La estrategia del Mejor-Rendimiento optimiza la generación de rendimiento socializando los costos del gas, automatizando la generación de rendimiento mediante el desplazamiento algorítmico de capital a medida que surgen nuevas oportunidades de rendimiento."
     },
     "seniorTranche": {
-      "title": "¿Qué es un Tramo Senior?",
-      "body": "Disfrute de los rendimientos DeFi a través de múltiples protocolos mientras mantiene protegido su depósito. Los Tramos Senior ofrecen protección incorporada sobre los fondos y proporcionan cobertura de espectro completo gracias a su contraparte Junior."
+      "title": "¿Qué es un Tramo Senior?"
     },
     "juniorTranche": {
-      "title": "¿Que es un Tramo Junior?",
-      "body": "Disfrute de rendimientos mejorados en múltiples protocolos DeFi: los tramos junior logran un rendimiento apalancado, ya que son compensados ​​por proporcionar capital de primera pérdida a su contraparte senior."
+      "title": "¿Que es un Tramo Junior?"
     }
   },
   "promo": {

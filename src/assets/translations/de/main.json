@@ -1757,8 +1757,7 @@
       },
       "seniorTranche": {
         "page-1": {
-          "title": "Senior Tranchen Strategie",
-          "body": "Senior Tranchen bieten großartige Chancen bei geringerem Risiko als Junior-Tranchen."
+          "title": "Senior Tranchen Strategie"
         },
         "page-2": {
           "title": "Senior Tranchen Strategien:"
@@ -1766,15 +1765,13 @@
       },
       "juniorTranche": {
         "page-1": {
-          "title": "Junior Tranchen Strategie",
-          "body": "Junior Tranchen bieten verstärkte optimierte DeFi-Renditen, indem sie ein höheres Risiko tragen."
+          "title": "Junior Tranchen Strategie"
         },
         "page-2": {
           "title": "Junior Tranchen Strategien:"
         }
       },
       "monitorSystem": "Nutzen Sie das Überwachungssystem von Idle Finance, um Allokationen mit besserer Leistung zu finden und eine Neugewichtung auszulösen",
-      "offerHighReturn": "Bieten Sie hohe Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt",
       "leverageYield": "Leverage Rendite mit Senior Tranchen Fonds",
       "higherRisk": "Höheres Risiko durch Schutz vorrangiger Tranchen",
       "minRisk": "Minimiertes Risiko",
@@ -1787,12 +1784,10 @@
       "body": "Maximieren Sie automatisch den Ertrag über mehrere erprobte DeFi-Protokolle. Die Best-Yield-Strategie optimiert die Ertragsgenerierung durch Verteilung der Transaktionskosten und automatisiert die Ertragsgenerierung durch algorithmische Kapitalverlagerung, wenn sich neue Ertragschancen ergeben."
     },
     "seniorTranche": {
-      "title": "Was ist eine Senior Tranche?",
-      "body": "Erhalten Sie DeFi-Erträge über mehrere Protokolle hinweg, während Sie Ihre Einzahlung schützen. Senior Tranchen bieten einen integrierten Schutz für Fonds und bieten dank ihrer Junior Tranchen eine umfassende Abdeckung."
+      "title": "Was ist eine Senior Tranche?"
     },
     "juniorTranche": {
-      "title": "Was ist eine Junior Tranche?",
-      "body": "Profitieren Sie von höheren Renditen über mehrere DeFi-Protokolle hinweg, Junior Tranchen erzielen eine gehebelte Rendite, da sie für die Bereitstellung von First-Loss-Kapital für ihre Senior Tranchen entschädigt werden."
+      "title": "Was ist eine Junior Tranche?"
     }
   },
   "promo": {

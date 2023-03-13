@@ -1757,8 +1757,7 @@
       },
       "seniorTranche": {
         "page-1": {
-          "title": "Stratégie \"Senior Tranche\"",
-          "body": "Les \"Senior Tranches\" offrent de grandes opportunités avec un risque réduit par rapport aux \"Junior Tranches\"."
+          "title": "Stratégie \"Senior Tranche\""
         },
         "page-2": {
           "title": "Stratégies \"Senior Tranche\" :"
@@ -1766,15 +1765,13 @@
       },
       "juniorTranche": {
         "page-1": {
-          "title": "Stratégie \"Junior Tranche\"",
-          "body": "Les \"Junior Tranches\" offrent des rendements DeFi optimisés amplifiés impliquant un degré de risque plus élevé."
+          "title": "Stratégie \"Junior Tranche\""
         },
         "page-2": {
           "title": "Stratégies \"Junior Tranche\" :"
         }
       },
       "monitorSystem": "Utiliser le système de surveillance d'Idle Finance pour trouver des allocations plus performantes et déclencher un rééquilibrage",
-      "offerHighReturn": "Offrir des rendements élevés sans que l'utilisateur ne doive vérifier constamment les tarifs et ne brûle du carburant pour chaque transfert",
       "leverageYield": "Obtenir des rendements en utilisant des fonds \"Senior Tranche\"",
       "higherRisk": "Exposition aux risques plus élevée en protégeant les \"Senior Tranches\"",
       "minRisk": "Exposition aux risques minimisée",
@@ -1787,12 +1784,10 @@
       "body": "Maximisez automatiquement le rendement sur plusieurs protocoles DeFi éprouvés. La stratégie \"Best Yield\" optimise la génération de rendement en socialisant les coûts de carburant, en automatisant la génération de rendement par le déplacement de capitaux de manière algorithmique à mesure que de nouvelles opportunités de rendement se présentent."
     },
     "seniorTranche": {
-      "title": "Qu'est-ce qu'une \"Senior Tranche\" ?",
-      "body": "Profitez des rendements DeFi sur plusieurs protocoles tout en protégeant votre dépôt. Les \"Senior Tranches\" offrent une protection intégrée sur les fonds et offrent une couverture complète grâce à leur contrepartie \"Junior\"."
+      "title": "Qu'est-ce qu'une \"Senior Tranche\" ?"
     },
     "juniorTranche": {
-      "title": "Qu'est-ce qu'une \"Junior Tranche\" ?",
-      "body": "Profitez de rendements accrus sur plusieurs protocoles DeFi : les \"Junior Tranches\" obtiennent un rendement à effet de levier car elles sont rémunérées pour avoir fourni un capital de première perte (first-loss) à leur contrepartie \"Senior\"."
+      "title": "Qu'est-ce qu'une \"Junior Tranche\" ?"
     }
   },
   "promo": {

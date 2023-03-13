@@ -1757,8 +1757,7 @@
       },
       "seniorTranche": {
         "page-1": {
-          "title": "Estratégia Senior Tranche",
-          "body": "As tranches seniors oferecem grandes oportunidades com menor risco do que as tranches juniors."
+          "title": "Estratégia Senior Tranche"
         },
         "page-2": {
           "title": "Estratégias de tranches Senior:"
@@ -1766,15 +1765,13 @@
       },
       "juniorTranche": {
         "page-1": {
-          "title": "Estratégia de tranche Junior",
-          "body": "As tranches júnior fornecem rendimentos DeFi otimizados e amplificados ao carregar um grau mais alto de riscos."
+          "title": "Estratégia de tranche Junior"
         },
         "page-2": {
           "title": "Estratégias de tranche junior:"
         }
       },
       "monitorSystem": "Utilize o sistema de monitoramento do Idle Finance para encontrar alocações de melhor desempenho e ter um balanceamento eficiente. ",
-      "offerHighReturn": "Ofereça altos retornos sem que o usuário gaste com taxas para gerenciar suas posições",
       "leverageYield": "Alavancar o rendimento usando fundos de tranches seniores",
       "higherRisk": "Maior exposição ao risco ao proteger tranches seniores",
       "minRisk": "Exposição ao risco minimizada",
@@ -1787,12 +1784,10 @@
       "body": "Maximize automaticamente o rendimento em vários protocolos DeFi testados. A estratégia Best-Yield otimiza o ganho de recompensas ao dividir os custos das taxas, automatizando a geração de incentivos ao transferir capital algoritmicamente à medida que surgem novas oportunidades."
     },
     "seniorTranche": {
-      "title": "O que é uma Senior Tranche?",
-      "body": "Aproveite os rendimentos DeFi em vários protocolos, mantendo seu depósito protegido. As Tranches Sênior oferecem proteção total aos seus fundos graças as Tranches Júnior."
+      "title": "O que é uma Senior Tranche?"
     },
     "juniorTranche": {
-      "title": "O que é uma Junior Tranche?",
-      "body": "Desfrute de rendimentos maximizados em vários protocolos DeFi: as Tranches Junior alcançam rendimento alavancado, pois são compensadas por fornecer capital de primeira perda para sua contraparte sênior."
+      "title": "O que é uma Junior Tranche?"
     }
   },
   "promo": {

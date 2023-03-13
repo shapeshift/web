@@ -1757,8 +1757,7 @@
       },
       "seniorTranche": {
         "page-1": {
-          "title": "Senior Tranche Stratejisi",
-          "body": "Senior tranche'ler, Junior Tranche'lere göre daha düşük riskle harika fırsatlar sunar."
+          "title": "Senior Tranche Stratejisi"
         },
         "page-2": {
           "title": "Senior Tranche stratejileri:"
@@ -1766,15 +1765,13 @@
       },
       "juniorTranche": {
         "page-1": {
-          "title": "Junior Tranche Stratejisi",
-          "body": "Junior Tranche'ler, daha yüksek dereceli riskler taşıyarak artırılmış, optimize edilmiş DeFi getirileri sağlar."
+          "title": "Junior Tranche Stratejisi"
         },
         "page-2": {
           "title": "Junior Tranche Stratejileri:"
         }
       },
       "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
-      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan yüksek getiri sunun",
       "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
       "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
       "minRisk": "En aza indirilmiş risk ",
@@ -1787,12 +1784,10 @@
       "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
     },
     "seniorTranche": {
-      "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatınızı korurken birden fazla protokolde DeFi getirilerinin keyfini çıkarın. Senior Tranche, fonlar üzerinde yerleşik koruma sunar ve Junior muhatabı sayesinde tam spektrumlu teminat sağlar."
+      "title": "Senior Tranche (Üst Dilim) nedir?"
     },
     "juniorTranche": {
-      "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Birden fazla DeFi protokolünde artırılmış getirilerin keyfini çıkarın: Junior Tranche, Senior muhatabına ilk kayıp sermayesini sağlamaları karşılığında tazmin edildikleri için kaldıraçlı getiri elde eder."
+      "title": "Junior Tranche (Alt Dilim) nedir?"
     }
   },
   "promo": {

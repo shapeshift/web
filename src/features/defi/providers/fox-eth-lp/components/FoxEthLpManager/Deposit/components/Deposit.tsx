@@ -10,7 +10,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import qs from 'qs'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -19,8 +19,10 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -46,7 +48,17 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const opportunity = state?.opportunity
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { lpAccountId } = useFoxEth()
   const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
 
@@ -199,9 +211,9 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       asset0={ethAsset}
       asset1={foxAsset}
-      icons={opportunity?.icons}
+      icons={foxEthLpOpportunity?.icons}
       destAsset={asset}
-      apy={opportunity?.apy?.toString() ?? ''}
+      apy={foxEthLpOpportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable0={ethCryptoAmountAvailable.toPrecision()}
       cryptoAmountAvailable1={foxCryptoAmountAvailable.toPrecision()}
       cryptoInputValidation0={{

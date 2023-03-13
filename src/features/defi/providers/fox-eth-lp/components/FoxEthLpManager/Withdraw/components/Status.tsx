@@ -19,7 +19,12 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectEarnUserLpOpportunity,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +36,18 @@ type StatusProps = { accountId: AccountId | undefined }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -77,7 +93,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }
 
-  if (!state || !opportunity) return null
+  if (!state || !foxEthLpOpportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {
@@ -117,7 +133,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       statusIcon={statusIcon}
       statusBg={statusBg}
       statusBody={statusBody}
-      pairIcons={opportunity.icons}
+      pairIcons={foxEthLpOpportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vertical' p={4}>
@@ -127,7 +143,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity.icons!}
+                icons={foxEthLpOpportunity.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

@@ -19,6 +19,8 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -50,6 +52,8 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress } = query
 
+  const assets = useAppSelector(selectAssets)
+
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {
       userStakingId: serializeUserStakingId(
@@ -68,8 +72,6 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-
-  const assets = useAppSelector(selectAssets)
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
@@ -118,7 +120,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   }
 
   const handleContinue = async () => {
-    if (!opportunity) return
+    if (!opportunity || !asset) return
     // set withdraw state for future use
     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
@@ -141,6 +143,20 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawContinue,
+        {
+          opportunity,
+          fiatAmounts: [totalFiatBalance],
+          cryptoAmounts: [
+            {
+              assetId: asset?.assetId,
+              amountCryptoHuman: amountAvailableCryptoPrecision.toString(),
+            },
+          ],
+        },
+        assets,
+      )
     } else {
       const estimatedGasCrypto = await getApproveGasData()
       if (!estimatedGasCrypto) return

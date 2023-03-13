@@ -19,6 +19,8 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
@@ -27,6 +29,7 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -66,6 +69,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
+
+  const assets = useAppSelector(selectAssets)
 
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
@@ -146,6 +151,17 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
+          trackOpportunityEvent(
+            MixPanelEvents.DepositContinue,
+            {
+              opportunity: foxFarmingOpportunity,
+              fiatAmounts: [formValues.fiatAmount],
+              cryptoAmounts: [
+                { assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+              ],
+            },
+            assets,
+          )
         } else {
           const estimatedGasCrypto = await getApproveGasData()
           if (!estimatedGasCrypto) return
@@ -172,18 +188,19 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      asset,
-      assetReference,
-      dispatch,
-      ethAsset.precision,
-      foxFarmingAllowance,
-      getApproveGasData,
-      getStakeGasData,
-      onNext,
-      foxFarmingOpportunity,
       state,
+      dispatch,
+      foxFarmingOpportunity,
+      assetReference,
+      getStakeGasData,
+      ethAsset.precision,
       toast,
       translate,
+      asset,
+      foxFarmingAllowance,
+      onNext,
+      assets,
+      getApproveGasData,
     ],
   )
 

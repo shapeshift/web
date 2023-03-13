@@ -21,6 +21,7 @@ import { logger } from 'lib/logger'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -35,7 +36,19 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
+
   const translate = useTranslate()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountId)
@@ -72,7 +85,16 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   }, [onNext])
 
   const handleConfirm = useCallback(async () => {
-    if (!(dispatch && walletState.wallet && supportsETH(walletState.wallet) && opportunity)) return
+    if (
+      !(
+        dispatch &&
+        state?.withdraw &&
+        walletState.wallet &&
+        supportsETH(walletState.wallet) &&
+        foxEthLpOpportunity
+      )
+    )
+      return
     try {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
 
@@ -92,17 +114,15 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     }
   }, [
     dispatch,
-    onNext,
-    onOngoingLpTxIdChange,
-    opportunity,
-    removeLiquidity,
-    state?.withdraw.ethAmount,
-    state?.withdraw.foxAmount,
-    state?.withdraw.lpAmount,
+    state?.withdraw,
     walletState.wallet,
+    foxEthLpOpportunity,
+    removeLiquidity,
+    onOngoingLpTxIdChange,
+    onNext,
   ])
 
-  if (!state || !dispatch || !opportunity) return null
+  if (!state || !dispatch || !foxEthLpOpportunity) return null
 
   return (
     <ReusableConfirm
@@ -121,7 +141,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity.icons!}
+                icons={foxEthLpOpportunity.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

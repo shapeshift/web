@@ -18,12 +18,15 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -61,7 +64,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
   const toast = useToast()
-
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
   // Asset info
   const assetId = toAssetId({
@@ -113,6 +116,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawApprove,
+        {
+          opportunity,
+          fiatAmounts: [],
+          cryptoAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -125,19 +137,20 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    allowance,
-    approve,
-    asset?.precision,
     dispatch,
-    feeAsset.precision,
-    getUnstakeGasData,
-    onNext,
-    opportunity,
     state?.withdraw.lpAmount,
     state?.withdraw.isExiting,
+    opportunity,
+    wallet,
+    approve,
+    getUnstakeGasData,
+    feeAsset?.precision,
+    onNext,
+    assets,
+    allowance,
+    asset?.precision,
     toast,
     translate,
-    wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

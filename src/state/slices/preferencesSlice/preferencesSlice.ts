@@ -15,7 +15,6 @@ export type FeatureFlags = {
   OsmosisLPAdditionalPools: boolean
   Optimism: boolean
   BnbSmartChain: boolean
-  BnbSmartChainZrx: boolean
   ThorSwap: boolean
   IdleFinance: boolean
   Axelar: boolean
@@ -30,6 +29,7 @@ export type FeatureFlags = {
   TradeRates: boolean
   Cowswap: boolean
   ZrxAvalancheSwap: boolean
+  ZrxBnbSmartChain: boolean
   ZrxEthereumSwap: boolean
   ZrxOptimismSwap: boolean
   Mixpanel: boolean
@@ -63,7 +63,6 @@ const initialState: Preferences = {
     OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
-    BnbSmartChainZrx: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
@@ -78,8 +77,9 @@ const initialState: Preferences = {
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP,
+    ZrxBnbSmartChain: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP,
-    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
+    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,

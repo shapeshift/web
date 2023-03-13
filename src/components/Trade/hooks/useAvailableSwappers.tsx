@@ -3,21 +3,21 @@ import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { isSome } from 'lib/utils'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type AvailableSwapperArgs = { feeAsset: Asset | undefined }
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
 export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
   // Form hooks
-  const {
-    state: { sellTradeAsset, buyTradeAsset },
-  } = useSwapperState()
   const { tradeQuoteArgs } = useTradeQuoteService()
+
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

@@ -29,8 +29,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -77,8 +75,6 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const { dispatch: swapperDispatch } = useSwapperState()
-
   const {
     tradeAmounts,
     trade,
@@ -95,14 +91,15 @@ export const TradeConfirm = () => {
   )
 
   const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const clearAmounts = useSwapperStore(state => state.clearAmounts)
 
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   const reset = useCallback(() => {
-    swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
+    clearAmounts()
     updateFiatSellAmount('')
-  }, [swapperDispatch, updateFiatSellAmount])
+  }, [clearAmounts, updateFiatSellAmount])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(

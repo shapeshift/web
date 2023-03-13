@@ -82,11 +82,16 @@ export const TradeInput = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
+  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
 
   const {
     dispatch: swapperDispatch,
-    state: { receiveAddress, slippage, sellTradeAsset, buyTradeAsset, fees },
+    state: { receiveAddress, slippage, fees },
   } = useSwapperState()
+
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
 
   const {
     checkApprovalNeeded,
@@ -207,12 +212,13 @@ export const TradeInput = () => {
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
-          buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
-          sellTradeAsset: { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' },
           fees: undefined,
           trade: undefined,
         },
       })
+      updateSellTradeAsset({ asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' })
+      updateBuyTradeAsset({ asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' })
+
       // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
       updateFiatSellAmount('0')
       updateFiatBuyAmount('0')
@@ -229,6 +235,8 @@ export const TradeInput = () => {
     buyAssetFiatRate,
     updateQuote,
     swapperDispatch,
+    updateSellTradeAsset,
+    updateBuyTradeAsset,
     updateFiatSellAmount,
     updateFiatBuyAmount,
     updateBuyAssetFiatRate,
@@ -244,10 +252,10 @@ export const TradeInput = () => {
       quote,
       sellAssetBalanceCrypto,
     )
+    updateSellTradeAsset({ ...sellTradeAsset, amountCryptoPrecision: maxSendAmount })
     swapperDispatch({
       type: SwapperActionType.SET_VALUES,
       payload: {
-        sellTradeAsset: { ...sellTradeAsset, amountCryptoPrecision: maxSendAmount },
         action: TradeAmountInputField.SELL_CRYPTO,
         isSendMax: true,
         amount: maxSendAmount,
@@ -263,13 +271,14 @@ export const TradeInput = () => {
       sendMax: true,
     })
   }, [
-    buyTradeAsset?.asset?.assetId,
-    swapperDispatch,
-    quote,
-    sellAssetBalanceCrypto,
-    sellFeeAsset,
     sellTradeAsset,
+    quote,
+    sellFeeAsset,
+    sellAssetBalanceCrypto,
+    updateSellTradeAsset,
+    swapperDispatch,
     setTradeAmountsRefetchData,
+    buyTradeAsset?.asset?.assetId,
   ])
 
   const onSubmit = useCallback(async () => {

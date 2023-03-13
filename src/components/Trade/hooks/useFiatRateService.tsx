@@ -2,7 +2,6 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,9 +13,6 @@ It mutates the buyAssetFiatRate, sellAssetFiatRate, and feeAssetFiatRate propert
 It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
-  const {
-    state: { sellTradeAsset, buyTradeAsset },
-  } = useSwapperState()
   const { tradeQuoteArgs } = useTradeQuoteService()
 
   // Types
@@ -26,13 +22,13 @@ export const useFiatRateService = () => {
   // State
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
-  // Constants
+  // Selectors
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
   const sellTradeAssetId = sellAsset?.assetId
   const buyTradeAssetId = buyAsset?.assetId
-
-  // Selectors
   const sellAssetFeeAssetId = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   )?.assetId

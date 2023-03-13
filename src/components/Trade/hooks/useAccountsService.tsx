@@ -12,25 +12,24 @@ The Accounts Service is responsible for reacting to changes to trade assets and 
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
-  const {
-    dispatch: swapperDispatch,
-    state: { sellTradeAsset, buyTradeAsset },
-  } = useSwapperState()
+  const { dispatch: swapperDispatch } = useSwapperState()
 
   // Custom hooks
   const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
+
+  // Selectors
   const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
   const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
 
-  // Constants
   const sellAssetId = sellTradeAsset?.asset?.assetId
   const buyAssetId = buyTradeAsset?.asset?.assetId
 
-  // Selectors
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
   const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
   const highestFiatBalanceSellAccountId = useAppSelector(state =>

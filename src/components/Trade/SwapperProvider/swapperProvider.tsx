@@ -12,8 +12,6 @@ const initialState: SwapperState = {
   slippage: DEFAULT_SLIPPAGE,
   action: TradeAmountInputField.SELL_CRYPTO,
   isSendMax: false,
-  sellTradeAsset: { amountCryptoPrecision: '0' },
-  buyTradeAsset: { amountCryptoPrecision: '0' },
 }
 
 const SwapperContext = createContext<SwapperContextType | undefined>(undefined)

@@ -34,12 +34,14 @@ It does not mutate state.
 */
 export const useSwapper = () => {
   const {
-    state: { sellTradeAsset, buyTradeAsset, isSendMax, isExactAllowance, slippage },
+    state: { isSendMax, isExactAllowance, slippage },
   } = useSwapperState()
 
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const quote = useSwapperStore(state => state.quote)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset

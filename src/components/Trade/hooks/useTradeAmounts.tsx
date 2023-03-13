@@ -36,8 +36,6 @@ export const useTradeAmounts = () => {
   const {
     dispatch: swapperDispatch,
     state: {
-      sellTradeAsset,
-      buyTradeAsset,
       fees: feesFormState,
       action: actionFormState,
       isSendMax: isSendMaxFormState,
@@ -70,6 +68,9 @@ export const useTradeAmounts = () => {
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const updateTradeAmounts = useSwapperStore(state => state.updateTradeAmounts)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset
@@ -92,17 +93,14 @@ export const useTradeAmounts = () => {
         sellAmountSellAssetBaseUnit,
         args.sellAsset.precision,
       )
-      swapperDispatch({
-        type: SwapperActionType.SET_TRADE_AMOUNTS,
-        payload: {
-          buyAmountCryptoPrecision: buyTradeAssetAmount,
-          sellAmountCryptoPrecision: sellTradeAssetAmount,
-          fiatSellAmount,
-          fiatBuyAmount,
-        },
+      updateTradeAmounts({
+        buyAmountCryptoPrecision: buyTradeAssetAmount,
+        sellAmountCryptoPrecision: sellTradeAssetAmount,
+        fiatSellAmount,
+        fiatBuyAmount,
       })
     },
-    [swapperDispatch],
+    [updateTradeAmounts],
   )
 
   // Use the existing fiat rates and quote without waiting for fresh data
@@ -156,16 +154,14 @@ export const useTradeAmounts = () => {
       switch (action) {
         case TradeAmountInputField.SELL_FIAT:
         case TradeAmountInputField.SELL_CRYPTO:
-          swapperDispatch({
-            type: SwapperActionType.SET_TRADE_AMOUNTS,
-            payload: { sellAmountCryptoPrecision: amount },
+          updateTradeAmounts({
+            sellAmountCryptoPrecision: amount,
           })
           break
         case TradeAmountInputField.BUY_FIAT:
         case TradeAmountInputField.BUY_CRYPTO:
-          swapperDispatch({
-            type: SwapperActionType.SET_TRADE_AMOUNTS,
-            payload: { buyAmountCryptoPrecision: amount },
+          updateTradeAmounts({
+            buyAmountCryptoPrecision: amount,
           })
           break
         default:
@@ -303,8 +299,9 @@ export const useTradeAmounts = () => {
       featureFlags,
       getTradeQuote,
       getUsdRates,
-      swapperDispatch,
+      updateTradeAmounts,
       updateQuote,
+      swapperDispatch,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
       updateBuyAssetFiatRate,

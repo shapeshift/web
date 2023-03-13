@@ -15,13 +15,14 @@ The only mutation is on Swapper State's fees property.
 export const useFeesService = () => {
   const {
     dispatch: swapperDispatch,
-    state: { sellTradeAsset, trade },
+    state: { trade },
   } = useSwapperState()
 
   // Hooks
   const { bestTradeSwapper } = useSwapper()
 
   // Selectors
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )

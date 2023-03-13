@@ -16,10 +16,9 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
-  const {
-    dispatch: swapperDispatch,
-    state: { buyTradeAsset },
-  } = useSwapperState()
+  const { dispatch: swapperDispatch } = useSwapperState()
+
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
 
   // Constants

@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { TradeAsset } from 'components/Trade/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
@@ -10,9 +11,18 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   quote?: TradeQuote<C>
   fiatSellAmount?: string
   fiatBuyAmount?: string
+  buyTradeAsset?: TradeAsset
+  sellTradeAsset?: TradeAsset
   sellAssetFiatRate?: string
   buyAssetFiatRate?: string
   feeAssetFiatRate?: string
+}
+
+type TradeAmounts = {
+  buyAmountCryptoPrecision?: string
+  sellAmountCryptoPrecision?: string
+  fiatSellAmount?: string
+  fiatBuyAmount?: string
 }
 
 export type SwapperAction = {
@@ -26,6 +36,10 @@ export type SwapperAction = {
   updateSellAssetFiatRate: (sellAssetFiatRate: SwapperStore['sellAssetFiatRate']) => void
   updateBuyAssetFiatRate: (buyAssetFiatRate: SwapperStore['buyAssetFiatRate']) => void
   updateFeeAssetFiatRate: (feeAssetFiatRate: SwapperStore['feeAssetFiatRate']) => void
+  updateBuyTradeAsset: (buyTradeAsset: SwapperStore['buyTradeAsset']) => void
+  updateSellTradeAsset: (sellTradeAsset: SwapperStore['sellTradeAsset']) => void
+  updateTradeAmounts: (tradeAmounts: TradeAmounts) => void
+  clearAmounts: () => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

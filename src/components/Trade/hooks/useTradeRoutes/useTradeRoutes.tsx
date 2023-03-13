@@ -17,10 +17,7 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { setTradeAmountsRefetchData } = useTradeAmounts()
-  const {
-    dispatch: swapperDispatch,
-    state: { buyTradeAsset, sellTradeAsset },
-  } = useSwapperState()
+  const { dispatch: swapperDispatch } = useSwapperState()
 
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
@@ -30,11 +27,14 @@ export const useTradeRoutes = (): {
   )
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateQuote = useSwapperStore(state => state.updateQuote)
-  const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
-  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
+  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
+  const clearAmounts = useSwapperStore(state => state.clearAmounts)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -46,35 +46,38 @@ export const useTradeRoutes = (): {
       const previousBuyTradeAsset = buyTradeAsset
 
       if (isBuy) {
-        swapperDispatch({
-          type: SwapperActionType.SET_BUY_ASSET,
-          payload: asset,
+        updateBuyTradeAsset({
+          asset,
+          amountCryptoPrecision: '',
         })
         isSameAsset &&
-          swapperDispatch({
-            type: SwapperActionType.SET_SELL_ASSET,
-            payload: previousBuyTradeAsset?.asset,
+          updateSellTradeAsset({
+            asset: previousBuyTradeAsset?.asset,
+            amountCryptoPrecision: '',
           })
         updateSelectedBuyAssetAccountId(undefined)
         updateBuyAssetAccountId(undefined)
       }
 
       if (isSell) {
-        swapperDispatch({
-          type: SwapperActionType.SET_SELL_ASSET,
-          payload: asset,
+        updateSellTradeAsset({
+          asset,
         })
         isSameAsset &&
-          swapperDispatch({
-            type: SwapperActionType.SET_BUY_ASSET,
-            payload: previousSellTradeAsset?.asset,
+          updateBuyTradeAsset({
+            asset: previousSellTradeAsset?.asset,
+            amountCryptoPrecision: '',
           })
         updateSelectedSellAssetAccountId(undefined)
-        updateFiatBuyAmount('0')
-        updateFiatSellAmount('0')
         updateBuyAssetFiatRate(undefined)
         updateSellAssetFiatRate(undefined)
         updateFeeAssetFiatRate(undefined)
+        swapperDispatch({
+          type: SwapperActionType.SET_VALUES,
+          payload: {
+            fees: undefined,
+          },
+        })
       }
 
       swapperDispatch({
@@ -87,7 +90,7 @@ export const useTradeRoutes = (): {
         },
       })
       updateQuote(undefined)
-      swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
+      clearAmounts()
 
       history.push(TradeRoutePaths.Input)
 
@@ -103,13 +106,14 @@ export const useTradeRoutes = (): {
       buyTradeAsset,
       swapperDispatch,
       updateQuote,
+      clearAmounts,
       history,
       setTradeAmountsRefetchData,
+      updateBuyTradeAsset,
+      updateSellTradeAsset,
       updateSelectedBuyAssetAccountId,
       updateBuyAssetAccountId,
       updateSelectedSellAssetAccountId,
-      updateFiatBuyAmount,
-      updateFiatSellAmount,
       updateBuyAssetFiatRate,
       updateSellAssetFiatRate,
       updateFeeAssetFiatRate,

@@ -183,8 +183,11 @@ export const useGetTradeAmounts = () => {
   const buyAssetUsdRate = useSwapperStore(state => state.buyAssetFiatRate)
   const sellAssetUsdRate = useSwapperStore(state => state.sellAssetFiatRate)
   const {
-    state: { sellTradeAsset, buyTradeAsset, fees, action, amount },
+    state: { fees, action, amount },
   } = useSwapperState()
+
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 

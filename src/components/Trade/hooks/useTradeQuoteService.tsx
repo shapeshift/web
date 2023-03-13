@@ -23,7 +23,7 @@ The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
   const {
-    state: { sellTradeAsset, buyTradeAsset, action, isSendMax, amount, receiveAddress },
+    state: { action, isSendMax, amount, receiveAddress },
     dispatch: swapperDispatch,
   } = useSwapperState()
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
@@ -36,14 +36,15 @@ export const useTradeQuoteService = () => {
   const wallet = useWallet().state.wallet
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
 
-  // Constants
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
-
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const quote = useSwapperStore(state => state.quote)
   const updateQuote = useSwapperStore(state => state.updateQuote)
+  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+
+  const sellAsset = sellTradeAsset?.asset
+  const buyAsset = buyTradeAsset?.asset
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {

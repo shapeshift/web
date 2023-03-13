@@ -8,12 +8,7 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useFrozenTradeValues = () => {
   const {
-    state: {
-      buyTradeAsset: stateBuyTradeAsset,
-      fees: stateFees,
-      trade: stateTrade,
-      slippage: stateSlippage,
-    },
+    state: { fees: stateFees, trade: stateTrade, slippage: stateSlippage },
   } = useSwapperState()
 
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
@@ -21,6 +16,7 @@ export const useFrozenTradeValues = () => {
   const stateSellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
   const stateBuyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
   const stateFeeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const stateBuyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
@@ -37,7 +33,7 @@ export const useFrozenTradeValues = () => {
     useState<SwapperStore['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
     useState<SwapperStore['sellAssetAccountId']>()
-  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperState['buyTradeAsset']>()
+  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperStore['buyTradeAsset']>()
 
   const tradeAmountConstants = useGetTradeAmounts()
 

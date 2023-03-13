@@ -20,6 +20,7 @@ export enum MixPanelEvents {
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
   InsufficientFunds = 'Insufficient Funds',
+  ConnectWallet = 'Connect Wallet',
 }
 
 export type TrackOpportunityProps = {

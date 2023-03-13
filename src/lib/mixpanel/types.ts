@@ -23,7 +23,7 @@ export enum MixPanelEvents {
   Portfolio = 'Portfolio',
 }
 
-export type trackOpportunityProps = {
+export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
   cryptoAmounts: {
     assetId: AssetId

@@ -105,14 +105,18 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-        provider,
-        type,
-        assets: opportunity.original.underlyingAssetIds.map(assetId =>
-          getMaybeCompositeAssetSymbol(assetId),
-        ),
-        element: 'Table Row',
-      })
+      mixpanel?.track(
+        MixPanelEvents.ClickOpportunity,
+        {
+          provider,
+          type,
+          assets: opportunity.original.underlyingAssetIds.map(assetId =>
+            getMaybeCompositeAssetSymbol(assetId),
+          ),
+          element: 'Table Row',
+        },
+        assets,
+      )
 
       history.push({
         pathname: location.pathname,
@@ -130,7 +134,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, isDemoWallet, location, mixpanel],
+    [assets, dispatch, history, isConnected, isDemoWallet, location, mixpanel],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

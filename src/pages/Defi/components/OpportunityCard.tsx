@@ -85,12 +85,16 @@ export const OpportunityCard = ({
 
   const handleClick = () => {
     if (isConnected) {
-      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-        provider,
-        type,
-        assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
-        element: 'Table Row',
-      })
+      mixpanel?.track(
+        MixPanelEvents.ClickOpportunity,
+        {
+          provider,
+          type,
+          assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
+          element: 'Table Row',
+        },
+        assets,
+      )
       history.push({
         pathname: '/defi',
         search: qs.stringify({

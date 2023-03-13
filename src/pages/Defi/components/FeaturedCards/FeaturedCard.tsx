@@ -14,7 +14,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
@@ -42,6 +42,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     ))
   }, [underlyingAssetIds])
 
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetName = asset?.name ?? ''
   const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })
@@ -49,12 +50,16 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)
 
-    mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-      provider,
-      type,
-      assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
-      element: 'Featured Card',
-    })
+    mixpanel?.track(
+      MixPanelEvents.ClickOpportunity,
+      {
+        provider,
+        type,
+        assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
+        element: 'Featured Card',
+      },
+      assets,
+    )
 
     history.push({
       pathname: location.pathname,
@@ -72,6 +77,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     })
   }, [
     assetId,
+    assets,
     chainId,
     contractAddress,
     history,

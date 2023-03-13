@@ -19,6 +19,7 @@ import type { EarnOpportunityType, StakingId } from 'state/slices/opportunitiesS
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssets,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -53,6 +54,7 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const mixpanel = getMixPanel()
+  const assets = useAppSelector(selectAssets)
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const {
     state: { isConnected, isDemoWallet },
@@ -113,12 +115,16 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-        provider,
-        type,
-        assets: [getMaybeCompositeAssetSymbol(underlyingAssetId)],
-        element: 'Table Row',
-      })
+      mixpanel?.track(
+        MixPanelEvents.ClickOpportunity,
+        {
+          provider,
+          type,
+          assets: [getMaybeCompositeAssetSymbol(underlyingAssetId)],
+          element: 'Table Row',
+        },
+        assets,
+      )
 
       history.push({
         pathname: `/defi/earn`,

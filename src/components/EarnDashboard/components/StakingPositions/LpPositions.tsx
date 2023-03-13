@@ -70,14 +70,18 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         return
       }
 
-      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-        provider,
-        type,
-        assets: opportunity.original.underlyingAssetIds.map(assetId =>
-          getMaybeCompositeAssetSymbol(assetId),
-        ),
-        element: 'Table Row',
-      })
+      mixpanel?.track(
+        MixPanelEvents.ClickOpportunity,
+        {
+          provider,
+          type,
+          assets: opportunity.original.underlyingAssetIds.map(assetId =>
+            getMaybeCompositeAssetSymbol(assetId),
+          ),
+          element: 'Table Row',
+        },
+        assets,
+      )
 
       history.push({
         pathname: location.pathname,
@@ -95,7 +99,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, isDemoWallet, location, mixpanel],
+    [assets, dispatch, history, isConnected, isDemoWallet, location, mixpanel],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

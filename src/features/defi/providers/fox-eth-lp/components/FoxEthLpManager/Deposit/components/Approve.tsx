@@ -8,18 +8,22 @@ import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFoo
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -39,6 +43,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
   const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
 
@@ -53,7 +58,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const foxEthLpOpportunity = useAppSelector(state =>
     selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
-
+  const assets = useAppSelector(selectAssets)
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   if (!foxAsset) throw new Error('Missing FOX asset')
@@ -100,6 +105,18 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state.deposit.foxFiatAmount, state.deposit.ethFiatAmount],
+          cryptoAmounts: [
+            { assetId: ethAssetId, amountCryptoHuman: state.deposit.ethCryptoAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.deposit.foxCryptoAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -120,8 +137,9 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     getDepositGasData,
     feeAsset.precision,
     onNext,
+    foxAsset,
+    assets,
     allowance,
-    foxAsset.precision,
     toast,
     translate,
   ])
@@ -149,6 +167,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     ),
     [accountId, feeAsset, estimatedGasCrypto],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas && mixpanel) {
+      mixpanel.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch) return null
 

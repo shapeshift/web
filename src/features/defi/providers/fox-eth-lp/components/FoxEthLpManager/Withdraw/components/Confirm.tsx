@@ -7,7 +7,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -18,9 +18,13 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -36,6 +40,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
+  const mixpanel = getMixPanel()
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -59,6 +64,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     return selectAssetById(state, foxAssetId)
   })
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
@@ -79,6 +85,12 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
     [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas && mixpanel) {
+      mixpanel.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   const handleCancel = useCallback(() => {
     onNext(DefiStep.Info)
@@ -107,6 +119,19 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state.withdraw.lpFiatAmount],
+          cryptoAmounts: [
+            { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.lpAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.withdraw.foxAmount },
+            { assetId: ethAssetId, amountCryptoHuman: state.withdraw.ethAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
     } finally {
@@ -120,6 +145,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     removeLiquidity,
     onOngoingLpTxIdChange,
     onNext,
+    lpAsset.assetId,
+    assets,
   ])
 
   if (!state || !dispatch || !foxEthLpOpportunity) return null

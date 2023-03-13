@@ -64,6 +64,7 @@ export const useTradeRoutes = (): {
       if (isSell) {
         updateSellTradeAsset({
           asset,
+          amountCryptoPrecision: undefined,
         })
         isSameAsset &&
           updateBuyTradeAsset({

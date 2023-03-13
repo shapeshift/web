@@ -4,26 +4,26 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
-  selectedSellAssetAccountId?: AccountId
-  selectedBuyAssetAccountId?: AccountId
-  sellAssetAccountId?: AccountId | undefined
-  buyAssetAccountId?: AccountId | undefined
-  quote?: TradeQuote<C>
-  fiatSellAmount?: string
-  fiatBuyAmount?: string
-  buyTradeAsset?: TradeAsset
-  sellTradeAsset?: TradeAsset
-  sellAssetFiatRate?: string
-  buyAssetFiatRate?: string
-  feeAssetFiatRate?: string
-  action?: TradeAmountInputField | undefined
-  isExactAllowance?: boolean
+  selectedSellAssetAccountId: AccountId | undefined
+  selectedBuyAssetAccountId: AccountId | undefined
+  sellAssetAccountId: AccountId | undefined
+  buyAssetAccountId: AccountId | undefined
+  quote: TradeQuote<C> | undefined
+  fiatSellAmount: string
+  fiatBuyAmount: string
+  buyTradeAsset: TradeAsset
+  sellTradeAsset: TradeAsset
+  sellAssetFiatRate: string | undefined
+  buyAssetFiatRate: string | undefined
+  feeAssetFiatRate: string | undefined
+  action: TradeAmountInputField
+  isExactAllowance: boolean
   slippage: string
   isSendMax: boolean
   amount: string
-  receiveAddress?: string
-  fees?: DisplayFeeData<C>
-  trade?: Trade<C> | CowTrade<C>
+  receiveAddress: string | undefined
+  fees: DisplayFeeData<C> | undefined
+  trade: Trade<C> | CowTrade<C> | undefined
 }
 
 type TradeAmounts = {

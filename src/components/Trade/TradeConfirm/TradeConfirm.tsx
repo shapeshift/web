@@ -48,6 +48,7 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
@@ -93,13 +94,15 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
+  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   const reset = useCallback(() => {
     swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
-    swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fiatSellAmount: '' } })
-  }, [swapperDispatch])
+    updateFiatSellAmount('')
+  }, [swapperDispatch, updateFiatSellAmount])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(

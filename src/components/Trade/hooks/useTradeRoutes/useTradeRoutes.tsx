@@ -30,6 +30,11 @@ export const useTradeRoutes = (): {
   )
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateQuote = useSwapperStore(state => state.updateQuote)
+  const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -65,16 +70,11 @@ export const useTradeRoutes = (): {
             payload: previousSellTradeAsset?.asset,
           })
         updateSelectedSellAssetAccountId(undefined)
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            fiatBuyAmount: '0',
-            fiatSellAmount: '0',
-            sellAssetFiatRate: undefined,
-            buyAssetFiatRate: undefined,
-            feeAssetFiatRate: undefined,
-          },
-        })
+        updateFiatBuyAmount('0')
+        updateFiatSellAmount('0')
+        updateBuyAssetFiatRate(undefined)
+        updateSellAssetFiatRate(undefined)
+        updateFeeAssetFiatRate(undefined)
       }
 
       swapperDispatch({
@@ -108,6 +108,11 @@ export const useTradeRoutes = (): {
       updateSelectedBuyAssetAccountId,
       updateBuyAssetAccountId,
       updateSelectedSellAssetAccountId,
+      updateFiatBuyAmount,
+      updateFiatSellAmount,
+      updateBuyAssetFiatRate,
+      updateSellAssetFiatRate,
+      updateFeeAssetFiatRate,
     ],
   )
 

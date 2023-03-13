@@ -5,6 +5,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type GetTradeAmountConstantsArgs = CalculateAmountsArgs
 
@@ -179,16 +180,10 @@ export const getTradeAmountConstants = ({
 }
 
 export const useGetTradeAmounts = () => {
+  const buyAssetUsdRate = useSwapperStore(state => state.buyAssetFiatRate)
+  const sellAssetUsdRate = useSwapperStore(state => state.sellAssetFiatRate)
   const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      buyAssetFiatRate: buyAssetUsdRate,
-      sellAssetFiatRate: sellAssetUsdRate,
-      fees,
-      action,
-      amount,
-    },
+    state: { sellTradeAsset, buyTradeAsset, fees, action, amount },
   } = useSwapperState()
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)

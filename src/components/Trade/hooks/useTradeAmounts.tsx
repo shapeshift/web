@@ -36,8 +36,6 @@ export const useTradeAmounts = () => {
   const {
     dispatch: swapperDispatch,
     state: {
-      buyAssetFiatRate: buyAssetFiatRateFormState,
-      sellAssetFiatRate: sellAssetFiatRateFormState,
       sellTradeAsset,
       buyTradeAsset,
       fees: feesFormState,
@@ -67,6 +65,11 @@ export const useTradeAmounts = () => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const assets = useSelector(selectAssets)
   const updateQuote = useSwapperStore(state => state.updateQuote)
+  const buyAssetFiatRateFormState = useSwapperStore(state => state.buyAssetFiatRate)
+  const sellAssetFiatRateFormState = useSwapperStore(state => state.sellAssetFiatRate)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset
@@ -280,15 +283,9 @@ export const useTradeAmounts = () => {
           sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
         })
       } else {
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: {
-            sellAssetFiatRate: undefined,
-            buyAssetFiatRate: undefined,
-            feeAssetFiatRate: undefined,
-            fees: undefined,
-          },
-        })
+        updateBuyAssetFiatRate(undefined)
+        updateSellAssetFiatRate(undefined)
+        updateFeeAssetFiatRate(undefined)
       }
     },
     [
@@ -310,6 +307,9 @@ export const useTradeAmounts = () => {
       updateQuote,
       setTradeAmounts,
       selectedCurrencyToUsdRate,
+      updateBuyAssetFiatRate,
+      updateSellAssetFiatRate,
+      updateFeeAssetFiatRate,
     ],
   )
 

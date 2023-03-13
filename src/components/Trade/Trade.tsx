@@ -26,6 +26,12 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
 
   const methods = useForm({ mode: 'onChange' })
 
+  const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
 
@@ -44,17 +50,17 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
           asset: buyAsset,
           amountCryptoPrecision: '0',
         },
-        fiatBuyAmount: '0',
-        fiatSellAmount: '0',
-        sellAssetFiatRate: undefined,
-        buyAssetFiatRate: undefined,
-        feeAssetFiatRate: undefined,
         trade: undefined,
         action: TradeAmountInputField.SELL_FIAT,
         isExactAllowance: false,
         amount: '0',
       }
       updateQuote(undefined)
+      updateFiatBuyAmount('0')
+      updateFiatSellAmount('0')
+      updateSellAssetFiatRate(undefined)
+      updateBuyAssetFiatRate(undefined)
+      updateFeeAssetFiatRate(undefined)
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: swapperState,
@@ -79,6 +85,11 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair,
     swapperDispatch,
     updateQuote,
+    updateFiatBuyAmount,
+    updateFiatSellAmount,
+    updateSellAssetFiatRate,
+    updateBuyAssetFiatRate,
+    updateFeeAssetFiatRate,
   ])
 
   if (!methods) return null

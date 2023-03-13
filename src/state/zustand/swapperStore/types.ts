@@ -8,6 +8,11 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   sellAssetAccountId?: AccountId | undefined
   buyAssetAccountId?: AccountId | undefined
   quote?: TradeQuote<C>
+  fiatSellAmount?: string
+  fiatBuyAmount?: string
+  sellAssetFiatRate?: string
+  buyAssetFiatRate?: string
+  feeAssetFiatRate?: string
 }
 
 export type SwapperAction = {
@@ -16,6 +21,11 @@ export type SwapperAction = {
   updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void
   updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
   updateQuote: (quote: SwapperStore['quote']) => void
+  updateFiatSellAmount: (fiatSellAmount: SwapperStore['fiatSellAmount']) => void
+  updateFiatBuyAmount: (fiatBuyAmount: SwapperStore['fiatBuyAmount']) => void
+  updateSellAssetFiatRate: (sellAssetFiatRate: SwapperStore['sellAssetFiatRate']) => void
+  updateBuyAssetFiatRate: (buyAssetFiatRate: SwapperStore['buyAssetFiatRate']) => void
+  updateFeeAssetFiatRate: (feeAssetFiatRate: SwapperStore['feeAssetFiatRate']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

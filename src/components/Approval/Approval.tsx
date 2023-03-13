@@ -56,10 +56,11 @@ export const Approval = () => {
 
   const {
     dispatch: swapperDispatch,
-    state: { feeAssetFiatRate, fees, isExactAllowance },
+    state: { fees, isExactAllowance },
   } = useSwapperState<EvmChainId>()
 
   const quote = useSwapperStore(state => state.quote)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
 
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {

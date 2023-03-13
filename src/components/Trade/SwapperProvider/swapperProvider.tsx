@@ -14,8 +14,6 @@ const initialState: SwapperState = {
   isSendMax: false,
   sellTradeAsset: { amountCryptoPrecision: '0' },
   buyTradeAsset: { amountCryptoPrecision: '0' },
-  fiatSellAmount: '0',
-  fiatBuyAmount: '0',
 }
 
 const SwapperContext = createContext<SwapperContextType | undefined>(undefined)

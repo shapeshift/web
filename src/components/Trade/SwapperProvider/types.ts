@@ -8,11 +8,6 @@ export type SwapperState<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
   buyTradeAsset?: TradeAsset
   sellTradeAsset?: TradeAsset
-  fiatSellAmount?: string
-  fiatBuyAmount?: string
-  sellAssetFiatRate?: string
-  buyAssetFiatRate?: string
-  feeAssetFiatRate?: string
   fees?: DisplayFeeData<C>
   trade?: Trade<C> | CowTrade<C>
   action?: TradeAmountInputField | undefined

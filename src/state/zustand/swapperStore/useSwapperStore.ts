@@ -18,12 +18,21 @@ const createUpdateAction =
 export const useSwapperStore = create<SwapperStore & SwapperAction>()(
   devtools(
     set => ({
+      // State
+      fiatSellAmount: '0',
+      fiatBuyAmount: '0',
+
       // Actions
       updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
       updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
       updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
       updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
       updateQuote: createUpdateAction(set, 'quote'),
+      updateFiatSellAmount: createUpdateAction(set, 'fiatSellAmount'),
+      updateFiatBuyAmount: createUpdateAction(set, 'fiatBuyAmount'),
+      updateSellAssetFiatRate: createUpdateAction(set, 'sellAssetFiatRate'),
+      updateBuyAssetFiatRate: createUpdateAction(set, 'buyAssetFiatRate'),
+      updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
     }),
     { name: 'SwapperStore' },
   ),

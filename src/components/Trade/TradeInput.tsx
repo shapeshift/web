@@ -72,21 +72,20 @@ export const TradeInput = () => {
   )
   const quote = useSwapperStore(state => state.quote)
   const updateQuote = useSwapperStore(state => state.updateQuote)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const fiatSellAmount = useSwapperStore(state => state.fiatSellAmount)
+  const fiatBuyAmount = useSwapperStore(state => state.fiatBuyAmount)
+  const sellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
+  const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
 
   const {
     dispatch: swapperDispatch,
-    state: {
-      feeAssetFiatRate,
-      fiatSellAmount,
-      fiatBuyAmount,
-      receiveAddress,
-      slippage,
-      sellTradeAsset,
-      buyTradeAsset,
-      sellAssetFiatRate,
-      buyAssetFiatRate,
-      fees,
-    },
+    state: { receiveAddress, slippage, sellTradeAsset, buyTradeAsset, fees },
   } = useSwapperState()
 
   const {
@@ -210,16 +209,16 @@ export const TradeInput = () => {
         payload: {
           buyTradeAsset: { asset: currentSellTradeAsset.asset, amountCryptoPrecision: '0' },
           sellTradeAsset: { asset: currentBuyTradeAsset.asset, amountCryptoPrecision: '0' },
-          fiatSellAmount: '0',
-          fiatBuyAmount: '0',
-          buyAssetFiatRate: currentValues.sellAssetFiatRate,
-          sellAssetFiatRate: currentValues.buyAssetFiatRate,
-          // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
-          feeAssetFiatRate: undefined,
           fees: undefined,
           trade: undefined,
         },
       })
+      // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
+      updateFiatSellAmount('0')
+      updateFiatBuyAmount('0')
+      updateBuyAssetFiatRate(currentValues.sellAssetFiatRate)
+      updateSellAssetFiatRate(currentValues.buyAssetFiatRate)
+      updateFeeAssetFiatRate(undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -230,6 +229,11 @@ export const TradeInput = () => {
     buyAssetFiatRate,
     updateQuote,
     swapperDispatch,
+    updateFiatSellAmount,
+    updateFiatBuyAmount,
+    updateBuyAssetFiatRate,
+    updateSellAssetFiatRate,
+    updateFeeAssetFiatRate,
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {

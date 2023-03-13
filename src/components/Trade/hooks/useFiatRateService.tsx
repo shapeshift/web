@@ -3,10 +3,10 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Fiat Rate Service is responsible for fetching and setting fiat rates.
@@ -15,7 +15,6 @@ It also triggers an update of calculated trade amounts when fiat rates change.
 */
 export const useFiatRateService = () => {
   const {
-    dispatch: swapperDispatch,
     state: { sellTradeAsset, buyTradeAsset },
   } = useSwapperState()
   const { tradeQuoteArgs } = useTradeQuoteService()
@@ -37,6 +36,9 @@ export const useFiatRateService = () => {
   const sellAssetFeeAssetId = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAssetId ?? ethAssetId),
   )?.assetId
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
 
   // API
   const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
@@ -56,16 +58,11 @@ export const useFiatRateService = () => {
   // Set fiat rates
   useEffect(() => {
     if (usdRates) {
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          buyAssetFiatRate: usdRates.buyAssetUsdRate,
-          sellAssetFiatRate: usdRates.sellAssetUsdRate,
-          feeAssetFiatRate: usdRates.feeAssetUsdRate,
-        },
-      })
+      updateSellAssetFiatRate(usdRates.sellAssetUsdRate)
+      updateBuyAssetFiatRate(usdRates.buyAssetUsdRate)
+      updateFeeAssetFiatRate(usdRates.feeAssetUsdRate)
     }
-  }, [usdRates, swapperDispatch])
+  }, [updateBuyAssetFiatRate, updateFeeAssetFiatRate, updateSellAssetFiatRate, usdRates])
 
   return { isLoadingFiatRateData }
 }

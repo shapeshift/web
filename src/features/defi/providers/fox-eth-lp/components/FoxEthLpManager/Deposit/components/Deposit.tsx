@@ -19,9 +19,12 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
@@ -69,6 +72,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
@@ -114,6 +118,7 @@ export const Deposit: React.FC<DepositProps> = ({
   }
 
   const handleContinue = async (formValues: DepositValues) => {
+    if (!foxEthLpOpportunity) return
     // set deposit state for future use
     dispatch({
       type: FoxEthLpDepositActionType.SET_DEPOSIT,
@@ -124,6 +129,18 @@ export const Deposit: React.FC<DepositProps> = ({
         foxFiatAmount: formValues.fiatAmount1,
       },
     })
+    trackOpportunityEvent(
+      MixPanelEvents.DepositContinue,
+      {
+        opportunity: foxEthLpOpportunity,
+        fiatAmounts: [formValues.fiatAmount0, formValues.fiatAmount1],
+        cryptoAmounts: [
+          { assetId: ethAssetId, amountCryptoHuman: formValues.cryptoAmount0 },
+          { assetId: foxAssetId, amountCryptoHuman: formValues.cryptoAmount1 },
+        ],
+      },
+      assets,
+    )
     dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
     try {
       // Check if approval is required for user address

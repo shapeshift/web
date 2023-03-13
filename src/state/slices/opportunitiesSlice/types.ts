@@ -142,7 +142,8 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
-export type EarnOpportunityType = {
+// This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
+type EarnOpportunityTypeBase = {
   type: string
   provider: DefiProvider
   version?: string
@@ -170,13 +171,15 @@ export type EarnOpportunityType = {
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
-  } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+  } & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+} & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
 
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId

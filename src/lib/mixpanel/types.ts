@@ -22,7 +22,7 @@ export enum MixPanelEvents {
   InsufficientFunds = 'Insufficient Funds',
 }
 
-export type trackOpportunityProps = {
+export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
   cryptoAmounts: {
     assetId: AssetId
@@ -30,4 +30,14 @@ export type trackOpportunityProps = {
     fiatAmount?: string | number
   }[]
   fiatAmounts: string[] | number[]
+}
+
+export type AnonymizedPortfolio = {
+  hashedWalletId: string // e.g. 2398734895
+  walletName: string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
+  chains: string[] // e.g. ['Bitcoin', 'Ethereum']
+  assets: string[] // e.g. ['Bitcoin.BTC', 'Ethereum.ETH', 'Ethereum.USDC']
+  portfolioBalance: string // e.g. '420.69'
+  assetBalances: Record<string, string> // e.g. { 'Bitcoin.BTC': 0.1, 'Ethereum.ETH': 2.13, 'Ethereum.USDC': 420.69 }
+  chainBalances: Record<string, string> // e.g. { 'Bitcoin': 0.1, 'Ethereum': 10.123 }
 }

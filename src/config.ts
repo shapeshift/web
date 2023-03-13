@@ -127,7 +127,6 @@ const validators = {
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),
-  REACT_APP_FEATURE_CONSENT_BANNER: bool({ default: false }),
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
 }
 

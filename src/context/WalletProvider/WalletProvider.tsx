@@ -156,6 +156,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const deviceId = action?.payload?.deviceId
       // set walletId in redux store
       store.dispatch(portfolio.actions.setWalletId(deviceId))
+      store.dispatch(portfolio.actions.setWalletName(action?.payload?.name))
       return {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
@@ -296,6 +297,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
       // reset walletId in redux store
       store.dispatch(portfolio.actions.setWalletId(undefined))
+      store.dispatch(portfolio.actions.setWalletName(undefined))
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {

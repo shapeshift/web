@@ -142,7 +142,8 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
-export type EarnOpportunityTypeBase = {
+// This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
+type EarnOpportunityTypeBase = {
   type: string
   provider: DefiProvider
   version?: string

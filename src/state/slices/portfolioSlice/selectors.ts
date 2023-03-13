@@ -787,8 +787,8 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   (assetsById, walletId, walletName = '', portfolioBalances): AnonymizedPortfolio => {
     const hashedWalletId = hashCode(walletId || '')
 
-    type AssetBalances = Record<string, string>
-    type ChainBalances = Record<string, string>
+    type AssetBalances = Record<string, number>
+    type ChainBalances = Record<string, number>
 
     const [assetBalances, chainBalances, portfolioBalanceBN] = Object.entries(
       portfolioBalances,
@@ -796,14 +796,14 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
       (acc, [assetId, balance]) => {
         // by asset
         const assetName = getMaybeCompositeAssetSymbol(assetId, assetsById)
-        acc[0][assetName] = balance
+        acc[0][assetName] = Number(balance)
 
         // by chain
         const { chainId } = fromAssetId(assetId)
         const chain = getChainAdapterManager().get(chainId)?.getDisplayName()
         if (!chain) return acc
-        if (!acc[1][chain]) acc[1][chain] = '0'
-        acc[1][chain] = bnOrZero(acc[1][chain]).plus(bnOrZero(balance)).toFixed(2)
+        if (!acc[1][chain]) acc[1][chain] = 0
+        acc[1][chain] = Number(bnOrZero(acc[1][chain]).plus(bnOrZero(balance)).toPrecision(2))
 
         // total
         acc[2] = bnOrZero(acc[2]).plus(bnOrZero(balance))
@@ -815,7 +815,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
 
     const assets = Object.keys(assetBalances)
     const chains = Object.keys(chainBalances)
-    const portfolioBalance = portfolioBalanceBN.toFixed(2)
+    const portfolioBalance = Number(portfolioBalanceBN.toFixed(2))
 
     return {
       hashedWalletId,

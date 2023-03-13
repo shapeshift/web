@@ -30,22 +30,22 @@ export const useMixpanelPortfolioTracking = () => {
   const isMarketDataLoaded = useAppSelector(selectMarketDataLoaded)
 
   useEffect(() => {
+    // only track anonymized portfolio for real wallets
+    if (isDemoWallet) return
     // we've changed wallets, reset tracking
     if (!wallet) return setIsTracked(false)
     // only track once per wallet connection
     if (isTracked) return
     // only track if market data is loaded
-    if (isMarketDataLoaded && !isTracked) {
-      const mp = getMixPanel()
-      if (!mp) return
-      // identify all users regardless
-      mp.identify()
-      // track a wallet connection - even if it's demo
-      mp.track(MixPanelEvents.ConnectWallet)
-      // only track anonymized portfolio for real wallets
-      if (!isDemoWallet) mp.people.set(anonymizedPortfolio)
-      // don't track again for this wallet connection session
-      setIsTracked(true)
-    }
+    if (!isMarketDataLoaded) return
+
+    const mp = getMixPanel()
+    if (!mp) return
+    // track portfolio loaded event now that market data is loaded
+    mp.track(MixPanelEvents.PortfolioLoaded, anonymizedPortfolio)
+    // set this against the user
+    mp.people.set(anonymizedPortfolio) // TODO(0xdef1cafe): restructure multiple wallets per user
+    // don't track again for this wallet connection session
+    setIsTracked(true)
   }, [anonymizedPortfolio, isDemoWallet, isMarketDataLoaded, isTracked, wallet])
 }

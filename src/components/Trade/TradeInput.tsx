@@ -25,12 +25,15 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
   selectSwapperApiUsdRatesPending,
 } from 'state/apis/swapper/selectors'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
@@ -103,6 +106,7 @@ export const TradeInput = () => {
   } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
   const {
@@ -113,6 +117,7 @@ export const TradeInput = () => {
   const { handleAssetClick } = useTradeRoutes()
 
   // Selectors
+  const assets = useAppSelector(selectAssets)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
@@ -270,9 +275,34 @@ export const TradeInput = () => {
     buyTradeAsset?.asset?.assetId,
   ])
 
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
+
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
     try {
+      if (
+        buyTradeAsset &&
+        buyTradeAsset &&
+        sellTradeAsset &&
+        buyTradeAsset.asset &&
+        sellTradeAsset.asset &&
+        mixpanel
+      ) {
+        const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyTradeAsset.asset.assetId, assets)
+        const compositeSellAsset = getMaybeCompositeAssetSymbol(
+          sellTradeAsset.asset.assetId,
+          assets,
+        )
+        mixpanel.track(MixPanelEvents.TradePreview, {
+          buyAsset: compositeBuyAsset,
+          sellAsset: compositeSellAsset,
+          fiatSellAmount,
+          fiatBuyAmount,
+          swapperName,
+          [compositeBuyAsset]: buyTradeAsset.amountCryptoPrecision,
+          [compositeSellAsset]: sellTradeAsset.amountCryptoPrecision,
+        })
+      }
       const isApprovalNeeded = await checkApprovalNeeded()
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
@@ -286,7 +316,19 @@ export const TradeInput = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [checkApprovalNeeded, getTrade, history, updateTrade])
+  }, [
+    assets,
+    buyTradeAsset,
+    checkApprovalNeeded,
+    fiatBuyAmount,
+    fiatSellAmount,
+    getTrade,
+    history,
+    mixpanel,
+    sellTradeAsset,
+    swapperName,
+    updateTrade,
+  ])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
     async (value: string, isFiat: boolean | undefined) => {
@@ -482,7 +524,6 @@ export const TradeInput = () => {
     },
     [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
   )
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   return (
     <SlideTransition>

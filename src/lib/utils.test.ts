@@ -1,5 +1,7 @@
+import { fauxmesAccountId } from '../state/slices/opportunitiesSlice/mocks'
 import {
   deepUpsertArray,
+  hashCode,
   isValidAccountNumber,
   partitionCompare,
   partitionCompareWith,
@@ -166,6 +168,15 @@ describe('lib/utils', () => {
       const item = 3
       const result = upsertArray(arr, item)
       const expected = [1, 2, 3]
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('hashCode', () => {
+    it('is deterministic', () => {
+      const str = fauxmesAccountId
+      const result = hashCode(str)
+      const expected = hashCode(str)
       expect(result).toEqual(expected)
     })
   })

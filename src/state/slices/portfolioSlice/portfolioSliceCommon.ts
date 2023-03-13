@@ -68,6 +68,7 @@ export type Portfolio = {
    * the currently connected wallet id, used to determine which accounts to index into
    */
   walletId?: WalletId
+  walletName?: string
 }
 
 export const initialState: Portfolio = {

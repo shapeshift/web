@@ -1,6 +1,8 @@
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { TradeAmountInputField } from 'components/Trade/types'
 import type {
   SetSwapperStoreAction,
   SwapperAction,
@@ -25,6 +27,11 @@ export const useSwapperStore = create<SwapperStore & SwapperAction>()(
         fiatBuyAmount: '0',
         sellTradeAsset: { amountCryptoPrecision: '0' },
         buyTradeAsset: { amountCryptoPrecision: '0' },
+        amount: '0',
+        isExactAllowance: false,
+        slippage: DEFAULT_SLIPPAGE,
+        action: TradeAmountInputField.SELL_CRYPTO,
+        isSendMax: false,
 
         // Actions
         updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
@@ -72,6 +79,21 @@ export const useSwapperStore = create<SwapperStore & SwapperAction>()(
             `swapper/clearAmounts`,
           )
         },
+        updateAmount: createUpdateAction(set, 'amount'),
+        updateIsExactAllowance: createUpdateAction(set, 'isExactAllowance'),
+        toggleIsExactAllowance: () => {
+          set(
+            state => {
+              state.isExactAllowance = !state.isExactAllowance
+            },
+            false,
+            `swapper/toggleIsExactAllowance`,
+          )
+        },
+        updateSlippage: createUpdateAction(set, 'slippage'),
+        updateAction: createUpdateAction(set, 'action'),
+        updateIsSendMax: createUpdateAction(set, 'isSendMax'),
+        updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
       }),
       { name: 'SwapperStore' },
     ),

@@ -33,6 +33,9 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
   const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
   const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
 
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
@@ -43,11 +46,11 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const result = await getDefaultAssets()
       if (!result) return
       const { buyAsset, sellAsset } = result
+      updateAction(TradeAmountInputField.SELL_FIAT)
+      updateIsExactAllowance(false)
+      updateAmount('0')
       const swapperState: Partial<SwapperState> = {
         trade: undefined,
-        action: TradeAmountInputField.SELL_FIAT,
-        isExactAllowance: false,
-        amount: '0',
       }
       updateBuyTradeAsset({
         asset: buyAsset,
@@ -94,6 +97,9 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     updateFeeAssetFiatRate,
     updateBuyTradeAsset,
     updateSellTradeAsset,
+    updateAction,
+    updateIsExactAllowance,
+    updateAmount,
   ])
 
   if (!methods) return null

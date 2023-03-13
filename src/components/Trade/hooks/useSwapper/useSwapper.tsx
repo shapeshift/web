@@ -13,7 +13,6 @@ import {
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -33,15 +32,15 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
-  const {
-    state: { isSendMax, isExactAllowance, slippage },
-  } = useSwapperState()
-
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const quote = useSwapperStore(state => state.quote)
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const isSendMax = useSwapperStore(state => state.isSendMax)
+  const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
+  const slippage = useSwapperStore(state => state.slippage)
+  const receiveAddress = useSwapperStore(state => state.receiveAddress)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
@@ -60,9 +59,6 @@ export const useSwapper = () => {
   const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
   const { tradeQuoteArgs } = useTradeQuoteService()
-  const {
-    state: { receiveAddress },
-  } = useSwapperState()
   const dispatch = useAppDispatch()
   const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
   const bestSwapper = bestSwapperWithQuoteMetadata?.swapper

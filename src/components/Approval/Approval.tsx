@@ -56,11 +56,13 @@ export const Approval = () => {
 
   const {
     dispatch: swapperDispatch,
-    state: { fees, isExactAllowance },
+    state: { fees },
   } = useSwapperState<EvmChainId>()
 
   const quote = useSwapperStore(state => state.quote)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
+  const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
 
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
@@ -85,11 +87,6 @@ export const Approval = () => {
   const approvalFeeCryptoPrecision = bnOrZero(
     fees?.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
   ).div(bn(10).pow(sellFeeAsset?.precision ?? 0))
-
-  const handleExactAllowanceToggle = useCallback(
-    () => swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }),
-    [swapperDispatch],
-  )
 
   const approveContract = useCallback(async () => {
     if (!quote) {
@@ -236,7 +233,7 @@ export const Approval = () => {
                     size='sm'
                     mx={2}
                     isChecked={isExactAllowance}
-                    onChange={handleExactAllowanceToggle}
+                    onChange={toggleIsExactAllowance}
                   />
                   <Text
                     color={isExactAllowance ? 'white' : 'gray.500'}

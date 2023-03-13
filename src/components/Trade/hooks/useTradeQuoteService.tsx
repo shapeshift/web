@@ -4,8 +4,6 @@ import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
@@ -22,12 +20,6 @@ The Trade Quote Service is responsible for reacting to changes to trade assets a
 The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
-  const {
-    state: { action, isSendMax, amount, receiveAddress },
-    dispatch: swapperDispatch,
-  } = useSwapperState()
-  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-
   // Types
   type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
   type TradeQuoteInputArg = TradeQuoteQueryInput[0]
@@ -42,6 +34,12 @@ export const useTradeQuoteService = () => {
   const updateQuote = useSwapperStore(state => state.updateQuote)
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const action = useSwapperStore(state => state.action)
+  const isSendMax = useSwapperStore(state => state.isSendMax)
+  const amount = useSwapperStore(state => state.amount)
+  const receiveAddress = useSwapperStore(state => state.receiveAddress)
+  const updateSlippage = useSwapperStore(state => state.updateSlippage)
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
 
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
@@ -115,15 +113,10 @@ export const useTradeQuoteService = () => {
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
     () =>
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          slippage: tradeQuote?.recommendedSlippage
-            ? tradeQuote.recommendedSlippage
-            : DEFAULT_SLIPPAGE,
-        },
-      }),
-    [tradeQuote, swapperDispatch],
+      updateSlippage(
+        tradeQuote?.recommendedSlippage ? tradeQuote.recommendedSlippage : DEFAULT_SLIPPAGE,
+      ),
+    [tradeQuote, updateSlippage],
   )
 
   // Set trade quote if not yet set (e.g. on page load)

@@ -35,12 +35,7 @@ export const useTradeAmounts = () => {
   const appDispatch = useAppDispatch()
   const {
     dispatch: swapperDispatch,
-    state: {
-      fees: feesFormState,
-      action: actionFormState,
-      isSendMax: isSendMaxFormState,
-      amount: amountFormState,
-    },
+    state: { fees: feesFormState },
   } = useSwapperState()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
@@ -71,6 +66,9 @@ export const useTradeAmounts = () => {
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const updateTradeAmounts = useSwapperStore(state => state.updateTradeAmounts)
+  const actionFormState = useSwapperStore(state => state.action)
+  const isSendMaxFormState = useSwapperStore(state => state.isSendMax)
+  const amountFormState = useSwapperStore(state => state.amount)
 
   // Constants
   const sellAssetFormState = sellTradeAsset?.asset

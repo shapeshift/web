@@ -5,8 +5,6 @@ export const swapperReducer = (state: SwapperState, action: SwapperAction): Swap
   switch (action.type) {
     case SwapperActionType.SET_VALUES:
       return { ...state, ...action.payload }
-    case SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE:
-      return { ...state, isExactAllowance: !state.isExactAllowance }
     default:
       return state
   }

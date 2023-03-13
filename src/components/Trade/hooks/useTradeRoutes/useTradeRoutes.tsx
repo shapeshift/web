@@ -35,6 +35,9 @@ export const useTradeRoutes = (): {
   const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
   const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
 
   const handleAssetClick = useCallback(
     async (asset: Asset, action: AssetClickAction) => {
@@ -80,13 +83,13 @@ export const useTradeRoutes = (): {
         })
       }
 
+      updateAction(TradeAmountInputField.SELL_FIAT)
+      updateIsSendMax(false)
+      updateAmount('0')
       swapperDispatch({
         type: SwapperActionType.SET_VALUES,
         payload: {
           trade: undefined,
-          action: TradeAmountInputField.SELL_FIAT,
-          isSendMax: false,
-          amount: '0',
         },
       })
       updateQuote(undefined)
@@ -104,6 +107,9 @@ export const useTradeRoutes = (): {
     [
       sellTradeAsset,
       buyTradeAsset,
+      updateAction,
+      updateIsSendMax,
+      updateAmount,
       swapperDispatch,
       updateQuote,
       clearAmounts,

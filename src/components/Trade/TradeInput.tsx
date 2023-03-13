@@ -87,11 +87,16 @@ export const TradeInput = () => {
 
   const {
     dispatch: swapperDispatch,
-    state: { receiveAddress, slippage, fees },
+    state: { fees },
   } = useSwapperState()
 
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  const receiveAddress = useSwapperStore(state => state.receiveAddress)
+  const slippage = useSwapperStore(state => state.slippage)
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
 
   const {
     checkApprovalNeeded,
@@ -170,15 +175,10 @@ export const TradeInput = () => {
 
   const handleInputChange = useCallback(
     async (action: TradeAmountInputField, amount: string) => {
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: {
-          action,
-          // If we've overridden the input we are no longer in sendMax mode
-          isSendMax: false,
-          amount,
-        },
-      })
+      updateAction(action)
+      // If we've overridden the input we are no longer in sendMax mode
+      updateIsSendMax(false)
+      updateAmount(amount)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
         await setTradeAmountsRefetchData({ amount, action })
@@ -187,7 +187,9 @@ export const TradeInput = () => {
       }
     },
     [
-      swapperDispatch,
+      updateAction,
+      updateIsSendMax,
+      updateAmount,
       isSwapperApiPending,
       quoteAvailableForCurrentAssetPair,
       setTradeAmountsRefetchData,
@@ -253,14 +255,9 @@ export const TradeInput = () => {
       sellAssetBalanceCrypto,
     )
     updateSellTradeAsset({ ...sellTradeAsset, amountCryptoPrecision: maxSendAmount })
-    swapperDispatch({
-      type: SwapperActionType.SET_VALUES,
-      payload: {
-        action: TradeAmountInputField.SELL_CRYPTO,
-        isSendMax: true,
-        amount: maxSendAmount,
-      },
-    })
+    updateAction(TradeAmountInputField.SELL_CRYPTO)
+    updateIsSendMax(true)
+    updateAmount(maxSendAmount)
 
     // We need to get a fresh quote with the sendMax flag true
     await setTradeAmountsRefetchData({
@@ -276,7 +273,9 @@ export const TradeInput = () => {
     sellFeeAsset,
     sellAssetBalanceCrypto,
     updateSellTradeAsset,
-    swapperDispatch,
+    updateAction,
+    updateIsSendMax,
+    updateAmount,
     setTradeAmountsRefetchData,
     buyTradeAsset?.asset?.assetId,
   ])

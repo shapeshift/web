@@ -13,11 +13,10 @@ import type {
 const createUpdateAction =
   <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: string) =>
   (value: SwapperStore[T]): void =>
-    set(
-      () => ({ [key]: value }),
-      false,
-      `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
-    )
+    set(() => ({ [key]: value }), false, {
+      type: `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
+      value,
+    })
 
 export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
 export const useSwapperStore = (<T extends KnownChainIds = KnownChainIds>() =>

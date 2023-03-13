@@ -69,6 +69,6 @@ export type SetSwapperStoreAction<T> = {
           (state: T): T | Partial<T>
         },
     replace?: boolean | undefined,
-    action?: string,
+    action?: string | { type: unknown; value: unknown },
   ): void
 }

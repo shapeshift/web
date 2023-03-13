@@ -140,7 +140,7 @@ export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
 
 /**
  * https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0?permalink_comment_id=4261728#gistcomment-4261728
- * only used to anonymize user data - don't user for anything security critical
+ * only used to anonymize user data - don't use for anything security critical
  */
 export const hashCode = (str: string): string =>
   str

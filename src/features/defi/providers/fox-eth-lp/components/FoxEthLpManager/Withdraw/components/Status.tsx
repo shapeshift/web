@@ -18,9 +18,12 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectTxById,
@@ -53,6 +56,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
@@ -92,6 +96,34 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = () => {
     browserHistory.goBack()
   }
+
+  useEffect(() => {
+    if (!foxEthLpOpportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state?.withdraw.lpFiatAmount],
+          cryptoAmounts: [
+            { assetId: lpAsset.assetId, amountCryptoHuman: state?.withdraw.lpAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.withdraw.foxAmount },
+            { assetId: ethAssetId, amountCryptoHuman: state.withdraw.ethAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    foxEthLpOpportunity,
+    lpAsset.assetId,
+    state?.withdraw.ethAmount,
+    state?.withdraw.foxAmount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.lpFiatAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state || !foxEthLpOpportunity) return null
 

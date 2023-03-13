@@ -8,6 +8,7 @@ export const initialState: FoxEthLpWithdrawState = {
   approve: {},
   withdraw: {
     lpAmount: '',
+    lpFiatAmount: '',
     foxAmount: '',
     ethAmount: '',
     txStatus: 'pending',

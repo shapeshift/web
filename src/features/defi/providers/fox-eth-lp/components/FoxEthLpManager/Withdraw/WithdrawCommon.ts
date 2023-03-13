@@ -4,6 +4,7 @@ type EstimatedGas = {
 
 type WithdrawValues = {
   lpAmount: string
+  lpFiatAmount: string
   foxAmount: string
   ethAmount: string
 }

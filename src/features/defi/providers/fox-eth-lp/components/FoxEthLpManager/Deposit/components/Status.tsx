@@ -23,9 +23,12 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectTxById,
@@ -68,6 +71,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const assets = useAppSelector(selectAssets)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
 
@@ -98,6 +102,32 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }
 
   const handleCancel = browserHistory.goBack
+
+  useEffect(() => {
+    if (!foxEthLpOpportunity) return
+    if (state?.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state.deposit.ethFiatAmount, state.deposit.foxFiatAmount],
+          cryptoAmounts: [
+            { assetId: ethAssetId, amountCryptoHuman: state.deposit.ethCryptoAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.deposit.foxCryptoAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    foxEthLpOpportunity,
+    state?.deposit.ethCryptoAmount,
+    state?.deposit.ethFiatAmount,
+    state?.deposit.foxCryptoAmount,
+    state?.deposit.foxFiatAmount,
+    state?.deposit.txStatus,
+  ])
 
   if (!state) return null
 

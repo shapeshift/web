@@ -25,10 +25,11 @@ const selectMarketDataLoaded = createSelector(
 export const useMixpanelPortfolioTracking = () => {
   const anonymizedPortfolio = useAppSelector(selectPortfolioAnonymized)
   const [isTracked, setIsTracked] = useState(false)
-  const wallet = useWallet().state.wallet
+  const { wallet, isDemoWallet } = useWallet().state
   const isMarketDataLoaded = useAppSelector(selectMarketDataLoaded)
 
   useEffect(() => {
+    if (isDemoWallet) return
     // we've changed wallets, reset tracking
     if (!wallet) return setIsTracked(false)
     // only track once per wallet connection
@@ -39,5 +40,5 @@ export const useMixpanelPortfolioTracking = () => {
       getMixPanel()?.people.set(anonymizedPortfolio)
       setIsTracked(true)
     }
-  }, [anonymizedPortfolio, isMarketDataLoaded, isTracked, wallet])
+  }, [anonymizedPortfolio, isDemoWallet, isMarketDataLoaded, isTracked, wallet])
 }

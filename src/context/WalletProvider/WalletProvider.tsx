@@ -158,7 +158,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const deviceId = action?.payload?.deviceId
       const mp = getMixPanel()
       if (mp) {
-        // TODO(0xdef1cafe): fix for keepkey - only apply name to label, this leaks user info
         const payload = { 'Wallet Name': action?.payload?.name }
         // track wallet connection event
         mp.track(MixPanelEvents.ConnectWallet, payload)
@@ -469,7 +468,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localKeepKeyWallet,
-                      name: label,
+                      name,
                       icon,
                       deviceId,
                       meta: { label },

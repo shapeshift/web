@@ -4,6 +4,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -17,6 +18,14 @@ export const FoxFarmingManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
   const { farmingAccountId, setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
+
+  // farmingAccountId isn't a local state field - it is a memoized state field from the <FoxEthContext /> and will stay hanging
+  // This makes sure to clear it on modal close
+  useEffect(() => {
+    return () => {
+      handleFarmingAccountIdChange(undefined)
+    }
+  }, [handleFarmingAccountIdChange])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

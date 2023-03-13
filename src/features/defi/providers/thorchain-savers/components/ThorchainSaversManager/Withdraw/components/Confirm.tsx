@@ -30,6 +30,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
@@ -43,6 +46,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
@@ -81,10 +85,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+  const assets = useAppSelector(selectAssets)
 
   // Asset info
   const assetId = toAssetId({
@@ -471,7 +477,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [chainId, getPreWithdrawInput, getWithdrawInput, walletState.wallet])
 
   const handleConfirm = useCallback(async () => {
-    if (!contextDispatch || !bip44Params || !accountId || !assetId) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
     try {
       if (
         !(
@@ -531,6 +537,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         },
       })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
       toast({
@@ -543,10 +558,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
+    assets,
     contextDispatch,
     bip44Params,
     accountId,
     assetId,
+    opportunityData,
     userAddress,
     assetReference,
     walletState.wallet,
@@ -555,6 +572,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainId,
     maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
     expiry,
     appDispatch,
     getWithdrawInput,
@@ -580,6 +598,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const hasEnoughBalanceForGas = useMemo(() => missingBalanceForGas.lte(0), [missingBalanceForGas])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !contextDispatch) return null
 

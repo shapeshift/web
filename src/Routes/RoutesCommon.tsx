@@ -34,6 +34,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
+    shortLabel: 'navBar.dashboardShort',
     icon: <DashboardIcon />,
     main: Dashboard,
     category: RouteCategory.Wallet,
@@ -175,7 +176,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/buy-crypto',
     label: 'navBar.buyCrypto',
-    shortLabel: 'navBar.buySell',
+    shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Wallet,

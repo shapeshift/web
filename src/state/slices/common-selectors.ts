@@ -13,6 +13,7 @@ import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSli
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
 export const selectWalletId = (state: ReduxState) => state.portfolio.walletId
+export const selectWalletName = (state: ReduxState) => state.portfolio.walletName
 
 export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,

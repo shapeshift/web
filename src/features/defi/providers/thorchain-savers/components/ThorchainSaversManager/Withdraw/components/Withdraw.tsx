@@ -26,6 +26,8 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
@@ -35,6 +37,7 @@ import {
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -73,6 +76,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const { setValue } = methods
   // Asset info
 
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({
     chainId,
     assetNamespace,
@@ -245,6 +249,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -256,7 +269,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
-    [userAddress, opportunityData, dispatch, translate, getWithdrawGasEstimate, onNext, toast],
+    [
+      assets,
+      userAddress,
+      opportunityData,
+      dispatch,
+      getWithdrawGasEstimate,
+      onNext,
+      assetId,
+      toast,
+      translate,
+    ],
   )
 
   const handleCancel = useCallback(() => {

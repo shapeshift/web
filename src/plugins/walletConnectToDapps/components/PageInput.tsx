@@ -20,6 +20,7 @@ export const PageInput: FC<Props> = ({ value, max, onChange }) => {
       align='center'
       borderWidth={2}
       borderRadius='md'
+      justifyContent='space-between'
       borderColor={useColorModeValue('blackAlpha.50', 'gray.750')}
     >
       <IconButton

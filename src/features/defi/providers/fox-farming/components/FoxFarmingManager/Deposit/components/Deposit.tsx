@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -19,12 +19,17 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   assertIsFoxEthStakingContractAddress,
   foxEthLpAssetId,
 } from 'state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -50,15 +55,30 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetReference, contractAddress } = query
-  const opportunity = state?.opportunity
+
+  const foxFarmingOpportunityFilter = useMemo(
+    () => ({
+      stakingId: toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: contractAddress,
+        chainId: ethChainId,
+      }),
+    }),
+    [contractAddress],
+  )
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
+  )
+
+  const assets = useAppSelector(selectAssets)
 
   const asset = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
 
   const filter = useMemo(
-    () => ({ assetId: opportunity?.underlyingAssetId, accountId }),
-    [accountId, opportunity?.underlyingAssetId],
+    () => ({ assetId: foxFarmingOpportunity?.underlyingAssetId, accountId }),
+    [accountId, foxFarmingOpportunity?.underlyingAssetId],
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
@@ -90,10 +110,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress && opportunity)) return
+      if (!(state && dispatch && state.userAddress && foxFarmingOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-        if (!(state.userAddress && state.opportunity && assetReference)) return
+        if (!(state.userAddress && assetReference)) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return
@@ -131,6 +151,17 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
+          trackOpportunityEvent(
+            MixPanelEvents.DepositContinue,
+            {
+              opportunity: foxFarmingOpportunity,
+              fiatAmounts: [formValues.fiatAmount],
+              cryptoAmounts: [
+                { assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+              ],
+            },
+            assets,
+          )
         } else {
           const estimatedGasCrypto = await getApproveGasData()
           if (!estimatedGasCrypto) return
@@ -142,8 +173,8 @@ export const Deposit: React.FC<DepositProps> = ({
                 .toPrecision(),
             },
           })
-          onNext(DefiStep.Approve)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
+          onNext(DefiStep.Approve)
         }
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
@@ -157,18 +188,19 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      asset,
-      assetReference,
-      dispatch,
-      ethAsset.precision,
-      foxFarmingAllowance,
-      getApproveGasData,
-      getStakeGasData,
-      onNext,
-      opportunity,
       state,
+      dispatch,
+      foxFarmingOpportunity,
+      assetReference,
+      getStakeGasData,
+      ethAsset.precision,
       toast,
       translate,
+      asset,
+      foxFarmingAllowance,
+      onNext,
+      assets,
+      getApproveGasData,
     ],
   )
 
@@ -216,7 +248,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }, [history, query])
 
-  if (!state || !dispatch || !opportunity || !asset || !marketData) return null
+  if (!state || !dispatch || !foxFarmingOpportunity || !asset || !marketData) return null
 
   const handleCancel = browserHistory.goBack
 
@@ -225,8 +257,8 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       asset={asset}
       rewardAsset={rewardAsset}
-      inputIcons={opportunity?.icons}
-      apy={String(opportunity?.apy)}
+      inputIcons={foxFarmingOpportunity?.icons}
+      apy={String(foxFarmingOpportunity?.apy)}
       cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

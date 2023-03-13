@@ -19,7 +19,7 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectStakingOpportunitiesById,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,10 +55,9 @@ export const IdleClaim: React.FC<IdleClaimProps> = ({ accountId }) => {
 
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
 
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[assetId as StakingId],
-    [assetId, opportunitiesMetadata],
+  const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
   // user info

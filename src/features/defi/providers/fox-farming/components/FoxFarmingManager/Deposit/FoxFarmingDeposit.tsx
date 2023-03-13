@@ -83,10 +83,6 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
           type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
           payload: fromAccountId(farmingAccountId).account,
         })
-        dispatch({
-          type: FoxFarmingDepositActionType.SET_OPPORTUNITY,
-          payload: foxFarmingOpportunity,
-        })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')

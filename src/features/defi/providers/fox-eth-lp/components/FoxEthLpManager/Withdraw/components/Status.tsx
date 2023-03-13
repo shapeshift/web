@@ -18,8 +18,16 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserLpOpportunity,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -31,12 +39,24 @@ type StatusProps = { accountId: AccountId | undefined }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
-  const opportunity = state?.opportunity
+
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
@@ -77,7 +97,35 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }
 
-  if (!state || !opportunity) return null
+  useEffect(() => {
+    if (!foxEthLpOpportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state?.withdraw.lpFiatAmount],
+          cryptoAmounts: [
+            { assetId: lpAsset.assetId, amountCryptoHuman: state?.withdraw.lpAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.withdraw.foxAmount },
+            { assetId: ethAssetId, amountCryptoHuman: state.withdraw.ethAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    foxEthLpOpportunity,
+    lpAsset.assetId,
+    state?.withdraw.ethAmount,
+    state?.withdraw.foxAmount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.lpFiatAmount,
+    state?.withdraw.txStatus,
+  ])
+
+  if (!state || !foxEthLpOpportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.withdraw.txStatus) {
@@ -117,7 +165,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       statusIcon={statusIcon}
       statusBg={statusBg}
       statusBody={statusBody}
-      pairIcons={opportunity.icons}
+      pairIcons={foxEthLpOpportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vertical' p={4}>
@@ -127,7 +175,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity.icons!}
+                icons={foxEthLpOpportunity.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

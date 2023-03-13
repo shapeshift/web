@@ -8,6 +8,7 @@ import { cosmosSdkOpportunitiesSliceAbstraction } from './006_opportunities_cosm
 import { clearWithdrawnSaversOpportunities } from './007_clear_withdrawn_savers_opportunities'
 import { clearCosmosSdkOpportunities } from './008_clear_cosmos_sdk_opportunities'
 import { splitUniV2EthFoxFarming } from './009_split_univ2_eth_fox_farming'
+import { clearFoxFarming } from './010_clear_fox_farming'
 
 export const migrations = {
   0: clearOpportunitiesSlice,
@@ -20,4 +21,5 @@ export const migrations = {
   7: clearWithdrawnSaversOpportunities,
   8: clearCosmosSdkOpportunities,
   9: splitUniV2EthFoxFarming,
+  10: clearFoxFarming,
 }

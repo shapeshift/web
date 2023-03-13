@@ -3,12 +3,12 @@ import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: FoxEthLpWithdrawState = {
   txid: null,
-  opportunity: null,
   userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
     lpAmount: '',
+    lpFiatAmount: '',
     foxAmount: '',
     ethAmount: '',
     txStatus: 'pending',
@@ -21,8 +21,6 @@ export const reducer = (
   action: FoxEthLpWithdrawActions,
 ): FoxEthLpWithdrawState => {
   switch (action.type) {
-    case FoxEthLpWithdrawActionType.SET_OPPORTUNITY:
-      return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case FoxEthLpWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case FoxEthLpWithdrawActionType.SET_USER_ADDRESS:

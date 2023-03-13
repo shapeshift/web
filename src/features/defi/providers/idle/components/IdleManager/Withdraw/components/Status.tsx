@@ -16,8 +16,11 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
@@ -34,6 +37,7 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
 
   const assetId = state?.opportunity?.underlyingAssetIds?.[0] ?? ''
@@ -61,6 +65,8 @@ export const Status = () => {
 
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const opportunity = state?.opportunity
+
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, userAddress)
@@ -86,6 +92,28 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    assetId,
+    opportunity,
+    state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state) return null
 

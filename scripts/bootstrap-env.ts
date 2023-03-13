@@ -39,10 +39,21 @@ const getSerializedEnvVars = (environment: Environment) => {
 }
 
 /**
+ * note for future maintainers - the intent of this script, is to map a given arg to a config environment.
+ *
+ * the arg can be
+ * - a whitelisted branch name (in CI)
+ * - an environment name
+ * - empty, and the script will try to infer the environment from the branch name
+ *
+ * e.g.
+ * - `yarn env app` will load the .env.app file and write out a .env file
+ * - `yarn env` will try and read the branch name from process.env and map it to an environment
+ *
  * this script can be called one of two ways
- * `yarn env` in CI in Cloudflare Pages - where CF_PAGES_BRANCH is injected
- * https://developers.cloudflare.com/pages/platform/build-configuration/#environment-variables
- * and we have develop | main | release | private | yeet branches configured
+ * without args - `yarn env` in CI in GitHub Actions - where we inject process.env.CURRENT_BRANCH_NAME
+ * see cloudflare.yml for more details
+ * we have develop | main | release | private | yeet branches configured
  * and these branches map to the environments in BRANCH_TO_ENVIRONMENT above
  *
  * or `yarn env dev` and we're running locally and we use the radical dev config

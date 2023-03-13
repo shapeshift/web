@@ -14,11 +14,9 @@ export type FeatureFlags = {
   OsmosisLP: boolean
   OsmosisLPAdditionalPools: boolean
   Optimism: boolean
-  OptimismZrx: boolean
   BnbSmartChain: boolean
   BnbSmartChainZrx: boolean
   ThorSwap: boolean
-  Pendo: boolean
   IdleFinance: boolean
   Axelar: boolean
   Yat: boolean
@@ -27,11 +25,16 @@ export type FeatureFlags = {
   Wherever: boolean
   SaversVaults: boolean
   Yearn: boolean
+  DefiDashboard: boolean
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
-  ConsentBanner: boolean
-  MixPanel: boolean
+  ZrxAvalancheSwap: boolean
+  ZrxEthereumSwap: boolean
+  ZrxOptimismSwap: boolean
+  Mixpanel: boolean
+  LiveSupport: boolean
+  LifiSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -59,11 +62,9 @@ const initialState: Preferences = {
     OsmosisLP: getConfig().REACT_APP_FEATURE_OSMOSIS_LP,
     OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
-    OptimismZrx: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     BnbSmartChainZrx: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN_ZRX,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
-    Pendo: getConfig().REACT_APP_FEATURE_PENDO,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
@@ -72,11 +73,16 @@ const initialState: Preferences = {
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
+    DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    ConsentBanner: getConfig().REACT_APP_FEATURE_CONSENT_BANNER,
-    MixPanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
+    ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP,
+    ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP,
+    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_OPTIMISM_ZRX,
+    LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
+    Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
+    LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

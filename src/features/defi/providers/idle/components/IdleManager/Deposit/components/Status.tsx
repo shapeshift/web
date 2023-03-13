@@ -16,8 +16,11 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectFirstAccountIdByChainId,
   selectMarketDataById,
   selectTxById,
@@ -34,6 +37,7 @@ export const Status = () => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
 
+  const assets = useAppSelector(selectAssets)
   const assetId = state?.opportunity?.underlyingAssetIds[0] ?? ''
 
   // TODO: We need to get the fee asset from the Opportunity
@@ -51,6 +55,8 @@ export const Status = () => {
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+
+  const opportunity = state?.opportunity
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
@@ -77,6 +83,28 @@ export const Status = () => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.deposit.txStatus === 'success' && opportunity) {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    assetId,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+    assets,
+  ])
 
   if (!state) return null
 

@@ -137,3 +137,13 @@ export function assertUnreachable(x: never): never {
 export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
   if (x === undefined || x === null) throw Error(`unexpected undefined or null`)
 }
+
+/**
+ * https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0?permalink_comment_id=4261728#gistcomment-4261728
+ * only used to anonymize user data - don't use for anything security critical
+ */
+export const hashCode = (str: string): string =>
+  str
+    .split('')
+    .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
+    .toString()

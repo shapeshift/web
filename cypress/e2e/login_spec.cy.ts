@@ -20,9 +20,6 @@ describe('The Dashboard', () => {
     // Open WalletProvider.SelectModal
     cy.getBySel('connect-wallet-button').click()
 
-    // Accept Pendo
-    cy.getBySel('consent-optin-continue-button').click()
-
     cy.getBySel('connect-wallet-native-button').click()
     cy.getBySel('wallet-native-import-button').click()
 

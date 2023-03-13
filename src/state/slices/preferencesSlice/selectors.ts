@@ -18,6 +18,6 @@ export const selectBalanceThreshold = (state: ReduxState) => state.preferences.b
 export const selectCurrencyFormat = (state: ReduxState) => state.preferences.currencyFormat
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
 export const selectShowConsentBanner = (state: ReduxState) => {
-  const consentEnabled = selectFeatureFlag(state, 'ConsentBanner')
+  const consentEnabled = selectFeatureFlag(state, 'Mixpanel')
   return consentEnabled && state.preferences.showConsentBanner && !isMobileApp
 }

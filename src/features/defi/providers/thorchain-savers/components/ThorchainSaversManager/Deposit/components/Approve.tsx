@@ -14,7 +14,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -22,10 +22,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -43,6 +47,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
   const opportunity = state?.opportunity
@@ -52,6 +57,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -153,6 +159,15 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity,
+          cryptoAmounts: [],
+          fiatAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -165,6 +180,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     }
   }, [
+    assets,
     dispatch,
     bip44Params,
     assetReference,
@@ -204,6 +220,12 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     ),
     [accountId, feeAsset, estimatedGasCrypto],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch || !estimatedGasCrypto) return null
 

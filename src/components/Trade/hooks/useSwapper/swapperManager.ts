@@ -10,6 +10,7 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { LifiSwapper } from 'lib/swapper/LifiSwapper/LifiSwapper'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -30,40 +31,52 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
   const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
+  const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
 
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  const cowSwapper = new CowSwapper({
-    adapter: ethereumChainAdapter,
-    apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-    web3: ethWeb3,
-  })
+  const {
+    Cowswap,
+    LifiSwap,
+    OsmosisSwap,
+    ThorSwap,
+    ZrxAvalancheSwap,
+    ZrxEthereumSwap,
+    ZrxOptimismSwap,
+  } = flags
 
-  const { Cowswap } = flags
+  if (Cowswap) {
+    const cowSwapper = new CowSwapper({
+      adapter: ethereumChainAdapter,
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      web3: ethWeb3,
+    })
+    _swapperManager.addSwapper(cowSwapper)
+  }
 
-  if (Cowswap) _swapperManager.addSwapper(cowSwapper)
+  if (ZrxEthereumSwap) {
+    const zrxEthereumSwapper = new ZrxSwapper({
+      web3: ethWeb3,
+      adapter: ethereumChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxEthereumSwapper)
+  }
 
-  const zrxEthereumSwapper = new ZrxSwapper({
-    web3: ethWeb3,
-    adapter: ethereumChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxEthereumSwapper)
+  if (ZrxAvalancheSwap) {
+    const avalancheChainAdapter = adapterManager.get(
+      KnownChainIds.AvalancheMainnet,
+    ) as unknown as avalanche.ChainAdapter
 
-  const avalancheChainAdapter = adapterManager.get(
-    KnownChainIds.AvalancheMainnet,
-  ) as unknown as avalanche.ChainAdapter
+    const zrxAvalancheSwapper = new ZrxSwapper({
+      web3: avaxWeb3,
+      adapter: avalancheChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxAvalancheSwapper)
+  }
 
-  const zrxAvalancheSwapper = new ZrxSwapper({
-    web3: avaxWeb3,
-    adapter: avalancheChainAdapter,
-  })
-  _swapperManager.addSwapper(zrxAvalancheSwapper)
-
-  if (flags.OptimismZrx) {
-    const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
-
+  if (ZrxOptimismSwap) {
     const optimismChainAdapter = adapterManager.get(
       KnownChainIds.OptimismMainnet,
     ) as unknown as optimism.ChainAdapter
@@ -75,7 +88,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
-  if (flags.ThorSwap) {
+  if (ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -90,11 +103,17 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     })()
   }
 
-  if (flags.OsmosisSwap) {
+  if (OsmosisSwap) {
     const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
     const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
     _swapperManager.addSwapper(osmoSwapper)
+  }
+
+  if (LifiSwap) {
+    const lifiSwapper = new LifiSwapper()
+    await lifiSwapper.initialize()
+    _swapperManager.addSwapper(lifiSwapper)
   }
 
   return _swapperManager

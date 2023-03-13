@@ -18,6 +18,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
@@ -129,12 +131,27 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
       payload: {
         lpAmount: formValues.cryptoAmount,
+        lpFiatAmount: formValues.fiatAmount,
         foxAmount: foxAmountCryptoPrecision,
         ethAmount: ethAmountCryptoPrecision,
       },
     })
     const lpAllowance = await allowance(true)
     const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
+
+    trackOpportunityEvent(
+      MixPanelEvents.WithdrawContinue,
+      {
+        opportunity: foxEthLpOpportunity,
+        fiatAmounts: [formValues.fiatAmount],
+        cryptoAmounts: [
+          { assetId: foxEthLpAssetId, amountCryptoHuman: formValues.cryptoAmount },
+          { assetId: foxAssetId, amountCryptoHuman: foxAmountCryptoPrecision },
+          { assetId: ethAssetId, amountCryptoHuman: ethAmountCryptoPrecision },
+        ],
+      },
+      assets,
+    )
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
     if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {

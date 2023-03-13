@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -18,7 +18,16 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -29,18 +38,36 @@ type StatusProps = { accountId: AccountId | undefined }
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
-  const opportunity = state?.opportunity
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { contractAddress } = query
+
+  const foxFarmingOpportunityFilter = useMemo(
+    () => ({
+      stakingId: toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: contractAddress,
+        chainId: ethChainId,
+      }),
+    }),
+    [contractAddress],
+  )
+  const foxFarmingOpportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
+  )
+
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const feeAssetId = ethAssetId
 
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state =>
-    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+    selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
+  if (!asset)
+    throw new Error(`Asset not found for AssetId ${foxFarmingOpportunity?.underlyingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const handleViewPosition = useCallback(() => {
@@ -74,7 +101,31 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
 
-  if (!state || !dispatch || !opportunity) return null
+  useEffect(() => {
+    if (!foxFarmingOpportunity) return
+    if (state?.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity: foxFarmingOpportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [
+            { assetId: asset.assetId, amountCryptoHuman: state.deposit.cryptoAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    asset.assetId,
+    assets,
+    foxFarmingOpportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+  ])
+
+  if (!state || !dispatch || !foxFarmingOpportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
     switch (state.deposit.txStatus) {
@@ -83,7 +134,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
           statusBody: translate('modals.deposit.status.success', {
-            opportunity: opportunity?.opportunityName,
+            opportunity: foxFarmingOpportunity?.opportunityName,
           }),
           statusBg: 'green.500',
         }
@@ -114,7 +165,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       statusBody={statusBody}
       statusBg={statusBg}
       continueText='modals.status.position'
-      pairIcons={opportunity?.icons}
+      pairIcons={foxFarmingOpportunity?.icons}
     >
       <Summary>
         <Row variant='vertical' p={4}>
@@ -124,7 +175,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={opportunity?.icons!}
+                icons={foxFarmingOpportunity?.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}

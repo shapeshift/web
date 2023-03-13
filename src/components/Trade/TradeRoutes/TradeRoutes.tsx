@@ -3,7 +3,6 @@ import { AnimatePresence } from 'framer-motion'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
-import { SelectAccount } from 'components/Trade/SelectAccount'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { AssetClickAction, useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
@@ -51,9 +50,6 @@ export const TradeRoutes = () => {
         </Route>
         <Route path={TradeRoutePaths.Approval}>
           <Approval />
-        </Route>
-        <Route path={TradeRoutePaths.AccountSelect}>
-          <SelectAccount />
         </Route>
         <Redirect from='/' to={TradeRoutePaths.Input} />
       </Switch>

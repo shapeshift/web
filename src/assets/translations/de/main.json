@@ -13,6 +13,7 @@
     "connected": "Verbunden",
     "created": "Erstellt %{date}",
     "noResultsFound": "Keine Ergebnisse gefunden.",
+    "noResultsBody": "Keine Ergebnisse für %{searchQuery}. Versuchen Sie neue Suche.",
     "insufficientFunds": "Unzureichende Mittel",
     "estimatedGas": "Geschätzte Gasgebühr",
     "relayerGasFee": "Relayer-Gasgebühr",
@@ -49,6 +50,7 @@
     "retryQuestion": "Wiederholen?",
     "transactionFailed": "Transaktion fehlgeschlagen",
     "transactionFailedBody": "Transaktion fehlgeschlagen",
+    "liveSupport": "Support",
     "submitFeedback": "Feedback senden",
     "send": "Senden",
     "receive": "Empfangen ",
@@ -90,7 +92,19 @@
     "alternative": "Alternative",
     "validator": "der %{name} Prüfer",
     "needAsset": "Brauchen Sie %{asset}?",
-    "buyNow": "Kaufe jetzt"
+    "buyNow": "Kaufe jetzt",
+    "manage": "Verwalten",
+    "selectedAccount": "Ausgewähltes Konto"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Unsere dApp verwendet anonymisiertes Klick-Tracking, um die Leistung zu analysieren und Ihr Erlebnis zu verbessern. Durch die Nutzung von app.shapeshift.com stimmen Sie unserem Tracking zu. Besuchen",
+      "2": "private.shapeshift.com",
+      "3": "wenn Sie nicht anonym verfolgt werden möchten. Siehe unsere",
+      "4": "Datenschutz Bestimmungen",
+      "5": "für mehr Details."
+    },
+    "cta": "Verstanden"
   },
   "errorPage": {
     "title": "Hoppala!",
@@ -198,7 +212,6 @@
     "defiUniverse": "DeFi Universum",
     "body": "100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
     "body2": "Willkommen beim neuen ShapeShift. 100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
-    "betaSunset": "Beta wurde beendet, erfahren Sie mehr",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
     "cta": "Wallet verbinden",
     "viewADemo": "Sehen Sie sich eine Demo an"
@@ -391,6 +404,12 @@
     "currentAPY": "Aktueller jährlicher Zinsertrag",
     "currentAPR": "Aktuelle APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Gesamtwert",
+    "netApy": "Netto APY",
+    "claimableRewards": "Forderbare Belohnungen",
+    "reawrds": "Belohnungen",
+    "stakingPosition": "Stake Position",
+    "liquidityPool": "Liquidity Pool",
     "emptyEarn": "Hier werden Verdienstmöglichkeiten angezeigt.",
     "empty": {
       "farming": {
@@ -449,6 +468,7 @@
   "navBar": {
     "home": "Startseite",
     "dashboard": "Dashboard",
+    "dashboardShort": "Dashboard",
     "assets": "Vermögenswerte",
     "assetDetails": "Details der Vermögenswerte ",
     "accounts": "Konten",
@@ -469,7 +489,7 @@
     "explore": "Entdecken",
     "trade": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
-    "buySell": "Kaufen/Verkaufen",
+    "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
@@ -1353,20 +1373,21 @@
       },
       "onboarding": {
         "skip": "Überspringen",
+        "shapeshiftWallet": "ShapeShift Wallet",
         "selfCustody": {
-          "title": "Selbstverwaltung",
+          "title": "Ihre Shapeshift Wallet verwalten Sie",
           "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",
           "body": "Eine selbstverwaltete Wallet bedeutet, dass Sie sie besitzen und nur Sie Zugriff auf Ihr Geld haben. Ihre geheime Wiederherstellungsphrase ist Ihr Schlüssel zum Zugriff darauf. Niemand kann Sie daran hindern, auf Ihr Geld zuzugreifen.",
           "cta": "Weiter"
         },
         "multiChain": {
-          "title": "Multi-chain",
+          "title": "Mehrere Ketten werden gleichzeitig unterstützt ",
           "subTitle": "Sie müssen nie das Netzwerk in der Wallet wechseln, es funktioniert mit jeder nahtlos.",
           "body": "Wenn eine neues Netzwerk in ShapeShift hinzugefügt wird, wird Ihre Native Wallet es automatisch unterstützen.",
           "cta": "Weiter"
         },
         "easyToUse": {
-          "title": "Einfach zu verwenden",
+          "title": "Einfach zu bedienen!",
           "subTitle": "Mit ShapeShift Native Wallet können Sie:",
           "trackBalance": "Verfolgen Sie Ihre Salden",
           "sendReceive": "Krypto senden/empfangen",
@@ -1595,9 +1616,12 @@
         "menu": {
           "disconnect": "Trennen",
           "address": "Adresse ",
+          "addresses": "Adressen",
           "connected": "Verbunden",
           "network": "Netzwerk",
-          "unsupportedNetwork": "Nicht unterstütztes Netzwerk"
+          "networks": "Netzwerke",
+          "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
+          "expiry": "Session ablaufen"
         }
       },
       "modal": {
@@ -1611,7 +1635,16 @@
           "confirm": "Bestätigen",
           "reject": "Reject",
           "messageData": "Nachrichtdaten",
-          "domain": "Domaine"
+          "domain": "Domaine",
+          "memo": "Memo",
+          "messages": "Mitteilungen",
+          "noMessages": "keine Mitteilungen",
+          "sequence": "Reihenfolge",
+          "accountNumber": "Accountnummer",
+          "chainId": "Ketten-ID",
+          "authInfo": "Auth info",
+          "body": "Inhalt",
+          "comingSoon": "Demnächst"
         },
         "sendTransaction": {
           "sendingFrom": "Senden von",
@@ -1648,7 +1681,20 @@
           "howTo": "Wie verbinde ich mich mit einer dApp?",
           "linkPlaceholder": "QR-Code oder Verbindungslink",
           "connect": "Verbinden",
-          "connectionError": "Keine Verbindung zum angegebenen URI möglich."
+          "connectionError": "Keine Verbindung zum angegebenen URI möglich.",
+          "invalidUri": "Ungültiger URI",
+          "v1UriUnsupported": "WalletConnect V1 URI nicht aktiviert",
+          "v2UriUnsupported": "WalletConnect V2 URI nicht aktiviert"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Info",
+          "permissions": "Berechtigungen",
+          "accountSelection": "Konten auswählen",
+          "unsupportedChain": "Nicht unterstützter Kettenname im Session Versuch.",
+          "methods": "Methoden",
+          "events": "Vorgänge",
+          "selectedAccounts": "Ausgewählte Konten",
+          "permissionMessage": "Bitte wählen Sie mindestens ein Konto pro Kette aus."
         }
       },
       "registry": {
@@ -1698,6 +1744,44 @@
     "custom": "Benutzerdefiniert"
   },
   "idle": {
+    "emptyTitle": "Verdienen Sie mit Idle Finance %{apy}% auf Ihr %{asset}",
+    "emptyBody": {
+      "bestYield": {
+        "page-1": {
+          "title": "Beste Ertragsstrategie",
+          "body": "Die Best-Yield-Allokationsstrategie max. die Erträge, indem sie Zinsänderungen bei versch. Kreditprotokollen erkennt."
+        },
+        "page-2": {
+          "title": "Beste Ertragsstrategien:"
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranchen Strategie",
+          "body": "Senior Tranchen bieten großartige Chancen bei geringerem Risiko als Junior-Tranchen."
+        },
+        "page-2": {
+          "title": "Senior Tranchen Strategien:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranchen Strategie",
+          "body": "Junior Tranchen bieten verstärkte optimierte DeFi-Renditen, indem sie ein höheres Risiko tragen."
+        },
+        "page-2": {
+          "title": "Junior Tranchen Strategien:"
+        }
+      },
+      "monitorSystem": "Nutzen Sie das Überwachungssystem von Idle Finance, um Allokationen mit besserer Leistung zu finden und eine Neugewichtung auszulösen",
+      "offerHighReturn": "Bieten Sie hohe Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt",
+      "leverageYield": "Leverage Rendite mit Senior Tranchen Fonds",
+      "higherRisk": "Höheres Risiko durch Schutz vorrangiger Tranchen",
+      "minRisk": "Minimiertes Risiko",
+      "builtInCoverage": "Integrierter Versicherungsschutz für variabel verzinsliche Prämien",
+      "noLockingPeriod": "Keine Sperrfrist oder Epochen",
+      "autoReinvest": "investierte Token automatisch reinvestieren"
+    },
     "bestYield": {
       "title": "Was ist Best Yield?",
       "body": "Maximieren Sie automatisch den Ertrag über mehrere erprobte DeFi-Protokolle. Die Best-Yield-Strategie optimiert die Ertragsgenerierung durch Verteilung der Transaktionskosten und automatisiert die Ertragsgenerierung durch algorithmische Kapitalverlagerung, wenn sich neue Ertragschancen ergeben."

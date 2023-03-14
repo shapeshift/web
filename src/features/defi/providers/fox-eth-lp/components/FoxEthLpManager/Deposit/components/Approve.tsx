@@ -8,8 +8,7 @@ import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFoo
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { isNull } from 'lodash'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -41,7 +40,6 @@ type FoxEthLpApproveProps = StepComponentProps & {
 const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
-  const [hasEnoughBalanceForGas, setHasEnoughBalanceForGas] = useState<boolean | null>(null)
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
@@ -120,7 +118,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         assets,
       )
     } catch (error) {
-      setHasEnoughBalanceForGas(false)
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
         position: 'top-right',
@@ -147,17 +144,17 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     translate,
   ])
 
-  useEffect(() => {
-    setHasEnoughBalanceForGas(
+  const hasEnoughBalanceForGas = useMemo(
+    () =>
       isSome(estimatedGasCrypto) &&
-        isSome(accountId) &&
-        canCoverTxFees({
-          feeAsset,
-          estimatedGasCrypto,
-          accountId,
-        }),
-    )
-  }, [accountId, estimatedGasCrypto, feeAsset])
+      isSome(accountId) &&
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCrypto,
+        accountId,
+      }),
+    [estimatedGasCrypto, accountId, feeAsset],
+  )
 
   const preFooter = useMemo(
     () => (
@@ -172,13 +169,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   )
 
   useEffect(() => {
-    if (isNull(hasEnoughBalanceForGas)) return
     if (!hasEnoughBalanceForGas && mixpanel) {
       mixpanel.track(MixPanelEvents.InsufficientFunds)
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  if (!state || !dispatch || isNull(hasEnoughBalanceForGas)) return null
+  if (!state || !dispatch) return null
 
   return (
     <ReusableApprove

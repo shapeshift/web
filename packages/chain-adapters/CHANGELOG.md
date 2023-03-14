@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v11.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.1.4...@shapeshiftoss/chain-adapters-v11.2.0) (2023-03-14)
+
+
+### Features
+
+* add bnb smart chain ([#1197](https://github.com/shapeshift/lib/issues/1197)) ([245e7a4](https://github.com/shapeshift/lib/commit/245e7a476e41580d4ac72666605a4867d7a71f03))
+
 # [@shapeshiftoss/chain-adapters-v11.1.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.1.3...@shapeshiftoss/chain-adapters-v11.1.4) (2023-03-03)
 
 

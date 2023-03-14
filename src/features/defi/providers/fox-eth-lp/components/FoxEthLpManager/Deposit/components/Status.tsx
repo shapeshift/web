@@ -211,7 +211,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
+                    ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFee,
                 )
                   .times(feeMarketData.price)
@@ -221,7 +221,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 color='gray.500'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
+                    ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFee,
                 ).toFixed(5)}
                 symbol='ETH'

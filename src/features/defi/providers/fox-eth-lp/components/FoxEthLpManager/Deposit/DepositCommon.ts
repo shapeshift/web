@@ -1,5 +1,5 @@
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type DepositValues = {

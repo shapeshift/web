@@ -30,7 +30,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
   const history = useHistory()
   const translate = useTranslate()
   const toast = useToast()
@@ -52,7 +52,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues) => {
       if (!accountAddress || !assetReference || !foxyApi) return
       try {
@@ -70,7 +70,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoPrecision', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -124,7 +124,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 60,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state?.deposit)
+      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state?.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
@@ -151,7 +151,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     bip44Params,
     contractAddress,
     dispatch,
-    getDepositGasEstimate,
+    getDepositGasEstimateCryptoPrecision,
     onNext,
     state,
     toast,
@@ -162,13 +162,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -177,10 +177,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch) return null
@@ -189,11 +189,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

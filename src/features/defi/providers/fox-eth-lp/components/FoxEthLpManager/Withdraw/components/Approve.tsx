@@ -40,7 +40,7 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
 
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
@@ -102,7 +102,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         .toPrecision()
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)
@@ -144,14 +144,14 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -160,10 +160,10 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {
@@ -178,9 +178,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+        .times(feeMarketData.price)
+        .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}

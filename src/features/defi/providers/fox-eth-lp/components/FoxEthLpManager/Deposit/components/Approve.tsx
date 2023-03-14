@@ -41,7 +41,7 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
@@ -144,6 +144,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     translate,
   ])
 
+<<<<<<< HEAD
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(estimatedGasCrypto) &&
@@ -155,6 +156,19 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       }),
     [estimatedGasCrypto, accountId, feeAsset],
   )
+=======
+  useEffect(() => {
+    setHasEnoughBalanceForGas(
+      isSome(estimatedGasCryptoPrecision) &&
+        isSome(accountId) &&
+        canCoverTxFees({
+          feeAsset,
+          estimatedGasCryptoPrecision,
+          accountId,
+        }),
+    )
+  }, [accountId, estimatedGasCryptoPrecision, feeAsset])
+>>>>>>> 7ef53945d (feat: bring the crypto precision vernacular all across the gas estimation domain)
 
   const preFooter = useMemo(
     () => (
@@ -162,10 +176,10 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {
@@ -176,13 +190,17 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   if (!state || !dispatch) return null
 
+  console.log({ accountId, hasEnoughBalanceForGas })
+
   return (
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+        .times(feeMarketData.price)
+        .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}

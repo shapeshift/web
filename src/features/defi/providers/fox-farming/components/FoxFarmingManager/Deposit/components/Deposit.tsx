@@ -122,7 +122,9 @@ export const Deposit: React.FC<DepositProps> = ({
     async (formValues: DepositValues) => {
       if (!(state && dispatch && feeAsset && foxFarmingOpportunity)) return
 
-      const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+      const getDepositGasEstimateCryptoPrecision = async (
+        deposit: DepositValues,
+      ): Promise<string | undefined> => {
         if (!assetReference) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
@@ -130,7 +132,7 @@ export const Deposit: React.FC<DepositProps> = ({
           return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
           moduleLogger.error(
-            { fn: 'getDepositGasEstimate', error },
+            { fn: 'getDepositGasEstimateCryptoPrecision', error },
             'Error getting deposit gas estimate',
           )
           toast({
@@ -153,7 +155,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_DEPOSIT,

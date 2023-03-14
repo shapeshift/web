@@ -75,7 +75,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && opportunity && assetReference && idleInvestor && underlyingAsset)) return
       try {
@@ -94,7 +94,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoPrecision', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -147,7 +147,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
+      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: IdleDepositActionType.SET_DEPOSIT,
@@ -185,7 +185,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     chainAdapter,
     underlyingAsset,
     idleInvestor,
-    getDepositGasEstimate,
+    getDepositGasEstimateCryptoPrecision,
     state?.deposit,
     onNext,
     assets,
@@ -199,7 +199,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       isSome(estimatedGasCrypto) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision: estimatedGasCrypto,
         accountId,
       }),
     [accountId, feeAsset, estimatedGasCrypto],

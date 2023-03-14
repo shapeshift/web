@@ -99,7 +99,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && assetReference && yearnInvestor && accountId && opportunityData)) return
       try {
@@ -116,7 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoPrecision', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -182,7 +182,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
             type: YearnDepositActionType.SET_DEPOSIT,
@@ -217,7 +217,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       yearnInvestor,
       asset.precision,
-      getDepositGasEstimate,
+      getDepositGasEstimateCryptoPrecision,
       onNext,
       getApproveGasEstimate,
       toast,

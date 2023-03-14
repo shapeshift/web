@@ -108,7 +108,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   if (!state || !dispatch || !foxEthLpOpportunity?.icons) return null
 
-  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
+  const getWithdrawGasEstimateCryptoPrecision = async (withdraw: WithdrawValues) => {
     try {
       const fee = await getWithdrawGasData(
         withdraw.cryptoAmount,
@@ -155,14 +155,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
     if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
-      const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+      const estimatedGasCrypto = await getWithdrawGasEstimateCryptoPrecision(formValues)
       if (!estimatedGasCrypto) {
         dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
         return
       }
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
@@ -172,7 +172,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+          estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
             .div(bn(10).pow(ethAsset.precision))
             .toPrecision(),
         },

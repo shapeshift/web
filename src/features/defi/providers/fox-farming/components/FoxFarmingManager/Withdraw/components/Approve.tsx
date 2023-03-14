@@ -44,7 +44,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
@@ -157,13 +157,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, estimatedGasCrypto, feeAsset],
+    [accountId, estimatedGasCryptoPrecision, feeAsset],
   )
 
   const preFooter = useMemo(
@@ -172,10 +172,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch || !opportunity || !underlyingAsset) return null
@@ -184,9 +184,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={underlyingAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+        .times(feeMarketData.price)
+        .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approve')}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'

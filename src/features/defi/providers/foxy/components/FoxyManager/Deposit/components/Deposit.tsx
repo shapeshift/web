@@ -87,7 +87,7 @@ export const Deposit: React.FC<DepositProps> = ({
         }
       }
 
-      const getDepositGasEstimate = async (deposit: DepositValues) => {
+      const getDepositGasEstimateCryptoPrecision = async (deposit: DepositValues) => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
@@ -104,7 +104,7 @@ export const Deposit: React.FC<DepositProps> = ({
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           moduleLogger.error(
-            { fn: 'getDepositGasEstimate', error },
+            { fn: 'getDepositGasEstimateCryptoPrecision', error },
             'Error getting deposit gas estimate',
           )
           toast({
@@ -130,7 +130,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxyDepositActionType.SET_DEPOSIT,

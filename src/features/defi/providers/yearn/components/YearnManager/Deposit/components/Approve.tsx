@@ -41,7 +41,7 @@ const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
 export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => {
   const yearnInvestor = useMemo(() => getYearnInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -72,7 +72,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && opportunity && assetReference && yearnInvestor && underlyingAsset))
         return
@@ -92,7 +92,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoPrecision', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -145,7 +145,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
+      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
@@ -174,7 +174,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     chainAdapter,
     underlyingAsset,
     yearnInvestor,
-    getDepositGasEstimate,
+    getDepositGasEstimateCryptoPrecision,
     state?.deposit,
     onNext,
     toast,
@@ -184,13 +184,13 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -199,13 +199,13 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
-  if (!state || !dispatch || !estimatedGasCrypto) return null
+  if (!state || !dispatch || !estimatedGasCryptoPrecision) return null
 
   return (
     <ReusableApprove

@@ -31,7 +31,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const {
     underlyingAsset: asset,
@@ -171,14 +171,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -187,10 +187,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch) return null
@@ -199,11 +199,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

@@ -87,12 +87,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
     [accountId, feeAsset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
+  const feeAssetBalanceCryptoHuman = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state?.deposit.estimatedGasCrypto))
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceCryptoHuman)
+    .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
     .minus(bnOrZero(state?.deposit.ethCryptoAmount))
     .gte(0)
 
@@ -192,13 +192,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                value={bnOrZero(state.deposit.estimatedGasCryptoPrecision)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.deposit.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

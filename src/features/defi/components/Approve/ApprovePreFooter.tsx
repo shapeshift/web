@@ -13,7 +13,7 @@ import { isSome } from 'lib/utils'
 export const ApprovePreFooter = ({
   action,
   feeAsset,
-  estimatedGasCrypto,
+  estimatedGasCrypto: estimatedGasCryptoPrecision,
   accountId,
 }: {
   accountId: AccountId | undefined
@@ -26,10 +26,14 @@ export const ApprovePreFooter = ({
   const alertTextColor = useColorModeValue('blue.800', 'white')
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
-      canCoverTxFees({ feeAsset, estimatedGasCrypto, accountId }),
-    [estimatedGasCrypto, accountId, feeAsset],
+      canCoverTxFees({
+        feeAsset,
+        estimatedGasCryptoPrecision,
+        accountId,
+      }),
+    [estimatedGasCryptoPrecision, accountId, feeAsset],
   )
 
   const feeTranslation = useMemo(

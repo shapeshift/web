@@ -153,7 +153,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const toast = useToast()
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoPrecision = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && assetReference && accountId && opportunityData)) return
       try {
@@ -185,7 +185,7 @@ export const Deposit: React.FC<DepositProps> = ({
         return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoPrecision', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -217,7 +217,7 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+        const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
         if (!estimatedGasCrypto) return
         contextDispatch({
           type: ThorchainSaversDepositActionType.SET_DEPOSIT,
@@ -250,7 +250,7 @@ export const Deposit: React.FC<DepositProps> = ({
       userAddress,
       opportunityData,
       contextDispatch,
-      getDepositGasEstimate,
+      getDepositGasEstimateCryptoPrecision,
       onNext,
       assetId,
       toast,

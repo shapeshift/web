@@ -11,7 +11,7 @@ import type {
 } from 'state/zustand/swapperStore/types'
 
 const createUpdateAction =
-  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: string) =>
+  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: T) =>
   (value: SwapperStore[T]): void =>
     set(() => ({ [key]: value }), false, {
       type: `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
@@ -46,8 +46,6 @@ export const useSwapperStore = (() => {
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
           updateSellAmountFiat: createUpdateAction(set, 'sellAmountFiat'),
           updateBuyAmountFiat: createUpdateAction(set, 'buyAmountFiat'),
-          updateBuyTradeAsset: createUpdateAction(set, 'buyTradeAsset'),
-          updateSellTradeAsset: createUpdateAction(set, 'sellTradeAsset'),
           updateSellAsset: createUpdateAction(set, 'sellAsset'),
           updateBuyAsset: createUpdateAction(set, 'buyAsset'),
           updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),

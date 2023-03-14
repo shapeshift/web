@@ -23,9 +23,6 @@ export const useAccountsService = () => {
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
-  const updateSelectedBuyAssetAccountId = useSwapperStore(
-    state => state.updateSelectedBuyAssetAccountId,
-  )
 
   const sellAssetId = buyAsset?.assetId
   const buyAssetId = sellAsset?.assetId
@@ -83,6 +80,5 @@ export const useAccountsService = () => {
     stateBuyAssetAccountId,
     bestTradeSwapper,
     updateBuyAssetAccountId,
-    updateSelectedBuyAssetAccountId,
   ])
 }

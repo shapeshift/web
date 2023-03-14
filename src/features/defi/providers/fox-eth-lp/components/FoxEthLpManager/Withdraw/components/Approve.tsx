@@ -178,7 +178,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .times(feeMarketData.price)

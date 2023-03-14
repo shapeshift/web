@@ -338,7 +338,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const getPreDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
-    if (!(accountId && assetId && state?.deposit?.estimatedGasCrypto)) return
+    if (!(accountId && assetId && state?.deposit?.estimatedGasCryptoPrecision)) return
 
     try {
       const estimatedFees = await estimateFees(await getEstimateFeesArgs())
@@ -375,7 +375,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     assetId,
-    state?.deposit?.estimatedGasCrypto,
+    state?.deposit?.estimatedGasCryptoPrecision,
     state?.deposit.cryptoAmount,
     getEstimateFeesArgs,
     asset,
@@ -564,9 +564,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(assetBalanceCryptoBaseUnit)
-        .minus(state?.deposit.estimatedGasCrypto ?? 0)
+        .minus(state?.deposit.estimatedGasCryptoPrecision ?? 0)
         .gte(0),
-    [assetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCrypto],
+    [assetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {

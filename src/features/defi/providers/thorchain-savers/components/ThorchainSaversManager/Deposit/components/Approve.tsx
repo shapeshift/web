@@ -45,7 +45,7 @@ const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
 export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => {
   const yearnInvestor = useMemo(() => getYearnInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCrypto = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -155,7 +155,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       if (!estimatedGasCrypto) return
       dispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)
@@ -233,11 +233,11 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoPrecision)
         .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

@@ -2,7 +2,7 @@ import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type ThorchainSaversDepositValues = DepositValues &

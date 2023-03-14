@@ -184,7 +184,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={underlyingAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .times(feeMarketData.price)

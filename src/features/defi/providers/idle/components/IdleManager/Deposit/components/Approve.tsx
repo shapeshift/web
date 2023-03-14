@@ -44,7 +44,7 @@ const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -75,7 +75,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimateCryptoPrecision = useCallback(
+  const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && opportunity && assetReference && idleInvestor && underlyingAsset)) return
       try {
@@ -94,7 +94,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoPrecision', error },
+          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -147,11 +147,12 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state.deposit)
-      if (!estimatedGasCrypto) return
+      const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(state.deposit)
+      debugger
+      if (!estimatedGasCryptoBaseUnit) return
       dispatch({
         type: IdleDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit },
       })
 
       onNext(DefiStep.Confirm)
@@ -185,7 +186,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     chainAdapter,
     underlyingAsset,
     idleInvestor,
-    getDepositGasEstimateCryptoPrecision,
+    getDepositGasEstimateCryptoBaseUnit,
     state?.deposit,
     onNext,
     assets,
@@ -196,13 +197,13 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision: estimatedGasCrypto,
+        estimatedGasCryptoPrecision: estimatedGasCryptoBaseUnit,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
   )
 
   const preFooter = useMemo(
@@ -211,23 +212,23 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCrypto={estimatedGasCryptoBaseUnit}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
   )
 
-  if (!state || !dispatch || !estimatedGasCrypto) return null
+  if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null
 
   return (
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

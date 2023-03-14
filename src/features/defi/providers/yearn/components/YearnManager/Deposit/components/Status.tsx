@@ -150,7 +150,7 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
+                    ? state.deposit.estimatedGasCryptoBaseUnit
                     : state.deposit.usedGasFee,
                 )
                   .div(`1e+${feeAsset.precision}`)
@@ -161,7 +161,7 @@ export const Status = () => {
                 color='gray.500'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCrypto
+                    ? state.deposit.estimatedGasCryptoBaseUnit
                     : state.deposit.usedGasFee,
                 )
                   .div(`1e+${feeAsset.precision}`)

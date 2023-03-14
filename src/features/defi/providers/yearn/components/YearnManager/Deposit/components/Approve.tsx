@@ -41,7 +41,7 @@ const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
 export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => {
   const yearnInvestor = useMemo(() => getYearnInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
@@ -72,7 +72,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimateCryptoPrecision = useCallback(
+  const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && opportunity && assetReference && yearnInvestor && underlyingAsset))
         return
@@ -92,7 +92,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoPrecision', error },
+          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -145,11 +145,11 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state.deposit)
-      if (!estimatedGasCrypto) return
+      const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(state.deposit)
+      if (!estimatedGasCryptoBaseUnit) return
       dispatch({
         type: YearnDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit },
       })
 
       onNext(DefiStep.Confirm)
@@ -174,7 +174,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     chainAdapter,
     underlyingAsset,
     yearnInvestor,
-    getDepositGasEstimateCryptoPrecision,
+    getDepositGasEstimateCryptoBaseUnit,
     state?.deposit,
     onNext,
     toast,
@@ -184,13 +184,13 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   const hasEnoughBalanceForGas = useMemo(
     () =>
       isSome(accountId) &&
-      isSome(estimatedGasCryptoPrecision) &&
+      isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision,
+        estimatedGasCryptoPrecision: estimatedGasCryptoBaseUnit,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCryptoPrecision],
+    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
   )
 
   const preFooter = useMemo(
@@ -199,23 +199,23 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCryptoPrecision}
+        estimatedGasCrypto={estimatedGasCryptoBaseUnit}
       />
     ),
-    [accountId, feeAsset, estimatedGasCryptoPrecision],
+    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
   )
 
-  if (!state || !dispatch || !estimatedGasCryptoPrecision) return null
+  if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null
 
   return (
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

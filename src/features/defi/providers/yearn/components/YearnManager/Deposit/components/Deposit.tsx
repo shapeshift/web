@@ -186,7 +186,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!estimatedGasCrypto) return
           dispatch({
             type: YearnDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
@@ -195,7 +195,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!estimatedGasCrypto) return
           dispatch({
             type: YearnDepositActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
           dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })

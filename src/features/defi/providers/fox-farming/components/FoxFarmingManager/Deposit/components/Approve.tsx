@@ -186,7 +186,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       asset={asset}
       feeAsset={feeAsset}
       icons={foxFarmingOpportunity?.icons}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
         .times(feeMarketData.price)

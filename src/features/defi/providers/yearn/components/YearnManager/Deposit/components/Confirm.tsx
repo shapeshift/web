@@ -178,7 +178,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+        .minus(bnOrZero(state?.deposit.estimatedGasCryptoBaseUnit).div(`1e+${feeAsset.precision}`))
         .gte(0),
     [feeAssetBalance, state?.deposit, feeAsset?.precision],
   )
@@ -217,14 +217,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}
                 symbol={feeAsset.symbol}

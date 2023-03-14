@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -39,17 +40,22 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(DepositContext)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress } = query
+  const { assetNamespace, chainId, contractAddress } = query
+
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Cannot get fee AssetId for chainId ${chainId}`)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const foxFarmingOpportunityFilter = useMemo(
     () => ({
       stakingId: toOpportunityId({
-        assetNamespace: 'erc20',
+        assetNamespace,
         assetReference: contractAddress,
-        chainId: ethChainId,
+        chainId,
       }),
     }),
-    [contractAddress],
+    [assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
@@ -57,13 +63,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const feeAssetId = ethAssetId
 
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   if (!asset)

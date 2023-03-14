@@ -10,12 +10,15 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -23,6 +26,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -44,8 +49,6 @@ type ClaimConfirmProps = {
   accountId: AccountId | undefined
   assetId: AssetId
   amount: string
-  contractAddress: string
-  chainId: ChainId
   onBack: () => void
 }
 
@@ -53,27 +56,21 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'FoxFarming', 'Overview', 'ClaimConfirm'],
 })
 
-export const ClaimConfirm = ({
-  accountId,
-  assetId,
-  amount,
-  contractAddress,
-  chainId,
-  onBack,
-}: ClaimConfirmProps) => {
+export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfirmProps) => {
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const { state: walletState } = useWallet()
 
   const assets = useAppSelector(selectAssets)
+  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, contractAddress } = query
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
   const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const history = useHistory()
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
   const accountAddress = useMemo(
@@ -98,11 +95,8 @@ export const ClaimConfirm = ({
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Cannot get fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 

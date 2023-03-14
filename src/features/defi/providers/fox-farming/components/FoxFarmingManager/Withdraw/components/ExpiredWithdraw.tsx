@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -50,7 +51,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
+  const { assetNamespace, chainId, contractAddress, rewardId } = query
 
   const assets = useAppSelector(selectAssets)
 
@@ -60,7 +61,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         accountId ?? '',
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: contractAddress,
         }),
       ),
@@ -76,11 +77,14 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
-  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
-  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  const rewardAssetId = toAssetId({ chainId, assetNamespace, assetReference: rewardId })
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)
 
   const lpMarketData = useAppSelector(state =>
     selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
@@ -106,7 +110,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     try {
       const fee = await getUnstakeGasData(amountAvailableCryptoPrecision.toFixed(), true)
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
+      return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       moduleLogger.error(
@@ -164,7 +168,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-            .div(bn(10).pow(ethAsset.precision))
+            .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },
       })
@@ -218,8 +222,8 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
               color='gray.500'
             />
             <Stack direction='row'>
-              <AssetIcon assetId={foxAssetId} size='xs' />
-              <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={foxAsset.symbol} />
+              <AssetIcon assetId={rewardAssetId} size='xs' />
+              <Amount.Crypto value={rewardAmountCryptoPrecision} symbol={rewardAsset.symbol} />
             </Stack>
           </Stack>
         }

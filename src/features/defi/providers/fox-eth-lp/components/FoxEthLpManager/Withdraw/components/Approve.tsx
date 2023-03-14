@@ -160,7 +160,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCryptoPrecision}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
     [accountId, feeAsset, estimatedGasCryptoPrecision],

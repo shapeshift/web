@@ -215,7 +215,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCrypto}
       />
     ),
     [accountId, feeAsset, estimatedGasCrypto],

@@ -212,7 +212,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCryptoBaseUnit}
+        estimatedGasCryptoPrecision={estimatedGasCryptoBaseUnit}
       />
     ),
     [accountId, feeAsset, estimatedGasCryptoBaseUnit],

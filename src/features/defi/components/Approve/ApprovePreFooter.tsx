@@ -13,12 +13,12 @@ import { isSome } from 'lib/utils'
 export const ApprovePreFooter = ({
   action,
   feeAsset,
-  estimatedGasCrypto: estimatedGasCryptoPrecision,
+  estimatedGasCryptoPrecision: estimatedGasCryptoPrecision,
   accountId,
 }: {
   accountId: AccountId | undefined
   action: DefiAction.Deposit | DefiAction.Withdraw
-  estimatedGasCrypto: string | undefined
+  estimatedGasCryptoPrecision: string | undefined
   feeAsset: Asset
 }) => {
   const translate = useTranslate()

@@ -187,7 +187,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCryptoPrecisionBaseUnit}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecisionBaseUnit}
       />
     ),
     [accountId, feeAsset, estimatedGasCryptoPrecisionBaseUnit],

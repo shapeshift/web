@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -16,15 +16,13 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import {
-  assertIsFoxEthStakingContractAddress,
-  foxEthLpAssetId,
-} from 'state/slices/opportunitiesSlice/constants'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -54,17 +52,17 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { assetReference, contractAddress } = query
+  const { assetNamespace, assetReference, chainId, contractAddress, rewardId } = query
 
   const foxFarmingOpportunityFilter = useMemo(
     () => ({
       stakingId: toOpportunityId({
-        assetNamespace: 'erc20',
+        assetNamespace,
         assetReference: contractAddress,
-        chainId: ethChainId,
+        chainId,
       }),
     }),
-    [contractAddress],
+    [assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
@@ -76,11 +74,15 @@ export const Deposit: React.FC<DepositProps> = ({
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
 
-  const filter = useMemo(
-    () => ({ assetId: foxFarmingOpportunity?.underlyingAssetId, accountId }),
-    [accountId, foxFarmingOpportunity?.underlyingAssetId],
+  const underlyingAssetId = foxFarmingOpportunity?.underlyingAssetId
+
+  const cryptoBalanceFilter = useMemo(
+    () => ({ assetId: underlyingAssetId, accountId }),
+    [accountId, underlyingAssetId],
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
+  )
 
   const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
 
@@ -92,11 +94,19 @@ export const Deposit: React.FC<DepositProps> = ({
     getApproveGasData,
   } = useFoxFarming(contractAddress)
 
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`AssetId not found for ChainId ${chainId}`)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAssetId) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, foxEthLpAssetId))
-  const rewardAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const rewardAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference: rewardId,
+  })
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId ?? ''))
 
   // notify
   const toast = useToast()
@@ -110,14 +120,14 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress && foxFarmingOpportunity)) return
+      if (!(state && dispatch && feeAsset && state.userAddress && foxFarmingOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
         if (!(state.userAddress && assetReference)) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return
-          return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
+          return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
           moduleLogger.error(
             { fn: 'getDepositGasEstimate', error },
@@ -169,7 +179,7 @@ export const Deposit: React.FC<DepositProps> = ({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
               estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
-                .div(bn(10).pow(ethAsset.precision))
+                .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
           })
@@ -190,10 +200,10 @@ export const Deposit: React.FC<DepositProps> = ({
     [
       state,
       dispatch,
+      feeAsset,
       foxFarmingOpportunity,
       assetReference,
       getStakeGasData,
-      ethAsset.precision,
       toast,
       translate,
       asset,
@@ -205,8 +215,8 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoHumanAmountAvailable = useMemo(
-    () => bnOrZero(balance).div(bn(10).pow(asset?.precision ?? 1)),
-    [asset?.precision, balance],
+    () => bnOrZero(cryptoBalance).div(bn(10).pow(asset?.precision ?? 1)),
+    [asset?.precision, cryptoBalance],
   )
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(cryptoHumanAmountAvailable).times(marketData?.price),
@@ -216,26 +226,26 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const crypto = bnOrZero(cryptoBalance).div(bn(10).pow(asset.precision))
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset, balance],
+    [asset, cryptoBalance],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bnOrZero(balance).div(bn(10).pow(asset.precision))
+      const crypto = bnOrZero(cryptoBalance).div(bn(10).pow(asset.precision))
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset, balance, marketData.price],
+    [asset, cryptoBalance, marketData.price],
   )
 
   const handleBack = useCallback(() => {

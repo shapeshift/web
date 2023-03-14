@@ -22,6 +22,8 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -154,6 +156,12 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
       const deviceId = action?.payload?.deviceId
+      const mp = getMixPanel()
+      if (mp) {
+        const payload = { 'Wallet Name': action?.payload?.name }
+        // track wallet connection event
+        mp.track(MixPanelEvents.ConnectWallet, payload)
+      }
       // set walletId in redux store
       store.dispatch(portfolio.actions.setWalletId(deviceId))
       store.dispatch(portfolio.actions.setWalletName(action?.payload?.name))
@@ -460,7 +468,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localKeepKeyWallet,
-                      name: label,
+                      name,
                       icon,
                       deviceId,
                       meta: { label },

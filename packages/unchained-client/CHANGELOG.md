@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.12.2...@shapeshiftoss/unchained-client-v10.13.0) (2023-03-14)
+
+
+### Features
+
+* add bnb smart chain ([#1197](https://github.com/shapeshift/lib/issues/1197)) ([245e7a4](https://github.com/shapeshift/lib/commit/245e7a476e41580d4ac72666605a4867d7a71f03))
+
 # [@shapeshiftoss/unchained-client-v10.12.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.12.1...@shapeshiftoss/unchained-client-v10.12.2) (2023-02-24)
 
 # [@shapeshiftoss/unchained-client-v10.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.12.0...@shapeshiftoss/unchained-client-v10.12.1) (2023-01-31)

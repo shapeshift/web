@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v8.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.5.0...@shapeshiftoss/types-v8.6.0) (2023-03-14)
+
+
+### Features
+
+* add bnb smart chain ([#1197](https://github.com/shapeshift/lib/issues/1197)) ([245e7a4](https://github.com/shapeshift/lib/commit/245e7a476e41580d4ac72666605a4867d7a71f03))
+
 # [@shapeshiftoss/types-v8.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v8.4.0...@shapeshiftoss/types-v8.5.0) (2023-01-13)
 
 

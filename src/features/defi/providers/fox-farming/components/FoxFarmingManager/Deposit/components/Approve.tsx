@@ -111,12 +111,12 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       // Get deposit gas estimate
       const gasData = await getStakeGasData(state.deposit.cryptoAmount)
       if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)

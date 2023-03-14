@@ -45,11 +45,8 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
-  const {
-    approve,
-    allowance,
-    getDepositGasDataCryptoBaseUnit: getDepositGasData,
-  } = useFoxEthLiquidityPool(lpAccountId)
+  const { approve, allowance, getDepositGasDataCryptoBaseUnit } =
+    useFoxEthLiquidityPool(lpAccountId)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -95,7 +92,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getDepositGasData({
+      const gasData = await getDepositGasDataCryptoBaseUnit({
         token0Amount: state.deposit.ethCryptoAmount,
         token1Amount: state.deposit.foxCryptoAmount,
       })
@@ -138,7 +135,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     foxEthLpOpportunity,
     wallet,
     approve,
-    getDepositGasData,
+    getDepositGasDataCryptoBaseUnit,
     feeAsset.precision,
     onNext,
     foxAsset,

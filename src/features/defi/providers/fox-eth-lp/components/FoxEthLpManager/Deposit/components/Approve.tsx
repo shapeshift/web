@@ -120,7 +120,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         assets,
       )
     } catch (error) {
-      debugger
       setHasEnoughBalanceForGas(false)
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({

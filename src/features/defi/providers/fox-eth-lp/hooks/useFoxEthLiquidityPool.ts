@@ -376,7 +376,6 @@ export const useFoxEthLiquidityPool = (
         .toFixed(0)
       const accountAddress = fromAccountId(accountId).account
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      debugger
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         fromAssetId(foxAssetId).assetReference,
         bnOrZero(token1Amount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),

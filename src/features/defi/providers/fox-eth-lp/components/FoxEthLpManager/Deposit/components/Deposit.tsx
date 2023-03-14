@@ -154,7 +154,6 @@ export const Deposit: React.FC<DepositProps> = ({
       // Skip approval step if user allowance is greater than or equal requested deposit amount
       if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))) {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        debugger
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxEthLpDepositActionType.SET_DEPOSIT,
@@ -164,7 +163,6 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
       } else {
         const estimatedGasCrypto = await getApproveGasData()
-        debugger
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxEthLpDepositActionType.SET_APPROVE,

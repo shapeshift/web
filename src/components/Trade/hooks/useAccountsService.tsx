@@ -24,8 +24,8 @@ export const useAccountsService = () => {
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
 
-  const sellAssetId = buyAsset?.assetId
-  const buyAssetId = sellAsset?.assetId
+  const sellAssetId = sellAsset?.assetId
+  const buyAssetId = buyAsset?.assetId
 
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {

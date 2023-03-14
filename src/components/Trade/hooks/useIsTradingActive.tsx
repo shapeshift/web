@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { useAppDispatch } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -7,8 +6,6 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 export const useIsTradingActive = () => {
   const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
   const [isTradingActiveOnBuyPool, setIsTradingActiveOnBuyPool] = useState(false)
-
-  const { bestTradeSwapper } = useSwapper()
 
   const dispatch = useAppDispatch()
 
@@ -18,6 +15,7 @@ export const useIsTradingActive = () => {
   const buyTradeAssetId = buyTradeAsset?.asset?.assetId
 
   const { getIsTradingActive } = getIsTradingActiveApi.endpoints
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   useEffect(() => {
     ;(async () => {

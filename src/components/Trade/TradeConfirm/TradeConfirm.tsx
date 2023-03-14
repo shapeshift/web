@@ -28,7 +28,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -92,9 +91,9 @@ export const TradeConfirm = () => {
 
   const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
 
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
+  const bestSwapper = activeSwapperWithMetadata?.swapper
 
   const reset = useCallback(() => {
     clearAmounts()

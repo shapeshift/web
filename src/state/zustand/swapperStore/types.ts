@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { CowTrade, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { CowTrade, SwapperWithQuoteMetadata, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { DisplayFeeData, TradeAmountInputField, TradeAsset } from 'components/Trade/types'
 
@@ -24,6 +24,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress: string | undefined
   fees: DisplayFeeData<C> | undefined
   trade: Trade<C> | CowTrade<C> | undefined
+  activeSwapperWithMetadata?: SwapperWithQuoteMetadata | undefined
+  availableSwappersWithMetadata?: SwapperWithQuoteMetadata[] | undefined
 }
 
 type TradeAmounts = {
@@ -57,6 +59,13 @@ export type SwapperAction = {
   toggleIsExactAllowance: () => void
   updateFees: (fees: SwapperStore['fees']) => void
   updateTrade: (trade: SwapperStore['trade']) => void
+  refreshFee: () => void
+  updateActiveSwapperWithMetadata: (
+    activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],
+  ) => void
+  updateAvailableSwappersWithMetadata: (
+    availableSwappersWithMetadata: SwapperStore['availableSwappersWithMetadata'],
+  ) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

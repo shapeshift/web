@@ -1,10 +1,8 @@
 import { type Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { type Swapper, SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { SwapperManager, SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import {
   isSupportedCosmosSdkSwappingChain,
@@ -12,19 +10,18 @@ import {
   isSupportedUtxoSwappingChain,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
-import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { type BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
-import { selectAssetIds, selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
+import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -41,27 +38,20 @@ export const useSwapper = () => {
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const slippage = useSwapperStore(state => state.slippage)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
+  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
 
   // Constants
   const sellAsset = sellTradeAsset?.asset
   const buyAsset = buyTradeAsset?.asset
-  const buyAssetId = buyAsset?.assetId
-  const sellAssetId = sellAsset?.assetId
-  const sellAssetChainId = sellAsset?.chainId
+  const bestTradeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
-  const [bestTradeSwapper, setBestTradeSwapper] = useState<Swapper<KnownChainIds>>()
   const wallet = useWallet().state.wallet
-  const { tradeQuoteArgs } = useTradeQuoteService()
-  const dispatch = useAppDispatch()
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
 
   // Callbacks
   const getSupportedSellableAssets = useCallback(
@@ -237,14 +227,6 @@ export const useSwapper = () => {
     slippage,
   ])
 
-  // useEffects
-  // Set the bestTradeSwapper when the trade assets change
-  useEffect(() => {
-    if (buyAssetId && sellAssetId) {
-      setBestTradeSwapper(bestSwapper)
-    }
-  }, [bestSwapper, buyAssetId, feeAsset, dispatch, sellAssetId, swapperManager, tradeQuoteArgs])
-
   useEffect(() => {
     ;(async () => {
       flags && setSwapperManager(await getSwapperManager(flags))
@@ -256,7 +238,6 @@ export const useSwapper = () => {
     getSupportedBuyAssetsFromSellAsset,
     swapperManager,
     checkApprovalNeeded,
-    bestTradeSwapper,
     getTrade,
     swapperSupportsCrossAccountTrade,
     approve,

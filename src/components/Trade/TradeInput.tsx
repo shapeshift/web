@@ -96,7 +96,6 @@ export const TradeInput = () => {
   const {
     checkApprovalNeeded,
     getTrade,
-    bestTradeSwapper,
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperSupportsCrossAccountTrade,
@@ -116,6 +115,7 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   if (!sellFeeAsset)
     throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)

@@ -12,7 +12,7 @@ It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
   // Custom hooks
-  const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
+  const { swapperSupportsCrossAccountTrade } = useSwapper()
 
   // Selectors
   const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
@@ -23,6 +23,7 @@ export const useAccountsService = () => {
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const sellAssetId = sellTradeAsset?.asset?.assetId
   const buyAssetId = buyTradeAsset?.asset?.assetId

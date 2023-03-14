@@ -1,6 +1,5 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,11 +10,9 @@ The Fees Service is responsible for reacting to changes to quote and trades, and
 The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
-  // Hooks
-  const { bestTradeSwapper } = useSwapper()
-
   // Selectors
   const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
   )

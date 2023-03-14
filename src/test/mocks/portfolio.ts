@@ -1,5 +1,6 @@
 import {
   avalancheAssetId,
+  bscAssetId,
   btcAssetId,
   cosmosAssetId,
   ethAssetId,
@@ -61,6 +62,12 @@ export const mockChainAdapters = new Map([
     KnownChainIds.OptimismMainnet,
     {
       getFeeAssetId: () => optimismAssetId,
+    },
+  ],
+  [
+    KnownChainIds.BnbSmartChainMainnet,
+    {
+      getFeeAssetId: () => bscAssetId,
     },
   ],
 ])

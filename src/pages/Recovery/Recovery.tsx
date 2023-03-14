@@ -11,6 +11,7 @@ import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapter
 import { ChainAdapter as OsmosisChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/osmosis'
 import { ChainAdapter as THORChainChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/thorchain'
 import { ChainAdapter as AvalancheChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/avalanche'
+import { ChainAdapter as BscChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/bnbsmartchain'
 import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/ethereum'
 import { ChainAdapter as OptimismChainAdapter } from '@shapeshiftoss/chain-adapters/dist/evm/optimism'
 import { ChainAdapter as BitcoinChainAdapter } from '@shapeshiftoss/chain-adapters/dist/utxo/bitcoin'
@@ -72,6 +73,7 @@ const getDangerousBIP44ParamsByChainId: GetDangerousBIP44ParamsByChainId = () =>
     [KnownChainIds.EthereumMainnet]: [EthereumChainAdapter.defaultBIP44Params],
     [KnownChainIds.AvalancheMainnet]: [AvalancheChainAdapter.defaultBIP44Params],
     [KnownChainIds.OptimismMainnet]: [OptimismChainAdapter.defaultBIP44Params],
+    [KnownChainIds.BnbSmartChainMainnet]: [BscChainAdapter.defaultBIP44Params],
     [KnownChainIds.ThorchainMainnet]: [THORChainChainAdapter.defaultBIP44Params],
     [KnownChainIds.CosmosMainnet]: [CosmosChainAdapter.defaultBIP44Params],
     [KnownChainIds.OsmosisMainnet]: [OsmosisChainAdapter.defaultBIP44Params],

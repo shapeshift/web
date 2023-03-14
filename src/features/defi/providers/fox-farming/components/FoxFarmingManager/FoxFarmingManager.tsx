@@ -9,8 +9,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
+import { Claim } from './Claim/Claim'
 import { FoxFarmingDeposit } from './Deposit/FoxFarmingDeposit'
-import { Claim } from './Overview/Claim/Claim'
 import { FoxFarmingOverview } from './Overview/FoxFarmingOverview'
 import { FoxFarmingWithdraw } from './Withdraw/FoxFarmingWithdraw'
 

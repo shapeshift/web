@@ -37,11 +37,15 @@ export const portfolio = createSlice({
       // note this function can unset the walletId to undefined
       if (walletId) {
         moduleLogger.info(payload, 'setting wallet id and name')
+        const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
+        // if we already have state.walletId, we're switching wallets, otherwise connecting
+        getMixPanel()?.track(
+          state.walletId ? MixPanelEvents.SwitchWallet : MixPanelEvents.ConnectWallet,
+          data,
+        )
         state.walletId = walletId
         state.walletName = walletName
         state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
-        const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
-        getMixPanel()?.track(MixPanelEvents.ConnectWallet, data)
       } else {
         moduleLogger.info(payload, 'unsetting wallet id and name')
         state.walletId = undefined

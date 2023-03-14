@@ -173,10 +173,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision: estimatedGasCryptoBaseUnit,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, estimatedGasCryptoBaseUnit, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(

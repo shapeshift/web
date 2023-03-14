@@ -69,6 +69,14 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
+  const estimatedGasCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
+    [estimatedGasCryptoBaseUnit, feeAsset?.precision],
+  )
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -148,7 +156,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       })
       // Get deposit gas estimate
       const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(state.deposit)
-      debugger
       if (!estimatedGasCryptoBaseUnit) return
       dispatch({
         type: IdleDepositActionType.SET_DEPOSIT,
@@ -200,10 +207,10 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision: estimatedGasCryptoBaseUnit,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, estimatedGasCryptoBaseUnit, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(

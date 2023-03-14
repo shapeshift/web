@@ -168,7 +168,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
     } else {
       const estimatedGasCryptoPrecision = await getApproveGasData(true)
-      debugger
       if (!estimatedGasCryptoPrecision) return
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_APPROVE,

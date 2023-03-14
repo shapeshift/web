@@ -185,7 +185,6 @@ export const Deposit: React.FC<DepositProps> = ({
         // Skip approval step if user allowance is greater than requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
           const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(formValues)
-          debugger
           if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: IdleDepositActionType.SET_DEPOSIT,

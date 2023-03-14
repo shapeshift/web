@@ -190,8 +190,6 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   if (!state || !dispatch) return null
 
-  console.log({ accountId, hasEnoughBalanceForGas })
-
   return (
     <ReusableApprove
       asset={foxAsset}

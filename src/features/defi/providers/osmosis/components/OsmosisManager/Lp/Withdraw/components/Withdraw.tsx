@@ -22,13 +22,19 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   getPool,
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectPortfolioCryptoBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
@@ -80,6 +86,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
+
+  const assets = useAppSelector(selectAssets)
 
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
@@ -330,6 +338,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
         payload: {
+          amountCryptoHuman: formValues.cryptoAmount,
+          fiatAmount: formValues.fiatAmount,
           underlyingAsset0: tokenOutMinsCryptoBaseUnit[0],
           underlyingAsset1: tokenOutMinsCryptoBaseUnit[1],
           shareInAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
@@ -348,6 +358,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: osmosisOpportunity,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [
+              { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+            ],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -369,6 +390,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       calculateTokenOutMins,
       getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,
+      assets,
       toast,
       translate,
     ],

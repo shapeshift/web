@@ -18,8 +18,15 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -34,11 +41,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const osmosisOpportunity = state?.opportunity
 
+  const assets = useAppSelector(selectAssets)
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, osmosisAssetId ?? ''),
   )
+
+  const lpAsset = useAppSelector(state => selectAssetById(state, osmosisOpportunity?.assetId ?? ''))
 
   const underlyingAsset0 = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.underlyingAssetIds[0] ?? ''),
@@ -79,6 +89,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!osmosisOpportunity || !lpAsset || !state) return
+    if (state.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity: osmosisOpportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [
+            { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.amountCryptoHuman },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [assets, lpAsset, osmosisOpportunity, state])
 
   if (!state || !osmosisOpportunity) return null
 

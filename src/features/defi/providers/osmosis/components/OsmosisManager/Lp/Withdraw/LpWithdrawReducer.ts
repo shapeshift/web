@@ -19,6 +19,8 @@ export const initialState: OsmosisWithdrawState = {
     shareInAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
+    amountCryptoHuman: '',
+    fiatAmount: '',
   },
 }
 

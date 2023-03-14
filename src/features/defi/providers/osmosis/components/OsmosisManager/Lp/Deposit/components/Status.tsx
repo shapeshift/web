@@ -17,8 +17,15 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -35,6 +42,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const opportunity = state?.opportunity
 
+  const assets = useAppSelector(selectAssets)
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
   const feeAssetMarketData = useAppSelector(state =>
@@ -80,6 +88,33 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity || !state) return
+    if (state.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [
+            state.deposit.underlyingAsset0.fiatAmount,
+            state.deposit.underlyingAsset1.fiatAmont,
+          ],
+          cryptoAmounts: [
+            {
+              assetId: underlyingAsset0.assetId,
+              amountCryptoHuman: state.deposit.underlyingAsset0.amountCryptoHuman,
+            },
+            {
+              assetId: underlyingAsset1.assetId,
+              amountCryptoHuman: state.deposit.underlyingAsset1.amountCryptoHuman,
+            },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [assets, opportunity, state, underlyingAsset0.assetId, underlyingAsset1.assetId])
 
   if (!state || !feeAsset) return null
 

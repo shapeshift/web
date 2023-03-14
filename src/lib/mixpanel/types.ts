@@ -36,6 +36,7 @@ export type TrackOpportunityProps = {
 }
 
 export type AnonymizedPortfolio = {
+  'Is Mobile': boolean
   'Wallet ID': string // e.g. 2398734895
   'Wallet Name': string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
   Chains: string[] // e.g. ['Bitcoin', 'Ethereum']

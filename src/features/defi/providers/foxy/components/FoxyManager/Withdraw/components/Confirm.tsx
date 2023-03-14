@@ -92,7 +92,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           contractAddress,
           wallet: walletState.wallet,
           amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-            .times(`1e+${underlyingAsset.precision}`)
+            .times(bn(10).pow(underlyingAsset.precision))
             .decimalPlaces(0),
           type: state.withdraw.withdrawType,
           bip44Params,
@@ -135,7 +135,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
     .gte(0)
 
   return (
@@ -191,14 +191,14 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}
                 symbol={feeAsset.symbol}
               />

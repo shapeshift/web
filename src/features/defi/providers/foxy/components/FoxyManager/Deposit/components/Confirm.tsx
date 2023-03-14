@@ -15,7 +15,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -84,7 +84,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       const [txid, gasPrice] = await Promise.all([
         foxyApi.deposit({
           amountDesired: bnOrZero(state?.deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
+            .times(bn(10).pow(asset.precision))
             .decimalPlaces(0),
           tokenContractAddress: assetReference,
           userAddress: accountAddress,
@@ -139,7 +139,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCryptoBaseUnit).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.deposit.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
     .gte(0)
 
   return (
@@ -175,14 +175,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
-                  .div(`1e+${feeAsset.precision}`)
+                  .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}
                 symbol={feeAsset.symbol}
               />

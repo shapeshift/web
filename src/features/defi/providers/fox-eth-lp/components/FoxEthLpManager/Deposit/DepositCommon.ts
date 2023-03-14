@@ -12,7 +12,7 @@ type DepositValues = {
 type FoxEthLpDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoPrecision: string
   }
 
 export type FoxEthLpDepositState = {

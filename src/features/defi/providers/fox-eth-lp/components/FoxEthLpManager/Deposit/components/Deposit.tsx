@@ -63,11 +63,8 @@ export const Deposit: React.FC<DepositProps> = ({
     selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
   const { lpAccountId } = useFoxEth()
-  const {
-    allowance,
-    getApproveGasData,
-    getDepositGasDataCryptoBaseUnit: getDepositGasData,
-  } = useFoxEthLiquidityPool(lpAccountId)
+  const { allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } =
+    useFoxEthLiquidityPool(lpAccountId)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -106,7 +103,7 @@ export const Deposit: React.FC<DepositProps> = ({
   ): Promise<string | undefined> => {
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasData({
+      const gasData = await getDepositGasDataCryptoBaseUnit({
         token0Amount,
         token1Amount,
       })
@@ -163,7 +160,7 @@ export const Deposit: React.FC<DepositProps> = ({
         if (!estimatedGasCryptoPrecision) return
         dispatch({
           type: FoxEthLpDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto: estimatedGasCryptoPrecision },
+          payload: { estimatedGasCryptoPrecision },
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })

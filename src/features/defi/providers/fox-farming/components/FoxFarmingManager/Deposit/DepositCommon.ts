@@ -34,7 +34,7 @@ type SetApprove = {
 
 type SetDeposit = {
   type: FoxFarmingDepositActionType.SET_DEPOSIT
-  payload: any
+  payload: Partial<FoxFarmingDepositValues>
 }
 
 type SetLoading = {

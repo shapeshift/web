@@ -36,7 +36,7 @@ type SetApprove = {
 
 type SetDeposit = {
   type: FoxEthLpDepositActionType.SET_DEPOSIT
-  payload: any
+  payload: Partial<FoxEthLpDepositValues>
 }
 
 type SetLoading = {

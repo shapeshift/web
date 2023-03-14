@@ -100,12 +100,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         token1Amount: state.deposit.foxCryptoAmount,
       })
       if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxEthLpDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)

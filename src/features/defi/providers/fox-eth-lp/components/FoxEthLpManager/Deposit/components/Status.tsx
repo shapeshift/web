@@ -89,7 +89,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         type: FoxEthLpDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee
+          usedGasFeeCryptoPrecision: confirmedTransaction.fee
             ? bnOrZero(confirmedTransaction.fee.value)
                 .div(bn(10).pow(ethAsset.precision))
                 .toString()

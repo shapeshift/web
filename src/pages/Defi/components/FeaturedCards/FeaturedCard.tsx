@@ -9,31 +9,30 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
-  underlyingAssetIds,
-  assetId,
-  opportunityName,
-  apy,
-  icons,
-  provider,
-  type,
-  chainId,
-  contractAddress,
-  rewardAddress,
-  version,
-}) => {
+export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity => {
+  const {
+    underlyingAssetIds,
+    assetId,
+    opportunityName,
+    apy,
+    icons,
+    provider,
+    type,
+    chainId,
+    contractAddress,
+    rewardAddress,
+    version,
+  } = opportunity
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
-  const mixpanel = getMixPanel()
   const textShadow = useColorModeValue('0 2px 2px rgba(255,255,255,.5)', '0 2px 2px rgba(0,0,0,.3)')
   const hoverBgColor = useColorModeValue('gray.100', 'gray.900')
   const backgroundIcons = useMemo(() => {
@@ -42,19 +41,21 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     ))
   }, [underlyingAssetIds])
 
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetName = asset?.name ?? ''
   const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })
 
   const handleClick = useCallback(() => {
     const { assetNamespace, assetReference } = fromAssetId(assetId)
-
-    mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-      provider,
-      type,
-      assets: underlyingAssetIds.map(assetId => getMaybeCompositeAssetSymbol(assetId)),
-      element: 'Featured Card',
-    })
+    trackOpportunityEvent(
+      MixPanelEvents.ClickOpportunity,
+      {
+        opportunity,
+        element: 'Featured Card',
+      },
+      assets,
+    )
 
     history.push({
       pathname: location.pathname,
@@ -72,15 +73,15 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = ({
     })
   }, [
     assetId,
+    assets,
     chainId,
     contractAddress,
     history,
     location,
-    mixpanel,
+    opportunity,
     provider,
     rewardAddress,
     type,
-    underlyingAssetIds,
   ])
 
   const subText = [provider as string]

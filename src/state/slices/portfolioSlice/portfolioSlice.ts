@@ -6,6 +6,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
@@ -15,6 +17,11 @@ import { accountToPortfolio } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
 
+type WalletMetaPayload = {
+  walletId?: WalletId | undefined
+  walletName?: string | undefined
+}
+
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
@@ -23,15 +30,24 @@ export const portfolio = createSlice({
       moduleLogger.info('clearing portfolio')
       return initialState
     },
-    setWalletId: (state, { payload }: { payload: WalletId | undefined }) => {
+    setWalletMeta: (state, { payload }: { payload: WalletMetaPayload }) => {
+      const { walletId, walletName } = payload
+      // don't fire and rerender with same action
+      if (state.walletId === walletId) return
       // note this function can unset the walletId to undefined
-      moduleLogger.info(payload, 'setting wallet id')
-      state.walletId = payload
-      if (!payload) return
-      state.wallet.ids = Array.from(new Set([...state.wallet.ids, payload]))
-    },
-    setWalletName: (state, { payload }: { payload: string | undefined }) => {
-      state.walletName = payload
+      if (walletId) {
+        moduleLogger.info(payload, 'setting wallet id and name')
+        state.walletId = walletId
+        state.walletName = walletName
+        state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
+        const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
+        getMixPanel()?.track(MixPanelEvents.ConnectWallet, data)
+      } else {
+        moduleLogger.info(payload, 'unsetting wallet id and name')
+        state.walletId = undefined
+        state.walletName = undefined
+        getMixPanel()?.track(MixPanelEvents.DisconnectWallet)
+      }
     },
     upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
       moduleLogger.debug('upserting account metadata')

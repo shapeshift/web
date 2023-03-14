@@ -21,6 +21,7 @@ export enum MixPanelEvents {
   ClickOpportunity = 'Click Opportunity',
   InsufficientFunds = 'Insufficient Funds',
   ConnectWallet = 'Connect Wallet',
+  DisconnectWallet = 'Disconnect Wallet',
   PortfolioLoaded = 'Portfolio Loaded',
 }
 

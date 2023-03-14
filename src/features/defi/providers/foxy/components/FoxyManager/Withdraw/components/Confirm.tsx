@@ -135,7 +135,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
+    .minus(bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit).div(`1e+${feeAsset.precision}`))
     .gte(0)
 
   return (
@@ -190,14 +190,14 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}
                 symbol={feeAsset.symbol}

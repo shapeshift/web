@@ -183,7 +183,7 @@ export const Withdraw: React.FC<
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxyWithdrawActionType.SET_WITHDRAW,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Confirm)
           dispatch({
@@ -195,7 +195,7 @@ export const Withdraw: React.FC<
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxyWithdrawActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
           dispatch({

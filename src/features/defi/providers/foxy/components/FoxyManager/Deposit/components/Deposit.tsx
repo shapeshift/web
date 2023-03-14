@@ -87,7 +87,7 @@ export const Deposit: React.FC<DepositProps> = ({
         }
       }
 
-      const getDepositGasEstimateCryptoPrecision = async (deposit: DepositValues) => {
+      const getDepositGasEstimateCryptoBaseUnit = async (deposit: DepositValues) => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
           const [gasLimit, gasPrice] = await Promise.all([
@@ -104,7 +104,7 @@ export const Deposit: React.FC<DepositProps> = ({
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           moduleLogger.error(
-            { fn: 'getDepositGasEstimateCryptoPrecision', error },
+            { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
             'Error getting deposit gas estimate',
           )
           toast({
@@ -130,11 +130,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxyDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
@@ -143,7 +143,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxyDepositActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
           dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })

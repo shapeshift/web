@@ -133,7 +133,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 )
                   .div(`1e+${feeAsset.precision}`)
@@ -144,7 +144,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
                     : state.withdraw.usedGasFee,
                 )
                   .div(`1e+${feeAsset.precision}`)

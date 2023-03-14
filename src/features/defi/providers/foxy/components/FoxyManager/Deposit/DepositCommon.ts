@@ -17,7 +17,7 @@ type SupportedFoxyOpportunity = {
 }
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type FoxyDepositValues = DepositValues &

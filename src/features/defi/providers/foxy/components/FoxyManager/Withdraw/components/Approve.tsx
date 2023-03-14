@@ -31,7 +31,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecisionBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const {
     underlyingAsset: asset,
@@ -139,7 +139,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
       })
       onNext(DefiStep.Confirm)
     } catch (error) {
@@ -171,14 +171,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCryptoPrecision) &&
+      isSome(estimatedGasCryptoPrecisionBaseUnit) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision,
+        estimatedGasCryptoPrecision: estimatedGasCryptoPrecisionBaseUnit,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCryptoPrecision],
+    [accountId, feeAsset, estimatedGasCryptoPrecisionBaseUnit],
   )
 
   const preFooter = useMemo(
@@ -187,10 +187,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCryptoPrecision}
+        estimatedGasCrypto={estimatedGasCryptoPrecisionBaseUnit}
       />
     ),
-    [accountId, feeAsset, estimatedGasCryptoPrecision],
+    [accountId, feeAsset, estimatedGasCryptoPrecisionBaseUnit],
   )
 
   if (!state || !dispatch) return null
@@ -199,11 +199,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+      cryptoEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecisionBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecisionBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

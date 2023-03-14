@@ -7,8 +7,8 @@ type EstimatedFee = {
 }
 
 type WithdrawValues = {
-  underlyingAsset0: OsmosisToken
-  underlyingAsset1: OsmosisToken
+  underlyingAsset0: OsmosisToken & { amountCryptoHuman: string }
+  underlyingAsset1: OsmosisToken & { amountCryptoHuman: string }
   shareInAmountBaseUnit: string
   amountCryptoHuman: string
   fiatAmount: string

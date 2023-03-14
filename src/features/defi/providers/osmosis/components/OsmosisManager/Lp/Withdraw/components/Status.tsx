@@ -91,7 +91,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!osmosisOpportunity || !lpAsset || !state) return
+    if (!osmosisOpportunity || !lpAsset || !state || !underlyingAsset0 || !underlyingAsset1) return
     if (state.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvents.WithdrawSuccess,
@@ -100,12 +100,20 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           fiatAmounts: [state.withdraw.fiatAmount],
           cryptoAmounts: [
             { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.amountCryptoHuman },
+            {
+              assetId: underlyingAsset0.assetId,
+              amountCryptoHuman: state.withdraw.underlyingAsset0.amountCryptoHuman,
+            },
+            {
+              assetId: underlyingAsset1.assetId,
+              amountCryptoHuman: state.withdraw.underlyingAsset1.amountCryptoHuman,
+            },
           ],
         },
         assets,
       )
     }
-  }, [assets, lpAsset, osmosisOpportunity, state])
+  }, [assets, lpAsset, osmosisOpportunity, state, underlyingAsset0, underlyingAsset1])
 
   if (!state || !osmosisOpportunity) return null
 

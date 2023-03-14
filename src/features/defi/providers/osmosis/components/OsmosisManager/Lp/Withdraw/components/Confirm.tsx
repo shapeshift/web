@@ -104,7 +104,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         osmosisOpportunity &&
         chainAdapter &&
         bip44Params &&
-        lpAsset
+        lpAsset &&
+        underlyingAsset0 &&
+        underlyingAsset1
       )
     ) {
       return
@@ -198,6 +200,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           fiatAmounts: [state.withdraw.fiatAmount],
           cryptoAmounts: [
             { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.amountCryptoHuman },
+            {
+              assetId: underlyingAsset0.assetId,
+              amountCryptoHuman: state.withdraw.underlyingAsset0.amountCryptoHuman,
+            },
+            {
+              assetId: underlyingAsset1.assetId,
+              amountCryptoHuman: state.withdraw.underlyingAsset1.amountCryptoHuman,
+            },
           ],
         },
         assets,
@@ -221,6 +231,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainAdapter,
     bip44Params,
     lpAsset,
+    underlyingAsset0,
+    underlyingAsset1,
     onNext,
     assets,
     toast,

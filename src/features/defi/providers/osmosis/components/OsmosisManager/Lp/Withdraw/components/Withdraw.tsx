@@ -215,7 +215,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const calculateTokenOutMins = useCallback(
     async (
       inputPoolSharesBaseUnit: string,
-    ): Promise<{ amount: string; denom: string }[] | undefined> => {
+    ): Promise<{ amount: string; denom: string; amountCryptoHuman: string }[] | undefined> => {
       if (
         !(osmosisOpportunity && state && state.opportunity && underlyingAsset0 && underlyingAsset1)
       ) {
@@ -263,9 +263,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const asset0Reference = fromAssetId(underlyingAsset0.assetId).assetReference
       const asset1Reference = fromAssetId(underlyingAsset1.assetId).assetReference
 
+      const tokenOut0AmountCryptoHuman = bnOrZero(tokenOut0AmountBaseUnit)
+        .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
+        .toFixed(underlyingAsset0.precision, BigNumber.ROUND_DOWN)
+
+      const tokenOut1AmountCryptoHuman = bnOrZero(tokenOut1AmountBaseUnit)
+        .div(bn(10).pow(underlyingAsset1.precision ?? '0'))
+        .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)
+
       return [
         {
           amount: tokenOut0AmountBaseUnit,
+          amountCryptoHuman: tokenOut0AmountCryptoHuman,
           denom:
             asset0Reference === ASSET_REFERENCE.Osmosis
               ? 'uosmo'
@@ -273,6 +282,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         },
         {
           amount: tokenOut1AmountBaseUnit,
+          amountCryptoHuman: tokenOut1AmountCryptoHuman,
           denom:
             asset1Reference === ASSET_REFERENCE.Osmosis
               ? 'uosmo'
@@ -284,7 +294,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const handleInputChange = (value: string, isFiat?: boolean) => {
-    if (!(lpAsset && lpAssetMarketData?.price)) return
+    if (!(lpAsset && lpAssetMarketData?.price && underlyingAsset0 && underlyingAsset1)) return
 
     const _value = isFiat ? bnOrZero(value).div(lpAssetMarketData.price).toString() : value
     const fiatValue = isFiat
@@ -324,7 +334,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           osmosisOpportunity &&
           underlyingAsset0 &&
           underlyingAsset1 &&
-          lpAsset
+          lpAsset &&
+          receiveAmounts
         )
       )
         return
@@ -365,6 +376,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             fiatAmounts: [formValues.fiatAmount],
             cryptoAmounts: [
               { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+              {
+                assetId: underlyingAsset0.assetId,
+                amountCryptoHuman: tokenOutMinsCryptoBaseUnit[0].amountCryptoHuman,
+              },
+              {
+                assetId: underlyingAsset1.assetId,
+                amountCryptoHuman: tokenOutMinsCryptoBaseUnit[1].amountCryptoHuman,
+              },
             ],
           },
           assets,
@@ -387,6 +406,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       underlyingAsset0,
       underlyingAsset1,
       lpAsset,
+      receiveAmounts,
       calculateTokenOutMins,
       getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,

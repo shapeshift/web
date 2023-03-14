@@ -144,31 +144,17 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     translate,
   ])
 
-<<<<<<< HEAD
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [estimatedGasCrypto, accountId, feeAsset],
+    [estimatedGasCryptoPrecision, accountId, feeAsset],
   )
-=======
-  useEffect(() => {
-    setHasEnoughBalanceForGas(
-      isSome(estimatedGasCryptoPrecision) &&
-        isSome(accountId) &&
-        canCoverTxFees({
-          feeAsset,
-          estimatedGasCryptoPrecision,
-          accountId,
-        }),
-    )
-  }, [accountId, estimatedGasCryptoPrecision, feeAsset])
->>>>>>> 7ef53945d (feat: bring the crypto precision vernacular all across the gas estimation domain)
 
   const preFooter = useMemo(
     () => (

@@ -25,26 +25,15 @@ export const useSwapperStore = (() => {
       devtools(
         set => ({
           // State
-          fiatSellAmount: '0',
-          fiatBuyAmount: '0',
-          sellTradeAsset: { amountCryptoPrecision: '0', asset: undefined },
-          buyTradeAsset: { amountCryptoPrecision: '0', asset: undefined },
+          sellAmountFiat: '0',
+          buyAmountFiat: '0',
           amount: '0',
           isExactAllowance: false,
           slippage: DEFAULT_SLIPPAGE,
           action: TradeAmountInputField.SELL_CRYPTO,
           isSendMax: false,
-          receiveAddress: undefined,
-          fees: undefined,
-          trade: undefined,
-          sellAssetFiatRate: undefined,
-          buyAssetFiatRate: undefined,
-          feeAssetFiatRate: undefined,
-          quote: undefined,
-          selectedSellAssetAccountId: undefined,
-          selectedBuyAssetAccountId: undefined,
-          sellAssetAccountId: undefined,
-          buyAssetAccountId: undefined,
+          buyAmountCryptoPrecision: '0',
+          sellAmountCryptoPrecision: '0',
 
           // Actions
           updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
@@ -55,10 +44,14 @@ export const useSwapperStore = (() => {
           updateSellAssetFiatRate: createUpdateAction(set, 'sellAssetFiatRate'),
           updateBuyAssetFiatRate: createUpdateAction(set, 'buyAssetFiatRate'),
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
-          updateFiatSellAmount: createUpdateAction(set, 'fiatSellAmount'),
-          updateFiatBuyAmount: createUpdateAction(set, 'fiatBuyAmount'),
+          updateSellAmountFiat: createUpdateAction(set, 'fiatSellAmount'),
+          updateBuyAmountFiat: createUpdateAction(set, 'fiatBuyAmount'),
           updateBuyTradeAsset: createUpdateAction(set, 'buyTradeAsset'),
           updateSellTradeAsset: createUpdateAction(set, 'sellTradeAsset'),
+          updateSellAsset: createUpdateAction(set, 'sellAsset'),
+          updateBuyAsset: createUpdateAction(set, 'buyAsset'),
+          updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
+          updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
           updateTradeAmounts: ({
             fiatSellAmount,
             fiatBuyAmount,
@@ -67,12 +60,12 @@ export const useSwapperStore = (() => {
           }) => {
             set(
               state => {
-                if (fiatSellAmount) state.fiatSellAmount = fiatSellAmount
-                if (fiatBuyAmount) state.fiatBuyAmount = fiatBuyAmount
-                if (fiatBuyAmount && state.buyTradeAsset?.amountCryptoPrecision)
-                  state.buyTradeAsset.amountCryptoPrecision = buyAmountCryptoPrecision
-                if (fiatSellAmount && state.sellTradeAsset?.amountCryptoPrecision)
-                  state.sellTradeAsset.amountCryptoPrecision = sellAmountCryptoPrecision
+                if (fiatSellAmount) state.sellAmountFiat = fiatSellAmount
+                if (fiatBuyAmount) state.buyAmountFiat = fiatBuyAmount
+                if (buyAmountCryptoPrecision)
+                  state.buyAmountCryptoPrecision = buyAmountCryptoPrecision
+                if (sellAmountCryptoPrecision)
+                  state.sellAmountCryptoPrecision = sellAmountCryptoPrecision
               },
               false,
               {
@@ -89,12 +82,10 @@ export const useSwapperStore = (() => {
           clearAmounts: () => {
             set(
               state => {
-                if (state.sellTradeAsset?.amountCryptoPrecision)
-                  state.sellTradeAsset.amountCryptoPrecision = ''
-                if (state.buyTradeAsset?.amountCryptoPrecision)
-                  state.buyTradeAsset.amountCryptoPrecision = ''
-                state.fiatBuyAmount = '0'
-                state.fiatSellAmount = '0'
+                state.sellAmountCryptoPrecision = ''
+                state.buyAmountCryptoPrecision = ''
+                state.buyAmountFiat = '0'
+                state.sellAmountFiat = '0'
               },
               false,
               `swapper/clearAmounts`,

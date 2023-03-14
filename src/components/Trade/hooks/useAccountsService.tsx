@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -15,8 +14,6 @@ export const useAccountsService = () => {
   const { swapperSupportsCrossAccountTrade } = useSwapper()
 
   // Selectors
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
@@ -24,12 +21,12 @@ export const useAccountsService = () => {
   const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
 
-  const sellAssetId = sellTradeAsset?.asset?.assetId
-  const buyAssetId = buyTradeAsset?.asset?.assetId
+  const sellAssetId = buyAsset?.assetId
+  const buyAssetId = sellAsset?.assetId
 
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',

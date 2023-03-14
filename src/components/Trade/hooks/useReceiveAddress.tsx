@@ -15,14 +15,10 @@ export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
 
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
+  // Selectors
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
-
-  // Constants
-  const buyAsset = buyTradeAsset?.asset
-
-  // Selectors
+  const buyAsset = useSwapperStore(state => state.buyAsset)
   const buyAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset?.assetId ?? '' }),
   )
@@ -61,7 +57,6 @@ export const useReceiveAddress = () => {
 
   // Set the receiveAddress when the buy asset changes
   useEffect(() => {
-    const buyAsset = buyTradeAsset?.asset
     if (!buyAsset) return
     ;(async () => {
       try {
@@ -71,7 +66,7 @@ export const useReceiveAddress = () => {
         updateReceiveAddress(undefined)
       }
     })()
-  }, [buyTradeAsset?.asset, getReceiveAddressFromBuyAsset, updateReceiveAddress])
+  }, [buyAsset, getReceiveAddressFromBuyAsset, updateReceiveAddress])
 
   return { getReceiveAddressFromBuyAsset }
 }

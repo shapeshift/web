@@ -10,10 +10,10 @@ export const useFrozenTradeValues = () => {
   const stateSellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
   const stateBuyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
   const stateFeeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const stateBuyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const stateSlippage = useSwapperStore(state => state.slippage)
   const stateFees = useSwapperStore(state => state.fees)
   const stateTrade = useSwapperStore(state => state.trade)
+  const stateBuyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
 
   const [frozenTradeAmountConstants, setFrozenTradeAmountConstants] =
     useState<ReturnType<typeof getTradeAmountConstants>>()
@@ -30,7 +30,8 @@ export const useFrozenTradeValues = () => {
     useState<SwapperStore['buyAssetAccountId']>()
   const [frozenSellAssetAccountId, setFrozenSellAssetAccountId] =
     useState<SwapperStore['sellAssetAccountId']>()
-  const [frozenBuyTradeAsset, setFrozenBuyTradeAsset] = useState<SwapperStore['buyTradeAsset']>()
+  const [frozenBuyAmountCryptoPrecision, setFrozenBuyTradeAsset] =
+    useState<SwapperStore['buyAmountCryptoPrecision']>()
 
   const tradeAmountConstants = useGetTradeAmounts()
 
@@ -44,11 +45,10 @@ export const useFrozenTradeValues = () => {
     !frozenSlippage && setFrozenSlippage(stateSlippage)
     !frozenBuyAssetAccountId && setFrozenBuyAssetAccountId(stateBuyAssetAccountId)
     !frozenSellAssetAccountId && setFrozenSellAssetAccountId(stateSellAssetAccountId)
-    !frozenBuyTradeAsset && setFrozenBuyTradeAsset(stateBuyTradeAsset)
+    !frozenBuyAmountCryptoPrecision && setFrozenBuyTradeAsset(stateBuyAmountCryptoPrecision)
   }, [
     stateBuyAssetAccountId,
     stateBuyAssetFiatRate,
-    stateBuyTradeAsset,
     stateFeeAssetFiatRate,
     stateFees,
     stateSellAssetAccountId,
@@ -57,7 +57,6 @@ export const useFrozenTradeValues = () => {
     stateTrade,
     frozenBuyAssetAccountId,
     frozenBuyAssetFiatRate,
-    frozenBuyTradeAsset,
     frozenFeeAssetFiatRate,
     frozenFees,
     frozenSellAssetAccountId,
@@ -66,6 +65,8 @@ export const useFrozenTradeValues = () => {
     frozenTrade,
     frozenTradeAmountConstants,
     tradeAmountConstants,
+    frozenBuyAmountCryptoPrecision,
+    stateBuyAmountCryptoPrecision,
   ])
 
   // If an executed value exists we want to ignore any subsequent updates and use the executed value
@@ -96,9 +97,9 @@ export const useFrozenTradeValues = () => {
     () => frozenSellAssetAccountId ?? stateSellAssetAccountId,
     [frozenSellAssetAccountId, stateSellAssetAccountId],
   )
-  const buyTradeAsset = useMemo(
-    () => frozenBuyTradeAsset ?? stateBuyTradeAsset,
-    [frozenBuyTradeAsset, stateBuyTradeAsset],
+  const buyAmountCryptoPrecision = useMemo(
+    () => frozenBuyAmountCryptoPrecision ?? stateBuyAmountCryptoPrecision,
+    [frozenBuyAmountCryptoPrecision, stateBuyAmountCryptoPrecision],
   )
 
   return {
@@ -111,6 +112,6 @@ export const useFrozenTradeValues = () => {
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
-    buyTradeAsset,
+    buyAmountCryptoPrecision,
   }
 }

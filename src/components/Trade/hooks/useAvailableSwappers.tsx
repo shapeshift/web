@@ -14,18 +14,16 @@ export const useAvailableSwappers = () => {
   // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const updateAvailableSwappersWithMetadata = useSwapperStore(
     state => state.updateAvailableSwappersWithMetadata,
   )
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
 
   // Constants
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
   const sellAssetChainId = sellAsset?.chainId

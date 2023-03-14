@@ -57,18 +57,17 @@ export const useTradeAmounts = () => {
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const updateTradeAmounts = useSwapperStore(state => state.updateTradeAmounts)
   const actionFormState = useSwapperStore(state => state.action)
   const isSendMaxFormState = useSwapperStore(state => state.isSendMax)
   const amountFormState = useSwapperStore(state => state.amount)
   const updateFees = useSwapperStore(state => state.updateFees)
   const feesFormState = useSwapperStore(state => state.fees)
-
-  // Constants
-  const sellAssetFormState = sellTradeAsset?.asset
-  const buyAssetFormState = buyTradeAsset?.asset
+  const sellAssetFormState = useSwapperStore(state => state.sellAsset)
+  const buyAssetFormState = useSwapperStore(state => state.buyAsset)
+  const sellAmountCryptoPrecisionFormState = useSwapperStore(
+    state => state.sellAmountCryptoPrecision,
+  )
 
   const { getTradeQuote } = getTradeQuoteApi.endpoints
   const { getUsdRates } = getUsdRatesApi.endpoints
@@ -198,7 +197,7 @@ export const useTradeAmounts = () => {
         wallet,
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision:
-          sellTradeAsset?.amountCryptoPrecision || amountToUse || '0',
+          sellAmountCryptoPrecisionFormState || amountToUse || '0',
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
@@ -276,7 +275,7 @@ export const useTradeAmounts = () => {
       wallet,
       assets,
       getReceiveAddressFromBuyAsset,
-      sellTradeAsset?.amountCryptoPrecision,
+      sellAmountCryptoPrecisionFormState,
       isSendMaxFormState,
       appDispatch,
       getAvailableSwappers,

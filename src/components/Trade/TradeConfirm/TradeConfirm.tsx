@@ -82,14 +82,14 @@ export const TradeConfirm = () => {
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
-    buyTradeAsset,
+    buyAmountCryptoPrecision,
   } = useFrozenTradeValues()
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
 
@@ -304,7 +304,7 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
+          amount={buyAmountCryptoPrecision ?? ''}
           beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
@@ -315,7 +315,7 @@ export const TradeConfirm = () => {
       </Stack>
     ),
     [
-      buyTradeAsset?.amountCryptoPrecision,
+      buyAmountCryptoPrecision,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,

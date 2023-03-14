@@ -32,17 +32,16 @@ export const useSwapper = () => {
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const quote = useSwapperStore(state => state.quote)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const isSendMax = useSwapperStore(state => state.isSendMax)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const slippage = useSwapperStore(state => state.slippage)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
   const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
 
   // Constants
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
   const bestTradeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
@@ -117,7 +116,7 @@ export const useSwapper = () => {
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
     (assets: Asset[]): Asset[] | undefined => {
-      const sellAssetId = sellTradeAsset?.asset?.assetId
+      const sellAssetId = sellAsset?.assetId
       const assetIds = assets.map(asset => asset.assetId)
       const supportedBuyAssetIds = sellAssetId
         ? swapperManager.getSupportedBuyAssetIdsFromSellId({
@@ -127,7 +126,7 @@ export const useSwapper = () => {
         : undefined
       return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
     },
-    [swapperManager, sellTradeAsset],
+    [swapperManager, sellAsset],
   )
 
   const checkApprovalNeeded = useCallback(async (): Promise<boolean> => {
@@ -155,9 +154,9 @@ export const useSwapper = () => {
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
     if (!bestTradeSwapper) throw new Error('No swapper available')
-    if (!sellTradeAsset?.amountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
-    if (!sellTradeAsset?.asset) throw new Error('Missing sellTradeAsset.asset')
-    if (!buyTradeAsset?.asset) throw new Error('Missing buyTradeAsset.asset')
+    if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
+    if (!sellAsset) throw new Error('Missing sellAsset')
+    if (!buyAsset) throw new Error('Missing buyAsset')
     if (!wallet) throw new Error('Missing wallet')
     if (!receiveAddress) throw new Error('Missing receiveAddress')
     if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
@@ -167,11 +166,11 @@ export const useSwapper = () => {
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
-        sellTradeAsset.amountCryptoPrecision,
+        sellAmountCryptoPrecision,
         sellAsset.precision,
       ),
-      sellAsset: sellTradeAsset?.asset,
-      buyAsset: buyTradeAsset?.asset,
+      sellAsset,
+      buyAsset,
       wallet,
       sendMax: isSendMax,
       receiveAddress,
@@ -214,9 +213,8 @@ export const useSwapper = () => {
   }, [
     sellAsset,
     bestTradeSwapper,
-    sellTradeAsset?.amountCryptoPrecision,
-    sellTradeAsset?.asset,
-    buyTradeAsset?.asset,
+    sellAmountCryptoPrecision,
+    buyAsset,
     wallet,
     receiveAddress,
     sellAssetAccountId,

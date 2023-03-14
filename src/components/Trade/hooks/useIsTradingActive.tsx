@@ -9,10 +9,10 @@ export const useIsTradingActive = () => {
 
   const dispatch = useAppDispatch()
 
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAssetId = sellTradeAsset?.asset?.assetId
-  const buyTradeAssetId = buyTradeAsset?.asset?.assetId
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const sellAssetId = sellAsset?.assetId
+  const buyAssetId = buyAsset?.assetId
 
   const { getIsTradingActive } = getIsTradingActiveApi.endpoints
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
@@ -20,24 +20,24 @@ export const useIsTradingActive = () => {
   useEffect(() => {
     ;(async () => {
       const isTradingActiveOnSellPoolResult =
-        sellTradeAssetId &&
+        sellAssetId &&
         bestTradeSwapper &&
         (
           await dispatch(
             getIsTradingActive.initiate({
-              assetId: sellTradeAssetId,
+              assetId: sellAssetId,
               swapperName: bestTradeSwapper.name,
             }),
           )
         ).data
 
       const isTradingActiveOnBuyPoolResult =
-        buyTradeAssetId &&
+        buyAssetId &&
         bestTradeSwapper &&
         (
           await dispatch(
             getIsTradingActive.initiate({
-              assetId: buyTradeAssetId,
+              assetId: buyAssetId,
               swapperName: bestTradeSwapper.name,
             }),
           )
@@ -46,7 +46,7 @@ export const useIsTradingActive = () => {
       setIsTradingActiveOnSellPool(!!isTradingActiveOnSellPoolResult)
       setIsTradingActiveOnBuyPool(!!isTradingActiveOnBuyPoolResult)
     })()
-  }, [bestTradeSwapper, buyTradeAssetId, dispatch, getIsTradingActive, sellTradeAssetId])
+  }, [bestTradeSwapper, buyAssetId, dispatch, getIsTradingActive, sellAssetId])
 
   return { isTradingActiveOnSellPool, isTradingActiveOnBuyPool }
 }

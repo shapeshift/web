@@ -13,7 +13,7 @@ import { isSome } from 'lib/utils'
 export const ApprovePreFooter = ({
   action,
   feeAsset,
-  estimatedGasCryptoPrecision: estimatedGasCryptoPrecision,
+  estimatedGasCryptoPrecision,
   accountId,
 }: {
   accountId: AccountId | undefined

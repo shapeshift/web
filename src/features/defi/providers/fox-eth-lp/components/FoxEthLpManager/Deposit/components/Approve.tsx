@@ -45,7 +45,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
+  const {
+    approve,
+    allowance,
+    getDepositGasDataCryptoBaseUnit: getDepositGasData,
+  } = useFoxEthLiquidityPool(lpAccountId)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({

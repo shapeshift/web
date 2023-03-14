@@ -97,12 +97,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         state.withdraw.ethAmount,
       )
       if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)

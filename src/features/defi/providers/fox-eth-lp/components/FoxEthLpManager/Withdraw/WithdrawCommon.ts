@@ -12,7 +12,7 @@ type WithdrawValues = {
 type FoxEthLpWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoPrecision: string
   }
 
 export type FoxEthLpWithdrawState = {

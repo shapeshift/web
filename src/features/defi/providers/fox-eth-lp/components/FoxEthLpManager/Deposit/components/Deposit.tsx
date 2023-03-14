@@ -63,7 +63,11 @@ export const Deposit: React.FC<DepositProps> = ({
     selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
   const { lpAccountId } = useFoxEth()
-  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
+  const {
+    allowance,
+    getApproveGasData,
+    getDepositGasDataCryptoBaseUnit: getDepositGasData,
+  } = useFoxEthLiquidityPool(lpAccountId)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })

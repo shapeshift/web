@@ -81,7 +81,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee
+          usedGasFeeCryptoPrecision: confirmedTransaction.fee
             ? bnOrZero(confirmedTransaction.fee.value).div(`1e${ethAsset.precision}`).toString()
             : '0',
         },
@@ -228,7 +228,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCryptoPrecision
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 )
                   .times(ethMarketData.price)
                   .toFixed(2)}
@@ -238,7 +238,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCryptoPrecision
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
                 symbol='ETH'
               />

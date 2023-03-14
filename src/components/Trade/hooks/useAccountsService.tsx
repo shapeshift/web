@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -12,23 +11,22 @@ It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
   // Custom hooks
-  const { swapperSupportsCrossAccountTrade, bestTradeSwapper } = useSwapper()
+  const { swapperSupportsCrossAccountTrade } = useSwapper()
 
   // Selectors
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
 
-  const sellAssetId = sellTradeAsset?.asset?.assetId
-  const buyAssetId = buyTradeAsset?.asset?.assetId
+  const sellAssetId = sellAsset?.assetId
+  const buyAssetId = buyAsset?.assetId
 
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',

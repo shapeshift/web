@@ -13,5 +13,7 @@ export const getMixPanel = (): MixPanelType => {
   if (_mixPanel) return _mixPanel
   Mixpanel.init(getConfig().REACT_APP_MIXPANEL_TOKEN)
   _mixPanel = Mixpanel
+  // identify once per session
+  _mixPanel.identify()
   return _mixPanel
 }

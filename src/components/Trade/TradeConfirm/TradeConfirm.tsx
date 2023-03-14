@@ -28,7 +28,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -88,7 +87,7 @@ export const TradeConfirm = () => {
     slippage,
     buyAssetAccountId,
     sellAssetAccountId,
-    buyTradeAsset,
+    buyAmountCryptoPrecision,
   } = useFrozenTradeValues()
 
   const assets = useAppSelector(selectAssets)
@@ -97,11 +96,11 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
 
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
+  const bestSwapper = activeSwapperWithMetadata?.swapper
 
   const reset = useCallback(() => {
     clearAmounts()
@@ -350,7 +349,7 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
+          amount={buyAmountCryptoPrecision ?? ''}
           beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
@@ -361,7 +360,7 @@ export const TradeConfirm = () => {
       </Stack>
     ),
     [
-      buyTradeAsset?.amountCryptoPrecision,
+      buyAmountCryptoPrecision,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,

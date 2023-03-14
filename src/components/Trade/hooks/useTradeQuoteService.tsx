@@ -32,17 +32,15 @@ export const useTradeQuoteService = () => {
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const quote = useSwapperStore(state => state.quote)
   const updateQuote = useSwapperStore(state => state.updateQuote)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
   const action = useSwapperStore(state => state.action)
   const isSendMax = useSwapperStore(state => state.isSendMax)
   const amount = useSwapperStore(state => state.amount)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
   const updateSlippage = useSwapperStore(state => state.updateSlippage)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
+  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {
@@ -63,12 +61,11 @@ export const useTradeQuoteService = () => {
   // Effects
   // Set trade quote args and trigger trade quote query
   useEffect(() => {
-    const sellTradeAssetAmountCryptoPrecision = sellTradeAsset?.amountCryptoPrecision
     if (
       sellAsset &&
       buyAsset &&
       wallet &&
-      sellTradeAssetAmountCryptoPrecision &&
+      sellAmountCryptoPrecision &&
       receiveAddress &&
       sellAccountMetadata
     ) {
@@ -87,7 +84,7 @@ export const useTradeQuoteService = () => {
           buyAsset,
           wallet,
           receiveAddress,
-          sellAmountBeforeFeesCryptoPrecision: sellTradeAssetAmountCryptoPrecision,
+          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
@@ -97,14 +94,13 @@ export const useTradeQuoteService = () => {
     action,
     amount,
     buyAsset,
-    buyTradeAsset,
     receiveAddress,
     sellAccountMetadata,
     selectedCurrencyToUsdRate,
     sellAsset,
-    sellTradeAsset,
     wallet,
     isSendMax,
+    sellAmountCryptoPrecision,
   ])
 
   // Update trade quote

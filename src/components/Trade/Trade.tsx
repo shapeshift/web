@@ -19,18 +19,24 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
 
   const methods = useForm({ mode: 'onChange' })
 
-  const updateFiatBuyAmount = useSwapperStore(state => state.updateFiatBuyAmount)
-  const updateFiatSellAmount = useSwapperStore(state => state.updateFiatSellAmount)
+  const updateFiatBuyAmount = useSwapperStore(state => state.updateBuyAmountFiat)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const updateBuyTradeAsset = useSwapperStore(state => state.updateBuyTradeAsset)
-  const updateSellTradeAsset = useSwapperStore(state => state.updateSellTradeAsset)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
   const updateAmount = useSwapperStore(state => state.updateAmount)
   const updateQuote = useSwapperStore(state => state.updateQuote)
   const updateTrade = useSwapperStore(state => state.updateTrade)
+  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
+  const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
+  const updateBuyAmountCryptoPrecision = useSwapperStore(
+    state => state.updateBuyAmountCryptoPrecision,
+  )
+  const updateSellAmountCryptoPrecision = useSwapperStore(
+    state => state.updateSellAmountCryptoPrecision,
+  )
 
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
@@ -43,15 +49,11 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const { buyAsset, sellAsset } = result
       updateAction(TradeAmountInputField.SELL_FIAT)
       updateIsExactAllowance(false)
+      updateBuyAsset(buyAsset)
+      updateBuyAmountCryptoPrecision('0')
       updateAmount('0')
-      updateBuyTradeAsset({
-        asset: buyAsset,
-        amountCryptoPrecision: '0',
-      })
-      updateSellTradeAsset({
-        asset: sellAsset,
-        amountCryptoPrecision: '0',
-      })
+      updateSellAsset(sellAsset)
+      updateSellAmountCryptoPrecision('0')
       updateQuote(undefined)
       updateFiatBuyAmount('0')
       updateFiatSellAmount('0')
@@ -83,12 +85,14 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     updateSellAssetFiatRate,
     updateBuyAssetFiatRate,
     updateFeeAssetFiatRate,
-    updateBuyTradeAsset,
-    updateSellTradeAsset,
     updateAction,
     updateIsExactAllowance,
     updateAmount,
     updateTrade,
+    updateBuyAsset,
+    updateBuyAmountCryptoPrecision,
+    updateSellAsset,
+    updateSellAmountCryptoPrecision,
   ])
 
   if (!methods) return null

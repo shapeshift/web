@@ -23,10 +23,8 @@ export const useFiatRateService = () => {
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Selectors
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
+  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellTradeAssetId = sellAsset?.assetId
   const buyTradeAssetId = buyAsset?.assetId
   const sellAssetFeeAssetId = useAppSelector(state =>

@@ -1,29 +1,34 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { isSome } from 'lib/utils'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
+import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-type AvailableSwapperArgs = { feeAsset: Asset | undefined }
-
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
-export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
+export const useAvailableSwappers = () => {
   // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
-  const buyTradeAsset = useSwapperStore(state => state.buyTradeAsset)
-  const sellTradeAsset = useSwapperStore(state => state.sellTradeAsset)
+  const updateAvailableSwappersWithMetadata = useSwapperStore(
+    state => state.updateAvailableSwappersWithMetadata,
+  )
+  const updateActiveSwapperWithMetadata = useSwapperStore(
+    state => state.updateActiveSwapperWithMetadata,
+  )
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
 
   // Constants
-  const sellAsset = sellTradeAsset?.asset
-  const buyAsset = buyTradeAsset?.asset
   const buyAssetId = buyAsset?.assetId
   const sellAssetId = sellAsset?.assetId
+  const sellAssetChainId = sellAsset?.chainId
+
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
 
   const [swappersWithQuoteMetadata, setSwappersWithQuoteMetadata] =
     useState<GetSwappersWithQuoteMetadataReturn>()
@@ -78,7 +83,13 @@ export const useAvailableSwappers = ({ feeAsset }: AvailableSwapperArgs) => {
     tradeQuoteArgs,
   ])
 
-  const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
-
-  return { bestSwapperWithQuoteMetadata, swappersWithQuoteMetadata }
+  useEffect(() => {
+    const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
+    updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
+    updateActiveSwapperWithMetadata(bestSwapperWithQuoteMetadata)
+  }, [
+    swappersWithQuoteMetadata,
+    updateActiveSwapperWithMetadata,
+    updateAvailableSwappersWithMetadata,
+  ])
 }

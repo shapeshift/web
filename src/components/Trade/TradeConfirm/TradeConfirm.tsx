@@ -91,9 +91,7 @@ export const TradeConfirm = () => {
 
   const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
-
-  const bestSwapper = activeSwapperWithMetadata?.swapper
+  const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const reset = useCallback(() => {
     clearAmounts()

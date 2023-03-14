@@ -26,12 +26,13 @@ export enum MixPanelEvents {
 
 export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
-  cryptoAmounts: {
+  cryptoAmounts?: {
     assetId: AssetId
     amountCryptoHuman: string | number
     fiatAmount?: string | number
   }[]
-  fiatAmounts: string[] | number[]
+  fiatAmounts?: string[] | number[]
+  element?: string
 }
 
 export type AnonymizedPortfolio = {

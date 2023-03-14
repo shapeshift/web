@@ -11,14 +11,14 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthStakingIds } from 'state/slices/opportunitiesSlice/constants'
 import type { EarnOpportunityType, StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssets,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -52,7 +52,7 @@ const renderHeader = ({ setSearchQuery, searchQuery }: TableHeaderProps) => {
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
-  const mixpanel = getMixPanel()
+  const assets = useAppSelector(selectAssets)
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const {
     state: { isConnected, isDemoWallet },
@@ -96,15 +96,7 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const {
-        type,
-        provider,
-        contractAddress,
-        chainId,
-        rewardAddress,
-        assetId,
-        underlyingAssetId,
-      } = opportunity
+      const { type, provider, contractAddress, chainId, rewardAddress, assetId } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
       const defaultAccountId = assetId === cosmosAssetId ? cosmosAccountId : osmosisAccountId
 
@@ -113,12 +105,14 @@ export const AllEarnOpportunities = () => {
         return
       }
 
-      mixpanel?.track(MixPanelEvents.ClickOpportunity, {
-        provider,
-        type,
-        assets: [getMaybeCompositeAssetSymbol(underlyingAssetId)],
-        element: 'Table Row',
-      })
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity,
+          element: 'Table Row',
+        },
+        assets,
+      )
 
       history.push({
         pathname: `/defi/earn`,

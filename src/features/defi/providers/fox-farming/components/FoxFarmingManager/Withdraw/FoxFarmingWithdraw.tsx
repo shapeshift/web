@@ -50,7 +50,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
+  const { assetNamespace, chainId, contractAddress } = query
 
   const { farmingAccountId } = useFoxEth()
 
@@ -60,12 +60,12 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
         accountId!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: contractAddress,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress],
+    [accountId, assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),

@@ -4,7 +4,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { bscChainId, optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import type { PartialRecord } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -72,6 +72,7 @@ export const assetApi = createApi({
         const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
+            if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
             if (
               !flags.OsmosisSend &&
               !flags.OsmosisStaking &&

@@ -60,8 +60,8 @@ export const TradeInput = () => {
   const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
-  const sellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
-  const buyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
   )
@@ -121,7 +121,7 @@ export const TradeInput = () => {
 
   // Selectors
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, buyAsset?.assetId ?? ethAssetId),
+    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 

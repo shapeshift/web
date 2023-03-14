@@ -19,6 +19,7 @@ export const useTradeRoutes = (): {
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
   )
+  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const updateSelectedBuyAssetAccountId = useSwapperStore(
     state => state.updateSelectedBuyAssetAccountId,
   )
@@ -67,6 +68,7 @@ export const useTradeRoutes = (): {
         isSameAsset && updateBuyAsset(previousSellAsset)
         isSameAsset && updateBuyAmountCryptoPrecision('')
         updateSelectedSellAssetAccountId(undefined)
+        updateSellAssetAccountId(undefined)
         updateBuyAssetFiatRate(undefined)
         updateSellAssetFiatRate(undefined)
         updateFeeAssetFiatRate(undefined)
@@ -107,6 +109,7 @@ export const useTradeRoutes = (): {
       updateSelectedBuyAssetAccountId,
       updateBuyAssetAccountId,
       updateSelectedSellAssetAccountId,
+      updateSellAssetAccountId,
       updateBuyAssetFiatRate,
       updateSellAssetFiatRate,
       updateFeeAssetFiatRate,

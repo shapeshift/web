@@ -159,7 +159,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
@@ -175,12 +175,12 @@ export const Deposit: React.FC<DepositProps> = ({
             assets,
           )
         } else {
-          const estimatedGasCrypto = await getApproveGasData()
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getApproveGasData()
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCryptoBaseUnit.average.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },

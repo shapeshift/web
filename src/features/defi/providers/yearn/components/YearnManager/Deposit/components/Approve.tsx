@@ -61,6 +61,14 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
   )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
+  const estimatedGasCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
+    [estimatedGasCryptoBaseUnit, feeAsset?.precision],
+  )
+
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
@@ -187,10 +195,10 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       isSome(estimatedGasCryptoBaseUnit) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCryptoPrecision: estimatedGasCryptoBaseUnit,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, estimatedGasCryptoBaseUnit, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -199,10 +207,10 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCryptoPrecision={estimatedGasCryptoBaseUnit}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null

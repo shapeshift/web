@@ -43,7 +43,7 @@ const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Approve'] })
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
@@ -116,7 +116,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         .toPrecision()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)
@@ -186,9 +186,11 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       asset={asset}
       feeAsset={feeAsset}
       icons={foxFarmingOpportunity?.icons}
-      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoPrecision).toFixed(
+        5,
+      )}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoPrecision)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

@@ -42,6 +42,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     feeAsset,
   } = useFoxyQuery()
 
+  const estimatedGasCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
+    [estimatedGasCryptoBaseUnit, feeAsset?.precision],
+  )
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -61,7 +69,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             tokenContractAddress: assetReference,
             contractAddress,
             amountDesired: bnOrZero(deposit.cryptoAmount)
-              .times(`1e+${asset.precision}`)
+              .times(bn(10).pow(asset.precision))
               .decimalPlaces(0),
             userAddress: accountAddress,
           }),
@@ -177,10 +185,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCryptoPrecision={estimatedGasCryptoBaseUnit}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch) return null

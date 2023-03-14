@@ -30,6 +30,7 @@ import type { BridgeAsset } from 'components/Bridge/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
@@ -820,6 +821,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
     const portfolioBalance = Number(portfolioBalanceBN.toFixed(2))
 
     return {
+      'Is Mobile': isMobile,
       'Wallet ID': hashedWalletId,
       'Wallet Name': walletName,
       'Portfolio Balance': portfolioBalance,

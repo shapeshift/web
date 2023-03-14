@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.4.3...@shapeshiftoss/swapper-v17.5.0) (2023-03-14)
+
+
+### Features
+
+* add bnb smart chain ([#1197](https://github.com/shapeshift/lib/issues/1197)) ([245e7a4](https://github.com/shapeshift/lib/commit/245e7a476e41580d4ac72666605a4867d7a71f03))
+
 # [@shapeshiftoss/swapper-v17.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.4.2...@shapeshiftoss/swapper-v17.4.3) (2023-03-09)
 
 # [@shapeshiftoss/swapper-v17.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.4.1...@shapeshiftoss/swapper-v17.4.2) (2023-03-03)

@@ -9,7 +9,7 @@ export const initialState: FoxFarmingDepositState = {
     fiatAmount: '',
     cryptoAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoPrecision: '',
   },
 }
 

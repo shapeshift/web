@@ -11,7 +11,6 @@ export const initialState: ThorchainSaversWithdrawState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
     dustAmountCryptoBaseUnit: '',
     withdrawFeeCryptoBaseUnit: '',
     maybeFromUTXOAccountAddress: '',

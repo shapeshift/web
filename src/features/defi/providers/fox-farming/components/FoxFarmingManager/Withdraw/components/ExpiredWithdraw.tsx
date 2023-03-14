@@ -143,7 +143,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       }
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
       onNext(DefiStep.Confirm)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
@@ -167,7 +167,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+          estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
             .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },

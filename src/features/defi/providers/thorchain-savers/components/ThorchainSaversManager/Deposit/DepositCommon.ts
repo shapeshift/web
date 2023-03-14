@@ -8,7 +8,6 @@ type EstimatedGas = {
 type ThorchainSaversDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
     depositFeeCryptoBaseUnit: string
     maybeFromUTXOAccountAddress: string
     sendMax?: boolean

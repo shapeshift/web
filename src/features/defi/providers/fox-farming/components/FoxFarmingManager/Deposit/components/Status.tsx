@@ -18,7 +18,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -97,8 +97,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee
-            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
+          usedGasFeeCryptoPrecision: confirmedTransaction.fee
+            ? bnOrZero(confirmedTransaction.fee.value)
+                .div(bn(10).pow(feeAsset.precision))
+                .toString()
             : '0',
         },
       })
@@ -209,7 +211,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoPrecision
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoPrecision,
                 )
                   .times(feeMarketData.price)
                   .toFixed(2)}
@@ -219,7 +221,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoPrecision
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
                 symbol='ETH'
               />

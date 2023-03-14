@@ -1,5 +1,5 @@
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type WithdrawValues = {
@@ -10,7 +10,7 @@ type WithdrawValues = {
 type FoxFarmingWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoPrecision: string
     isExiting: boolean
   }
 

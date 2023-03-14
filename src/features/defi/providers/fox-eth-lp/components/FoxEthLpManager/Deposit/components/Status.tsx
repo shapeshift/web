@@ -71,9 +71,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const assets = useAppSelector(selectAssets)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
@@ -91,13 +93,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFeeCryptoPrecision: confirmedTransaction.fee
             ? bnOrZero(confirmedTransaction.fee.value)
-                .div(bn(10).pow(ethAsset.precision))
+                .div(bn(10).pow(feeAsset?.precision))
                 .toString()
             : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch, ethAsset.precision])
+  }, [confirmedTransaction, dispatch, feeAsset.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')

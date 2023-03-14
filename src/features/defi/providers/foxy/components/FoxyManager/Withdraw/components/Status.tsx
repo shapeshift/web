@@ -134,7 +134,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCryptoBaseUnit
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
@@ -145,7 +145,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCryptoBaseUnit
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

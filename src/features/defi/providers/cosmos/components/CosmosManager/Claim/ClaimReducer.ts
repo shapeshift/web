@@ -8,7 +8,6 @@ export const initialState: CosmosClaimState = {
   opportunity: {} as StakingEarnOpportunityType,
   loading: false,
   claim: {
-    usedGasFee: '',
     txStatus: TxStatus.PENDING,
   },
 }

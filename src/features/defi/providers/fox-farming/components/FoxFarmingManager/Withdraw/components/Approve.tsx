@@ -44,7 +44,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
@@ -114,7 +114,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
       })
 
       onNext(DefiStep.Confirm)

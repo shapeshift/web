@@ -9,7 +9,7 @@ type EstimatedGas = {
 type YearnDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
   }
 
 // Redux only stores things that are serializable. Class methods are removed when put in state.

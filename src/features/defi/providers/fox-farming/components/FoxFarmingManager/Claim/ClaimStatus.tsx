@@ -35,7 +35,7 @@ interface ClaimStatusState {
   amount: string
   userAddress: string
   estimatedGas: string
-  usedGasFee?: string
+  usedGasFeeCryptoPrecision?: string
   status: string
   chainId: ChainId
   contractAddress: string
@@ -49,7 +49,7 @@ enum TxStatus {
 
 type ClaimState = {
   txStatus: TxStatus
-  usedGasFee?: string
+  usedGasFeeCryptoPrecision?: string
 }
 
 const StatusInfo = {
@@ -127,7 +127,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending') {
       setState({
         txStatus: confirmedTransaction.status === 'Confirmed' ? TxStatus.SUCCESS : TxStatus.FAILED,
-        usedGasFee: confirmedTransaction.fee
+        usedGasFeeCryptoPrecision: confirmedTransaction.fee
           ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
           : '0',
       })
@@ -219,7 +219,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoPrecision,
                   )
                     .times(feeMarketData.price)
                     .toFixed(2)}
@@ -227,7 +229,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Crypto
                   color='gray.500'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoPrecision,
                   ).toFixed(5)}
                   symbol='ETH'
                 />

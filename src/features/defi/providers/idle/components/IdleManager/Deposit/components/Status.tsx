@@ -70,7 +70,7 @@ export const Status = () => {
         type: IdleDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          usedGasFeeCryptoBaseUnit: confirmedTransaction.fee?.value,
         },
       })
     }
@@ -179,7 +179,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoBaseUnit
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
@@ -190,7 +190,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoBaseUnit
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

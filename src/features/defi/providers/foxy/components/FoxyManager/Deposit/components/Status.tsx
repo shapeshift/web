@@ -106,7 +106,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoBaseUnit
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(bn(10).pow(feeAsset.precision))
                   .times(feeMarketData.price)
@@ -117,7 +117,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoBaseUnit
-                    : state.deposit.usedGasFee,
+                    : state.deposit.usedGasFeeCryptoBaseUnit,
                 )
                   .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}

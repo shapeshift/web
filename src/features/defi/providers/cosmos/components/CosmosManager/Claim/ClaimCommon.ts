@@ -8,7 +8,6 @@ export enum TxStatus {
 
 type CosmosClaimValues = {
   estimatedGasCrypto?: string
-  usedGasFee?: string
   txStatus: TxStatus
 }
 

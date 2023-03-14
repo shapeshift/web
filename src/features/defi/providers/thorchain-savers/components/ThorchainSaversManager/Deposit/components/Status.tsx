@@ -82,7 +82,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             type: ThorchainSaversDepositActionType.SET_DEPOSIT,
             payload: {
               txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-              usedGasFee: confirmedTransaction.fee?.value,
             },
           })
         }

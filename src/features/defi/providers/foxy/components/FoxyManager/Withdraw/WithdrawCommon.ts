@@ -24,7 +24,7 @@ type EstimatedGas = {
 type FoxyWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
     withdrawType: WithdrawType
   }
 

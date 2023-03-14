@@ -20,11 +20,7 @@ import {
   idleStakingOpportunitiesUserDataResolver,
   idleStakingOpportunityIdsResolver,
 } from './idle'
-import {
-  osmosisLpOpportunitiesMetadataResolver,
-  osmosisLpOpportunityIdsResolver,
-  osmosisLpUserDataResolver,
-} from './osmosis'
+import { osmosisLpOpportunitiesMetadataResolver, osmosisLpOpportunityIdsResolver } from './osmosis'
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -122,8 +118,5 @@ export const DefiProviderToUserDataResolverByDeFiType = {
   },
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingUserDataResolver,
-  },
-  [`${DefiProvider.Osmosis}`]: {
-    [`${DefiType.LiquidityPool}`]: osmosisLpUserDataResolver,
   },
 }

@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type {
   DefiParams,
@@ -15,7 +15,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import { selectAssets, selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ClaimConfirm } from './ClaimConfirm'
+import { ClaimConfirm } from '../Claim/ClaimConfirm'
 import { ClaimStatus } from './ClaimStatus'
 
 enum OverviewPath {
@@ -35,7 +35,9 @@ type ClaimRouteProps = {
 
 export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { contractAddress, chainId } = query
+  const { assetNamespace, contractAddress, chainId, rewardId } = query
+
+  const rewardAssetId = toAssetId({ chainId, assetNamespace, assetReference: rewardId })
 
   const assets = useAppSelector(selectAssets)
 
@@ -45,7 +47,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
         accountId ?? '',
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: contractAddress,
         }),
       ),
@@ -72,9 +74,7 @@ export const ClaimRoutes = ({ accountId, onBack }: ClaimRouteProps) => {
           <Route exact path='/'>
             <ClaimConfirm
               accountId={accountId}
-              assetId={foxAssetId}
-              chainId={chainId}
-              contractAddress={contractAddress}
+              assetId={rewardAssetId}
               onBack={onBack}
               amount={rewardAmountCryptoPrecision}
             />

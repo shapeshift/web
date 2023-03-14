@@ -1,6 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -17,6 +16,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -49,7 +49,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
+  const { assetNamespace, chainId, contractAddress, rewardId } = query
 
   const assets = useAppSelector(selectAssets)
 
@@ -59,7 +59,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         accountId ?? '',
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: contractAddress,
         }),
       ),
@@ -74,11 +74,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const underlyingAsset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
+
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 

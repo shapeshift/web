@@ -369,13 +369,14 @@ export const useFoxEthLiquidityPool = (
   )
 
   const getDepositGasData = useCallback(
-    async (token0Amount: string, token1Amount: string) => {
+    async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (skip || !accountId || !uniswapRouterContract) return
       const value = bnOrZero(token0Amount)
         .times(bn(10).exponentiatedBy(ethAsset.precision))
         .toFixed(0)
       const accountAddress = fromAccountId(accountId).account
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
+      debugger
       const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
         fromAssetId(foxAssetId).assetReference,
         bnOrZero(token1Amount).times(bn(10).exponentiatedBy(foxAsset.precision)).toFixed(0),

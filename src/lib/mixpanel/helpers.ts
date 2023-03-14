@@ -33,7 +33,7 @@ export const trackOpportunityEvent = (
   assetsById: AssetsById,
 ) => {
   const mixpanel = getMixPanel()
-  const { opportunity, cryptoAmounts, fiatAmounts } = properties
+  const { opportunity, cryptoAmounts, fiatAmounts, element } = properties
   const eventData = {
     provider: opportunity.provider,
     type: opportunity.type,
@@ -41,13 +41,17 @@ export const trackOpportunityEvent = (
     assets: opportunity.underlyingAssetIds.map(assetId =>
       getMaybeCompositeAssetSymbol(assetId, assetsById),
     ),
-    fiatAmounts: fiatAmounts.map(fiatAmount => bnOrZero(fiatAmount).toNumber()),
-    ...Object.fromEntries(
-      cryptoAmounts.map(claimAmount => [
-        getMaybeCompositeAssetSymbol(claimAmount.assetId, assetsById),
-        claimAmount.amountCryptoHuman,
-      ]),
-    ),
+    ...(fiatAmounts && {
+      fiatAmounts: fiatAmounts.map(fiatAmount => bnOrZero(fiatAmount).toNumber()),
+    }),
+    ...(cryptoAmounts &&
+      Object.fromEntries(
+        cryptoAmounts.map(claimAmount => [
+          getMaybeCompositeAssetSymbol(claimAmount.assetId, assetsById),
+          claimAmount.amountCryptoHuman,
+        ]),
+      )),
+    ...(element && { element }),
   }
   mixpanel?.track(event, eventData)
 }

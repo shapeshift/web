@@ -23,8 +23,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
   OpportunityId,
@@ -74,7 +73,6 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
-  const mixpanel = getMixPanel()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -87,17 +85,16 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   const filteredDown = stakingOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
   const handleClick = useCallback(
-    (opportunity: RowProps, action: DefiAction) => {
+    (row: RowProps, action: DefiAction) => {
+      const { original: opportunity } = row
       const {
-        original: {
-          type,
-          provider,
-          contractAddress,
-          chainId,
-          rewardAddress,
-          assetId,
-          highestBalanceAccountAddress,
-        },
+        type,
+        provider,
+        contractAddress,
+        chainId,
+        rewardAddress,
+        assetId,
+        highestBalanceAccountAddress,
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
@@ -105,14 +102,11 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      mixpanel?.track(
+
+      trackOpportunityEvent(
         MixPanelEvents.ClickOpportunity,
         {
-          provider,
-          type,
-          assets: opportunity.original.underlyingAssetIds.map(assetId =>
-            getMaybeCompositeAssetSymbol(assetId),
-          ),
+          opportunity,
           element: 'Table Row',
         },
         assets,
@@ -134,7 +128,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         state: { background: location },
       })
     },
-    [assets, dispatch, history, isConnected, isDemoWallet, location, mixpanel],
+    [assets, dispatch, history, isConnected, isDemoWallet, location],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

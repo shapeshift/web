@@ -17,8 +17,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
@@ -40,7 +39,6 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
-  const mixpanel = getMixPanel()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -51,17 +49,16 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
   const handleClick = useCallback(
-    (opportunity: RowProps, action: DefiAction) => {
+    (row: RowProps, action: DefiAction) => {
+      const { original: opportunity } = row
       const {
-        original: {
-          type,
-          provider,
-          contractAddress,
-          chainId,
-          rewardAddress,
-          assetId,
-          highestBalanceAccountAddress,
-        },
+        type,
+        provider,
+        contractAddress,
+        chainId,
+        rewardAddress,
+        assetId,
+        highestBalanceAccountAddress,
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
@@ -70,14 +67,10 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         return
       }
 
-      mixpanel?.track(
+      trackOpportunityEvent(
         MixPanelEvents.ClickOpportunity,
         {
-          provider,
-          type,
-          assets: opportunity.original.underlyingAssetIds.map(assetId =>
-            getMaybeCompositeAssetSymbol(assetId),
-          ),
+          opportunity,
           element: 'Table Row',
         },
         assets,
@@ -99,7 +92,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         state: { background: location },
       })
     },
-    [assets, dispatch, history, isConnected, isDemoWallet, location, mixpanel],
+    [assets, dispatch, history, isConnected, isDemoWallet, location],
   )
   const columns: Column<LpEarnOpportunityType>[] = useMemo(
     () => [

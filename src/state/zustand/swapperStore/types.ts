@@ -59,7 +59,6 @@ export type SwapperAction = {
   toggleIsExactAllowance: () => void
   updateFees: (fees: SwapperStore['fees']) => void
   updateTrade: (trade: SwapperStore['trade']) => void
-  refreshFee: () => void
   updateActiveSwapperWithMetadata: (
     activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],
   ) => void

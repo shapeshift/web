@@ -1,13 +1,9 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { store } from 'state/store'
 import type {
   SetSwapperStoreAction,
   SwapperAction,
@@ -24,11 +20,10 @@ const createUpdateAction =
 
 export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
 export const useSwapperStore = (() => {
-  const state = store.getState()
   return create<SwapperState>()(
     immer(
       devtools(
-        (set, get) => ({
+        set => ({
           // State
           fiatSellAmount: '0',
           fiatBuyAmount: '0',
@@ -56,33 +51,14 @@ export const useSwapperStore = (() => {
           updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
           updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
           updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
-          updateQuote: quote => {
-            set(
-              state => {
-                state.quote = quote
-                // get().refreshFee(state)
-              },
-              false,
-              { type: `swapper/updateQuote`, value: quote },
-            )
-            get().refreshFee()
-          },
+          updateQuote: createUpdateAction(set, 'quote'),
           updateSellAssetFiatRate: createUpdateAction(set, 'sellAssetFiatRate'),
           updateBuyAssetFiatRate: createUpdateAction(set, 'buyAssetFiatRate'),
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
           updateFiatSellAmount: createUpdateAction(set, 'fiatSellAmount'),
           updateFiatBuyAmount: createUpdateAction(set, 'fiatBuyAmount'),
           updateBuyTradeAsset: createUpdateAction(set, 'buyTradeAsset'),
-          updateSellTradeAsset: sellTradeAsset => {
-            set(
-              state => {
-                state.sellTradeAsset = sellTradeAsset
-              },
-              false,
-              { type: `swapper/updateSellTradeAsset`, value: sellTradeAsset },
-            )
-            get().refreshFee()
-          },
+          updateSellTradeAsset: createUpdateAction(set, 'sellTradeAsset'),
           updateTradeAmounts: ({
             fiatSellAmount,
             fiatBuyAmount,
@@ -140,53 +116,12 @@ export const useSwapperStore = (() => {
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
           updateFees: createUpdateAction(set, 'fees'),
-          updateTrade: trade => {
-            set(
-              state => {
-                state.trade = trade
-              },
-              false,
-              { type: `swapper/updateTrade`, value: trade },
-            )
-            get().refreshFee()
-          },
-          updateActiveSwapperWithMetadata: activeSwapperWithMetadata => {
-            set(
-              state => {
-                state.activeSwapperWithMetadata = activeSwapperWithMetadata
-              },
-              false,
-              { type: `swapper/updateActiveSwapperWithMetadata`, value: activeSwapperWithMetadata },
-            )
-            get().refreshFee()
-          },
+          updateTrade: createUpdateAction(set, 'trade'),
+          updateActiveSwapperWithMetadata: createUpdateAction(set, 'activeSwapperWithMetadata'),
           updateAvailableSwappersWithMetadata: createUpdateAction(
             set,
             'availableSwappersWithMetadata',
           ),
-
-          // Services
-          refreshFee: () => {
-            const { sellTradeAsset, quote, trade, activeSwapperWithMetadata } = get()
-            const sellFeeAsset = selectFeeAssetById(
-              state,
-              sellTradeAsset?.asset?.assetId ?? ethAssetId,
-            )
-            const feeTrade = trade ?? quote
-            const bestTradeSwapper = activeSwapperWithMetadata?.swapper
-            const formFees =
-              sellTradeAsset?.asset && bestTradeSwapper && feeTrade && sellFeeAsset
-                ? getFormFees({
-                    trade: feeTrade,
-                    sellAsset: sellTradeAsset?.asset,
-                    tradeFeeSource: bestTradeSwapper.name,
-                    feeAsset: sellFeeAsset,
-                  })
-                : undefined
-            set(state => {
-              state.fees = formFees
-            })
-          },
         }),
         { name: 'SwapperStore' },
       ),

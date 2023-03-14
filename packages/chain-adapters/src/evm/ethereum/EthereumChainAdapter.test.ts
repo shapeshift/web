@@ -62,10 +62,10 @@ jest.mock('axios', () => ({
 describe('EthereumChainAdapter', () => {
   const gasPrice = '42'
   const gasLimit = '42000'
-  const erc20ContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+  const tokenContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const value = 400
 
-  const makeChainSpecific = (chainSpecificAdditionalProps?: { erc20ContractAddress: string }) =>
+  const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
     merge(
       {
         gasPrice,
@@ -93,7 +93,7 @@ describe('EthereumChainAdapter', () => {
 
   const makeGetAccountMockResponse = (balance: {
     balance: string
-    erc20Balance: string | undefined
+    tokenBalance: string | undefined
   }) => ({
     balance: balance.balance,
     unconfirmedBalance: '0',
@@ -101,7 +101,7 @@ describe('EthereumChainAdapter', () => {
     tokens: [
       {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        balance: balance.erc20Balance,
+        balance: balance.tokenBalance,
         type: 'ERC20',
         contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       },
@@ -319,7 +319,7 @@ describe('EthereumChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.ethereum.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -347,7 +347,7 @@ describe('EthereumChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.ethereum.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -464,7 +464,7 @@ describe('EthereumChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -477,7 +477,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.ethereum.V1Api
 
@@ -490,7 +490,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: ENS_NAME,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -516,7 +516,7 @@ describe('EthereumChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -547,11 +547,11 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -570,7 +570,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
-    it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -578,7 +578,7 @@ describe('EthereumChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -615,7 +615,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.ethereum.V1Api
 
@@ -628,7 +628,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -647,12 +647,12 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.ethereum.V1Api
 
@@ -665,7 +665,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
@@ -685,12 +685,12 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
           ),
       } as unknown as unchained.ethereum.V1Api
 
@@ -703,7 +703,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
@@ -719,7 +719,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
           ),
       } as unknown as unchained.ethereum.V1Api
 
@@ -759,7 +759,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
           ),
       } as unknown as unchained.ethereum.V1Api
 

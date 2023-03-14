@@ -9,6 +9,7 @@ export const ltcAssetId: AssetId = 'bip122:12a765e31ffd4059bada1e25190f6e98/slip
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
 export const optimismAssetId: AssetId = 'eip155:10/slip44:60'
+export const bscAssetId: AssetId = 'eip155:56/slip44:60'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
@@ -28,6 +29,7 @@ export const ltcChainId: ChainId = 'bip122:12a765e31ffd4059bada1e25190f6e98'
 export const ethChainId: ChainId = 'eip155:1'
 export const avalancheChainId: ChainId = 'eip155:43114'
 export const optimismChainId: ChainId = 'eip155:10'
+export const bscChainId: ChainId = 'eip155:56'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
@@ -74,6 +76,7 @@ export const CHAIN_REFERENCE = {
   SecretMainnet: 'secret-4', // https://docs.scrt.network/secret-network-documentation/development/api-endpoints
   SecretTestnet: 'pulsar-2', // https://docs.scrt.network/secret-network-documentation/development/api-endpoints
   OptimismMainnet: '10', //https://community.optimism.io/docs/useful-tools/networks/#optimism-mainnet
+  BnbSmartChainMainnet: '56', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -81,6 +84,8 @@ export const ASSET_NAMESPACE = {
   cw721: 'cw721',
   erc20: 'erc20',
   erc721: 'erc721',
+  bep20: 'bep20',
+  bep721: 'bep721',
   slip44: 'slip44',
   native: 'native',
   ibc: 'ibc',
@@ -101,6 +106,7 @@ export const ASSET_REFERENCE = {
   Terra: '330',
   Secret: '529',
   Optimism: '60', // evm chain which uses ethereum derivation path as common practice
+  BnbSmartChain: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -117,6 +123,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.EthereumRinkeby,
     CHAIN_REFERENCE.AvalancheCChain,
     CHAIN_REFERENCE.OptimismMainnet,
+    CHAIN_REFERENCE.BnbSmartChainMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -137,7 +144,13 @@ type ValidAssetNamespace = {
 
 export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Utxo]: [ASSET_NAMESPACE.slip44],
-  [CHAIN_NAMESPACE.Evm]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.erc20, ASSET_NAMESPACE.erc721],
+  [CHAIN_NAMESPACE.Evm]: [
+    ASSET_NAMESPACE.slip44,
+    ASSET_NAMESPACE.erc20,
+    ASSET_NAMESPACE.erc721,
+    ASSET_NAMESPACE.bep20,
+    ASSET_NAMESPACE.bep721,
+  ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     ASSET_NAMESPACE.cw20,
     ASSET_NAMESPACE.cw721,

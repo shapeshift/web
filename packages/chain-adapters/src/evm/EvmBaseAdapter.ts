@@ -3,7 +3,11 @@ import {
   ETHSignMessage,
   ETHSignTx,
   ETHWallet,
-  supportsEthSwitchChain,
+  HDWallet,
+  supportsAvalanche,
+  supportsBSC,
+  supportsETH,
+  supportsOptimism,
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -39,19 +43,24 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { avalanche, ethereum, optimism } from '.'
+import { avalanche, bnbsmartchain, ethereum, optimism } from '.'
 import { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
-import { getErc20Data, getGeneratedAssetData } from './utils'
+import { getErc20Data } from './utils'
 
 export const evmChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.OptimismMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
 
-export type EvmChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter | optimism.ChainAdapter
+export type EvmChainAdapter =
+  | ethereum.ChainAdapter
+  | avalanche.ChainAdapter
+  | optimism.ChainAdapter
+  | bnbsmartchain.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -69,7 +78,11 @@ export const calcFee = (
   return bnOrZero(fee).times(scalars[speed]).toFixed(0, BigNumber.ROUND_CEIL).toString()
 }
 
-type EvmApi = unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
+type EvmApi =
+  | unchained.ethereum.V1Api
+  | unchained.avalanche.V1Api
+  | unchained.optimism.V1Api
+  | unchained.bnbsmartchain.V1Api
 
 export interface ChainAdapterArgs<T = EvmApi> {
   chainId?: EvmChainId
@@ -91,7 +104,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: unchained.ethereum.V1Api | unchained.avalanche.V1Api | unchained.optimism.V1Api
+    http: EvmApi
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
 
@@ -133,54 +146,104 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
+  private supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
+    switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
+      case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
+        return supportsAvalanche(wallet)
+      case Number(fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference):
+        return supportsBSC(wallet)
+      case Number(fromChainId(KnownChainIds.EthereumMainnet).chainReference):
+        return supportsETH(wallet)
+      case Number(fromChainId(KnownChainIds.OptimismMainnet).chainReference):
+        return supportsOptimism(wallet)
+      default:
+        return false
+    }
+  }
+
+  private async assertSwitchChain(wallet: ETHWallet) {
+    if (!wallet.ethGetChainId) return
+
+    const walletChainReference = await wallet.ethGetChainId()
+    const adapterChainReference = Number(fromChainId(this.chainId).chainReference)
+
+    // switch chain not needed if wallet and adapter chains match
+    if (walletChainReference === adapterChainReference) return
+
+    // error if wallet and adapter chains don't match, but switch chain isn't supported by the wallet
+    if (!wallet.ethSwitchChain) {
+      throw new Error(
+        `wallet does not support switching chains: wallet network (${walletChainReference}) and adapter network (${adapterChainReference}) do not match.`,
+      )
+    }
+
+    // TODO: use asset-service baseAssets.ts after lib is moved into web (circular dependency)
+    const targetNetwork = {
+      [KnownChainIds.AvalancheMainnet]: {
+        name: 'Avalanche',
+        symbol: 'AVAX',
+        explorer: 'https://snowtrace.io',
+      },
+      [KnownChainIds.BnbSmartChainMainnet]: {
+        name: 'BNB',
+        symbol: 'BNB',
+        explorer: 'https://bscscan.com',
+      },
+      [KnownChainIds.EthereumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://etherscan.io',
+      },
+      [KnownChainIds.OptimismMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://optimistic.etherscan.io',
+      },
+    }[this.chainId]
+
+    await wallet.ethSwitchChain({
+      chainId: utils.hexValue(adapterChainReference),
+      chainName: this.getDisplayName(),
+      nativeCurrency: {
+        name: targetNetwork.name,
+        symbol: targetNetwork.symbol,
+        decimals: 18,
+      },
+      rpcUrls: [this.getRpcUrl()],
+      blockExplorerUrls: [targetNetwork.explorer],
+    })
+  }
+
   async buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{
     txToSign: SignTx<T>
   }> {
     try {
       const { to, wallet, accountNumber, sendMax = false } = tx
-      // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
-      // Switch the chain on wallet before building/sending the Tx
-      if (supportsEthSwitchChain(wallet)) {
-        const assets = await getGeneratedAssetData()
-        const feeAsset = assets[this.getFeeAssetId()]
-
-        const walletEthNetwork = await wallet.ethGetChainId?.()
-        const adapterEthNetwork = Number(fromChainId(this.chainId).chainReference)
-
-        if (!bnOrZero(walletEthNetwork).isEqualTo(adapterEthNetwork)) {
-          await wallet.ethSwitchChain?.({
-            chainId: utils.hexValue(adapterEthNetwork),
-            chainName: this.getDisplayName(),
-            nativeCurrency: {
-              name: feeAsset.name,
-              symbol: feeAsset.symbol,
-              decimals: 18,
-            },
-            rpcUrls: [this.getRpcUrl()],
-            blockExplorerUrls: [feeAsset.explorer],
-          })
-        }
-      }
-      const { erc20ContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
+      const { tokenContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
         tx.chainSpecific
 
       if (!tx.to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!tx.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
-      const destAddress = erc20ContractAddress ?? to
+      if (!this.supportsChain(wallet))
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      await this.assertSwitchChain(wallet)
+
+      const destAddress = tokenContractAddress ?? to
 
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
-      const isErc20Send = !!erc20ContractAddress
+      const isTokenSend = !!tokenContractAddress
 
       if (sendMax) {
-        if (isErc20Send) {
-          const erc20Balance = account.chainSpecific.tokens?.find((token) => {
-            return fromAssetId(token.assetId).assetReference === erc20ContractAddress.toLowerCase()
+        if (isTokenSend) {
+          const tokenBalance = account.chainSpecific.tokens?.find((token) => {
+            return fromAssetId(token.assetId).assetReference === tokenContractAddress.toLowerCase()
           })?.balance
-          if (!erc20Balance) throw new Error('no balance')
-          tx.value = erc20Balance
+          if (!tokenBalance) throw new Error('no balance')
+          tx.value = tokenBalance
         } else {
           if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
 
@@ -190,7 +253,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           tx.value = bnOrZero(account.balance).minus(fee).toString()
         }
       }
-      const data = tx.memo || (await getErc20Data(to, tx.value, erc20ContractAddress))
+      const data = tx.memo || (await getErc20Data(to, tx.value, tokenContractAddress))
 
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
@@ -206,7 +269,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value: numberToHex(isErc20Send ? '0' : tx.value),
+        value: numberToHex(isTokenSend ? '0' : tx.value),
         to: destAddress,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,
@@ -227,27 +290,27 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     chainSpecific: { contractAddress, from, contractData },
     sendMax = false,
   }: GetFeeDataInput<T>): Promise<EstimateGasRequest> {
-    const isErc20Send = !!contractAddress
+    const isTokenSend = !!contractAddress
 
     // get the exact send max value for an erc20 send to ensure we have the correct input data when estimating fees
-    if (sendMax && isErc20Send) {
+    if (sendMax && isTokenSend) {
       const account = await this.getAccount(from)
-      const erc20Balance = account.chainSpecific.tokens?.find((token) => {
+      const tokenBalance = account.chainSpecific.tokens?.find((token) => {
         const { assetReference } = fromAssetId(token.assetId)
         return assetReference === contractAddress.toLowerCase()
       })?.balance
 
-      if (!erc20Balance) throw new Error('no balance')
+      if (!tokenBalance) throw new Error('no balance')
 
-      value = erc20Balance
+      value = tokenBalance
     }
 
     const data = memo || contractData || (await getErc20Data(to, value, contractAddress))
 
     return {
       from,
-      to: isErc20Send ? contractAddress : to,
-      value: isErc20Send ? '0' : value,
+      to: isTokenSend ? contractAddress : to,
+      value: isTokenSend ? '0' : value,
       data,
     }
   }
@@ -326,7 +389,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async signTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
-      const signedTx = await (wallet as ETHWallet).ethSignTx(txToSign)
+
+      if (!this.supportsChain(wallet, txToSign.chainId))
+        throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
+
+      const signedTx = await wallet.ethSignTx(txToSign)
 
       if (!signedTx) throw new Error('Error signing tx')
 
@@ -339,35 +406,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async signAndBroadcastTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
-      const assets = await getGeneratedAssetData()
-      const feeAsset = assets[this.getFeeAssetId()]
-      // If there is a mismatch between the current wallet's EVM chain ID and the adapter's chainId?
-      // Switch the chain on wallet before building/sending the Tx
-      if (supportsEthSwitchChain(wallet)) {
-        const walletEthNetwork = await wallet.ethGetChainId?.()
-        const adapterEthNetwork = Number(fromChainId(this.chainId).chainReference)
 
-        if (typeof walletEthNetwork !== 'number') {
-          throw new Error('Error getting wallet ethNetwork')
-        }
+      if (!this.supportsChain(wallet, txToSign.chainId))
+        throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
 
-        if (!(walletEthNetwork === adapterEthNetwork)) {
-          await (wallet as ETHWallet).ethSwitchChain?.({
-            chainId: utils.hexValue(adapterEthNetwork),
-            chainName: this.getDisplayName(),
-            nativeCurrency: {
-              name: feeAsset.name,
-              symbol: feeAsset.symbol,
-              decimals: 18,
-            },
-            rpcUrls: [this.getRpcUrl()],
-            blockExplorerUrls: [feeAsset.explorer],
-          })
-        }
-      }
-      const txHash = await (wallet as ETHWallet)?.ethSendTx?.(txToSign)
+      await this.assertSwitchChain(wallet)
+
+      const txHash = await wallet.ethSendTx?.(txToSign)
 
       if (!txHash) throw new Error('Error signing & broadcasting tx')
+
       return txHash.hash
     } catch (err) {
       return ErrorHandler(err)
@@ -381,7 +429,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {
     try {
       const { messageToSign, wallet } = signMessageInput
-      const signedMessage = await (wallet as ETHWallet).ethSignMessage(messageToSign)
+
+      if (!this.supportsChain(wallet))
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      const signedMessage = await wallet.ethSignMessage(messageToSign)
 
       if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
 
@@ -467,21 +519,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     this.providers.ws.close('txs')
   }
 
-  async buildCustomTx({
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-    gasPrice,
-    value,
-    data,
-    gasLimit,
-    to,
-    wallet,
-    accountNumber,
-  }: BuildCustomTxInput): Promise<{
-    txToSign: ETHSignTx
-  }> {
+  async buildCustomTx(tx: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const chainReference = fromChainId(this.chainId).chainReference
+      const { to, wallet, accountNumber, data, value } = tx
+      const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
+
+      if (!this.supportsChain(wallet))
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      await this.assertSwitchChain(wallet)
+
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
@@ -494,16 +541,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           : { gasPrice: numberToHex(gasPrice ?? '0') }
 
       const bip44Params = this.getBIP44Params({ accountNumber })
-      const txToSign: ETHSignTx = {
+      const txToSign = {
         addressNList: toAddressNList(bip44Params),
         value,
         to,
-        chainId: Number(chainReference),
+        chainId: Number(fromChainId(this.chainId).chainReference),
         data,
         nonce: numberToHex(account.chainSpecific.nonce),
         gasLimit: numberToHex(gasLimit),
         ...fees,
-      }
+      } as SignTx<T>
 
       return { txToSign }
     } catch (err) {

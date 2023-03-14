@@ -41,10 +41,10 @@ const getWallet = async (): Promise<ETHWallet> => {
 
 const gasPrice = '42'
 const gasLimit = '42000'
-const erc20ContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+const tokenContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { erc20ContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string; l1GasPrice?: string }) =>
@@ -55,7 +55,7 @@ const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string; l1Gas
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
-  erc20Balance: string | undefined
+  tokenBalance: string | undefined
 }) => ({
   balance: balance.balance,
   unconfirmedBalance: '0',
@@ -63,7 +63,7 @@ const makeGetAccountMockResponse = (balance: {
   tokens: [
     {
       assetId: 'eip155:10/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      balance: balance.erc20Balance,
+      balance: balance.tokenBalance,
       type: 'ERC20',
       contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     },
@@ -237,7 +237,7 @@ describe('OptimismChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.optimism.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
@@ -266,7 +266,7 @@ describe('OptimismChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.optimism.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
@@ -289,8 +289,7 @@ describe('OptimismChainAdapter', () => {
     })
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  describe.skip('signAndBroadcastTransaction', () => {
+  describe('signAndBroadcastTransaction', () => {
     it('should throw if no hash is returned by wallet.ethSendTx', async () => {
       const adapter = new optimism.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
@@ -387,7 +386,7 @@ describe('OptimismChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -414,7 +413,7 @@ describe('OptimismChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.optimism.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -447,11 +446,11 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.optimism.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -470,7 +469,7 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -478,7 +477,7 @@ describe('OptimismChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.optimism.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -514,7 +513,7 @@ describe('OptimismChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.optimism.V1Api
 
@@ -526,7 +525,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -545,12 +544,12 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.optimism.V1Api
 
@@ -562,7 +561,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
@@ -582,12 +581,12 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
           ),
       } as unknown as unchained.optimism.V1Api
 
@@ -599,7 +598,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 

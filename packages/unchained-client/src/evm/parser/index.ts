@@ -1,14 +1,26 @@
-import { ASSET_REFERENCE, AssetId, ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  AssetId,
+  ChainId,
+  ethChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
+import { Logger } from '@shapeshiftoss/logger'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import { Token, TransferType, TxStatus } from '../../types'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
-import * as erc20 from './erc20'
 import { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 
 export * from './types'
 export * from './utils'
+
+const logger = new Logger({
+  namespace: ['unchained-client', 'evm', 'parser'],
+  level: process.env.LOG_LEVEL,
+})
 
 export interface TransactionParserArgs {
   chainId: ChainId
@@ -26,8 +38,6 @@ export class BaseTransactionParser<T extends Tx> {
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
     this.provider = new ethers.providers.JsonRpcProvider(args.rpcUrl)
-
-    this.registerParser(new erc20.Parser({ chainId: this.chainId, provider: this.provider }))
   }
 
   /**
@@ -143,12 +153,32 @@ export class BaseTransactionParser<T extends Tx> {
           })
         }
 
+        const assetNamespace = (() => {
+          switch (transfer.type) {
+            case 'ERC20':
+              return ASSET_NAMESPACE.erc20
+            case 'ERC721':
+              return ASSET_NAMESPACE.erc721
+            case 'BEP20':
+              return ASSET_NAMESPACE.bep20
+            case 'BEP721':
+              return ASSET_NAMESPACE.bep721
+            default:
+              logger.warn(`unsupported asset namespace: ${transfer.type}`)
+              return
+          }
+        })()
+
+        if (!assetNamespace) return
+
         return toAssetId({
           chainId: this.chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: transfer.contract,
         })
       })()
+
+      if (!assetId) return
 
       const transferArgs = [assetId, transfer.from, transfer.to, transfer.value, token] as const
 

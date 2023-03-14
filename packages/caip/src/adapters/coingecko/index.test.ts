@@ -55,15 +55,19 @@ describe('adapters:coingecko', () => {
     })
 
     it('can get AssetIds for cosmos', () => {
-      const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
-      const chainReference = CHAIN_REFERENCE.CosmosHubMainnet
-      const assetId = toAssetId({
-        chainNamespace,
-        chainReference,
+      const cosmosOnCosmos = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.CosmosSdk,
+        chainReference: CHAIN_REFERENCE.CosmosHubMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Cosmos,
       })
-      expect(coingeckoToAssetIds('cosmos')).toEqual([assetId])
+      const cosmosOnBsc = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
+        assetNamespace: 'bep20',
+        assetReference: '0x0eb3a705fc54725037cc9e008bdede697f62f335',
+      })
+      expect(coingeckoToAssetIds('cosmos')).toEqual([cosmosOnCosmos, cosmosOnBsc])
     })
 
     it('can get AssetIds for osmosis', () => {
@@ -99,7 +103,18 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x7f5c764cbc14f9669b88837ca1490cca17c31607',
       })
-      expect(coingeckoToAssetIds('usd-coin')).toEqual([usdcEth, usdcAvalanche, usdcOptimism])
+      const usdcBsc = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
+        assetNamespace: 'bep20',
+        assetReference: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      })
+      expect(coingeckoToAssetIds('usd-coin')).toEqual([
+        usdcEth,
+        usdcAvalanche,
+        usdcOptimism,
+        usdcBsc,
+      ])
     })
   })
 

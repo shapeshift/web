@@ -7,6 +7,8 @@ import {
   avalancheAssetId,
   avalancheChainId,
   bchChainId,
+  bscAssetId,
+  bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -29,6 +31,7 @@ import {
   osmosisAssetMap,
   thorchainAssetMap,
 } from '../../utils'
+import { CoingeckoAssetPlatform } from '.'
 
 export type CoingeckoCoin = {
   id: string
@@ -44,13 +47,13 @@ export const fetchData = async (URL: string) => (await axios.get<CoingeckoCoin[]
 export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
   const assetMap = coins.reduce<AssetMap>(
     (prev, { id, platforms }) => {
-      if (Object.keys(platforms).includes('ethereum')) {
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ethereum)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
             chainReference: CHAIN_REFERENCE.EthereumMainnet,
             assetNamespace: 'erc20',
-            assetReference: platforms.ethereum,
+            assetReference: platforms[CoingeckoAssetPlatform.Ethereum],
           })
           prev[ethChainId][assetId] = id
         } catch {
@@ -58,13 +61,13 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
-      if (Object.keys(platforms).includes('avalanche')) {
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Avalanche)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
             chainReference: CHAIN_REFERENCE.AvalancheCChain,
             assetNamespace: 'erc20',
-            assetReference: platforms.avalanche,
+            assetReference: platforms[CoingeckoAssetPlatform.Avalanche],
           })
           prev[avalancheChainId][assetId] = id
         } catch {
@@ -72,15 +75,29 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
-      if (Object.keys(platforms).includes('optimistic-ethereum')) {
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Optimism)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
             chainReference: CHAIN_REFERENCE.OptimismMainnet,
             assetNamespace: 'erc20',
-            assetReference: platforms['optimistic-ethereum'],
+            assetReference: platforms[CoingeckoAssetPlatform.Optimism],
           })
           prev[optimismChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.BnbSmartChain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
+            assetNamespace: 'bep20',
+            assetReference: platforms[CoingeckoAssetPlatform.BnbSmartChain],
+          })
+          prev[bscChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -92,6 +109,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [ethChainId]: { [ethAssetId]: 'ethereum' },
       [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
+      [bscChainId]: { [bscAssetId]: 'binancecoin' },
     },
   )
 

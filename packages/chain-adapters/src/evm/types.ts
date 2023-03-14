@@ -23,7 +23,7 @@ export type BuildTxInput = {
   // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
   memo?: string
   gasLimit: string
-  erc20ContractAddress?: string
+  tokenContractAddress?: string
 } & Fees
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {

@@ -5,7 +5,9 @@ import { Asset } from '../service/AssetService'
 const toHex = (num: number): string => num.toString(16).toUpperCase().padStart(2, '0')
 
 export const setColors = async (assets: Asset[]): Promise<Asset[]> => {
-  for await (const [index, asset] of assets.entries()) {
+  const filteredAssets = assets.filter((asset) => asset.color === '#FFFFFF' && asset.icon)
+
+  for await (const [index, asset] of filteredAssets.entries()) {
     try {
       if (asset.color === '#FFFFFF' && asset.icon) {
         // colorThief.getColor returns the most dominant color in the icon.
@@ -15,7 +17,7 @@ export const setColors = async (assets: Asset[]): Promise<Asset[]> => {
       }
     } catch (err) {
       console.info(
-        `${index + 1}/${assets.length} Could not get color for ${asset.assetId} iconUrl: ${
+        `${index + 1}/${filteredAssets.length} Could not get color for ${asset.assetId} iconUrl: ${
           asset.icon
         }`,
       )

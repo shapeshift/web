@@ -46,10 +46,10 @@ const getWallet = async (): Promise<ETHWallet> => {
 
 const gasPrice = '42'
 const gasLimit = '42000'
-const erc20ContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+const tokenContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { erc20ContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
@@ -63,7 +63,7 @@ const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
-  erc20Balance: string | undefined
+  tokenBalance: string | undefined
 }) => ({
   balance: balance.balance,
   unconfirmedBalance: '0',
@@ -71,7 +71,7 @@ const makeGetAccountMockResponse = (balance: {
   tokens: [
     {
       assetId: 'eip155:43114/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      balance: balance.erc20Balance,
+      balance: balance.tokenBalance,
       type: 'ERC20',
       contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     },
@@ -257,7 +257,7 @@ describe('AvalancheChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new avalanche.ChainAdapter(args)
@@ -286,7 +286,7 @@ describe('AvalancheChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new avalanche.ChainAdapter(args)
@@ -406,7 +406,7 @@ describe('AvalancheChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -433,7 +433,7 @@ describe('AvalancheChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -466,11 +466,11 @@ describe('AvalancheChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -489,7 +489,7 @@ describe('AvalancheChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -497,7 +497,7 @@ describe('AvalancheChainAdapter', () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' })),
+          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
       } as unknown as unchained.avalanche.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
@@ -533,7 +533,7 @@ describe('AvalancheChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.avalanche.V1Api
 
@@ -545,7 +545,7 @@ describe('AvalancheChainAdapter', () => {
         accountNumber,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -564,12 +564,12 @@ describe('AvalancheChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
           ),
       } as unknown as unchained.avalanche.V1Api
 
@@ -581,7 +581,7 @@ describe('AvalancheChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 
@@ -601,12 +601,12 @@ describe('AvalancheChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined }),
+            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
           ),
       } as unknown as unchained.avalanche.V1Api
 
@@ -618,7 +618,7 @@ describe('AvalancheChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ erc20ContractAddress }),
+        chainSpecific: makeChainSpecific({ tokenContractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.AvalancheMainnet>
 

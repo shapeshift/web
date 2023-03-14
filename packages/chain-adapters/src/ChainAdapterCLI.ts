@@ -192,7 +192,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
     //  chainSpecific: {
     //    gasPrice: '0',
     //    gasLimit: '0',
-    //    erc20ContractAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d' // FOX
+    //    tokenContractAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d' // FOX
     //  }
     //})
 

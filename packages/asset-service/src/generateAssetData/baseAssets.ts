@@ -134,3 +134,17 @@ export const optimism: Asset = {
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
 }
+
+export const bnbsmartchain: Asset = {
+  assetId: caip.bscAssetId,
+  chainId: caip.bscChainId,
+  name: 'BNB',
+  networkName: 'BNB Smart Chain',
+  symbol: 'BNB',
+  precision: 18,
+  color: '#F0B90B',
+  icon: 'https://assets.coingecko.com/coins/images/825/thumb/bnb-icon2_2x.png?1644979850',
+  explorer: 'https://bscscan.com',
+  explorerAddressLink: 'https://bscscan.com/address/',
+  explorerTxLink: 'https://bscscan.com/tx/',
+}

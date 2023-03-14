@@ -1,4 +1,4 @@
-import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber, ethers } from 'ethers'
 
 import { BaseTxMetadata } from '../../types'
@@ -46,7 +46,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
     const data: TxMetadata = {
       assetId: toAssetId({
-        ...fromChainId(this.chainId),
+        chainId: this.chainId,
         assetNamespace: 'erc20',
         assetReference: tx.to,
       }),

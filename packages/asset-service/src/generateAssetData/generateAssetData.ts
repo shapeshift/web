@@ -1,6 +1,7 @@
 import 'dotenv/config'
 
-import { CHAIN_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
+import { avalancheAssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
@@ -8,11 +9,11 @@ import orderBy from 'lodash/orderBy'
 import { Asset, AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
+import * as bnbsmartchain from './bnbsmartchain'
 import * as ethereum from './ethereum'
 import * as optimism from './optimism'
 import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
-import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {
@@ -20,6 +21,7 @@ const generateAssetData = async () => {
   const osmosisAssets = await osmosis.getAssets()
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
+  const bnbsmartchainAssets = await bnbsmartchain.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -33,36 +35,60 @@ const generateAssetData = async () => {
     ...osmosisAssets,
     ...avalancheAssets,
     ...optimismAssets,
+    ...bnbsmartchainAssets,
   ]
+
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)
 
-  // For coins not currently in the color map, check to see if we can generate a color from the icon
-  const filteredWithColors = await setColors(filteredAssetData)
-
   // deterministic order so diffs are readable
-  const orderedAssetList = orderBy(filteredWithColors, 'assetId')
+  const orderedAssetList = orderBy(filteredAssetData, 'assetId')
 
-  const ethAssetNames = ethAssets.map((asset) => asset.name)
-  const avalancheAssetNames = avalancheAssets.map((asset) => asset.name)
-  const optimismAssetNames = optimismAssets.map((asset) => asset.name)
+  const evmAssetNamesByChainId = {
+    [KnownChainIds.EthereumMainnet]: ethAssets.map((asset) => asset.name),
+    [KnownChainIds.AvalancheMainnet]: avalancheAssets.map((asset) => asset.name),
+    [KnownChainIds.OptimismMainnet]: optimismAssets.map((asset) => asset.name),
+    [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map((asset) => asset.name),
+  }
+
+  const isNotUniqueAsset = (asset: Asset) => {
+    const { chainId } = fromAssetId(asset.assetId)
+    return Object.entries(evmAssetNamesByChainId)
+      .reduce<string[]>((prev, [_chainId, assetNames]) => {
+        if (chainId === _chainId) return prev
+        return prev.concat(assetNames)
+      }, [])
+      .includes(asset.name)
+  }
 
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
-    const { chainReference } = fromAssetId(asset.assetId)
+    const { chainId } = fromAssetId(asset.assetId)
+
+    // mark any ethereum assets that also exist on other evm chains
+    if (
+      chainId === KnownChainIds.EthereumMainnet &&
+      asset.assetId !== ethAssetId && // don't mark native asset
+      isNotUniqueAsset(asset)
+    ) {
+      asset.name = `${asset.name} on Ethereum`
+    }
 
     // mark any avalanche assets that also exist on other evm chains
     if (
-      chainReference === CHAIN_REFERENCE.AvalancheCChain &&
-      ethAssetNames.concat(optimismAssetNames).includes(asset.name)
+      chainId === KnownChainIds.AvalancheMainnet &&
+      asset.assetId !== avalancheAssetId && // don't mark native asset
+      isNotUniqueAsset(asset)
     ) {
       asset.name = `${asset.name} on Avalanche`
     }
 
+    // mark any bnbsmartchain assets that also exist on other evm chains
+    if (chainId === KnownChainIds.BnbSmartChainMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on BNB Smart Chain`
+    }
+
     // mark any optimism assets that also exist on other evm chains
-    if (
-      chainReference === CHAIN_REFERENCE.OptimismMainnet &&
-      ethAssetNames.concat(avalancheAssetNames).includes(asset.name)
-    ) {
+    if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Optimism`
     }
 

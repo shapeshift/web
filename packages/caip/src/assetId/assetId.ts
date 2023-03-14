@@ -76,7 +76,9 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
       }
   })()
 
-  const isContractAddress = Array<AssetNamespace>('erc20', 'erc721').includes(assetNamespace)
+  const isContractAddress = Array<AssetNamespace>('erc20', 'erc721', 'bep20', 'bep721').includes(
+    assetNamespace,
+  )
 
   assertIsChainNamespace(chainNamespace)
   assertIsChainReference(chainReference)
@@ -141,7 +143,7 @@ export const fromAssetId: FromAssetId = (assetId) => {
       chainReference,
       chainNamespace,
       assetNamespace,
-      assetReference: ['erc20', 'erc721'].includes(assetNamespace)
+      assetReference: ['erc20', 'erc721', 'bep20', 'bep721'].includes(assetNamespace)
         ? assetReference.toLowerCase()
         : assetReference,
     }

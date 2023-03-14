@@ -12,6 +12,8 @@ export * from './utxoUtils'
 export const getAssetNamespace = (type: string): AssetNamespace => {
   if (type === 'ERC20') return 'erc20'
   if (type === 'ERC721') return 'erc721'
+  if (type === 'BEP20') return 'bep20'
+  if (type === 'BEP721') return 'bep721'
   throw new Error(`Unknown asset namespace. type: ${type}`)
 }
 
@@ -41,6 +43,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.EthereumRopsten:
         case CHAIN_REFERENCE.AvalancheCChain:
         case CHAIN_REFERENCE.OptimismMainnet:
+        case CHAIN_REFERENCE.BnbSmartChainMainnet:
           return 'ethereum' // all evm chains use the same validator (https://github.com/christsim/multicoin-address-validator/blob/master/src/ethereum_validator.js)
         default:
           throw new Error(

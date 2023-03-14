@@ -14,6 +14,7 @@ export enum CoingeckoAssetPlatform {
   Avalanche = 'avalanche',
   Thorchain = 'thorchain',
   Optimism = 'optimistic-ethereum',
+  BnbSmartChain = 'binance-smart-chain',
 }
 
 type CoinGeckoId = string
@@ -51,6 +52,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Avalanche
         case CHAIN_REFERENCE.OptimismMainnet:
           return CoingeckoAssetPlatform.Optimism
+        case CHAIN_REFERENCE.BnbSmartChainMainnet:
+          return CoingeckoAssetPlatform.BnbSmartChain
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,

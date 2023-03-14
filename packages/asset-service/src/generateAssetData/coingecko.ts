@@ -1,6 +1,8 @@
 import {
   adapters,
+  ASSET_NAMESPACE,
   avalancheChainId,
+  bscChainId,
   ChainId,
   ethChainId,
   optimismChainId,
@@ -9,7 +11,7 @@ import {
 import axios from 'axios'
 
 import { Asset } from '../service/AssetService'
-import { avax, ethereum, optimism } from './baseAssets'
+import { avax, bnbsmartchain, ethereum, optimism } from './baseAssets'
 import { colorMap } from './colorMap'
 
 type Token = {
@@ -29,10 +31,11 @@ type TokenList = {
   tokens: Token[]
 }
 export async function getAssets(chainId: ChainId): Promise<Asset[]> {
-  const { category, explorer, explorerAddressLink, explorerTxLink } = (() => {
+  const { assetNamespace, category, explorer, explorerAddressLink, explorerTxLink } = (() => {
     switch (chainId) {
       case ethChainId:
         return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: ethereum.explorer,
           explorerAddressLink: ethereum.explorerAddressLink,
@@ -40,6 +43,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         }
       case avalancheChainId:
         return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: avax.explorer,
           explorerAddressLink: avax.explorerAddressLink,
@@ -47,10 +51,19 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         }
       case optimismChainId:
         return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: optimism.explorer,
           explorerAddressLink: optimism.explorerAddressLink,
           explorerTxLink: optimism.explorerTxLink,
+        }
+      case bscChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.bep20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: bnbsmartchain.explorer,
+          explorerAddressLink: bnbsmartchain.explorerAddressLink,
+          explorerTxLink: bnbsmartchain.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)
@@ -61,7 +74,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
 
   return data.tokens.reduce<Asset[]>((prev, token) => {
     try {
-      const assetId = toAssetId({ chainId, assetNamespace: 'erc20', assetReference: token.address })
+      const assetId = toAssetId({ chainId, assetNamespace, assetReference: token.address })
 
       const asset: Asset = {
         assetId,

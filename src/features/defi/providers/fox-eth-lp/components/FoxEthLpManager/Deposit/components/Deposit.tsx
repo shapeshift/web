@@ -98,8 +98,12 @@ export const Deposit: React.FC<DepositProps> = ({
   if (!state || !dispatch) return null
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+    const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasData(deposit.cryptoAmount0, deposit.cryptoAmount1)
+      const gasData = await getDepositGasData({
+        token0Amount,
+        token1Amount,
+      })
       if (!gasData) return
       return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {

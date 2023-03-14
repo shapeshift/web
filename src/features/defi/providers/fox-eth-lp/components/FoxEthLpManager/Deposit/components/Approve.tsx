@@ -91,10 +91,10 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getDepositGasData(
-        state.deposit.foxCryptoAmount,
-        state.deposit.ethCryptoAmount,
-      )
+      const gasData = await getDepositGasData({
+        token0Amount: state.deposit.ethCryptoAmount,
+        token1Amount: state.deposit.foxCryptoAmount,
+      })
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))

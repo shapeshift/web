@@ -28,7 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
+import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -74,29 +74,36 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const {
-    tradeAmounts,
-    trade,
-    fees,
-    feeAssetFiatRate,
-    slippage,
-    buyAssetAccountId,
-    sellAssetAccountId,
-    buyAmountCryptoPrecision,
-  } = useFrozenTradeValues()
+  // const {
+  //   tradeAmounts,
+  //   trade,
+  //   fees,
+  //   feeAssetFiatRate,
+  //   slippage,
+  //   buyAssetAccountId,
+  //   sellAssetAccountId,
+  //   buyAmountCryptoPrecision,
+  // } = useFrozenTradeValues()
+
+  const tradeAmounts = useGetTradeAmounts()
+  const trade = useSwapperStore(state => state.trade)
+  const fees = useSwapperStore(state => state.fees)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const slippage = useSwapperStore(state => state.slippage)
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const reset = useCallback(() => {
     clearAmounts()
-    updateFiatSellAmount('')
-  }, [clearAmounts, updateFiatSellAmount])
+  }, [clearAmounts])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -196,11 +203,11 @@ export const TradeConfirm = () => {
   }
 
   const handleBack = useCallback(() => {
-    if (sellTradeId) {
+    if (trade) {
       reset()
     }
     history.push(TradeRoutePaths.Input)
-  }, [history, reset, sellTradeId])
+  }, [history, reset, trade])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)

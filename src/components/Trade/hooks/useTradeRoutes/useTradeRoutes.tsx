@@ -24,12 +24,7 @@ export const useTradeRoutes = (): {
     state => state.updateSelectedBuyAssetAccountId,
   )
   const updateFees = useSwapperStore(state => state.updateFees)
-  const updateQuote = useSwapperStore(state => state.updateQuote)
-  const updateTrade = useSwapperStore(state => state.updateTrade)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const updateAction = useSwapperStore(state => state.updateAction)
-  const updateAmount = useSwapperStore(state => state.updateAmount)
-  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
@@ -75,13 +70,7 @@ export const useTradeRoutes = (): {
         updateFees(undefined)
       }
 
-      updateAction(TradeAmountInputField.SELL_FIAT)
-      updateIsSendMax(false)
-      updateAmount('0')
-      updateTrade(undefined)
-      updateQuote(undefined)
       clearAmounts()
-
       history.push(TradeRoutePaths.Input)
 
       await setTradeAmountsRefetchData({
@@ -94,11 +83,6 @@ export const useTradeRoutes = (): {
     [
       sellAsset,
       buyAsset,
-      updateAction,
-      updateIsSendMax,
-      updateAmount,
-      updateTrade,
-      updateQuote,
       clearAmounts,
       history,
       setTradeAmountsRefetchData,

@@ -80,8 +80,15 @@ export const useSwapperStore = (() => {
           clearAmounts: () => {
             set(
               state => {
-                state.sellAmountCryptoPrecision = ''
-                state.buyAmountCryptoPrecision = ''
+                state.sellAmountCryptoPrecision = '0'
+                state.buyAmountCryptoPrecision = '0'
+                state.buyAmountFiat = '0'
+                state.sellAmountFiat = '0'
+                state.amount = '0'
+                state.isSendMax = false
+                state.action = TradeAmountInputField.SELL_FIAT
+                state.trade = undefined
+                state.quote = undefined
                 state.buyAmountFiat = '0'
                 state.sellAmountFiat = '0'
               },

@@ -10,19 +10,15 @@ export const initialState: OsmosisWithdrawState = {
     underlyingAsset0: {
       amount: '',
       denom: '',
-      amountCryptoHuman: '',
     },
     underlyingAsset1: {
       amount: '',
       denom: '',
-      amountCryptoHuman: '',
     },
     estimatedFeeCryptoBaseUnit: '',
     shareInAmountBaseUnit: '',
     txStatus: 'pending',
     usedGasFee: '',
-    amountCryptoHuman: '',
-    fiatAmount: '',
   },
 }
 

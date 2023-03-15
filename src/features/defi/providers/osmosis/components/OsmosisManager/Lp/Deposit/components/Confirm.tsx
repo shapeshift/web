@@ -30,11 +30,13 @@ import {
   getPoolIdFromAssetReference,
   OSMOSIS_PRECISION,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -59,6 +61,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!osmosisOpportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.deposit.shareOutAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, osmosisOpportunity, state])
 
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
 
@@ -99,7 +113,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         chainAdapter &&
         bip44Params &&
         underlyingAsset0 &&
-        underlyingAsset1
+        underlyingAsset1 &&
+        underlyingAssetBalances
       )
     ) {
       return
@@ -191,17 +206,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         {
           opportunity: osmosisOpportunity,
           fiatAmounts: [
-            state.deposit.underlyingAsset0.fiatAmount,
-            state.deposit.underlyingAsset1.fiatAmount,
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
           ],
           cryptoAmounts: [
             {
               assetId: underlyingAsset0.assetId,
-              amountCryptoHuman: state.deposit.underlyingAsset0.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
             },
             {
               assetId: underlyingAsset1.assetId,
-              amountCryptoHuman: state.deposit.underlyingAsset1.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
             },
           ],
         },

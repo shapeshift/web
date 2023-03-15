@@ -20,10 +20,12 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -43,8 +45,22 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const opportunity = state?.opportunity
 
   const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!opportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      underlyingAssetIds: opportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.deposit.shareOutAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, opportunity, state])
+
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, osmosisAssetId ?? ''),
   )
@@ -90,31 +106,40 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!opportunity || !state) return
+    if (!opportunity || !state || !underlyingAssetBalances) return
     if (state.deposit.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvents.DepositSuccess,
         {
           opportunity,
           fiatAmounts: [
-            state.deposit.underlyingAsset0.fiatAmount,
-            state.deposit.underlyingAsset1.fiatAmount,
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
           ],
           cryptoAmounts: [
             {
               assetId: underlyingAsset0.assetId,
-              amountCryptoHuman: state.deposit.underlyingAsset0.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
             },
             {
               assetId: underlyingAsset1.assetId,
-              amountCryptoHuman: state.deposit.underlyingAsset1.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
             },
           ],
         },
         assets,
       )
     }
-  }, [assets, opportunity, state, underlyingAsset0.assetId, underlyingAsset1.assetId])
+  }, [
+    assets,
+    opportunity,
+    state,
+    underlyingAsset0.assetId,
+    underlyingAsset1.assetId,
+    underlyingAssetBalances,
+  ])
 
   if (!state || !feeAsset) return null
 

@@ -249,8 +249,6 @@ export const Deposit: React.FC<DepositProps> = ({
         payload: {
           underlyingAsset0: {
             amount: asset0AmountBaseUnit,
-            fiatAmount: formValues.fiatAmount0,
-            amountCryptoHuman: formValues.cryptoAmount0,
             denom:
               asset0Reference === ASSET_REFERENCE.Osmosis
                 ? 'uosmo'
@@ -258,8 +256,6 @@ export const Deposit: React.FC<DepositProps> = ({
           },
           underlyingAsset1: {
             amount: asset1AmountBaseUnit,
-            fiatAmount: formValues.fiatAmount1,
-            amountCryptoHuman: formValues.fiatAmount1,
             denom:
               asset1Reference === ASSET_REFERENCE.Osmosis
                 ? 'uosmo'

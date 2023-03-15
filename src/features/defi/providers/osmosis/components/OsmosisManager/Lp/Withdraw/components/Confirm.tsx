@@ -30,11 +30,13 @@ import {
   getPool,
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -61,6 +63,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!osmosisOpportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.withdraw.shareInAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, osmosisOpportunity, state])
 
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
@@ -106,7 +120,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         bip44Params &&
         lpAsset &&
         underlyingAsset0 &&
-        underlyingAsset1
+        underlyingAsset1 &&
+        underlyingAssetBalances
       )
     ) {
       return
@@ -197,16 +212,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         MixPanelEvents.WithdrawConfirm,
         {
           opportunity: osmosisOpportunity,
-          fiatAmounts: [state.withdraw.fiatAmount],
+          fiatAmounts: [
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+          ],
           cryptoAmounts: [
-            { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.amountCryptoHuman },
             {
               assetId: underlyingAsset0.assetId,
-              amountCryptoHuman: state.withdraw.underlyingAsset0.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
             },
             {
               assetId: underlyingAsset1.assetId,
-              amountCryptoHuman: state.withdraw.underlyingAsset1.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
             },
           ],
         },
@@ -233,6 +252,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     lpAsset,
     underlyingAsset0,
     underlyingAsset1,
+    underlyingAssetBalances,
     onNext,
     assets,
     toast,

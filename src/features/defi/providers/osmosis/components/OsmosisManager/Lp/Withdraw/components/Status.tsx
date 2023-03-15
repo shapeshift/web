@@ -21,10 +21,12 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -42,11 +44,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const osmosisOpportunity = state?.opportunity
 
   const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, osmosisAssetId ?? ''),
   )
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!osmosisOpportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.withdraw.shareInAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, osmosisOpportunity, state])
 
   const lpAsset = useAppSelector(state => selectAssetById(state, osmosisOpportunity?.assetId ?? ''))
 
@@ -91,29 +105,49 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!osmosisOpportunity || !lpAsset || !state || !underlyingAsset0 || !underlyingAsset1) return
+    if (
+      !osmosisOpportunity ||
+      !lpAsset ||
+      !state ||
+      !underlyingAsset0 ||
+      !underlyingAsset1 ||
+      !underlyingAssetBalances
+    )
+      return
     if (state.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvents.WithdrawSuccess,
         {
           opportunity: osmosisOpportunity,
-          fiatAmounts: [state.withdraw.fiatAmount],
+          fiatAmounts: [
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+          ],
           cryptoAmounts: [
-            { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.amountCryptoHuman },
             {
               assetId: underlyingAsset0.assetId,
-              amountCryptoHuman: state.withdraw.underlyingAsset0.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
             },
             {
               assetId: underlyingAsset1.assetId,
-              amountCryptoHuman: state.withdraw.underlyingAsset1.amountCryptoHuman,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
             },
           ],
         },
         assets,
       )
     }
-  }, [assets, lpAsset, osmosisOpportunity, state, underlyingAsset0, underlyingAsset1])
+  }, [
+    assets,
+    lpAsset,
+    osmosisOpportunity,
+    state,
+    underlyingAsset0,
+    underlyingAsset1,
+    underlyingAssetBalances,
+  ])
 
   if (!state || !osmosisOpportunity) return null
 

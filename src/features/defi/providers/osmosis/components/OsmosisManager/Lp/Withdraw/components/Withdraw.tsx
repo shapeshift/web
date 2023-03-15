@@ -30,9 +30,11 @@ import {
   getPool,
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -88,7 +90,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { setValue } = methods
 
   const assets = useAppSelector(selectAssets)
-
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
   )
@@ -215,7 +217,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const calculateTokenOutMins = useCallback(
     async (
       inputPoolSharesBaseUnit: string,
-    ): Promise<{ amount: string; denom: string; amountCryptoHuman: string }[] | undefined> => {
+    ): Promise<{ amount: string; denom: string }[] | undefined> => {
       if (
         !(osmosisOpportunity && state && state.opportunity && underlyingAsset0 && underlyingAsset1)
       ) {
@@ -263,18 +265,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const asset0Reference = fromAssetId(underlyingAsset0.assetId).assetReference
       const asset1Reference = fromAssetId(underlyingAsset1.assetId).assetReference
 
-      const tokenOut0AmountCryptoHuman = bnOrZero(tokenOut0AmountBaseUnit)
-        .div(bn(10).pow(underlyingAsset0.precision ?? '0'))
-        .toFixed(underlyingAsset0.precision, BigNumber.ROUND_DOWN)
-
-      const tokenOut1AmountCryptoHuman = bnOrZero(tokenOut1AmountBaseUnit)
-        .div(bn(10).pow(underlyingAsset1.precision ?? '0'))
-        .toFixed(underlyingAsset1.precision, BigNumber.ROUND_DOWN)
-
       return [
         {
           amount: tokenOut0AmountBaseUnit,
-          amountCryptoHuman: tokenOut0AmountCryptoHuman,
           denom:
             asset0Reference === ASSET_REFERENCE.Osmosis
               ? 'uosmo'
@@ -282,7 +275,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         },
         {
           amount: tokenOut1AmountBaseUnit,
-          amountCryptoHuman: tokenOut1AmountCryptoHuman,
           denom:
             asset1Reference === ASSET_REFERENCE.Osmosis
               ? 'uosmo'
@@ -344,19 +336,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         bnOrZero(formValues.cryptoAmount).multipliedBy(bn(10).pow(lpAsset.precision)).toString(),
       )
       if (!tokenOutMinsCryptoBaseUnit) return
-
+      const shareInAmountBaseUnit = bnOrZero(formValues.cryptoAmount)
+        .multipliedBy(bn(10).pow(lpAsset.precision))
+        .toFixed(0, BigNumber.ROUND_DOWN)
+        .toString()
       // set withdraw state for future use
       contextDispatch({
         type: OsmosisWithdrawActionType.SET_WITHDRAW,
         payload: {
-          amountCryptoHuman: formValues.cryptoAmount,
-          fiatAmount: formValues.fiatAmount,
           underlyingAsset0: tokenOutMinsCryptoBaseUnit[0],
           underlyingAsset1: tokenOutMinsCryptoBaseUnit[1],
-          shareInAmountBaseUnit: bnOrZero(formValues.cryptoAmount)
-            .multipliedBy(bn(10).pow(lpAsset.precision))
-            .toFixed(0, BigNumber.ROUND_DOWN)
-            .toString(),
+          shareInAmountBaseUnit,
         },
       })
       contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: true })
@@ -369,20 +359,33 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
+        // We don't track the other values in formValues so need to calculate it
+        const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
+          underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
+          underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
+          cryptoAmountBaseUnit: shareInAmountBaseUnit,
+          assets,
+          marketData,
+        })
         trackOpportunityEvent(
           MixPanelEvents.WithdrawContinue,
           {
             opportunity: osmosisOpportunity,
-            fiatAmounts: [formValues.fiatAmount],
+            fiatAmounts: [
+              underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+              underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+            ],
             cryptoAmounts: [
               { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
               {
                 assetId: underlyingAsset0.assetId,
-                amountCryptoHuman: tokenOutMinsCryptoBaseUnit[0].amountCryptoHuman,
+                amountCryptoHuman:
+                  underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
               },
               {
                 assetId: underlyingAsset1.assetId,
-                amountCryptoHuman: tokenOutMinsCryptoBaseUnit[1].amountCryptoHuman,
+                amountCryptoHuman:
+                  underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
               },
             ],
           },
@@ -411,6 +414,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       getWithdrawFeeEstimateCryptoBaseUnit,
       onNext,
       assets,
+      marketData,
       toast,
       translate,
     ],

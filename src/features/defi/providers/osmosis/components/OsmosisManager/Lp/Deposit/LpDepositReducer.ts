@@ -9,14 +9,10 @@ export const initialState: OsmosisDepositState = {
   loading: false,
   deposit: {
     underlyingAsset0: {
-      fiatAmount: '',
-      amountCryptoHuman: '',
       amount: '',
       denom: '',
     },
     underlyingAsset1: {
-      fiatAmount: '',
-      amountCryptoHuman: '',
       amount: '',
       denom: '',
     },

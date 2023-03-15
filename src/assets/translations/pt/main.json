@@ -1746,19 +1746,36 @@
   "idle": {
     "emptyTitle": "Ganhe %{apy}% no seu %{asset} com a Idle Finance",
     "emptyBody": {
-      "bestYield": {
+      "seniorBestYield": {
         "page-1": {
-          "title": "Melhor Estratégia de Rendimento",
-          "body": "A estratégia de alocação de melhor rendimento maximiza os retornos detectando mudanças nas taxas de juros em diferentes protocolos de empréstimo."
+          "title": "Estratégia Senior Best Yield",
+          "body": "As pools Senior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
         },
         "page-2": {
-          "title": "Melhores estratégias de rendimento:"
+          "title": "Estratégias Senior Best Yield:",
+          "bullets": {
+            "one": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches",
+            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Estratégia Junior Best Yield",
+          "body": "As pools Junior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
+        },
+        "page-2": {
+          "title": "Estratégias Junior Best Yield:",
+          "bullets": {
+            "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários",
+            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
+          }
         }
       },
       "seniorTranche": {
         "page-1": {
           "title": "Estratégia Senior Tranche",
-          "body": "As tranches seniors oferecem grandes oportunidades com menor risco do que as tranches juniors."
+          "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
         },
         "page-2": {
           "title": "Estratégias de tranches Senior:"
@@ -1767,20 +1784,22 @@
       "juniorTranche": {
         "page-1": {
           "title": "Estratégia de tranche Junior",
-          "body": "As tranches júnior fornecem rendimentos DeFi otimizados e amplificados ao carregar um grau mais alto de riscos."
+          "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
         },
         "page-2": {
           "title": "Estratégias de tranche junior:"
         }
       },
       "monitorSystem": "Utilize o sistema de monitoramento do Idle Finance para encontrar alocações de melhor desempenho e ter um balanceamento eficiente. ",
-      "offerHighReturn": "Ofereça altos retornos sem que o usuário gaste com taxas para gerenciar suas posições",
+      "offerHighReturn": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência",
       "leverageYield": "Alavancar o rendimento usando fundos de tranches seniores",
       "higherRisk": "Maior exposição ao risco ao proteger tranches seniores",
       "minRisk": "Exposição ao risco minimizada",
       "builtInCoverage": "Cobertura integrada para recompensas de taxa variável",
       "noLockingPeriod": "Sem período de bloqueio ou épocas",
-      "autoReinvest": "Tokens re-investidos"
+      "autoReinvest": "Tokens re-investidos",
+      "fundsCoveredJunior": "Fundos cobertos pelas Junior Tranches",
+      "automation": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches"
     },
     "bestYield": {
       "title": "Quais as Melhores Recompensas?",
@@ -1788,11 +1807,11 @@
     },
     "seniorTranche": {
       "title": "O que é uma Senior Tranche?",
-      "body": "Aproveite os rendimentos DeFi em vários protocolos, mantendo seu depósito protegido. As Tranches Sênior oferecem proteção total aos seus fundos graças as Tranches Júnior."
+      "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
     },
     "juniorTranche": {
       "title": "O que é uma Junior Tranche?",
-      "body": "Desfrute de rendimentos maximizados em vários protocolos DeFi: as Tranches Junior alcançam rendimento alavancado, pois são compensadas por fornecer capital de primeira perda para sua contraparte sênior."
+      "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
     }
   },
   "promo": {

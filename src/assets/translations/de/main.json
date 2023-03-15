@@ -1746,19 +1746,36 @@
   "idle": {
     "emptyTitle": "Verdienen Sie mit Idle Finance %{apy}% auf Ihr %{asset}",
     "emptyBody": {
-      "bestYield": {
+      "seniorBestYield": {
         "page-1": {
-          "title": "Beste Ertragsstrategie",
-          "body": "Die Best-Yield-Allokationsstrategie max. die Erträge, indem sie Zinsänderungen bei versch. Kreditprotokollen erkennt."
+          "title": "Senior Best Yield Strategie",
+          "body": "Senior Best Yield Tresore sind Set-and-Forget-Strategien, die Gelder automatisch über mehrere Ertragsquellen mit konservativem Risiko leiten, um immer den höchsten APY zu erzielen"
         },
         "page-2": {
-          "title": "Beste Ertragsstrategien:"
+          "title": "Senior Best Yield Strategien:",
+          "bullets": {
+            "one": "Automatisierung und Optimierung der Ertragsgenerierung über Aave-, Compound- und mehrere Senior-Tranchen hinweg",
+            "two": "Bieten maximierte Renditen, ohne dass der Benutzer bei jeder Überweisung ständig die Tarife überprüft und Gas verbraucht"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Strategie",
+          "body": "Junior Best Yield Tresore sind Set-and-Forget-Strategien, die automatisch Gelder über mehrere Junior-Tranchen leiten, um immer erhöhte, maximierte APYs bereitzustellen"
+        },
+        "page-2": {
+          "title": "Junior Best Yield Strategien:",
+          "bullets": {
+            "one": "Automatisierung und Optimierung der Ertragsgenerierung über mehrere Junior-Tranchen hinweg, wodurch die Erträge durch deren Art gesteigert werden",
+            "two": "Bietenmaximierte Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt"
+          }
         }
       },
       "seniorTranche": {
         "page-1": {
           "title": "Senior Tranchen Strategie",
-          "body": "Senior Tranchen bieten großartige Chancen bei geringerem Risiko als Junior-Tranchen."
+          "body": "Genießen Sie DeFi-Erträge mit integriertem Einlagenschutz. Senior-Tranchen bieten eine vollständige Abdeckung durch ihre Junior-Gegenpartei."
         },
         "page-2": {
           "title": "Senior Tranchen Strategien:"
@@ -1767,20 +1784,22 @@
       "juniorTranche": {
         "page-1": {
           "title": "Junior Tranchen Strategie",
-          "body": "Junior Tranchen bieten verstärkte optimierte DeFi-Renditen, indem sie ein höheres Risiko tragen."
+          "body": "Genießen Sie gesteigerte DeFi-Erträge. Junior-Tranchen bieten gehebelte Renditen, da sie von ihrer Senior-Gegenpartei dafür entschädigt werden, dass sie ein höheres Risiko eingehen."
         },
         "page-2": {
           "title": "Junior Tranchen Strategien:"
         }
       },
       "monitorSystem": "Nutzen Sie das Überwachungssystem von Idle Finance, um Allokationen mit besserer Leistung zu finden und eine Neugewichtung auszulösen",
-      "offerHighReturn": "Bieten Sie hohe Renditen, ohne dass der Benutzer ständig die Tarife überprüft und bei jeder Überweisung Gas verbrennt",
+      "offerHighReturn": "Bieten maximierte Renditen, ohne dass der Benutzer bei jeder Überweisung ständig die Tarife überprüft und Gas verbraucht",
       "leverageYield": "Leverage Rendite mit Senior Tranchen Fonds",
       "higherRisk": "Höheres Risiko durch Schutz vorrangiger Tranchen",
       "minRisk": "Minimiertes Risiko",
       "builtInCoverage": "Integrierter Versicherungsschutz für variabel verzinsliche Prämien",
       "noLockingPeriod": "Keine Sperrfrist oder Epochen",
-      "autoReinvest": "investierte Token automatisch reinvestieren"
+      "autoReinvest": "investierte Token automatisch reinvestieren",
+      "fundsCoveredJunior": "Anlage von Junior-Tranchen abgedeckt",
+      "automation": "Automatisierung und Optimierung der Ertragsgenerierung über Aave-, Compound- und mehrere Senior-Tranchen hinweg"
     },
     "bestYield": {
       "title": "Was ist Best Yield?",
@@ -1788,11 +1807,11 @@
     },
     "seniorTranche": {
       "title": "Was ist eine Senior Tranche?",
-      "body": "Erhalten Sie DeFi-Erträge über mehrere Protokolle hinweg, während Sie Ihre Einzahlung schützen. Senior Tranchen bieten einen integrierten Schutz für Fonds und bieten dank ihrer Junior Tranchen eine umfassende Abdeckung."
+      "body": "Genießen Sie DeFi-Erträge mit integriertem Einlagenschutz. Senior-Tranchen bieten eine vollständige Abdeckung durch ihre Junior-Gegenpartei."
     },
     "juniorTranche": {
       "title": "Was ist eine Junior Tranche?",
-      "body": "Profitieren Sie von höheren Renditen über mehrere DeFi-Protokolle hinweg, Junior Tranchen erzielen eine gehebelte Rendite, da sie für die Bereitstellung von First-Loss-Kapital für ihre Senior Tranchen entschädigt werden."
+      "body": "Genießen Sie gesteigerte DeFi-Erträge. Junior-Tranchen bieten gehebelte Renditen, da sie von ihrer Senior-Gegenpartei dafür entschädigt werden, dass sie ein höheres Risiko eingehen."
     }
   },
   "promo": {

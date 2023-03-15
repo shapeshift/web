@@ -21,7 +21,6 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,8 +48,6 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
     assetReference,
   })
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   const validatorId = toValidatorId({ chainId, account: validatorAddress })
 
   const opportunityDataFilter = useMemo(() => {
@@ -66,7 +63,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
   )
   useEffect(() => {
     try {
-      if (!(earnOpportunityData && bip44Params)) return
+      if (!earnOpportunityData) return
 
       const chainAdapterManager = getChainAdapterManager()
       const chainAdapter = chainAdapterManager.get(
@@ -81,7 +78,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
       // TODO: handle client side errors
       moduleLogger.error(error, 'CosmosClaim error')
     }
-  }, [chainId, validatorAddress, walletState.wallet, bip44Params, earnOpportunityData])
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   // Asset info
 

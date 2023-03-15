@@ -23,7 +23,6 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -79,9 +78,6 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       : undefined,
   )
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   useEffect(() => {
     try {
       if (!earnOpportunityData) return
@@ -99,7 +95,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       // TODO: handle client side errors
       moduleLogger.error(error, 'CosmosDeposit error')
     }
-  }, [bip44Params, chainId, validatorAddress, walletState.wallet, earnOpportunityData])
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = () => {
     history.push({

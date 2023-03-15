@@ -131,7 +131,6 @@ export const TradeInput = () => {
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -295,27 +294,17 @@ export const TradeInput = () => {
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
     try {
-      if (
-        buyTradeAsset &&
-        buyTradeAsset &&
-        sellTradeAsset &&
-        buyTradeAsset.asset &&
-        sellTradeAsset.asset &&
-        mixpanel
-      ) {
-        const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyTradeAsset.asset.assetId, assets)
-        const compositeSellAsset = getMaybeCompositeAssetSymbol(
-          sellTradeAsset.asset.assetId,
-          assets,
-        )
+      if (sellAsset && buyAsset && mixpanel) {
+        const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
+        const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
         mixpanel.track(MixPanelEvents.TradePreview, {
           buyAsset: compositeBuyAsset,
           sellAsset: compositeSellAsset,
           fiatSellAmount,
           fiatBuyAmount,
           swapperName,
-          [compositeBuyAsset]: buyTradeAsset.amountCryptoPrecision,
-          [compositeSellAsset]: sellTradeAsset.amountCryptoPrecision,
+          [compositeBuyAsset]: buyAmountCryptoPrecision,
+          [compositeSellAsset]: sellAmountCryptoPrecision,
         })
       }
       const isApprovalNeeded = await checkApprovalNeeded()
@@ -333,14 +322,16 @@ export const TradeInput = () => {
     }
   }, [
     assets,
-    buyTradeAsset,
+    buyAmountCryptoPrecision,
+    buyAsset,
     checkApprovalNeeded,
     fiatBuyAmount,
     fiatSellAmount,
     getTrade,
     history,
     mixpanel,
-    sellTradeAsset,
+    sellAmountCryptoPrecision,
+    sellAsset,
     swapperName,
     updateTrade,
   ])

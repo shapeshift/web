@@ -74,17 +74,6 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  // const {
-  //   tradeAmounts,
-  //   trade,
-  //   fees,
-  //   feeAssetFiatRate,
-  //   slippage,
-  //   buyAssetAccountId,
-  //   sellAssetAccountId,
-  //   buyAmountCryptoPrecision,
-  // } = useFrozenTradeValues()
-
   const tradeAmounts = useGetTradeAmounts()
   const trade = useSwapperStore(state => state.trade)
   const fees = useSwapperStore(state => state.fees)

@@ -1,6 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -21,11 +22,15 @@ import { useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Status = () => {
+type StatusProps = { accountId: AccountId | undefined }
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
+
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const assetNamespace = 'slip44'
   // Asset info
@@ -114,7 +119,7 @@ export const Status = () => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis value={state.userAddress || ''} />
+            <MiddleEllipsis value={userAddress || ''} />
           </Row.Value>
         </Row>
         {state.txid && (

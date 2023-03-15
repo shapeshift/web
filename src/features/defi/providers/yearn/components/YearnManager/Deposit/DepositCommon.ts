@@ -20,7 +20,6 @@ export type SerializableOpportunity = Omit<
 
 export type YearnDepositState = {
   opportunity: StakingEarnOpportunityType | null
-  userAddress: string | null
   approve: EstimatedGas
   isExactAllowance?: boolean
   deposit: YearnDepositValues
@@ -32,7 +31,6 @@ export enum YearnDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
   SET_IS_EXACT_ALLOWANCE = 'SET_IS_EXACT_ALLOWANCE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -58,11 +56,6 @@ type SetDeposit = {
   payload: Partial<YearnDepositValues>
 }
 
-type SetUserAddress = {
-  type: YearnDepositActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: YearnDepositActionType.SET_LOADING
   payload: boolean
@@ -77,7 +70,6 @@ export type YearnDepositActions =
   | SetOpportunityAction
   | SetApprove
   | SetDeposit
-  | SetUserAddress
   | SetLoading
   | SetTxid
   | SetIsExactAllowance

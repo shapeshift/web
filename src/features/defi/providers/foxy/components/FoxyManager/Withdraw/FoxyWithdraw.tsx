@@ -70,11 +70,7 @@ export const FoxyWithdraw: React.FC<{
       try {
         if (!(walletState.wallet && contractAddress && chainAdapter && foxyApi && bip44Params))
           return
-        const { accountNumber } = bip44Params
-        const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          foxyApi.getFoxyOpportunityByStakingAddress(contractAddress),
-        ])
+        const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(contractAddress)
         // Get foxy fee for instant sends
         const foxyFeePercentage = await foxyApi.instantUnstakeFee({
           contractAddress,
@@ -83,10 +79,6 @@ export const FoxyWithdraw: React.FC<{
         dispatch({
           type: FoxyWithdrawActionType.SET_FOXY_FEE,
           payload: bnOrZero(foxyFeePercentage).toString(),
-        })
-        dispatch({
-          type: FoxyWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
         })
         dispatch({
           type: FoxyWithdrawActionType.SET_OPPORTUNITY,
@@ -121,7 +113,7 @@ export const FoxyWithdraw: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, contractAddress, translate, stakingAsset.symbol])

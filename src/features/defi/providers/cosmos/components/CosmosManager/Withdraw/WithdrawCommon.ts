@@ -14,14 +14,12 @@ type CosmosWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage> &
   }
 
 export type CosmosWithdrawState = {
-  userAddress: string | null
   withdraw: CosmosWithdrawValues
   loading: boolean
   txid: string | null
 }
 export enum CosmosWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -38,11 +36,6 @@ type SetWithdraw = {
   payload: Partial<CosmosWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: CosmosWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: CosmosWithdrawActionType.SET_LOADING
   payload: boolean
@@ -53,9 +46,4 @@ type SetTxid = {
   payload: string
 }
 
-export type CosmosWithdrawActions =
-  | SetVaultAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type CosmosWithdrawActions = SetVaultAction | SetWithdraw | SetLoading | SetTxid

@@ -96,26 +96,17 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   useEffect(() => {
-    if (!bip44Params) return
-    ;(async () => {
-      try {
-        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
+    try {
+      if (!(walletState.wallet && validatorAddress && chainAdapter)) return
 
-        dispatch({
-          type: CosmosWithdrawActionType.SET_USER_ADDRESS,
-          payload: address,
-        })
-        dispatch({
-          type: CosmosWithdrawActionType.SET_OPPORTUNITY,
-          payload: { ...earnOpportunityData },
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosWithdraw error')
-      }
-    })()
+      dispatch({
+        type: CosmosWithdrawActionType.SET_OPPORTUNITY,
+        payload: { ...earnOpportunityData },
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'CosmosWithdraw error')
+    }
   }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const StepConfig: DefiStepProps = useMemo(() => {
@@ -135,7 +126,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, translate, underlyingAsset?.symbol])

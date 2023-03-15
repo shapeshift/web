@@ -65,28 +65,22 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
       : undefined,
   )
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!(earnOpportunityData && bip44Params)) return
+    try {
+      if (!(earnOpportunityData && bip44Params)) return
 
-        const chainAdapterManager = getChainAdapterManager()
-        const chainAdapter = chainAdapterManager.get(
-          chainId,
-        ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-        if (!(walletState.wallet && validatorAddress && chainAdapter)) return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber })
-
-        dispatch({ type: CosmosClaimActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({
-          type: CosmosClaimActionType.SET_OPPORTUNITY,
-          payload: { ...earnOpportunityData },
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosClaim error')
-      }
-    })()
+      const chainAdapterManager = getChainAdapterManager()
+      const chainAdapter = chainAdapterManager.get(
+        chainId,
+      ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
+      if (!(walletState.wallet && validatorAddress && chainAdapter)) return
+      dispatch({
+        type: CosmosClaimActionType.SET_OPPORTUNITY,
+        payload: { ...earnOpportunityData },
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'CosmosClaim error')
+    }
   }, [chainId, validatorAddress, walletState.wallet, bip44Params, earnOpportunityData])
 
   // Asset info
@@ -113,7 +107,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, translate])

@@ -14,7 +14,6 @@ type CosmosClaimValues = {
 
 export type CosmosClaimState = {
   opportunity: StakingEarnOpportunityType
-  userAddress: string | null
   claim: CosmosClaimValues
   loading: boolean
   txid: string | null
@@ -22,7 +21,6 @@ export type CosmosClaimState = {
 
 export enum CosmosClaimActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_CLAIM = 'SET_CLAIM',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -38,11 +36,6 @@ type SetClaim = {
   payload: Partial<CosmosClaimValues>
 }
 
-type SetUserAddress = {
-  type: CosmosClaimActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: CosmosClaimActionType.SET_LOADING
   payload: boolean
@@ -53,9 +46,4 @@ type SetTxid = {
   payload: string | null
 }
 
-export type CosmosClaimActions =
-  | SetCosmosOpportunitiesAction
-  | SetClaim
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type CosmosClaimActions = SetCosmosOpportunitiesAction | SetClaim | SetLoading | SetTxid

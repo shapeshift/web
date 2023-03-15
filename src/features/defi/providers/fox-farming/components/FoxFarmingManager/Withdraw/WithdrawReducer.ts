@@ -3,7 +3,6 @@ import { FoxFarmingWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: FoxFarmingWithdrawState = {
   txid: null,
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -22,8 +21,6 @@ export const reducer = (
   switch (action.type) {
     case FoxFarmingWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case FoxFarmingWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxFarmingWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxFarmingWithdrawActionType.SET_APPROVE:

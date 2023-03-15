@@ -85,8 +85,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleDeposit = useCallback(async () => {
-    if (!(state?.userAddress && dispatch && bip44Params && assetReference && walletState.wallet))
-      return
+    if (!(state?.deposit && dispatch && bip44Params && assetReference && walletState.wallet)) return
     dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
 
     const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
@@ -137,11 +136,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     handleStakingAction,
     marketData,
     onNext,
-    state?.deposit.cryptoAmount,
-    state?.userAddress,
+    state?.deposit,
     toast,
     translate,
-    walletState?.wallet,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null

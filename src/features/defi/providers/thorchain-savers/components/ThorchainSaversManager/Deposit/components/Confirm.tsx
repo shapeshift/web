@@ -113,7 +113,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   // user info
   const { state: walletState } = useWallet()

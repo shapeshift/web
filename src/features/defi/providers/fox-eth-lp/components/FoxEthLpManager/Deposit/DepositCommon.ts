@@ -16,7 +16,6 @@ type FoxEthLpDepositValues = DepositValues &
   }
 
 export type FoxEthLpDepositState = {
-  userAddress: string | null
   approve: EstimatedGas
   deposit: FoxEthLpDepositValues
   loading: boolean
@@ -25,7 +24,6 @@ export type FoxEthLpDepositState = {
 
 export enum FoxEthLpDepositActionType {
   SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -41,11 +39,6 @@ type SetDeposit = {
   payload: any
 }
 
-type SetUserAddress = {
-  type: FoxEthLpDepositActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: FoxEthLpDepositActionType.SET_LOADING
   payload: boolean
@@ -56,4 +49,4 @@ type SetTxid = {
   payload: string
 }
 
-export type FoxEthLpDepositActions = SetApprove | SetDeposit | SetUserAddress | SetLoading | SetTxid
+export type FoxEthLpDepositActions = SetApprove | SetDeposit | SetLoading | SetTxid

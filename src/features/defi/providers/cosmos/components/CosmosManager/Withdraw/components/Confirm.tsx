@@ -109,14 +109,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const handleConfirm = useCallback(async () => {
     if (
       state?.loading ||
-      !(
-        bip44Params &&
-        dispatch &&
-        gasLimit &&
-        gasPrice &&
-        state?.userAddress &&
-        walletState?.wallet
-      )
+      !(bip44Params && dispatch && gasLimit && gasPrice && state?.withdraw && walletState?.wallet)
     )
       return
 
@@ -163,8 +156,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     handleStakingAction,
     onNext,
     state?.loading,
-    state?.userAddress,
-    state?.withdraw.cryptoAmount,
+    state?.withdraw,
     walletState?.wallet,
   ])
 

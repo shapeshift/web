@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -41,6 +42,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   } = useFoxyQuery()
   const toast = useToast()
 
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+
   // user info
   const { state: walletState } = useWallet()
 
@@ -49,7 +52,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {
-      if (!(state?.userAddress && rewardId && foxyApi && dispatch && bip44Params)) return
+      if (!(rewardId && userAddress && state?.withdraw && foxyApi && dispatch && bip44Params))
+        return
       try {
         const [gasLimit, gasPrice] = await Promise.all([
           foxyApi.estimateWithdrawGas({
@@ -58,7 +62,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             amountDesired: bnOrZero(
               bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
             ).decimalPlaces(0),
-            userAddress: state.userAddress,
+            userAddress,
             type: state.withdraw.withdrawType,
             bip44Params,
           }),
@@ -81,14 +85,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       }
     },
     [
+      rewardId,
+      userAddress,
+      state?.withdraw,
       foxyApi,
-      asset.precision,
+      dispatch,
       bip44Params,
       contractAddress,
-      dispatch,
-      rewardId,
-      state?.userAddress,
-      state?.withdraw.withdrawType,
+      asset.precision,
       toast,
       translate,
     ],
@@ -96,7 +100,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const handleApprove = useCallback(async () => {
     if (
-      !(rewardId && state?.userAddress && walletState.wallet && foxyApi && dispatch && bip44Params)
+      !(
+        rewardId &&
+        walletState.wallet &&
+        userAddress &&
+        state?.withdraw &&
+        foxyApi &&
+        dispatch &&
+        bip44Params
+      )
     )
       return
     try {
@@ -104,7 +116,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await foxyApi.approve({
         tokenContractAddress: rewardId,
         contractAddress,
-        userAddress: state.userAddress,
+        userAddress,
         wallet: walletState.wallet,
         bip44Params,
       })
@@ -113,7 +125,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           foxyApi.allowance({
             tokenContractAddress: rewardId,
             contractAddress,
-            userAddress: state.userAddress!,
+            userAddress,
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(bn(result).div(bn(10).pow(asset.precision)))
@@ -142,19 +154,19 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
+    rewardId,
+    walletState.wallet,
+    userAddress,
+    state?.withdraw,
     foxyApi,
-    asset.precision,
+    dispatch,
     bip44Params,
     contractAddress,
-    dispatch,
     getWithdrawGasEstimate,
     onNext,
-    rewardId,
-    state?.userAddress,
-    state?.withdraw,
+    asset.precision,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

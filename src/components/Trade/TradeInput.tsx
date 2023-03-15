@@ -124,6 +124,7 @@ export const TradeInput = () => {
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -348,9 +349,12 @@ export const TradeInput = () => {
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
+    const shouldDeductNetworkFeeFromGasBalanceCheck = swapperName !== SwapperName.CowSwap
     const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
       .minus(
-        fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision),
+        shouldDeductNetworkFeeFromGasBalanceCheck
+          ? fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision)
+          : 0,
       )
       .minus(tradeDeduction)
       .gte(0)
@@ -474,7 +478,6 @@ export const TradeInput = () => {
     },
     [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
   )
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   return (
     <SlideTransition>

@@ -101,10 +101,6 @@ export const TradeConfirm = () => {
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
-  const reset = useCallback(() => {
-    clearAmounts()
-  }, [clearAmounts])
-
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
       thorchainAssetId,
@@ -196,18 +192,18 @@ export const TradeConfirm = () => {
       setBuyTxid(txs.buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
-      reset()
+      clearAmounts()
       setSellTradeId('')
       history.push(TradeRoutePaths.Input)
     }
   }
 
   const handleBack = useCallback(() => {
-    if (trade) {
-      reset()
+    if (sellTradeId) {
+      clearAmounts()
     }
     history.push(TradeRoutePaths.Input)
-  }, [history, reset, trade])
+  }, [clearAmounts, history, sellTradeId])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)

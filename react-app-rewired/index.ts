@@ -9,6 +9,7 @@ import * as path from 'path'
 import * as ssri from 'ssri'
 import * as webpack from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
+import WorkBoxPlugin from 'workbox-webpack-plugin'
 
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
@@ -323,6 +324,17 @@ const reactAppRewireConfig = {
           }
         : {},
     )
+
+    // after adding BSC chain, the build got even more bloated, so we need to increase the limit
+    // of cached assets, to avoid compiling with warnings, which emit a non-zero exit code, causing the build
+    // to "fail", even though build artefacts are emitted.
+    // https://www.appsloveworld.com/reactjs/100/54/workaround-for-cache-size-limit-in-create-react-app-pwa-service-worker
+    config.plugins?.forEach(plugin => {
+      if (plugin instanceof WorkBoxPlugin.InjectManifest) {
+        // @ts-ignore
+        plugin.config.maximumFileSizeToCacheInBytes = 50 * 1024 * 1024
+      }
+    })
 
     return config
   },

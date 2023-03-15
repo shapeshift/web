@@ -1746,19 +1746,36 @@
   "idle": {
     "emptyTitle": "Idle Finance ile %{asset} varlığınızdan %{apy}% kazanın",
     "emptyBody": {
-      "bestYield": {
+      "seniorBestYield": {
         "page-1": {
-          "title": "En İyi Getiri Stratejisi",
-          "body": "En İyi Getiri tahsis stratejisi, farklı borç verme protokollerindeki faiz oranı değişikliklerini tespit ederek getirileri en üst düzeye çıkarır."
+          "title": "Senior Best Yield Stratejisi",
+          "body": "Senior Best Yield kasaları, her zaman en yüksek APY'yi sağlamak için fonları birden fazla, ihtiyatlı riskli getiri kaynağı arasında otomatik olarak yönlendiren ayarla ve unut stratejileridir."
         },
         "page-2": {
-          "title": "En İyi Getiri stratejileri:"
+          "title": "Senior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Stratejisi",
+          "body": "Junior Best Yield kasaları, her zaman artırılmış, maksimize edilmiş APY'ler sağlamak için fonları otomatik olarak birden fazla Junior Tranches arasında yönlendiren ayarla ve unut stratejileridir."
+        },
+        "page-2": {
+          "title": "Junior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
         }
       },
       "seniorTranche": {
         "page-1": {
           "title": "Senior Tranche Stratejisi",
-          "body": "Senior tranche'ler, Junior Tranche'lere göre daha düşük riskle harika fırsatlar sunar."
+          "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
         },
         "page-2": {
           "title": "Senior Tranche stratejileri:"
@@ -1767,20 +1784,22 @@
       "juniorTranche": {
         "page-1": {
           "title": "Junior Tranche Stratejisi",
-          "body": "Junior Tranche'ler, daha yüksek dereceli riskler taşıyarak artırılmış, optimize edilmiş DeFi getirileri sağlar."
+          "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
         },
         "page-2": {
           "title": "Junior Tranche Stratejileri:"
         }
       },
       "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
-      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan yüksek getiri sunun",
+      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur",
       "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
       "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
       "minRisk": "En aza indirilmiş risk ",
       "builtInCoverage": "Değişken oranlı ödüller için yerleşik kapsam",
       "noLockingPeriod": "Kilitleme dönemi veya dönemleri yok",
-      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar"
+      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar",
+      "fundsCoveredJunior": "Junior Tranch'ların kapsadığı fonlar",
+      "automation": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu"
     },
     "bestYield": {
       "title": "En İyi Getiri Nedir?",
@@ -1788,11 +1807,11 @@
     },
     "seniorTranche": {
       "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatınızı korurken birden fazla protokolde DeFi getirilerinin keyfini çıkarın. Senior Tranche, fonlar üzerinde yerleşik koruma sunar ve Junior muhatabı sayesinde tam spektrumlu teminat sağlar."
+      "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
     },
     "juniorTranche": {
       "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Birden fazla DeFi protokolünde artırılmış getirilerin keyfini çıkarın: Junior Tranche, Senior muhatabına ilk kayıp sermayesini sağlamaları karşılığında tazmin edildikleri için kaldıraçlı getiri elde eder."
+      "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
     }
   },
   "promo": {

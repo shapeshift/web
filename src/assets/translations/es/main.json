@@ -1746,19 +1746,36 @@
   "idle": {
     "emptyTitle": "Gane %{apy}% en su %{asset} con Idle Finance",
     "emptyBody": {
-      "bestYield": {
+      "seniorBestYield": {
         "page-1": {
-          "title": "Estrategia Mejor Rendimiento",
-          "body": "La estrategia Mejor-Rendimiento maximiza tasas de interés en diferentes protocolos de préstamos."
+          "title": "Estrategia Senior Mejor Rendimiento",
+          "body": "Las bóvedas Senior son para configurar y olvidar,  automáticamente enrutaran fuentes de riesgo conservador proporcionando el APY más alto"
         },
         "page-2": {
-          "title": "Estrategias Mejor Rendimiento"
+          "title": "Estrategia Senior Mejor Rendimiento",
+          "bullets": {
+            "one": "Automatización y optimización de rendimiento en Aave, Compound y múltiples Senior Tranches",
+            "two": "Reciba rendimientos máximos sin verificar constantemente tarifas y gastar gas en cada transferencia"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Estrategia Junior Mejor Rendimiento",
+          "body": "Las bóvedas Junior Mejor Rendimiento son estrategias de configuración y olvido, enrutan automáticamente a tramos junior proporcionando APY aumentados y maximizados"
+        },
+        "page-2": {
+          "title": "Estrategias Junior Mejor Rendimiento:",
+          "bullets": {
+            "one": "Automatización y optimización en rendimiento a través de múltiples Junior Tranches, proporcionando rendimientos mejorados ",
+            "two": "Reciba ganancias maximizadas sin verificar constantemente tarifas y gastar gas en cada transferencia"
+          }
         }
       },
       "seniorTranche": {
         "page-1": {
           "title": "Estrategia Senior Tranche",
-          "body": "Los tramos Senior brindan grandes oportunidades con menor riesgo que junior."
+          "body": "Disfrute rendimientos DeFi con protección integrada. Los Tramos Senior ofrecen cobertura completa, dado por su contraparte Junior."
         },
         "page-2": {
           "title": "Estrategias Senior Tranche"
@@ -1767,20 +1784,22 @@
       "juniorTranche": {
         "page-1": {
           "title": "Estrategia Junior Tranche",
-          "body": "Los tramos Junior proporcionan rendimientos DeFi optimizados y amplificados al conllevar mayor riesgo."
+          "body": "Disfrute rendimientos mejorados DeFi. Tramos Junior proporcionan rendimientos apalancados, compensados por su contraparte senior por correr más riesgo."
         },
         "page-2": {
           "title": "Estrategias Junior Tranche:"
         }
       },
       "monitorSystem": "Use el seguimiento Idle Finance para encontrar asignaciones con mejor rendimiento y desencadenar reequilibrio",
-      "offerHighReturn": "Ofrece altos rendimientos sin que el usuario controle constantemente tarifas y gaste gas",
+      "offerHighReturn": "Reciba ganancias maximizadas sin verificar constantemente tarifas y gastar gas en cada transferencia",
       "leverageYield": "Rendimiento de apalancamiento utilizando fondos Senior",
       "higherRisk": "Mayor exposición a riesgo al proteger tramos Senior",
       "minRisk": "Exposición al riesgo minimizada",
       "builtInCoverage": "Cobertura integrada para recompensas de tasa variable",
       "noLockingPeriod": "Sin período de bloqueo o epochs",
-      "autoReinvest": "Tokens acumulados de Reinversión"
+      "autoReinvest": "Tokens acumulados de Reinversión",
+      "fundsCoveredJunior": "Fondos cubiertos por Tramos Junior",
+      "automation": "Automatización y optimización de rendimiento en Aave, Compound y múltiples Senior Tranches"
     },
     "bestYield": {
       "title": "¿Cual es el mejor rendimiento?",
@@ -1788,11 +1807,11 @@
     },
     "seniorTranche": {
       "title": "¿Qué es un Tramo Senior?",
-      "body": "Disfrute de los rendimientos DeFi a través de múltiples protocolos mientras mantiene protegido su depósito. Los Tramos Senior ofrecen protección incorporada sobre los fondos y proporcionan cobertura de espectro completo gracias a su contraparte Junior."
+      "body": "Disfrute rendimientos DeFi con protección integrada. Tramos Senior ofrecen cobertura completa, por su contraparte Junior."
     },
     "juniorTranche": {
       "title": "¿Que es un Tramo Junior?",
-      "body": "Disfrute de rendimientos mejorados en múltiples protocolos DeFi: los tramos junior logran un rendimiento apalancado, ya que son compensados ​​por proporcionar capital de primera pérdida a su contraparte senior."
+      "body": "Disfrute rendimientos mejorados DeFi. Tramos Junior proporcionan rendimientos apalancados, compensados por su contraparte senior por correr más riesgo."
     }
   },
   "promo": {

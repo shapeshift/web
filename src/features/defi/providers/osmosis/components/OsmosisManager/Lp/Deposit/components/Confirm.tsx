@@ -192,7 +192,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           opportunity: osmosisOpportunity,
           fiatAmounts: [
             state.deposit.underlyingAsset0.fiatAmount,
-            state.deposit.underlyingAsset1.fiatAmont,
+            state.deposit.underlyingAsset1.fiatAmount,
           ],
           cryptoAmounts: [
             {

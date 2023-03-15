@@ -15,7 +15,7 @@ export const initialState: OsmosisDepositState = {
       denom: '',
     },
     underlyingAsset1: {
-      fiatAmont: '',
+      fiatAmount: '',
       amountCryptoHuman: '',
       amount: '',
       denom: '',

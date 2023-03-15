@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { selectStakingOpportunitiesById } from 'state/slices/opportunitiesSlice/selectors'
+import { selectStakingOpportunityByFilter } from 'state/slices/opportunitiesSlice/selectors'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
@@ -15,11 +15,12 @@ export const useFoxyQuery = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference: contractAddress, assetNamespace } = query
   const contractAssetId = toAssetId({ chainId, assetNamespace, assetReference: contractAddress })
-  const opportunitiesMetadata = useAppSelector(state => selectStakingOpportunitiesById(state))
-
-  const opportunityMetadata = useMemo(
-    () => opportunitiesMetadata[contractAssetId as StakingId],
-    [contractAssetId, opportunitiesMetadata],
+  const opportunityMetadataFilter = useMemo(
+    () => ({ stakingId: contractAssetId as StakingId }),
+    [contractAssetId],
+  )
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
   const underlyingAssetId = opportunityMetadata?.underlyingAssetId ?? ''

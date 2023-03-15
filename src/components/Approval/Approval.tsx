@@ -25,8 +25,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import type { DisplayFeeData } from 'components/Trade/types'
 import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -36,6 +35,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
@@ -53,10 +53,12 @@ export const Approval = () => {
     formState: { isSubmitting },
   } = useFormContext()
 
-  const {
-    dispatch: swapperDispatch,
-    state: { quote, feeAssetFiatRate, fees, isExactAllowance },
-  } = useSwapperState<EvmChainId>()
+  const quote = useSwapperStore(state => state.quote)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
+  const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
+  const fees = useSwapperStore(state => state.fees) as DisplayFeeData<EvmChainId> | undefined
+  const updateTrade = useSwapperStore(state => state.updateTrade)
 
   const { checkApprovalNeeded, approve, getTrade } = useSwapper()
   const {
@@ -74,14 +76,13 @@ export const Approval = () => {
     selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
   )
 
-  const approvalFeeCryptoPrecision = bnOrZero(fees?.chainSpecific.approvalFeeCryptoBaseUnit).div(
-    bn(10).pow(sellFeeAsset?.precision ?? 0),
-  )
+  if (fees && !fees.chainSpecific) {
+    moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
+  }
 
-  const handleExactAllowanceToggle = useCallback(
-    () => swapperDispatch({ type: SwapperActionType.TOGGLE_IS_EXACT_ALLOWANCE }),
-    [swapperDispatch],
-  )
+  const approvalFeeCryptoPrecision = bnOrZero(
+    fees?.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
+  ).div(bn(10).pow(sellFeeAsset?.precision ?? 0))
 
   const approveContract = useCallback(async () => {
     if (!quote) {
@@ -118,7 +119,7 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { trade } })
+        updateTrade(trade)
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {
@@ -128,12 +129,12 @@ export const Approval = () => {
     approve,
     checkApprovalNeeded,
     dispatch,
-    swapperDispatch,
     getTrade,
     history,
     isConnected,
     quote,
     showErrorToast,
+    updateTrade,
   ])
 
   return (
@@ -228,7 +229,7 @@ export const Approval = () => {
                     size='sm'
                     mx={2}
                     isChecked={isExactAllowance}
-                    onChange={handleExactAllowanceToggle}
+                    onChange={toggleIsExactAllowance}
                   />
                   <Text
                     color={isExactAllowance ? 'white' : 'gray.500'}

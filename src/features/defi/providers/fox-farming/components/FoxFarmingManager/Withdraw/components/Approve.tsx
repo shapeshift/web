@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
@@ -14,14 +14,23 @@ import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxF
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
@@ -38,30 +47,42 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCrypto = state?.approve.estimatedGasCrypto
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
-  const opportunity = state?.opportunity
+  const { assetNamespace, chainId, contractAddress, rewardId } = query
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace,
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
+
+  const underlyingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
   const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
   const toast = useToast()
+  const assets = useAppSelector(selectAssets)
 
-  const assetNamespace = 'erc20'
   // Asset info
-  const assetId = toAssetId({
+  const rewardAssetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference: rewardId,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
+  const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
+  if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   // user info
@@ -70,7 +91,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   } = useWallet()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !opportunity || !wallet || !supportsETH(wallet)) return
+    if (!dispatch || !state?.withdraw.lpAmount || !opportunity || !wallet || !supportsETH(wallet))
+      return
 
     try {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
@@ -78,8 +100,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset?.precision ?? 0))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision ?? 0))
+          return bnOrZero(allowance).gte(bnOrZero(state?.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
@@ -88,7 +110,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
       if (!gasData) return
       const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
-        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .div(bn(10).pow(underlyingAsset?.precision ?? 0))
         .toPrecision()
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
@@ -96,6 +118,15 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       onNext(DefiStep.Confirm)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawApprove,
+        {
+          opportunity,
+          fiatAmounts: [],
+          cryptoAmounts: [],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
       toast({
@@ -108,19 +139,19 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    allowance,
-    approve,
-    asset?.precision,
     dispatch,
-    feeAsset.precision,
-    getUnstakeGasData,
-    onNext,
-    opportunity,
     state?.withdraw.lpAmount,
     state?.withdraw.isExiting,
+    opportunity,
+    wallet,
+    approve,
+    getUnstakeGasData,
+    underlyingAsset?.precision,
+    onNext,
+    assets,
+    allowance,
     toast,
     translate,
-    wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(
@@ -147,11 +178,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset, estimatedGasCrypto],
   )
 
-  if (!state || !dispatch || !opportunity) return null
+  if (!state || !dispatch || !opportunity || !underlyingAsset) return null
 
   return (
     <ReusableApprove
-      asset={asset}
+      asset={underlyingAsset}
       feeAsset={feeAsset}
       cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}

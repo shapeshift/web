@@ -1,11 +1,11 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
-import { OptInModal } from 'plugins/pendo/components/OptInModal/OptInModal'
 import React, { useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
+import { LiveSupportModal } from 'components/Modals/LiveSupport/LiveSupport'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
 import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
@@ -25,13 +25,13 @@ const MODALS = {
   fiatRamps: FiatRampsModal,
   settings: SettingsModal,
   keepKeyWipe: WipeModal,
-  consentOptin: OptInModal,
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
+  liveSupport: LiveSupportModal,
 }
 
 // state

@@ -50,7 +50,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress } = query
+  const { assetNamespace, chainId, contractAddress } = query
 
   const { farmingAccountId } = useFoxEth()
 
@@ -60,12 +60,12 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
         accountId!,
         toOpportunityId({
           chainId,
-          assetNamespace: 'erc20',
+          assetNamespace,
           assetReference: contractAddress,
         }),
       ),
     }),
-    [accountId, chainId, contractAddress],
+    [accountId, assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
@@ -81,10 +81,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
           payload: fromAccountId(farmingAccountId).account,
-        })
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_OPPORTUNITY,
-          payload: foxFarmingOpportunity,
         })
       } catch (error) {
         // TODO: handle client side errors
@@ -109,7 +105,13 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
         ? {
             label: translate('defi.steps.withdraw.info.title'),
             description: translate('defi.steps.withdraw.info.farmingExpiredDescription'),
-            component: ExpiredWithdraw,
+            component: ownProps => (
+              <ExpiredWithdraw
+                {...ownProps}
+                accountId={accountId}
+                onAccountIdChange={handleAccountIdChange}
+              />
+            ),
           }
         : {
             label: translate('defi.steps.withdraw.info.title'),

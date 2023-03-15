@@ -141,14 +141,6 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='common.privacy' />
                 </Link>
-                <Link
-                  href='https://shapeshift.zendesk.com/hc/en-us/articles/9172454414861'
-                  isExternal
-                  color='whiteAlpha.500'
-                  _hover={{ color: 'white' }}
-                >
-                  <Text translation='connectWalletPage.betaSunset' />
-                </Link>
               </Flex>
             </Flex>
           </Flex>

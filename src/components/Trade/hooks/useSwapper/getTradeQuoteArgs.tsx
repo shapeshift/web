@@ -7,10 +7,10 @@ import {
   isEvmSwap,
   isUtxoSwap,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
-import type { SwapperState } from 'components/Trade/SwapperProvider/types'
 import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'
+import type { SwapperStore } from 'state/zustand/swapperStore/types'
 
 export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
@@ -18,7 +18,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: NonNullable<SwapperState['receiveAddress']>
+  receiveAddress: NonNullable<SwapperStore['receiveAddress']>
   sellAmountBeforeFeesCryptoPrecision: string
   isSendMax: boolean
 }

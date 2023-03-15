@@ -17,6 +17,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from '../../common-selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
+import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType, LpId, StakingEarnOpportunityType } from './../types'
 
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
@@ -205,11 +206,30 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpOpportunitiesById,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectAssets,
-  (lpId, lpOpportunitiesById, lpAssetBalancePrecision, assets): AssetWithBalance[] | undefined => {
+  selectMarketDataSortedByMarketCap,
+  (
+    lpId,
+    lpOpportunitiesById,
+    lpAssetBalancePrecision,
+    assets,
+    marketData,
+  ): AssetWithBalance[] | undefined => {
     if (!lpId) return
     const opportunityMetadata = lpOpportunitiesById[lpId]
 
     if (!opportunityMetadata) return
+    const lpAsset = assets[lpId]
+    if (!lpAsset) return
+
+    const underlyingBalances = getUnderlyingAssetIdsBalances({
+      cryptoAmountBaseUnit: bnOrZero(lpAssetBalancePrecision)
+        .div(bnOrZero(10).pow(lpAsset?.precision))
+        .toString(),
+      underlyingAssetIds: opportunityMetadata.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: opportunityMetadata.underlyingAssetRatiosBaseUnit,
+      assets,
+      marketData,
+    })
     const underlyingAssetsIcons = opportunityMetadata.underlyingAssetIds
       .map(assetId => assets[assetId]?.icon)
       .filter(isSome)
@@ -219,15 +239,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
         return asset
           ? {
               ...asset,
-              cryptoBalancePrecision: bnOrZero(lpAssetBalancePrecision)
-                .times(
-                  fromBaseUnit(
-                    opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
-                    asset.precision,
-                  ),
-                )
-                .toFixed(6)
-                .toString(),
+              cryptoBalancePrecision: underlyingBalances[assetId].cryptoBalancePrecision,
               icons: [underlyingAssetsIcons[i]],
               allocationPercentage: '0.50',
             }

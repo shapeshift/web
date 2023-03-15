@@ -13,6 +13,7 @@
     "connected": "Conectado",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
+    "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
     "insufficientFunds": "Saldo insuficiente",
     "estimatedGas": "Taxa de gás estimada",
     "relayerGasFee": "Taxa de gás",
@@ -49,6 +50,7 @@
     "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
+    "liveSupport": "Ajuda",
     "submitFeedback": "Deixe um comentário",
     "send": "Enviar",
     "receive": "Receber",
@@ -90,7 +92,19 @@
     "alternative": "Alternativa",
     "validator": "o %{name} validador",
     "needAsset": "Precisa de algum %{asset}?",
-    "buyNow": "Comprar agora"
+    "buyNow": "Comprar agora",
+    "manage": "Gerenciar",
+    "selectedAccount": "Conta selecionada"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "Nosso dApp usa anonimiza o rastreamento de cliques para analisar o desempenho e melhorar sua experiência. Ao usar app.shapeshift.com, você concorda com nosso rastreamento. Visite",
+      "2": "private.shapeshift.com",
+      "3": "se você não quiser ser rastreado anonimamente. Veja nossa",
+      "4": "Politica de Privacidade",
+      "5": "para mais detalhes."
+    },
+    "cta": "Entendi"
   },
   "errorPage": {
     "title": "Opa!",
@@ -198,7 +212,6 @@
     "defiUniverse": "Universo DeFi",
     "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
     "body2": "Bem-vindo a nova ShapeShift. 100% Gratuita. Código aberto. Propriedade da Comunidade. Não custodial. Privada.",
-    "betaSunset": "Beta foi descontinuada, leia mais",
     "header": "Conecte sua carteira para iniciar",
     "cta": "Conectar Carteira",
     "viewADemo": "Ver uma demonstração"
@@ -391,6 +404,12 @@
     "currentAPY": "APY atualizado",
     "currentAPR": "APR atualizado",
     "yearn": "Yearn Finance",
+    "totalValue": "Valor total",
+    "netApy": "APY Total",
+    "claimableRewards": "Recompensas Resgatáveis",
+    "reawrds": "Recompensas",
+    "stakingPosition": "Posição em Stake",
+    "liquidityPool": "Pool de Liquidez",
     "emptyEarn": "As oportunidades de ganhos aparecerão aqui.",
     "empty": {
       "farming": {
@@ -449,6 +468,7 @@
   "navBar": {
     "home": "Início",
     "dashboard": "Painel de Controle",
+    "dashboardShort": "Painel",
     "assets": "Ativos",
     "assetDetails": "Detalhes do recurso",
     "accounts": "Contas",
@@ -469,7 +489,7 @@
     "explore": "Explorar",
     "trade": "Negocie",
     "buyCrypto": "Compre Cripto",
-    "buySell": "Compre/venda",
+    "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo"
   },
   "transactionRow": {
@@ -1353,6 +1373,7 @@
       },
       "onboarding": {
         "skip": "Pular",
+        "shapeshiftWallet": "Carteira ShapeShift",
         "selfCustody": {
           "title": "Auto-custódia",
           "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
@@ -1595,9 +1616,12 @@
         "menu": {
           "disconnect": "Desconecte",
           "address": "Endereço",
+          "addresses": "Endereços",
           "connected": "Conectado",
           "network": "Rede",
-          "unsupportedNetwork": "Rede não suportada"
+          "networks": "Redes",
+          "unsupportedNetwork": "Rede não suportada",
+          "expiry": "Sessão expirada"
         }
       },
       "modal": {
@@ -1611,7 +1635,16 @@
           "confirm": "Confirmar",
           "reject": "Rejeitar",
           "messageData": "Dados da mensagem",
-          "domain": "Domínio"
+          "domain": "Domínio",
+          "memo": "Memo",
+          "messages": "Mensagens",
+          "noMessages": "Sem mensagens",
+          "sequence": "Seqüência",
+          "accountNumber": "Número de conta",
+          "chainId": "ID da rede",
+          "authInfo": "Informação Auth",
+          "body": "Corpo",
+          "comingSoon": "Em breve"
         },
         "sendTransaction": {
           "sendingFrom": "Enviando de",
@@ -1648,7 +1681,20 @@
           "howTo": "Como se conectar a um dApp?",
           "linkPlaceholder": "Código QR ou link para conectar-se",
           "connect": "Conectar",
-          "connectionError": "Não é possível conectar ao URI fornecido."
+          "connectionError": "Não é possível conectar ao URI fornecido.",
+          "invalidUri": "URL inválido",
+          "v1UriUnsupported": "URL da WalletConnect V1não habilitado",
+          "v2UriUnsupported": "URL da WalletConnect V2 não habilitado"
+        },
+        "sessionProposal": {
+          "dAppInfo": "Informação do dApp",
+          "permissions": "Permissões",
+          "accountSelection": "Escolha as contas",
+          "unsupportedChain": "Rede não suportada.",
+          "methods": "Métodos",
+          "events": "Eventos",
+          "selectedAccounts": "Contas selecionadas",
+          "permissionMessage": "Selecione pelo menos uma conta por rede."
         }
       },
       "registry": {
@@ -1698,17 +1744,74 @@
     "custom": "Customizar"
   },
   "idle": {
+    "emptyTitle": "Ganhe %{apy}% no seu %{asset} com a Idle Finance",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Estratégia Senior Best Yield",
+          "body": "As pools Senior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
+        },
+        "page-2": {
+          "title": "Estratégias Senior Best Yield:",
+          "bullets": {
+            "one": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches",
+            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Estratégia Junior Best Yield",
+          "body": "As pools Junior Best Yield são estratégias para setar e esquecer, porque direcionam seu dinheiro automaticamente para várias lugares que lhe pagarão bons ganhos, mantendo a segurança do seu capital e sempre fornecendo o máximo rendimento! "
+        },
+        "page-2": {
+          "title": "Estratégias Junior Best Yield:",
+          "bullets": {
+            "one": "Automação e otimização de ganhos em várias tranches júnior, fornecendo o máximo de rendimentos para os usuários",
+            "two": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Estratégia Senior Tranche",
+          "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
+        },
+        "page-2": {
+          "title": "Estratégias de tranches Senior:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Estratégia de tranche Junior",
+          "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
+        },
+        "page-2": {
+          "title": "Estratégias de tranche junior:"
+        }
+      },
+      "monitorSystem": "Utilize o sistema de monitoramento do Idle Finance para encontrar alocações de melhor desempenho e ter um balanceamento eficiente. ",
+      "offerHighReturn": "Ofereça o máximo de retorno sem que o usuário verifique constantemente as taxas e gaste com taxas a cada transferência",
+      "leverageYield": "Alavancar o rendimento usando fundos de tranches seniores",
+      "higherRisk": "Maior exposição ao risco ao proteger tranches seniores",
+      "minRisk": "Exposição ao risco minimizada",
+      "builtInCoverage": "Cobertura integrada para recompensas de taxa variável",
+      "noLockingPeriod": "Sem período de bloqueio ou épocas",
+      "autoReinvest": "Tokens re-investidos",
+      "fundsCoveredJunior": "Fundos cobertos pelas Junior Tranches",
+      "automation": "Automação e otimização da geração de ganhos na Aave, Compound e várias Senior Tranches"
+    },
     "bestYield": {
       "title": "Quais as Melhores Recompensas?",
       "body": "Maximize automaticamente o rendimento em vários protocolos DeFi testados. A estratégia Best-Yield otimiza o ganho de recompensas ao dividir os custos das taxas, automatizando a geração de incentivos ao transferir capital algoritmicamente à medida que surgem novas oportunidades."
     },
     "seniorTranche": {
       "title": "O que é uma Senior Tranche?",
-      "body": "Aproveite os rendimentos DeFi em vários protocolos, mantendo seu depósito protegido. As Tranches Sênior oferecem proteção total aos seus fundos graças as Tranches Júnior."
+      "body": "Aproveite os ganhos em DeFi com proteção em seus depósitos. As Tranches Sênior oferecem uma cobertura total, assegurada pelas Tranches Júnior."
     },
     "juniorTranche": {
       "title": "O que é uma Junior Tranche?",
-      "body": "Desfrute de rendimentos maximizados em vários protocolos DeFi: as Tranches Junior alcançam rendimento alavancado, pois são compensadas por fornecer capital de primeira perda para sua contraparte sênior."
+      "body": "Desfrute de rendimentos DeFi maximizados. As Tranches Júnior fornecem retornos alavancados, por serem compensadas pela proteção fornecida as Junior Tranches"
     }
   },
   "promo": {
@@ -1727,10 +1830,10 @@
     "whatIsArkeo": {
       "title": "O que é Arkeo?",
       "bodyParts": {
-        "1": "Último ano",
-        "2": "Coinbase Cloud",
-        "3": "A ShapeShift incubou um projeto chamado Arkeo. Lançamento na mainnet é logo logo!",
-        "4": "O Arkeo foi criado para ser um back-end descentralizado para todos os dados do nó. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
+        "1": "No ano passado, junto da",
+        "2": "Coinbase Cloud,",
+        "3": "a ShapeShift incubou um projeto chamado Arkeo. O lançamento na mainnet é logo logo!",
+        "4": "O Arkeo foi criado para ser um back-end descentralizado para dados de nós de uma blockchain. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
         "5": "coeficiente nakamoto",
         "6": "enquanto reduz a dependência de fontes de dados centralizadas."
       }

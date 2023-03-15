@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -16,9 +16,19 @@ import { Amount } from 'components/Amount/Amount'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -32,19 +42,39 @@ type StatusProps = {
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state, dispatch } = useContext(WithdrawContext)
-  const opportunity = state?.opportunity
+
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { assetNamespace, chainId, contractAddress } = query
+
+  const assets = useAppSelector(selectAssets)
+
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace,
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
+
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const feeAssetId = ethAssetId
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
+
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetId}`)
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -77,6 +107,28 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       })
     }
   }, [confirmedTransaction, dispatch, feeAsset.precision])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (state?.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: state.withdraw.lpAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    asset.assetId,
+    assets,
+    opportunity,
+    state?.withdraw.fiatAmount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.txStatus,
+  ])
 
   if (!state || !dispatch || !opportunity) return null
 

@@ -1,10 +1,10 @@
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectFiatToUsdRate } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type GetTradeAmountConstantsArgs = CalculateAmountsArgs
 
@@ -179,28 +179,21 @@ export const getTradeAmountConstants = ({
 }
 
 export const useGetTradeAmounts = () => {
-  const {
-    state: {
-      sellTradeAsset,
-      buyTradeAsset,
-      buyAssetFiatRate: buyAssetUsdRate,
-      sellAssetFiatRate: sellAssetUsdRate,
-      fees,
-      action,
-      amount,
-    },
-  } = useSwapperState()
+  const buyAssetUsdRate = useSwapperStore(state => state.buyAssetFiatRate)
+  const sellAssetUsdRate = useSwapperStore(state => state.sellAssetFiatRate)
+  const action = useSwapperStore(state => state.action)
+  const amount = useSwapperStore(state => state.amount)
+  const fees = useSwapperStore(state => state.fees)
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
-  const buyAsset = buyTradeAsset?.asset
-  const sellAsset = sellTradeAsset?.asset
+  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
+  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
   const sellAssetTradeFeeUsd = bnOrZero(fees?.sellAssetTradeFeeUsd)
   const buyAssetTradeFeeUsd = bnOrZero(fees?.buyAssetTradeFeeUsd)
-  if (
-    !bnOrZero(buyTradeAsset?.amountCryptoPrecision).gt(0) ||
-    !bnOrZero(sellTradeAsset?.amountCryptoPrecision).gt(0)
-  )
+  if (!bnOrZero(buyAmountCryptoPrecision).gt(0) || !bnOrZero(sellAmountCryptoPrecision).gt(0))
     return
   if (!amount) return
   if (!action) return

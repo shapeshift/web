@@ -48,11 +48,13 @@ export const uniV2LpMetadataResolver = async ({
   const { chainId } = fromAssetId(opportunityId)
   const token0MarketData: MarketData = selectMarketDataById(
     state,
-    toAssetId({
-      assetNamespace: 'erc20',
-      assetReference: pair.token0.address,
-      chainId,
-    }),
+    pair.token0.address === WETH_TOKEN_CONTRACT_ADDRESS
+      ? ethAssetId
+      : toAssetId({
+          assetNamespace: 'erc20',
+          assetReference: pair.token0.address,
+          chainId,
+        }),
   )
 
   const assetId0 =

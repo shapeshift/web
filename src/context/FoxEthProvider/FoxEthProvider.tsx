@@ -29,9 +29,9 @@ type FoxEthProviderProps = {
 
 type IFoxEthContext = {
   farmingAccountId: AccountId | undefined
-  setFarmingAccountId: (accountId: AccountId) => void
+  setFarmingAccountId: (accountId: AccountId | undefined) => void
   lpAccountId: AccountId | undefined
-  setLpAccountId: (accountId: AccountId) => void
+  setLpAccountId: (accountId: AccountId | undefined) => void
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
   onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }

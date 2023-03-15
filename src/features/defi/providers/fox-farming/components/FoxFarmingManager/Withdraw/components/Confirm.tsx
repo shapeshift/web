@@ -1,6 +1,5 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
@@ -10,20 +9,27 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -41,9 +47,24 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, rewardId } = query
-  const opportunity = state?.opportunity
+  const { assetNamespace, chainId, contractAddress, rewardId } = query
+
+  const assets = useAppSelector(selectAssets)
+
+  const opportunity = useAppSelector(state =>
+    selectEarnUserStakingOpportunityByUserStakingId(state, {
+      userStakingId: serializeUserStakingId(
+        accountId ?? '',
+        toOpportunityId({
+          chainId,
+          assetNamespace,
+          assetReference: contractAddress,
+        }),
+      ),
+    }),
+  )
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
@@ -53,11 +74,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const underlyingAsset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
   )
-  const feeAssetId = toAssetId({
-    chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
-  })
+
+  const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
@@ -81,7 +100,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const handleConfirm = useCallback(async () => {
     try {
-      if (!dispatch || !state?.userAddress || !rewardId || !walletState.wallet || state.loading)
+      if (
+        !dispatch ||
+        !state?.userAddress ||
+        !rewardId ||
+        !walletState.wallet ||
+        state.loading ||
+        !opportunity ||
+        !underlyingAsset
+      )
         return
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
       const txid = await unstake(state.withdraw.lpAmount, state.withdraw.isExiting)
@@ -90,22 +117,43 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onOngoingFarmingTxIdChange(txid, contractAddress)
       onNext(DefiStep.Status)
       dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [
+            { assetId: underlyingAsset.assetId, amountCryptoHuman: state.withdraw.lpAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     }
   }, [
+    assets,
     contractAddress,
     dispatch,
     onNext,
     onOngoingFarmingTxIdChange,
+    opportunity,
     rewardId,
     state?.loading,
     state?.userAddress,
+    state?.withdraw.fiatAmount,
     state?.withdraw.isExiting,
     state?.withdraw.lpAmount,
+    underlyingAsset,
     unstake,
     walletState.wallet,
   ])
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch || !underlyingAsset || !opportunity) return null
 

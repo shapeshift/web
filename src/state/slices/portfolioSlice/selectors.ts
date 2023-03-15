@@ -27,10 +27,14 @@ import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
 import type { BridgeAsset } from 'components/Bridge/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
-import { isValidAccountNumber } from 'lib/utils'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
+import { hashCode, isValidAccountNumber } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -54,6 +58,8 @@ import {
   selectPortfolioAssetBalances,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
+  selectWalletId,
+  selectWalletName,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
@@ -772,6 +778,75 @@ export const selectPortfolioBridgeAssets = createDeepEqualOutputSelector(
         fiatAmount: v.fiatAmount,
         implementations,
       }
+    })
+  },
+)
+
+export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
+  selectAssets,
+  selectWalletId,
+  selectWalletName,
+  selectPortfolioFiatBalances,
+  (assetsById, walletId, walletName = '', portfolioBalances): AnonymizedPortfolio => {
+    const hashedWalletId = hashCode(walletId || '')
+
+    type AssetBalances = Record<string, number>
+    type ChainBalances = Record<string, number>
+
+    const [assetBalances, chainBalances, portfolioBalanceBN] = Object.entries(
+      portfolioBalances,
+    ).reduce<[AssetBalances, ChainBalances, BigNumber]>(
+      (acc, [assetId, balance]) => {
+        // by asset
+        const assetName = getMaybeCompositeAssetSymbol(assetId, assetsById)
+        acc[0][assetName] = Number(balance)
+
+        // by chain
+        const { chainId } = fromAssetId(assetId)
+        const chain = getChainAdapterManager().get(chainId)?.getDisplayName()
+        if (!chain) return acc
+        if (!acc[1][chain]) acc[1][chain] = 0
+        acc[1][chain] = Number(bnOrZero(acc[1][chain]).plus(bnOrZero(balance)).toPrecision(2))
+
+        // total
+        acc[2] = bnOrZero(acc[2]).plus(bnOrZero(balance))
+
+        return acc
+      },
+      [{}, {}, bn(0)],
+    )
+
+    const assets = Object.keys(assetBalances)
+    const chains = Object.keys(chainBalances)
+    const portfolioBalance = Number(portfolioBalanceBN.toFixed(2))
+
+    return {
+      'Is Mobile': isMobile,
+      'Wallet ID': hashedWalletId,
+      'Wallet Name': walletName,
+      'Portfolio Balance': portfolioBalance,
+      Chains: chains,
+      Assets: assets,
+      'Asset Balances': assetBalances,
+      'Chain Balances': chainBalances,
+    }
+  },
+)
+
+export const selectAccountIdByAccountNumberAndChainId = createSelector(
+  selectWalletAccountIds,
+  selectPortfolioAccountMetadata,
+  selectAccountNumberParamFromFilter,
+  selectChainIdParamFromFilter,
+  (walletAccountIds, accountMetadata, accountNumber, chainId): AccountId | undefined => {
+    if (!isValidAccountNumber(accountNumber))
+      throw new Error(`invalid account number: ${accountNumber}`)
+    if (chainId === undefined) throw new Error('undefined chain id')
+
+    return walletAccountIds.find(accountId => {
+      if (fromAccountId(accountId).chainId !== chainId) return false
+      if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
+      return true
     })
   },
 )

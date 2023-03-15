@@ -10,7 +10,7 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import qs from 'qs'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -19,8 +19,13 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
 } from 'state/slices/selectors'
@@ -46,7 +51,17 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference } = query
-  const opportunity = state?.opportunity
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { lpAccountId } = useFoxEth()
   const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
 
@@ -57,6 +72,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const foxMarketData = useAppSelector(state => selectMarketDataById(state, foxAssetId))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
@@ -82,8 +98,12 @@ export const Deposit: React.FC<DepositProps> = ({
   if (!state || !dispatch) return null
 
   const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+    const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasData(deposit.cryptoAmount0, deposit.cryptoAmount1)
+      const gasData = await getDepositGasData({
+        token0Amount,
+        token1Amount,
+      })
       if (!gasData) return
       return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
@@ -102,6 +122,7 @@ export const Deposit: React.FC<DepositProps> = ({
   }
 
   const handleContinue = async (formValues: DepositValues) => {
+    if (!foxEthLpOpportunity) return
     // set deposit state for future use
     dispatch({
       type: FoxEthLpDepositActionType.SET_DEPOSIT,
@@ -112,6 +133,18 @@ export const Deposit: React.FC<DepositProps> = ({
         foxFiatAmount: formValues.fiatAmount1,
       },
     })
+    trackOpportunityEvent(
+      MixPanelEvents.DepositContinue,
+      {
+        opportunity: foxEthLpOpportunity,
+        fiatAmounts: [formValues.fiatAmount0, formValues.fiatAmount1],
+        cryptoAmounts: [
+          { assetId: ethAssetId, amountCryptoHuman: formValues.cryptoAmount0 },
+          { assetId: foxAssetId, amountCryptoHuman: formValues.cryptoAmount1 },
+        ],
+      },
+      assets,
+    )
     dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
     try {
       // Check if approval is required for user address
@@ -199,9 +232,9 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       asset0={ethAsset}
       asset1={foxAsset}
-      icons={opportunity?.icons}
+      icons={foxEthLpOpportunity?.icons}
       destAsset={asset}
-      apy={opportunity?.apy?.toString() ?? ''}
+      apy={foxEthLpOpportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable0={ethCryptoAmountAvailable.toPrecision()}
       cryptoAmountAvailable1={foxCryptoAmountAvailable.toPrecision()}
       cryptoInputValidation0={{

@@ -18,9 +18,17 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { waitForSaversUpdate } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -33,12 +41,14 @@ type StatusProps = {
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const appDispatch = useAppDispatch()
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
+  const assets = useAppSelector(selectAssets)
   const assetId = state?.opportunity?.assetId
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -49,6 +59,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     () => state?.deposit.maybeFromUTXOAccountAddress || accountAddress,
     [accountAddress, state?.deposit.maybeFromUTXOAccountAddress],
   )
+
+  const opportunity = state?.opportunity
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''
@@ -85,6 +97,29 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity || !assetId) return
+    if (state?.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    assetId,
+    mixpanel,
+    opportunity,
+    state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
+    state?.deposit.txStatus,
+  ])
 
   if (!state || !asset) return null
 

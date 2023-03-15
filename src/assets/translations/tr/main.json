@@ -13,6 +13,7 @@
     "connected": "Bağlandı",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
+    "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
     "insufficientFunds": "Yetersiz bakiye",
     "estimatedGas": "Tahmini Gaz Ücreti",
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
@@ -49,6 +50,7 @@
     "retryQuestion": "Tekrar dene?",
     "transactionFailed": "İşlem Başarısız",
     "transactionFailedBody": "İşlem Başarısız",
+    "liveSupport": "Destek",
     "submitFeedback": "Geri Bildirim Gönder",
     "send": "Gönder",
     "receive": "Al",
@@ -90,7 +92,19 @@
     "alternative": "Alternatif",
     "validator": "%{name} Doğrulayıcı",
     "needAsset": "%{asset}'e mi ihtiyacınız var?",
-    "buyNow": "Şimdi al"
+    "buyNow": "Şimdi al",
+    "manage": "Yönet",
+    "selectedAccount": "Bir Hesap Seçin"
+  },
+  "consentBanner": {
+    "body": {
+      "1": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz. ",
+      "2": "private.shapeshift.com",
+      "3": "Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için",
+      "4": "Gizlilik Politikamıza",
+      "5": "göz atın."
+    },
+    "cta": "Anladım"
   },
   "errorPage": {
     "title": "Hata!",
@@ -198,7 +212,6 @@
     "defiUniverse": "Keşfedin",
     "body": "%100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
-    "betaSunset": "Beta kullanımdan kaldırıldı, Daha Fazlasını Öğrenin",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
     "cta": "Cüzdanı Bağla",
     "viewADemo": "Demo Görüntüle"
@@ -391,6 +404,12 @@
     "currentAPY": "Mevcut APY",
     "currentAPR": "Mevcut APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Toplam Değer",
+    "netApy": "Net APY",
+    "claimableRewards": "Talep Edilebilir Ödüller",
+    "reawrds": "Ödüller",
+    "stakingPosition": "Staking Pozisyonu",
+    "liquidityPool": "Likidite Havuzu",
     "emptyEarn": "Kazanç fırsatları burada görünecektir.",
     "empty": {
       "farming": {
@@ -449,6 +468,7 @@
   "navBar": {
     "home": "Ana Sayfa",
     "dashboard": "Gösterge Paneli",
+    "dashboardShort": "Panel",
     "assets": "Varlıklar",
     "assetDetails": "Varlık Ayrıntıları",
     "accounts": "Hesaplar",
@@ -469,7 +489,7 @@
     "explore": "Keşfet",
     "trade": "Takas",
     "buyCrypto": "Kripto Al/Sat",
-    "buySell": "Al/Sat",
+    "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
@@ -1343,7 +1363,7 @@
         "captchaRequired": "Güvenlik kodu gerekli",
         "tooManyAttempts": "Çok fazla denendi. Lütfen daha sonra tekrar deneyiniz.",
         "invalidLogin": "Geçersiz giriş",
-        "noWallet": "Oturum açmanız için bir ShapeShift Native cüzdanı bulunamadı. Bu mesajın hatalı olduğunu düşünüyorsanız, lütfen ShapeShift desteği ile iletişime geçin.",
+        "noWallet": "Oturum açmanız için bir ShapeShift cüzdanı bulunamadı. Bu mesajın hatalı olduğunu düşünüyorsanız, lütfen ShapeShift desteği ile iletişime geçin.",
         "decryptionError": "Cüzdanınızın şifresi çözülürken bir sorun oluştu.",
         "twoFactorAuthentication": "İki Faktörlü Kimlik Doğrulama",
         "twoFactorPlaceholder": "6 haneli kod",
@@ -1353,21 +1373,22 @@
       },
       "onboarding": {
         "skip": "Geç",
+        "shapeshiftWallet": "ShapeShift Cüzdanı",
         "selfCustody": {
-          "title": "Kişisel Velayet",
+          "title": "ShapeShift Cüzdanınız kişisel velayettir",
           "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
           "body": "Kişisel velayet cüzdanı, ona sahip olduğunuz ve paranıza yalnızca sizin erişebileceğiniz anlamına gelir. Gizli kurtarma ifadeniz, ona erişmenin anahtarıdır. Paranıza erişmenizi kimse engelleyemez.",
           "cta": "Sonraki"
         },
         "multiChain": {
-          "title": "Çoklu zincir",
+          "title": "Aynı anda birden çok zincir desteklenir",
           "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
-          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Native Cüzdanınız bunu otomatik olarak destekleyecektir.",
+          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Cüzdanınız bunu otomatik olarak destekleyecektir.",
           "cta": "Sonraki"
         },
         "easyToUse": {
-          "title": "Kullanımı kolay",
-          "subTitle": "ShapeShift Native Cüzdan ile şunları yapabilirsiniz:",
+          "title": "Kullanımı kolay!",
+          "subTitle": "ShapeShift Cüzdan ile şunları yapabilirsiniz:",
           "trackBalance": "Bakiyenizi takip edin",
           "sendReceive": "Kripto gönder/al",
           "buyCrypto": "Kripto Satın Al",
@@ -1595,9 +1616,12 @@
         "menu": {
           "disconnect": "Bağlantıyı Kes",
           "address": "Adres",
+          "addresses": "Adresler",
           "connected": "Bağlı",
           "network": "Ağ",
-          "unsupportedNetwork": "Desteklenmeyen Ağ"
+          "networks": "Ağlar",
+          "unsupportedNetwork": "Desteklenmeyen Ağ",
+          "expiry": "Oturumun Sona Ermesi"
         }
       },
       "modal": {
@@ -1611,7 +1635,16 @@
           "confirm": "Onayla",
           "reject": "Reddet",
           "messageData": "Mesaj verileri",
-          "domain": "Domain"
+          "domain": "Domain",
+          "memo": "Memo",
+          "messages": "Mesajlar",
+          "noMessages": "Mesaj yok",
+          "sequence": "Sıra",
+          "accountNumber": "Hesap numarası",
+          "chainId": "Zincir ID",
+          "authInfo": "Yetki bilgisi",
+          "body": "Mesaj",
+          "comingSoon": "Çok yakında"
         },
         "sendTransaction": {
           "sendingFrom": "Gönderen",
@@ -1648,7 +1681,20 @@
           "howTo": "Bir dApp'e nasıl bağlanılır?",
           "linkPlaceholder": "QR kod veya bağlantı link'i",
           "connect": "Bağlan",
-          "connectionError": "Sağlanan URI'ye bağlanılamıyor."
+          "connectionError": "Sağlanan URI'ye bağlanılamıyor.",
+          "invalidUri": "Geçersiz URI",
+          "v1UriUnsupported": "WalletConnect V1 URI etkin değil",
+          "v2UriUnsupported": "WalletConnect V2 URI etkin değil"
+        },
+        "sessionProposal": {
+          "dAppInfo": "dApp Bilgisi",
+          "permissions": "İzinler",
+          "accountSelection": "Hesapları seçin",
+          "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
+          "methods": "Yöntemler",
+          "events": "Etkinlikler",
+          "selectedAccounts": "Bir Hesap Seçin",
+          "permissionMessage": "Lütfen her zincir için en az bir hesap seçin."
         }
       },
       "registry": {
@@ -1698,17 +1744,74 @@
     "custom": "Özel"
   },
   "idle": {
+    "emptyTitle": "Idle Finance ile %{asset} varlığınızdan %{apy}% kazanın",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Senior Best Yield Stratejisi",
+          "body": "Senior Best Yield kasaları, her zaman en yüksek APY'yi sağlamak için fonları birden fazla, ihtiyatlı riskli getiri kaynağı arasında otomatik olarak yönlendiren ayarla ve unut stratejileridir."
+        },
+        "page-2": {
+          "title": "Senior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Stratejisi",
+          "body": "Junior Best Yield kasaları, her zaman artırılmış, maksimize edilmiş APY'ler sağlamak için fonları otomatik olarak birden fazla Junior Tranches arasında yönlendiren ayarla ve unut stratejileridir."
+        },
+        "page-2": {
+          "title": "Junior Best Yield stratejileri:",
+          "bullets": {
+            "one": "Birden fazla Junior Tranch'ta getiri üretiminin otomasyonu ve optimizasyonu, tasarımla artırılmış verim sağlar",
+            "two": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranche Stratejisi",
+          "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
+        },
+        "page-2": {
+          "title": "Senior Tranche stratejileri:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranche Stratejisi",
+          "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
+        },
+        "page-2": {
+          "title": "Junior Tranche Stratejileri:"
+        }
+      },
+      "monitorSystem": "Daha iyi performans gösteren tahsisleri bulmak ve yeniden dengelemeyi tetiklemek için Idle finance'ın izleme sistemini kullanın",
+      "offerHighReturn": "Kullanıcı sürekli olarak oranları kontrol etmeden ve her transferde gaz yakmadan maksimum getiri sunulur",
+      "leverageYield": "Senior tranche fonlarını kullanarak getiriyi artırın",
+      "higherRisk": "Senior tranche koruyarak daha yüksek riske maruz kalma",
+      "minRisk": "En aza indirilmiş risk ",
+      "builtInCoverage": "Değişken oranlı ödüller için yerleşik kapsam",
+      "noLockingPeriod": "Kilitleme dönemi veya dönemleri yok",
+      "autoReinvest": "Otomatik Yeniden Yatırım tahakkuk eden jetonlar",
+      "fundsCoveredJunior": "Junior Tranch'ların kapsadığı fonlar",
+      "automation": "Aave, Compound ve birden çok Senior Tranche genelinde getiri üretiminin otomasyonu ve optimizasyonu"
+    },
     "bestYield": {
       "title": "En İyi Getiri Nedir?",
       "body": "Birden çok çarpraz alanda test edilmiş DeFi protokolü ile verimi otomatik olarak en üst düzeye çıkarın. En İyi getiri stratejisi, gaz maliyetlerini sosyalleştirerek getiri üretimini optimize eder ve yeni getiri fırsatları ortaya çıktıkça sermayeyi algoritmik olarak kaydırarak getiri üretimini otomatikleştirir."
     },
     "seniorTranche": {
       "title": "Senior Tranche (Üst Dilim) nedir?",
-      "body": "Mevduatınızı korurken birden fazla protokolde DeFi getirilerinin keyfini çıkarın. Senior Tranche, fonlar üzerinde yerleşik koruma sunar ve Junior muhatabı sayesinde tam spektrumlu teminat sağlar."
+      "body": "Mevduatlarda yerleşik koruma ile DeFi getirilerinin keyfini çıkarın. Senior Tranche, Junior muhatabı tarafından verilen tam spektrumlu bir kapsam sunar."
     },
     "juniorTranche": {
       "title": "Junior Tranche (Alt Dilim) nedir?",
-      "body": "Birden fazla DeFi protokolünde artırılmış getirilerin keyfini çıkarın: Junior Tranche, Senior muhatabına ilk kayıp sermayesini sağlamaları karşılığında tazmin edildikleri için kaldıraçlı getiri elde eder."
+      "body": "Artırılmış DeFi getirilerinin keyfini çıkarın. Junior Tranche, Senior muhatabı tarafından daha fazla risk aldıkları için tazmin edildiğinden, kaldıraçlı getiri sağlar."
     }
   },
   "promo": {

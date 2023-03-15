@@ -13,6 +13,7 @@
     "connected": "Connected",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
+    "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
@@ -49,6 +50,7 @@
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
+    "liveSupport": "Support",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
@@ -90,7 +92,9 @@
     "alternative": "Alternative",
     "validator": "the %{name} Validator",
     "needAsset": "Need some %{asset}?",
-    "buyNow": "Buy Now"
+    "buyNow": "Buy Now",
+    "manage": "Manage",
+    "selectedAccount": "Selected Account"
   },
   "consentBanner": {
     "body": {
@@ -208,7 +212,6 @@
     "defiUniverse": "DeFi Universe",
     "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
-    "betaSunset": "Beta has been sunset, Learn More",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo"
@@ -401,6 +404,12 @@
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
+    "totalValue": "Total Value",
+    "netApy": "Net APY",
+    "claimableRewards": "Claimable Rewards",
+    "reawrds": "Rewards",
+    "stakingPosition": "Staking Position",
+    "liquidityPool": "Liquidity Pool",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {
@@ -459,6 +468,7 @@
   "navBar": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "dashboardShort": "Dashboard",
     "assets": "Assets",
     "assetDetails": "Asset Details",
     "accounts": "Accounts",
@@ -479,7 +489,7 @@
     "explore": "Explore",
     "trade": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
-    "buySell": "Buy/Sell",
+    "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop"
   },
   "transactionRow": {
@@ -868,7 +878,7 @@
     "deposit": {
       "allocation": {
         "heading": "Your Allocation",
-        "fractionDescription":"% of pool"
+        "fractionDescription": "% of pool"
       },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
@@ -1734,17 +1744,74 @@
     "custom": "Custom"
   },
   "idle": {
+    "emptyTitle": "Earn %{apy}% on your %{asset} with Idle Finance",
+    "emptyBody": {
+      "seniorBestYield": {
+        "page-1": {
+          "title": "Senior Best Yield Strategy",
+          "body": "Senior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple, conservative-risk yield sources to always provide the highest APY"
+        },
+        "page-2": {
+          "title": "Senior Best Yield strategies:",
+          "bullets": {
+            "one": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches",
+            "two": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer"
+          }
+        }
+      },
+      "juniorBestYield": {
+        "page-1": {
+          "title": "Junior Best Yield Strategy",
+          "body": "Junior Best Yield vaults are set-and-forget strategies that automatically route funds across multiple Junior Tranches to always provide boosted, maximized APYs"
+        },
+        "page-2": {
+          "title": "Junior Best Yield strategies:",
+          "bullets": {
+            "one": "Automation and optimization of the yield generation across multiple Junior Tranches, providing boosted yields by design",
+            "two": "Offer maximized returns without the user constantly constantly checking rates and burning gas on every transfer"
+          }
+        }
+      },
+      "seniorTranche": {
+        "page-1": {
+          "title": "Senior Tranche Strategy",
+          "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
+        },
+        "page-2": {
+          "title": "Senior Tranche strategies:"
+        }
+      },
+      "juniorTranche": {
+        "page-1": {
+          "title": "Junior Tranche Strategy",
+          "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
+        },
+        "page-2": {
+          "title": "Junior Tranche strategies:"
+        }
+      },
+      "monitorSystem": "Utilize Idle finance's monitoring system to find better-performing allocations and trigger a rebalance",
+      "offerHighReturn": "Offer maximized returns without the user constantly checking rates and burning gas on every transfer",
+      "leverageYield": "Leverage yield using Senior tranches funds",
+      "higherRisk": "Higher risk exposure by protecting senior tranches",
+      "minRisk": "Minimized risk exposure",
+      "builtInCoverage": "Built-in coverage for variable rate rewards",
+      "noLockingPeriod": "No locking period or epochs",
+      "autoReinvest": "Auto-Reinvest accrued tokens",
+      "fundsCoveredJunior": "Funds covered by Junior Tranches",
+      "automation": "Automation and optimization of the yield generation across Aave, Compound, and multiple Senior Tranches"
+    },
     "bestYield": {
       "title": "What is Best Yield?",
       "body": "Automatically maximize yield across multiple battle-tested DeFi protocols. Best-Yield strategy optimizes yield generation by socializing gas costs, automating yield generation by algorithmically shifting capital as new yield opportunities arise."
     },
     "seniorTranche": {
       "title": "What is a Senior Tranche?",
-      "body": "Enjoy DeFi yields across multiple protocols while keeping your deposit protected. Senior Tranches offer built-in protection on funds and provide full-spectrum coverage thanks to their Junior counterparty."
-    }, 
+      "body": "Enjoy DeFi yields with built-in protection on deposits. Senior Tranches offer a full-spectrum coverage, given by their Junior counterparty."
+    },
     "juniorTranche": {
       "title": "What is a Junior Tranche?",
-      "body": "Enjoy boosted yields across multiple DeFi protocols: Junior Tranches achieve leveraged yield as they are compensated for providing first-loss capital to their Senior counterparty."
+      "body": "Enjoy boosted DeFi yields. Junior Tranches provide leveraged returns as they are compensated by their Senior counterparty for dragging more risk."
     }
   },
   "promo": {
@@ -1828,6 +1895,5 @@
         "cta": "Create one"
       }
     }
-
   }
 }

@@ -17,6 +17,8 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { Address } from 'components/TransactionHistoryRows/TransactionDetails/Address'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 type DustProps = {
   accountId: AccountId | undefined
@@ -25,6 +27,7 @@ type DustProps = {
 
 export const Dust: React.FC<DustProps> = () => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = useCallback(() => {
@@ -38,6 +41,7 @@ export const Dust: React.FC<DustProps> = () => {
   }, [history, location.pathname, query])
 
   const handleConfirm = useCallback(() => {
+    mixpanel?.track(MixPanelEvents.DustConfirm)
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -45,7 +49,7 @@ export const Dust: React.FC<DustProps> = () => {
         modal: DefiAction.Withdraw,
       }),
     })
-  }, [history, location.pathname, query])
+  }, [history, location.pathname, mixpanel, query])
 
   return (
     <Flex

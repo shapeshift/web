@@ -24,10 +24,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
@@ -50,10 +54,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [idleOpportunity, setIdleOpportunity] = useState<IdleOpportunity>()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
+  const assets = useAppSelector(selectAssets)
 
   // Asset info
   const feeAssetId = chainAdapter?.getFeeAssetId()
@@ -153,6 +159,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: IdleWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [
+            { assetId: asset.assetId, amountCryptoHuman: state.withdraw.cryptoAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
     } finally {
@@ -166,11 +183,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetReference,
     opportunity,
     chainAdapter,
-    opportunityData?.assetId,
+    opportunityData,
     asset,
     idleOpportunity,
     state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
     onNext,
+    assets,
   ])
 
   const handleCancel = useCallback(() => {
@@ -184,6 +203,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         .gte(0),
     [feeAssetBalance, state?.withdraw.estimatedGasCrypto, feeAsset?.precision],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      mixpanel?.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!state || !dispatch) return null
 

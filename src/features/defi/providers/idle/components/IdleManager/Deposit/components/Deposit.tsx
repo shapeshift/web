@@ -18,10 +18,13 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -50,6 +53,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
+  const assets = useAppSelector(selectAssets)
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace: 'erc20', assetReference: contractAddress }),
@@ -188,6 +192,15 @@ export const Deposit: React.FC<DepositProps> = ({
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
+          trackOpportunityEvent(
+            MixPanelEvents.DepositContinue,
+            {
+              opportunity: opportunityData,
+              fiatAmounts: [formValues.fiatAmount],
+              cryptoAmounts: [{ amountCryptoHuman: formValues.cryptoAmount, assetId }],
+            },
+            assets,
+          )
         } else {
           const estimatedGasCrypto = await getApproveGasEstimate()
           if (!estimatedGasCrypto) return
@@ -217,9 +230,11 @@ export const Deposit: React.FC<DepositProps> = ({
       asset.precision,
       getDepositGasEstimate,
       onNext,
+      assetId,
       getApproveGasEstimate,
       toast,
       translate,
+      assets,
     ],
   )
 

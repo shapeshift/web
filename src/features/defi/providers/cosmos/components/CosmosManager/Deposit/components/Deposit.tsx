@@ -55,7 +55,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const opportunity = useMemo(() => state?.cosmosOpportunity, [state])
+  const apy = useMemo(() => state?.apy ?? '', [state])
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
@@ -178,7 +178,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       isLoading={state.loading}
-      apy={String(opportunity?.apr)}
+      apy={apy}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

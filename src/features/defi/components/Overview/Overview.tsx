@@ -100,36 +100,49 @@ export const Overview: React.FC<OverviewProps> = ({
       <Stack spacing={0} divider={<Divider />}>
         <Stack spacing={0}>
           <Stack p={8} spacing={6}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between'>
-              <Stack direction='row' alignItems='center' spacing={2}>
-                {icons ? (
-                  <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
-                ) : (
-                  <AssetIcon src={asset.icon} size='md' />
-                )}
-                <Stack spacing={0}>
-                  <RawText fontSize='lg' lineHeight='shorter'>
-                    {name}
-                  </RawText>
-                  {onAccountIdChange ? (
+            <Flex flexDir='column' gap={3}>
+              {onAccountIdChange && (
+                <>
+                  <Flex gap={4} alignItems='center' width='full' justifyContent='space-between'>
                     <AccountDropdown
                       {...(accountId ? { defaultAccountId: accountId } : {})}
                       assetId={asset.assetId}
                       onChange={onAccountIdChange}
-                      buttonProps={{ height: 5, variant: 'solid' }}
+                      buttonProps={{
+                        variant: 'unstyled',
+                        width: 'full',
+                        height: 'auto',
+                        display: 'flex',
+                      }}
+                      boxProps={{ px: 0, my: 0, width: 'full' }}
                     />
+                  </Flex>
+                  <Divider />
+                </>
+              )}
+
+              <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                <Stack direction='row' alignItems='center' spacing={2}>
+                  {icons ? (
+                    <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
                   ) : (
+                    <AssetIcon src={asset.icon} size='md' />
+                  )}
+                  <Stack spacing={0}>
+                    <RawText fontSize='lg' lineHeight='shorter'>
+                      {name}
+                    </RawText>
                     <RawText color='gray.500' fontSize='sm' lineHeight='shorter'>
                       {provider}
                     </RawText>
-                  )}
+                  </Stack>
                 </Stack>
+                <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />
               </Stack>
-              <Amount.Fiat fontSize='xl' value={opportunityFiatBalance} />
-            </Stack>
+            </Flex>
             <DefiActionButtons menu={menu} />
           </Stack>
-          <Flex px={8} pb={8} columnGap={6}>
+          <Flex px={8} pb={8} gap={6} flexWrap='wrap'>
             <Stack flex={1} spacing={4}>
               <Text fontWeight='medium' translation='defi.modals.overview.underlyingTokens' />
               <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
@@ -148,7 +161,11 @@ export const Overview: React.FC<OverviewProps> = ({
             </Stack>
             {rewardAssetsCryptoPrecision && (
               <Stack flex={1} spacing={4}>
-                <Text fontWeight='medium' translation='defi.modals.overview.availableRewards' />
+                <Text
+                  fontWeight='medium'
+                  whiteSpace='nowrap'
+                  translation='defi.modals.overview.availableRewards'
+                />
                 <Flex flexDir='row' columnGap={2} rowGap={2} flexWrap='wrap'>
                   {renderRewardAssets}
                 </Flex>

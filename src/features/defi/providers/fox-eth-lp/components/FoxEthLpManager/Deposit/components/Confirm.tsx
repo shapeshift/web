@@ -10,7 +10,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -22,8 +22,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAssetById,
+  selectAssets,
+  selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
@@ -39,10 +45,21 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
-  const opportunity = useMemo(() => state?.opportunity, [state])
+  const foxEthLpOpportunityFilter = useMemo(
+    () => ({
+      lpId: foxEthLpAssetId,
+      assetId: foxEthLpAssetId,
+      accountId,
+    }),
+    [accountId],
+  )
+  const foxEthLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  )
   const { chainId, assetReference } = query
 
   const feeAssetId = toAssetId({
@@ -54,6 +71,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const assets = useAppSelector(selectAssets)
 
   if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
@@ -73,11 +91,29 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state?.deposit.estimatedGasCrypto))
+    .minus(bnOrZero(state?.deposit.ethCryptoAmount))
+    .gte(0)
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas && mixpanel) {
+      mixpanel.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
+
   if (!state || !dispatch) return null
 
   const handleDeposit = async () => {
     try {
-      if (!(assetReference && walletState.wallet && supportsETH(walletState.wallet) && opportunity))
+      if (
+        !(
+          assetReference &&
+          walletState.wallet &&
+          supportsETH(walletState.wallet) &&
+          foxEthLpOpportunity
+        )
+      )
         return
 
       dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
@@ -86,6 +122,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity: foxEthLpOpportunity,
+          fiatAmounts: [state.deposit.ethFiatAmount, state.deposit.foxFiatAmount],
+          cryptoAmounts: [
+            { assetId: ethAssetId, amountCryptoHuman: state.deposit.ethCryptoAmount },
+            { assetId: foxAssetId, amountCryptoHuman: state.deposit.foxCryptoAmount },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')
       toast({
@@ -102,11 +150,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const handleCancel = () => {
     onNext(DefiStep.Info)
   }
-
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state.deposit.estimatedGasCrypto))
-    .minus(bnOrZero(state.deposit.ethCryptoAmount))
-    .gte(0)
 
   return (
     <ReusableConfirm

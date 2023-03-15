@@ -3,6 +3,7 @@ import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { bn } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -81,7 +82,9 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking as const,
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
-      underlyingAssetRatiosBaseUnit: ['1'],
+      underlyingAssetRatiosBaseUnit: [
+        bn(1).times(bn(10).pow(underlyingAsset.precision)).toString(),
+      ],
       name: underlyingAsset.symbol,
     }
   }

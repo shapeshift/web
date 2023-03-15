@@ -142,15 +142,16 @@ export type GetOpportunityUserStakingDataOutput = {
 export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
-export type EarnOpportunityType = {
-  type?: string
+// This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
+type EarnOpportunityTypeBase = {
+  type: string
   provider: DefiProvider
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy?: number | string
+  apy: number | string
   tvl: string
-  underlyingAssetId?: AssetId
+  underlyingAssetId: AssetId
   assetId: AssetId
   id: OpportunityId
   fiatAmount: string
@@ -163,31 +164,36 @@ export type EarnOpportunityType = {
   isLoaded: boolean
   icons?: string[]
   // overrides any name down the road
-  opportunityName?: string
+  opportunityName: string
   highestBalanceAccountAddress?: string // FOX/ETH specific, let's change it to accountId across the line if we need it for other opportunities
 }
 
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
-    underlyingToken0AmountCryptoBaseUnit?: string
-    underlyingToken1AmountCryptoBaseUnit?: string
     isVisible?: boolean
-  } & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+  } & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarnOpportunityType & { opportunityName: string | undefined } // overriding optional opportunityName property
+} & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
-export type GroupedEligibleOpportunityReturnType = {
+export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
+
+export type AggregatedOpportunitiesByAssetIdReturn = {
+  assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  opportunityIds: OpportunityId[]
-  netApy: number
+  netApy: string
+  fiatAmount: string
+  cryptoBalancePrecision: string
+  fiatRewardsAmount: string
+  opportunities: Record<DefiType, OpportunityId[]>
 }
 
 export type TagDescription = {
   title: string
-  description: string
-  icon?: string
+  description?: string
+  icon?: JSX.Element
+  bullets?: string[]
 }

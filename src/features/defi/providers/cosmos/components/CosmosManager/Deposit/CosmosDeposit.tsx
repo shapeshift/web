@@ -105,7 +105,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
         dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({
           type: CosmosDepositActionType.SET_OPPORTUNITY,
-          payload: { ...earnOpportunityData },
+          payload: earnOpportunityData.apy,
         })
       } catch (error) {
         // TODO: handle client side errors

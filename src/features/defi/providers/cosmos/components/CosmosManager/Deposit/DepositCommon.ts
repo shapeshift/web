@@ -12,7 +12,7 @@ type CosmosDepositValues = Omit<DepositValues, DepositField.Slippage> &
   }
 
 export type CosmosDepositState = {
-  apr: string
+  cosmosOpportunity: { apr: string }
   userAddress: string | null
   deposit: CosmosDepositValues
   loading: boolean
@@ -21,7 +21,7 @@ export type CosmosDepositState = {
 }
 
 export enum CosmosDepositActionType {
-  SET_OPPORTUNITY_APR = 'SET_OPPORTUNITY_APR',
+  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
@@ -29,8 +29,8 @@ export enum CosmosDepositActionType {
 }
 
 type SetCosmosOpportunitiesAction = {
-  type: CosmosDepositActionType.SET_OPPORTUNITY_APR
-  payload: Pick<StakingEarnOpportunityType, 'apy'>
+  type: CosmosDepositActionType.SET_OPPORTUNITY
+  payload: Partial<StakingEarnOpportunityType> | null
 }
 
 type SetDeposit = {

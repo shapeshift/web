@@ -3,7 +3,9 @@ import { CosmosDepositActionType } from './DepositCommon'
 
 export const initialState: CosmosDepositState = {
   txid: null,
-  apr: '',
+  cosmosOpportunity: {
+    apr: '',
+  },
   userAddress: null,
   loading: false,
   pricePerShare: '',
@@ -20,10 +22,12 @@ export const reducer = (
   action: CosmosDepositActions,
 ): CosmosDepositState => {
   switch (action.type) {
-    case CosmosDepositActionType.SET_OPPORTUNITY_APR:
+    case CosmosDepositActionType.SET_OPPORTUNITY:
       return {
         ...state,
-        apr: action.payload?.apy ?? '',
+        cosmosOpportunity: {
+          apr: '',
+        },
       }
     case CosmosDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }

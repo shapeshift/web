@@ -116,12 +116,13 @@ export const TradeConfirm = () => {
       const thorOrderId = sellTradeId.toUpperCase()
       /*
         This currently only works for trades into RUNE
-        Further logic required to handle double swaps
+        Further logic required to handle double swaps. Once we do, we can remove the THORSwapper-specific tradeStatus logic below.
        */
       const intoRune = isRune(trade?.buyAsset.assetId ?? '')
       return intoRune
         ? `${buyAssetAccountId}*${thorOrderId}*${trade?.receiveAddress}*OUT:${thorOrderId}`
         : serializeTxIndex(
+            // this doesn't yet return the correct key due to the sellTxId/buyTxId logic described below.
             sellAssetAccountId!,
             buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
             fromAccountId(sellAssetAccountId!).account ?? '',
@@ -153,9 +154,9 @@ export const TradeConfirm = () => {
     switch (true) {
       case !!buyTxid && trade?.sources[0]?.name === 'THORChain':
         /*
-          There is some wacky logic in THORChain's getTradeTxs that intentionally returns the buy txID as the sell txID
-          when trades are complete (else it is an empty string.
-          This means our parsedBuyTxId will never match the key of the tx, and thus will always be undefined (unknown).
+          There is some wacky logic in THORChain's getTradeTxs that intentionally returns the sellTxId as the buyTxId (?!) when trades are complete (it is an empty string when not complete).
+          This means our parsedBuyTxId will never match the key of the tx (txId doesn't match what's in our store), and thus the selector lookup will always fail.
+          So, we begrudgingly do what the logic of lib intended us to do and say the trade is completed when we have a buyTxId.
          */
         return TxStatus.Confirmed
       case !!sellTradeId:

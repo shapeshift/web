@@ -27,7 +27,6 @@ export enum MixPanelEvents {
   ConnectWallet = 'Connect Wallet',
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
-  PortfolioLoaded = 'Portfolio Loaded',
 }
 
 export type TrackOpportunityProps = {

@@ -325,6 +325,8 @@ const reactAppRewireConfig = {
         : {},
     )
 
+    const MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES = 50 * 1024 * 1024 // 50MB
+
     // after adding BSC chain, the build got even more bloated, so we need to increase the limit
     // of cached assets, to avoid compiling with warnings, which emit a non-zero exit code, causing the build
     // to "fail", even though build artefacts are emitted.
@@ -332,7 +334,7 @@ const reactAppRewireConfig = {
     config.plugins?.forEach(plugin => {
       if (plugin instanceof WorkBoxPlugin.InjectManifest) {
         // @ts-ignore
-        plugin.config.maximumFileSizeToCacheInBytes = 50 * 1024 * 1024
+        plugin.config.maximumFileSizeToCacheInBytes = MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES
       }
     })
 

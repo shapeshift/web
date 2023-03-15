@@ -261,7 +261,7 @@ export const fetchAllLpOpportunitiesUserdata = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityUserData, getOpportunitiesUserData } = opportunitiesApi.endpoints
+  const { getOpportunityUserData } = opportunitiesApi.endpoints
 
   await Promise.allSettled([
     ...foxEthLpAssetIds.map(
@@ -279,20 +279,6 @@ export const fetchAllLpOpportunitiesUserdata = async (
             { forceRefetch: false, ...options },
           ),
         ),
-    ),
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.LiquidityPool,
-          defiProvider: DefiProvider.Osmosis,
-          opportunityType: DefiType.LiquidityPool,
-        },
-        {
-          forceRefetch: false,
-          ...options,
-        },
-      ),
     ),
   ])
 }

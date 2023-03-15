@@ -20,24 +20,33 @@ export enum MixPanelEvents {
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
   InsufficientFunds = 'Insufficient Funds',
+  TradePreview = 'Trade Preview',
+  TradeConfirm = 'Trade Confirm',
+  TradeSuccess = 'Trade Success',
+  TradeFailed = 'Trade Failed',
+  ConnectWallet = 'Connect Wallet',
+  SwitchWallet = 'Switch Wallet',
+  DisconnectWallet = 'Disconnect Wallet',
 }
 
 export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
-  cryptoAmounts: {
+  cryptoAmounts?: {
     assetId: AssetId
     amountCryptoHuman: string | number
     fiatAmount?: string | number
   }[]
-  fiatAmounts: string[] | number[]
+  fiatAmounts?: string[] | number[]
+  element?: string
 }
 
 export type AnonymizedPortfolio = {
-  hashedWalletId: string // e.g. 2398734895
-  walletName: string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
-  chains: string[] // e.g. ['Bitcoin', 'Ethereum']
-  assets: string[] // e.g. ['Bitcoin.BTC', 'Ethereum.ETH', 'Ethereum.USDC']
-  portfolioBalance: string // e.g. '420.69'
-  assetBalances: Record<string, string> // e.g. { 'Bitcoin.BTC': 0.1, 'Ethereum.ETH': 2.13, 'Ethereum.USDC': 420.69 }
-  chainBalances: Record<string, string> // e.g. { 'Bitcoin': 0.1, 'Ethereum': 10.123 }
+  'Is Mobile': boolean
+  'Wallet ID': string // e.g. 2398734895
+  'Wallet Name': string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
+  Chains: string[] // e.g. ['Bitcoin', 'Ethereum']
+  Assets: string[] // e.g. ['Bitcoin.BTC', 'Ethereum.ETH', 'Ethereum.USDC']
+  'Portfolio Balance': number // e.g. '420.69'
+  'Asset Balances': Record<string, number> // e.g. { 'Bitcoin.BTC': 0.1, 'Ethereum.ETH': 2.13, 'Ethereum.USDC': 420.69 }
+  'Chain Balances': Record<string, number> // e.g. { 'Bitcoin': 0.1, 'Ethereum': 10.123 }
 }

@@ -150,7 +150,7 @@ export const handleSend = async ({
         if (!shouldUseEIP1559Fees && gasPrice === undefined) {
           throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
         }
-        const erc20ContractAddress = tokenOrUndefined(
+        const tokenContractAddress = tokenOrUndefined(
           fromAssetId(sendInput.asset.assetId).assetReference,
         )
         const { accountNumber } = bip44Params
@@ -161,7 +161,7 @@ export const handleSend = async ({
           wallet,
           accountNumber,
           chainSpecific: {
-            erc20ContractAddress,
+            tokenContractAddress,
             gasLimit,
             ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
           },

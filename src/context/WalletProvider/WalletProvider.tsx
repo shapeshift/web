@@ -155,8 +155,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_WALLET:
       const deviceId = action?.payload?.deviceId
       // set walletId in redux store
-      store.dispatch(portfolio.actions.setWalletId(deviceId))
-      store.dispatch(portfolio.actions.setWalletName(action?.payload?.name))
+      const walletMeta = { walletId: deviceId, walletName: action?.payload?.name }
+      store.dispatch(portfolio.actions.setWalletMeta(walletMeta))
       return {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
@@ -295,9 +295,10 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
       const resetProperties = omit(initialState, ['keyring', 'adapters', 'modal', 'deviceId'])
-      // reset walletId in redux store
-      store.dispatch(portfolio.actions.setWalletId(undefined))
-      store.dispatch(portfolio.actions.setWalletName(undefined))
+      // reset wallet meta in redux store
+      store.dispatch(
+        portfolio.actions.setWalletMeta({ walletId: undefined, walletName: undefined }),
+      )
       return { ...state, ...resetProperties }
     // TODO: Remove this once we update SET_DEVICE_STATE to allow explicitly setting falsey values
     case WalletActions.RESET_LAST_DEVICE_INTERACTION_STATE: {
@@ -460,7 +461,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localKeepKeyWallet,
-                      name: label,
+                      name,
                       icon,
                       deviceId,
                       meta: { label },

@@ -1,23 +1,8 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { WithdrawType } from '@shapeshiftoss/types'
 import type {
   Field as WithdrawField,
   WithdrawValues,
 } from 'features/defi/components/Withdraw/Withdraw'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-
-type SupportedCosmosOpportunity = {
-  type: DefiType
-  provider: string
-  version: string
-  contractAddress: string
-  stakingToken: string
-  chain: ChainId
-  tvl: BigNumber
-  expired: boolean
-}
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -26,12 +11,9 @@ type EstimatedGas = {
 type CosmosWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage> &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
-    withdrawType: WithdrawType
   }
 
 export type CosmosWithdrawState = {
-  cosmosOpportunity: SupportedCosmosOpportunity
   userAddress: string | null
   withdraw: CosmosWithdrawValues
   loading: boolean

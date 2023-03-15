@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -51,9 +51,8 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const translate = useTranslate()
   const toast = useToast()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, contractAddress, assetReference } = query
+  const { assetNamespace, chainId, contractAddress, assetReference } = query
 
-  const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -62,12 +61,12 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const foxFarmingOpportunityFilter = useMemo(
     () => ({
       stakingId: toOpportunityId({
-        assetNamespace: 'erc20',
+        assetNamespace,
         assetReference: contractAddress,
-        chainId: ethChainId,
+        chainId,
       }),
     }),
-    [contractAddress],
+    [assetNamespace, chainId, contractAddress],
   )
   const foxFarmingOpportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),

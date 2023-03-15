@@ -2,9 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import type { SwapperState } from 'components/Trade/SwapperProvider/types'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { useDefaultAssets } from './hooks/useDefaultAssets'
 import { TradeRoutes } from './TradeRoutes/TradeRoutes'
@@ -19,9 +17,26 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const location = useLocation()
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
 
-  const { dispatch: swapperDispatch } = useSwapperState()
-
   const methods = useForm({ mode: 'onChange' })
+
+  const updateFiatBuyAmount = useSwapperStore(state => state.updateBuyAmountFiat)
+  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
+  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
+  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
+  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
+  const updateQuote = useSwapperStore(state => state.updateQuote)
+  const updateTrade = useSwapperStore(state => state.updateTrade)
+  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
+  const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
+  const updateBuyAmountCryptoPrecision = useSwapperStore(
+    state => state.updateBuyAmountCryptoPrecision,
+  )
+  const updateSellAmountCryptoPrecision = useSwapperStore(
+    state => state.updateSellAmountCryptoPrecision,
+  )
 
   // The route has changed, so re-enable the default values useEffect
   useEffect(() => setHasSetDefaultValues(false), [location])
@@ -32,30 +47,20 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       const result = await getDefaultAssets()
       if (!result) return
       const { buyAsset, sellAsset } = result
-      const swapperState: Partial<SwapperState> = {
-        sellTradeAsset: {
-          asset: sellAsset,
-          amountCryptoPrecision: '0',
-        },
-        buyTradeAsset: {
-          asset: buyAsset,
-          amountCryptoPrecision: '0',
-        },
-        quote: undefined,
-        fiatBuyAmount: '0',
-        fiatSellAmount: '0',
-        sellAssetFiatRate: undefined,
-        buyAssetFiatRate: undefined,
-        feeAssetFiatRate: undefined,
-        trade: undefined,
-        action: TradeAmountInputField.SELL_FIAT,
-        isExactAllowance: false,
-        amount: '0',
-      }
-      swapperDispatch({
-        type: SwapperActionType.SET_VALUES,
-        payload: swapperState,
-      })
+      updateAction(TradeAmountInputField.SELL_FIAT)
+      updateIsExactAllowance(false)
+      updateBuyAsset(buyAsset)
+      updateBuyAmountCryptoPrecision('0')
+      updateAmount('0')
+      updateSellAsset(sellAsset)
+      updateSellAmountCryptoPrecision('0')
+      updateQuote(undefined)
+      updateFiatBuyAmount('0')
+      updateFiatSellAmount('0')
+      updateSellAssetFiatRate(undefined)
+      updateBuyAssetFiatRate(undefined)
+      updateFeeAssetFiatRate(undefined)
+      updateTrade(undefined)
       const defaultAssetsAreChainDefaults =
         sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
@@ -74,7 +79,20 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
-    swapperDispatch,
+    updateQuote,
+    updateFiatBuyAmount,
+    updateFiatSellAmount,
+    updateSellAssetFiatRate,
+    updateBuyAssetFiatRate,
+    updateFeeAssetFiatRate,
+    updateAction,
+    updateIsExactAllowance,
+    updateAmount,
+    updateTrade,
+    updateBuyAsset,
+    updateBuyAmountCryptoPrecision,
+    updateSellAsset,
+    updateSellAmountCryptoPrecision,
   ])
 
   if (!methods) return null

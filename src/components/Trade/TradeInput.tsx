@@ -94,6 +94,8 @@ export const TradeInput = () => {
   const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
   const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
   const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const updateBuyAmountCryptoPrecision = useSwapperStore(
     state => state.updateBuyAmountCryptoPrecision,
   )
@@ -224,6 +226,10 @@ export const TradeInput = () => {
       updateQuote(undefined)
       updateFees(undefined)
       updateTrade(undefined)
+      updateSelectedSellAssetAccountId(undefined)
+      updateSelectedBuyAssetAccountId(undefined)
+      updateBuyAssetAccountId(undefined)
+      updateSellAssetAccountId(undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -244,6 +250,10 @@ export const TradeInput = () => {
     updateQuote,
     updateFees,
     updateTrade,
+    updateSelectedSellAssetAccountId,
+    updateSelectedBuyAssetAccountId,
+    updateBuyAssetAccountId,
+    updateSellAssetAccountId,
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {

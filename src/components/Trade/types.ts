@@ -19,12 +19,6 @@ export enum TradeAmountInputField {
   SELL_FIAT = 'SELL_FIAT',
 }
 
-export type TradeAsset = {
-  asset?: Asset
-  amountCryptoPrecision?: string
-  fiatAmount?: string
-}
-
 export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFee'> & {
   tradeFeeSource: string
   networkFeeCryptoHuman: string

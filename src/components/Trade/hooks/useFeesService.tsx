@@ -1,43 +1,37 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Fees Service is responsible for reacting to changes to quote and trades, and updating the fees accordingly.
 The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
-  const {
-    dispatch: swapperDispatch,
-    state: { sellTradeAsset, quote, trade },
-  } = useSwapperState()
-
-  // Hooks
-  const { bestTradeSwapper } = useSwapper()
-
   // Selectors
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const sellAsset = useSwapperStore(state => state.sellAsset)
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellTradeAsset?.asset?.assetId ?? ethAssetId),
+    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
+  const quote = useSwapperStore(state => state.quote)
+  const updateFees = useSwapperStore(state => state.updateFees)
+  const trade = useSwapperStore(state => state.trade)
 
-  if (!sellFeeAsset)
-    throw new Error(`Asset not found for AssetId ${sellTradeAsset?.asset?.assetId}`)
+  if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
   useEffect(() => {
     const feeTrade = trade ?? quote
-    if (sellTradeAsset?.asset && bestTradeSwapper && feeTrade) {
+    if (sellAsset && bestTradeSwapper && feeTrade) {
       const formFees = getFormFees({
         trade: feeTrade,
-        sellAsset: sellTradeAsset?.asset,
+        sellAsset,
         tradeFeeSource: bestTradeSwapper.name,
         feeAsset: sellFeeAsset,
       })
-      swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fees: formFees } })
+      updateFees(formFees)
     }
-  }, [bestTradeSwapper, quote, sellTradeAsset?.asset, sellFeeAsset, trade, swapperDispatch])
+  }, [bestTradeSwapper, quote, sellAsset, sellFeeAsset, trade, updateFees])
 }

@@ -367,30 +367,32 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
           marketData,
         })
-        trackOpportunityEvent(
-          MixPanelEvents.WithdrawContinue,
-          {
-            opportunity: osmosisOpportunity,
-            fiatAmounts: [
-              underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
-              underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
-            ],
-            cryptoAmounts: [
-              { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
-              {
-                assetId: underlyingAsset0.assetId,
-                amountCryptoHuman:
-                  underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
-              },
-              {
-                assetId: underlyingAsset1.assetId,
-                amountCryptoHuman:
-                  underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
-              },
-            ],
-          },
-          assets,
-        )
+        if (underlyingAssetBalances) {
+          trackOpportunityEvent(
+            MixPanelEvents.WithdrawContinue,
+            {
+              opportunity: osmosisOpportunity,
+              fiatAmounts: [
+                underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+                underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+              ],
+              cryptoAmounts: [
+                { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+                {
+                  assetId: underlyingAsset0.assetId,
+                  amountCryptoHuman:
+                    underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
+                },
+                {
+                  assetId: underlyingAsset1.assetId,
+                  amountCryptoHuman:
+                    underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
+                },
+              ],
+            },
+            assets,
+          )
+        }
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({

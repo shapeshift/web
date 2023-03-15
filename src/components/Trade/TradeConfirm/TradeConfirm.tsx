@@ -190,8 +190,7 @@ export const TradeConfirm = () => {
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      fiatSellAmount: tradeAmounts.sellAmountBeforeFeesFiat,
-      fiatBuyAmount: tradeAmounts.buyAmountBeforeFeesFiat,
+      fiatAmount: tradeAmounts.sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,

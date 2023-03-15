@@ -298,8 +298,7 @@ export const TradeInput = () => {
         mixpanel.track(MixPanelEvents.TradePreview, {
           buyAsset: compositeBuyAsset,
           sellAsset: compositeSellAsset,
-          fiatSellAmount,
-          fiatBuyAmount,
+          fiatAmount: fiatSellAmount,
           swapperName,
           [compositeBuyAsset]: buyAmountCryptoPrecision,
           [compositeSellAsset]: sellAmountCryptoPrecision,
@@ -323,7 +322,6 @@ export const TradeInput = () => {
     buyAmountCryptoPrecision,
     buyAsset,
     checkApprovalNeeded,
-    fiatBuyAmount,
     fiatSellAmount,
     getTrade,
     history,

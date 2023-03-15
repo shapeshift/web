@@ -1,4 +1,5 @@
 import { useAccountsService } from 'components/Trade/hooks/useAccountsService'
+import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
 import { useFeesService } from 'components/Trade/hooks/useFeesService'
 import { useFiatRateService } from 'components/Trade/hooks/useFiatRateService'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
@@ -14,4 +15,5 @@ export const useSwapperService = () => {
   useFeesService()
   useAccountsService()
   useReceiveAddress()
+  useAvailableSwappers()
 }

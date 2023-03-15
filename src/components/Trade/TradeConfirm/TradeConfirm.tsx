@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, isRune } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -28,10 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useAvailableSwappers } from 'components/Trade/hooks/useAvailableSwappers'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
-import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
+import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -39,15 +36,20 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectAssets,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeRoutePaths } from '../types'
 import { WithBackButton } from '../WithBackButton'
@@ -56,6 +58,7 @@ import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTradeId, setSellTradeId] = useState('')
@@ -76,30 +79,23 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const { dispatch: swapperDispatch } = useSwapperState()
+  const tradeAmounts = useGetTradeAmounts()
+  const trade = useSwapperStore(state => state.trade)
+  const fees = useSwapperStore(state => state.fees)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const slippage = useSwapperStore(state => state.slippage)
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
 
-  const {
-    tradeAmounts,
-    trade,
-    fees,
-    feeAssetFiatRate,
-    slippage,
-    buyAssetAccountId,
-    sellAssetAccountId,
-    buyTradeAsset,
-  } = useFrozenTradeValues()
+  const assets = useAppSelector(selectAssets)
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const { bestSwapperWithQuoteMetadata } = useAvailableSwappers({ feeAsset: defaultFeeAsset })
-  const bestSwapper = bestSwapperWithQuoteMetadata?.swapper
-
-  const reset = useCallback(() => {
-    swapperDispatch({ type: SwapperActionType.CLEAR_AMOUNTS })
-    swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { fiatSellAmount: '' } })
-  }, [swapperDispatch])
+  const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -112,21 +108,28 @@ export const TradeConfirm = () => {
       // e.g sell asset AccountId, and sell asset address, and sell Txid
       // If we use the "real" (which we never get) buy Tx AccountId and address. then we'll never be able to lookup a Tx in state
       // and thus will never be able to react on the completed state
-      return serializeTxIndex(
-        sellAssetAccountId!,
-        buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
-        fromAccountId(sellAssetAccountId!).account ?? '',
-      )
+
+      const thorOrderId = sellTradeId.toUpperCase()
+      const intoRune = isRune(trade?.buyAsset.assetId ?? '')
+      return intoRune
+        ? `${buyAssetAccountId}*${thorOrderId}*${trade?.receiveAddress}*OUT:${thorOrderId}`
+        : serializeTxIndex(
+            // this doesn't yet return the correct key due to the sellTxId/buyTxId logic described below.
+            sellAssetAccountId!,
+            buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
+            fromAccountId(sellAssetAccountId!).account ?? '',
+          )
     }
 
     return serializeTxIndex(buyAssetAccountId!, buyTxid, trade?.receiveAddress ?? '')
   }, [
-    sellAssetAccountId,
-    trade?.buyAsset.assetId,
     trade?.sellAsset.assetId,
-    buyAssetAccountId,
+    trade?.buyAsset.assetId,
     trade?.receiveAddress,
+    buyAssetAccountId,
     buyTxid,
+    sellTradeId,
+    sellAssetAccountId,
   ])
 
   useEffect(() => {
@@ -137,10 +140,25 @@ export const TradeConfirm = () => {
     }
   }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
-  const status =
-    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Unknown
+  const status = useAppSelector(state => selectTxStatusById(state, parsedBuyTxId))
 
-  const tradeStatus = sellTradeId || isSubmitting ? status : TxStatus.Unknown
+  const tradeStatus = useMemo(() => {
+    switch (true) {
+      case !!buyTxid && trade?.sources[0]?.name === 'THORChain':
+        /*
+          There is some wacky logic in THORChain's getTradeTxs that intentionally returns the sellTxId as the buyTxId (?!) when trades are complete (it is an empty string when not complete).
+          This means our parsedBuyTxId will never match the key of the tx (txId doesn't match what's in our store), and thus the selector lookup will always fail.
+          So, we begrudgingly do what the logic of lib intended us to do and say the trade is completed when we have a buyTxId.
+         */
+        return TxStatus.Confirmed
+      case !!sellTradeId:
+        return status ?? TxStatus.Pending
+      case isSubmitting:
+        return status ?? TxStatus.Unknown
+      default:
+        return TxStatus.Unknown
+    }
+  }, [buyTxid, isSubmitting, sellTradeId, status, trade?.sources])
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
@@ -156,6 +174,39 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  // Track these data here so we don't have to do this again for the other states
+  const eventData = useMemo(() => {
+    if (!(swapper && trade && tradeAmounts)) return null
+    const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
+    const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
+    const buyAmountCryptoPrecision = fromBaseUnit(
+      tradeAmounts.buyAmountBeforeFeesBaseUnit,
+      trade.sellAsset.precision,
+    )
+    const sellAmountCryptoPrecision = fromBaseUnit(
+      tradeAmounts.sellAmountBeforeFeesBaseUnit,
+      trade.buyAsset.precision,
+    )
+    return {
+      buyAsset: compositeBuyAsset,
+      sellAsset: compositeSellAsset,
+      fiatAmount: tradeAmounts.sellAmountBeforeFeesFiat,
+      swapperName: swapper.name,
+      [compositeBuyAsset]: buyAmountCryptoPrecision,
+      [compositeSellAsset]: sellAmountCryptoPrecision,
+    }
+  }, [assets, swapper, trade, tradeAmounts])
+
+  useEffect(() => {
+    if (!mixpanel || !eventData) return
+    if (tradeStatus === TxStatus.Confirmed) {
+      mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
+    }
+    if (tradeStatus === TxStatus.Failed) {
+      mixpanel.track(MixPanelEvents.TradeFailed, eventData)
+    }
+  }, [eventData, mixpanel, tradeStatus])
+
   // This should not happen, but it could.
   if (!trade) throw new Error('Trade is undefined')
 
@@ -169,6 +220,10 @@ export const TradeConfirm = () => {
         handleBack()
         walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
+      }
+
+      if (mixpanel && eventData) {
+        mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
@@ -192,7 +247,7 @@ export const TradeConfirm = () => {
       setBuyTxid(txs.buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
-      reset()
+      clearAmounts()
       setSellTradeId('')
       history.push(TradeRoutePaths.Input)
     }
@@ -200,10 +255,10 @@ export const TradeConfirm = () => {
 
   const handleBack = useCallback(() => {
     if (sellTradeId) {
-      reset()
+      clearAmounts()
     }
     history.push(TradeRoutePaths.Input)
-  }, [history, reset, sellTradeId])
+  }, [clearAmounts, history, sellTradeId])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)
@@ -305,7 +360,7 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyTradeAsset?.amountCryptoPrecision ?? ''}
+          amount={buyAmountCryptoPrecision ?? ''}
           beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
           protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
           shapeShiftFee='0'
@@ -316,7 +371,7 @@ export const TradeConfirm = () => {
       </Stack>
     ),
     [
-      buyTradeAsset?.amountCryptoPrecision,
+      buyAmountCryptoPrecision,
       slippage,
       swapper?.name,
       trade.buyAsset.symbol,

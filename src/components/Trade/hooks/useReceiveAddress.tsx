@@ -2,8 +2,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { getReceiveAddress } from 'components/Trade/hooks/useSwapper/utils'
-import { useSwapperState } from 'components/Trade/SwapperProvider/swapperProvider'
-import { SwapperActionType } from 'components/Trade/SwapperProvider/types'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectPortfolioAccountIdsByAssetId,
@@ -11,19 +9,16 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useReceiveAddress = () => {
   // Hooks
   const wallet = useWallet().state.wallet
-  const {
-    dispatch: swapperDispatch,
-    state: { buyTradeAsset, buyAssetAccountId },
-  } = useSwapperState()
-
-  // Constants
-  const buyAsset = buyTradeAsset?.asset
 
   // Selectors
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
+  const buyAsset = useSwapperStore(state => state.buyAsset)
   const buyAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset?.assetId ?? '' }),
   )
@@ -62,20 +57,16 @@ export const useReceiveAddress = () => {
 
   // Set the receiveAddress when the buy asset changes
   useEffect(() => {
-    const buyAsset = buyTradeAsset?.asset
     if (!buyAsset) return
     ;(async () => {
       try {
         const receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        swapperDispatch({ type: SwapperActionType.SET_VALUES, payload: { receiveAddress } })
+        updateReceiveAddress(receiveAddress)
       } catch (e) {
-        swapperDispatch({
-          type: SwapperActionType.SET_VALUES,
-          payload: { receiveAddress: undefined },
-        })
+        updateReceiveAddress(undefined)
       }
     })()
-  }, [buyTradeAsset?.asset, swapperDispatch, getReceiveAddressFromBuyAsset])
+  }, [buyAsset, getReceiveAddressFromBuyAsset, updateReceiveAddress])
 
   return { getReceiveAddressFromBuyAsset }
 }

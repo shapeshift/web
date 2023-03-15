@@ -25,20 +25,24 @@ export enum MixPanelEvents {
   TradeSuccess = 'Trade Success',
   TradeFailed = 'Trade Failed',
   ConnectWallet = 'Connect Wallet',
+  SwitchWallet = 'Switch Wallet',
+  DisconnectWallet = 'Disconnect Wallet',
   PortfolioLoaded = 'Portfolio Loaded',
 }
 
 export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
-  cryptoAmounts: {
+  cryptoAmounts?: {
     assetId: AssetId
     amountCryptoHuman: string | number
     fiatAmount?: string | number
   }[]
-  fiatAmounts: string[] | number[]
+  fiatAmounts?: string[] | number[]
+  element?: string
 }
 
 export type AnonymizedPortfolio = {
+  'Is Mobile': boolean
   'Wallet ID': string // e.g. 2398734895
   'Wallet Name': string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
   Chains: string[] // e.g. ['Bitcoin', 'Ethereum']

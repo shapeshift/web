@@ -97,6 +97,8 @@ export const TradeInput = () => {
   const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
   const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
   const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
+  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
+  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const updateBuyAmountCryptoPrecision = useSwapperStore(
     state => state.updateBuyAmountCryptoPrecision,
   )
@@ -129,6 +131,7 @@ export const TradeInput = () => {
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -228,6 +231,10 @@ export const TradeInput = () => {
       updateQuote(undefined)
       updateFees(undefined)
       updateTrade(undefined)
+      updateSelectedSellAssetAccountId(undefined)
+      updateSelectedBuyAssetAccountId(undefined)
+      updateBuyAssetAccountId(undefined)
+      updateSellAssetAccountId(undefined)
     } catch (e) {
       moduleLogger.error(e, 'handleToggle error')
     }
@@ -248,6 +255,10 @@ export const TradeInput = () => {
     updateQuote,
     updateFees,
     updateTrade,
+    updateSelectedSellAssetAccountId,
+    updateSelectedBuyAssetAccountId,
+    updateBuyAssetAccountId,
+    updateSellAssetAccountId,
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
@@ -390,9 +401,12 @@ export const TradeInput = () => {
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
+    const shouldDeductNetworkFeeFromGasBalanceCheck = swapperName !== SwapperName.CowSwap
     const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
       .minus(
-        fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision),
+        shouldDeductNetworkFeeFromGasBalanceCheck
+          ? fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision)
+          : 0,
       )
       .minus(tradeDeduction)
       .gte(0)
@@ -454,32 +468,33 @@ export const TradeInput = () => {
 
     return 'trade.previewTrade'
   }, [
-    bestTradeSwapper,
-    buyAsset?.symbol,
-    feeAssetBalance,
-    feesExceedsSellAmount,
-    hasValidSellAmount,
-    isBelowMinSellAmount,
-    isSwapperApiPending,
-    isTradeQuotePending,
-    isTradingActiveOnBuyPool,
-    isTradingActiveOnSellPool,
-    quote?.feeData.networkFeeCryptoBaseUnit,
-    quote?.minimum,
-    quote?.sellAsset.symbol,
-    quoteAvailableForCurrentAssetPair,
-    receiveAddress,
     sellAssetBalanceHuman,
+    sellAmountCryptoPrecision,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
-    sellAmountCryptoPrecision,
     sellAsset?.assetId,
     sellAsset?.symbol,
-    translate,
+    swapperName,
+    feeAssetBalance,
+    quote?.feeData.networkFeeCryptoBaseUnit,
+    quote?.minimum,
+    quote?.sellAsset.symbol,
+    isSwapperApiPending,
     wallet,
-    walletSupportsBuyAssetChain,
     walletSupportsSellAssetChain,
+    translate,
+    walletSupportsBuyAssetChain,
+    buyAsset?.symbol,
+    bestTradeSwapper,
+    isTradingActiveOnSellPool,
+    isTradingActiveOnBuyPool,
+    hasValidSellAmount,
+    isBelowMinSellAmount,
+    feesExceedsSellAmount,
+    isTradeQuotePending,
+    quoteAvailableForCurrentAssetPair,
+    receiveAddress,
   ])
 
   const hasError = useMemo(() => {

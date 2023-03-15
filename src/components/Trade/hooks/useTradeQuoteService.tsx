@@ -108,10 +108,7 @@ export const useTradeQuoteService = () => {
 
   // Set slippage if the quote contains a recommended value, else use the default
   useEffect(
-    () =>
-      updateSlippage(
-        tradeQuote?.recommendedSlippage ? tradeQuote.recommendedSlippage : DEFAULT_SLIPPAGE,
-      ),
+    () => updateSlippage(tradeQuote?.recommendedSlippage || DEFAULT_SLIPPAGE),
     [tradeQuote, updateSlippage],
   )
 

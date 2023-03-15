@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, isRune } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -28,7 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useFrozenTradeValues } from 'components/Trade/TradeConfirm/useFrozenTradeValues'
+import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -79,16 +79,14 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const {
-    tradeAmounts,
-    trade,
-    fees,
-    feeAssetFiatRate,
-    slippage,
-    buyAssetAccountId,
-    sellAssetAccountId,
-    buyAmountCryptoPrecision,
-  } = useFrozenTradeValues()
+  const tradeAmounts = useGetTradeAmounts()
+  const trade = useSwapperStore(state => state.trade)
+  const fees = useSwapperStore(state => state.fees)
+  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const slippage = useSwapperStore(state => state.slippage)
+  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
 
   const assets = useAppSelector(selectAssets)
 
@@ -96,16 +94,8 @@ export const TradeConfirm = () => {
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
   )
 
-  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
-
-  const bestSwapper = activeSwapperWithMetadata?.swapper
-
-  const reset = useCallback(() => {
-    clearAmounts()
-    updateFiatSellAmount('')
-  }, [clearAmounts, updateFiatSellAmount])
+  const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -118,21 +108,28 @@ export const TradeConfirm = () => {
       // e.g sell asset AccountId, and sell asset address, and sell Txid
       // If we use the "real" (which we never get) buy Tx AccountId and address. then we'll never be able to lookup a Tx in state
       // and thus will never be able to react on the completed state
-      return serializeTxIndex(
-        sellAssetAccountId!,
-        buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
-        fromAccountId(sellAssetAccountId!).account ?? '',
-      )
+
+      const thorOrderId = sellTradeId.toUpperCase()
+      const intoRune = isRune(trade?.buyAsset.assetId ?? '')
+      return intoRune
+        ? `${buyAssetAccountId}*${thorOrderId}*${trade?.receiveAddress}*OUT:${thorOrderId}`
+        : serializeTxIndex(
+            // this doesn't yet return the correct key due to the sellTxId/buyTxId logic described below.
+            sellAssetAccountId!,
+            buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
+            fromAccountId(sellAssetAccountId!).account ?? '',
+          )
     }
 
     return serializeTxIndex(buyAssetAccountId!, buyTxid, trade?.receiveAddress ?? '')
   }, [
-    sellAssetAccountId,
-    trade?.buyAsset.assetId,
     trade?.sellAsset.assetId,
-    buyAssetAccountId,
+    trade?.buyAsset.assetId,
     trade?.receiveAddress,
+    buyAssetAccountId,
     buyTxid,
+    sellTradeId,
+    sellAssetAccountId,
   ])
 
   useEffect(() => {
@@ -143,10 +140,25 @@ export const TradeConfirm = () => {
     }
   }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
-  const status =
-    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Unknown
+  const status = useAppSelector(state => selectTxStatusById(state, parsedBuyTxId))
 
-  const tradeStatus = sellTradeId || isSubmitting ? status : TxStatus.Unknown
+  const tradeStatus = useMemo(() => {
+    switch (true) {
+      case !!buyTxid && trade?.sources[0]?.name === 'THORChain':
+        /*
+          There is some wacky logic in THORChain's getTradeTxs that intentionally returns the sellTxId as the buyTxId (?!) when trades are complete (it is an empty string when not complete).
+          This means our parsedBuyTxId will never match the key of the tx (txId doesn't match what's in our store), and thus the selector lookup will always fail.
+          So, we begrudgingly do what the logic of lib intended us to do and say the trade is completed when we have a buyTxId.
+         */
+        return TxStatus.Confirmed
+      case !!sellTradeId:
+        return status ?? TxStatus.Pending
+      case isSubmitting:
+        return status ?? TxStatus.Unknown
+      default:
+        return TxStatus.Unknown
+    }
+  }, [buyTxid, isSubmitting, sellTradeId, status, trade?.sources])
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
@@ -236,7 +248,7 @@ export const TradeConfirm = () => {
       setBuyTxid(txs.buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
-      reset()
+      clearAmounts()
       setSellTradeId('')
       history.push(TradeRoutePaths.Input)
     }
@@ -244,10 +256,10 @@ export const TradeConfirm = () => {
 
   const handleBack = useCallback(() => {
     if (sellTradeId) {
-      reset()
+      clearAmounts()
     }
     history.push(TradeRoutePaths.Input)
-  }, [history, reset, sellTradeId])
+  }, [clearAmounts, history, sellTradeId])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(feeAssetFiatRate ?? 1)

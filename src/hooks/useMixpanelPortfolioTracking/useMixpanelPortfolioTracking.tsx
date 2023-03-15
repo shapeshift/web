@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { createSelector } from 'reselect'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { ReduxState } from 'state/reducer'
 import { selectWalletId } from 'state/slices/common-selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -43,8 +42,6 @@ export const useMixpanelPortfolioTracking = () => {
 
     const mp = getMixPanel()
     if (!mp) return
-    // track portfolio loaded event now that market data is loaded
-    mp.track(MixPanelEvents.PortfolioLoaded, anonymizedPortfolio)
     // set this against the user
     mp.people.set(anonymizedPortfolio) // TODO(0xdef1cafe): restructure multiple wallets per user
     // don't track again for this wallet connection session

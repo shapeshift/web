@@ -36,9 +36,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectAssets,
   selectFeeAssetByChainId,
   selectFiatToUsdRate,
   selectTxStatusById,
@@ -54,6 +58,7 @@ import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
   const history = useHistory()
+  const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const warningColor = useColorModeValue('red.600', 'red.400')
   const [sellTradeId, setSellTradeId] = useState('')
@@ -82,6 +87,8 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
+
+  const assets = useAppSelector(selectAssets)
 
   const defaultFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, trade?.sellAsset?.chainId ?? ''),
@@ -167,6 +174,39 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  // Track these data here so we don't have to do this again for the other states
+  const eventData = useMemo(() => {
+    if (!(swapper && trade && tradeAmounts)) return null
+    const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
+    const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
+    const buyAmountCryptoPrecision = fromBaseUnit(
+      tradeAmounts.buyAmountBeforeFeesBaseUnit,
+      trade.sellAsset.precision,
+    )
+    const sellAmountCryptoPrecision = fromBaseUnit(
+      tradeAmounts.sellAmountBeforeFeesBaseUnit,
+      trade.buyAsset.precision,
+    )
+    return {
+      buyAsset: compositeBuyAsset,
+      sellAsset: compositeSellAsset,
+      fiatAmount: tradeAmounts.sellAmountBeforeFeesFiat,
+      swapperName: swapper.name,
+      [compositeBuyAsset]: buyAmountCryptoPrecision,
+      [compositeSellAsset]: sellAmountCryptoPrecision,
+    }
+  }, [assets, swapper, trade, tradeAmounts])
+
+  useEffect(() => {
+    if (!mixpanel || !eventData) return
+    if (tradeStatus === TxStatus.Confirmed) {
+      mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
+    }
+    if (tradeStatus === TxStatus.Failed) {
+      mixpanel.track(MixPanelEvents.TradeFailed, eventData)
+    }
+  }, [eventData, mixpanel, tradeStatus])
+
   // This should not happen, but it could.
   if (!trade) throw new Error('Trade is undefined')
 
@@ -180,6 +220,10 @@ export const TradeConfirm = () => {
         handleBack()
         walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
+      }
+
+      if (mixpanel && eventData) {
+        mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
       const result = await swapper.executeTrade({ trade, wallet })

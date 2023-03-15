@@ -147,6 +147,7 @@
     "html-react-parser": "^1.4.14",
     "html5-qrcode": "^2.2.1",
     "https-browserify": "^1.0.0",
+    "immer": "^9.0.19",
     "js-file-download": "^0.4.12",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
@@ -185,7 +186,8 @@
     "styled-components": "^5.3.6",
     "wagmi": "^0.6.5",
     "web-vitals": "^2.1.4",
-    "web3": "1.7.4"
+    "web3": "1.7.4",
+    "zustand": "^4.3.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",

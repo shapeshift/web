@@ -131,6 +131,7 @@ export const TradeInput = () => {
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -288,9 +289,6 @@ export const TradeInput = () => {
     setTradeAmountsRefetchData,
     buyAsset?.assetId,
   ])
-
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
-
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
     try {

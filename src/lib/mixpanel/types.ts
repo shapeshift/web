@@ -21,6 +21,8 @@ export enum MixPanelEvents {
   ClickOpportunity = 'Click Opportunity',
   InsufficientFunds = 'Insufficient Funds',
   ConnectWallet = 'Connect Wallet',
+  SwitchWallet = 'Switch Wallet',
+  DisconnectWallet = 'Disconnect Wallet',
   PortfolioLoaded = 'Portfolio Loaded',
 }
 
@@ -36,6 +38,7 @@ export type TrackOpportunityProps = {
 }
 
 export type AnonymizedPortfolio = {
+  'Is Mobile': boolean
   'Wallet ID': string // e.g. 2398734895
   'Wallet Name': string // e.g. 'Native' | 'Metamask' | 'WalletConnect'
   Chains: string[] // e.g. ['Bitcoin', 'Ethereum']

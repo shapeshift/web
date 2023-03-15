@@ -114,10 +114,6 @@ export const TradeConfirm = () => {
       // and thus will never be able to react on the completed state
 
       const thorOrderId = sellTradeId.toUpperCase()
-      /*
-        This currently only works for trades into RUNE
-        Further logic required to handle double swaps. Once we do, we can remove the THORSwapper-specific tradeStatus logic below.
-       */
       const intoRune = isRune(trade?.buyAsset.assetId ?? '')
       return intoRune
         ? `${buyAssetAccountId}*${thorOrderId}*${trade?.receiveAddress}*OUT:${thorOrderId}`

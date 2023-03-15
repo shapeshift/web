@@ -1,19 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { DepositValues, Field as DepositField } from 'features/defi/components/Deposit/Deposit'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-
-type SupportedCosmosOpportunity = {
-  type: DefiType
-  provider: string
-  version: string
-  stakingToken: string
-  chain: ChainId
-  tvl: BigNumber
-  apr: string
-  expired: boolean
-}
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -26,7 +12,7 @@ type CosmosDepositValues = Omit<DepositValues, DepositField.Slippage> &
   }
 
 export type CosmosDepositState = {
-  cosmosOpportunity: SupportedCosmosOpportunity
+  apr: string
   userAddress: string | null
   deposit: CosmosDepositValues
   loading: boolean
@@ -35,7 +21,7 @@ export type CosmosDepositState = {
 }
 
 export enum CosmosDepositActionType {
-  SET_OPPORTUNITY = 'SET_OPPORTUNITY',
+  SET_OPPORTUNITY_APR = 'SET_OPPORTUNITY_APR',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
@@ -43,8 +29,8 @@ export enum CosmosDepositActionType {
 }
 
 type SetCosmosOpportunitiesAction = {
-  type: CosmosDepositActionType.SET_OPPORTUNITY
-  payload: Partial<StakingEarnOpportunityType> | null
+  type: CosmosDepositActionType.SET_OPPORTUNITY_APR
+  payload: Pick<StakingEarnOpportunityType, 'apy'>
 }
 
 type SetDeposit = {

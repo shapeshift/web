@@ -7,7 +7,11 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiProvider,
+  DefiStep,
+  DefiType,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getFormFees } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
@@ -20,10 +24,14 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { getDefaultValidatorAddressFromChainId } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,7 +54,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { assetReference, chainId, contractAddress: validatorAddress } = query
   const assetNamespace = 'slip44'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
@@ -55,7 +63,34 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const opportunity = useMemo(() => state?.cosmosOpportunity, [state])
+  const validatorId = toValidatorId({ chainId, account: validatorAddress })
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return
+    const userStakingId = serializeUserStakingId(accountId, validatorId)
+    return { userStakingId }
+  }, [accountId, validatorId])
+
+  const earnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
+
+  const filteredOpportunitiesMetadataFilter = useMemo(() => {
+    return {
+      defiProvider: DefiProvider.Cosmos,
+      defiType: DefiType.Staking,
+      assetId,
+      validatorId: toValidatorId({
+        chainId,
+        account: getDefaultValidatorAddressFromChainId(chainId),
+      }),
+    }
+  }, [assetId, chainId])
+
+  const defaultOpportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, filteredOpportunitiesMetadataFilter),
+  )
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
@@ -151,8 +186,6 @@ export const Deposit: React.FC<DepositProps> = ({
     [asset, assetReference, dispatch, marketData.price, onNext, state, toast, translate],
   )
 
-  if (!state || !dispatch) return null
-
   const handleCancel = history.goBack
 
   const validateCryptoAmount = (value: string) => {
@@ -172,13 +205,15 @@ export const Deposit: React.FC<DepositProps> = ({
     return hasValidBalance || 'common.insufficientFunds'
   }
 
+  if (!(state && dispatch && (earnOpportunityData || defaultOpportunityMetadata))) return null
+
   return (
     <ReusableDeposit
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
-      isLoading={state.loading}
-      apy={String(opportunity?.apr)}
+      isLoading={state?.loading}
+      apy={(earnOpportunityData?.apy ?? defaultOpportunityMetadata?.apy)!}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={{
         required: true,

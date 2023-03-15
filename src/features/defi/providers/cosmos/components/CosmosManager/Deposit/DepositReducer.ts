@@ -1,22 +1,9 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-
 import type { CosmosDepositActions, CosmosDepositState } from './DepositCommon'
 import { CosmosDepositActionType } from './DepositCommon'
 
 export const initialState: CosmosDepositState = {
   txid: null,
-  cosmosOpportunity: {
-    stakingToken: '',
-    provider: '',
-    chain: KnownChainIds.CosmosMainnet,
-    type: DefiType.Staking,
-    expired: false,
-    version: '',
-    tvl: bn(0),
-    apr: '',
-  },
+  apr: '',
   userAddress: null,
   loading: false,
   pricePerShare: '',
@@ -33,15 +20,10 @@ export const reducer = (
   action: CosmosDepositActions,
 ): CosmosDepositState => {
   switch (action.type) {
-    case CosmosDepositActionType.SET_OPPORTUNITY:
+    case CosmosDepositActionType.SET_OPPORTUNITY_APR:
       return {
         ...state,
-        cosmosOpportunity: {
-          ...state.cosmosOpportunity,
-          ...action.payload,
-          tvl: bnOrZero(action.payload?.tvl),
-          apr: action.payload?.apy ?? '',
-        },
+        apr: action.payload?.apy ?? '',
       }
     case CosmosDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }

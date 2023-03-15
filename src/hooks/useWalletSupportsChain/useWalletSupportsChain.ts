@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
+  bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
@@ -14,6 +15,7 @@ import {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
+  supportsBSC,
   supportsBTC,
   supportsCosmos,
   supportsETH,
@@ -42,6 +44,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return supportsAvalanche(wallet)
     case optimismChainId:
       return supportsOptimism(wallet)
+    case bscChainId:
+      return supportsBSC(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case osmosisChainId:

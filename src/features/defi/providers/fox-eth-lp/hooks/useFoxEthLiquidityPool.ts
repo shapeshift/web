@@ -369,7 +369,7 @@ export const useFoxEthLiquidityPool = (
   )
 
   const getDepositGasData = useCallback(
-    async (token0Amount: string, token1Amount: string) => {
+    async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (skip || !accountId || !uniswapRouterContract) return
       const value = bnOrZero(token0Amount)
         .times(bn(10).exponentiatedBy(ethAsset.precision))

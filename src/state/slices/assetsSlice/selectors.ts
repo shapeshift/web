@@ -109,6 +109,8 @@ const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.Ethereum
           case CHAIN_REFERENCE.OptimismMainnet:
             return ASSET_REFERENCE.Optimism
+          case CHAIN_REFERENCE.BnbSmartChainMainnet:
+            return ASSET_REFERENCE.BnbSmartChain
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

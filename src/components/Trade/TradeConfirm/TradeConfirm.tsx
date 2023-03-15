@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs } from '@shapeshiftoss/swapper'
+import { type TradeTxs, isRune } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -112,21 +112,31 @@ export const TradeConfirm = () => {
       // e.g sell asset AccountId, and sell asset address, and sell Txid
       // If we use the "real" (which we never get) buy Tx AccountId and address. then we'll never be able to lookup a Tx in state
       // and thus will never be able to react on the completed state
-      return serializeTxIndex(
-        sellAssetAccountId!,
-        buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
-        fromAccountId(sellAssetAccountId!).account ?? '',
-      )
+
+      const thorOrderId = sellTradeId.toUpperCase()
+      /*
+        This currently only works for trades into RUNE
+        Further logic required to handle double swaps
+       */
+      const intoRune = isRune(trade?.buyAsset.assetId ?? '')
+      return intoRune
+        ? `${buyAssetAccountId}*${thorOrderId}*${trade?.receiveAddress}*OUT:${thorOrderId}`
+        : serializeTxIndex(
+            sellAssetAccountId!,
+            buyTxid.toUpperCase(), // Midgard monkey patch Txid is lowercase, but we store Cosmos SDK Txs uppercase
+            fromAccountId(sellAssetAccountId!).account ?? '',
+          )
     }
 
     return serializeTxIndex(buyAssetAccountId!, buyTxid, trade?.receiveAddress ?? '')
   }, [
-    sellAssetAccountId,
-    trade?.buyAsset.assetId,
     trade?.sellAsset.assetId,
-    buyAssetAccountId,
+    trade?.buyAsset.assetId,
     trade?.receiveAddress,
+    buyAssetAccountId,
     buyTxid,
+    sellTradeId,
+    sellAssetAccountId,
   ])
 
   useEffect(() => {
@@ -137,10 +147,25 @@ export const TradeConfirm = () => {
     }
   }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
-  const status =
-    useAppSelector(state => selectTxStatusById(state, parsedBuyTxId)) ?? TxStatus.Unknown
+  const status = useAppSelector(state => selectTxStatusById(state, parsedBuyTxId))
 
-  const tradeStatus = sellTradeId || isSubmitting ? status : TxStatus.Unknown
+  const tradeStatus = useMemo(() => {
+    switch (true) {
+      case !!buyTxid && trade?.sources[0]?.name === 'THORChain':
+        /*
+          There is some wacky logic in THORChain's getTradeTxs that intentionally returns the buy txID as the sell txID
+          when trades are complete (else it is an empty string.
+          This means our parsedBuyTxId will never match the key of the tx, and thus will always be undefined (unknown).
+         */
+        return TxStatus.Confirmed
+      case !!sellTradeId:
+        return status ?? TxStatus.Pending
+      case isSubmitting:
+        return status ?? TxStatus.Unknown
+      default:
+        return TxStatus.Unknown
+    }
+  }, [buyTxid, isSubmitting, sellTradeId, status, trade?.sources])
 
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 

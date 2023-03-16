@@ -25,6 +25,7 @@ import { WagmiProvider } from 'context/WagmiProvider/WagmiProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
@@ -39,7 +40,7 @@ const manager = createLocalStorageManager('ss-theme')
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback((error: Error, info: { componentStack: string }) => {
-    getMixPanel()?.track('Error', { error, info })
+    getMixPanel()?.track(MixPanelEvents.Error, { error, info })
   }, [])
   return (
     <HelmetProvider>

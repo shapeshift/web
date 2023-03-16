@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -206,6 +206,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Value>
         </Row>
       </Summary>
+      {!hasEnoughBalanceForGas && (
+        <Alert status='error' borderRadius='lg'>
+          <AlertIcon />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+        </Alert>
+      )}
     </ReusableConfirm>
   )
 }

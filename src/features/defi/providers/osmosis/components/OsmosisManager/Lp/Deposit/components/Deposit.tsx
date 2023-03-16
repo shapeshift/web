@@ -26,13 +26,19 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
   getPool,
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectPortfolioCryptoBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OsmosisDepositActionType } from '../LpDepositCommon'
@@ -61,6 +67,8 @@ export const Deposit: React.FC<DepositProps> = ({
   const [poolData, setPoolData] = useState<OsmosisPool | undefined>(undefined)
   const { chainId, assetNamespace, assetReference } = query
   const osmosisOpportunity = state?.opportunity
+
+  const assets = useAppSelector(selectAssets)
 
   const lpAssetId = toAssetId({
     chainId,
@@ -266,6 +274,18 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.DepositContinue,
+          {
+            opportunity: osmosisOpportunity,
+            fiatAmounts: [formValues.fiatAmount0, formValues.fiatAmount1],
+            cryptoAmounts: [
+              { assetId: underlyingAsset0.assetId, amountCryptoHuman: formValues.cryptoAmount0 },
+              { assetId: underlyingAsset1.assetId, amountCryptoHuman: formValues.cryptoAmount1 },
+            ],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -286,6 +306,7 @@ export const Deposit: React.FC<DepositProps> = ({
       calculateAllocations,
       getDepositFeeEstimateCryptoBaseUnit,
       onNext,
+      assets,
       toast,
       translate,
     ],

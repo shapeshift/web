@@ -1,11 +1,26 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'
+
+export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string => {
+  // example path
+  // /accounts/eip155:1:0xa4..35/eip155:1%2Ferc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984
+  const parts = pathname.split('/')
+  const [_, accountLiteral, accountId, maybeEscapedAssetId] = parts
+  const { chainId } = fromAccountId(accountId)
+  const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
+  const assetId = maybeEscapedAssetId && decodeURIComponent(maybeEscapedAssetId)
+  const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
+  const newParts = [_, accountLiteral, chainName]
+  if (mixpanelAssetId) newParts.push(mixpanelAssetId)
+  return newParts.join('/')
+}
 
 export const assetToCompositeSymbol = (asset: Asset): string => {
   const { chainId } = asset

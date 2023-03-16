@@ -7,7 +7,10 @@ import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
+import { mapMixpanelPathname } from '../../lib/mixpanel/helpers'
 import { BrowserRouterContext } from './BrowserRouterContext'
 
 type BrowserRouterProviderProps = {
@@ -20,6 +23,7 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   const params = useParams()
   const query = useQuery()
   const { routes: pluginRoutes } = usePlugins()
+  const assets = useAppSelector(selectAssets)
 
   const appRoutes = useMemo(() => {
     return generateAppRoutes(union(pluginRoutes, routes))
@@ -30,8 +34,17 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [appRoutes, location.pathname])
 
   useEffect(() => {
-    getMixPanel()?.track(MixPanelEvents.PageView, { pathname: location.pathname })
-  }, [location.pathname])
+    const redactedPathname = (() => {
+      switch (true) {
+        case location.pathname.startsWith('/accounts/'): {
+          return mapMixpanelPathname(location.pathname, assets)
+        }
+        default:
+          return location.pathname
+      }
+    })()
+    getMixPanel()?.track(MixPanelEvents.PageView, { pathname: redactedPathname })
+  }, [assets, location.pathname])
 
   const router = useMemo(
     () => ({

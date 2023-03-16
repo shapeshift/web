@@ -1,0 +1,26 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethereum } from 'test/mocks/assets'
+import { mockChainAdapters } from 'test/mocks/portfolio'
+
+import { mapMixpanelPathname } from './helpers'
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
+
+describe('mixpanel helpers', () => {
+  const assets = {
+    [ethAssetId]: ethereum,
+  }
+  describe('mapMixpanelPathname', () => {
+    it('should redact account id', () => {
+      const pathname = '/accounts/eip155:1:0xa4..35/eip155:1%2Fslip44:60'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/accounts/Ethereum/Ethereum.ETH')
+    })
+
+    it('can handle missing assetId', () => {
+      const pathname = '/accounts/eip155:1:0xa4..35'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/accounts/Ethereum')
+    })
+  })
+})

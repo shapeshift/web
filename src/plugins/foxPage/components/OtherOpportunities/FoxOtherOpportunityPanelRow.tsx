@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, Link, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -102,6 +102,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
               : DefiProvider.EthFoxStaking,
           chainId,
           contractAddress,
+          assetNamespace: ASSET_NAMESPACE.erc20,
           assetReference: earnOpportunity.underlyingAssetId
             ? fromAssetId(earnOpportunity.underlyingAssetId).assetReference
             : undefined,

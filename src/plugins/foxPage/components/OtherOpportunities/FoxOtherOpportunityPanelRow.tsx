@@ -13,10 +13,13 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserLpOpportunity,
   selectAggregatedEarnUserStakingOpportunityByStakingId,
+  selectAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,6 +36,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
     state: { isDemoWallet, wallet },
     dispatch,
   } = useWallet()
+  const assets = useAppSelector(selectAssets)
   const opportunityId = useMemo(
     () =>
       opportunity.contractAddress &&
@@ -80,6 +84,14 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
 
     if (earnOpportunity) {
       const { chainId, contractAddress, rewardAddress } = earnOpportunity
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity: earnOpportunity,
+          element: 'Table Row',
+        },
+        assets,
+      )
       history.push({
         pathname: location.pathname,
         search: qs.stringify({
@@ -101,7 +113,18 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       })
       return
     }
-  }, [opportunity, isDemoWallet, wallet, earnOpportunity, dispatch, history, location])
+  }, [
+    opportunity.link,
+    opportunity.type,
+    opportunity.highestBalanceAccountAddress,
+    isDemoWallet,
+    wallet,
+    earnOpportunity,
+    dispatch,
+    assets,
+    history,
+    location,
+  ])
 
   const opportunityButtonTranslation = useMemo(() => {
     if (opportunity.link) return 'plugins.foxPage.getStarted'

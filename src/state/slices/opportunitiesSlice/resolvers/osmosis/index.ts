@@ -1,8 +1,7 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { osmosisAssetId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 
 import type {
@@ -16,7 +15,6 @@ import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } 
 import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
 
 const OSMO_ATOM_LIQUIDITY_POOL_ID = '1'
-const OSMOSIS_LP_TOKEN_PRECISION = 18
 
 export const osmosisLpOpportunitiesMetadataResolver = async ({
   opportunityType,
@@ -48,21 +46,16 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     const underlyingAssetId1 = generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const asset = selectAssetById(state, assetId)
+    const feeAsset = selectAssetById(state, osmosisAssetId)
 
-    if (!asset) continue
+    if (!asset || !feeAsset) continue
 
     const totalSupply = bn(pool.total_shares.amount)
     const token0Reserves = bn(pool.pool_assets[0].token.amount)
     const token1Reserves = bn(pool.pool_assets[1].token.amount)
 
-    const token0PoolRatio = token0Reserves
-      .div(totalSupply)
-      .times(OSMOSIS_LP_TOKEN_PRECISION)
-      .toFixed()
-    const token1PoolRatio = token1Reserves
-      .div(totalSupply)
-      .times(OSMOSIS_LP_TOKEN_PRECISION)
-      .toFixed()
+    const token0PoolRatio = token0Reserves.div(totalSupply)
+    const token1PoolRatio = token1Reserves.div(totalSupply)
 
     lpOpportunitiesById[opportunityId] = {
       apy: pool.apy,
@@ -74,8 +67,8 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       underlyingAssetId: assetId,
       underlyingAssetIds: [underlyingAssetId0, underlyingAssetId1],
       underlyingAssetRatiosBaseUnit: [
-        toBaseUnit(token0PoolRatio, OSMOSIS_LP_TOKEN_PRECISION),
-        toBaseUnit(token1PoolRatio, OSMOSIS_LP_TOKEN_PRECISION),
+        token0PoolRatio.times(bn(10).pow(asset.precision)).toFixed(),
+        token1PoolRatio.times(bn(10).pow(asset.precision)).toFixed(),
       ] as const,
       name: pool.name,
     }

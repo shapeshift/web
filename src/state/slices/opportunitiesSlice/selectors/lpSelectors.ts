@@ -194,11 +194,12 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
 
     const underlyingBalances = getUnderlyingAssetIdsBalances({
       cryptoAmountBaseUnit: bnOrZero(lpAssetBalancePrecision)
-        .div(bnOrZero(10).pow(lpAsset?.precision))
+        .times(bnOrZero(10).pow(lpAsset.precision))
         .toString(),
       underlyingAssetIds: opportunityMetadata.underlyingAssetIds,
       underlyingAssetRatiosBaseUnit: opportunityMetadata.underlyingAssetRatiosBaseUnit,
       assets,
+      assetId: lpId,
       marketData,
     })
     const underlyingAssetsIcons = opportunityMetadata.underlyingAssetIds

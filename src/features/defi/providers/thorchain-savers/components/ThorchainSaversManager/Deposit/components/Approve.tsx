@@ -151,11 +151,11 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(state.deposit)
-      if (!estimatedGasCrypto) return
+      const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(state.deposit)
+      if (!estimatedGasCryptoPrecision) return
       dispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)

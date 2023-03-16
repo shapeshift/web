@@ -28,6 +28,10 @@ export enum MixPanelEvents {
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
   FiatRamp = 'Fiat Ramp',
+  NativeImport = 'Native Import',
+  NativeCreate = 'Native Create',
+  Click = 'Click',
+  ClickdApp = 'Click dApp',
 }
 
 export type TrackOpportunityProps = {
@@ -42,6 +46,7 @@ export type TrackOpportunityProps = {
 }
 
 export type AnonymizedPortfolio = {
+  'Has Crypto Balance': boolean
   'Is Mobile': boolean
   'Wallet ID': string // e.g. 2398734895
   'Wallet Name': string // e.g. 'Native' | 'Metamask' | 'WalletConnect'

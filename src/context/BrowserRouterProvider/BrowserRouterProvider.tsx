@@ -1,10 +1,12 @@
 import { union } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { matchPath, useHistory, useLocation, useParams } from 'react-router-dom'
 import { generateAppRoutes } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import { BrowserRouterContext } from './BrowserRouterContext'
 
@@ -17,6 +19,7 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   const history = useHistory()
   const params = useParams()
   const query = useQuery()
+  const mixpanel = getMixPanel()
   const { routes: pluginRoutes } = usePlugins()
 
   const appRoutes = useMemo(() => {
@@ -26,6 +29,10 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   const currentRoute = useMemo(() => {
     return appRoutes.find(e => matchPath(location.pathname, { path: e.path, exact: true }))
   }, [appRoutes, location.pathname])
+
+  useEffect(() => {
+    mixpanel?.track(MixPanelEvents.PageView, { pathname: location.pathname })
+  }, [location.pathname, mixpanel])
 
   const router = useMemo(
     () => ({

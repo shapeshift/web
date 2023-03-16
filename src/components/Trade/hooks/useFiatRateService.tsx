@@ -33,6 +33,9 @@ export const useFiatRateService = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const activeSwapperType = useSwapperStore(
+    state => state.activeSwapperWithMetadata?.swapper,
+  )?.getType()
 
   // API
   const { data: usdRates, isLoading: isLoadingFiatRateData } = useGetUsdRatesQuery(usdRatesArgs, {
@@ -41,13 +44,20 @@ export const useFiatRateService = () => {
 
   // Trigger fiat rate query
   useEffect(() => {
-    if (sellTradeAssetId && buyTradeAssetId && sellAssetFeeAssetId && tradeQuoteArgs) {
+    if (
+      sellTradeAssetId &&
+      buyTradeAssetId &&
+      sellAssetFeeAssetId &&
+      tradeQuoteArgs &&
+      activeSwapperType
+    ) {
       setUsdRatesArgs({
         tradeQuoteArgs,
         feeAssetId: sellAssetFeeAssetId,
+        activeSwapperType,
       })
     }
-  }, [buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
+  }, [activeSwapperType, buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
 
   // Set fiat rates
   useEffect(() => {

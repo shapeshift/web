@@ -40,7 +40,6 @@ export const useSwapperStore = (() => {
           updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
           updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
           updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
-          updateQuote: createUpdateAction(set, 'quote'),
           updateSellAssetFiatRate: createUpdateAction(set, 'sellAssetFiatRate'),
           updateBuyAssetFiatRate: createUpdateAction(set, 'buyAssetFiatRate'),
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
@@ -88,7 +87,6 @@ export const useSwapperStore = (() => {
                 state.isSendMax = false
                 state.action = TradeAmountInputField.SELL_FIAT
                 state.trade = undefined
-                state.quote = undefined
                 state.buyAmountFiat = '0'
                 state.sellAmountFiat = '0'
               },

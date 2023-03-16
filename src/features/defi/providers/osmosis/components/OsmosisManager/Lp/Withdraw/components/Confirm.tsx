@@ -11,7 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -23,14 +23,20 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   getPool,
   getPoolIdFromAssetReference,
 } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,11 +55,27 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
   const osmosisOpportunity = state?.opportunity
 
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
+
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!osmosisOpportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      assetId: osmosisOpportunity.assetId,
+      underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.withdraw.shareInAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, osmosisOpportunity, state])
 
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
@@ -96,7 +118,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         supportsOsmosis(walletState.wallet) &&
         osmosisOpportunity &&
         chainAdapter &&
-        bip44Params
+        bip44Params &&
+        lpAsset &&
+        underlyingAsset0 &&
+        underlyingAsset1 &&
+        underlyingAssetBalances
       )
     ) {
       return
@@ -183,6 +209,29 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       contextDispatch({ type: OsmosisWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawConfirm,
+        {
+          opportunity: osmosisOpportunity,
+          fiatAmounts: [
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+          ],
+          cryptoAmounts: [
+            {
+              assetId: underlyingAsset0.assetId,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
+            },
+            {
+              assetId: underlyingAsset1.assetId,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
+            },
+          ],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
       toast({
@@ -201,7 +250,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     osmosisOpportunity,
     chainAdapter,
     bip44Params,
+    lpAsset,
+    underlyingAsset0,
+    underlyingAsset1,
+    underlyingAssetBalances,
     onNext,
+    assets,
     toast,
     translate,
   ])
@@ -221,6 +275,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         .gte(0),
     [feeAssetBalance, state?.withdraw, feeAsset?.precision],
   )
+
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas && mixpanel) {
+      mixpanel.track(MixPanelEvents.InsufficientFunds)
+    }
+  }, [hasEnoughBalanceForGas, mixpanel])
 
   if (!(state && contextDispatch && lpAsset && underlyingAsset0 && underlyingAsset1 && feeAsset))
     return null

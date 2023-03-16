@@ -27,7 +27,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
   const updateAmount = useSwapperStore(state => state.updateAmount)
-  const updateQuote = useSwapperStore(state => state.updateQuote)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
   const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
@@ -54,7 +53,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       updateAmount('0')
       updateSellAsset(sellAsset)
       updateSellAmountCryptoPrecision('0')
-      updateQuote(undefined)
       updateFiatBuyAmount('0')
       updateFiatSellAmount('0')
       updateSellAssetFiatRate(undefined)
@@ -79,7 +77,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,
     defaultAssetIdPair,
-    updateQuote,
     updateFiatBuyAmount,
     updateFiatSellAmount,
     updateSellAssetFiatRate,

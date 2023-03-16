@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type Mixpanel from 'mixpanel-browser'
 import type {
   LpEarnOpportunityType,
+  OpportunityMetadata,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 export type MixPanelType = typeof Mixpanel | undefined
@@ -35,7 +36,7 @@ export enum MixPanelEvents {
 }
 
 export type TrackOpportunityProps = {
-  opportunity: StakingEarnOpportunityType | LpEarnOpportunityType
+  opportunity: StakingEarnOpportunityType | LpEarnOpportunityType | OpportunityMetadata
   cryptoAmounts?: {
     assetId: AssetId
     amountCryptoHuman: string | number

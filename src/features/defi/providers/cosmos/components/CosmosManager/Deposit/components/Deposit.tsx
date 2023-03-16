@@ -20,10 +20,15 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,9 +51,18 @@ export const Deposit: React.FC<DepositProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
   const assetNamespace = 'slip44'
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+
+  const validatorId = toValidatorId({ chainId, account: contractAddress })
+
+  const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
+
+  const opportunityData = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -102,7 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch)) return
+      if (!(state && dispatch && opportunityData)) return
 
       const getStakingGasEstimate = async () => {
         if (!assetReference) return
@@ -137,6 +151,15 @@ export const Deposit: React.FC<DepositProps> = ({
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+        trackOpportunityEvent(
+          MixPanelEvents.DepositContinue,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
         toast({
@@ -148,7 +171,19 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
       }
     },
-    [asset, assetReference, dispatch, marketData.price, onNext, state, toast, translate],
+    [
+      asset,
+      assetId,
+      assetReference,
+      assets,
+      dispatch,
+      marketData.price,
+      onNext,
+      opportunityData,
+      state,
+      toast,
+      translate,
+    ],
   )
 
   if (!state || !dispatch) return null

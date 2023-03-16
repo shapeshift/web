@@ -17,8 +17,17 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { OSMOSIS_PRECISION } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
-import { selectAssetById, selectMarketDataById, selectTxById } from 'state/slices/selectors'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectMarketDataSortedByMarketCap,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -35,8 +44,24 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const opportunity = state?.opportunity
 
+  const assets = useAppSelector(selectAssets)
+  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+
   const feeAsset = useAppSelector(state => selectAssetById(state, osmosisAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${osmosisAssetId}`)
+
+  const underlyingAssetBalances = useMemo(() => {
+    if (!opportunity || !state) return null
+    return getUnderlyingAssetIdsBalances({
+      assetId: opportunity.assetId,
+      underlyingAssetIds: opportunity.underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit: state.deposit.shareOutAmountBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, opportunity, state])
+
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, osmosisAssetId ?? ''),
   )
@@ -80,6 +105,42 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunity || !state || !underlyingAssetBalances) return
+    if (state.deposit.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.DepositSuccess,
+        {
+          opportunity,
+          fiatAmounts: [
+            underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+            underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+          ],
+          cryptoAmounts: [
+            {
+              assetId: underlyingAsset0.assetId,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
+            },
+            {
+              assetId: underlyingAsset1.assetId,
+              amountCryptoHuman:
+                underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
+            },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    opportunity,
+    state,
+    underlyingAsset0.assetId,
+    underlyingAsset1.assetId,
+    underlyingAssetBalances,
+  ])
 
   if (!state || !feeAsset) return null
 

@@ -2,6 +2,7 @@ import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 
 import type {
@@ -15,6 +16,7 @@ import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } 
 import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
 
 const OSMO_ATOM_LIQUIDITY_POOL_ID = '1'
+const OSMOSIS_LP_TOKEN_PRECISION = 18
 
 export const osmosisLpOpportunitiesMetadataResolver = async ({
   opportunityType,
@@ -46,22 +48,20 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     const underlyingAssetId1 = generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const asset = selectAssetById(state, assetId)
-    const underlyingAsset0 = selectAssetById(state, underlyingAssetId0)
-    const underlyingAsset1 = selectAssetById(state, underlyingAssetId1)
 
-    if (!asset || !underlyingAsset0 || !underlyingAsset1) continue
+    if (!asset) continue
 
     const totalSupply = bn(pool.total_shares.amount)
     const token0Reserves = bn(pool.pool_assets[0].token.amount)
     const token1Reserves = bn(pool.pool_assets[1].token.amount)
 
-    const underlyingAsset0RatioBaseUnit = token0Reserves
+    const token0PoolRatio = token0Reserves
       .div(totalSupply)
-      .times(bn(10).pow(underlyingAsset0.precision))
+      .times(OSMOSIS_LP_TOKEN_PRECISION)
       .toFixed()
-    const underlyingAsset1RatioBaseUnit = token1Reserves
+    const token1PoolRatio = token1Reserves
       .div(totalSupply)
-      .times(bn(10).pow(underlyingAsset1.precision))
+      .times(OSMOSIS_LP_TOKEN_PRECISION)
       .toFixed()
 
     lpOpportunitiesById[opportunityId] = {
@@ -73,10 +73,14 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       type: DefiType.LiquidityPool,
       underlyingAssetId: assetId,
       underlyingAssetIds: [underlyingAssetId0, underlyingAssetId1],
-      underlyingAssetRatiosBaseUnit: [underlyingAsset0RatioBaseUnit, underlyingAsset1RatioBaseUnit],
-
+      underlyingAssetRatiosBaseUnit: [
+        toBaseUnit(token0PoolRatio, OSMOSIS_LP_TOKEN_PRECISION),
+        toBaseUnit(token1PoolRatio, OSMOSIS_LP_TOKEN_PRECISION),
+      ] as const,
       name: pool.name,
     }
+
+    debugger
   }
 
   const data = {

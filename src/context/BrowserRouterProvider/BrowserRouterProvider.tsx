@@ -19,7 +19,6 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   const history = useHistory()
   const params = useParams()
   const query = useQuery()
-  const mixpanel = getMixPanel()
   const { routes: pluginRoutes } = usePlugins()
 
   const appRoutes = useMemo(() => {
@@ -31,8 +30,8 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [appRoutes, location.pathname])
 
   useEffect(() => {
-    mixpanel?.track(MixPanelEvents.PageView, { pathname: location.pathname })
-  }, [location.pathname, mixpanel])
+    getMixPanel()?.track(MixPanelEvents.PageView, { pathname: location.pathname })
+  }, [location.pathname])
 
   const router = useMemo(
     () => ({

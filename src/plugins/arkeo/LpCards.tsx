@@ -55,7 +55,7 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
         MixPanelEvents.ClickOpportunity,
         {
           opportunity,
-          element: 'Featured Card',
+          element: 'Arkeo Featured Card',
         },
         assets,
       )

@@ -72,8 +72,6 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       ] as const,
       name: pool.name,
     }
-
-    debugger
   }
 
   const data = {

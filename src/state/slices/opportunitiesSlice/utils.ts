@@ -84,7 +84,6 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
       const asset = assets[assetId ?? '']
       const marketDataPrice = marketData[underlyingAssetId]?.price
       if (!underlyingAsset) return acc
-      debugger
       const fiatAmount = bnOrZero(cryptoAmountBaseUnit)
         .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
         .div(bnOrZero(10).pow(asset?.precision ?? underlyingAsset.precision))

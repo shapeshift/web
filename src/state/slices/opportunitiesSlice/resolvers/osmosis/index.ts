@@ -46,8 +46,10 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     const underlyingAssetId1 = generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const asset = selectAssetById(state, assetId)
+    const underlyingAsset0 = selectAssetById(state, underlyingAssetId0)
+    const underlyingAsset1 = selectAssetById(state, underlyingAssetId1)
 
-    if (!asset) continue
+    if (!asset || !underlyingAsset0 || !underlyingAsset1) continue
 
     const totalSupply = bn(pool.total_shares.amount)
     const token0Reserves = bn(pool.pool_assets[0].token.amount)
@@ -55,11 +57,11 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 
     const underlyingAsset0RatioBaseUnit = token0Reserves
       .div(totalSupply)
-      .times(bn(10).pow(asset.precision))
+      .times(bn(10).pow(underlyingAsset0.precision))
       .toFixed()
     const underlyingAsset1RatioBaseUnit = token1Reserves
       .div(totalSupply)
-      .times(bn(10).pow(asset.precision))
+      .times(bn(10).pow(underlyingAsset1.precision))
       .toFixed()
 
     lpOpportunitiesById[opportunityId] = {

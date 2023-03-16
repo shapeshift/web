@@ -30,6 +30,7 @@ export enum MixPanelEvents {
   FiatRamp = 'Fiat Ramp',
   NativeImport = 'Native Import',
   NativeCreate = 'Native Create',
+  Click = 'Click',
   ClickdApp = 'Click dApp',
 }
 

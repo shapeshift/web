@@ -28,6 +28,8 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
@@ -147,6 +149,9 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                     as={Link}
                     leftIcon={<ExternalLinkIcon />}
                     href={BuyFoxCoinbaseUrl}
+                    onClick={() =>
+                      getMixPanel()?.track(MixPanelEvents.Click, { element: 'Coinbase Button' })
+                    }
                     isExternal
                   >
                     <CText>

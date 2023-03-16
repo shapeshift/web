@@ -7,7 +7,7 @@ import {
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectBridgeProvider } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -24,6 +24,7 @@ import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsP
 import { WagmiProvider } from 'context/WagmiProvider/WagmiProvider'
 import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
@@ -37,6 +38,9 @@ const manager = createLocalStorageManager('ss-theme')
 
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
+  const handleError = useCallback((error: Error, info: { componentStack: string }) => {
+    getMixPanel()?.track('Error', { error, info })
+  }, [])
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
@@ -54,7 +58,7 @@ export function AppProviders({ children }: ProvidersProps) {
                         <WalletConnectBridgeProvider>
                           <WalletConnectV2Provider>
                             <KeepKeyProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage}>
+                              <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
                                 <ModalProvider>
                                   <TransactionsProvider>
                                     <AppProvider>

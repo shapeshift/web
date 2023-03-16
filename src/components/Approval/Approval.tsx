@@ -53,7 +53,7 @@ export const Approval = () => {
     formState: { isSubmitting },
   } = useFormContext()
 
-  const quote = useSwapperStore(state => state.quote)
+  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
@@ -70,10 +70,10 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const symbol = quote?.sellAsset?.symbol
+  const symbol = activeQuote?.sellAsset?.symbol
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, quote?.sellAsset?.assetId ?? ethAssetId),
+    selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
   )
 
   if (fees && !fees.chainSpecific) {
@@ -85,7 +85,7 @@ export const Approval = () => {
   ).div(bn(10).pow(sellFeeAsset?.precision ?? 0))
 
   const approveContract = useCallback(async () => {
-    if (!quote) {
+    if (!activeQuote) {
       moduleLogger.error('No quote available')
       return
     }
@@ -132,7 +132,7 @@ export const Approval = () => {
     getTrade,
     history,
     isConnected,
-    quote,
+    activeQuote,
     showErrorToast,
     updateTrade,
   ])
@@ -165,7 +165,7 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  src={quote?.sellAsset?.icon}
+                  src={activeQuote?.sellAsset?.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
                 />
@@ -180,7 +180,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${quote?.sellAsset.explorerAddressLink}${quote?.allowanceContract}`}
+                href={`${activeQuote?.sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -194,7 +194,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && quote?.sellAsset?.explorerTxLink && (
+              {approvalTxId && activeQuote?.sellAsset?.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -203,7 +203,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${quote?.sellAsset?.explorerTxLink}${approvalTxId}`}
+                      href={`${activeQuote?.sellAsset?.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />
                     </Link>

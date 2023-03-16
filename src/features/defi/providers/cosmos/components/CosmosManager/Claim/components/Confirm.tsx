@@ -53,6 +53,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state: walletState } = useWallet()
   const translate = useTranslate()
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   // Asset Info
   const assets = useAppSelector(selectAssets)
@@ -81,7 +82,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { handleStakingAction } = useStakingAction()
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
 
   useEffect(() => {
     ;(async () => {

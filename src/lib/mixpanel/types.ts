@@ -33,6 +33,7 @@ export enum MixPanelEvents {
   NativeCreate = 'Native Create',
   Click = 'Click',
   ClickdApp = 'Click dApp',
+  Error = 'Error',
 }
 
 export type TrackOpportunityProps = {

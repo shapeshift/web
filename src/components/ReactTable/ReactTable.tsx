@@ -107,7 +107,7 @@ export const ReactTable = <T extends {}>({
             {row.cells.map(cell => (
               <Td
                 {...cell.getCellProps()}
-                data-label={cell.column.Header ?? ''}
+                data-label={cell.column.getHeaderProps().key}
                 display={cell.column.display}
                 key={cell.column.id}
               >

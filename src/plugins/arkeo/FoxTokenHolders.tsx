@@ -8,6 +8,8 @@ import { Card } from 'components/Card/Card'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import { ArkeoCard } from './ArkeoCard'
 
@@ -17,6 +19,7 @@ export const FoxTokenHolders = () => {
   const { fiatRamps } = useModal()
 
   const handleClick = useCallback(() => {
+    getMixPanel()?.track(MixPanelEvents.Click, { element: 'Fox Token Holders Button' })
     history.push('/trade/eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
   }, [history])
 

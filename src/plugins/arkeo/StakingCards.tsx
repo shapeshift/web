@@ -5,9 +5,12 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssets,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,6 +27,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
+  const assets = useAppSelector(selectAssets)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -50,6 +54,15 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
+
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity,
+          element: 'Featured Card',
+        },
+        assets,
+      )
 
       history.push({
         pathname: location.pathname,

@@ -4,9 +4,12 @@ import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
+  selectAssets,
   selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -20,6 +23,7 @@ type LpCardsProps = {
 export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   const history = useHistory()
   const location = useLocation()
+  const assets = useAppSelector(selectAssets)
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -46,6 +50,15 @@ export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
+
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity,
+          element: 'Featured Card',
+        },
+        assets,
+      )
 
       history.push({
         pathname: location.pathname,

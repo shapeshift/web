@@ -15,12 +15,14 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
 const moduleLogger = logger.child({ namespace: ['NativeCreate'] })
@@ -40,6 +42,7 @@ export const NativeCreate = () => {
   const location = useLocation<LocationState>()
   const [revealed, setRevealed] = useState<boolean>(false)
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
     revealedOnce.current = true
@@ -66,6 +69,16 @@ export const NativeCreate = () => {
       </Tag>
     ))
   }, [])
+
+  const handleClick = useCallback(() => {
+    if (vault) {
+      history.push('/native/create-test', {
+        vault,
+        isLegacyWallet,
+      })
+      mixpanel?.track(MixPanelEvents.NativeCreate)
+    }
+  }, [history, isLegacyWallet, mixpanel, vault])
 
   useEffect(() => {
     ;(async () => {
@@ -155,14 +168,7 @@ export const NativeCreate = () => {
           colorScheme='blue'
           size='lg'
           disabled={!(vault && words && revealedOnce.current)}
-          onClick={() => {
-            if (vault) {
-              history.push('/native/create-test', {
-                vault,
-                isLegacyWallet,
-              })
-            }
-          }}
+          onClick={handleClick}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>

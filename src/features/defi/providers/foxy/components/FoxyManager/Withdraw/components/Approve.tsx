@@ -31,7 +31,7 @@ type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
   const translate = useTranslate()
   const {
     underlyingAsset: asset,
@@ -43,6 +43,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+
+  const estimatedGasCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
+    [estimatedGasCryptoBaseUnit, feeAsset?.precision],
+  )
 
   // user info
   const { state: walletState } = useWallet()
@@ -139,7 +147,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoBaseUnit },
       })
       onNext(DefiStep.Confirm)
     } catch (error) {
@@ -154,31 +162,32 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
-    rewardId,
-    walletState.wallet,
-    userAddress,
-    state?.withdraw,
-    foxyApi,
-    dispatch,
+    asset.precision,
     bip44Params,
     contractAddress,
+    dispatch,
+    estimatedGasCryptoBaseUnit,
+    foxyApi,
     getWithdrawGasEstimate,
     onNext,
-    asset.precision,
+    rewardId,
+    state?.withdraw,
     toast,
     translate,
+    userAddress,
+    walletState.wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoBaseUnit) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [estimatedGasCryptoBaseUnit, accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -187,10 +196,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         accountId={accountId}
         action={DefiAction.Withdraw}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch) return null
@@ -199,11 +208,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
         .times(feeMarketData.price)
         .toFixed(2)}

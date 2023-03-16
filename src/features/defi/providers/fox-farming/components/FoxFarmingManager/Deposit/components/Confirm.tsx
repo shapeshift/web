@@ -105,8 +105,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.deposit.estimatedGasCrypto)).gte(0),
-    [feeAssetBalance, state?.deposit.estimatedGasCrypto],
+    () =>
+      bnOrZero(feeAssetBalance).minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision)).gte(0),
+    [feeAssetBalance, state?.deposit.estimatedGasCryptoPrecision],
   )
 
   const handleDeposit = useCallback(async () => {
@@ -215,13 +216,13 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
+                value={bnOrZero(state.deposit.estimatedGasCryptoPrecision)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.deposit.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

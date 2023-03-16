@@ -41,11 +41,12 @@ const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Approve'] })
 
 export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
-  const { approve, allowance, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
+  const { approve, allowance, getDepositGasDataCryptoBaseUnit } =
+    useFoxEthLiquidityPool(lpAccountId)
 
   const foxEthLpOpportunityFilter = useMemo(
     () => ({
@@ -91,17 +92,17 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getDepositGasData({
+      const gasData = await getDepositGasDataCryptoBaseUnit({
         token0Amount: state.deposit.ethCryptoAmount,
         token1Amount: state.deposit.foxCryptoAmount,
       })
       if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxEthLpDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)
@@ -134,7 +135,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     foxEthLpOpportunity,
     wallet,
     approve,
-    getDepositGasData,
+    getDepositGasDataCryptoBaseUnit,
     feeAsset.precision,
     onNext,
     foxAsset,
@@ -146,14 +147,14 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [estimatedGasCrypto, accountId, feeAsset],
+    [estimatedGasCryptoPrecision, accountId, feeAsset],
   )
 
   const preFooter = useMemo(
@@ -162,10 +163,10 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {
@@ -180,9 +181,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     <ReusableApprove
       asset={foxAsset}
       feeAsset={feeAsset}
-      cryptoEstimatedGasFee={bnOrZero(estimatedGasCrypto).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(estimatedGasCrypto).times(feeMarketData.price).toFixed(2)}
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
+        .times(feeMarketData.price)
+        .toFixed(2)}
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}

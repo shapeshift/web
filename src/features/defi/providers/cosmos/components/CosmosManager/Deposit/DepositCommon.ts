@@ -8,7 +8,6 @@ type EstimatedGas = {
 type CosmosDepositValues = Omit<DepositValues, DepositField.Slippage> &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string // TODO: remove this property?
   }
 
 export type CosmosDepositState = {

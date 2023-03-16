@@ -8,7 +8,7 @@ type EstimatedGas = {
 type IdleWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
   }
 
 export type IdleWithdrawState = {

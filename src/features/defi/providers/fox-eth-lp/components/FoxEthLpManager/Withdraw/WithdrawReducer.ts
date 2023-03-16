@@ -11,7 +11,7 @@ export const initialState: FoxEthLpWithdrawState = {
     foxAmount: '',
     ethAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoPrecision: '',
   },
 }
 

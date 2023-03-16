@@ -133,8 +133,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
@@ -144,8 +144,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

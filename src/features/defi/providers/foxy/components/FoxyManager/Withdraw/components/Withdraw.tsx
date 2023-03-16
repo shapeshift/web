@@ -98,7 +98,7 @@ export const Withdraw: React.FC<
     async (formValues: FoxyWithdrawValues) => {
       if (!(accountAddress && dispatch && rewardId && foxyApi && bip44Params)) return
 
-      const getApproveGasEstimate = async () => {
+      const getApproveGasEstimateCryptoBaseUnit = async () => {
         if (!accountAddress) return
 
         try {
@@ -122,7 +122,7 @@ export const Withdraw: React.FC<
         }
       }
 
-      const getWithdrawGasEstimate = async (withdraw: FoxyWithdrawValues) => {
+      const getWithdrawGasEstimateCryptoBaseUnit = async (withdraw: FoxyWithdrawValues) => {
         if (!accountAddress) return
 
         try {
@@ -131,7 +131,7 @@ export const Withdraw: React.FC<
               tokenContractAddress: rewardId,
               contractAddress,
               amountDesired: bnOrZero(
-                bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+                bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
               ).decimalPlaces(0),
               userAddress: accountAddress,
               type: withdraw.withdrawType,
@@ -179,11 +179,11 @@ export const Withdraw: React.FC<
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxyWithdrawActionType.SET_WITHDRAW,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Confirm)
           dispatch({
@@ -191,11 +191,11 @@ export const Withdraw: React.FC<
             payload: false,
           })
         } else {
-          const estimatedGasCrypto = await getApproveGasEstimate()
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getApproveGasEstimateCryptoBaseUnit()
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxyWithdrawActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Approve)
           dispatch({

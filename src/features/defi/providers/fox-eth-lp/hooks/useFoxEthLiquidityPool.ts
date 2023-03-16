@@ -368,7 +368,7 @@ export const useFoxEthLiquidityPool = (
     [skip, uniV2LPContract, foxContract, adapter, accountId],
   )
 
-  const getDepositGasData = useCallback(
+  const getDepositGasDataCryptoBaseUnit = useCallback(
     async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (skip || !accountId || !uniswapRouterContract) return
       const value = bnOrZero(token0Amount)
@@ -490,7 +490,7 @@ export const useFoxEthLiquidityPool = (
     approve,
     calculateHoldings,
     getApproveGasData,
-    getDepositGasData,
+    getDepositGasDataCryptoBaseUnit,
     getLpTVL,
     getWithdrawGasData,
     removeLiquidity,

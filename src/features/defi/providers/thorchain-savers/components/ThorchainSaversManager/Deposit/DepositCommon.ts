@@ -2,13 +2,12 @@ import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type ThorchainSaversDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
     depositFeeCryptoBaseUnit: string
     maybeFromUTXOAccountAddress: string
     sendMax?: boolean

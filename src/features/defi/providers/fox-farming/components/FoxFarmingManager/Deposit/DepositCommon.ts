@@ -1,5 +1,5 @@
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type DepositValues = {
@@ -10,7 +10,7 @@ type DepositValues = {
 type FoxFarmingDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoPrecision: string
   }
 
 export type FoxFarmingDepositState = {
@@ -34,7 +34,7 @@ type SetApprove = {
 
 type SetDeposit = {
   type: FoxFarmingDepositActionType.SET_DEPOSIT
-  payload: any
+  payload: Partial<FoxFarmingDepositValues>
 }
 
 type SetLoading = {

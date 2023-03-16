@@ -63,7 +63,8 @@ export const Deposit: React.FC<DepositProps> = ({
     selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
   )
   const { lpAccountId } = useFoxEth()
-  const { allowance, getApproveGasData, getDepositGasData } = useFoxEthLiquidityPool(lpAccountId)
+  const { allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } =
+    useFoxEthLiquidityPool(lpAccountId)
 
   const assetNamespace = 'erc20'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -97,10 +98,12 @@ export const Deposit: React.FC<DepositProps> = ({
 
   if (!state || !dispatch) return null
 
-  const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
+  const getDepositGasEstimateCryptoPrecision = async (
+    deposit: DepositValues,
+  ): Promise<string | undefined> => {
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasData({
+      const gasData = await getDepositGasDataCryptoBaseUnit({
         token0Amount,
         token1Amount,
       })
@@ -108,7 +111,7 @@ export const Deposit: React.FC<DepositProps> = ({
       return bnOrZero(gasData.average.txFee).div(bn(10).pow(ethAsset.precision)).toPrecision()
     } catch (error) {
       moduleLogger.error(
-        { fn: 'getDepositGasEstimate', error },
+        { fn: 'getDepositGasEstimateCryptoPrecision', error },
         'Error getting deposit gas estimate',
       )
       toast({
@@ -153,11 +156,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
       // Skip approval step if user allowance is greater than or equal requested deposit amount
       if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))) {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        if (!estimatedGasCrypto) return
+        const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(formValues)
+        if (!estimatedGasCryptoPrecision) return
         dispatch({
           type: FoxEthLpDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoPrecision },
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
@@ -167,7 +170,7 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({
           type: FoxEthLpDepositActionType.SET_APPROVE,
           payload: {
-            estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+            estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
               .div(bn(10).pow(ethAsset.precision))
               .toPrecision(),
           },

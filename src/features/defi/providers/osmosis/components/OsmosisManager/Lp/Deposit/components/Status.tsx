@@ -52,7 +52,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!underlyingAsset1)
     throw new Error(`Asset not found for AssetId ${opportunity?.underlyingAssetIds[1]}`)
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const serializedTxIndex = useMemo(() => {
     //TODO(pastaghost): Refactor to eliminate userAddress

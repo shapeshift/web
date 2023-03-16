@@ -59,7 +59,7 @@ export const Status = () => {
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && userAddress && accountId)) return ''

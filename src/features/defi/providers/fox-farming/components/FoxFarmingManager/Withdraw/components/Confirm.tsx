@@ -102,10 +102,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       if (
         !dispatch ||
-        !state?.userAddress ||
         !rewardId ||
         !walletState.wallet ||
-        state.loading ||
+        state?.loading ||
+        !state?.withdraw ||
         !opportunity ||
         !underlyingAsset
       )
@@ -140,10 +140,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     rewardId,
     state?.loading,
-    state?.userAddress,
-    state?.withdraw.fiatAmount,
-    state?.withdraw.isExiting,
-    state?.withdraw.lpAmount,
+    state?.withdraw,
     underlyingAsset,
     unstake,
     walletState.wallet,

@@ -1,6 +1,6 @@
 import { Center, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -31,7 +31,6 @@ import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { FoxFarmingDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
 
@@ -77,11 +76,6 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
     ;(() => {
       try {
         if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
-
-        dispatch({
-          type: FoxFarmingDepositActionType.SET_USER_ADDRESS,
-          payload: fromAccountId(farmingAccountId).account,
-        })
       } catch (error) {
         // TODO: handle client side errors
         moduleLogger.error(error, 'FoxFarmingDeposit error')

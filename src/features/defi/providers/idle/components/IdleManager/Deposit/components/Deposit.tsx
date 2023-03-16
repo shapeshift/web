@@ -93,7 +93,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>

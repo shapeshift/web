@@ -15,7 +15,6 @@ type FoxFarmingWithdrawValues = WithdrawValues &
   }
 
 export type FoxFarmingWithdrawState = {
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxFarmingWithdrawValues
   loading: boolean
@@ -23,7 +22,6 @@ export type FoxFarmingWithdrawState = {
 }
 
 export enum FoxFarmingWithdrawActionType {
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_APPROVE = 'SET_APPROVE',
@@ -34,11 +32,6 @@ export enum FoxFarmingWithdrawActionType {
 type SetWithdraw = {
   type: FoxFarmingWithdrawActionType.SET_WITHDRAW
   payload: Partial<FoxFarmingWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -56,9 +49,4 @@ type SetApprove = {
   payload: EstimatedGas
 }
 
-export type FoxFarmingWithdrawActions =
-  | SetWithdraw
-  | SetUserAddress
-  | SetApprove
-  | SetLoading
-  | SetTxid
+export type FoxFarmingWithdrawActions = SetWithdraw | SetApprove | SetLoading | SetTxid

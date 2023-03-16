@@ -3,7 +3,6 @@ import { CosmosWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: CosmosWithdrawState = {
   txid: null,
-  userAddress: null,
   loading: false,
   withdraw: {
     fiatAmount: '',
@@ -16,8 +15,6 @@ export const reducer = (state: CosmosWithdrawState, action: CosmosWithdrawAction
   switch (action.type) {
     case CosmosWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case CosmosWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case CosmosWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case CosmosWithdrawActionType.SET_TXID:

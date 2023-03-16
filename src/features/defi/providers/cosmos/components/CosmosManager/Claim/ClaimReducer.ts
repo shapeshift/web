@@ -6,7 +6,6 @@ import { CosmosClaimActionType, TxStatus } from './ClaimCommon'
 export const initialState: CosmosClaimState = {
   txid: null,
   opportunity: {} as StakingEarnOpportunityType,
-  userAddress: null,
   loading: false,
   claim: {
     usedGasFee: '',
@@ -26,8 +25,6 @@ export const reducer = (state: CosmosClaimState, action: CosmosClaimActions): Co
       }
     case CosmosClaimActionType.SET_CLAIM:
       return { ...state, claim: { ...state.claim, ...action.payload } }
-    case CosmosClaimActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case CosmosClaimActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case CosmosClaimActionType.SET_TXID:

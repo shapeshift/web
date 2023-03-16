@@ -16,7 +16,6 @@ type ThorchainSaversWithdrawValues = WithdrawValues &
 
 export type ThorchainSaversWithdrawState = {
   opportunity: StakingEarnOpportunityType | null
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: ThorchainSaversWithdrawValues
   loading: boolean
@@ -25,7 +24,6 @@ export type ThorchainSaversWithdrawState = {
 
 export enum ThorchainSaversWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -42,11 +40,6 @@ type SetWithdraw = {
   payload: Partial<ThorchainSaversWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: ThorchainSaversWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: ThorchainSaversWithdrawActionType.SET_LOADING
   payload: boolean
@@ -60,6 +53,5 @@ type SetTxid = {
 export type ThorchainSaversWithdrawActions =
   | SetOpportunityAction
   | SetWithdraw
-  | SetUserAddress
   | SetLoading
   | SetTxid

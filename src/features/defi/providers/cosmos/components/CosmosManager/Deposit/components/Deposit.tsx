@@ -102,10 +102,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && state.userAddress)) return
+      if (!(state && dispatch)) return
 
       const getStakingGasEstimate = async () => {
-        if (!state.userAddress || !assetReference) return
+        if (!assetReference) return
 
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 

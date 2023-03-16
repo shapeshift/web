@@ -1,5 +1,6 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
-import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -39,7 +40,11 @@ const StatusInfo = {
   },
 }
 
-export const Status = () => {
+type StatusProps = {
+  accountId: AccountId | undefined
+}
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(ClaimContext)
   const opportunity = state?.opportunity
   const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -50,6 +55,7 @@ export const Status = () => {
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const txStatus = useMemo(() => {
     if (!state) return TxStatus.PENDING
     if (state.txid) return TxStatus.SUCCESS
@@ -110,12 +116,8 @@ export const Status = () => {
         <Row>
           <Row.Label>{translate('defi.modals.claim.claimToAddress')}</Row.Label>
           <Row.Value>
-            <Link
-              isExternal
-              color='blue.500'
-              href={`${asset?.explorerAddressLink}${state.userAddress}`}
-            >
-              {state.userAddress && <MiddleEllipsis value={state.userAddress} />}
+            <Link isExternal color='blue.500' href={`${asset?.explorerAddressLink}${userAddress}`}>
+              {userAddress && <MiddleEllipsis value={userAddress} />}
             </Link>
           </Row.Value>
         </Row>

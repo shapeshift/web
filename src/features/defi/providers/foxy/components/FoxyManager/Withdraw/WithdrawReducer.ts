@@ -19,7 +19,6 @@ export const initialState: FoxyWithdrawState = {
     tvl: bn(0),
     apy: '',
   },
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -41,8 +40,6 @@ export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) =
       return { ...state, approve: action.payload }
     case FoxyWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case FoxyWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxyWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxyWithdrawActionType.SET_TXID:

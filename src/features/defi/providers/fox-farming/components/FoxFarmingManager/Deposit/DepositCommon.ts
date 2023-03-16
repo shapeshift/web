@@ -14,7 +14,6 @@ type FoxFarmingDepositValues = DepositValues &
   }
 
 export type FoxFarmingDepositState = {
-  userAddress: string | null
   approve: EstimatedGas
   deposit: FoxFarmingDepositValues
   loading: boolean
@@ -23,7 +22,6 @@ export type FoxFarmingDepositState = {
 
 export enum FoxFarmingDepositActionType {
   SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -39,11 +37,6 @@ type SetDeposit = {
   payload: any
 }
 
-type SetUserAddress = {
-  type: FoxFarmingDepositActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: FoxFarmingDepositActionType.SET_LOADING
   payload: boolean
@@ -54,9 +47,4 @@ type SetTxid = {
   payload: string
 }
 
-export type FoxFarmingDepositActions =
-  | SetApprove
-  | SetDeposit
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type FoxFarmingDepositActions = SetApprove | SetDeposit | SetLoading | SetTxid

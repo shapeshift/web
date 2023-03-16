@@ -120,10 +120,10 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && feeAsset && state.userAddress && foxFarmingOpportunity)) return
+      if (!(state && dispatch && feeAsset && foxFarmingOpportunity)) return
 
       const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-        if (!(state.userAddress && assetReference)) return
+        if (!assetReference) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return

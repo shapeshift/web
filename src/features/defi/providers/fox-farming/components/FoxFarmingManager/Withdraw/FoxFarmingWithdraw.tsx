@@ -1,6 +1,5 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -9,16 +8,14 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useEffect, useMemo, useReducer } from 'react'
+import { useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -31,13 +28,8 @@ import { Confirm } from './components/Confirm'
 import { ExpiredWithdraw } from './components/ExpiredWithdraw'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
-import { FoxFarmingWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingWithdraw'],
-})
 
 type FoxFarmingWithdrawProps = {
   accountId: AccountId | undefined
@@ -51,8 +43,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
-
-  const { farmingAccountId } = useFoxEth()
 
   const opportunityDataFilter = useMemo(
     () => ({
@@ -72,22 +62,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   )
 
   const loading = useSelector(selectPortfolioLoading)
-
-  useEffect(() => {
-    ;(() => {
-      try {
-        if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
-
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_USER_ADDRESS,
-          payload: fromAccountId(farmingAccountId).account,
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingWithdraw error')
-      }
-    })()
-  }, [farmingAccountId, translate, contractAddress, foxFarmingOpportunity])
 
   const handleBack = () => {
     history.push({

@@ -54,7 +54,7 @@ export const Status = () => {
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const opportunity = state?.opportunity
 

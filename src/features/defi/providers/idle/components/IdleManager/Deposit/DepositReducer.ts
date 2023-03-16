@@ -11,7 +11,7 @@ export const initialState: IdleDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoBaseUnit: '',
   },
 }
 

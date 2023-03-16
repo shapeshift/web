@@ -12,7 +12,7 @@ export const initialState: YearnDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoBaseUnit: '',
   },
 }
 

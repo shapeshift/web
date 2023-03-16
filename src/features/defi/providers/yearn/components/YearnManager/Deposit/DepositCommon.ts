@@ -3,13 +3,13 @@ import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type YearnDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
   }
 
 // Redux only stores things that are serializable. Class methods are removed when put in state.

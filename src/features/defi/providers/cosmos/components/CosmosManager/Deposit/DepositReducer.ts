@@ -10,7 +10,6 @@ export const initialState: CosmosDepositState = {
     fiatAmount: '',
     cryptoAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
   },
 }
 

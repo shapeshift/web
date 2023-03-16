@@ -92,7 +92,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [underlyingAsset.precision, opportunity?.cryptoAmountBaseUnit],
   )
 
-  const getWithdrawGasEstimate = useCallback(
+  const getWithdrawGasEstimateCryptoPrecision = useCallback(
     async (withdraw: WithdrawValues) => {
       try {
         const fee = await getUnstakeGasData(withdraw.cryptoAmount, isExiting)
@@ -124,14 +124,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
       // Skip approval step if user allowance is greater than or equal requested deposit amount
       if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
-        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-        if (!estimatedGasCrypto) {
+        const estimatedGasCryptoPrecision = await getWithdrawGasEstimateCryptoPrecision(formValues)
+        if (!estimatedGasCryptoPrecision) {
           dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
           return
         }
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoPrecision },
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
@@ -152,7 +152,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_APPROVE,
           payload: {
-            estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+            estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
               .div(bn(10).pow(feeAsset.precision))
               .toPrecision(),
           },
@@ -167,7 +167,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch,
       feeAsset.precision,
       getApproveGasData,
-      getWithdrawGasEstimate,
+      getWithdrawGasEstimateCryptoPrecision,
       isExiting,
       onNext,
       opportunity,

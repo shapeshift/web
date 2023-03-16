@@ -94,8 +94,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+    () =>
+      bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCryptoPrecision)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCryptoPrecision],
   )
 
   const handleConfirm = useCallback(async () => {
@@ -192,13 +193,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

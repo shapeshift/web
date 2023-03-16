@@ -11,7 +11,7 @@ export const initialState: FoxEthLpDepositState = {
     ethFiatAmount: '',
     ethCryptoAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoPrecision: '',
   },
 }
 

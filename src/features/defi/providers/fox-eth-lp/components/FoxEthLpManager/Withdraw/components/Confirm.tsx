@@ -77,13 +77,16 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     () => ({ assetId: ethAssetId, accountId: accountId ?? '' }),
     [accountId],
   )
-  const feeAssetBalance = useAppSelector(s =>
+  const feeAssetBalanceCryptoHuman = useAppSelector(s =>
     selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+    () =>
+      bnOrZero(feeAssetBalanceCryptoHuman)
+        .minus(bnOrZero(state?.withdraw.estimatedGasCryptoPrecision))
+        .gte(0),
+    [feeAssetBalanceCryptoHuman, state?.withdraw.estimatedGasCryptoPrecision],
   )
 
   useEffect(() => {
@@ -212,13 +215,13 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision)
                   .times(ethMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={ethAsset.symbol}
               />
             </Box>

@@ -30,6 +30,7 @@ export enum MixPanelEvents {
   FiatRamp = 'Fiat Ramp',
   NativeImport = 'Native Import',
   NativeCreate = 'Native Create',
+  ClickdApp = 'Click dApp',
 }
 
 export type TrackOpportunityProps = {

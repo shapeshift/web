@@ -57,6 +57,7 @@ export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
 
 type GetUnderlyingAssetIdsBalancesArgs = {
+  assetId?: AssetId
   cryptoAmountBaseUnit: string
   assets: Partial<Record<AssetId, Asset>>
   marketData: Partial<Record<AssetId, MarketData>>
@@ -74,23 +75,25 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
   underlyingAssetRatiosBaseUnit,
   cryptoAmountBaseUnit,
   assets,
+  assetId,
   marketData,
 }) => {
   return Object.values(underlyingAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
     (acc, underlyingAssetId, index) => {
       const underlyingAsset = assets[underlyingAssetId]
+      const asset = assets[assetId ?? '']
       const marketDataPrice = marketData[underlyingAssetId]?.price
       if (!underlyingAsset) return acc
-      const fiatAmount = bnOrZero(cryptoAmountBaseUnit)
-        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
-        .div(bnOrZero(10).pow(underlyingAsset?.precision))
-        .times(marketDataPrice ?? 0)
-        .toString()
+
       const cryptoBalancePrecision = bnOrZero(cryptoAmountBaseUnit)
         .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
-        .div(bnOrZero(10).pow(underlyingAsset?.precision))
-        .toString()
-      acc[underlyingAssetId] = { fiatAmount, cryptoBalancePrecision }
+        .div(bnOrZero(10).pow(asset?.precision ?? underlyingAsset?.precision))
+
+      const fiatAmount = cryptoBalancePrecision.times(marketDataPrice ?? 0).toString()
+      acc[underlyingAssetId] = {
+        fiatAmount,
+        cryptoBalancePrecision: cryptoBalancePrecision.toFixed(),
+      }
       return acc
     },
     {},

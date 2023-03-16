@@ -51,6 +51,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
@@ -69,7 +70,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { handleStakingAction } = useStakingAction()
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
 
   useEffect(() => {
     ;(async () => {

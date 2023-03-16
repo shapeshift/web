@@ -12,7 +12,6 @@ export const PositionDetails: React.FC<AggregatedOpportunitiesByAssetIdReturn> =
   return (
     <Flex px={{ base: 4, md: 6 }} py={{ base: 2, md: 8 }} flexDir='column' gap={{ base: 2, md: 6 }}>
       <ProviderPositions ids={opportunities.staking} assetId={assetId} />
-
       <LpPositions ids={opportunities.lp} assetId={assetId} />
     </Flex>
   )

@@ -1,5 +1,5 @@
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoPrecision?: string
 }
 
 type WithdrawValues = {
@@ -12,11 +12,10 @@ type WithdrawValues = {
 type FoxEthLpWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoPrecision: string
   }
 
 export type FoxEthLpWithdrawState = {
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxEthLpWithdrawValues
   loading: boolean
@@ -24,7 +23,6 @@ export type FoxEthLpWithdrawState = {
 }
 
 export enum FoxEthLpWithdrawActionType {
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_APPROVE = 'SET_APPROVE',
@@ -35,11 +33,6 @@ export enum FoxEthLpWithdrawActionType {
 type SetWithdraw = {
   type: FoxEthLpWithdrawActionType.SET_WITHDRAW
   payload: Partial<FoxEthLpWithdrawValues>
-}
-
-type SetUserAddress = {
-  type: FoxEthLpWithdrawActionType.SET_USER_ADDRESS
-  payload: string
 }
 
 type SetLoading = {
@@ -57,9 +50,4 @@ type SetApprove = {
   payload: EstimatedGas
 }
 
-export type FoxEthLpWithdrawActions =
-  | SetWithdraw
-  | SetUserAddress
-  | SetApprove
-  | SetLoading
-  | SetTxid
+export type FoxEthLpWithdrawActions = SetWithdraw | SetApprove | SetLoading | SetTxid

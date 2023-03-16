@@ -3,7 +3,6 @@ import { FoxEthLpDepositActionType } from './DepositCommon'
 
 export const initialState: FoxEthLpDepositState = {
   txid: null,
-  userAddress: null,
   loading: false,
   approve: {},
   deposit: {
@@ -12,7 +11,7 @@ export const initialState: FoxEthLpDepositState = {
     ethFiatAmount: '',
     ethCryptoAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoPrecision: '',
   },
 }
 
@@ -25,8 +24,6 @@ export const reducer = (
       return { ...state, approve: action.payload }
     case FoxEthLpDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case FoxEthLpDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxEthLpDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxEthLpDepositActionType.SET_TXID:

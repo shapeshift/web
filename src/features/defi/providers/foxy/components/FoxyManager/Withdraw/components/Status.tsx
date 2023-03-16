@@ -1,5 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -21,11 +23,15 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { WithdrawContext } from '../WithdrawContext'
 
-export const Status = () => {
+type StatusProps = { accountId: AccountId | undefined }
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
+
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
@@ -108,7 +114,7 @@ export const Status = () => {
             <Text translation='modals.confirm.withdrawTo' />
           </Row.Label>
           <Row.Value fontWeight='bold'>
-            <MiddleEllipsis value={state.userAddress || ''} />
+            <MiddleEllipsis value={userAddress || ''} />
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -127,8 +133,8 @@ export const Status = () => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
@@ -138,8 +144,8 @@ export const Status = () => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoBaseUnit
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

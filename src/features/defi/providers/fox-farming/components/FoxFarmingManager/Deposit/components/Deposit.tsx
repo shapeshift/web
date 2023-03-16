@@ -120,17 +120,19 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && feeAsset && state.userAddress && foxFarmingOpportunity)) return
+      if (!(state && dispatch && feeAsset && foxFarmingOpportunity)) return
 
-      const getDepositGasEstimate = async (deposit: DepositValues): Promise<string | undefined> => {
-        if (!(state.userAddress && assetReference)) return
+      const getDepositGasEstimateCryptoPrecision = async (
+        deposit: DepositValues,
+      ): Promise<string | undefined> => {
+        if (!assetReference) return
         try {
           const gasData = await getStakeGasData(deposit.cryptoAmount)
           if (!gasData) return
           return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
           moduleLogger.error(
-            { fn: 'getDepositGasEstimate', error },
+            { fn: 'getDepositGasEstimateCryptoPrecision', error },
             'Error getting deposit gas estimate',
           )
           toast({
@@ -153,11 +155,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+          const estimatedGasCrypto = await getDepositGasEstimateCryptoPrecision(formValues)
           if (!estimatedGasCrypto) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
@@ -173,12 +175,12 @@ export const Deposit: React.FC<DepositProps> = ({
             assets,
           )
         } else {
-          const estimatedGasCrypto = await getApproveGasData()
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getApproveGasData()
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCrypto: bnOrZero(estimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCryptoBaseUnit.average.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },

@@ -30,12 +30,16 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectAssets,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
   selectSelectedLocale,
@@ -80,8 +84,10 @@ export const FoxPage = () => {
   const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
+  const mixpanel = getMixPanel()
 
   const activeAssetId = useRouteAssetId()
+  const allAssets = useAppSelector(selectAssets)
   // TODO(gomes): Use useRouteAssetId and selectAssetById programmatically
   const assetFox = useAppSelector(state => selectAssetById(state, foxAssetId))
   const assetFoxy = useAppSelector(state => selectAssetById(state, foxyAssetId))
@@ -159,21 +165,31 @@ export const FoxPage = () => {
   )
 
   const handleTabClick = useCallback(
-    (assetId: AssetId) => {
+    (assetId: AssetId, assetName: string) => {
       if (assetId === activeAssetId) {
         return
       }
-
+      mixpanel?.track(MixPanelEvents.Click, { element: `${assetName} toggle` })
       history.push(assetsRoutes[assetId])
     },
-    [activeAssetId, history],
+    [activeAssetId, history, mixpanel],
   )
 
   const handleOpportunityClick = useCallback(() => {
+    if (!foxyEarnOpportunityData) return
     if (!wallet || !supportsETH(wallet)) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
     }
+
+    trackOpportunityEvent(
+      MixPanelEvents.ClickOpportunity,
+      {
+        opportunity: foxyEarnOpportunityData,
+        element: 'Fox Page Row',
+      },
+      allAssets,
+    )
 
     history.push({
       pathname: location.pathname,
@@ -188,7 +204,7 @@ export const FoxPage = () => {
       }),
       state: { background: location },
     })
-  }, [assetFoxy.chainId, dispatch, history, location, wallet])
+  }, [allAssets, assetFoxy.chainId, dispatch, foxyEarnOpportunityData, history, location, wallet])
 
   if (!isAssetDescriptionLoaded || !activeAssetId) return null
   if (wallet && supportsETH(wallet) && !foxyEarnOpportunityData) return null
@@ -223,7 +239,7 @@ export const FoxPage = () => {
                   assetIcon={asset.icon}
                   cryptoAmount={cryptoHumanBalances[index]}
                   fiatAmount={fiatBalances[index]}
-                  onClick={() => handleTabClick(asset.assetId)}
+                  onClick={() => handleTabClick(asset.assetId, asset.name)}
                 />
               ))}
             {!isLargerThanMd && (
@@ -251,7 +267,10 @@ export const FoxPage = () => {
                   </Box>
                   <MenuList zIndex={3}>
                     {assets.map((asset, index) => (
-                      <MenuItem key={asset.assetId} onClick={() => handleTabClick(asset.assetId)}>
+                      <MenuItem
+                        key={asset.assetId}
+                        onClick={() => handleTabClick(asset.assetId, asset.name)}
+                      >
                         <FoxTab
                           assetSymbol={asset.symbol}
                           assetIcon={asset.icon}

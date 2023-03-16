@@ -13,7 +13,6 @@ type YearnWithdrawValues = WithdrawValues &
 
 export type YearnWithdrawState = {
   opportunity: StakingEarnOpportunityType | null
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: YearnWithdrawValues
   loading: boolean
@@ -22,7 +21,6 @@ export type YearnWithdrawState = {
 
 export enum YearnWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -39,11 +37,6 @@ type SetWithdraw = {
   payload: Partial<YearnWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: YearnWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: YearnWithdrawActionType.SET_LOADING
   payload: boolean
@@ -54,9 +47,4 @@ type SetTxid = {
   payload: string
 }
 
-export type YearnWithdrawActions =
-  | SetOpportunityAction
-  | SetWithdraw
-  | SetUserAddress
-  | SetLoading
-  | SetTxid
+export type YearnWithdrawActions = SetOpportunityAction | SetWithdraw | SetLoading | SetTxid

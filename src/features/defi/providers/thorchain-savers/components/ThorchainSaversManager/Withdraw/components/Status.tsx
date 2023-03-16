@@ -81,7 +81,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
             payload: {
               txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-              usedGasFee: confirmedTransaction.fee?.value,
             },
           })
         }

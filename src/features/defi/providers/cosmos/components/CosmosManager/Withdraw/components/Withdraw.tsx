@@ -120,8 +120,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       if (!state) return
 
       const getWithdrawGasEstimate = async () => {
-        if (!state.userAddress) return
-
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
 
         try {
@@ -144,7 +142,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         }
       }
 
-      if (!state?.userAddress || !dispatch) return
+      if (!dispatch) return
       // set withdraw state for future use
       dispatch({
         type: CosmosWithdrawActionType.SET_WITHDRAW,

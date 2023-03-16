@@ -63,7 +63,7 @@ export const Status = () => {
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const opportunity = state?.opportunity
 
@@ -79,7 +79,7 @@ export const Status = () => {
         type: IdleWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee?.value,
+          usedGasFeeCryptoBaseUnit: confirmedTransaction.fee?.value,
         },
       })
     }
@@ -188,7 +188,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .times(feeMarketData.price)
@@ -199,7 +199,7 @@ export const Status = () => {
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    : state.withdraw.usedGasFeeCryptoBaseUnit,
                 )
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

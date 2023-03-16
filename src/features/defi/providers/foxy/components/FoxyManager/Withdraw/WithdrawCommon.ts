@@ -18,19 +18,18 @@ type SupportedFoxyOpportunity = {
 }
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type FoxyWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
     withdrawType: WithdrawType
   }
 
 export type FoxyWithdrawState = {
   foxyOpportunity: SupportedFoxyOpportunity
-  userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxyWithdrawValues
   loading: boolean
@@ -39,7 +38,6 @@ export type FoxyWithdrawState = {
 }
 export enum FoxyWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_APPROVE = 'SET_APPROVE',
   SET_LOADING = 'SET_LOADING',
@@ -63,11 +61,6 @@ type SetWithdraw = {
   payload: Partial<FoxyWithdrawValues>
 }
 
-type SetUserAddress = {
-  type: FoxyWithdrawActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: FoxyWithdrawActionType.SET_LOADING
   payload: boolean
@@ -87,7 +80,6 @@ export type FoxyWithdrawActions =
   | SetVaultAction
   | SetApprove
   | SetWithdraw
-  | SetUserAddress
   | SetLoading
   | SetTxid
   | SetFoxyFee

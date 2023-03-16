@@ -4,7 +4,6 @@ import { YearnWithdrawActionType } from './WithdrawCommon'
 export const initialState: YearnWithdrawState = {
   txid: null,
   opportunity: null,
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -25,8 +24,6 @@ export const reducer = (
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case YearnWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case YearnWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case YearnWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case YearnWithdrawActionType.SET_TXID:

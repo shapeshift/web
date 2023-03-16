@@ -93,7 +93,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>
@@ -103,7 +103,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const getDepositGasEstimate = useCallback(
+  const getDepositGasEstimateCryptoBaseUnit = useCallback(
     async (deposit: DepositValues): Promise<string | undefined> => {
       if (!(userAddress && assetReference && idleInvestor && accountId && opportunityData)) return
       try {
@@ -120,7 +120,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .toString()
       } catch (error) {
         moduleLogger.error(
-          { fn: 'getDepositGasEstimate', error },
+          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
           'Error getting deposit gas estimate',
         )
         toast({
@@ -184,11 +184,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
         // Skip approval step if user allowance is greater than requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
-          const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-          if (!estimatedGasCrypto) return
+          const estimatedGasCryptoBaseUnit = await getDepositGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: IdleDepositActionType.SET_DEPOSIT,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit },
           })
           onNext(DefiStep.Confirm)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
@@ -206,7 +206,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!estimatedGasCrypto) return
           dispatch({
             type: IdleDepositActionType.SET_APPROVE,
-            payload: { estimatedGasCrypto },
+            payload: { estimatedGasCryptoBaseUnit: estimatedGasCrypto },
           })
           onNext(DefiStep.Approve)
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
@@ -228,7 +228,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       idleInvestor,
       asset.precision,
-      getDepositGasEstimate,
+      getDepositGasEstimateCryptoBaseUnit,
       onNext,
       assetId,
       getApproveGasEstimate,

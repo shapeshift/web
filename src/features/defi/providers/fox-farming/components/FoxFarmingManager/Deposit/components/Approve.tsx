@@ -43,7 +43,7 @@ const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Approve'] })
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
-  const estimatedGasCrypto = state?.approve.estimatedGasCrypto
+  const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
@@ -111,12 +111,12 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       // Get deposit gas estimate
       const gasData = await getStakeGasData(state.deposit.cryptoAmount)
       if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCrypto },
+        payload: { estimatedGasCryptoPrecision },
       })
 
       onNext(DefiStep.Confirm)
@@ -158,14 +158,14 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      isSome(estimatedGasCrypto) &&
+      isSome(estimatedGasCryptoPrecision) &&
       isSome(accountId) &&
       canCoverTxFees({
         feeAsset,
-        estimatedGasCrypto,
+        estimatedGasCryptoPrecision,
         accountId,
       }),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   const preFooter = useMemo(
@@ -174,10 +174,10 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         accountId={accountId}
         action={DefiAction.Deposit}
         feeAsset={feeAsset}
-        estimatedGasCrypto={estimatedGasCrypto}
+        estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCrypto],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
   if (!state || !dispatch || !foxFarmingOpportunity || !asset) return null
 
@@ -186,9 +186,11 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       asset={asset}
       feeAsset={feeAsset}
       icons={foxFarmingOpportunity?.icons}
-      cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoPrecision).toFixed(
+        5,
+      )}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+      fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCryptoPrecision)
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}

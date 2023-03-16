@@ -2,13 +2,14 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -17,7 +18,15 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetById } from 'state/slices/selectors'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectStakingOpportunityByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawContext } from '../WithdrawContext'
@@ -28,18 +37,29 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetReference, contractAddress } = query
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
   const assetNamespace = 'slip44'
+  const validatorId = toValidatorId({ chainId, account: contractAddress })
+
+  const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
+
+  const opportunityMetadata = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
   // Asset info
+  const assets = useAppSelector(selectAssets)
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
+  const underlyingAssetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, underlyingAssetId),
+  )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
   const assetId = toAssetId({
@@ -50,6 +70,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
+  const fiatAmount = useMemo(
+    () => bnOrZero(state?.withdraw.cryptoAmount).times(underlyingAssetMarketData.price).toString(),
+    [state?.withdraw.cryptoAmount, underlyingAssetMarketData.price],
+  )
+
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/defi')
   }, [browserHistory])
@@ -57,6 +82,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const handleCancel = useCallback(() => {
     browserHistory.goBack()
   }, [browserHistory])
+
+  useEffect(() => {
+    if (!opportunityMetadata || !state) return
+    if (state.withdraw.txStatus === 'success') {
+      trackOpportunityEvent(
+        MixPanelEvents.WithdrawSuccess,
+        {
+          opportunity: opportunityMetadata,
+          fiatAmounts: [fiatAmount],
+          cryptoAmounts: [
+            { assetId: underlyingAssetId, amountCryptoHuman: state.withdraw.cryptoAmount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [assets, fiatAmount, opportunityMetadata, state, underlyingAssetId])
 
   if (!state || !dispatch) return null
 

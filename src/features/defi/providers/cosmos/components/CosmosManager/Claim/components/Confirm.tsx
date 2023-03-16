@@ -22,8 +22,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -49,12 +52,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
-  const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   // Asset Info
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataById(state, opportunity.assetId ?? ''),
+  )
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -62,6 +68,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
+  const claimFiatAmount = useMemo(
+    () => bnOrZero(claimAmount).times(assetMarketData.price).toString(),
+    [assetMarketData.price, claimAmount],
+  )
 
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
@@ -116,6 +128,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
       onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvents.ClickOpportunity,
+        {
+          opportunity,
+          fiatAmounts: [claimFiatAmount],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: claimAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
       toast({
@@ -129,13 +150,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
   }, [
     asset,
+    assets,
     bip44Params,
     claimAmount,
+    claimFiatAmount,
     contractAddress,
     dispatch,
     feeMarketData.price,
     handleStakingAction,
     onNext,
+    opportunity,
     toast,
     translate,
     userAddress,

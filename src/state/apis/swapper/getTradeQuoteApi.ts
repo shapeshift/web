@@ -1,23 +1,22 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, SwapperType, TradeQuote } from '@shapeshiftoss/swapper'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
 import { apiErrorHandler } from 'state/apis/utils'
 
 type GetTradeQuoteReturn = TradeQuote<ChainId>
-
-const getAvailableSwappers = getSwappersApi.endpoints.getAvailableSwappers
+type GetTradeQuoteArgs = GetTradeQuoteInput & { activeSwapperType: SwapperType }
 
 const getTradeQuoteErrorHandler = apiErrorHandler('getTradeQuote: error fetching trade quote')
 
 export const getTradeQuoteApi = swapperApi.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteInput>({
-      queryFn: async (args, { getState, dispatch }) => {
+    getTradeQuote: build.query<GetTradeQuoteReturn, GetTradeQuoteArgs>({
+      queryFn: async (args, { getState }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
+        const activeSwapperType = args.activeSwapperType
         const {
           preferences: { featureFlags },
           assets,
@@ -29,11 +28,7 @@ export const getTradeQuoteApi = swapperApi.injectEndpoints({
 
           const swapperManager = await getSwapperManager(featureFlags)
           const swappers = swapperManager.swappers
-          const availableSwappers = await dispatch(
-            getAvailableSwappers.initiate({ ...args, feeAsset }),
-          ).then(r => r.data)
-          const swapperType = availableSwappers?.[0].swapperType
-          const swapper = swapperType ? swappers.get(swapperType) : undefined
+          const swapper = activeSwapperType ? swappers.get(activeSwapperType) : undefined
           const tradeQuote = await swapper?.getTradeQuote(args)
           if (!tradeQuote)
             return getTradeQuoteErrorHandler({ message: 'getTradeQuote: No trade quote found' })

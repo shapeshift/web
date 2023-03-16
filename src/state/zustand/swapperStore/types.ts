@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { CowTrade, SwapperWithQuoteMetadata, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { CowTrade, SwapperWithQuoteMetadata, Trade } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
 
@@ -9,7 +9,6 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedBuyAssetAccountId?: AccountId
   sellAssetAccountId?: AccountId
   buyAssetAccountId?: AccountId
-  quote?: TradeQuote<C> | undefined
   buyAmountCryptoPrecision: string
   sellAmountCryptoPrecision: string
   sellAsset?: Asset
@@ -43,7 +42,6 @@ export type SwapperAction = {
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
   updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void
   updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
-  updateQuote: (quote: SwapperStore['quote']) => void
   updateSellAmountFiat: (sellAmountFiat: SwapperStore['sellAmountFiat']) => void
   updateBuyAmountFiat: (buyAmountFiat: SwapperStore['buyAmountFiat']) => void
   updateSellAssetFiatRate: (sellAssetFiatRate: SwapperStore['sellAssetFiatRate']) => void

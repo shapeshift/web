@@ -1,12 +1,11 @@
+import type { SkipToken } from '@reduxjs/toolkit/query'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useGetTradeQuoteQuery } from 'state/apis/swapper/getTradeQuoteApi'
 import {
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
@@ -20,23 +19,16 @@ The Trade Quote Service is responsible for reacting to changes to trade assets a
 The only mutation is on the quote property of SwapperState.
 */
 export const useTradeQuoteService = () => {
-  // Types
-  type TradeQuoteQueryInput = Parameters<typeof useGetTradeQuoteQuery>
-  type TradeQuoteInputArg = TradeQuoteQueryInput[0]
-
   // State
   const wallet = useWallet().state.wallet
-  const [tradeQuoteArgs, setTradeQuoteArgs] = useState<TradeQuoteInputArg>(skipToken)
+  const [tradeQuoteArgs, setTradeQuoteArgs] = useState<GetTradeQuoteInput | SkipToken>(skipToken)
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-  const quote = useSwapperStore(state => state.quote)
-  const updateQuote = useSwapperStore(state => state.updateQuote)
   const action = useSwapperStore(state => state.action)
   const isSendMax = useSwapperStore(state => state.isSendMax)
   const amount = useSwapperStore(state => state.amount)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
-  const updateSlippage = useSwapperStore(state => state.updateSlippage)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAsset = useSwapperStore(state => state.buyAsset)
@@ -50,12 +42,6 @@ export const useTradeQuoteService = () => {
   const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
   const sellAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
-  )
-
-  // API
-  const { data: tradeQuote, isLoading: isLoadingTradeQuote } = useGetTradeQuoteQuery(
-    tradeQuoteArgs,
-    { pollingInterval: 30000 },
   )
 
   // Effects
@@ -103,23 +89,7 @@ export const useTradeQuoteService = () => {
     sellAmountCryptoPrecision,
   ])
 
-  // Update trade quote
-  useEffect(() => updateQuote(tradeQuote), [tradeQuote, updateQuote])
-
-  // Set slippage if the quote contains a recommended value, else use the default
-  useEffect(
-    () => updateSlippage(tradeQuote?.recommendedSlippage || DEFAULT_SLIPPAGE),
-    [tradeQuote, updateSlippage],
-  )
-
-  // Set trade quote if not yet set (e.g. on page load)
-  useEffect(() => {
-    // Checking that no quote has been set and tradeQuote exists prevents an infinite render
-    !quote && tradeQuote && updateQuote(tradeQuote)
-  }, [quote, tradeQuote, updateQuote])
-
   return {
-    isLoadingTradeQuote,
     tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,
   }
 }

@@ -71,11 +71,10 @@ export const TradeInput = () => {
   const updateSelectedBuyAssetAccountId = useSwapperStore(
     state => state.updateSelectedBuyAssetAccountId,
   )
-  const quote = useSwapperStore(state => state.quote)
+  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
   const fees = useSwapperStore(state => state.fees)
   const slippage = useSwapperStore(state => state.slippage)
   const updateFees = useSwapperStore(state => state.updateFees)
-  const updateQuote = useSwapperStore(state => state.updateQuote)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
@@ -159,12 +158,12 @@ export const TradeInput = () => {
   const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
 
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
-    if (!quote) return false
+    if (!activeQuote) return false
     return (
-      quote.buyAsset?.assetId === buyAsset?.assetId &&
-      quote.sellAsset?.assetId === sellAsset?.assetId
+      activeQuote.buyAsset?.assetId === buyAsset?.assetId &&
+      activeQuote.sellAsset?.assetId === sellAsset?.assetId
     )
-  }, [buyAsset?.assetId, quote, sellAsset?.assetId])
+  }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
   // Constants
   const walletSupportsSellAssetChain =
@@ -228,7 +227,6 @@ export const TradeInput = () => {
       updateFiatSellAmount('0')
       updateFiatBuyAmount('0')
       updateFeeAssetFiatRate(undefined)
-      updateQuote(undefined)
       updateFees(undefined)
       updateTrade(undefined)
       updateSelectedSellAssetAccountId(undefined)
@@ -252,7 +250,6 @@ export const TradeInput = () => {
     updateFiatSellAmount,
     updateFiatBuyAmount,
     updateFeeAssetFiatRate,
-    updateQuote,
     updateFees,
     updateTrade,
     updateSelectedSellAssetAccountId,
@@ -262,8 +259,13 @@ export const TradeInput = () => {
   ])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
-    if (!(sellAsset && quote)) return
-    const maxSendAmount = getSendMaxAmount(sellAsset, sellFeeAsset, quote, sellAssetBalanceCrypto)
+    if (!(sellAsset && activeQuote)) return
+    const maxSendAmount = getSendMaxAmount(
+      sellAsset,
+      sellFeeAsset,
+      activeQuote,
+      sellAssetBalanceCrypto,
+    )
     updateSellAmountCryptoPrecision(maxSendAmount)
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateIsSendMax(true)
@@ -279,7 +281,7 @@ export const TradeInput = () => {
     })
   }, [
     sellAsset,
-    quote,
+    activeQuote,
     sellFeeAsset,
     sellAssetBalanceCrypto,
     updateSellAmountCryptoPrecision,
@@ -355,7 +357,10 @@ export const TradeInput = () => {
     updateSelectedBuyAssetAccountId(accountId)
 
   const isBelowMinSellAmount = useMemo(() => {
-    const minSellAmount = toBaseUnit(bnOrZero(quote?.minimum), quote?.sellAsset.precision || 0)
+    const minSellAmount = toBaseUnit(
+      bnOrZero(activeQuote?.minimum),
+      activeQuote?.sellAsset.precision || 0,
+    )
 
     return (
       bnOrZero(toBaseUnit(bnOrZero(sellAmountCryptoPrecision), sellAsset?.precision || 0)).lt(
@@ -367,8 +372,8 @@ export const TradeInput = () => {
   }, [
     hasValidSellAmount,
     isTradeQuotePending,
-    quote?.minimum,
-    quote?.sellAsset.precision,
+    activeQuote?.minimum,
+    activeQuote?.sellAsset.precision,
     sellAmountCryptoPrecision,
     sellAsset?.precision,
   ])
@@ -392,13 +397,18 @@ export const TradeInput = () => {
     const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
       .minus(
         shouldDeductNetworkFeeFromGasBalanceCheck
-          ? fromBaseUnit(bnOrZero(quote?.feeData.networkFeeCryptoBaseUnit), sellFeeAsset?.precision)
+          ? fromBaseUnit(
+              bnOrZero(activeQuote?.feeData.networkFeeCryptoBaseUnit),
+              sellFeeAsset?.precision,
+            )
           : 0,
       )
       .minus(tradeDeduction)
       .gte(0)
 
-    const minLimit = `${bnOrZero(quote?.minimum).decimalPlaces(6)} ${quote?.sellAsset.symbol}`
+    const minLimit = `${bnOrZero(activeQuote?.minimum).decimalPlaces(6)} ${
+      activeQuote?.sellAsset.symbol
+    }`
 
     if (isSwapperApiPending) return 'common.loadingText'
     if (!wallet) return 'common.connectWallet'
@@ -464,9 +474,9 @@ export const TradeInput = () => {
     sellAsset?.symbol,
     swapperName,
     feeAssetBalance,
-    quote?.feeData.networkFeeCryptoBaseUnit,
-    quote?.minimum,
-    quote?.sellAsset.symbol,
+    activeQuote?.feeData.networkFeeCryptoBaseUnit,
+    activeQuote?.minimum,
+    activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
     wallet,
     walletSupportsSellAssetChain,
@@ -610,7 +620,7 @@ export const TradeInput = () => {
             sellSymbol={sellAsset?.symbol}
             buySymbol={buyAsset?.symbol}
             gasFee={gasFeeFiat}
-            rate={quote?.rate}
+            rate={activeQuote?.rate}
             isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
             isError={!walletSupportsTradeAssetChains}
           />
@@ -632,7 +642,7 @@ export const TradeInput = () => {
           colorScheme={hasError ? 'red' : 'blue'}
           size='lg-multiline'
           data-test='trade-form-preview-button'
-          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !quote}
+          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !activeQuote}
           isLoading={isLoading}
         >
           <Text translation={getErrorTranslationKey()} />

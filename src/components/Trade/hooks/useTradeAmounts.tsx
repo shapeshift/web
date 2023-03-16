@@ -13,7 +13,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
+import { isSome } from 'lib/utils'
+import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import {
   selectAssets,
@@ -47,7 +48,6 @@ export const useTradeAmounts = () => {
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const assets = useSelector(selectAssets)
-  const updateQuote = useSwapperStore(state => state.updateQuote)
   const buyAssetFiatRateFormState = useSwapperStore(state => state.buyAssetFiatRate)
   const sellAssetFiatRateFormState = useSwapperStore(state => state.sellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
@@ -67,7 +67,7 @@ export const useTradeAmounts = () => {
   const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const activeSwapperType = activeTradeSwapper?.getType()
 
-  const { getTradeQuote } = getTradeQuoteApi.endpoints
+  const { getAvailableSwappers } = getSwappersApi.endpoints
   const { getUsdRates } = getUsdRatesApi.endpoints
 
   const setTradeAmounts = useCallback(
@@ -198,20 +198,31 @@ export const useTradeAmounts = () => {
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
-      if (!activeTradeSwapper) {
-        updateQuote(undefined)
+      if (!activeTradeSwapper || !activeSwapperType) {
         updateFees(undefined)
         return
       }
 
-      const quoteResponse = tradeQuoteArgs
-        ? await appDispatch(getTradeQuote.initiate(tradeQuoteArgs))
-        : undefined
+      const availableSwapperTypesWithQuoteMetadata =
+        tradeQuoteArgs && feeAsset
+          ? (
+              await appDispatch(
+                getAvailableSwappers.initiate({
+                  ...tradeQuoteArgs,
+                  feeAsset,
+                }),
+              )
+            ).data
+          : undefined
+
+      const bestTradeQuote = availableSwapperTypesWithQuoteMetadata
+        ?.map(s => s.quote)
+        .filter(isSome)[0]
 
       // If we can't get a quote our trade fee will be 0 - this is likely not desired long-term
-      const formFees = quoteResponse?.data
+      const formFees = bestTradeQuote
         ? getFormFees({
-            trade: quoteResponse.data,
+            trade: bestTradeQuote,
             sellAsset,
             tradeFeeSource: activeTradeSwapper.name,
             feeAsset,
@@ -230,7 +241,6 @@ export const useTradeAmounts = () => {
           : {}
 
       if (usdRates) {
-        updateQuote(quoteResponse?.data)
         updateFees(formFees)
         setTradeAmounts({
           amount: amountToUse,
@@ -260,12 +270,11 @@ export const useTradeAmounts = () => {
       sellAmountCryptoPrecisionFormState,
       isSendMaxFormState,
       activeTradeSwapper,
-      appDispatch,
-      getTradeQuote,
       activeSwapperType,
+      appDispatch,
+      getAvailableSwappers,
       getUsdRates,
       updateTradeAmounts,
-      updateQuote,
       updateFees,
       setTradeAmounts,
       selectedCurrencyToUsdRate,

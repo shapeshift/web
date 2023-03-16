@@ -5,12 +5,12 @@ import { generateAppRoutes } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
+import { mapMixpanelPathname } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { mapMixpanelPathname } from '../../lib/mixpanel/helpers'
 import { BrowserRouterContext } from './BrowserRouterContext'
 
 type BrowserRouterProviderProps = {
@@ -34,15 +34,7 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [appRoutes, location.pathname])
 
   useEffect(() => {
-    const redactedPathname = (() => {
-      switch (true) {
-        case location.pathname.startsWith('/accounts/'): {
-          return mapMixpanelPathname(location.pathname, assets)
-        }
-        default:
-          return location.pathname
-      }
-    })()
+    const redactedPathname = mapMixpanelPathname(location.pathname, assets)
     getMixPanel()?.track(MixPanelEvents.PageView, { pathname: redactedPathname })
   }, [assets, location.pathname])
 

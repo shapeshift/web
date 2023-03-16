@@ -9,17 +9,23 @@ import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'
 
 export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string => {
-  // example path
-  // /accounts/eip155:1:0xa4..35/eip155:1%2Ferc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984
-  const parts = pathname.split('/')
-  const [_, accountLiteral, accountId, maybeEscapedAssetId] = parts
-  const { chainId } = fromAccountId(accountId)
-  const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
-  const assetId = maybeEscapedAssetId && decodeURIComponent(maybeEscapedAssetId)
-  const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
-  const newParts = [_, accountLiteral, chainName]
-  if (mixpanelAssetId) newParts.push(mixpanelAssetId)
-  return newParts.join('/')
+  switch (true) {
+    case pathname.startsWith('/accounts/'): {
+      // example path
+      // /accounts/eip155:1:0xa4..35/eip155:1%2Ferc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984
+      const parts = pathname.split('/')
+      const [_, accountLiteral, accountId, maybeEscapedAssetId] = parts
+      const { chainId } = fromAccountId(accountId)
+      const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
+      const assetId = maybeEscapedAssetId && decodeURIComponent(maybeEscapedAssetId)
+      const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
+      const newParts = [_, accountLiteral, chainName]
+      if (mixpanelAssetId) newParts.push(mixpanelAssetId)
+      return newParts.join('/')
+    }
+    default:
+      return pathname
+  }
 }
 
 export const assetToCompositeSymbol = (asset: Asset): string => {

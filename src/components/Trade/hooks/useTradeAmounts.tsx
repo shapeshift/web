@@ -64,7 +64,8 @@ export const useTradeAmounts = () => {
   const sellAmountCryptoPrecisionFormState = useSwapperStore(
     state => state.sellAmountCryptoPrecision,
   )
-  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapperType = activeTradeSwapper?.getType()
 
   const { getTradeQuote } = getTradeQuoteApi.endpoints
   const { getUsdRates } = getUsdRatesApi.endpoints
@@ -197,7 +198,7 @@ export const useTradeAmounts = () => {
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
-      if (!bestTradeSwapper) {
+      if (!activeTradeSwapper) {
         updateQuote(undefined)
         updateFees(undefined)
         return
@@ -212,19 +213,21 @@ export const useTradeAmounts = () => {
         ? getFormFees({
             trade: quoteResponse.data,
             sellAsset,
-            tradeFeeSource: bestTradeSwapper.name,
+            tradeFeeSource: activeTradeSwapper.name,
             feeAsset,
           })
         : undefined
 
-      const { data: usdRates = undefined } = tradeQuoteArgs
-        ? await appDispatch(
-            getUsdRates.initiate({
-              feeAssetId,
-              tradeQuoteArgs,
-            }),
-          )
-        : {}
+      const { data: usdRates = undefined } =
+        tradeQuoteArgs && activeSwapperType
+          ? await appDispatch(
+              getUsdRates.initiate({
+                feeAssetId,
+                tradeQuoteArgs,
+                activeSwapperType,
+              }),
+            )
+          : {}
 
       if (usdRates) {
         updateQuote(quoteResponse?.data)
@@ -256,9 +259,10 @@ export const useTradeAmounts = () => {
       getReceiveAddressFromBuyAsset,
       sellAmountCryptoPrecisionFormState,
       isSendMaxFormState,
-      bestTradeSwapper,
+      activeTradeSwapper,
       appDispatch,
       getTradeQuote,
+      activeSwapperType,
       getUsdRates,
       updateTradeAmounts,
       updateQuote,

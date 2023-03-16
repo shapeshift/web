@@ -31,6 +31,7 @@ import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
 The Default Asset Hook is responsible for populating the trade widget with initial assets.
@@ -46,6 +47,9 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   const dispatch = useAppDispatch()
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetaData = useSelector(selectPortfolioAccountMetadata)
+  const activeSwapperType = useSwapperStore(
+    state => state.activeSwapperWithMetadata?.swapper,
+  )?.getType()
 
   // Constants
   const { getUsdRates } = getUsdRatesApi.endpoints
@@ -137,13 +141,16 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
           })
         : undefined
 
+    // We don't use this response except as a hack to see if the asset pair is supported
     const buyAssetFiatRateData =
       tradeQuoteArgs &&
+      activeSwapperType &&
       (
         await dispatch(
           getUsdRates.initiate({
             feeAssetId: defaultAssetIdPair.buyAssetId,
             tradeQuoteArgs,
+            activeSwapperType,
           }),
         )
       ).data
@@ -205,10 +212,11 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     featureFlags,
     buyAssetId,
     assets,
-    wallet,
     sellAccountMetadata,
+    wallet,
     dispatch,
     getUsdRates,
+    activeSwapperType,
     walletAccountIds,
     portfolioAccountMetaData,
   ])

@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { osmosisAssetId, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
+import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
@@ -46,9 +46,8 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     const underlyingAssetId1 = generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const asset = selectAssetById(state, assetId)
-    const feeAsset = selectAssetById(state, osmosisAssetId)
 
-    if (!asset || !feeAsset) continue
+    if (!asset) continue
 
     const totalSupply = bn(pool.total_shares.amount)
     const token0Reserves = bn(pool.pool_assets[0].token.amount)

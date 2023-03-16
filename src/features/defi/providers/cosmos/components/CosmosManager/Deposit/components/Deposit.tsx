@@ -60,7 +60,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
 
-  const opportunityData = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
@@ -116,7 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
-      if (!(state && dispatch && opportunityData)) return
+      if (!(state && dispatch && opportunityMetadata)) return
 
       const getStakingGasEstimate = async () => {
         if (!assetReference) return
@@ -154,7 +154,7 @@ export const Deposit: React.FC<DepositProps> = ({
         trackOpportunityEvent(
           MixPanelEvents.DepositContinue,
           {
-            opportunity: opportunityData,
+            opportunity: opportunityMetadata,
             fiatAmounts: [formValues.fiatAmount],
             cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
           },
@@ -179,7 +179,7 @@ export const Deposit: React.FC<DepositProps> = ({
       dispatch,
       marketData.price,
       onNext,
-      opportunityData,
+      opportunityMetadata,
       state,
       toast,
       translate,

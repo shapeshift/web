@@ -46,7 +46,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
 
-  const opportunityData = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
   // Asset info
@@ -84,12 +84,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!opportunityData || !state) return
+    if (!opportunityMetadata || !state) return
     if (state.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvents.WithdrawSuccess,
         {
-          opportunity: opportunityData,
+          opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
           cryptoAmounts: [
             { assetId: underlyingAssetId, amountCryptoHuman: state.withdraw.cryptoAmount },
@@ -98,7 +98,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         assets,
       )
     }
-  }, [assets, fiatAmount, opportunityData, state, underlyingAssetId])
+  }, [assets, fiatAmount, opportunityMetadata, state, underlyingAssetId])
 
   if (!state || !dispatch) return null
 

@@ -64,7 +64,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
 
-  const opportunityData = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
   // Asset info
@@ -135,7 +135,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         gasPrice &&
         state?.withdraw &&
         walletState?.wallet &&
-        opportunityData
+        opportunityMetadata
       )
     )
       return
@@ -175,7 +175,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       trackOpportunityEvent(
         MixPanelEvents.WithdrawConfirm,
         {
-          opportunity: opportunityData,
+          opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
           cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
         },
@@ -194,7 +194,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     gasPrice,
     handleStakingAction,
     onNext,
-    opportunityData,
+    opportunityMetadata,
     state?.loading,
     state?.withdraw,
     walletState?.wallet,

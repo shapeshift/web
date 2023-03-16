@@ -48,7 +48,7 @@ export const Status = () => {
 
   const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
 
-  const opportunityData = useAppSelector(state =>
+  const opportunityMetadata = useAppSelector(state =>
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
@@ -68,19 +68,19 @@ export const Status = () => {
   const handleCancel = history.goBack
 
   useEffect(() => {
-    if (!opportunityData) return
+    if (!opportunityMetadata) return
     if (state?.deposit.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvents.DepositSuccess,
         {
-          opportunity: opportunityData,
+          opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
           cryptoAmounts: [{ assetId, amountCryptoHuman: cryptoAmount }],
         },
         assets,
       )
     }
-  }, [assetId, assets, cryptoAmount, fiatAmount, opportunityData, state?.deposit.txStatus])
+  }, [assetId, assets, cryptoAmount, fiatAmount, opportunityMetadata, state?.deposit.txStatus])
 
   if (!state) return null
 

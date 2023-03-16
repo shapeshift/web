@@ -787,14 +787,21 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   selectWalletId,
   selectWalletName,
   selectPortfolioFiatBalances,
-  (assetsById, walletId, walletName = '', portfolioBalances): AnonymizedPortfolio => {
+  selectPortfolioAssetBalances,
+  (
+    assetsById,
+    walletId,
+    walletName = '',
+    portfolioFiatBalances,
+    portfolioCryptoBalances,
+  ): AnonymizedPortfolio => {
     const hashedWalletId = hashCode(walletId || '')
 
     type AssetBalances = Record<string, number>
     type ChainBalances = Record<string, number>
 
     const [assetBalances, chainBalances, portfolioBalanceBN] = Object.entries(
-      portfolioBalances,
+      portfolioFiatBalances,
     ).reduce<[AssetBalances, ChainBalances, BigNumber]>(
       (acc, [assetId, balance]) => {
         // by asset
@@ -819,8 +826,10 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
     const assets = Object.keys(assetBalances)
     const chains = Object.keys(chainBalances)
     const portfolioBalance = Number(portfolioBalanceBN.toFixed(2))
+    const hasCryptoBalance = Object.values(portfolioCryptoBalances).some(b => bn(b).gt(0))
 
     return {
+      'Has Crypto Balance': hasCryptoBalance,
       'Is Mobile': isMobile,
       'Wallet ID': hashedWalletId,
       'Wallet Name': walletName,

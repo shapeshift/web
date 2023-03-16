@@ -29,20 +29,17 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
+  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
+  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
-  const quote = useSwapperStore(state => state.quote)
   const isSendMax = useSwapperStore(state => state.isSendMax)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const slippage = useSwapperStore(state => state.slippage)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
-  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
-
-  // Constants
-  const bestTradeSwapper = activeSwapperWithMetadata?.swapper
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -100,8 +97,8 @@ export const useSwapper = () => {
    When adding a new swapper, ensure that `true` is returned here if either of the above apply.
    */
   const swapperSupportsCrossAccountTrade = useMemo(() => {
-    if (!bestTradeSwapper) return undefined
-    switch (bestTradeSwapper.name) {
+    if (!activeSwapper) return undefined
+    switch (activeSwapper.name) {
       case SwapperName.Thorchain:
       case SwapperName.Osmosis:
       case SwapperName.LIFI:
@@ -112,7 +109,7 @@ export const useSwapper = () => {
       default:
         return false
     }
-  }, [bestTradeSwapper])
+  }, [activeSwapper])
 
   const getSupportedBuyAssetsFromSellAsset = useCallback(
     (assets: Asset[]): Asset[] | undefined => {
@@ -130,30 +127,30 @@ export const useSwapper = () => {
   )
 
   const checkApprovalNeeded = useCallback(async (): Promise<boolean> => {
-    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!activeSwapper) throw new Error('No swapper available')
     if (!wallet) throw new Error('No wallet available')
-    if (!quote) throw new Error('No quote available')
-    const { approvalNeeded } = await bestTradeSwapper.approvalNeeded({ quote, wallet })
+    if (!activeQuote) throw new Error('No quote available')
+    const { approvalNeeded } = await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
     return approvalNeeded
-  }, [bestTradeSwapper, quote, wallet])
+  }, [activeSwapper, activeQuote, wallet])
 
   const approve = useCallback(async (): Promise<string> => {
-    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!activeSwapper) throw new Error('No swapper available')
     if (!wallet) throw new Error('no wallet available')
-    if (!quote) throw new Error('no quote available')
+    if (!activeQuote) throw new Error('no quote available')
     const txid = isExactAllowance
-      ? await bestTradeSwapper.approveAmount({
-          amount: quote.sellAmountBeforeFeesCryptoBaseUnit,
-          quote,
+      ? await activeSwapper.approveAmount({
+          amount: activeQuote.sellAmountBeforeFeesCryptoBaseUnit,
+          quote: activeQuote,
           wallet,
         })
-      : await bestTradeSwapper.approveInfinite({ quote, wallet })
+      : await activeSwapper.approveInfinite({ quote: activeQuote, wallet })
     return txid
-  }, [bestTradeSwapper, isExactAllowance, quote, wallet])
+  }, [activeSwapper, isExactAllowance, activeQuote, wallet])
 
   const getTrade = useCallback(async () => {
     if (!sellAsset) throw new Error('No sellAsset')
-    if (!bestTradeSwapper) throw new Error('No swapper available')
+    if (!activeSwapper) throw new Error('No swapper available')
     if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
     if (!sellAsset) throw new Error('Missing sellAsset')
     if (!buyAsset) throw new Error('Missing buyAsset')
@@ -180,7 +177,7 @@ export const useSwapper = () => {
     if (isSupportedCosmosSdkSwappingChain(sellAssetChainId)) {
       const { accountNumber } = sellAccountBip44Params
       const { accountNumber: receiveAccountNumber } = buyAccountBip44Params
-      return bestTradeSwapper.buildTrade({
+      return activeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
         accountNumber,
@@ -188,7 +185,7 @@ export const useSwapper = () => {
       })
     } else if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
       const { accountNumber } = sellAccountBip44Params
-      return bestTradeSwapper.buildTrade({
+      return activeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
         accountNumber,
@@ -202,7 +199,7 @@ export const useSwapper = () => {
         sellAssetChainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
       const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
-      return bestTradeSwapper.buildTrade({
+      return activeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAssetChainId,
         accountNumber,
@@ -212,7 +209,7 @@ export const useSwapper = () => {
     }
   }, [
     sellAsset,
-    bestTradeSwapper,
+    activeSwapper,
     sellAmountCryptoPrecision,
     buyAsset,
     wallet,

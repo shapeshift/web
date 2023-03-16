@@ -59,7 +59,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
         MixPanelEvents.ClickOpportunity,
         {
           opportunity,
-          element: 'Featured Card',
+          element: 'Arkeo Featured Card',
         },
         assets,
       )

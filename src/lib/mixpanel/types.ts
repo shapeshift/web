@@ -28,6 +28,7 @@ export enum MixPanelEvents {
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
   FiatRamp = 'Fiat Ramp',
+  ClickdApp = 'Click dApp',
 }
 
 export type TrackOpportunityProps = {

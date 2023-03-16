@@ -3,7 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -59,18 +59,6 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 
     if (!opportunityMetadata) return
 
-    const [underlyingToken0AmountCryptoPrecision, underlyingToken1AmountCryptoPrecision] =
-      opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .times(
-            fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
-              assets[assetId]?.precision ?? 0,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      )
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(lpAssetBalanceCryptoBaseUnit)
@@ -85,8 +73,6 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       isLoaded: true,
       contractAddress: fromAssetId(lpId as AssetId).assetReference,
       chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken1AmountCryptoPrecision,
-      underlyingToken0AmountCryptoPrecision,
       underlyingToken0AmountCryptoBaseUnit,
       underlyingToken1AmountCryptoBaseUnit,
       cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
@@ -128,19 +114,6 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
 
     if (!opportunityMetadata) return
 
-    const [underlyingToken0AmountCryptoPrecision, underlyingToken1AmountCryptoPrecision] =
-      opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(
-            fromBaseUnit(
-              opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0',
-              assets[assetId]?.precision ?? 0,
-            ),
-          )
-          .toFixed(6)
-          .toString(),
-      )
-
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
@@ -155,8 +128,6 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       isLoaded: true,
       contractAddress: fromAssetId(lpId as AssetId).assetReference,
       chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken1AmountCryptoPrecision,
-      underlyingToken0AmountCryptoPrecision,
       underlyingToken0AmountCryptoBaseUnit,
       underlyingToken1AmountCryptoBaseUnit,
       cryptoAmountPrecision: aggregatedLpAssetBalance,

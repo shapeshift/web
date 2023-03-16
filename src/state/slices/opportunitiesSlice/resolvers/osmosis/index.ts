@@ -1,6 +1,7 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
 
 import type {
@@ -41,10 +42,25 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
     }
 
     const assetId = toAssetId(toAssetIdParts)
+    const underlyingAssetId0 = generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom)
+    const underlyingAssetId1 = generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const asset = selectAssetById(state, assetId)
 
     if (!asset) continue
+
+    const totalSupply = bn(pool.total_shares.amount)
+    const token0Reserves = bn(pool.pool_assets[0].token.amount)
+    const token1Reserves = bn(pool.pool_assets[1].token.amount)
+
+    const underlyingAsset0RatioBaseUnit = token0Reserves
+      .div(totalSupply)
+      .times(bn(10).pow(asset.precision))
+      .toFixed()
+    const underlyingAsset1RatioBaseUnit = token1Reserves
+      .div(totalSupply)
+      .times(bn(10).pow(asset.precision))
+      .toFixed()
 
     lpOpportunitiesById[opportunityId] = {
       apy: pool.apy,
@@ -54,14 +70,9 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       tvl: pool.tvl,
       type: DefiType.LiquidityPool,
       underlyingAssetId: assetId,
-      underlyingAssetIds: [
-        generateAssetIdFromOsmosisDenom(pool.pool_assets[0].token.denom),
-        generateAssetIdFromOsmosisDenom(pool.pool_assets[1].token.denom),
-      ],
-      underlyingAssetRatiosBaseUnit: [
-        pool.pool_assets[0].token.amount,
-        pool.pool_assets[1].token.amount,
-      ],
+      underlyingAssetIds: [underlyingAssetId0, underlyingAssetId1],
+      underlyingAssetRatiosBaseUnit: [underlyingAsset0RatioBaseUnit, underlyingAsset1RatioBaseUnit],
+
       name: pool.name,
     }
   }

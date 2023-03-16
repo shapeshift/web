@@ -168,7 +168,7 @@ export const getDefaultAssetIdPairByChainId = (
           }
         : ethFoxPair
     case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.BnbSmartChainZrx
+      return featureFlags.ZrxBnbSmartChain
         ? {
             sellAssetId: bscAssetId,
             buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',

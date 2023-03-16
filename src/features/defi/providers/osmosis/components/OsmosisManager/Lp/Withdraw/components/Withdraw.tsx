@@ -361,6 +361,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         contextDispatch({ type: OsmosisWithdrawActionType.SET_LOADING, payload: false })
         // We don't track the other values in formValues so need to calculate it
         const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
+          assetId: osmosisOpportunity.assetId,
           underlyingAssetIds: osmosisOpportunity.underlyingAssetIds,
           underlyingAssetRatiosBaseUnit: osmosisOpportunity.underlyingAssetRatiosBaseUnit,
           cryptoAmountBaseUnit: shareInAmountBaseUnit,

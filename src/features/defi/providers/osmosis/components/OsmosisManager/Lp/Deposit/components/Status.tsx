@@ -53,6 +53,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const underlyingAssetBalances = useMemo(() => {
     if (!opportunity || !state) return null
     return getUnderlyingAssetIdsBalances({
+      assetId: opportunity.assetId,
       underlyingAssetIds: opportunity.underlyingAssetIds,
       underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
       cryptoAmountBaseUnit: state.deposit.shareOutAmountBaseUnit,

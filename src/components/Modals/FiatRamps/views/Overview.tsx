@@ -31,10 +31,14 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
@@ -75,6 +79,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
+  const assets = useAppSelector(selectAssets)
   const {
     state: { wallet, isConnected, isDemoWallet },
     dispatch,
@@ -143,6 +148,12 @@ export const Overview: React.FC<OverviewProps> = ({
   const handlePopupClick = useCallback(
     ({ rampId, address }: { rampId: FiatRamp; address: string }) => {
       const ramp = supportedFiatRamps[rampId]
+      const mpData = {
+        action: fiatRampAction,
+        assetId: getMaybeCompositeAssetSymbol(assetId, assets),
+        ramp: ramp.id,
+      }
+      getMixPanel()?.track(MixPanelEvents.FiatRamp, mpData)
       const url = ramp.onSubmit({
         action: fiatRampAction,
         assetId,
@@ -155,7 +166,7 @@ export const Overview: React.FC<OverviewProps> = ({
       })
       if (url) popup.open({ url, title: 'Buy' })
     },
-    [assetId, colorMode, fiatRampAction, popup, selectedLocale],
+    [assets, assetId, colorMode, fiatRampAction, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {

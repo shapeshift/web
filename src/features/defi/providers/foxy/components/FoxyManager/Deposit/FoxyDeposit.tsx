@@ -91,12 +91,7 @@ export const FoxyDeposit: React.FC<{
           )
         )
           return
-        const { accountNumber } = bip44Params
-        const [address, foxyOpportunity] = await Promise.all([
-          chainAdapter.getAddress({ wallet: walletState.wallet, accountNumber }),
-          foxyApi.getFoxyOpportunityByStakingAddress(contractAddress),
-        ])
-        dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
+        const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(contractAddress)
         dispatch({
           type: FoxyDepositActionType.SET_OPPORTUNITY,
           payload: { ...foxyOpportunity, apy: foxyAprData?.foxyApr ?? '' },

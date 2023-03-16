@@ -3,7 +3,6 @@ import { FoxEthLpWithdrawActionType } from './WithdrawCommon'
 
 export const initialState: FoxEthLpWithdrawState = {
   txid: null,
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -12,7 +11,7 @@ export const initialState: FoxEthLpWithdrawState = {
     foxAmount: '',
     ethAmount: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoPrecision: '',
   },
 }
 
@@ -23,8 +22,6 @@ export const reducer = (
   switch (action.type) {
     case FoxEthLpWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case FoxEthLpWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case FoxEthLpWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case FoxEthLpWithdrawActionType.SET_APPROVE:

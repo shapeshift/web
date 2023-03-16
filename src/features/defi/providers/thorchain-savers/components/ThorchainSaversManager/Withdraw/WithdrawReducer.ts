@@ -4,7 +4,6 @@ import { ThorchainSaversWithdrawActionType } from './WithdrawCommon'
 export const initialState: ThorchainSaversWithdrawState = {
   txid: null,
   opportunity: null,
-  userAddress: null,
   loading: false,
   approve: {},
   withdraw: {
@@ -12,7 +11,6 @@ export const initialState: ThorchainSaversWithdrawState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
     dustAmountCryptoBaseUnit: '',
     withdrawFeeCryptoBaseUnit: '',
     maybeFromUTXOAccountAddress: '',
@@ -28,8 +26,6 @@ export const reducer = (
       return { ...state, opportunity: { ...state.opportunity, ...action.payload } }
     case ThorchainSaversWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
-    case ThorchainSaversWithdrawActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case ThorchainSaversWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case ThorchainSaversWithdrawActionType.SET_TXID:

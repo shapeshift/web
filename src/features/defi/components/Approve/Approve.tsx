@@ -20,7 +20,7 @@ type ApproveProps = {
   providerIcon?: string
   icons?: string[]
   feeAsset: Asset
-  cryptoEstimatedGasFee: string
+  estimatedGasFeeCryptoPrecision: string
   fiatEstimatedGasFee: string
   isExactAllowance?: boolean
   learnMoreLink?: string
@@ -36,7 +36,7 @@ type ApproveProps = {
 export const Approve = ({
   asset,
   contractAddress,
-  cryptoEstimatedGasFee,
+  estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,
   fiatEstimatedGasFee,
@@ -160,7 +160,7 @@ export const Approve = ({
               <Amount.Fiat value={fiatEstimatedGasFee} />
               <Amount.Crypto
                 color='gray.500'
-                value={cryptoEstimatedGasFee}
+                value={estimatedGasFeeCryptoPrecision}
                 symbol={feeAsset.symbol}
               />
             </Box>

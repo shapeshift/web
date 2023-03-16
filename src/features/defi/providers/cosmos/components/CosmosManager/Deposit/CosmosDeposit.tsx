@@ -23,7 +23,6 @@ import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
   selectPortfolioLoading,
@@ -79,40 +78,24 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       : undefined,
   )
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!earnOpportunityData) return
+    try {
+      if (!earnOpportunityData) return
 
-        const chainAdapterManager = getChainAdapterManager()
-        const chainAdapter = chainAdapterManager.get(chainId)
-        if (
-          !(
-            walletState.wallet &&
-            validatorAddress &&
-            chainAdapter &&
-            earnOpportunityData?.apy &&
-            bip44Params
-          )
-        )
-          return
-        const { accountNumber } = bip44Params
-        const address = await chainAdapter.getAddress({ accountNumber, wallet: walletState.wallet })
+      const chainAdapterManager = getChainAdapterManager()
+      const chainAdapter = chainAdapterManager.get(chainId)
+      if (!(walletState.wallet && validatorAddress && chainAdapter && earnOpportunityData?.apy))
+        return
 
-        dispatch({ type: CosmosDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({
-          type: CosmosDepositActionType.SET_OPPORTUNITY,
-          payload: earnOpportunityData.apy,
-        })
-      } catch (error) {
-        // TODO: handle client side errors
-        moduleLogger.error(error, 'CosmosDeposit error')
-      }
-    })()
-  }, [bip44Params, chainId, validatorAddress, walletState.wallet, earnOpportunityData])
+      dispatch({
+        type: CosmosDepositActionType.SET_OPPORTUNITY,
+        payload: earnOpportunityData.apy,
+      })
+    } catch (error) {
+      // TODO: handle client side errors
+      moduleLogger.error(error, 'CosmosDeposit error')
+    }
+  }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 
   const handleBack = () => {
     history.push({

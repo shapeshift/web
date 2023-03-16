@@ -11,7 +11,7 @@ export const initialState: IdleWithdrawState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
+    usedGasFeeCryptoBaseUnit: '',
   },
 }
 

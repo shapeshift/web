@@ -31,7 +31,7 @@ interface ClaimStatusState {
   amount: string
   userAddress: string
   estimatedGas: string
-  usedGasFee?: string
+  usedGasFeeCryptoPrecision?: string
   status: string
   chainId: ChainId
 }

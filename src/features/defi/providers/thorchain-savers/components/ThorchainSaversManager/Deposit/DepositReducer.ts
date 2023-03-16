@@ -4,7 +4,6 @@ import { ThorchainSaversDepositActionType } from './DepositCommon'
 export const initialState: ThorchainSaversDepositState = {
   txid: null,
   opportunity: null,
-  userAddress: null,
   loading: false,
   isExactAllowance: false,
   approve: {},
@@ -13,7 +12,6 @@ export const initialState: ThorchainSaversDepositState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: '',
     depositFeeCryptoBaseUnit: '',
     maybeFromUTXOAccountAddress: '',
   },
@@ -30,8 +28,6 @@ export const reducer = (
       return { ...state, approve: action.payload }
     case ThorchainSaversDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case ThorchainSaversDepositActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
     case ThorchainSaversDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
     case ThorchainSaversDepositActionType.SET_IS_EXACT_ALLOWANCE:

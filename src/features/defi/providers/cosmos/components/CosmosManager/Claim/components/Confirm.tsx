@@ -51,6 +51,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
   const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
 
+  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const feeAssetId = toAssetId({
@@ -66,6 +67,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const { handleStakingAction } = useStakingAction()
+
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
 
   useEffect(() => {
     ;(async () => {
@@ -91,20 +95,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     dispatch,
   ])
 
-  const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
-
   const handleConfirm = useCallback(async () => {
-    if (
-      !(
-        asset &&
-        walletState.wallet &&
-        contractAddress &&
-        state?.userAddress &&
-        dispatch &&
-        bip44Params
-      )
-    )
+    if (!(asset && walletState.wallet && contractAddress && userAddress && dispatch && bip44Params))
       return
     dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: true })
 
@@ -141,13 +133,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     claimAmount,
     contractAddress,
     dispatch,
-    feeMarketData?.price,
+    feeMarketData.price,
     handleStakingAction,
     onNext,
-    state?.userAddress,
     toast,
     translate,
-    walletState?.wallet,
+    userAddress,
+    walletState.wallet,
   ])
 
   if (!state || !dispatch || !asset) return null
@@ -172,15 +164,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Text translation='defi.modals.claim.claimToAddress' />
           </Row.Label>
           <Row.Value>
-            <Skeleton minWidth='100px' isLoaded={!!state.userAddress && !!accountId}>
-              <Link
-                isExternal
-                color='blue.500'
-                href={`${asset.explorerAddressLink}${
-                  accountId ? fromAccountId(accountId).account : state.userAddress
-                }`}
-              >
-                {state.userAddress && <MiddleEllipsis value={accountId ?? state.userAddress} />}
+            <Skeleton minWidth='100px' isLoaded={!!userAddress && !!accountId}>
+              <Link isExternal color='blue.500' href={`${asset.explorerAddressLink}${userAddress}`}>
+                {userAddress && <MiddleEllipsis value={accountId ?? userAddress} />}
               </Link>
             </Skeleton>
           </Row.Value>

@@ -14,11 +14,13 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { RegistryItem } from '../types'
 import { PageInput } from './PageInput'
@@ -45,6 +47,10 @@ export const DappRegistryGrid: FC = () => {
       ),
     [search],
   )
+
+  const handleClick = useCallback((dapp: string) => {
+    getMixPanel()?.track(MixPanelEvents.ClickdApp, { dapp })
+  }, [])
 
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 
@@ -90,7 +96,7 @@ export const DappRegistryGrid: FC = () => {
               key={listing.id}
               href={listing.homepage}
               isExternal
-              data-test={`dapp-button-${listing.name.toLowerCase().split(' ').join('-')}`}
+              onClick={() => handleClick(listing.name)}
             >
               <Box
                 borderRadius='lg'

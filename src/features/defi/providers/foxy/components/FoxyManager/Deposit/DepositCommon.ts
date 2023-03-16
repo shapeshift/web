@@ -17,18 +17,17 @@ type SupportedFoxyOpportunity = {
 }
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type FoxyDepositValues = DepositValues &
   EstimatedGas & {
     txStatus: string
-    usedGasFee: string
+    usedGasFeeCryptoBaseUnit: string
   }
 
 export type FoxyDepositState = {
   foxyOpportunity: SupportedFoxyOpportunity
-  userAddress: string | null
   approve: EstimatedGas
   deposit: FoxyDepositValues
   loading: boolean
@@ -40,7 +39,6 @@ export type FoxyDepositState = {
 export enum FoxyDepositActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
@@ -62,11 +60,6 @@ type SetDeposit = {
   payload: Partial<FoxyDepositValues>
 }
 
-type SetUserAddress = {
-  type: FoxyDepositActionType.SET_USER_ADDRESS
-  payload: string
-}
-
 type SetLoading = {
   type: FoxyDepositActionType.SET_LOADING
   payload: boolean
@@ -86,7 +79,6 @@ export type FoxyDepositActions =
   | SetFoxyOpportunitiesAction
   | SetApprove
   | SetDeposit
-  | SetUserAddress
   | SetLoading
   | SetTxid
   | SetIsExactAllowance

@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -94,18 +94,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCrypto)).gte(0),
-    [feeAssetBalance, state?.withdraw.estimatedGasCrypto],
+    () =>
+      bnOrZero(feeAssetBalance).minus(bnOrZero(state?.withdraw.estimatedGasCryptoPrecision)).gte(0),
+    [feeAssetBalance, state?.withdraw.estimatedGasCryptoPrecision],
   )
 
   const handleConfirm = useCallback(async () => {
     try {
       if (
         !dispatch ||
-        !state?.userAddress ||
         !rewardId ||
         !walletState.wallet ||
-        state.loading ||
+        state?.loading ||
+        !state?.withdraw ||
         !opportunity ||
         !underlyingAsset
       )
@@ -140,10 +141,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     rewardId,
     state?.loading,
-    state?.userAddress,
-    state?.withdraw.fiatAmount,
-    state?.withdraw.isExiting,
-    state?.withdraw.lpAmount,
+    state?.withdraw,
     underlyingAsset,
     unstake,
     walletState.wallet,
@@ -195,19 +193,25 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto).toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>
           </Row.Value>
         </Row>
       </Summary>
+      {!hasEnoughBalanceForGas && (
+        <Alert status='error' borderRadius='lg'>
+          <AlertIcon />
+          <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
+        </Alert>
+      )}
     </ReusableConfirm>
   )
 }

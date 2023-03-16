@@ -27,6 +27,11 @@ export enum MixPanelEvents {
   ConnectWallet = 'Connect Wallet',
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
+  FiatRamp = 'Fiat Ramp',
+  NativeImport = 'Native Import',
+  NativeCreate = 'Native Create',
+  Click = 'Click',
+  ClickdApp = 'Click dApp',
 }
 
 export type TrackOpportunityProps = {

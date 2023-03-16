@@ -276,7 +276,7 @@ export const useFoxFarming = (
     return _allowance.toString()
   }, [farmingAccountId, contractAddress, uniV2LPContract, skip])
 
-  const getApproveGasData = useCallback(async () => {
+  const getApproveGasDataCryptoBaseUnit = useCallback(async () => {
     if (adapter && farmingAccountId && uniV2LPContract) {
       const data = uniV2LPContract.interface.encodeFunctionData('approve', [
         contractAddress,
@@ -360,7 +360,7 @@ export const useFoxFarming = (
       contractAddress,
       MaxUint256,
     ])
-    const gasData = await getApproveGasData()
+    const gasData = await getApproveGasDataCryptoBaseUnit()
     if (!gasData) return
     const fees = gasData.average as FeeData<EvmChainId>
     const {
@@ -401,7 +401,14 @@ export const useFoxFarming = (
       }
     })()
     return broadcastTXID
-  }, [accountNumber, adapter, contractAddress, getApproveGasData, uniV2LPContract, wallet])
+  }, [
+    accountNumber,
+    adapter,
+    contractAddress,
+    getApproveGasDataCryptoBaseUnit,
+    uniV2LPContract,
+    wallet,
+  ])
 
   const getClaimGasData = useCallback(
     async (userAddress: string) => {
@@ -483,7 +490,7 @@ export const useFoxFarming = (
   return {
     allowance,
     approve,
-    getApproveGasData,
+    getApproveGasData: getApproveGasDataCryptoBaseUnit,
     getStakeGasData,
     getClaimGasData,
     getUnstakeGasData,

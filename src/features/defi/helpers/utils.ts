@@ -19,20 +19,18 @@ export const chainIdToLabel = (chainId: ChainId): string => {
 
 export const canCoverTxFees = ({
   feeAsset,
-  estimatedGasCrypto,
+  estimatedGasCryptoPrecision,
   accountId,
 }: {
   feeAsset: Asset
-  estimatedGasCrypto: string
+  estimatedGasCryptoPrecision: string
   accountId: AccountId
 }) => {
   const state = store.getState()
-  const feeAssetBalance = selectPortfolioCryptoHumanBalanceByFilter(state, {
+  const feeAssetBalanceCryptoHuman = selectPortfolioCryptoHumanBalanceByFilter(state, {
     accountId,
     assetId: feeAsset.assetId,
   })
 
-  return bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
+  return bnOrZero(feeAssetBalanceCryptoHuman).minus(bnOrZero(estimatedGasCryptoPrecision)).gte(0)
 }

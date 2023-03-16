@@ -17,7 +17,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -81,8 +81,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFee: confirmedTransaction.fee
-            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${ethAsset.precision}`).toString()
+          usedGasFeeCryptoPrecision: confirmedTransaction.fee
+            ? bnOrZero(confirmedTransaction.fee.value)
+                .div(bn(10).pow(ethAsset.precision))
+                .toString()
             : '0',
         },
       })
@@ -227,8 +229,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 fontWeight='bold'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoPrecision
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 )
                   .times(ethMarketData.price)
                   .toFixed(2)}
@@ -237,8 +239,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 color='gray.500'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCrypto
-                    : state.withdraw.usedGasFee,
+                    ? state.withdraw.estimatedGasCryptoPrecision
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
                 symbol='ETH'
               />

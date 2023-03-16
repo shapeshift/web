@@ -17,7 +17,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -104,7 +104,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { data: underlyingAsset1Data } = useFindByAssetIdQuery(underlyingAsset1?.assetId || '')
   const underlyingAsset1MarketData = underlyingAsset1Data?.[underlyingAsset1?.assetId || '']
 
-  const userAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const toast = useToast()
 
   const getDepositFeeEstimateCryptoBaseUnit = useCallback(async (): Promise<string | undefined> => {

@@ -222,7 +222,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         estimatedGasCryptoPrecision={estimatedGasCryptoPrecision}
       />
     ),
-    [accountId, feeAsset, estimatedGasCryptoBaseUnit],
+    [accountId, feeAsset, estimatedGasCryptoPrecision],
   )
 
   if (!state || !dispatch || !estimatedGasCryptoBaseUnit) return null

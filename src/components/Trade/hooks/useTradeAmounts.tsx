@@ -6,7 +6,6 @@ import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { calculateAmounts } from 'components/Trade/hooks/useSwapper/calculateAmounts'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import type { DisplayFeeData } from 'components/Trade/types'
 import { TradeAmountInputField } from 'components/Trade/types'
@@ -14,12 +13,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { getTradeQuoteApi } from 'state/apis/swapper/getTradeQuoteApi'
 import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
 import {
   selectAssets,
-  selectFeatureFlags,
   selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -29,7 +26,6 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useTradeAmounts = () => {
   // Hooks
-  const featureFlags = useAppSelector(selectFeatureFlags)
   const appDispatch = useAppDispatch()
   const { getReceiveAddressFromBuyAsset } = useReceiveAddress()
   const wallet = useWallet().state.wallet
@@ -68,10 +64,10 @@ export const useTradeAmounts = () => {
   const sellAmountCryptoPrecisionFormState = useSwapperStore(
     state => state.sellAmountCryptoPrecision,
   )
+  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const { getTradeQuote } = getTradeQuoteApi.endpoints
   const { getUsdRates } = getUsdRatesApi.endpoints
-  const { getAvailableSwappers } = getSwappersApi.endpoints
 
   const setTradeAmounts = useCallback(
     (args: SetTradeAmountsArgs) => {
@@ -201,23 +197,6 @@ export const useTradeAmounts = () => {
         isSendMax: sendMax ?? isSendMaxFormState,
       })
 
-      const availableSwappers = tradeQuoteArgs
-        ? (
-            await appDispatch(
-              getAvailableSwappers.initiate({
-                ...tradeQuoteArgs,
-                feeAsset,
-              }),
-            )
-          ).data
-        : undefined
-
-      const bestSwapperType = availableSwappers?.[0].swapperType
-
-      const swapperManager = await getSwapperManager(featureFlags)
-      const swappers = swapperManager.swappers
-      const bestTradeSwapper = bestSwapperType ? swappers.get(bestSwapperType) : undefined
-
       if (!bestTradeSwapper) {
         updateQuote(undefined)
         updateFees(undefined)
@@ -277,9 +256,8 @@ export const useTradeAmounts = () => {
       getReceiveAddressFromBuyAsset,
       sellAmountCryptoPrecisionFormState,
       isSendMaxFormState,
+      bestTradeSwapper,
       appDispatch,
-      getAvailableSwappers,
-      featureFlags,
       getTradeQuote,
       getUsdRates,
       updateTradeAmounts,

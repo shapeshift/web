@@ -60,7 +60,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               opportunities: {
                 staking: [],
                 lp: [],
-                vault: [],
               },
             }
           }

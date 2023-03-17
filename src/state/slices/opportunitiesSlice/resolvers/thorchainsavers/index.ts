@@ -135,6 +135,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       name: `${underlyingAsset.symbol} Vault`,
       saversMaxSupplyFiat,
       isFull: thorchainPool.synth_mint_paused,
+      isClaimableRewards: false,
     }
   }
 

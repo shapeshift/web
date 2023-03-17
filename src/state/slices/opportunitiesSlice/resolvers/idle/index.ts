@@ -113,6 +113,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           provider: DefiProvider.Idle,
           type: DefiType.Staking,
           tags: [opportunity.strategy],
+          isClaimableRewards: true,
         }
       : {
           apy: opportunity.apy.toFixed(),
@@ -133,6 +134,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
               return []
             })) as AssetIdsTuple,
           },
+          isClaimableRewards: false,
           // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
           // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
           // As 1 Idle token wraps ~1.0x* underlying

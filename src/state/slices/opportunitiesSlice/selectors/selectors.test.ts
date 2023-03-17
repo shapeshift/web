@@ -169,6 +169,7 @@ describe('opportunitiesSlice selectors', () => {
         string,
       ],
       rewardAssetIds: [] as const,
+      isClaimableRewards: false,
     }
     const mockOpportunityMetadataTwo: OpportunityMetadata = {
       // The LP token AssetId
@@ -297,7 +298,8 @@ describe('opportunitiesSlice selectors', () => {
             string,
             string,
           ],
-          rewardAssetIds: [foxAssetId] as const,
+          rewardAssetIds: [] as const,
+          isClaimableRewards: false,
         },
       },
       ids: [mockStakingContractTwo],
@@ -359,7 +361,11 @@ describe('opportunitiesSlice selectors', () => {
               string,
             ],
             userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
+<<<<<<< HEAD
             rewardAssetIds: [foxAssetId],
+=======
+            isClaimableRewards: false,
+>>>>>>> f89258342 (feat: isClaimableRewards)
           },
           {
             apy: '1000',

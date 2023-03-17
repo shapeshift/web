@@ -42,6 +42,7 @@ export type OpportunityMetadataBase = {
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple
+  isClaimableRewards: boolean
   // claimableRewards: boolean
   expired?: boolean
   name: string

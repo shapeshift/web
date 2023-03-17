@@ -1,13 +1,14 @@
 import { ArrowDownIcon, ArrowUpIcon, Search2Icon } from '@chakra-ui/icons'
 import { Avatar, Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
-import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails'
+import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails/ProviderDetails'
 import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
@@ -18,8 +19,6 @@ import {
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { DefiProviderMetadata } from '../../features/defi/contexts/DefiManagerProvider/DefiCommon'
 
 export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
 

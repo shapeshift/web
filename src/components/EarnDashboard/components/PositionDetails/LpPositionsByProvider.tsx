@@ -28,14 +28,14 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type ProviderPositionProps = {
+type LpPositionsByProviderProps = {
   ids: OpportunityId[]
   assetId: AssetId
 }
 
 export type RowProps = Row<LpEarnOpportunityType>
 
-export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
+export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ ids, assetId }) => {
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()

@@ -9,7 +9,6 @@ export const transformLifiFeeData = (
   lifiRoutesResponse: RoutesResponse,
   selectedRouteIndex: number,
   buyAssetAddress: string,
-  sellAssetAddress: string,
 ): QuoteFeeData<EvmChainId> => {
   const selectedRoute = lifiRoutesResponse.routes[selectedRouteIndex]
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
@@ -18,8 +17,10 @@ export const transformLifiFeeData = (
   const buyAssetRouteFeeCosts = allRouteFeeCosts.filter(
     feeCost => feeCost.token.address === buyAssetAddress,
   )
+
+  // all fees that are not the buy asset (there may be multiple different tokens)
   const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === sellAssetAddress,
+    feeCost => feeCost.token.address !== buyAssetAddress,
   )
 
   // this is the sum of all `feeCosts` against the buy asset in USD
@@ -58,14 +59,15 @@ export const transformLifiFeeData = (
     bn(0)
 
   return {
-    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this as $4.59 next to the gas icon
+    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
     chainSpecific: {
       // the following are not required because gas is hardcoded downstream during approval
       // estimatedGas: gas limit for approval
       // gasPriceCryptoBaseUnit: gas price for approval
       approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
-    buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(), // UI shows as "protocol fee"
+    // UI shows the sum of these as "protocol fee"
+    buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),
     sellAssetTradeFeeUsd: sellAssetTradeFeeUsd.toString(),
   }
 }

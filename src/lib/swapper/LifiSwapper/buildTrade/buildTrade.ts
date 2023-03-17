@@ -12,16 +12,15 @@ export const buildTrade = async (
   lifiChainMap: Map<ChainId, ChainKey>,
   lifiBridges: BridgeDefinition[],
 ): Promise<LifiTrade> => {
-  const { wallet, slippage, ...getEvmTradeQuoteInput } = input
-
-  if (!isGetEvmTradeQuoteInput(getEvmTradeQuoteInput)) {
+  if (!isGetEvmTradeQuoteInput(input)) {
     throw new SwapError('[buildTrade] - only EVM chains are supported', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: input,
     })
   }
 
-  // TODO: determine whether we should be fetching another quote like below or pass the existing quote in
+  // TODO: determine whether we should be fetching another quote like below or modify `executeTrade.ts`
+  // to allow passing the existing quote in.
   const {
     buyAmountCryptoBaseUnit,
     sellAmountBeforeFeesCryptoBaseUnit,
@@ -31,8 +30,8 @@ export const buildTrade = async (
     buyAsset,
     sellAsset,
     accountNumber,
-    route,
-  } = await getTradeQuote(getEvmTradeQuoteInput, lifiAssetMap, lifiChainMap, lifiBridges)
+    routesRequest,
+  } = await getTradeQuote(input, lifiAssetMap, lifiChainMap, lifiBridges)
 
   return {
     buyAmountCryptoBaseUnit,
@@ -43,7 +42,7 @@ export const buildTrade = async (
     buyAsset,
     sellAsset,
     accountNumber,
-    route,
+    routesRequest,
     receiveAddress: input.receiveAddress,
   }
 }

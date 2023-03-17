@@ -2,15 +2,13 @@ import type {
   BridgeDefinition,
   ChainKey,
   LifiError,
-  Route,
   RoutesRequest,
   Token as LifiToken,
 } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
@@ -30,6 +28,7 @@ import {
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumAmountFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromRoutes/getMinimumAmountFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
+import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -42,7 +41,7 @@ export async function getTradeQuote(
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
   lifiBridges: BridgeDefinition[],
-): Promise<TradeQuote<EvmChainId> & { route: Route }> {
+): Promise<LifiTradeQuote> {
   const {
     chainId,
     sellAsset,
@@ -136,7 +135,9 @@ export async function getTradeQuote(
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: thresholdedAmountCryptoLifi,
-    options: { slippage: Number(DEFAULT_SLIPPAGE) },
+    // NOTE: stargate bridge is temprarily denied because of issues with cross-chain swaps
+    // TODO: create .env params for denylist
+    options: { slippage: Number(DEFAULT_SLIPPAGE), bridges: { deny: ['stargate'] } },
   }
 
   const lifiRoutesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
@@ -197,12 +198,7 @@ export async function getTradeQuote(
     allowanceContract,
     buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmount).toString(),
     buyAsset,
-    feeData: transformLifiFeeData(
-      lifiRoutesResponse,
-      SELECTED_ROUTE_INDEX,
-      toLifiToken.address,
-      fromLifiToken.address,
-    ),
+    feeData: transformLifiFeeData(lifiRoutesResponse, SELECTED_ROUTE_INDEX, toLifiToken.address),
     maximum: MAX_LIFI_TRADE,
     minimumCryptoHuman,
     rate: estimateRate,
@@ -210,6 +206,9 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
     sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
-    route: selectedRoute,
+    routesRequest: {
+      ...routesRequest,
+      fromAmount: fromAmountCryptoLifiPrecision.toString(),
+    },
   }
 }

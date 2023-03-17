@@ -1,11 +1,16 @@
-import type { Route } from '@lifi/sdk'
+import type { RoutesRequest } from '@lifi/sdk'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { ExecuteTradeInput, Trade } from '@shapeshiftoss/swapper'
+import type { ExecuteTradeInput } from '@shapeshiftoss/swapper'
+import type { Trade, TradeQuote } from '@shapeshiftoss/swapper/dist/api'
 
 export interface LifiTrade extends Trade<EvmChainId> {
-  route: Route
+  routesRequest: RoutesRequest
 }
 
 export interface LifiExecuteTradeInput extends ExecuteTradeInput<EvmChainId> {
   trade: LifiTrade
+}
+
+export interface LifiTradeQuote extends TradeQuote<EvmChainId> {
+  routesRequest: RoutesRequest
 }

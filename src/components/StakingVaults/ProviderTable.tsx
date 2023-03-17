@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails'
 import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
@@ -174,7 +175,9 @@ export const ProviderTable: React.FC<PositionTableProps> = ({ headerComponent })
         data={rows}
         columns={columns}
         isLoading={isLoading}
-        renderSubComponent={() => <>I'm awesome</>}
+        renderSubComponent={({ original }) => (
+          <ProviderDetails key={original.provider} {...original} />
+        )}
         renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
         initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
       />

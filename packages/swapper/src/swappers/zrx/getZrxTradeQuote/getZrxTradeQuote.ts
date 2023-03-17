@@ -1,4 +1,3 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 
 import {
@@ -14,7 +13,7 @@ import { normalizeAmount } from '../../utils/helpers/helpers'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
 import { ZrxPriceResponse } from '../types'
 import { DEFAULT_SOURCE } from '../utils/constants'
-import { baseUrlFromChainId } from '../utils/helpers/helpers'
+import { assetToToken, baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { ZrxSupportedChainId } from '../ZrxSwapper'
 
@@ -38,15 +37,9 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       )
     }
 
-    const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
-      fromAssetId(sellAsset.assetId)
-    const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
-      buyAsset.assetId,
-    )
+    const buyToken = assetToToken(buyAsset)
+    const sellToken = assetToToken(sellAsset)
 
-    const useSellAmount = !!sellAmountCryptoBaseUnit
-    const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
-    const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
     const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
     const minQuotesellAmountCryptoBaseUnit = bnOrZero(minimum).times(
       bn(10).exponentiatedBy(sellAsset.precision),
@@ -92,15 +85,17 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       },
     } = quoteResponse
 
-    const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
+    const useSellAmount = !!sellAmountCryptoBaseUnit
     const rate = useSellAmount ? price : bn(1).div(price).toString()
 
+    const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
     const fee = estimatedGas.multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
+
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const approvalFeeCryptoBaseUnit =
-      sellAssetErc20Address &&
-      bnOrZero(APPROVAL_GAS_LIMIT).multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
+    const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
+      .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
+      .toFixed()
 
     const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       rate,

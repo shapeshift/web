@@ -10,6 +10,7 @@ import {
   getCowSwapper,
   getThorchainSwapper,
   getZrxAvalancheSwapper,
+  getZrxBscwapper,
   getZrxEthereumSwapper,
   getZrxOptimismSwapper,
   goodTradeQuote,
@@ -18,6 +19,7 @@ import {
 const zrxEthereumSwapper = getZrxEthereumSwapper()
 const zrxAvalancheSwapper = getZrxAvalancheSwapper()
 const zrxOptimismSwapper = getZrxOptimismSwapper()
+const zrxBscSwapper = getZrxBscwapper()
 const cowSwapper = getCowSwapper()
 const thorchainSwapper = getThorchainSwapper()
 
@@ -63,6 +65,7 @@ describe('SwapperManager', () => {
         .addSwapper(zrxEthereumSwapper)
         .addSwapper(zrxAvalancheSwapper)
         .addSwapper(zrxOptimismSwapper)
+        .addSwapper(zrxBscSwapper)
         .addSwapper(cowSwapper)
 
       expect(swapperManager.getSwapper(SwapperType.Thorchain)).toBeInstanceOf(ThorchainSwapper)
@@ -219,6 +222,7 @@ describe('SwapperManager', () => {
 
       const zrxAvalancheSwapperGetUsdRateMock = jest.spyOn(zrxAvalancheSwapper, 'getUsdRate')
       const zrxOptimismSwapperGetUsdRateMock = jest.spyOn(zrxOptimismSwapper, 'getUsdRate')
+      const zrxBscSwapperGetUsdRateMock = jest.spyOn(zrxBscSwapper, 'getUsdRate')
 
       const cowSwapperGetUsdTradeQuoteMock = jest
         .spyOn(cowSwapper, 'getTradeQuote')
@@ -234,6 +238,7 @@ describe('SwapperManager', () => {
       )
 
       const zrxOptimismSwapperGetUsdTradeQuoteMock = jest.spyOn(zrxOptimismSwapper, 'getTradeQuote')
+      const zrxBscSwapperGetUsdTradeQuoteMock = jest.spyOn(zrxBscSwapper, 'getTradeQuote')
 
       const swapperManagerMock = jest.spyOn(SwapperManager.prototype, 'getSwappersByPair')
       const swapperManager = new SwapperManager()
@@ -243,6 +248,7 @@ describe('SwapperManager', () => {
         .addSwapper(zrxEthereumSwapper)
         .addSwapper(zrxAvalancheSwapper)
         .addSwapper(zrxOptimismSwapper)
+        .addSwapper(zrxBscSwapper)
 
       const { quoteInput } = setupQuote()
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
@@ -268,15 +274,18 @@ describe('SwapperManager', () => {
       expect(zrxEthereumSwapperGetUsdRateMock).toHaveBeenCalledTimes(3)
       expect(zrxAvalancheSwapperGetUsdRateMock).toHaveBeenCalledTimes(0)
       expect(zrxOptimismSwapperGetUsdRateMock).toHaveBeenCalledTimes(0)
+      expect(zrxBscSwapperGetUsdRateMock).toHaveBeenCalledTimes(0)
       expect(cowSwapperGetUsdTradeQuoteMock).toHaveBeenCalledTimes(1)
       expect(zrxEthereumSwapperGetUsdTradeQuoteMock).toHaveBeenCalledTimes(1)
       expect(zrxAvalancheSwapperGetUsdTradeQuoteMock).toHaveBeenCalledTimes(0)
       expect(zrxOptimismSwapperGetUsdTradeQuoteMock).toHaveBeenCalledTimes(0)
+      expect(zrxBscSwapperGetUsdTradeQuoteMock).toHaveBeenCalledTimes(0)
 
       cowSwapperGetUsdRateMock.mockRestore()
       zrxEthereumSwapperGetUsdRateMock.mockRestore()
       zrxAvalancheSwapperGetUsdRateMock.mockRestore()
       zrxOptimismSwapperGetUsdRateMock.mockRestore()
+      zrxBscSwapperGetUsdRateMock.mockRestore()
       swapperManagerMock.mockRestore()
     })
   })

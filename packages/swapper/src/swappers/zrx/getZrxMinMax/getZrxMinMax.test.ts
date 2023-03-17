@@ -1,7 +1,7 @@
 jest.mock('../utils/zrxService')
 jest.mock('../utils/helpers/helpers')
 
-import { AVAX, BTC, FOX, OPTIMISM, WETH } from '../../utils/test-data/assets'
+import { AVAX, BSC, BTC, FOX, OPTIMISM, WETH } from '../../utils/test-data/assets'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getZrxMinMax } from './getZrxMinMax'
 
@@ -24,5 +24,6 @@ describe('getZrxMinMax', () => {
   it('fails on cross-chain swap', async () => {
     await expect(getZrxMinMax(AVAX, WETH)).rejects.toThrow('[getZrxMinMax]')
     await expect(getZrxMinMax(OPTIMISM, WETH)).rejects.toThrow('[getZrxMinMax]')
+    await expect(getZrxMinMax(BSC, WETH)).rejects.toThrow('[getZrxMinMax]')
   })
 })

@@ -1,4 +1,3 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
@@ -10,7 +9,7 @@ import { isApprovalRequired, normalizeAmount } from '../../utils/helpers/helpers
 import { ZrxQuoteResponse, ZrxSwapperDeps, ZrxTrade } from '../types'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from '../utils/constants'
-import { baseUrlFromChainId } from '../utils/helpers/helpers'
+import { assetToToken, baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { ZrxSupportedChainId } from '../ZrxSwapper'
 
@@ -27,14 +26,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     receiveAddress,
   } = input
   try {
-    const { assetReference: buyAssetErc20Address, assetNamespace: buyAssetNamespace } = fromAssetId(
-      buyAsset.assetId,
-    )
-    const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
-      fromAssetId(sellAsset.assetId)
-    const buyToken = buyAssetNamespace === 'erc20' ? buyAssetErc20Address : buyAsset.symbol
-    const sellToken = sellAssetNamespace === 'erc20' ? sellAssetErc20Address : sellAsset.symbol
-
     const adapterChainId = adapter.getChainId()
 
     if (buyAsset.chainId !== adapterChainId) {
@@ -77,8 +68,8 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       '/swap/v1/quote',
       {
         params: {
-          buyToken,
-          sellToken,
+          buyToken: assetToToken(buyAsset),
+          sellToken: assetToToken(sellAsset),
           sellAmount: normalizeAmount(sellAmountExcludeFeeCryptoBaseUnit),
           takerAddress: receiveAddress,
           slippagePercentage,

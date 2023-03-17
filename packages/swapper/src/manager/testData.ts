@@ -1,4 +1,10 @@
-import { avalanche, ChainAdapterManager, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import {
+  avalanche,
+  bnbsmartchain,
+  ChainAdapterManager,
+  ethereum,
+  optimism,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
@@ -39,6 +45,15 @@ const zrxOptimismSwapperDeps: ZrxSwapperDeps = {
 }
 
 export const getZrxOptimismSwapper = () => new ZrxSwapper(zrxOptimismSwapperDeps)
+
+const zrxBscSwapperDeps: ZrxSwapperDeps = {
+  web3: <Web3>{},
+  adapter: <bnbsmartchain.ChainAdapter>{
+    getChainId: () => KnownChainIds.BnbSmartChainMainnet,
+  },
+}
+
+export const getZrxBscwapper = () => new ZrxSwapper(zrxBscSwapperDeps)
 
 const cowSwapperDeps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',

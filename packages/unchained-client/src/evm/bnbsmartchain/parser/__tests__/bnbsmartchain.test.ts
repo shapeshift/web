@@ -1,14 +1,17 @@
 import { bscAssetId, bscChainId } from '@shapeshiftoss/caip'
 
-import { TransferType, TxStatus } from '../../../../types'
+import { Dex, Trade, TradeType, Transfer, TransferType, TxStatus } from '../../../../types'
 import { ParsedTx } from '../../../parser'
-import { TransactionParser } from '../index'
+import { TransactionParser, ZRX_BSC_PROXY_CONTRACT } from '../index'
 import bep20Approve from './mockData/bep20Approve'
 import bnbSelfSend from './mockData/bnbSelfSend'
 import bnbStandard from './mockData/bnbStandard'
-import { usdtToken } from './mockData/tokens'
+import { busdToken, usdtToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
+import zrxTradeBnbToBusd from './mockData/zrxTradeBnbToBusd'
+import zrxTradeBusdToBnb from './mockData/zrxTradeBusdToBnb'
+import zrxTradeUsdtToBusd from './mockData/zrxTradeUsdtToBusd'
 
 const txParser = new TransactionParser({ rpcUrl: '', chainId: bscChainId })
 
@@ -444,6 +447,150 @@ describe('parseTx', () => {
       const actual = await txParser.parse(tx, address)
 
       expect(expected).toEqual(actual)
+    })
+  })
+
+  describe('zrx trade', () => {
+    it('should be able to parse token -> bnb', async () => {
+      const { tx } = zrxTradeBusdToBnb
+      const address = '0x1bE0Db7727c53b16a22af5Cb12F4680e784cf7eF'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
+      const buyTransfer: Transfer = {
+        assetId: bscAssetId,
+        components: [{ value: '4904343838640863' }],
+        from: ZRX_BSC_PROXY_CONTRACT,
+        to: address,
+        totalValue: '4904343838640863',
+        type: TransferType.Receive,
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        components: [{ value: '1489033385864185057' }],
+        from: address,
+        to: '0x51e6D27FA57373d8d4C256231241053a70Cb1d93',
+        token: busdToken,
+        totalValue: '1489033385864185057',
+        type: TransferType.Send,
+      }
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: bscChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '467445000000000',
+          assetId: bscAssetId,
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse bnb -> token', async () => {
+      const { tx } = zrxTradeBnbToBusd
+      const address = '0xb8687c5f88399b0E70DD69F2fBd2200957cDaf38'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        components: [{ value: '326087208829856917029' }],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: address,
+        token: busdToken,
+        totalValue: '326087208829856917029',
+        type: TransferType.Receive,
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: bscAssetId,
+        components: [{ value: '1077638000000000000' }],
+        from: address,
+        to: ZRX_BSC_PROXY_CONTRACT,
+        totalValue: '1077638000000000000',
+        type: TransferType.Send,
+      }
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: bscChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '1200110000000000',
+          assetId: bscAssetId,
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token -> token', async () => {
+      const { tx } = zrxTradeUsdtToBusd
+      const address = '0xba599D1526952c14779e6A9D31D912C6A02f5B9C'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        components: [{ value: '1918012446944444331677' }],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: address,
+        token: busdToken,
+        totalValue: '1918012446944444331677',
+        type: TransferType.Receive,
+      }
+
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+        components: [{ value: '1917821751000000000000' }],
+        from: address,
+        to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        token: usdtToken,
+        totalValue: '1917821751000000000000',
+        type: TransferType.Send,
+      }
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: bscChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '1283480000000000',
+          assetId: bscAssetId,
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
     })
   })
 })

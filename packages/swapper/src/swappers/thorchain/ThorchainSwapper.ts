@@ -59,10 +59,15 @@ export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet
   | KnownChainIds.CosmosMainnet
 
+export type ThorChainId =
+  | ThorCosmosSdkSupportedChainId
+  | ThorEvmSupportedChainId
+  | ThorUtxoSupportedChainId
+
 export class ThorchainSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Thorchain
 
-  private sellSupportedChainIds: Record<ChainId, boolean> = {
+  private sellSupportedChainIds: Record<ThorChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true,
     [KnownChainIds.DogecoinMainnet]: true,
@@ -71,10 +76,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
     [KnownChainIds.AvalancheMainnet]: true,
-    [KnownChainIds.OptimismMainnet]: false,
   }
 
-  private buySupportedChainIds: Record<ChainId, boolean> = {
+  private buySupportedChainIds: Record<ThorChainId, boolean> = {
     [KnownChainIds.EthereumMainnet]: true,
     [KnownChainIds.BitcoinMainnet]: true,
     [KnownChainIds.DogecoinMainnet]: true,
@@ -83,7 +87,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     [KnownChainIds.CosmosMainnet]: true,
     [KnownChainIds.ThorchainMainnet]: true,
     [KnownChainIds.AvalancheMainnet]: true,
-    [KnownChainIds.OptimismMainnet]: false,
   }
 
   private supportedSellAssetIds: AssetId[] = [thorchainAssetId]
@@ -115,7 +118,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId) return
 
-        const { chainId } = fromAssetId(assetId)
+        const chainId = fromAssetId(assetId).chainId as ThorChainId
 
         this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
         this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)

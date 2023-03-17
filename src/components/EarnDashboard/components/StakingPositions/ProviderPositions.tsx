@@ -22,13 +22,13 @@ import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
@@ -166,25 +166,27 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
           const opportunityAssetId = opportunity.assetId
+          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
           const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
           if (!opportunity.underlyingAssetIds.length) return null
+          const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
           const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
-          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const cryptoAmountPrecision = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-            .times(
-              fromBaseUnit(
-                opportunity.underlyingAssetRatiosBaseUnit[underlyingAssetIndex],
-                assets[opportunity.underlyingAssetIds[underlyingAssetIndex]]?.precision ?? 18,
-              ) ?? '1',
-            )
-            .div(
-              bn(10).pow(
-                assets[opportunityAssetId]?.precision ??
-                  assets[opportunityUnderlyingAssetId]?.precision ??
-                  18,
-              ),
-            )
-            .toFixed()
+
+          const underlyingBalances = getUnderlyingAssetIdsBalances({
+            assetId: opportunityUnderlyingAssetId,
+            underlyingAssetIds: opportunity.underlyingAssetIds,
+            underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
+            cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
+            assets,
+            marketData,
+          })
+
+          const cryptoAmountPrecision = isUnderlyingAsset
+            ? underlyingBalances[opportunity.underlyingAssetIds[underlyingAssetIndex]]
+                .cryptoBalancePrecision
+            : bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+                .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
+                .toFixed()
 
           return hasValue ? (
             <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>

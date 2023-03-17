@@ -11,6 +11,12 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 describe('mixpanel helpers', () => {
   const assets = {
     [ethAssetId]: ethereum,
+    // Osmosis OSMO/ATOM LP
+    'cosmos:osmosis-1/ibc:gamm/pool/1': {
+      assetId: 'cosmos:osmosis-1/ibc:gamm/pool/1',
+      chainId: 'cosmos:osmosis-1',
+      symbol: 'gamm/pool/1',
+    },
   }
   describe('mapMixpanelPathname', () => {
     it('can handle base accounts path', () => {
@@ -36,6 +42,11 @@ describe('mixpanel helpers', () => {
     it('can handle assets path', () => {
       const pathname = '/assets/eip155:1/slip44:60'
       expect(mapMixpanelPathname(pathname, assets)).toEqual('/assets/Ethereum.ETH')
+    })
+
+    it('can handle assets path with inner forward slashes in the assetReference part', () => {
+      const pathname = '/assets/cosmos:osmosis-1/ibc:gamm/pool/1'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/assets/Osmosis.gamm/pool/1')
     })
   })
 })

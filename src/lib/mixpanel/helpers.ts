@@ -27,8 +27,8 @@ export const mapMixpanelPathname = (pathname: string, assets: AssetsById): strin
       // example path
       // /assets/eip155:1/slip44:60
       const parts = pathname.split('/')
-      const [_, assetLiteral, chainId, assetIdParts] = parts
-      const maybeAssetId = [chainId, assetIdParts].join('/')
+      const [_, assetLiteral, chainId, assetIdParts, ...additionalAssetIdParts] = parts
+      const maybeAssetId = [chainId, assetIdParts, ...additionalAssetIdParts].join('/')
       const mixpanelAssetId = maybeAssetId && getMaybeCompositeAssetSymbol(maybeAssetId, assets)
       const newParts = [_, assetLiteral]
       if (mixpanelAssetId) newParts.push(mixpanelAssetId)

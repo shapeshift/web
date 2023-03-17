@@ -12,8 +12,6 @@ import type {
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { useMemo } from 'react'
-import { FaGift } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -63,7 +61,6 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const yearnInvestor = useMemo(() => getYearnInvestor(), [])
-  const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
 
@@ -157,33 +154,14 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
     selectedLocale,
   })
 
-  const hasClaimBalance = useMemo(() => {
-    if (!opportunityData?.rewardAssetIds?.length) return false
-
-    return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
-    )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
-
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!(contractAddress && yearnInvestor && opportunityData))
       return makeDefaultMenu(opportunityData?.expired)
     if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length)
       return makeDefaultMenu(opportunityData.expired)
 
-    return [
-      ...makeDefaultMenu(opportunityData?.expired),
-      {
-        icon: <FaGift />,
-        colorScheme: 'green',
-        label: 'common.claim',
-        variant: 'ghost-filled',
-        action: DefiAction.Claim,
-        isDisabled: !hasClaimBalance,
-        toolTip: translate('defi.modals.overview.noWithdrawals'),
-      },
-    ]
-  }, [contractAddress, yearnInvestor, opportunityData, hasClaimBalance, translate])
+    return makeDefaultMenu(opportunityData?.expired)
+  }, [contractAddress, yearnInvestor, opportunityData])
 
   if (!opportunityData) {
     return (

@@ -169,6 +169,7 @@ describe('opportunitiesSlice selectors', () => {
         string,
       ],
       rewardAssetIds: [] as const,
+      isClaimableRewards: false,
     }
     const mockOpportunityMetadataTwo: OpportunityMetadata = {
       // The LP token AssetId
@@ -186,6 +187,7 @@ describe('opportunitiesSlice selectors', () => {
         string,
       ],
       rewardAssetIds: [] as const,
+      isClaimableRewards: true,
     }
 
     const staking = {
@@ -253,6 +255,7 @@ describe('opportunitiesSlice selectors', () => {
         ],
         underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'],
         rewardAssetIds: [],
+        isClaimableRewards: true,
       })
       expect(
         selectUserStakingOpportunityByUserStakingId(mockState, {
@@ -276,6 +279,7 @@ describe('opportunitiesSlice selectors', () => {
         ],
         underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'],
         rewardAssetIds: [],
+        isClaimableRewards: false,
       })
     })
   })
@@ -288,7 +292,7 @@ describe('opportunitiesSlice selectors', () => {
           assetId: mockStakingContractTwo,
           name: 'FOX Farming',
           id: mockStakingContractTwo,
-          provider: DefiProvider.UniV2,
+          provider: DefiProvider.EthFoxStaking,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetIds: foxEthPair,
@@ -298,6 +302,7 @@ describe('opportunitiesSlice selectors', () => {
             string,
           ],
           rewardAssetIds: [foxAssetId] as const,
+          isClaimableRewards: true,
         },
       },
       ids: [mockStakingContractTwo],
@@ -347,7 +352,7 @@ describe('opportunitiesSlice selectors', () => {
             assetId: mockStakingContractTwo,
             id: mockStakingContractTwo,
             name: 'FOX Farming',
-            provider: DefiProvider.UniV2,
+            provider: DefiProvider.EthFoxStaking,
             rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '1337',
             tvl: '91283233211',
@@ -360,13 +365,14 @@ describe('opportunitiesSlice selectors', () => {
             ],
             userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
             rewardAssetIds: [foxAssetId],
+            isClaimableRewards: true,
           },
           {
             apy: '1000',
             assetId: mockStakingContractTwo,
             id: mockStakingContractTwo,
             name: 'FOX Farming',
-            provider: DefiProvider.UniV2,
+            provider: DefiProvider.EthFoxStaking,
             rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '100',
             tvl: '91283233211',
@@ -379,6 +385,7 @@ describe('opportunitiesSlice selectors', () => {
             ],
             userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
             rewardAssetIds: [foxAssetId],
+            isClaimableRewards: true,
           },
         ])
       })
@@ -394,7 +401,7 @@ describe('opportunitiesSlice selectors', () => {
           id: mockStakingContractTwo,
           userStakingId: 'eip155:1:0xcatpuccino*eip155:1:0xStakingContractTwo',
           name: 'FOX Farming',
-          provider: DefiProvider.UniV2,
+          provider: DefiProvider.EthFoxStaking,
           tvl: '91283233211',
           type: DefiType.LiquidityPool,
           underlyingAssetId: foxEthLpAssetId,
@@ -407,6 +414,7 @@ describe('opportunitiesSlice selectors', () => {
           rewardAssetIds: [foxAssetId],
           stakedAmountCryptoBaseUnit: '1437',
           undelegations: [],
+          isClaimableRewards: true,
         })
       })
     })

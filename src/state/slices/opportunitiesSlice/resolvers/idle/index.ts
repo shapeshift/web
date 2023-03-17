@@ -93,6 +93,14 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     // https://etherscan.io/address/0x5f45a578491a23ac5aee218e2d405347a0fafa8e
     if (!asset || !underlyingAsset) continue
 
+    const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
+      moduleLogger.debug(
+        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
+        `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
+      )
+      return []
+    })) as AssetIdsTuple
+
     const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
     if (!baseOpportunity) {
       moduleLogger.warn(`
@@ -124,15 +132,8 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           type: DefiType.Staking,
           underlyingAssetId: assetId,
           underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-          ...{
-            rewardAssetIds: (await opportunity.getRewardAssetIds().catch(error => {
-              moduleLogger.debug(
-                { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-                `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
-              )
-              return []
-            })) as AssetIdsTuple,
-          },
+          rewardAssetIds,
+          isClaimableRewards: Boolean(rewardAssetIds.length),
           // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
           // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
           // As 1 Idle token wraps ~1.0x* underlying

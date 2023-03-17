@@ -107,6 +107,7 @@ export const ethFoxStakingMetadataResolver = async ({
         name: 'Fox Farming',
         version,
         rewardAssetIds: [foxAssetId] as const,
+        isClaimableRewards: true,
       },
     },
     type: opportunityType,

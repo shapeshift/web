@@ -361,11 +361,8 @@ describe('opportunitiesSlice selectors', () => {
               string,
             ],
             userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
-<<<<<<< HEAD
             rewardAssetIds: [foxAssetId],
-=======
             isClaimableRewards: false,
->>>>>>> f89258342 (feat: isClaimableRewards)
           },
           {
             apy: '1000',

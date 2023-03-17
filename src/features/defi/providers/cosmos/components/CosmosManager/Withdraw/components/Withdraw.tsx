@@ -18,9 +18,12 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
@@ -55,6 +58,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
+  const assets = useAppSelector(selectAssets)
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Reward Asset info
   const assetId = toAssetId({
@@ -117,7 +121,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: CosmosWithdrawValues) => {
-      if (!state) return
+      if (!state || !earnOpportunityData) return
 
       const getWithdrawGasEstimate = async () => {
         const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
@@ -165,6 +169,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,
         })
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: earnOpportunityData,
+            fiatAmounts: [formValues.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+          },
+          assets,
+        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
         dispatch({
@@ -179,7 +192,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
       }
     },
-    [dispatch, asset, marketData.price, onNext, state, toast, translate],
+    [
+      state,
+      dispatch,
+      asset,
+      marketData.price,
+      toast,
+      translate,
+      onNext,
+      earnOpportunityData,
+      assetId,
+      assets,
+    ],
   )
 
   if (!state || !dispatch) return null

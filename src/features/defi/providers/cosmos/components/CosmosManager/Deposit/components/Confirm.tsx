@@ -11,7 +11,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
 import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -23,12 +23,18 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
+  selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,6 +53,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, contractAddress, assetReference } = query
   const assetNamespace = 'slip44'
+
+  const validatorId = toValidatorId({ chainId, account: contractAddress })
+
+  const opportunityMetadataFilter = useMemo(() => ({ validatorId }), [validatorId])
+
+  const opportunityData = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
+
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,
@@ -57,8 +73,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const wallet = useWallet().state.wallet
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+
+  const cryptoAmount = useMemo(
+    () => bnOrZero(state?.deposit.cryptoAmount).toString(),
+    [state?.deposit.cryptoAmount],
+  )
+  const fiatAmount = useMemo(
+    () => bnOrZero(cryptoAmount).times(assetMarketData.price).toString(),
+    [assetMarketData.price, cryptoAmount],
+  )
 
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
@@ -85,7 +111,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const handleDeposit = useCallback(async () => {
-    if (!(state?.deposit && dispatch && bip44Params && assetReference && walletState.wallet)) return
+    if (
+      !(
+        state?.deposit &&
+        dispatch &&
+        bip44Params &&
+        assetReference &&
+        walletState.wallet &&
+        opportunityData
+      )
+    )
+      return
     dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
 
     const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
@@ -126,29 +162,48 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } finally {
       onNext(DefiStep.Status)
       dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
+      trackOpportunityEvent(
+        MixPanelEvents.DepositConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: cryptoAmount }],
+        },
+        assets,
+      )
     }
   }, [
     asset,
+    assetId,
     assetReference,
+    assets,
     bip44Params,
     contractAddress,
+    cryptoAmount,
     dispatch,
+    fiatAmount,
     handleStakingAction,
-    marketData,
+    marketData.price,
     onNext,
+    opportunityData,
     state?.deposit,
     toast,
     translate,
     walletState.wallet,
   ])
 
-  if (!state || !dispatch) return null
-
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance).gte(
-    bnOrZero(state.deposit.cryptoAmount).plus(
-      bnOrZero(state.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`),
+    bnOrZero(state?.deposit.cryptoAmount).plus(
+      bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`),
     ),
   )
+  useEffect(() => {
+    if (!hasEnoughBalanceForGas) {
+      getMixPanel()?.track(MixPanelEvents.InsufficientFunds)
+    }
+  })
+
+  if (!state || !dispatch) return null
 
   return (
     <ReusableConfirm

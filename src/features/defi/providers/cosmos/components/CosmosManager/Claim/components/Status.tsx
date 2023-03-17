@@ -5,7 +5,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -17,7 +17,9 @@ import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById } from 'state/slices/selectors'
+import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TxStatus } from '../ClaimCommon'
@@ -51,16 +53,46 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { chainId, assetReference } = query
   const translate = useTranslate()
   const assetNamespace = 'slip44'
+  const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
+
+  const rewardCryptoAmount = useMemo(
+    () =>
+      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
+        .div(bn(10).pow(asset.precision))
+        .toString(),
+    [asset.precision, opportunity?.rewardsAmountsCryptoBaseUnit],
+  )
+  const rewardFiatAmount = useMemo(
+    () => bnOrZero(rewardCryptoAmount).times(assetMarketData.price).toString(),
+    [assetMarketData.price, rewardCryptoAmount],
+  )
+
   const txStatus = useMemo(() => {
     if (!state) return TxStatus.PENDING
     if (state.txid) return TxStatus.SUCCESS
     return TxStatus.FAILED
   }, [state])
+
+  useEffect(() => {
+    if (!opportunity) return
+    if (txStatus === TxStatus.SUCCESS) {
+      trackOpportunityEvent(
+        MixPanelEvents.ClaimSuccess,
+        {
+          opportunity,
+          fiatAmounts: [rewardFiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: rewardCryptoAmount }],
+        },
+        assets,
+      )
+    }
+  }, [assetId, assets, opportunity, rewardCryptoAmount, rewardFiatAmount, txStatus])
 
   if (!state || !opportunity || !dispatch) return null
 
@@ -105,12 +137,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         <Row>
           <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
           <Row.Value>
-            <Amount.Crypto
-              value={bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-                .div(bn(10).pow(asset.precision))
-                .toString()}
-              symbol={asset?.symbol}
-            />
+            <Amount.Crypto value={rewardCryptoAmount} symbol={asset?.symbol} />
           </Row.Value>
         </Row>
         <Row>

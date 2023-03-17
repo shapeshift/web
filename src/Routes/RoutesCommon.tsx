@@ -22,8 +22,6 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
-import { Recovery } from 'pages/Recovery/Recovery'
-import { Waterman } from 'pages/Recovery/Waterman'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -196,18 +194,5 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
-  },
-  {
-    path: '/recovery',
-    label: 'Recovery',
-    hide: true,
-    main: Recovery,
-  },
-  {
-    // a temporary route specifically for an affected user with stuck funds
-    path: '/waterman',
-    label: 'Waterman',
-    hide: true,
-    main: Waterman,
   },
 ]

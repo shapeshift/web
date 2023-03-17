@@ -187,6 +187,7 @@ describe('opportunitiesSlice selectors', () => {
         string,
       ],
       rewardAssetIds: [] as const,
+      isClaimableRewards: true,
     }
 
     const staking = {

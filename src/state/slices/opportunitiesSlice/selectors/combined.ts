@@ -209,14 +209,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat).toFixed(2)
       }
 
-      const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
-        ...cur,
-        assets,
-        marketData,
-      })
-
-      console.log({ underlyingAssetBalances })
-
       acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)
         .plus(bnOrZero(cur.fiatAmount))
         .toFixed(2)

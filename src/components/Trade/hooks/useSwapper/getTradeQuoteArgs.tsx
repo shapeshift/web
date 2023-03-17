@@ -3,10 +3,7 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
-import {
-  isEvmSwap,
-  isUtxoSwap,
-} from 'components/Trade/hooks/useSwapper/typeGuards'
+import { isEvmSwap, isUtxoSwap } from 'components/Trade/hooks/useSwapper/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'

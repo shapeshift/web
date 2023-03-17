@@ -23,7 +23,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { PositionTable } from './PositionTable'
+import { ProviderTable } from './ProviderTable'
 import { StakingTable } from './StakingTable'
 
 const renderHeader = ({ setSearchQuery, searchQuery }: TableHeaderProps) => {
@@ -149,7 +149,7 @@ export const AllEarnOpportunities = () => {
       )}
       <Card.Body pt={0} px={0}>
         {isDefiDashboardEnabled ? (
-          <PositionTable headerComponent={renderHeader} />
+          <ProviderTable headerComponent={renderHeader} />
         ) : (
           <StakingTable data={filteredRows} onClick={handleClick} />
         )}

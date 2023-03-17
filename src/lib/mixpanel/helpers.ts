@@ -23,6 +23,17 @@ export const mapMixpanelPathname = (pathname: string, assets: AssetsById): strin
       if (mixpanelAssetId) newParts.push(mixpanelAssetId)
       return newParts.join('/')
     }
+    case pathname.startsWith('/assets/'): {
+      // example path
+      // /assets/eip155:1/slip44:60
+      const parts = pathname.split('/')
+      const [_, assetLiteral, chainId, assetIdParts] = parts
+      const maybeAssetId = [chainId, assetIdParts].join('/')
+      const mixpanelAssetId = maybeAssetId && getMaybeCompositeAssetSymbol(maybeAssetId, assets)
+      const newParts = [_, assetLiteral]
+      if (mixpanelAssetId) newParts.push(mixpanelAssetId)
+      return newParts.join('/')
+    }
     default:
       return pathname
   }

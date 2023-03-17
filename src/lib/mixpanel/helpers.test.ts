@@ -22,5 +22,10 @@ describe('mixpanel helpers', () => {
       const pathname = '/accounts/eip155:1:0xa4..35'
       expect(mapMixpanelPathname(pathname, assets)).toEqual('/accounts/Ethereum')
     })
+
+    it('can handle assets path', () => {
+      const pathname = '/assets/eip155:1/slip44:60'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/assets/Ethereum.ETH')
+    })
   })
 })

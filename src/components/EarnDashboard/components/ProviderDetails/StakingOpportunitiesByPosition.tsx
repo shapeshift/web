@@ -6,18 +6,15 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { ReactTable } from 'components/ReactTable/ReactTable'
+import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -133,30 +130,15 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
       {
         Header: translate('defi.stakingPosition'),
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => {
-          // Version or Provider
-          // Opportunity Name
-          const subText = []
-          if (row.original.version) subText.push(row.original.provider)
-          return (
-            <Flex gap={4} alignItems='center'>
-              <LazyLoadAvatar
-                size='sm'
-                bg='transparent'
-                src={row.original.icon ?? DefiProviderMetadata[row.original.provider].icon}
-                key={`provider-icon-${row.original.id}`}
-              />
-              <Flex flexDir='column'>
-                <RawText>{row.original.opportunityName}</RawText>
-                {subText && (
-                  <RawText textTransform='capitalize' variant='sub-text' size='xs'>
-                    {subText.join(' • ')}
-                  </RawText>
-                )}
-              </Flex>
-            </Flex>
-          )
-        },
+        Cell: ({ row }: { row: RowProps }) => (
+          <AssetCell
+            assetId={row.original.underlyingAssetId ?? row.original.assetId}
+            subText={row.original.version}
+            icons={row.original.icons}
+            opportunityName={row.original.opportunityName}
+            showAssetSymbol={row.original.showAssetSymbol}
+          />
+        ),
         disableSortBy: true,
       },
       {

@@ -1,7 +1,6 @@
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -10,7 +9,7 @@ import { useHistory, useLocation } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText } from 'components/Text'
+import { AssetCell } from 'components/StakingVaults/Cells'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -88,20 +87,15 @@ export const LpPositionsByPosition: React.FC<LpPositionsByPositionProps> = ({ id
       {
         Header: translate('defi.liquidityPool'),
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => {
-          return (
-            <Flex alignItems='center' gap={4}>
-              <PairIcons icons={row.original.icons ?? []} bg='transparent' />
-              <Flex flexDir='column'>
-                <RawText>{row.original.opportunityName}</RawText>
-
-                <RawText variant='sub-text' size='xs'>
-                  {row.original.provider}
-                </RawText>
-              </Flex>
-            </Flex>
-          )
-        },
+        Cell: ({ row }: { row: RowProps }) => (
+          <AssetCell
+            assetId={row.original.underlyingAssetId ?? row.original.assetId}
+            subText={row.original.version}
+            icons={row.original.icons}
+            opportunityName={row.original.opportunityName}
+            showAssetSymbol={row.original.showAssetSymbol}
+          />
+        ),
         disableSortBy: true,
       },
       {

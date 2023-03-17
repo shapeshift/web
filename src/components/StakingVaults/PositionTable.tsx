@@ -18,6 +18,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnOpportunitiesByAssetId,
+  selectAggregatedEarnOpportunitiesByProvider,
   selectAssetById,
   selectAssetsByMarketCap,
   selectFeeAssetByChainId,
@@ -85,6 +86,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
+  useAppSelector(selectAggregatedEarnOpportunitiesByProvider)
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
     () => [

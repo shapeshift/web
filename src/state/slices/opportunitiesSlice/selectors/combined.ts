@@ -154,8 +154,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
-    // const totalFiatAmountByProvider: Record<DefiProvider, BN> = {}
-    // const projectedAnnualizedYieldByProvider: Record<DefiProvider, BN> = {}
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
       provider,
@@ -216,9 +214,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       return acc
     }, initial)
 
-    const result = Object.values(byProvider)
-    // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
-    console.log({ result })
-    return result
+    return Object.values(byProvider)
   },
 )

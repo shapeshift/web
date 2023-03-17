@@ -28,7 +28,6 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
@@ -36,9 +35,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type ProviderPositionProps = {
+type StakingPositionsByPositionProps = {
   ids: OpportunityId[]
-  assetId: AssetId
 }
 
 export type RowProps = Row<StakingEarnOpportunityType>
@@ -69,7 +67,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
+export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProps> = ({ ids }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
@@ -82,7 +80,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.id as OpportunityId))
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
@@ -140,7 +138,6 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
           // Opportunity Name
           const subText = []
           if (row.original.version) subText.push(row.original.provider)
-          if (row.original.opportunityName) subText.push(row.original.opportunityName)
           return (
             <Flex gap={4} alignItems='center'>
               <LazyLoadAvatar
@@ -150,10 +147,12 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>
-                <RawText>{row.original.version ?? row.original.provider}</RawText>
-                <RawText textTransform='capitalize' variant='sub-text' size='xs'>
-                  {subText.join(' • ')}
-                </RawText>
+                <RawText>{row.original.opportunityName}</RawText>
+                {subText && (
+                  <RawText textTransform='capitalize' variant='sub-text' size='xs'>
+                    {subText.join(' • ')}
+                  </RawText>
+                )}
               </Flex>
             </Flex>
           )
@@ -165,38 +164,10 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const opportunityAssetId = opportunity.assetId
-          const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
           const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
-          if (!opportunity.underlyingAssetIds.length) return null
-          const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
-          const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
-
-          const underlyingBalances = getUnderlyingAssetIdsBalances({
-            assetId: opportunityUnderlyingAssetId,
-            underlyingAssetIds: opportunity.underlyingAssetIds,
-            underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
-            cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
-            assets,
-            marketData,
-          })
-
-          const cryptoAmountPrecision = isUnderlyingAsset
-            ? underlyingBalances[opportunity.underlyingAssetIds[underlyingAssetIndex]]
-                .cryptoBalancePrecision
-            : bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
-                .div(bn(10).pow(assets[opportunityAssetId]?.precision ?? 18))
-                .toFixed()
-
           return hasValue ? (
             <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
               <Amount.Fiat value={row.original.fiatAmount} />
-              <Amount.Crypto
-                variant='sub-text'
-                size='xs'
-                value={cryptoAmountPrecision.toString()}
-                symbol={assets[assetId]?.symbol ?? ''}
-              />
             </Flex>
           ) : (
             <RawText variant='sub-text'>-</RawText>
@@ -276,7 +247,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
         ),
       },
     ],
-    [assetId, assets, handleClick, marketData, translate],
+    [assets, handleClick, marketData, translate],
   )
 
   if (!filteredDown.length) return null

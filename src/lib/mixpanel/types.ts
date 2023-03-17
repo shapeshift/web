@@ -34,6 +34,7 @@ export enum MixPanelEvents {
   Click = 'Click',
   ClickdApp = 'Click dApp',
   Error = 'Error',
+  PageView = 'Page View',
 }
 
 export type TrackOpportunityProps = {

@@ -142,6 +142,7 @@ export const LpPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) =
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const underlyingBalances = getUnderlyingAssetIdsBalances({
+            assetId: row.original.assetId,
             underlyingAssetIds: row.original.underlyingAssetIds,
             underlyingAssetRatiosBaseUnit: row.original.underlyingAssetRatiosBaseUnit,
             cryptoAmountBaseUnit: row.original.cryptoAmountBaseUnit,

@@ -1,3 +1,4 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from 'test/mocks/assets'
 import { mockChainAdapters } from 'test/mocks/portfolio'
@@ -16,7 +17,7 @@ describe('mixpanel helpers', () => {
       assetId: 'cosmos:osmosis-1/ibc:gamm/pool/1',
       chainId: 'cosmos:osmosis-1',
       symbol: 'gamm/pool/1',
-    },
+    } as Asset,
   }
   describe('mapMixpanelPathname', () => {
     it('can handle base accounts path', () => {

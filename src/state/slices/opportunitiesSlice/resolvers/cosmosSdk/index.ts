@@ -137,7 +137,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
           name: data.moniker,
           type: DefiType.Staking,
-          provider: DefiProvider.Cosmos,
+          provider: DefiProvider.CosmosSdk,
           assetId,
           underlyingAssetId: assetId,
           underlyingAssetIds: [assetId] as const,

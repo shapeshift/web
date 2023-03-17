@@ -422,7 +422,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       const aggregatedEarnUserStakingOpportunity: StakingEarnOpportunityType = Object.assign(
         {},
         (() => {
-          if (opportunity.provider === DefiProvider.Cosmos && opportunity.id) {
+          if (opportunity.provider === DefiProvider.CosmosSdk && opportunity.id) {
             return { contractAddress: fromAccountId(opportunity.id).account }
           }
 
@@ -514,7 +514,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
           const earnOpportunity = Object.assign(
             {},
             (() => {
-              if (opportunity.provider === DefiProvider.Cosmos)
+              if (opportunity.provider === DefiProvider.CosmosSdk)
                 return { contractAddress: fromAccountId(opportunity.id).account }
 
               if (isFoxEthStakingAssetId(opportunity.assetId))

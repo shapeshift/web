@@ -29,7 +29,6 @@ const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9
 const opportunities: OpportunityReturn = {
   staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV5, osmosisAssetId, cosmosAssetId],
   lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
-  vault: [],
 }
 
 export const ArkeoPage = () => {

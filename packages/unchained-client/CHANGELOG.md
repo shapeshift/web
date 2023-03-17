@@ -1,3 +1,10 @@
+# [@shapeshiftoss/unchained-client-v10.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.13.0...@shapeshiftoss/unchained-client-v10.14.0) (2023-03-17)
+
+
+### Features
+
+* zrx support on bsc ([#1219](https://github.com/shapeshift/lib/issues/1219)) ([e0e7b35](https://github.com/shapeshift/lib/commit/e0e7b35851631f838a0daf404dfcc33147b54c43))
+
 # [@shapeshiftoss/unchained-client-v10.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/unchained-client-v10.12.2...@shapeshiftoss/unchained-client-v10.13.0) (2023-03-14)
 
 

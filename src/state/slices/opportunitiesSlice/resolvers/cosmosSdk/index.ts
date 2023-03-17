@@ -142,6 +142,8 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
           underlyingAssetId: assetId,
           underlyingAssetIds: [assetId] as const,
           underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit] as const,
+          // TODO: Handle different denom rewards
+          rewardAssetIds: [assetId] as const,
         }
       } catch (err) {
         if (err instanceof Error) {

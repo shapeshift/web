@@ -70,6 +70,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
         token1PoolRatio.times(bn(10).pow(asset.precision)).toFixed(),
       ] as const,
       name: pool.name,
+      rewardAssetIds: [],
     }
   }
 

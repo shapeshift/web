@@ -1,4 +1,4 @@
-import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
+import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -11,6 +11,7 @@ import {
 } from 'state/slices/selectors'
 
 import type {
+  AssetIdsTuple,
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -129,7 +130,8 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
                 { fn: 'idleStakingOpportunitiesMetadataResolver', error },
                 `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
               )
-            })) as [AssetId] | [AssetId, AssetId] | [AssetId, AssetId, AssetId] | undefined,
+              return []
+            })) as AssetIdsTuple,
           },
           // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
           // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1

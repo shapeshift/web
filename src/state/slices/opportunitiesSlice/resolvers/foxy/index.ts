@@ -86,6 +86,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
         bn(1).times(bn(10).pow(underlyingAsset.precision)).toString(),
       ],
       name: underlyingAsset.symbol,
+      rewardAssetIds: [],
     }
   }
 
@@ -148,7 +149,8 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
     const opportunity = opportunities[0]
 
-    //FOXy is a rebasing token so there aren't rewards to claim
+    // FOXy is a rebasing token so there aren't rewards in the sense of rewards claim
+    // These technically exist and are effectively accrued, but we're unable to derive them
     const rewardsAmountsCryptoBaseUnit = ['0'] as [string] | [string, string]
 
     const bip44Params = selectBIP44ParamsByAccountId(state, { accountId })

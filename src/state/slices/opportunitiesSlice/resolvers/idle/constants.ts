@@ -60,6 +60,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
   },
   'eip155:1/erc20:0xfa3afc9a194babd56e743fa3b7aa2ccbed3eaaad': {
     assetId: 'eip155:1/erc20:0xfa3afc9a194babd56e743fa3b7aa2ccbed3eaaad',
@@ -72,6 +73,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
   },
   'eip155:1/erc20:0xec9482040e6483b7459cc0db05d51dfa3d3068e1': {
     assetId: 'eip155:1/erc20:0xec9482040e6483b7459cc0db05d51dfa3d3068e1',
@@ -84,6 +86,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
   },
   'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8': {
     assetId: 'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8',

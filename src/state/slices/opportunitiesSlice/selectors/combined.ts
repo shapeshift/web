@@ -184,8 +184,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     >((acc, cur) => {
       const { provider } = cur
       if (cur.type === DefiType.LiquidityPool) {
-        // TODO(0xdef1cafe): impl
-        acc[provider].opportunities.lp = []
+        acc[provider].opportunities.lp.push(cur.id)
       }
 
       if (cur.type === DefiType.Staking) {

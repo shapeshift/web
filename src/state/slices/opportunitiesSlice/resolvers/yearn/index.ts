@@ -77,6 +77,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       version: opportunity.version,
       expired: opportunity.expired,
       rewardAssetIds: [],
+      isClaimableRewards: false,
     }
   }
   const data = {

@@ -71,6 +71,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       ] as const,
       name: pool.name,
       rewardAssetIds: [],
+      isClaimableRewards: false,
     }
   }
 

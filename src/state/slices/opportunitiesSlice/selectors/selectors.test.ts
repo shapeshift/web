@@ -157,7 +157,7 @@ describe('opportunitiesSlice selectors', () => {
       // The LP token AssetId
       assetId: foxEthLpAssetId,
       id: foxEthLpAssetId,
-      name: 'FOX Farming',
+      name: 'ETH/FOX LP',
       provider: DefiProvider.UniV2,
       tvl: '424242',
       apy: '0.42',
@@ -168,6 +168,7 @@ describe('opportunitiesSlice selectors', () => {
         string,
         string,
       ],
+      rewardAssetIds: [] as const,
     }
     const staking = {
       ...initialState.staking,
@@ -276,6 +277,7 @@ describe('opportunitiesSlice selectors', () => {
             string,
             string,
           ],
+          rewardAssetIds: [] as const,
         },
       },
       ids: [mockStakingContractTwo],

@@ -193,6 +193,14 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
   opportunities: Record<DefiType, OpportunityId[]>
 }
 
+export type AggregatedOpportunitiesByProviderReturn = {
+  provider: DefiProvider
+  netApy: string
+  fiatAmount: string
+  fiatRewardsAmount: string
+  opportunities: Record<DefiType, OpportunityId[]>
+}
+
 export type TagDescription = {
   title: string
   description?: string

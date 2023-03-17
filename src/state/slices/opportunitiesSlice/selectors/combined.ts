@@ -10,6 +10,7 @@ import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
+  AggregatedOpportunitiesByProviderReturn,
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
@@ -135,5 +136,57 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     return Object.values(byAssetId)
   },
 )
+
 export const selectOpportunityApiPending = (state: ReduxState) =>
   Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)
+
+export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAggregatedEarnUserLpOpportunities,
+  selectMarketDataSortedByMarketCap,
+  selectAssets,
+  (
+    userStakingOpportunites,
+    userLpOpportunities,
+    marketData,
+    assets,
+  ): AggregatedOpportunitiesByProviderReturn[] => {
+    const combined = [...userStakingOpportunites, ...userLpOpportunities]
+    // const totalFiatAmountByProvider: Record<DefiProvider, BN> = {}
+    // const projectedAnnualizedYieldByAssetId: Record<DefiProvider, BN> = {}
+
+    const makeEmptyPayload = (provider: DefiProvider) => ({
+      provider,
+      netApy: '0',
+      fiatAmount: '0',
+      cryptoBalancePrecision: '0',
+      fiatRewardsAmount: '0',
+      opportunities: {
+        lp: [],
+        staking: [],
+      },
+    })
+
+    const initial = {
+      [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
+      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
+      [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
+      [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
+      [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
+      [DefiProvider.Cosmos]: makeEmptyPayload(DefiProvider.Cosmos),
+      [DefiProvider.Osmosis]: makeEmptyPayload(DefiProvider.Osmosis),
+      [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
+    } as const
+
+    const byProvider = combined.reduce<
+      Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
+    >((acc, cur) => {
+      const { provider } = cur
+      const payload = makeEmptyPayload(provider)
+      acc[provider] = payload
+      return acc
+    }, initial)
+
+    return Object.values(byProvider)
+  },
+)

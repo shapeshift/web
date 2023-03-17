@@ -1,6 +1,7 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEmpty from 'lodash/isEmpty'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -151,15 +152,15 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     marketData,
     assets,
   ): AggregatedOpportunitiesByProviderReturn[] => {
+    if (isEmpty(marketData)) return []
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
     // const totalFiatAmountByProvider: Record<DefiProvider, BN> = {}
-    // const projectedAnnualizedYieldByAssetId: Record<DefiProvider, BN> = {}
+    // const projectedAnnualizedYieldByProvider: Record<DefiProvider, BN> = {}
 
-    const makeEmptyPayload = (provider: DefiProvider) => ({
+    const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
       provider,
       netApy: '0',
       fiatAmount: '0',
-      cryptoBalancePrecision: '0',
       fiatRewardsAmount: '0',
       opportunities: {
         lp: [],
@@ -182,11 +183,51 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
-      const payload = makeEmptyPayload(provider)
-      acc[provider] = payload
+      if (cur.type === DefiType.LiquidityPool) {
+        // TODO(0xdef1cafe): impl
+        acc[provider].opportunities.lp = []
+      }
+
+      if (cur.type === DefiType.Staking) {
+        acc[provider].opportunities.staking.push(cur.id)
+        const stakingOpportunity = cur as StakingEarnOpportunityType
+        const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
+          (sum, assetId, index) => {
+            const asset = assets[assetId]
+            if (!asset) return sum
+            const marketDataPrice = marketData[assetId]?.price
+            const cryptoAmountPrecision = bnOrZero(
+              stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+            ).div(bnOrZero(10).pow(asset?.precision))
+            return bnOrZero(cryptoAmountPrecision)
+              .times(marketDataPrice ?? 0)
+              .plus(bnOrZero(sum))
+              .toNumber()
+          },
+          0,
+        )
+
+        acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat).toFixed(2)
+      }
+
+      const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
+        ...cur,
+        assets,
+        marketData,
+      })
+
+      console.log({ underlyingAssetBalances })
+
+      acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)
+        .plus(bnOrZero(cur.fiatAmount))
+        .toFixed(2)
+
       return acc
     }, initial)
 
-    return Object.values(byProvider)
+    const result = Object.values(byProvider)
+    // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
+    console.log({ result })
+    return result
   },
 )

@@ -3,13 +3,11 @@ import { Avatar, Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakr
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
-import type { ReactNode } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails/ProviderDetails'
-import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -65,11 +63,10 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
 }
 
 type PositionTableProps = {
-  headerComponent?: (props: TableHeaderProps) => ReactNode
+  searchQuery: string
 }
 
-export const ProviderTable: React.FC<PositionTableProps> = ({ headerComponent }) => {
-  const [searchQuery, setSearchQuery] = useState('')
+export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
   const translate = useTranslate()
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const providers = useAppSelector(selectAggregatedEarnOpportunitiesByProvider)
@@ -167,19 +164,16 @@ export const ProviderTable: React.FC<PositionTableProps> = ({ headerComponent })
   }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
   return (
-    <>
-      {headerComponent && headerComponent({ setSearchQuery, searchQuery })}
-      <ReactTable
-        onRowClick={row => row.toggleRowExpanded()}
-        data={rows}
-        columns={columns}
-        isLoading={isLoading}
-        renderSubComponent={({ original }) => (
-          <ProviderDetails key={original.provider} {...original} />
-        )}
-        renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
-        initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-      />
-    </>
+    <ReactTable
+      onRowClick={row => row.toggleRowExpanded()}
+      data={rows}
+      columns={columns}
+      isLoading={isLoading}
+      renderSubComponent={({ original }) => (
+        <ProviderDetails key={original.provider} {...original} />
+      )}
+      renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+    />
   )
 }

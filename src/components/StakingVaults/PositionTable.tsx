@@ -3,14 +3,12 @@ import { Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/rea
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import type { ReactNode } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails/PositionDetails'
-import type { TableHeaderProps } from 'components/ReactTable/ReactTable'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { isEthAddress } from 'lib/address/utils'
@@ -76,11 +74,10 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
 }
 
 type PositionTableProps = {
-  headerComponent?: (props: TableHeaderProps) => ReactNode
+  searchQuery: string
 }
 
-export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent }) => {
-  const [searchQuery, setSearchQuery] = useState('')
+export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
@@ -189,19 +186,16 @@ export const PositionTable: React.FC<PositionTableProps> = ({ headerComponent })
   }, [filterRowsBySearchTerm, positions, searchQuery, isSearching])
 
   return (
-    <>
-      {headerComponent && headerComponent({ setSearchQuery, searchQuery })}
-      <ReactTable
-        onRowClick={row => row.toggleRowExpanded()}
-        data={rows}
-        columns={columns}
-        isLoading={isLoading}
-        renderSubComponent={({ original }) => (
-          <PositionDetails key={original.assetId} {...original} />
-        )}
-        renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
-        initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-      />
-    </>
+    <ReactTable
+      onRowClick={row => row.toggleRowExpanded()}
+      data={rows}
+      columns={columns}
+      isLoading={isLoading}
+      renderSubComponent={({ original }) => (
+        <PositionDetails key={original.assetId} {...original} />
+      )}
+      renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+    />
   )
 }

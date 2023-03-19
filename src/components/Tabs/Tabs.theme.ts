@@ -69,7 +69,7 @@ export const TabsStyle = {
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: mode('gray.100', 'gray.750')(props),
-        borderRadius: 'xl',
+        borderRadius: '2xl',
       },
       tab: {
         borderRadius: 'xl',

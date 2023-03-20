@@ -3,6 +3,7 @@ import {
   type ChainId,
   avalancheAssetId,
   bchAssetId,
+  bscAssetId,
   btcAssetId,
   CHAIN_NAMESPACE,
   cosmosAssetId,
@@ -157,13 +158,23 @@ export const getDefaultAssetIdPairByChainId = (
     case KnownChainIds.AvalancheMainnet:
       return {
         sellAssetId: avalancheAssetId,
+        // WETH.e
         buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
       }
     case KnownChainIds.OptimismMainnet:
       return featureFlags.ZrxOptimismSwap
         ? {
             sellAssetId: optimismAssetId,
+            // OP token
             buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',
+          }
+        : ethFoxPair
+    case KnownChainIds.BnbSmartChainMainnet:
+      return featureFlags.ZrxBnbSmartChain
+        ? {
+            sellAssetId: bscAssetId,
+            // BUSD
+            buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
           }
         : ethFoxPair
     case KnownChainIds.CosmosMainnet:

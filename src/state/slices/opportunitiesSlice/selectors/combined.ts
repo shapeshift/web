@@ -1,6 +1,7 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import isEmpty from 'lodash/isEmpty'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -10,6 +11,7 @@ import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
+  AggregatedOpportunitiesByProviderReturn,
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
@@ -60,7 +62,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               opportunities: {
                 staking: [],
                 lp: [],
-                vault: [],
               },
             }
           }
@@ -136,5 +137,91 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     return Object.values(byAssetId)
   },
 )
+
 export const selectOpportunityApiPending = (state: ReduxState) =>
   Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)
+
+export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAggregatedEarnUserLpOpportunities,
+  selectMarketDataSortedByMarketCap,
+  selectAssets,
+  (
+    userStakingOpportunites,
+    userLpOpportunities,
+    marketData,
+    assets,
+  ): AggregatedOpportunitiesByProviderReturn[] => {
+    if (isEmpty(marketData)) return []
+    const combined = [...userStakingOpportunites, ...userLpOpportunities]
+
+    const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
+      provider,
+      netApy: '0',
+      fiatAmount: '0',
+      fiatRewardsAmount: '0',
+      opportunities: {
+        lp: [],
+        staking: [],
+      },
+    })
+
+    const initial = {
+      [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
+      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
+      [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
+      [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
+      [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
+      [DefiProvider.CosmosSdk]: makeEmptyPayload(DefiProvider.CosmosSdk),
+      [DefiProvider.OsmosisLp]: makeEmptyPayload(DefiProvider.OsmosisLp),
+      [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
+    } as const
+
+    const byProvider = combined.reduce<
+      Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
+    >((acc, cur) => {
+      const { provider } = cur
+      if (cur.type === DefiType.LiquidityPool) {
+        acc[provider].opportunities.lp.push(cur.id)
+      }
+
+      if (cur.type === DefiType.Staking) {
+        acc[provider].opportunities.staking.push(cur.id)
+        const stakingOpportunity = cur as StakingEarnOpportunityType
+        const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
+          (sum, assetId, index) => {
+            const asset = assets[assetId]
+            if (!asset) return sum
+            const marketDataPrice = marketData[assetId]?.price
+            const cryptoAmountPrecision = bnOrZero(
+              stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+            ).div(bnOrZero(10).pow(asset?.precision))
+            return bnOrZero(cryptoAmountPrecision)
+              .times(marketDataPrice ?? 0)
+              .plus(bnOrZero(sum))
+              .toNumber()
+          },
+          0,
+        )
+
+        acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat)
+          .plus(acc[provider].fiatRewardsAmount)
+          .toFixed(2)
+      }
+
+      acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)
+        .plus(bnOrZero(cur.fiatAmount))
+        .toFixed(2)
+
+      return acc
+    }, initial)
+
+    return Object.values(byProvider).reduce<AggregatedOpportunitiesByProviderReturn[]>(
+      (acc, cur) => {
+        if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
+        return acc
+      },
+      [],
+    )
+  },
+)

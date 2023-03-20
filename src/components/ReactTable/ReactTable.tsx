@@ -107,7 +107,10 @@ export const ReactTable = <T extends {}>({
             {row.cells.map(cell => (
               <Td
                 {...cell.getCellProps()}
-                data-label={cell.column.getHeaderProps().key}
+                // Header can be () => null or a string, only use data-label if it's a string
+                {...(typeof cell.column.Header === 'string'
+                  ? { 'data-label': cell.column.Header }
+                  : undefined)}
                 display={cell.column.display}
                 key={cell.column.id}
               >

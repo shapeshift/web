@@ -405,6 +405,8 @@
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
     "totalValue": "Total Value",
+    "byPosition": "By Position",
+    "byProvider": "By Provider",
     "netApy": "Net APY",
     "claimableRewards": "Claimable Rewards",
     "reawrds": "Rewards",

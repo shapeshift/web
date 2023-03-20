@@ -6,7 +6,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,6 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
@@ -130,15 +131,21 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
       {
         Header: translate('defi.stakingPosition'),
         accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => (
-          <AssetCell
-            assetId={row.original.underlyingAssetId ?? row.original.assetId}
-            subText={row.original.version}
-            icons={row.original.icons}
-            opportunityName={row.original.opportunityName}
-            showAssetSymbol={row.original.showAssetSymbol}
-          />
-        ),
+        Cell: ({ row }: { row: RowProps }) => {
+          const isCosmosSdkStaking = row.original.provider === DefiProvider.CosmosSdk
+          const chainName = isCosmosSdkStaking
+            ? getChainAdapterManager().get(row.original.chainId)?.getDisplayName()
+            : ''
+          return (
+            <AssetCell
+              assetId={row.original.underlyingAssetId ?? row.original.assetId}
+              subText={chainName}
+              icons={row.original.icons}
+              opportunityName={row.original.opportunityName}
+              showAssetSymbol={row.original.showAssetSymbol}
+            />
+          )
+        },
         disableSortBy: true,
       },
       {

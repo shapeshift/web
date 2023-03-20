@@ -74,6 +74,7 @@ const validators = {
   REACT_APP_FEATURE_ZRX_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
+  REACT_APP_FEATURE_IDLE_DEPOSITS: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),

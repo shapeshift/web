@@ -204,7 +204,9 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
           0,
         )
 
-        acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat).toFixed(2)
+        acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat)
+          .plus(acc[provider].fiatRewardsAmount)
+          .toFixed(2)
       }
 
       acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)

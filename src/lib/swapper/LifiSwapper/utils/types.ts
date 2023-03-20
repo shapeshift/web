@@ -7,7 +7,7 @@ export interface LifiTrade extends Trade<EvmChainId> {
   routesRequest: RoutesRequest
 }
 
-export interface LifiExecuteTradeInput extends ExecuteTradeInput<EvmChainId> {
+export interface LifiExecuteTradeInput extends Omit<ExecuteTradeInput<EvmChainId>, 'trade'> {
   trade: LifiTrade
 }
 

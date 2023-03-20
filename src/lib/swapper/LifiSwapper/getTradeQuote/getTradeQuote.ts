@@ -20,20 +20,21 @@ import {
   toHuman,
 } from 'lib/bignumber/bignumber'
 import {
+  assertNoAdditionalGasCostTokens,
+  checkBuyGasAssetBalance,
+} from 'lib/swapper/LifiSwapper/utils/checkGasAssets/checkGasAssets'
+import {
   DEFAULT_SOURCE,
   MAX_LIFI_TRADE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumAmountFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromRoutes/getMinimumAmountFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export async function getTradeQuote(
@@ -75,37 +76,18 @@ export async function getTradeQuote(
     })
   }
 
-  const fromAmountCryptoLifiPrecision: BigNumber = (() => {
-    if (sendMax) {
-      const accountId = selectAccountIdByAccountNumberAndChainId(store.getState(), {
+  const fromAmountCryptoLifiPrecision: BigNumber = sendMax
+    ? getAssetBalance({
+        asset: sellAsset,
         accountNumber,
         chainId,
+        outputPrecision: fromLifiToken.decimals,
       })
-
-      if (accountId === undefined) {
-        throw new SwapError('[getTradeQuote] no account id found', {
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        })
-      }
-
-      const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(store.getState(), {
-        accountId,
-        assetId: sellAsset.assetId,
-      })
-
-      return convertPrecision({
-        value: balance,
+    : convertPrecision({
+        value: sellAmountBeforeFeesCryptoBaseUnit,
         inputPrecision: sellAsset.precision,
         outputPrecision: fromLifiToken.decimals,
       })
-    }
-
-    return convertPrecision({
-      value: sellAmountBeforeFeesCryptoBaseUnit,
-      inputPrecision: sellAsset.precision,
-      outputPrecision: fromLifiToken.decimals,
-    })
-  })()
 
   // handle quotes that dont meet the minimum amount
   const { price } = selectMarketDataById(store.getState(), sellAsset.assetId)
@@ -135,9 +117,7 @@ export async function getTradeQuote(
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: thresholdedAmountCryptoLifi,
-    // NOTE: stargate bridge is temprarily denied because of issues with cross-chain swaps
-    // TODO: create .env params for denylist
-    options: { slippage: Number(DEFAULT_SLIPPAGE), bridges: { deny: ['stargate'] } },
+    options: { slippage: Number(DEFAULT_SLIPPAGE) },
   }
 
   const lifiRoutesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
@@ -193,6 +173,19 @@ export async function getTradeQuote(
 
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
 
+  const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
+
+  // multi-hop swaps may require gas paid on the receiving chain
+  // check for sufficient asset balance for gas on receiving chain
+  // TODO: this may not be required if we can enforce single-hop transactions
+  // TODO: this is a stop-gap - handle this concern in the rest of the application
+  // TODO: check whether we need to grantAllowance on the receiving chain in this case
+  checkBuyGasAssetBalance(allRouteGasCosts, buyAsset, toLifiToken, accountNumber)
+
+  // multi-hop swaps may require gas paid in other tokens which is not currently supported
+  // TODO: this may not be required if we can enforce single-hop transactions
+  assertNoAdditionalGasCostTokens(allRouteGasCosts, fromLifiToken, toLifiToken)
+
   return {
     accountNumber,
     allowanceContract,
@@ -206,6 +199,10 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
     sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
+
+    // the following are required due to minimumCryptoHuman logical requirements downstream
+    // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error
+    // handling in the UI so we can re-use the routes response downstream to avoid another fetch
     routesRequest: {
       ...routesRequest,
       fromAmount: fromAmountCryptoLifiPrecision.toString(),

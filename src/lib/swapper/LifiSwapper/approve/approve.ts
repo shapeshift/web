@@ -10,7 +10,7 @@ import { MAX_ALLOWANCE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 const grantAllowanceForAmount = async (
-  { quote, wallet }: ApproveInfiniteInput<EvmChainId>,
+  { quote, wallet }: ApproveAmountInput<EvmChainId>,
   approvalAmountCryptoBaseUnit: string,
 ) => {
   const chainId = quote.sellAsset.chainId
@@ -19,14 +19,14 @@ const grantAllowanceForAmount = async (
   const web3 = getWeb3InstanceByChainId(chainId)
 
   if (!isEvmChainId(chainId)) {
-    throw new SwapError('[approvalNeeded] - only EVM chains are supported', {
+    throw new SwapError('[grantAllowanceForAmount] - only EVM chains are supported', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
     })
   }
 
   if (adapter === undefined) {
-    throw new SwapError('[approvalNeeded] - getChainAdapterManager returned undefined', {
+    throw new SwapError('[grantAllowanceForAmount] - getChainAdapterManager returned undefined', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
     })
@@ -46,6 +46,7 @@ const grantAllowanceForAmount = async (
       },
     },
   }
+
   return await grantAllowance({
     quote: approvalQuote,
     wallet,

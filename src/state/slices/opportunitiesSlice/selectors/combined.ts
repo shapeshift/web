@@ -216,6 +216,12 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       return acc
     }, initial)
 
-    return Object.values(byProvider)
+    return Object.values(byProvider).reduce<AggregatedOpportunitiesByProviderReturn[]>(
+      (acc, cur) => {
+        if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
+        return acc
+      },
+      [],
+    )
   },
 )

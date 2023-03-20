@@ -20,10 +20,6 @@ import {
   toHuman,
 } from 'lib/bignumber/bignumber'
 import {
-  assertNoAdditionalGasCostTokens,
-  checkBuyGasAssetBalance,
-} from 'lib/swapper/LifiSwapper/utils/checkGasAssets/checkGasAssets'
-import {
   DEFAULT_SOURCE,
   MAX_LIFI_TRADE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
@@ -117,7 +113,15 @@ export async function getTradeQuote(
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: thresholdedAmountCryptoLifi,
-    options: { slippage: Number(DEFAULT_SLIPPAGE) },
+    // as recommended by lifi, dodo is denied until they fix their gas estimates
+    // TODO: convert this config to .env variable
+    options: {
+      slippage: Number(DEFAULT_SLIPPAGE),
+      exchanges: { deny: ['dodo'] },
+      // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
+      // This must remain disabled until our application supports multi-hop swaps
+      allowSwitchChain: false,
+    },
   }
 
   const lifiRoutesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
@@ -172,19 +176,6 @@ export async function getTradeQuote(
   })()
 
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
-
-  const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
-
-  // multi-hop swaps may require gas paid on the receiving chain
-  // check for sufficient asset balance for gas on receiving chain
-  // TODO: this may not be required if we can enforce single-hop transactions
-  // TODO: this is a stop-gap - handle this concern in the rest of the application
-  // TODO: check whether we need to grantAllowance on the receiving chain in this case
-  checkBuyGasAssetBalance(allRouteGasCosts, buyAsset, toLifiToken, accountNumber)
-
-  // multi-hop swaps may require gas paid in other tokens which is not currently supported
-  // TODO: this may not be required if we can enforce single-hop transactions
-  assertNoAdditionalGasCostTokens(allRouteGasCosts, fromLifiToken, toLifiToken)
 
   return {
     accountNumber,

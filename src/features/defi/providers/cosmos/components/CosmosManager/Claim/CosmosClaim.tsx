@@ -12,6 +12,7 @@ import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider
 import qs from 'qs'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -22,6 +23,8 @@ import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitie
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,9 +38,15 @@ const moduleLogger = logger.child({
   namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
 })
 
-type CosmosClaimProps = { accountId: AccountId | undefined }
+type CosmosClaimProps = {
+  accountId: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+}
 
-export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
+export const CosmosClaim: React.FC<CosmosClaimProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, contractAddress: validatorAddress, assetReference, chainId } = query
@@ -79,6 +88,20 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({ accountId }) => {
       moduleLogger.error(error, 'CosmosClaim error')
     }
   }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
+
+  const highestBalanceAccountIdFilter = useMemo(() => ({ stakingId: validatorId }), [validatorId])
+  const highestBalanceAccountId = useAppSelector(state =>
+    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  )
+  const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
+  const maybeAccountId = useMemo(
+    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestBalanceAccountId],
+  )
+  useEffect(() => {
+    if (!maybeAccountId) return
+    handleAccountIdChange(maybeAccountId)
+  }, [handleAccountIdChange, maybeAccountId])
 
   // Asset info
 

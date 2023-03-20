@@ -49,7 +49,7 @@ export const CosmosManager = () => {
       )}
       {modal === DefiAction.Claim && (
         <SlideTransition key={DefiAction.Claim}>
-          <CosmosClaim accountId={accountId} />
+          <CosmosClaim onAccountIdChange={setAccountId} accountId={accountId} />
         </SlideTransition>
       )}
     </AnimatePresence>

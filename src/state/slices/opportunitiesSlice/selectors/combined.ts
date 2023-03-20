@@ -188,21 +188,20 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.type === DefiType.Staking) {
         acc[provider].opportunities.staking.push(cur.id)
         const stakingOpportunity = cur as StakingEarnOpportunityType
-        const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
-          (sum, assetId, index) => {
-            const asset = assets[assetId]
-            if (!asset) return sum
-            const marketDataPrice = marketData[assetId]?.price
-            const cryptoAmountPrecision = bnOrZero(
-              stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
-            ).div(bnOrZero(10).pow(asset?.precision))
-            return bnOrZero(cryptoAmountPrecision)
-              .times(marketDataPrice ?? 0)
-              .plus(bnOrZero(sum))
-              .toNumber()
-          },
-          0,
-        )
+        const rewardsAmountFiat = stakingOpportunity.isClaimableRewards
+          ? Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce((sum, assetId, index) => {
+              const asset = assets[assetId]
+              if (!asset) return sum
+              const marketDataPrice = marketData[assetId]?.price
+              const cryptoAmountPrecision = bnOrZero(
+                stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+              ).div(bnOrZero(10).pow(asset?.precision))
+              return bnOrZero(cryptoAmountPrecision)
+                .times(marketDataPrice ?? 0)
+                .plus(bnOrZero(sum))
+                .toNumber()
+            }, 0)
+          : '0'
 
         acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat)
           .plus(acc[provider].fiatRewardsAmount)

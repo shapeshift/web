@@ -50,13 +50,13 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
   },
-  [`${DefiProvider.Cosmos}`]: {
+  [`${DefiProvider.CosmosSdk}`]: {
     [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
   },
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunitiesMetadataResolver,
   },
-  [`${DefiProvider.Osmosis}`]: {
+  [`${DefiProvider.OsmosisLp}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunitiesMetadataResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
@@ -80,7 +80,7 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
   [`${DefiProvider.ThorchainSavers}`]: {
     [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
   },
-  [`${DefiProvider.Cosmos}`]: {
+  [`${DefiProvider.CosmosSdk}`]: {
     [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
   },
 }
@@ -98,7 +98,7 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   [`${DefiProvider.Yearn}`]: {
     [`${DefiType.Staking}`]: yearnStakingOpportunityIdsResolver,
   },
-  [`${DefiProvider.Osmosis}`]: {
+  [`${DefiProvider.OsmosisLp}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunityIdsResolver,
   },
   [`${DefiProvider.ThorchainSavers}`]: {
@@ -107,7 +107,7 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   [`${DefiProvider.ShapeShift}`]: {
     [`${DefiType.Staking}`]: foxyStakingOpportunityIdsResolver,
   },
-  [`${DefiProvider.Cosmos}`]: {
+  [`${DefiProvider.CosmosSdk}`]: {
     [`${DefiType.Staking}`]: cosmosSdkOpportunityIdsResolver,
   },
 }

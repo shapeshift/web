@@ -13,8 +13,8 @@ export enum DefiProvider {
   ShapeShift = 'ShapeShift',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
-  Cosmos = 'Cosmos',
-  Osmosis = 'Osmosis',
+  CosmosSdk = 'Cosmos SDK',
+  OsmosisLp = 'Osmosis LP',
   ThorchainSavers = 'THORChain Savers',
 }
 
@@ -39,12 +39,12 @@ export const DefiProviderMetadata = {
     type: DefiProvider.UniV2,
     icon: 'https://assets.coingecko.com/coins/images/12504/thumb/uniswap-uni.png?1600306604',
   },
-  [DefiProvider.Cosmos]: {
-    type: DefiProvider.Cosmos,
+  [DefiProvider.CosmosSdk]: {
+    type: DefiProvider.CosmosSdk,
     icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
   },
-  [DefiProvider.Osmosis]: {
-    type: DefiProvider.Osmosis,
+  [DefiProvider.OsmosisLp]: {
+    type: DefiProvider.OsmosisLp,
     icon: 'https://rawcdn.githack.com/cosmos/chain-registry/6561270d8e1f169774a3857756e9aecbbd762eb4/osmosis/images/osmo.png',
   },
   [DefiProvider.ThorchainSavers]: {

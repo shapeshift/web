@@ -1,4 +1,4 @@
-import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
@@ -106,6 +106,8 @@ export const ethFoxStakingMetadataResolver = async ({
         expired,
         name: 'Fox Farming',
         version,
+        rewardAssetIds: [foxAssetId] as const,
+        isClaimableRewards: true,
       },
     },
     type: opportunityType,

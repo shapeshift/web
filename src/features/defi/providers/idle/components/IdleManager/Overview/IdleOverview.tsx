@@ -33,6 +33,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFeatureFlags,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -40,15 +41,18 @@ import {
   selectSelectedLocale,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { IdleEmpty } from './IdleEmpty'
+
+const { IdleFinanceDeposits } = selectFeatureFlags(store.getState())
 
 const defaultMenu: DefiButtonProps[] = [
   {
     label: 'common.deposit',
     icon: <ArrowUpIcon />,
     action: DefiAction.Deposit,
+    isDisabled: !IdleFinanceDeposits,
   },
   {
     label: 'common.withdraw',

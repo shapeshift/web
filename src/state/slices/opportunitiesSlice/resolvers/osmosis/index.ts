@@ -60,7 +60,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
       apy: pool.apy,
       assetId,
       id: opportunityId,
-      provider: DefiProvider.Osmosis,
+      provider: DefiProvider.OsmosisLp,
       tvl: pool.tvl,
       type: DefiType.LiquidityPool,
       underlyingAssetId: assetId,
@@ -70,6 +70,8 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
         token1PoolRatio.times(bn(10).pow(asset.precision)).toFixed(),
       ] as const,
       name: pool.name,
+      rewardAssetIds: [],
+      isClaimableRewards: false,
     }
   }
 

@@ -76,6 +76,8 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
       name: `${underlyingAsset.symbol} Vault`,
       version: opportunity.version,
       expired: opportunity.expired,
+      rewardAssetIds: [],
+      isClaimableRewards: false,
     }
   }
   const data = {
@@ -124,7 +126,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-    //Yearn doesn't have rewards so we set this to 0 and an empty array
+    // Yearn doesn't have rewards so we set this to 0 and an empty array
     if (bnOrZero(balance).eq(0)) {
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         userStakingId,

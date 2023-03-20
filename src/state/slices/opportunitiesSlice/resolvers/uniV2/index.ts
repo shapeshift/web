@@ -141,6 +141,8 @@ export const uniV2LpMetadataResolver = async ({
         name: `${assets.byId[underlyingAssetIds[0]]?.symbol}/${
           assets.byId[underlyingAssetIds[1]]?.symbol
         } Pool`,
+        rewardAssetIds: [],
+        isClaimableRewards: false,
       },
     },
 

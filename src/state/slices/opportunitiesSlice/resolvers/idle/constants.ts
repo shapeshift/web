@@ -31,6 +31,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x5274891bec421b39d23760c04a6755ecb444797c': {
     assetId: 'eip155:1/erc20:0x5274891bec421b39d23760c04a6755ecb444797c',
@@ -48,6 +49,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0xdc7777c771a6e4b3a82830781bdde4dbc78f320e': {
     assetId: 'eip155:1/erc20:0xdc7777c771a6e4b3a82830781bdde4dbc78f320e',
@@ -60,6 +62,8 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xfa3afc9a194babd56e743fa3b7aa2ccbed3eaaad': {
     assetId: 'eip155:1/erc20:0xfa3afc9a194babd56e743fa3b7aa2ccbed3eaaad',
@@ -72,6 +76,8 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xec9482040e6483b7459cc0db05d51dfa3d3068e1': {
     assetId: 'eip155:1/erc20:0xec9482040e6483b7459cc0db05d51dfa3d3068e1',
@@ -84,6 +90,8 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    rewardAssetIds: [],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8': {
     assetId: 'eip155:1/erc20:0xf34842d05a1c888ca02769a633df37177415c2f8',
@@ -101,6 +109,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x8c81121b15197fa0eeaee1dc75533419dcfd3151': {
     assetId: 'eip155:1/erc20:0x8c81121b15197fa0eeaee1dc75533419dcfd3151',
@@ -118,6 +127,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'WBTC Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80': {
     assetId: 'eip155:1/erc20:0xc8e6ca6e96a326dc448307a5fde90a0b21fd7f80',
@@ -135,6 +145,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'WETH Vault',
     version: 'Best Yield',
     tags: ['Best Yield'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c': {
     assetId: 'eip155:1/erc20:0x1e095cbf663491f15cc1bdb5919e701b27dde90c',
@@ -148,6 +159,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'Euler Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07': {
     assetId: 'eip155:1/erc20:0xe0f126236d2a5b13f26e72cbb1d1ff5f297dda07',
@@ -161,6 +173,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'Euler Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a': {
     assetId: 'eip155:1/erc20:0x852c4d2823e98930388b5ce1ed106310b942bd5a',
@@ -174,6 +187,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'Euler Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c': {
     assetId: 'eip155:1/erc20:0x624dfe05202b66d871b8b7c0e14ab29fc3a5120c',
@@ -187,6 +201,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'AGEUR Vault',
     version: 'Euler Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x1af0294524093bfdf5da5135853dc2fc678c12f7': {
     assetId: 'eip155:1/erc20:0x1af0294524093bfdf5da5135853dc2fc678c12f7',
@@ -200,6 +215,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'EulerStaking Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x62eb6a8c7a555eae3e0b17d42ca9a3299af2787e': {
     assetId: 'eip155:1/erc20:0x62eb6a8c7a555eae3e0b17d42ca9a3299af2787e',
@@ -213,6 +229,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'EulerStaking Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x6796fcd41e4fb26855bb9bdd7cad41128da1fd59': {
     assetId: 'eip155:1/erc20:0x6796fcd41e4fb26855bb9bdd7cad41128da1fd59',
@@ -226,6 +243,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'EulerStaking Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x2b7da260f101fb259710c0a4f2efef59f41c0810': {
     assetId: 'eip155:1/erc20:0x2b7da260f101fb259710c0a4f2efef59f41c0810',
@@ -239,6 +257,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'WETH Vault',
     version: 'EulerStaking Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x376b2dcf9ebd3067bb89eb6d1020fbe604092212': {
     assetId: 'eip155:1/erc20:0x376b2dcf9ebd3067bb89eb6d1020fbe604092212',
@@ -252,6 +271,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'MorphoAave Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x69d87d0056256e3df7be9b4c8d6429b4b8207c5e': {
     assetId: 'eip155:1/erc20:0x69d87d0056256e3df7be9b4c8d6429b4b8207c5e',
@@ -265,6 +285,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'MorphoAave Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x745e005a5df03bde0e55be811350acd6316894e1': {
     assetId: 'eip155:1/erc20:0x745e005a5df03bde0e55be811350acd6316894e1',
@@ -278,6 +299,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'MorphoAave Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b': {
     assetId: 'eip155:1/erc20:0xe11679cdb4587fee907d69e9ec4a7d3f0c2bcf3b',
@@ -291,6 +313,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'Euler Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854': {
     assetId: 'eip155:1/erc20:0xb1ec065abf6783bcce003b8d6b9f947129504854',
@@ -304,6 +327,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'Euler Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d': {
     assetId: 'eip155:1/erc20:0x6629baa8c7c6a84290bf9a885825e3540875219d',
@@ -317,6 +341,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'Euler Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7': {
     assetId: 'eip155:1/erc20:0xcf5fd05f72ca777d71fb3e38f296aad7ce735cb7',
@@ -330,6 +355,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'AGEUR Vault',
     version: 'Euler Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x271db794317b44827efe81dec6193ffc277050f6': {
     assetId: 'eip155:1/erc20:0x271db794317b44827efe81dec6193ffc277050f6',
@@ -343,6 +369,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'EulerStaking Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x56263bde26b72b3e3d26d8e03399a275aa8bbfb2': {
     assetId: 'eip155:1/erc20:0x56263bde26b72b3e3d26d8e03399a275aa8bbfb2',
@@ -356,6 +383,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'EulerStaking Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x00b80fcca0fe4fdc3940295aa213738435b0f94e': {
     assetId: 'eip155:1/erc20:0x00b80fcca0fe4fdc3940295aa213738435b0f94e',
@@ -369,6 +397,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'EulerStaking Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x2e80225f383f858e8737199d3496c5cf827670a5': {
     assetId: 'eip155:1/erc20:0x2e80225f383f858e8737199d3496c5cf827670a5',
@@ -382,6 +411,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'WETH Vault',
     version: 'EulerStaking Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x86a40de6d77331788ba24a85221fb8dbfcbc9bf0': {
     assetId: 'eip155:1/erc20:0x86a40de6d77331788ba24a85221fb8dbfcbc9bf0',
@@ -395,6 +425,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDC Vault',
     version: 'MorphoAave Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xb098af638af0c4fa3edb1a24f807e9c22da0fe73': {
     assetId: 'eip155:1/erc20:0xb098af638af0c4fa3edb1a24f807e9c22da0fe73',
@@ -408,6 +439,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'DAI Vault',
     version: 'MorphoAave Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0xf0c177229ae1cd41bf48df6241fae3e6a14a6967': {
     assetId: 'eip155:1/erc20:0xf0c177229ae1cd41bf48df6241fae3e6a14a6967',
@@ -421,6 +453,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'USDT Vault',
     version: 'MorphoAave Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: false,
   },
   'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877': {
     assetId: 'eip155:1/erc20:0x2688fc68c4eac90d9e5e1b94776cf14eade8d877',
@@ -434,6 +467,7 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'STETH Vault',
     version: 'Lido Senior Tranche',
     tags: ['Senior Tranche'],
+    isClaimableRewards: true,
   },
   'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978': {
     assetId: 'eip155:1/erc20:0x3a52fa30c33caf05faee0f9c5dfe5fd5fe8b3978',
@@ -447,5 +481,6 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     name: 'STETH Vault',
     version: 'Lido Junior Tranche',
     tags: ['Junior Tranche'],
+    isClaimableRewards: true,
   },
 }

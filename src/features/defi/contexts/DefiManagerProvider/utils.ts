@@ -26,8 +26,8 @@ export const DefiProviderToDefiModuleResolverByDeFiType = {
     [`${DefiType.Staking}`]: ThorchainSaversManager,
   },
   [DefiProvider.ShapeShift]: FoxyManager,
-  [DefiProvider.Cosmos]: CosmosManager,
-  [DefiProvider.Osmosis]: OsmosisManager,
+  [DefiProvider.CosmosSdk]: CosmosManager,
+  [DefiProvider.OsmosisLp]: OsmosisManager,
 }
 // Not curried since we can either have a list of providers by DefiType, or a single one for providers not yet migrated to the abstraction
 export const getDefiProviderModulesResolvers = (defiProvider: DefiProvider) =>

@@ -40,8 +40,10 @@ export type OpportunityMetadataBase = {
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly [string, string] | readonly [string]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
-  // TODO: Optional for backwards compatibility, but it should always be present
-  rewardAssetIds?: AssetIdsTuple
+  // Can also be empty in case there are no denominated rewards or we are unable to track them
+  rewardAssetIds: AssetIdsTuple
+  isClaimableRewards: boolean
+  // claimableRewards: boolean
   expired?: boolean
   name: string
   version?: string

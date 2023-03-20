@@ -26,6 +26,7 @@ export type FeatureFlags = {
   SaversVaults: boolean
   Yearn: boolean
   DefiAggregation: boolean
+  DefiDashboard: boolean
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
@@ -75,6 +76,7 @@ const initialState: Preferences = {
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiAggregation: getConfig().REACT_APP_FEATURE_DEFI_AGGREGATION,
+    DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,

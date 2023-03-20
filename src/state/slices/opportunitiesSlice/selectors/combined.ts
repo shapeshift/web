@@ -153,6 +153,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     assets,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
+    const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
+    const projectedAnnualizedYieldByProvider = {} as Record<DefiProvider, BN>
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
@@ -181,6 +183,12 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
+
+      totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
+      projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+        projectedAnnualizedYieldByProvider[provider],
+      ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+
       if (cur.type === DefiType.LiquidityPool) {
         acc[provider].opportunities.lp.push(cur.id)
       }
@@ -188,21 +196,20 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.type === DefiType.Staking) {
         acc[provider].opportunities.staking.push(cur.id)
         const stakingOpportunity = cur as StakingEarnOpportunityType
-        const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
-          (sum, assetId, index) => {
-            const asset = assets[assetId]
-            if (!asset) return sum
-            const marketDataPrice = marketData[assetId]?.price
-            const cryptoAmountPrecision = bnOrZero(
-              stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
-            ).div(bnOrZero(10).pow(asset?.precision))
-            return bnOrZero(cryptoAmountPrecision)
-              .times(marketDataPrice ?? 0)
-              .plus(bnOrZero(sum))
-              .toNumber()
-          },
-          0,
-        )
+        const rewardsAmountFiat = stakingOpportunity.isClaimableRewards
+          ? Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce((sum, assetId, index) => {
+              const asset = assets[assetId]
+              if (!asset) return sum
+              const marketDataPrice = marketData[assetId]?.price
+              const cryptoAmountPrecision = bnOrZero(
+                stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+              ).div(bnOrZero(10).pow(asset?.precision))
+              return bnOrZero(cryptoAmountPrecision)
+                .times(marketDataPrice ?? 0)
+                .plus(bnOrZero(sum))
+                .toNumber()
+            }, 0)
+          : '0'
 
         acc[provider].fiatRewardsAmount = bnOrZero(rewardsAmountFiat)
           .plus(acc[provider].fiatRewardsAmount)
@@ -215,6 +222,13 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
       return acc
     }, initial)
+
+    for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
+      const netApy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
+        totalVirtualFiatAmount,
+      )
+      byProvider[provider as DefiProvider].netApy = netApy.toFixed()
+    }
 
     return Object.values(byProvider).reduce<AggregatedOpportunitiesByProviderReturn[]>(
       (acc, cur) => {

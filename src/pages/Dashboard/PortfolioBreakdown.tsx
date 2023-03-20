@@ -12,6 +12,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useFeatureFlag } from '../../hooks/useFeatureFlag/useFeatureFlag'
+
 type StatCardProps = {
   percentage: number
   value: string
@@ -57,6 +59,11 @@ export const PortfolioBreakdown = () => {
     () => bnOrZero(earnBalance).plus(portfolioTotalFiatBalance).toFixed(),
     [earnBalance, portfolioTotalFiatBalance],
   )
+
+  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+  // *don't* show these if the DefiDashboard feature flag is enabled
+  if (isDefiDashboardEnabled) return null
+
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard

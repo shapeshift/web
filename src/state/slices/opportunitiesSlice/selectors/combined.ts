@@ -153,6 +153,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     assets,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
+    const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
+    const projectedAnnualizedYieldByProvider = {} as Record<DefiProvider, BN>
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
@@ -181,6 +183,12 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
+
+      totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
+      projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+        projectedAnnualizedYieldByProvider[provider],
+      ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+
       if (cur.type === DefiType.LiquidityPool) {
         acc[provider].opportunities.lp.push(cur.id)
       }
@@ -214,6 +222,13 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
       return acc
     }, initial)
+
+    for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
+      const netApy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
+        totalVirtualFiatAmount,
+      )
+      byProvider[provider as DefiProvider].netApy = netApy.toFixed()
+    }
 
     return Object.values(byProvider).reduce<AggregatedOpportunitiesByProviderReturn[]>(
       (acc, cur) => {

@@ -3,7 +3,6 @@ import IdleFinanceLogo from 'assets/idle-finance.png'
 
 export enum DefiType {
   LiquidityPool = 'lp',
-  Vault = 'vault',
   Staking = 'staking',
 }
 

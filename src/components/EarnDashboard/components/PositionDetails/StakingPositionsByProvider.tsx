@@ -36,7 +36,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type ProviderPositionProps = {
+type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
   assetId: AssetId
 }
@@ -69,7 +69,10 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetId }) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
+  ids,
+  assetId,
+}) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
@@ -223,7 +226,7 @@ export const ProviderPositions: React.FC<ProviderPositionProps> = ({ ids, assetI
             marketData,
           })
           const hasRewardBalance = bnOrZero(fiatAmount).gt(0)
-          return hasRewardBalance ? (
+          return hasRewardBalance && row.original.isClaimableRewards ? (
             <Button
               isDisabled={!hasRewardBalance}
               variant='ghost-filled'

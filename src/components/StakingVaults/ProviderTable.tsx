@@ -1,47 +1,36 @@
 import { ArrowDownIcon, ArrowUpIcon, Search2Icon } from '@chakra-ui/icons'
-import { Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { Avatar, Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
+import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails/PositionDetails'
+import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails/ProviderDetails'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
+import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnOpportunitiesByAssetId,
-  selectAssetById,
-  selectAssetsByMarketCap,
-  selectFeeAssetByChainId,
+  selectAggregatedEarnOpportunitiesByProvider,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
+export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
 
-const AssetCell = ({ assetId }: { assetId: AssetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
-  const networkName = feeAsset?.networkName || feeAsset?.name
-  if (!asset) return null
+type ProviderCellProps = {
+  provider: DefiProvider
+}
+
+const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
+  const { icon, type } = DefiProviderMetadata[provider]
   return (
     <Flex alignItems='center' gap={4}>
-      <AssetIcon size='sm' assetId={assetId} key={assetId} />
+      <Avatar size='sm' src={icon} />
       <Flex flexDir='column'>
-        <RawText>
-          {asset.name} {`(${asset.symbol})`}
-        </RawText>
-        {networkName !== asset.name ? (
-          <RawText variant='sub-text' size='xs'>
-            {`on ${networkName}`}
-          </RawText>
-        ) : null}
+        <RawText>{type}</RawText>
       </Flex>
     </Flex>
   )
@@ -77,13 +66,12 @@ type PositionTableProps = {
   searchQuery: string
 }
 
-export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
+export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
   const translate = useTranslate()
-  const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
+  const providers = useAppSelector(selectAggregatedEarnOpportunitiesByProvider)
 
-  const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
+  const columns: Column<AggregatedOpportunitiesByProviderReturn>[] = useMemo(
     () => [
       {
         Header: '#',
@@ -92,9 +80,9 @@ export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => 
         ),
       },
       {
-        Header: translate('defi.asset'),
-        accessor: 'assetId',
-        Cell: ({ row }: { row: RowProps }) => <AssetCell assetId={row.original.assetId} />,
+        Header: translate('defi.provider'),
+        accessor: 'provider',
+        Cell: ({ row }: { row: RowProps }) => <ProviderCell provider={row.original.provider} />,
         disableSortBy: true,
       },
       {
@@ -157,33 +145,23 @@ export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => 
   )
 
   const filterRowsBySearchTerm = useCallback(
-    (rows: AggregatedOpportunitiesByAssetIdReturn[], filterValue: any) => {
+    (rows: AggregatedOpportunitiesByProviderReturn[], filterValue: any) => {
       if (!filterValue) return rows
       if (typeof filterValue !== 'string') {
         return []
       }
       const search = filterValue.trim().toLowerCase()
-      if (isEthAddress(filterValue)) {
-        return rows.filter(
-          row => fromAssetId(row.assetId).assetReference.toLowerCase() === filterValue,
-        )
-      }
-      const assetIds = rows.map(row => row.assetId)
-      const rowAssets = assets.filter(asset => assetIds.includes(asset.assetId))
-      const matchedAssets = matchSorter(rowAssets, search, { keys: ['name', 'symbol'] }).map(
-        asset => asset.assetId,
-      )
-      const results = rows.filter(row => matchedAssets.includes(row.assetId))
+      const results = matchSorter(rows, search, { keys: ['provider'] })
       return results
     },
-    [assets],
+    [],
   )
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(positions, searchQuery) : positions
-  }, [filterRowsBySearchTerm, positions, searchQuery, isSearching])
+    return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
+  }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
   return (
     <ReactTable
@@ -192,7 +170,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => 
       columns={columns}
       isLoading={isLoading}
       renderSubComponent={({ original }) => (
-        <PositionDetails key={original.assetId} {...original} />
+        <ProviderDetails key={original.provider} {...original} />
       )}
       renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}

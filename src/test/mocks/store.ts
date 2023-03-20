@@ -70,7 +70,7 @@ export const mockStore: ReduxState = {
       Wherever: false,
       SaversVaults: false,
       Yearn: false,
-      DefiDashboard: false,
+      DefiAggregation: false,
       ArkeoAirdrop: false,
       TradeRates: false,
       Mixpanel: false,

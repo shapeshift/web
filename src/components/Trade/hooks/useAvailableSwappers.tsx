@@ -84,9 +84,9 @@ export const useAvailableSwappers = () => {
   ])
 
   useEffect(() => {
-    const bestSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
+    const activeSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
     updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
-    updateActiveSwapperWithMetadata(bestSwapperWithQuoteMetadata)
+    updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
   }, [
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,

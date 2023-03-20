@@ -96,7 +96,7 @@ export const TradeConfirm = () => {
   )
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -137,9 +137,9 @@ export const TradeConfirm = () => {
     const buyAssetId = trade?.buyAsset.assetId
     const sellAssetId = trade?.sellAsset.assetId
     if (!(!buyAssetId || !sellAssetId)) {
-      setSwapper(bestSwapper)
+      setSwapper(activeSwapper)
     }
-  }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
+  }, [activeSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status = useAppSelector(state => selectTxStatusById(state, parsedBuyTxId))
 

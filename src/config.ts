@@ -58,6 +58,7 @@ const validators = {
   REACT_APP_MTPELERIN_REFERRAL_CODE: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
   REACT_APP_FEATURE_DEFI_AGGREGATION: bool({ default: false }),
+  REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),

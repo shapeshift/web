@@ -78,14 +78,17 @@ export const useTradeAmounts = () => {
         fiatSellAmount,
         fiatBuyAmount,
       } = calculateAmounts(args)
-      const buyTradeAssetAmount = fromBaseUnit(buyAmountBuyAssetBaseUnit, args.buyAsset.precision)
-      const sellTradeAssetAmount = fromBaseUnit(
+      const buyAmountCryptoPrecision = fromBaseUnit(
+        buyAmountBuyAssetBaseUnit,
+        args.buyAsset.precision,
+      )
+      const sellAmountCryptoPrecision = fromBaseUnit(
         sellAmountSellAssetBaseUnit,
         args.sellAsset.precision,
       )
       updateTradeAmounts({
-        buyAmountCryptoPrecision: buyTradeAssetAmount,
-        sellAmountCryptoPrecision: sellTradeAssetAmount,
+        buyAmountCryptoPrecision,
+        sellAmountCryptoPrecision,
         fiatSellAmount,
         fiatBuyAmount,
       })
@@ -100,20 +103,25 @@ export const useTradeAmounts = () => {
       const action = args.action ?? actionFormState
       const buyAsset = args.buyAsset ?? buyAssetFormState
       const sellAsset = args.sellAsset ?? sellAssetFormState
-      const buyAssetUsdRate = args.buyAssetUsdRate ?? buyAssetFiatRateFormState
-      const sellAssetUsdRate = args.sellAssetUsdRate ?? sellAssetFiatRateFormState
+      const buyAssetFiatRate = args.buyAssetFiatRate ?? buyAssetFiatRateFormState
+      const sellAssetFiatRate = args.sellAssetFiatRate ?? sellAssetFiatRateFormState
       const fees = args.fees ?? feesFormState
-      if (sellAsset && buyAsset && action && buyAssetUsdRate && sellAssetUsdRate) {
+      const buyAssetTradeFeeFiat = bnOrZero(fees?.buyAssetTradeFeeUsd).times(
+        selectedCurrencyToUsdRate,
+      )
+      const sellAssetTradeFeeFiat = bnOrZero(fees?.sellAssetTradeFeeUsd).times(
+        selectedCurrencyToUsdRate,
+      )
+      if (sellAsset && buyAsset && action && buyAssetFiatRate && sellAssetFiatRate) {
         setTradeAmounts({
           amount,
           action,
           buyAsset,
           sellAsset,
-          buyAssetUsdRate,
-          sellAssetUsdRate,
-          selectedCurrencyToUsdRate,
-          buyAssetTradeFeeUsd: bnOrZero(fees?.buyAssetTradeFeeUsd),
-          sellAssetTradeFeeUsd: bnOrZero(fees?.sellAssetTradeFeeUsd),
+          buyAssetFiatRate,
+          sellAssetFiatRate,
+          buyAssetTradeFeeFiat,
+          sellAssetTradeFeeFiat,
         })
       }
     },
@@ -241,17 +249,28 @@ export const useTradeAmounts = () => {
           : {}
 
       if (usdRates) {
+        const buyAssetTradeFeeFiat = bnOrZero(formFees?.buyAssetTradeFeeUsd).times(
+          selectedCurrencyToUsdRate,
+        )
+        const sellAssetTradeFeeFiat = bnOrZero(formFees?.sellAssetTradeFeeUsd).times(
+          selectedCurrencyToUsdRate,
+        )
+        const buyAssetFiatRate = bnOrZero(usdRates.buyAssetUsdRate)
+          .times(selectedCurrencyToUsdRate)
+          .toString()
+        const sellAssetFiatRate = bnOrZero(usdRates.sellAssetUsdRate)
+          .times(selectedCurrencyToUsdRate)
+          .toString()
         updateFees(formFees)
         setTradeAmounts({
           amount: amountToUse,
           action: actionToUse,
           buyAsset,
           sellAsset,
-          buyAssetUsdRate: usdRates.buyAssetUsdRate,
-          sellAssetUsdRate: usdRates.sellAssetUsdRate,
-          selectedCurrencyToUsdRate,
-          buyAssetTradeFeeUsd: bnOrZero(formFees?.buyAssetTradeFeeUsd),
-          sellAssetTradeFeeUsd: bnOrZero(formFees?.sellAssetTradeFeeUsd),
+          buyAssetFiatRate,
+          sellAssetFiatRate,
+          buyAssetTradeFeeFiat,
+          sellAssetTradeFeeFiat,
         })
       } else {
         updateBuyAssetFiatRate(undefined)

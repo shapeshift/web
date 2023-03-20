@@ -22,7 +22,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectSlippage } from 'state/zustand/swapperStore/selectors'
+import { selectQuote, selectSlippage } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -30,7 +30,7 @@ The Swapper hook is responsible for providing computed swapper state to consumer
 It does not mutate state.
 */
 export const useSwapper = () => {
-  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
+  const activeQuote = useSwapperStore(selectQuote)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)

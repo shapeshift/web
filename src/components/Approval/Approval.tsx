@@ -35,6 +35,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectQuote } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
@@ -53,7 +54,7 @@ export const Approval = () => {
     formState: { isSubmitting },
   } = useFormContext()
 
-  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
+  const activeQuote = useSwapperStore(selectQuote)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)

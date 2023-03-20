@@ -40,6 +40,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
+  selectCheckApprovalNeededForWallet,
   selectQuote,
   selectSlippage,
   selectSwapperSupportsCrossAccountTrade,
@@ -110,21 +111,15 @@ export const TradeInput = () => {
     state => state.updateSellAmountCryptoPrecision,
   )
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
+  const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
 
-  const {
-    checkApprovalNeeded,
-    getTrade,
-    getSupportedSellableAssets,
-    getSupportedBuyAssetsFromSellAsset,
-  } = useSwapper()
+  const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
@@ -311,7 +306,8 @@ export const TradeInput = () => {
           [compositeSellAsset]: sellAmountCryptoPrecision,
         })
       }
-      const isApprovalNeeded = await checkApprovalNeeded()
+      if (!wallet) throw new Error('No wallet available')
+      const isApprovalNeeded = await checkApprovalNeeded(wallet)
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return
@@ -337,6 +333,7 @@ export const TradeInput = () => {
     sellAsset,
     swapperName,
     updateTrade,
+    wallet,
   ])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

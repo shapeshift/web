@@ -106,14 +106,6 @@ export const useSwapper = () => {
     [swapperManager, sellAsset],
   )
 
-  const checkApprovalNeeded = useCallback(async (): Promise<boolean> => {
-    if (!activeSwapper) throw new Error('No swapper available')
-    if (!wallet) throw new Error('No wallet available')
-    if (!activeQuote) throw new Error('No quote available')
-    const { approvalNeeded } = await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
-    return approvalNeeded
-  }, [activeSwapper, activeQuote, wallet])
-
   const approve = useCallback(async (): Promise<string> => {
     if (!activeSwapper) throw new Error('No swapper available')
     if (!wallet) throw new Error('no wallet available')
@@ -212,7 +204,6 @@ export const useSwapper = () => {
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
     swapperManager,
-    checkApprovalNeeded,
     getTrade,
     approve,
   }

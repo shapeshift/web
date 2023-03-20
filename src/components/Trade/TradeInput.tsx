@@ -39,7 +39,11 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectQuote, selectSlippage } from 'state/zustand/swapperStore/selectors'
+import {
+  selectQuote,
+  selectSlippage,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { breakpoints } from 'theme/theme'
 
@@ -105,13 +109,13 @@ export const TradeInput = () => {
   const updateSellAmountCryptoPrecision = useSwapperStore(
     state => state.updateSellAmountCryptoPrecision,
   )
+  const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
 
   const {
     checkApprovalNeeded,
     getTrade,
     getSupportedSellableAssets,
     getSupportedBuyAssetsFromSellAsset,
-    swapperSupportsCrossAccountTrade,
   } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()

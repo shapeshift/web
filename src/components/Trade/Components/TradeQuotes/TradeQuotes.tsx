@@ -17,9 +17,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   )
   const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
-  const updateActiveSwapperWithMetadata = useSwapperStore(
-    state => state.updateActiveSwapperWithMetadata,
-  )
 
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
@@ -60,7 +57,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
             isBest={i === 0}
             isLoading={isLoading}
             isActive={isActive}
-            onClick={updateActiveSwapperWithMetadata}
             swapperWithMetadata={swapperWithMetadata}
             quoteDifference={quoteDifference}
             totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}

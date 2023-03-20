@@ -35,6 +35,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectCheckApprovalNeededForWallet,
+  selectQuote,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
@@ -47,20 +51,22 @@ export const Approval = () => {
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
 
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = useFormContext()
 
-  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
+  const activeQuote = useSwapperStore(selectQuote)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
   const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
   const fees = useSwapperStore(state => state.fees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
+  const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
 
-  const { checkApprovalNeeded, approve, getTrade } = useSwapper()
+  const { approve, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -89,6 +95,10 @@ export const Approval = () => {
       moduleLogger.error('No quote available')
       return
     }
+    if (!wallet) {
+      moduleLogger.error('No wallet available')
+      return
+    }
     try {
       if (!isConnected) {
         /**
@@ -109,7 +119,7 @@ export const Approval = () => {
       approvalInterval.current = setInterval(async () => {
         fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
         try {
-          const approvalNeeded = await checkApprovalNeeded()
+          const approvalNeeded = await checkApprovalNeeded(wallet)
           if (approvalNeeded) return
         } catch (e) {
           showErrorToast(e)
@@ -126,15 +136,16 @@ export const Approval = () => {
       showErrorToast(e)
     }
   }, [
+    activeQuote,
+    wallet,
+    isConnected,
     approve,
-    checkApprovalNeeded,
+    history,
     dispatch,
     getTrade,
-    history,
-    isConnected,
-    activeQuote,
-    showErrorToast,
     updateTrade,
+    checkApprovalNeeded,
+    showErrorToast,
   ])
 
   return (

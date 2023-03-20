@@ -57,7 +57,7 @@ export const selectCheckApprovalNeededForWallet = (
 }
 
 type SelectGetTradeForWalletArgs = {
-  wallet: HDWallet | null
+  wallet: HDWallet
   sellAccountBip44Params: BIP44Params | undefined
   buyAccountBip44Params: BIP44Params | undefined
   sellAccountMetadata: AccountMetadata | undefined
@@ -84,7 +84,6 @@ export const selectGetTradeForWallet = (
 
     if (!activeSwapper) throw new Error('No swapper available')
     if (!activeQuote) throw new Error('No quote available')
-    if (!wallet) throw new Error('No wallet available')
 
     if (!sellAsset) throw new Error('No sellAsset')
     if (!activeSwapper) throw new Error('No swapper available')

@@ -108,16 +108,21 @@ export const useSwapper = () => {
     return txid
   }, [activeSwapper, isExactAllowance, activeQuote, wallet])
 
-  const getTrade = useCallback(
-    async () =>
-      await getTradeForWallet({
-        wallet,
-        sellAccountBip44Params,
-        sellAccountMetadata,
-        buyAccountBip44Params,
-      }),
-    [wallet, getTradeForWallet, sellAccountBip44Params, sellAccountMetadata, buyAccountBip44Params],
-  )
+  const getTrade = useCallback(async () => {
+    if (!wallet) throw new Error('no wallet available')
+    return await getTradeForWallet({
+      wallet,
+      sellAccountBip44Params,
+      sellAccountMetadata,
+      buyAccountBip44Params,
+    })
+  }, [
+    wallet,
+    getTradeForWallet,
+    sellAccountBip44Params,
+    sellAccountMetadata,
+    buyAccountBip44Params,
+  ])
 
   useEffect(() => {
     ;(async () => {

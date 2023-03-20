@@ -37,7 +37,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
           body: 'arkeo.foxEthProviders.body',
           cta: 'arkeo.foxEthProviders.cta',
         }
-      case DefiProvider.Osmosis:
+      case DefiProvider.OsmosisLp:
         return {
           title: 'arkeo.atomOsmoProviders.title',
           body: 'arkeo.atomOsmoProviders.body',

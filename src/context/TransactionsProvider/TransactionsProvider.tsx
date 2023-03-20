@@ -119,7 +119,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             {
               accountId,
               defiType: DefiType.Staking,
-              defiProvider: DefiProvider.Cosmos,
+              defiProvider: DefiProvider.CosmosSdk,
               opportunityType: DefiType.Staking,
             },
             { forceRefetch: true },

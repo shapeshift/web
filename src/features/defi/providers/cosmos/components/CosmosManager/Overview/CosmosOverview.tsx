@@ -95,7 +95,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
 
   const filteredOpportunitiesMetadataFilter = useMemo(() => {
     return {
-      defiProvider: DefiProvider.Cosmos,
+      defiProvider: DefiProvider.CosmosSdk,
       defiType: DefiType.Staking,
       assetId: stakingAssetId,
       validatorId: toValidatorId({

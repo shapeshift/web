@@ -1,5 +1,4 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -29,7 +28,6 @@ export const useSwapperStore = (() => {
           buyAmountFiat: '0',
           amount: '0',
           isExactAllowance: false,
-          slippage: DEFAULT_SLIPPAGE,
           action: TradeAmountInputField.SELL_CRYPTO,
           isSendMax: false,
           buyAmountCryptoPrecision: '0',
@@ -105,7 +103,6 @@ export const useSwapperStore = (() => {
               `swapper/toggleIsExactAllowance`,
             )
           },
-          updateSlippage: createUpdateAction(set, 'slippage'),
           updateAction: createUpdateAction(set, 'action'),
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),

@@ -22,6 +22,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectSlippage } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -35,7 +36,7 @@ export const useSwapper = () => {
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const isSendMax = useSwapperStore(state => state.isSendMax)
   const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
-  const slippage = useSwapperStore(state => state.slippage)
+  const slippage = useSwapperStore(selectSlippage)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)

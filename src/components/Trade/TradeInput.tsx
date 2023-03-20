@@ -39,6 +39,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectSlippage } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { breakpoints } from 'theme/theme'
 
@@ -73,7 +74,7 @@ export const TradeInput = () => {
   )
   const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
   const fees = useSwapperStore(state => state.fees)
-  const slippage = useSwapperStore(state => state.slippage)
+  const slippage = useSwapperStore(selectSlippage)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)

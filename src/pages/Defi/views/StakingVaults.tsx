@@ -17,12 +17,12 @@ const DefiHeader = () => {
 }
 
 export const StakingVaults = () => {
-  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+  const isDefiAggregationEnabled = useFeatureFlag('DefiAggregation')
   return (
     <Main titleComponent={<DefiHeader />}>
       <EligibleSlider />
 
-      {isDefiDashboardEnabled ? <DeFiEarn /> : <AllEarnOpportunities />}
+      {isDefiAggregationEnabled ? <DeFiEarn /> : <AllEarnOpportunities />}
     </Main>
   )
 }

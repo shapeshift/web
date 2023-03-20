@@ -27,7 +27,7 @@ export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
   const assets = useAppSelector(selectAssets)
-  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+  const isDefiAggregationEnabled = useFeatureFlag('DefiAggregation')
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -111,7 +111,7 @@ export const AllEarnOpportunities = () => {
 
   return (
     <Card variant='unstyled' my={6}>
-      {!isDefiDashboardEnabled && (
+      {!isDefiAggregationEnabled && (
         <Card.Header flexDir='row' display='flex' px={4}>
           <Box>
             <Card.Heading>

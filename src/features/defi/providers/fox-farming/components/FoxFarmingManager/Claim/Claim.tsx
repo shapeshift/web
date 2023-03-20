@@ -6,6 +6,7 @@ import type {
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { MemoryRouter } from 'react-router'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
@@ -13,9 +14,13 @@ import { ClaimRoutes } from './ClaimRoutes'
 
 type ClaimProps = {
   accountId: AccountId | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
 }
 
-export const Claim: React.FC<ClaimProps> = ({ accountId }) => {
+export const Claim: React.FC<ClaimProps> = ({
+  accountId,
+  onAccountIdChange: handleAccountIdChange,
+}) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
   const handleBack = () => {
@@ -31,7 +36,11 @@ export const Claim: React.FC<ClaimProps> = ({ accountId }) => {
   return (
     <SlideTransition>
       <MemoryRouter>
-        <ClaimRoutes accountId={accountId} onBack={handleBack} />
+        <ClaimRoutes
+          accountId={accountId}
+          onAccountIdChange={handleAccountIdChange}
+          onBack={handleBack}
+        />
       </MemoryRouter>
     </SlideTransition>
   )

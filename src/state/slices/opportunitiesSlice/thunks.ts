@@ -29,7 +29,7 @@ export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryAction
         {
           opportunityType: DefiType.LiquidityPool,
           defiType: DefiType.LiquidityPool,
-          defiProvider: DefiProvider.Osmosis,
+          defiProvider: DefiProvider.OsmosisLp,
         },
         { forceRefetch: false, ...options },
       ),
@@ -47,7 +47,7 @@ export const fetchAllStakingOpportunitiesMetadata = async (
       opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
         {
           defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Cosmos,
+          defiProvider: DefiProvider.CosmosSdk,
           opportunityType: DefiType.Staking,
         },
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
@@ -141,7 +141,7 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     },
     {
       defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.Osmosis,
+      defiProvider: DefiProvider.OsmosisLp,
     },
     {
       defiType: DefiType.Staking,
@@ -153,7 +153,7 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
     },
     {
       defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Cosmos,
+      defiProvider: DefiProvider.CosmosSdk,
     },
   ]
 
@@ -183,7 +183,7 @@ export const fetchAllStakingOpportunitiesUserData = async (
         {
           accountId,
           defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Cosmos,
+          defiProvider: DefiProvider.CosmosSdk,
           opportunityType: DefiType.Staking,
         },
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached

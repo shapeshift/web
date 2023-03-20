@@ -70,7 +70,7 @@ export const StakingOpportunities = ({
     () => ({
       accountId: routeAccountId ?? '',
       assetId: assetId ?? '',
-      defiProvider: DefiProvider.Cosmos,
+      defiProvider: DefiProvider.CosmosSdk,
     }),
     [routeAccountId, assetId],
   )
@@ -89,7 +89,7 @@ export const StakingOpportunities = ({
       history.push({
         search: qs.stringify({
           accountId: routeAccountId ?? opportunityAccountId,
-          provider: DefiProvider.Cosmos,
+          provider: DefiProvider.CosmosSdk,
           chainId,
           contractAddress: validatorAddress,
           assetReference,

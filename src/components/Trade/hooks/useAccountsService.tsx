@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectSwapperSupportsCrossAccountTrade } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -10,9 +10,6 @@ The Accounts Service is responsible for reacting to changes to trade assets and 
 It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
-  // Custom hooks
-  const { swapperSupportsCrossAccountTrade } = useSwapper()
-
   // Selectors
   const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
@@ -23,6 +20,7 @@ export const useAccountsService = () => {
   const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
+  const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
 
   const sellAssetId = sellAsset?.assetId
   const buyAssetId = buyAsset?.assetId

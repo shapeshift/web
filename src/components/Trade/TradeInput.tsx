@@ -39,6 +39,12 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectCheckApprovalNeededForWallet,
+  selectQuote,
+  selectSlippage,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { breakpoints } from 'theme/theme'
 
@@ -71,9 +77,9 @@ export const TradeInput = () => {
   const updateSelectedBuyAssetAccountId = useSwapperStore(
     state => state.updateSelectedBuyAssetAccountId,
   )
-  const activeQuote = useSwapperStore(state => state.activeSwapperWithMetadata?.quote)
+  const activeQuote = useSwapperStore(selectQuote)
   const fees = useSwapperStore(state => state.fees)
-  const slippage = useSwapperStore(state => state.slippage)
+  const slippage = useSwapperStore(selectSlippage)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
@@ -104,22 +110,16 @@ export const TradeInput = () => {
   const updateSellAmountCryptoPrecision = useSwapperStore(
     state => state.updateSellAmountCryptoPrecision,
   )
+  const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
+  const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
 
-  const {
-    checkApprovalNeeded,
-    getTrade,
-    getSupportedSellableAssets,
-    getSupportedBuyAssetsFromSellAsset,
-    swapperSupportsCrossAccountTrade,
-  } = useSwapper()
+  const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
@@ -306,7 +306,8 @@ export const TradeInput = () => {
           [compositeSellAsset]: sellAmountCryptoPrecision,
         })
       }
-      const isApprovalNeeded = await checkApprovalNeeded()
+      if (!wallet) throw new Error('No wallet available')
+      const isApprovalNeeded = await checkApprovalNeeded(wallet)
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return
@@ -332,6 +333,7 @@ export const TradeInput = () => {
     sellAsset,
     swapperName,
     updateTrade,
+    wallet,
   ])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

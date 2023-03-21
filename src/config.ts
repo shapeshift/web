@@ -135,6 +135,7 @@ const validators = {
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
   }),
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

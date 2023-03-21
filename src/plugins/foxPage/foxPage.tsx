@@ -48,6 +48,7 @@ import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './components/AssetActions'
+import { BondProtocolCta } from './components/BondProtocolCta'
 import { DappBack } from './components/DappBack'
 import { FoxChart } from './components/FoxChart'
 import { FoxTab } from './components/FoxTab'
@@ -313,6 +314,7 @@ export const FoxPage = () => {
               </Stack>
               <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', lg: 'sm' }} spacing={4}>
                 <AssetActions assetId={foxAssetId} />
+                <BondProtocolCta />
                 <DappBack />
                 <TradeOpportunities opportunities={assetsTradeOpportunitiesBuckets[foxAssetId]} />
                 <AssetMarketData assetId={selectedAsset.assetId} />

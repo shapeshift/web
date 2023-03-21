@@ -77,6 +77,7 @@ export const mockStore: ReduxState = {
       Mixpanel: false,
       LiveSupport: false,
       LifiSwap: false,
+      FoxBondCTA: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

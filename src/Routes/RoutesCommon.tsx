@@ -17,6 +17,7 @@ import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
+import { EarnDashboard } from 'pages/Dashboard/EarnDashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
@@ -38,6 +39,13 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Wallet,
     mobileNav: true,
     priority: 0,
+    routes: [
+      {
+        label: 'Earn Dashboard',
+        path: '/earn',
+        main: EarnDashboard,
+      },
+    ],
   },
   {
     path: '/assets',

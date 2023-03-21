@@ -2,7 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { mockStore } from 'test/mocks/store'
-import type { OpportunityId, OpportunityMetadata } from 'state/slices/opportunitiesSlice/types'
+import type {
+  OpportunitiesState,
+  OpportunityId,
+  OpportunityMetadata,
+} from 'state/slices/opportunitiesSlice/types'
 
 import { foxEthLpAssetId, foxEthPair, foxEthStakingAssetIdV5 } from '../constants'
 import {
@@ -75,7 +79,7 @@ describe('opportunitiesSlice selectors', () => {
       },
       ids: [mockStakingContractOne, mockStakingContractTwo],
     }
-    const userStaking = {
+    const userStaking: OpportunitiesState['userStaking'] = {
       ...initialState.staking,
       ids: [
         serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
@@ -86,17 +90,20 @@ describe('opportunitiesSlice selectors', () => {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
-          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: {
+            amounts: ['420000000000000000000'] as [string],
+            claimable: true,
+          },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
-          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
           userStakingId: serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '9000',
-          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: { amounts: ['1000000000000000000'] as [string], claimable: true },
         },
       },
     }
@@ -202,7 +209,7 @@ describe('opportunitiesSlice selectors', () => {
         [mockStakingContractTwo]: mockOpportunityMetadataTwo,
       },
     }
-    const userStaking = {
+    const userStaking: OpportunitiesState['userStaking'] = {
       ...initialState.userStaking,
       ids: [
         serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
@@ -213,12 +220,15 @@ describe('opportunitiesSlice selectors', () => {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
-          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: {
+            amounts: ['420000000000000000000'] as [string],
+            claimable: true,
+          },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
-          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },
         },
       },
     }
@@ -244,7 +254,7 @@ describe('opportunitiesSlice selectors', () => {
         userStakingId: 'eip155:1:0xgomes*eip155:1:0xStakingContractTwo',
         name: 'ETH/FOX Farming',
         provider: DefiProvider.EthFoxStaking,
-        rewardsAmountsCryptoBaseUnit: ['420000000000000000000'],
+        rewardsCryptoBaseUnit: ['420000000000000000000'],
         stakedAmountCryptoBaseUnit: '1337',
         tvl: '424242',
         type: 'staking',
@@ -269,7 +279,7 @@ describe('opportunitiesSlice selectors', () => {
         name: 'ETH/FOX LP',
         provider: DefiProvider.UniV2,
         stakedAmountCryptoBaseUnit: '4',
-        rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
+        rewardsCryptoBaseUnit: ['3000000000000000000'] as [string],
         tvl: '424242',
         type: 'lp',
         underlyingAssetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -307,7 +317,7 @@ describe('opportunitiesSlice selectors', () => {
       },
       ids: [mockStakingContractTwo],
     }
-    const userStaking = {
+    const userStaking: OpportunitiesState['userStaking'] = {
       ...initialState.staking,
       ids: [
         serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
@@ -318,17 +328,20 @@ describe('opportunitiesSlice selectors', () => {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
-          rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: {
+            amounts: ['420000000000000000000'] as [string],
+            claimable: true,
+          },
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
           userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '100',
-          rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: { amounts: ['1000000000000000000'] as [string], claimable: true },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
-          rewardsAmountsCryptoBaseUnit: ['3000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },
         },
       },
     }
@@ -353,7 +366,7 @@ describe('opportunitiesSlice selectors', () => {
             id: mockStakingContractTwo,
             name: 'FOX Farming',
             provider: DefiProvider.EthFoxStaking,
-            rewardsAmountsCryptoBaseUnit: ['420000000000000000000'] as [string],
+            rewardsCryptoBaseUnit: ['420000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '1337',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
@@ -373,7 +386,7 @@ describe('opportunitiesSlice selectors', () => {
             id: mockStakingContractTwo,
             name: 'FOX Farming',
             provider: DefiProvider.EthFoxStaking,
-            rewardsAmountsCryptoBaseUnit: ['1000000000000000000'] as [string],
+            rewardsCryptoBaseUnit: ['1000000000000000000'] as [string],
             stakedAmountCryptoBaseUnit: '100',
             tvl: '91283233211',
             type: DefiType.LiquidityPool,
@@ -410,7 +423,7 @@ describe('opportunitiesSlice selectors', () => {
             string,
             string,
           ],
-          rewardsAmountsCryptoBaseUnit: ['421000000000000000000'] as [string],
+          rewardsCryptoBaseUnit: ['421000000000000000000'] as [string],
           rewardAssetIds: [foxAssetId],
           stakedAmountCryptoBaseUnit: '1437',
           undelegations: [],

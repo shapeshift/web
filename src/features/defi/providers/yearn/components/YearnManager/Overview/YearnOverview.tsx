@@ -157,7 +157,7 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!(contractAddress && yearnInvestor && opportunityData))
       return makeDefaultMenu(opportunityData?.expired)
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length)
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length)
       return makeDefaultMenu(opportunityData.expired)
 
     return makeDefaultMenu(opportunityData?.expired)

@@ -154,7 +154,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(
     bn(10).pow(stakingAsset.precision),
   )
-  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit[0]).div(
+  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]).div(
     bn(10).pow(rewardAsset.precision),
   )
   const hasClaim = rewardAmountAvailable.gt(0)

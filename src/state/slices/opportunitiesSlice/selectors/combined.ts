@@ -78,7 +78,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
                 if (!asset) return sum
                 const marketDataPrice = marketData[assetId]?.price
                 const cryptoAmountPrecision = bnOrZero(
-                  stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+                  stakingOpportunity?.rewardsCryptoBaseUnit?.amounts[index],
                 ).div(bnOrZero(10).pow(asset?.precision))
                 return bnOrZero(cryptoAmountPrecision)
                   .times(marketDataPrice ?? 0)
@@ -202,7 +202,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
             if (!asset) return sum
             const marketDataPrice = marketData[assetId]?.price
             const cryptoAmountPrecision = bnOrZero(
-              stakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[index],
+              stakingOpportunity?.rewardsCryptoBaseUnit?.amounts[index],
             ).div(bnOrZero(10).pow(asset?.precision))
             return bnOrZero(cryptoAmountPrecision)
               .times(marketDataPrice ?? 0)

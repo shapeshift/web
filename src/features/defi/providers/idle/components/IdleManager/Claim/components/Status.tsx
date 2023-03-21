@@ -125,9 +125,9 @@ export const Status = () => {
   )
 
   const claimAmounts: ClaimAmount[] = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return []
 
-    return opportunityData.rewardsAmountsCryptoBaseUnit
+    return opportunityData.rewardsCryptoBaseUnit.amounts
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         const amountCryptoHuman = bnOrZero(amount)
@@ -144,12 +144,7 @@ export const Status = () => {
         return token
       })
       .filter(isSome)
-  }, [
-    assets,
-    marketData,
-    opportunityData?.rewardAssetIds,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
-  ])
+  }, [assets, marketData, opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const claimableAssets = useMemo(() => {
     return claimAmounts.map(rewardAsset => {

@@ -209,7 +209,10 @@ describe('opportunitiesSlice', () => {
             [userStakingId]: {
               userStakingId,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }
@@ -227,7 +230,10 @@ describe('opportunitiesSlice', () => {
             [userStakingIdOne]: {
               userStakingId: userStakingIdOne,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }
@@ -246,7 +252,10 @@ describe('opportunitiesSlice', () => {
             [userStakingIdTwo]: {
               userStakingId: userStakingIdTwo,
               stakedAmountCryptoBaseUnit: '42000',
-              rewardsAmountsCryptoBaseUnit: ['42000000000000000000'] as [string],
+              rewardsCryptoBaseUnit: {
+                amounts: ['42000000000000000000'] as [string],
+                claimable: true,
+              },
             },
           },
         }

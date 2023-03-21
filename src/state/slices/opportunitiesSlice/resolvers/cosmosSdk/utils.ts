@@ -119,7 +119,10 @@ export const makeAccountUserData = ({
       acc[userStakingId] = {
         userStakingId,
         stakedAmountCryptoBaseUnit: maybeValidatorDelegations.toFixed(),
-        rewardsAmountsCryptoBaseUnit: [maybeValidatorRewardsAggregated.toFixed()],
+        rewardsCryptoBaseUnit: {
+          amounts: [maybeValidatorRewardsAggregated.toFixed()],
+          claimable: true,
+        },
         undelegations: maybeValidatorUndelegations,
       }
     }
@@ -155,7 +158,7 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
   userStakingOpportunity: Partial<UserStakingOpportunity>,
 ): BN =>
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
-    .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+    .plus(userStakingOpportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
     .plus(
       makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
         ...(supportsUndelegations(userStakingOpportunity)
@@ -180,18 +183,17 @@ export const makeOpportunityTotalFiatBalance = ({
     .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
     .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
 
-  const rewardsAmountFiatBalance = [...(opportunity.rewardsAmountsCryptoBaseUnit ?? [])].reduce<BN>(
-    (acc, currentAmount, i) => {
-      const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
-      const rewardAsset = assets[rewardAssetId]
-      return acc.plus(
-        bnOrZero(currentAmount)
-          .times(marketData[rewardAssetId]?.price ?? '0')
-          .div(bn(10).pow(rewardAsset?.precision ?? 1)),
-      )
-    },
-    bn(0),
-  )
+  const rewardsAmountFiatBalance = [
+    ...(opportunity.rewardsCryptoBaseUnit?.amounts ?? []),
+  ].reduce<BN>((acc, currentAmount, i) => {
+    const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
+    const rewardAsset = assets[rewardAssetId]
+    return acc.plus(
+      bnOrZero(currentAmount)
+        .times(marketData[rewardAssetId]?.price ?? '0')
+        .div(bn(10).pow(rewardAsset?.precision ?? 1)),
+    )
+  }, bn(0))
 
   const undelegationsFiatBalance = makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
     ...(supportsUndelegations(opportunity) ? opportunity.undelegations : []),

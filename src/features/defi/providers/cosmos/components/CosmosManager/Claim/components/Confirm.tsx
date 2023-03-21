@@ -69,7 +69,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  const claimAmount = bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0]).toString()
+  const claimAmount = bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]).toString()
   const claimFiatAmount = useMemo(
     () => bnOrZero(claimAmount).times(assetMarketData.price).toString(),
     [assetMarketData.price, claimAmount],

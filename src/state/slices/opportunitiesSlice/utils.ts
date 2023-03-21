@@ -119,7 +119,7 @@ export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
   userStakingOpportunity: Partial<UserStakingOpportunity>,
 ): BN =>
   bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
-    .plus(userStakingOpportunity?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+    .plus(userStakingOpportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
     .plus(
       makeTotalUndelegationsCryptoBaseUnit([
         ...(supportsUndelegations(userStakingOpportunity)
@@ -132,7 +132,7 @@ export const isActiveStakingOpportunity = (
   userStakingOpportunity: UserStakingOpportunity | UserStakingOpportunityWithMetadata,
 ) => {
   const hasActiveStaking = bn(userStakingOpportunity.stakedAmountCryptoBaseUnit).gt(0)
-  const hasRewards = userStakingOpportunity.rewardsAmountsCryptoBaseUnit.some(rewardsAmount =>
+  const hasRewards = userStakingOpportunity.rewardsCryptoBaseUnit.amounts.some(rewardsAmount =>
     bn(rewardsAmount).gt(0),
   )
   // Defaults to 0 for non-Cosmos-Sdk opportunities

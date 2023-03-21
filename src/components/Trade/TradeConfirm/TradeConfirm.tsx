@@ -161,8 +161,6 @@ export const TradeConfirm = () => {
     }
   }, [buyTxid, isSubmitting, sellTradeId, status, trade?.sources])
 
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-
   const sellTxLink = useMemo(
     () =>
       getTxLink({
@@ -261,9 +259,7 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(feeAssetFiatRate ?? 1)
-    .times(selectedCurrencyToUsdRate)
+  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetFiatRate ?? 1)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat

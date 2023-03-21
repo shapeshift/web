@@ -273,7 +273,6 @@ export const Approval = () => {
                     {toFiat(
                       approvalFeeCryptoPrecision
                         .times(feeAssetFiatRate ?? 1)
-                        .times(selectedCurrencyToUsdRate)
                         .toString(),
                     )}
                   </RawText>

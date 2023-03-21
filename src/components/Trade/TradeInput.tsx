@@ -80,7 +80,6 @@ export const TradeInput = () => {
   const activeQuote = useSwapperStore(selectQuote)
   const fees = useSwapperStore(state => state.fees)
   const slippage = useSwapperStore(selectSlippage)
-  const updateFees = useSwapperStore(state => state.updateFees)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
@@ -89,29 +88,16 @@ export const TradeInput = () => {
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
-  const sellAssetFiatRate = useSwapperStore(state => state.sellAssetFiatRate)
-  const updateFiatBuyAmount = useSwapperStore(state => state.updateBuyAmountFiat)
-  const updateFiatSellAmount = useSwapperStore(state => state.updateSellAmountFiat)
-  const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
-  const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
-  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
-  const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
-  const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
-  const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
-  const updateBuyAmountCryptoPrecision = useSwapperStore(
-    state => state.updateBuyAmountCryptoPrecision,
-  )
   const updateSellAmountCryptoPrecision = useSwapperStore(
     state => state.updateSellAmountCryptoPrecision,
   )
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
+  const handleAssetToggle = useSwapperStore(state => state.handleAssetToggle)
 
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
@@ -205,58 +191,8 @@ export const TradeInput = () => {
   )
 
   const handleToggle = useCallback(() => {
-    try {
-      const currentValues = Object.freeze({
-        buyAsset,
-        sellAsset,
-        sellAssetFiatRate,
-        buyAssetFiatRate,
-      })
-      const currentSellAsset = sellAsset
-      const currentBuyAsset = buyAsset
-      if (!(currentSellAsset && currentBuyAsset)) return
-
-      updateSellAsset(currentBuyAsset)
-      updateBuyAsset(currentSellAsset)
-      updateSellAmountCryptoPrecision('0')
-      updateBuyAmountCryptoPrecision('0')
-      updateBuyAssetFiatRate(currentValues.sellAssetFiatRate)
-      updateSellAssetFiatRate(currentValues.buyAssetFiatRate)
-
-      // The below values all change on asset change. Clear them so no inaccurate data is shown in the UI.
-      updateFiatSellAmount('0')
-      updateFiatBuyAmount('0')
-      updateFeeAssetFiatRate(undefined)
-      updateFees(undefined)
-      updateTrade(undefined)
-      updateSelectedSellAssetAccountId(undefined)
-      updateSelectedBuyAssetAccountId(undefined)
-      updateBuyAssetAccountId(undefined)
-      updateSellAssetAccountId(undefined)
-    } catch (e) {
-      moduleLogger.error(e, 'handleToggle error')
-    }
-  }, [
-    buyAsset,
-    sellAsset,
-    sellAssetFiatRate,
-    buyAssetFiatRate,
-    updateSellAsset,
-    updateBuyAsset,
-    updateSellAmountCryptoPrecision,
-    updateBuyAmountCryptoPrecision,
-    updateBuyAssetFiatRate,
-    updateSellAssetFiatRate,
-    updateFiatSellAmount,
-    updateFiatBuyAmount,
-    updateFeeAssetFiatRate,
-    updateFees,
-    updateTrade,
-    updateSelectedSellAssetAccountId,
-    updateSelectedBuyAssetAccountId,
-    updateBuyAssetAccountId,
-    updateSellAssetAccountId,
-  ])
+    handleAssetToggle()
+  }, [handleAssetToggle])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellAsset && activeQuote)) return

@@ -66,6 +66,7 @@ export type SwapperAction = {
   updateBuyAsset: (buyAsset: SwapperStore['buyAsset']) => void
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
+  handleAssetToggle: () => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

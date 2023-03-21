@@ -5,6 +5,7 @@ import { immer } from 'zustand/middleware/immer'
 import { TradeAmountInputField } from 'components/Trade/types'
 import {
   clearAmounts,
+  handleAssetToggle,
   toggleIsExactAllowance,
   updateTradeAmounts,
 } from 'state/zustand/swapperStore/actions'
@@ -67,6 +68,7 @@ export const useSwapperStore = (() => {
             set,
             'availableSwappersWithMetadata',
           ),
+          handleAssetToggle: handleAssetToggle(set),
         }),
         { name: 'SwapperStore' },
       ),

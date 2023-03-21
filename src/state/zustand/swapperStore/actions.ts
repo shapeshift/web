@@ -60,3 +60,35 @@ export const clearAmounts =
       false,
       `swapper/clearAmounts`,
     )
+
+export const handleAssetToggle =
+  (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['handleAssetToggle'] =>
+  () =>
+    set(
+      state => {
+        const currentSellAsset = state.sellAsset
+        const currentBuyAsset = state.buyAsset
+        const currentSellAssetFiatRate = state.sellAssetFiatRate
+        const currentBuyAssetFiatRate = state.buyAssetFiatRate
+        if (!(currentSellAsset && currentBuyAsset)) return state
+
+        state.buyAsset = currentSellAsset
+        state.sellAsset = currentBuyAsset
+        state.sellAmountCryptoPrecision = '0'
+        state.buyAmountCryptoPrecision = '0'
+        state.sellAmountFiat = '0'
+        state.buyAmountFiat = '0'
+        state.feeAssetFiatRate = undefined
+        state.fees = undefined
+        state.trade = undefined
+        state.selectedSellAssetAccountId = undefined
+        state.selectedBuyAssetAccountId = undefined
+        state.buyAssetAccountId = undefined
+        state.sellAssetAccountId = undefined
+        state.buyAssetFiatRate = currentSellAssetFiatRate
+        state.sellAssetFiatRate = currentBuyAssetFiatRate
+        return state
+      },
+      false,
+      `swapper/handleAssetToggle`,
+    )

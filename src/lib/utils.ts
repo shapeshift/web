@@ -149,8 +149,5 @@ export const hashCode = (str: string): string =>
     .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
     .toString()
 
-export const sha256 = (input: string): string => {
-  const hash = crypto.createHash('sha256')
-  hash.update(input)
-  return hash.digest('hex')
-}
+export const sha256 = (input: string): string =>
+  crypto.createHash('sha256').update(input).digest('hex')

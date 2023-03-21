@@ -4,6 +4,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import crypto from 'crypto-browserify'
 import { isNull } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
@@ -147,3 +148,9 @@ export const hashCode = (str: string): string =>
     .split('')
     .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
     .toString()
+
+export const sha256 = (input: string): string => {
+  const hash = crypto.createHash('sha256')
+  hash.update(input)
+  return hash.digest('hex')
+}

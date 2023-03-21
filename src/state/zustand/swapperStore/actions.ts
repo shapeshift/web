@@ -9,12 +9,12 @@ export const updateTradeAmounts =
   (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['updateTradeAmounts'] =>
   ({ fiatSellAmount, fiatBuyAmount, buyAmountCryptoPrecision, sellAmountCryptoPrecision }) =>
     set(
-      state => {
-        if (fiatSellAmount) state.sellAmountFiat = fiatSellAmount
-        if (fiatBuyAmount) state.buyAmountFiat = fiatBuyAmount
-        if (buyAmountCryptoPrecision) state.buyAmountCryptoPrecision = buyAmountCryptoPrecision
-        if (sellAmountCryptoPrecision) state.sellAmountCryptoPrecision = sellAmountCryptoPrecision
-        return state
+      draft => {
+        if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
+        if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
+        if (buyAmountCryptoPrecision) draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
+        if (sellAmountCryptoPrecision) draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+        return draft
       },
       false,
       {
@@ -32,9 +32,9 @@ export const toggleIsExactAllowance =
   (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['toggleIsExactAllowance'] =>
   () =>
     set(
-      state => {
-        state.isExactAllowance = !state.isExactAllowance
-        return state
+      draft => {
+        draft.isExactAllowance = !draft.isExactAllowance
+        return draft
       },
       false,
       `swapper/toggleIsExactAllowance`,
@@ -44,18 +44,18 @@ export const clearAmounts =
   (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['clearAmounts'] =>
   () =>
     set(
-      state => {
-        state.sellAmountCryptoPrecision = '0'
-        state.buyAmountCryptoPrecision = '0'
-        state.buyAmountFiat = '0'
-        state.sellAmountFiat = '0'
-        state.amount = '0'
-        state.isSendMax = false
-        state.action = TradeAmountInputField.SELL_FIAT
-        state.trade = undefined
-        state.buyAmountFiat = '0'
-        state.sellAmountFiat = '0'
-        return state
+      draft => {
+        draft.sellAmountCryptoPrecision = '0'
+        draft.buyAmountCryptoPrecision = '0'
+        draft.buyAmountFiat = '0'
+        draft.sellAmountFiat = '0'
+        draft.amount = '0'
+        draft.isSendMax = false
+        draft.action = TradeAmountInputField.SELL_FIAT
+        draft.trade = undefined
+        draft.buyAmountFiat = '0'
+        draft.sellAmountFiat = '0'
+        return draft
       },
       false,
       `swapper/clearAmounts`,
@@ -65,29 +65,28 @@ export const handleAssetToggle =
   (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['handleAssetToggle'] =>
   () =>
     set(
-      state => {
-        const currentSellAsset = state.sellAsset
-        const currentBuyAsset = state.buyAsset
-        const currentSellAssetFiatRate = state.sellAssetFiatRate
-        const currentBuyAssetFiatRate = state.buyAssetFiatRate
-        if (!(currentSellAsset && currentBuyAsset)) return state
+      draft => {
+        const currentSellAsset = draft.sellAsset
+        const currentBuyAsset = draft.buyAsset
+        const currentSellAssetFiatRate = draft.sellAssetFiatRate
+        const currentBuyAssetFiatRate = draft.buyAssetFiatRate
 
-        state.buyAsset = currentSellAsset
-        state.sellAsset = currentBuyAsset
-        state.sellAmountCryptoPrecision = '0'
-        state.buyAmountCryptoPrecision = '0'
-        state.sellAmountFiat = '0'
-        state.buyAmountFiat = '0'
-        state.feeAssetFiatRate = undefined
-        state.fees = undefined
-        state.trade = undefined
-        state.selectedSellAssetAccountId = undefined
-        state.selectedBuyAssetAccountId = undefined
-        state.buyAssetAccountId = undefined
-        state.sellAssetAccountId = undefined
-        state.buyAssetFiatRate = currentSellAssetFiatRate
-        state.sellAssetFiatRate = currentBuyAssetFiatRate
-        return state
+        draft.buyAsset = currentSellAsset
+        draft.sellAsset = currentBuyAsset
+        draft.sellAmountCryptoPrecision = '0'
+        draft.buyAmountCryptoPrecision = '0'
+        draft.sellAmountFiat = '0'
+        draft.buyAmountFiat = '0'
+        draft.feeAssetFiatRate = undefined
+        draft.fees = undefined
+        draft.trade = undefined
+        draft.selectedSellAssetAccountId = undefined
+        draft.selectedBuyAssetAccountId = undefined
+        draft.buyAssetAccountId = undefined
+        draft.sellAssetAccountId = undefined
+        draft.buyAssetFiatRate = currentSellAssetFiatRate
+        draft.sellAssetFiatRate = currentBuyAssetFiatRate
+        return draft
       },
       false,
       `swapper/handleAssetToggle`,

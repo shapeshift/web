@@ -72,7 +72,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultBuyAssetId,
     getDefaultAssets,
     methods,
-    location,
     hasSetDefaultValues,
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,

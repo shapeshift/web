@@ -105,7 +105,7 @@ export const assets = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setAssets: (state, action: PayloadAction<AssetsState>) => {
+    upsertAssets: (state, action: PayloadAction<AssetsState>) => {
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
     },
@@ -152,7 +152,7 @@ export const assetApi = createApi({
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(assets.actions.setAssets(data))
+        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
     getAssetDescription: build.query<
@@ -183,7 +183,7 @@ export const assetApi = createApi({
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(assets.actions.setAssets(data))
+        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
   }),

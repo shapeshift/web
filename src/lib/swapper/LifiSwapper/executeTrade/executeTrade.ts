@@ -1,11 +1,10 @@
 import type Lifi from '@lifi/sdk/dist/Lifi'
-import type { Route, Step } from '@lifi/sdk/dist/types'
+import type { Step } from '@lifi/sdk/dist/types'
 import type { BuildSendTxInput, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import type { Signer } from 'ethers'
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
@@ -67,24 +66,6 @@ export const executeTrade = async ({
 
     const { accountNumber, sellAsset, routesRequest } = trade
 
-    if (window.ethereum === undefined) {
-      throw new SwapError('[executeTrade] - window.ethereum is undefined', {
-        code: SwapErrorType.EXECUTE_TRADE_FAILED,
-      })
-    }
-
-    // TODO: investigate alternatives if required:
-    // - [preferred] somehow get Signer from HDWallet (`wallet` in ExecuteTradeInput)
-    // - singleton indexed by chainId similar to `src/lib/web3-provider.ts`.
-    //
-    // Cannot use `lifi.getRpcProvider(chainId)` because it returns a FallbackProvider which is not
-    // instanceof JsonRpcProvider which lacks a signer.
-    //
-    // At minimum this should be a singleton so the provider can maintain state. If live transaction
-    // updates in the UI are required eventually then the JsonRpcProvider must be accessible to the UI
-    const web3Provider = new providers.Web3Provider(window.ethereum)
-    const signer: Signer = web3Provider.getSigner()
-
     const chainId = sellAsset.chainId
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(chainId)
@@ -98,11 +79,6 @@ export const executeTrade = async ({
 
     const evmChainAdapter = adapter as unknown as EvmChainAdapter
 
-    const updateCallback = (_updatedRoute: Route) => {
-      // do nothing
-      // TODO: add debug logger here?
-    }
-
     // We need to refetch the route because the one in getTradeQuote has a different sell amount due to
     // logic surrounding minimumCryptoHuman.
     // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error
@@ -110,16 +86,13 @@ export const executeTrade = async ({
     const routesResponse = await lifi.getRoutes(routesRequest)
     const route = routesResponse.routes[SELECTED_ROUTE_INDEX]
 
-    const routeExecution = await lifi.executeRoute(signer, route, {
-      executeInBackground: true,
-      updateCallback,
-    })
+    const getStepTransaction = await lifi.getStepTransaction(route.steps[0])
 
     const buildSendTxInput = await createBuildSendTxInput(
       lifi,
       wallet,
       accountNumber,
-      routeExecution.steps[0],
+      getStepTransaction,
     )
 
     const { txToSign } = await evmChainAdapter.buildSendTransaction(buildSendTxInput)

@@ -331,7 +331,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         amounts: userStakingOpportunity.rewardsCryptoBaseUnit.amounts.map((amount, i) =>
           bnOrZero(acc?.rewardsCryptoBaseUnit.amounts[i]).plus(amount).toString(),
         ) as [string, string] | [string] | [],
-        claimable: true, // TODO(gomes): figure out heuristics for these
+        claimable: userStakingOpportunity.isClaimableRewards,
       }
       const undelegations = [
         ...(supportsUndelegations(userStakingOpportunity)

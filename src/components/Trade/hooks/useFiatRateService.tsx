@@ -24,7 +24,7 @@ export const useFiatRateService = () => {
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Selectors
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate).toString()
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellTradeAssetId = sellAsset?.assetId
@@ -35,6 +35,9 @@ export const useFiatRateService = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const updateSelectedCurrencyToUsdRate = useSwapperStore(
+    state => state.updateSelectedCurrencyToUsdRate,
+  )
 
   /*
     We need to pick a source for our USD rates. If we update it basic on the active swapper the UI jumps
@@ -69,21 +72,20 @@ export const useFiatRateService = () => {
 
   // Set fiat rates
   useEffect(() => {
+    updateSelectedCurrencyToUsdRate(selectedCurrencyToUsdRate)
     if (usdRates) {
+      const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = usdRates
       updateSellAssetFiatRate(
-        bnOrZero(usdRates.sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+        bnOrZero(sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
       )
-      updateBuyAssetFiatRate(
-        bnOrZero(usdRates.buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
-      )
-      updateFeeAssetFiatRate(
-        bnOrZero(usdRates.feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
-      )
+      updateBuyAssetFiatRate(bnOrZero(buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString())
+      updateFeeAssetFiatRate(bnOrZero(feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString())
     }
   }, [
     selectedCurrencyToUsdRate,
     updateBuyAssetFiatRate,
     updateFeeAssetFiatRate,
+    updateSelectedCurrencyToUsdRate,
     updateSellAssetFiatRate,
     usdRates,
   ])

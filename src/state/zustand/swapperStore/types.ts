@@ -27,6 +27,7 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   trade?: Trade<C> | CowTrade<C>
   activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
+  selectedCurrencyToUsdRate?: string
 }
 
 type TradeAmounts = {
@@ -67,6 +68,7 @@ export type SwapperAction = {
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleAssetToggle: () => void
+  updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

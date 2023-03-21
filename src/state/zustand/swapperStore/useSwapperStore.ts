@@ -69,6 +69,7 @@ export const useSwapperStore = (() => {
             'availableSwappersWithMetadata',
           ),
           handleAssetToggle: handleAssetToggle(set),
+          updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
         }),
         { name: 'SwapperStore' },
       ),

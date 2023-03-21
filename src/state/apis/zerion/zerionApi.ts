@@ -1,4 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -26,7 +29,19 @@ export const zerionApi = createApi({
         return { data }
       },
     }),
+    getWalletPositions: build.query<void, AccountId>({
+      queryFn: async accountId => {
+        const { chainId, account } = fromAccountId(accountId)
+        if (isEvmChainId(chainId)) {
+          throw new Error(`getWalletPositions: unsupported chainId: ${chainId} (EVM only)`)
+        }
+        // zerion is honey badger - it doesn't give a fuck about chainId, EVM only
+        const url = `${ZERION_BASE_URL}/wallets/${account}/positions/`
+        const { data } = await axios.request({ ...options, url })
+        return { data }
+      },
+    }),
   }),
 })
 
-export const { useGetChainsQuery } = zerionApi
+export const { useGetChainsQuery, useGetWalletPositionsQuery } = zerionApi

@@ -2,8 +2,9 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -23,6 +24,7 @@ export const useFiatRateService = () => {
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Selectors
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellTradeAssetId = sellAsset?.assetId
@@ -68,11 +70,23 @@ export const useFiatRateService = () => {
   // Set fiat rates
   useEffect(() => {
     if (usdRates) {
-      updateSellAssetFiatRate(usdRates.sellAssetUsdRate)
-      updateBuyAssetFiatRate(usdRates.buyAssetUsdRate)
-      updateFeeAssetFiatRate(usdRates.feeAssetUsdRate)
+      updateSellAssetFiatRate(
+        bnOrZero(usdRates.sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
+      updateBuyAssetFiatRate(
+        bnOrZero(usdRates.buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
+      updateFeeAssetFiatRate(
+        bnOrZero(usdRates.feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
     }
-  }, [updateBuyAssetFiatRate, updateFeeAssetFiatRate, updateSellAssetFiatRate, usdRates])
+  }, [
+    selectedCurrencyToUsdRate,
+    updateBuyAssetFiatRate,
+    updateFeeAssetFiatRate,
+    updateSellAssetFiatRate,
+    usdRates,
+  ])
 
   return { isLoadingFiatRateData }
 }

@@ -9,12 +9,11 @@ export type CalculateAmountsArgs = {
   amount: string
   buyAsset: Asset
   sellAsset: Asset
-  buyAssetUsdRate: string
-  sellAssetUsdRate: string
+  buyAssetFiatRate: string
+  sellAssetFiatRate: string
   action: TradeAmountInputField
-  selectedCurrencyToUsdRate: BigNumber
-  buyAssetTradeFeeUsd: BigNumber
-  sellAssetTradeFeeUsd: BigNumber
+  buyAssetTradeFeeFiat: BigNumber
+  sellAssetTradeFeeFiat: BigNumber
 }
 
 type CalculateAmountsReturn = {

@@ -53,12 +53,12 @@ export const useTradeAmounts = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
   const updateTradeAmounts = useSwapperStore(state => state.updateTradeAmounts)
-  const isSendMaxFormState = useSwapperStore(state => state.isSendMax)
+  const isSendMaxSwapperState = useSwapperStore(state => state.isSendMax)
   const updateFees = useSwapperStore(state => state.updateFees)
   const fees = useSwapperStore(state => state.fees)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAmountCryptoPrecisionFormState = useSwapperStore(
+  const sellAssetSwapperState = useSwapperStore(state => state.sellAsset)
+  const buyAssetSwapperState = useSwapperStore(state => state.buyAsset)
+  const sellAmountCryptoPrecisionSwapperState = useSwapperStore(
     state => state.sellAmountCryptoPrecision,
   )
   const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
@@ -102,12 +102,18 @@ export const useTradeAmounts = () => {
       const sellAssetTradeFeeFiat = bnOrZero(fees?.sellAssetTradeFeeUsd).times(
         selectedCurrencyToUsdRate,
       )
-      if (sellAsset && buyAsset && action && buyAssetFiatRate && sellAssetFiatRate) {
+      if (
+        sellAssetSwapperState &&
+        buyAssetSwapperState &&
+        action &&
+        buyAssetFiatRate &&
+        sellAssetFiatRate
+      ) {
         setTradeAmounts({
           amount,
           action,
-          buyAsset,
-          sellAsset,
+          buyAsset: buyAssetSwapperState,
+          sellAsset: sellAssetSwapperState,
           buyAssetFiatRate,
           sellAssetFiatRate,
           buyAssetTradeFeeFiat,
@@ -119,8 +125,8 @@ export const useTradeAmounts = () => {
       fees?.buyAssetTradeFeeUsd,
       fees?.sellAssetTradeFeeUsd,
       selectedCurrencyToUsdRate,
-      sellAsset,
-      buyAsset,
+      sellAssetSwapperState,
+      buyAssetSwapperState,
       buyAssetFiatRate,
       sellAssetFiatRate,
       setTradeAmounts,
@@ -155,8 +161,8 @@ export const useTradeAmounts = () => {
           break
       }
 
-      const buyAssetIdToUse = buyAssetId ?? buyAsset?.assetId
-      const sellAssetIdToUse = sellAssetId ?? sellAsset?.assetId
+      const buyAssetIdToUse = buyAssetId ?? buyAssetSwapperState?.assetId
+      const sellAssetIdToUse = sellAssetId ?? sellAssetSwapperState?.assetId
       if (!buyAssetIdToUse || !sellAssetIdToUse || !wallet) return
       const sellAssetToUse = assets[sellAssetIdToUse]
       const buyAssetToUse = assets[buyAssetIdToUse]
@@ -188,8 +194,8 @@ export const useTradeAmounts = () => {
         sellAccountNumber,
         wallet,
         receiveAddress,
-        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecisionFormState || amount || '0',
-        isSendMax: sendMax ?? isSendMaxFormState,
+        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecisionSwapperState || amount || '0',
+        isSendMax: sendMax ?? isSendMaxSwapperState,
       })
 
       if (!activeTradeSwapper || !activeSwapperType) {
@@ -265,13 +271,13 @@ export const useTradeAmounts = () => {
       }
     },
     [
-      buyAsset?.assetId,
-      sellAsset?.assetId,
+      buyAssetSwapperState?.assetId,
+      sellAssetSwapperState?.assetId,
       wallet,
       assets,
       getReceiveAddressFromBuyAsset,
-      sellAmountCryptoPrecisionFormState,
-      isSendMaxFormState,
+      sellAmountCryptoPrecisionSwapperState,
+      isSendMaxSwapperState,
       activeTradeSwapper,
       activeSwapperType,
       appDispatch,

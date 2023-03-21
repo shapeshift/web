@@ -1,64 +1,12 @@
-import type { GasCost, Route, Token } from '@lifi/sdk'
+import type { Route, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision, toHuman } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, toHuman } from 'lib/bignumber/bignumber'
 import { LIFI_GAS_FEE_BASE } from 'lib/swapper/LifiSwapper/utils/constants'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
+import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
-// In cases where gas costs are denominated in tokens other than ETH, gas is better thought of as
-// a protocol fee rather than a network fee (gas) due the way our UI assumes gas is always ETH for
-// EVM chains.
-// To handle this the following is done:
-// 1. add all gas costs denominated in `feeAsset` to `networkFeeCryptoBaseUnit`
-// 2. add all other gas costs to `buyAssetTradeFeeUsd`
-const processGasCosts = (
-  chainId: ChainId,
-  allRouteGasCosts: GasCost[],
-  lifiAssetMap: Map<AssetId, Token>,
-  initialSellAssetTradeFeeUsd: BigNumber,
-) => {
-  const feeAsset = selectFeeAssetByChainId(store.getState(), chainId)
-
-  if (feeAsset === undefined) {
-    throw new SwapError('[processGasCosts] a fee asset was not found', {
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-      details: { chainId },
-    })
-  }
-
-  const lifiFeeAsset = lifiAssetMap.get(feeAsset.assetId)
-
-  if (lifiFeeAsset === undefined) {
-    throw new SwapError('[processGasCosts] the fee asset does not exist in lifi', {
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-      details: { feeAsset },
-    })
-  }
-
-  const networkFeeCryptoLifiPrecision = allRouteGasCosts
-    .filter(gasCost => gasCost.token.address === lifiFeeAsset.address)
-    .reduce((acc, gasCost) => acc.plus(bnOrZero(gasCost.amount)), bn(0))
-
-  const networkFeeCryptoBaseUnit = convertPrecision({
-    value: networkFeeCryptoLifiPrecision,
-    inputPrecision: lifiFeeAsset.decimals,
-    outputPrecision: feeAsset.precision,
-  })
-
-  const nonFeeAssetGasCosts = allRouteGasCosts
-    .filter(gasCost => gasCost.token.address !== lifiFeeAsset?.address)
-    .reduce((acc, gasCost) => acc.plus(bnOrZero(gasCost.amountUSD)), bn(0))
-
-  const sellAssetTradeFeeUsd = initialSellAssetTradeFeeUsd.plus(nonFeeAssetGasCosts)
-
-  return { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd }
-}
-
-// NOTE: fees are denoted in the sell asset
 export const transformLifiFeeData = ({
   buyAssetAddress,
   chainId,
@@ -104,12 +52,14 @@ export const transformLifiFeeData = ({
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
-  const { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd } = processGasCosts(
-    chainId,
+  const { feeAsset, lifiFeeAsset } = getFeeAssets(chainId, lifiAssetMap)
+
+  const { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd } = processGasCosts({
+    feeAsset,
+    lifiFeeAsset,
     allRouteGasCosts,
-    lifiAssetMap,
     initialSellAssetTradeFeeUsd,
-  )
+  })
 
   // the sum of all 'APPROVE' gas fees
   // TODO: validate this with lifi

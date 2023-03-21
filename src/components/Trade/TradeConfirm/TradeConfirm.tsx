@@ -41,12 +41,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { assertUnreachable } from 'lib/utils'
-import {
-  selectAssets,
-  selectFeeAssetByChainId,
-  selectFiatToUsdRate,
-  selectTxStatusById,
-} from 'state/slices/selectors'
+import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import { selectSlippage } from 'state/zustand/swapperStore/selectors'

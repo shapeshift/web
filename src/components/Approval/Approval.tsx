@@ -33,7 +33,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
   selectCheckApprovalNeededForWallet,
@@ -77,7 +77,6 @@ export const Approval = () => {
   const { showErrorToast } = useErrorHandler()
 
   const symbol = activeQuote?.sellAsset?.symbol
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
   )
@@ -270,11 +269,7 @@ export const Approval = () => {
                 </Row.Label>
                 <Row.Value textAlign='right'>
                   <RawText>
-                    {toFiat(
-                      approvalFeeCryptoPrecision
-                        .times(feeAssetFiatRate ?? 1)
-                        .toString(),
-                    )}
+                    {toFiat(approvalFeeCryptoPrecision.times(feeAssetFiatRate ?? 1).toString())}
                   </RawText>
                   <RawText color='gray.500'>
                     {toCrypto(approvalFeeCryptoPrecision.toNumber(), sellFeeAsset?.symbol)}

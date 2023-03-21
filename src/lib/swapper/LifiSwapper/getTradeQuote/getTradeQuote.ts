@@ -177,12 +177,19 @@ export async function getTradeQuote(
 
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
 
+  const feeData = transformLifiFeeData({
+    buyAssetAddress: toLifiToken.address,
+    chainId,
+    lifiAssetMap,
+    selectedRoute,
+  })
+
   return {
     accountNumber,
     allowanceContract,
     buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmount).toString(),
     buyAsset,
-    feeData: transformLifiFeeData(lifiRoutesResponse, SELECTED_ROUTE_INDEX, toLifiToken.address),
+    feeData,
     maximum: MAX_LIFI_TRADE,
     minimumCryptoHuman,
     rate: estimateRate,

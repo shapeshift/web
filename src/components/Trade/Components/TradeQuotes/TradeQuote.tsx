@@ -8,6 +8,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
+import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -86,10 +87,13 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   )
   const action = useSwapperStore(state => state.action)
 
-  const handleSwapperSelection = (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
-    updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
-    setTradeAmountsUsingExistingData({ amount, action })
-  }
+  const handleSwapperSelection = useCallback(
+    (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
+      updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
+      setTradeAmountsUsingExistingData({ amount, action })
+    },
+    [action, amount, setTradeAmountsUsingExistingData, updateActiveSwapperWithMetadata],
+  )
 
   const { quote, inputOutputRatio } = swapperWithMetadata
 
@@ -104,9 +108,10 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
-  const amountEntered = amount !== '0'
+  const amountEntered = bnOrZero(amount).gt(0)
   const negativeRatio = !!inputOutputRatio && amountEntered && inputOutputRatio <= 0
-  const tag: JSX.Element = (() => {
+  const hasAmountWithPositiveReceive = amountEntered && !negativeRatio
+  const tag: JSX.Element = useMemo(() => {
     switch (true) {
       case negativeRatio:
         return (
@@ -123,7 +128,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  })()
+  }, [isBest, negativeRatio, translate])
   return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
@@ -145,7 +150,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2}>
           {tag}
-          {!isBest && amountEntered && !negativeRatio && (
+          {!isBest && hasAmountWithPositiveReceive && (
             <Tag size='sm' colorScheme='red' variant='xs-subtle'>
               <Amount.Percent value={quoteDifference} />
             </Tag>
@@ -164,7 +169,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText>{protocol}</RawText>
         </Flex>
         <Amount.Crypto
-          value={amountEntered && !negativeRatio ? totalReceiveAmountCryptoPrecision : '0'}
+          value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
           symbol={buyAsset?.symbol ?? ''}
           color={isBest ? greenColor : 'inherit'}
         />

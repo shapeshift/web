@@ -7,7 +7,6 @@ import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuo
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectFiatToUsdRate,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
@@ -24,10 +23,7 @@ export const useTradeQuoteService = () => {
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<GetTradeQuoteInput | SkipToken>(skipToken)
 
   // Selectors
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-  const action = useSwapperStore(state => state.action)
   const isSendMax = useSwapperStore(state => state.isSendMax)
-  const amount = useSwapperStore(state => state.amount)
   const receiveAddress = useSwapperStore(state => state.receiveAddress)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const sellAsset = useSwapperStore(state => state.sellAsset)
@@ -77,16 +73,13 @@ export const useTradeQuoteService = () => {
       })()
     }
   }, [
-    action,
-    amount,
     buyAsset,
+    isSendMax,
     receiveAddress,
     sellAccountMetadata,
-    selectedCurrencyToUsdRate,
+    sellAmountCryptoPrecision,
     sellAsset,
     wallet,
-    isSendMax,
-    sellAmountCryptoPrecision,
   ])
 
   return {

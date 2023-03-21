@@ -648,6 +648,11 @@
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Insufficient sell amount"
+      }
+    },
     "errors": {
       "title": "Something went wrong",
       "sellAssetStartSentence": "Sell asset",

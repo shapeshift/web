@@ -235,7 +235,7 @@ export const useTradeAmounts = () => {
               getUsdRates.initiate({
                 feeAssetId,
                 tradeQuoteArgs,
-                activeSwapperType,
+                swapperType: activeSwapperType,
               }),
             )
           : {}

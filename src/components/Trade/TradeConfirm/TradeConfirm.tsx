@@ -201,10 +201,9 @@ export const TradeConfirm = () => {
     }
   }, [eventData, mixpanel, tradeStatus])
 
-  // This should not happen, but it could.
-  if (!trade) throw new Error('Trade is undefined')
-
   const onSubmit = async () => {
+    if (!trade) throw new Error('Trade is undefined')
+
     try {
       if (!isConnected || !swapper || !wallet) {
         /**
@@ -295,6 +294,8 @@ export const TradeConfirm = () => {
   }, [handleBack, tradeStatus])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
+    if (!trade) return null
+
     const tradeWarningElement = (
       <Flex direction='column' gap={2}>
         {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
@@ -326,49 +327,48 @@ export const TradeConfirm = () => {
       (child: JSX.Element | false) => !!child,
     )
     return shouldRenderWarnings ? tradeWarningElement : null
-  }, [fees?.tradeFeeSource, trade.buyAsset.assetId, translate])
+  }, [fees?.tradeFeeSource, trade, translate])
 
-  const sendReceiveSummary: JSX.Element = useMemo(
-    () => (
-      <Stack spacing={4}>
-        <Row>
-          <Row.Label>{translate('common.send')}</Row.Label>
-          <Row.Value textAlign='right'>
-            <Amount.Crypto
-              value={
-                fromBaseUnit(
-                  tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
-                  trade.sellAsset.precision,
-                ) ?? ''
-              }
-              symbol={trade.sellAsset.symbol}
-            />
-            <Amount.Fiat
-              color='gray.500'
-              value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
-              prefix='≈'
-            />
-          </Row.Value>
-        </Row>
-        <ReceiveSummary
-          symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyAmountCryptoPrecision ?? ''}
-          beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
-          protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
-          shapeShiftFee='0'
-          slippage={slippage}
-          fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
-          swapperName={swapper?.name ?? ''}
-        />
-      </Stack>
-    ),
+  const sendReceiveSummary: JSX.Element | null = useMemo(
+    () =>
+      trade ? (
+        <Stack spacing={4}>
+          <Row>
+            <Row.Label>{translate('common.send')}</Row.Label>
+            <Row.Value textAlign='right'>
+              <Amount.Crypto
+                value={
+                  fromBaseUnit(
+                    tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
+                    trade.sellAsset.precision,
+                  ) ?? ''
+                }
+                symbol={trade.sellAsset.symbol}
+              />
+              <Amount.Fiat
+                color='gray.500'
+                value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
+                prefix='≈'
+              />
+            </Row.Value>
+          </Row>
+          <ReceiveSummary
+            symbol={trade.buyAsset.symbol ?? ''}
+            amount={buyAmountCryptoPrecision ?? ''}
+            beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
+            protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
+            shapeShiftFee='0'
+            slippage={slippage}
+            fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
+            swapperName={swapper?.name ?? ''}
+          />
+        </Stack>
+      ) : null,
     [
       buyAmountCryptoPrecision,
       slippage,
       swapper?.name,
-      trade.buyAsset.symbol,
-      trade.sellAsset.precision,
-      trade.sellAsset.symbol,
+      trade,
       tradeAmounts?.beforeFeesBuyAsset,
       tradeAmounts?.buyAmountAfterFeesFiat,
       tradeAmounts?.sellAmountBeforeFeesBaseUnit,
@@ -397,6 +397,8 @@ export const TradeConfirm = () => {
     ),
     [isSubmitting, sellTradeId],
   )
+
+  if (!trade) return null
 
   return (
     <SlideTransition>

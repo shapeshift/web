@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.10.0...@shapeshiftoss/asset-service-v8.11.0) (2023-03-21)
+
+
+### Features
+
+* expose getRenderedIdenticonBase64 from asset service ([#1224](https://github.com/shapeshift/lib/issues/1224)) ([f61c47e](https://github.com/shapeshift/lib/commit/f61c47e910d76b85c3a0fe81556fcb098668c465))
+
 # [@shapeshiftoss/asset-service-v8.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.9.0...@shapeshiftoss/asset-service-v8.10.0) (2023-03-17)
 
 

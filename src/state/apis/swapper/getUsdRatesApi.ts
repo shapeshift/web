@@ -10,7 +10,7 @@ import { apiErrorHandler } from 'state/apis/utils'
 
 export type GetUsdRatesArgs = {
   feeAssetId: AssetId
-  activeSwapperType: SwapperType
+  swapperType: SwapperType
 } & (
   | { tradeQuoteInputArgs?: never; tradeQuoteArgs: GetTradeQuoteInput }
   | { tradeQuoteInputArgs: GetTradeQuoteInputArgs; tradeQuoteArgs?: never }
@@ -30,7 +30,7 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getUsdRates: build.query<GetUsdRatesReturn, GetUsdRatesArgs>({
       queryFn: async (args, { getState, dispatch }) => {
-        const { feeAssetId, activeSwapperType } = args
+        const { feeAssetId, swapperType } = args
         const buyAssetId = args.tradeQuoteInputArgs
           ? args.tradeQuoteInputArgs.buyAsset.assetId
           : args.tradeQuoteArgs.buyAsset.assetId
@@ -55,7 +55,7 @@ export const getUsdRatesApi = swapperApi.injectEndpoints({
 
           const assetIds = [feeAssetId, buyAssetId, sellAssetId]
           const usdRatePromises = await Promise.allSettled(
-            assetIds.map(assetId => dispatch(getUsdRate.initiate({ assetId, activeSwapperType }))),
+            assetIds.map(assetId => dispatch(getUsdRate.initiate({ assetId, swapperType }))),
           )
           const [feeAssetUsdRate, buyAssetUsdRate, sellAssetUsdRate] = usdRatePromises
             .filter(isFulfilled)

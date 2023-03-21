@@ -150,7 +150,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
           getUsdRates.initiate({
             feeAssetId: defaultAssetIdPair.buyAssetId,
             tradeQuoteArgs,
-            activeSwapperType,
+            swapperType: activeSwapperType,
           }),
         )
       ).data

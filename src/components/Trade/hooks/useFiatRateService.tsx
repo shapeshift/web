@@ -33,8 +33,14 @@ export const useFiatRateService = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const activeSwapperType = useSwapperStore(
-    state => state.activeSwapperWithMetadata?.swapper,
+
+  /*
+    We need to pick a source for our USD rates. If we update it basic on the active swapper the UI jumps
+    whenever the user changes the active swapper, which is not great UX. So, we use the best swapper
+    as our source of truth.
+   */
+  const bestSwapperType = useSwapperStore(
+    state => state.availableSwappersWithMetadata?.[0]?.swapper,
   )?.getType()
 
   // API
@@ -49,15 +55,15 @@ export const useFiatRateService = () => {
       buyTradeAssetId &&
       sellAssetFeeAssetId &&
       tradeQuoteArgs &&
-      activeSwapperType
+      bestSwapperType
     ) {
       setUsdRatesArgs({
         tradeQuoteArgs,
         feeAssetId: sellAssetFeeAssetId,
-        activeSwapperType,
+        swapperType: bestSwapperType,
       })
     }
-  }, [activeSwapperType, buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
+  }, [bestSwapperType, buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
 
   // Set fiat rates
   useEffect(() => {

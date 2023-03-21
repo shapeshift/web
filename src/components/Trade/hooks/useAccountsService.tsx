@@ -17,7 +17,7 @@ export const useAccountsService = () => {
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
-  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
@@ -68,7 +68,7 @@ export const useAccountsService = () => {
         - Trades between assets on different chains (and possibly different accounts)
     */
     const buyAssetAccountIdToSet =
-      swapperSupportsCrossAccountTrade || !bestTradeSwapper ? buyAssetAccountId : sellAssetAccountId
+      swapperSupportsCrossAccountTrade || !activeSwapper ? buyAssetAccountId : sellAssetAccountId
     updateBuyAssetAccountId(buyAssetAccountIdToSet)
     // stateBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
   }, [
@@ -76,7 +76,7 @@ export const useAccountsService = () => {
     sellAssetAccountId,
     swapperSupportsCrossAccountTrade,
     stateBuyAssetAccountId,
-    bestTradeSwapper,
+    activeSwapper,
     updateBuyAssetAccountId,
   ])
 }

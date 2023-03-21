@@ -129,8 +129,8 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
-  const bestTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const swapperName = useMemo(() => bestTradeSwapper?.name ?? '', [bestTradeSwapper])
+  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const swapperName = useMemo(() => activeSwapper?.name ?? '', [activeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -428,8 +428,8 @@ export const TradeInput = () => {
           assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
       ]
-    if (!bestTradeSwapper) return 'trade.errors.invalidTradePairBtnText'
-    if (!isTradingActiveOnSellPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+    if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
+    if (!isTradingActiveOnSellPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -437,7 +437,7 @@ export const TradeInput = () => {
         },
       ]
     }
-    if (!isTradingActiveOnBuyPool && bestTradeSwapper.name === SwapperName.Thorchain) {
+    if (!isTradingActiveOnBuyPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -485,7 +485,7 @@ export const TradeInput = () => {
     translate,
     walletSupportsBuyAssetChain,
     buyAsset?.symbol,
-    bestTradeSwapper,
+    activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
     hasValidSellAmount,

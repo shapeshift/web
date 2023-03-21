@@ -2,14 +2,17 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { AssetService } from '@shapeshiftoss/asset-service'
+import { AssetService, getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { bscChainId, optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { bscChainId, fromAssetId, optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import type { PartialRecord } from 'lib/utils'
+import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+
+import { chainIdToFeeAssetId } from '../portfolioSlice/utils'
 
 let service: AssetService | undefined = undefined
 
@@ -48,14 +51,68 @@ export const defaultAsset: Asset = {
   explorerAddressLink: '',
 }
 
+export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
+
+/**
+ * utility to create an asset from minimal asset data from external sources at runtime
+ * e.g. zapper/zerion/etherscan
+ * required fields are assetId, symbol, name, precision
+ * the rest can be inferred from existing data
+ */
+export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
+  const { assetId } = minimalAsset
+
+  const color = (() => {
+    if (minimalAsset.color) return minimalAsset.color
+    const shaAssetId = sha256(assetId)
+    return `#${shaAssetId.slice(0, 6)}`
+  })()
+
+  const chainId = (() => {
+    if (minimalAsset.chainId) return minimalAsset.chainId
+    return fromAssetId(assetId).chainId
+  })()
+
+  const icon = (() => {
+    if (minimalAsset.icon) return minimalAsset.icon
+    return getRenderedIdenticonBase64(assetId)
+  })()
+
+  type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
+
+  const explorerLinks = ((): ExplorerLinks => {
+    const feeAssetId = chainIdToFeeAssetId(chainId)
+    if (!feeAssetId) throw new Error('makeAsset: feeAssetId not found')
+    const feeAsset = getAssetService().getAll()[feeAssetId]
+    return {
+      explorer: feeAsset.explorer,
+      explorerTxLink: feeAsset.explorerTxLink,
+      explorerAddressLink: feeAsset.explorerAddressLink,
+    }
+  })()
+
+  return {
+    ...minimalAsset,
+    ...explorerLinks,
+    chainId,
+    color,
+    icon,
+  }
+}
+
 export const assets = createSlice({
   name: 'asset',
   initialState,
   reducers: {
     clear: () => initialState,
-    setAssets: (state, action: PayloadAction<AssetsState>) => {
+    upsertAssets: (state, action: PayloadAction<AssetsState>) => {
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
+    },
+    upsertAsset: (state, action: PayloadAction<Asset>) => {
+      const { assetId } = action.payload
+      state.byId[assetId] = { ...state.byId[assetId], ...action.payload }
+      state.ids = Array.from(new Set([...state.ids, assetId]))
     },
   },
 })
@@ -95,7 +152,7 @@ export const assetApi = createApi({
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(assets.actions.setAssets(data))
+        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
     getAssetDescription: build.query<
@@ -126,7 +183,7 @@ export const assetApi = createApi({
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(assets.actions.setAssets(data))
+        data && dispatch(assets.actions.upsertAssets(data))
       },
     }),
   }),

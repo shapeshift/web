@@ -37,6 +37,7 @@ export type FeatureFlags = {
   Mixpanel: boolean
   LiveSupport: boolean
   LifiSwap: boolean
+  FoxBondCTA: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -87,6 +88,7 @@ const initialState: Preferences = {
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
+    FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

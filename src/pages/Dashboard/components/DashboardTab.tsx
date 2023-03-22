@@ -1,5 +1,4 @@
-import type { ColorProps } from '@chakra-ui/react'
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -11,7 +10,7 @@ type DashboardTabProps = {
   label: string
   fiatValue: string
   path: string
-  color: ColorProps['color']
+  color: string
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -19,26 +18,37 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   label,
   fiatValue,
   path,
-  color,
+  color = 'green.500',
 }) => {
   const history = useHistory()
   const location = useLocation()
   const handleClick = useCallback(() => {
     history.push(path)
   }, [history, path])
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const isActiveBg = useColorModeValue('gray.50', 'gray.800')
+  const hoverBg = useColorModeValue('blackAlpha.50', 'gray.785')
 
   const isActive = useMemo(() => path === location.pathname, [location.pathname, path])
 
   return (
     <Flex
+      as='a'
       gap={4}
       alignItems='center'
-      p={6}
+      py={6}
+      px={8}
+      mb='-1px'
       flex={1}
-      bg='gray.800'
+      bg={isActive ? isActiveBg : 'transparent'}
       onClick={handleClick}
-      borderTopWidth={3}
-      borderColor={isActive ? color : 'transparent'}
+      _hover={{ bg: isActive ? isActiveBg : hoverBg }}
+      cursor='pointer'
+      borderLeftWidth={1}
+      borderRightWidth={1}
+      borderColor={isActive ? borderColor : 'transparent'}
+      position='relative'
+      _first={{ borderLeftWidth: 0 }}
     >
       <Box color={color} fontSize='3xl'>
         {icon}

@@ -1,12 +1,24 @@
+import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { GlobalFilter } from './GlobalFilter'
+import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
+import type { ProviderTableProps } from './ProviderTable'
 import { ProviderTable } from './ProviderTable'
 
-export const DeFiEarn = () => {
+type DefiEarnProps = {
+  positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
+  providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
+} & FlexProps
+
+export const DeFiEarn: React.FC<DefiEarnProps> = ({
+  positionTableProps,
+  providerTableProps,
+  ...rest
+}) => {
   const [searchQuery, setSearchQuery] = useState('')
   const translate = useTranslate()
   return (
@@ -14,10 +26,10 @@ export const DeFiEarn = () => {
       <Flex
         justifyContent='space-between'
         alignItems='center'
-        mt={6}
         px={4}
         flexDir={{ base: 'column', md: 'row' }}
         gap={4}
+        {...rest}
       >
         <TabList m={0}>
           <Tab>{translate('defi.byPosition')}</Tab>
@@ -29,10 +41,10 @@ export const DeFiEarn = () => {
       </Flex>
       <TabPanels>
         <TabPanel>
-          <PositionTable searchQuery={searchQuery} />
+          <PositionTable searchQuery={searchQuery} {...positionTableProps} />
         </TabPanel>
         <TabPanel>
-          <ProviderTable searchQuery={searchQuery} />
+          <ProviderTable searchQuery={searchQuery} {...providerTableProps} />
         </TabPanel>
       </TabPanels>
     </Tabs>

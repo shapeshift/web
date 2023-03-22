@@ -22,7 +22,7 @@ export const StakingVaults = () => {
     <Main titleComponent={<DefiHeader />}>
       <EligibleSlider />
 
-      {isDefiAggregationEnabled ? <DeFiEarn /> : <AllEarnOpportunities />}
+      {isDefiAggregationEnabled ? <DeFiEarn mt={6} /> : <AllEarnOpportunities />}
     </Main>
   )
 }

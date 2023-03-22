@@ -10,9 +10,14 @@ import { createApiClient } from './client'
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
-const auth = {
-  username: `Basic ${getConfig().REACT_APP_ZAPPER_API_KEY}`,
-  password: '',
+const authorization = `Basic ${Buffer.from(
+  `${getConfig().REACT_APP_ZAPPER_API_KEY}:`,
+  'binary',
+).toString('base64')}`
+
+const headers = {
+  accept: 'application/json',
+  authorization,
 }
 
 const zapperClient = createApiClient(ZAPPER_BASE_URL)
@@ -27,10 +32,10 @@ export const zapperApi = createApi({
       queryFn: async () => {
         // Refresh job
         await zapperClient.post('/v2/balances/apps', undefined, {
-          auth,
+          headers,
           queries: {
-            'networks[]': ['ethereum'], // TODO: programmatic
-            'addresses[]': [''],
+            'networks[]': 'ethereum', // TODO: programmatic
+            'addresses[]': '0xb8FF589DbbEc0DDe6401DC9572F54f8EC779b364',
           },
         })
         // https://docs.zapper.xyz/docs/apis/api-syntax
@@ -38,13 +43,12 @@ export const zapperApi = createApi({
         await setTimeoutAsync(10000)
 
         const data = await zapperClient.get('/v2/balances/apps', {
-          auth,
+          headers,
           queries: {
-            'networks[]': ['ethereum'], // TODO: programmatic
-            'addresses[]': [''],
+            'networks[]': 'ethereum', // TODO: programmatic
+            'addresses[]': '0xb8FF589DbbEc0DDe6401DC9572F54f8EC779b364',
           },
         })
-        console.log({ data })
         return { data }
       },
     }),

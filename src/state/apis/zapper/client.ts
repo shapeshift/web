@@ -169,31 +169,29 @@ const endpoints = makeApi([
       {
         name: 'addresses[]',
         type: 'Query',
-        schema: z.array(z.string()),
+        schema: z.string(),
       },
       {
         name: 'networks[]',
         type: 'Query',
         schema: z
-          .array(
-            z.enum([
-              'ethereum',
-              'polygon',
-              'optimism',
-              'gnosis',
-              'binance-smart-chain',
-              'fantom',
-              'avalanche',
-              'arbitrum',
-              'celo',
-              'harmony',
-              'moonriver',
-              'bitcoin',
-              'cronos',
-              'aurora',
-              'evmos',
-            ]),
-          )
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
           .optional(),
       },
     ],
@@ -848,7 +846,7 @@ const endpoints = makeApi([
       {
         name: 'limit',
         type: 'Query',
-        schema: z.string().optional().default(50),
+        schema: z.string().optional().default('50'),
       },
       {
         name: 'cursor',

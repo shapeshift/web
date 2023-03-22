@@ -12,9 +12,15 @@ import { Page } from './Page'
 
 export type MainProps = {
   titleComponent?: ReactNode
+  headerComponent?: ReactNode
 } & ContainerProps
 
-export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest }) => {
+export const Main: React.FC<MainProps> = ({
+  children,
+  titleComponent,
+  headerComponent,
+  ...rest
+}) => {
   const ref = useRef<HTMLDivElement>(null)
   const { currentRoute } = useBrowserRouter()
   const bg = useColorModeValue('white', 'gray.800')
@@ -52,6 +58,7 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest })
           </>
         </Box>
       )}
+      {headerComponent}
       <Container maxW='container.xl' py={8} px={{ base: 0, xl: 4 }} {...rest}>
         {children}
       </Container>

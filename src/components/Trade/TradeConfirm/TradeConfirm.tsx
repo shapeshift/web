@@ -41,12 +41,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { assertUnreachable } from 'lib/utils'
-import {
-  selectAssets,
-  selectFeeAssetByChainId,
-  selectFiatToUsdRate,
-  selectTxStatusById,
-} from 'state/slices/selectors'
+import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import { selectSlippage } from 'state/zustand/swapperStore/selectors'
@@ -96,7 +91,7 @@ export const TradeConfirm = () => {
   )
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const bestSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -137,9 +132,9 @@ export const TradeConfirm = () => {
     const buyAssetId = trade?.buyAsset.assetId
     const sellAssetId = trade?.sellAsset.assetId
     if (!(!buyAssetId || !sellAssetId)) {
-      setSwapper(bestSwapper)
+      setSwapper(activeSwapper)
     }
-  }, [bestSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
+  }, [activeSwapper, trade?.buyAsset.assetId, trade?.sellAsset.assetId])
 
   const status = useAppSelector(state => selectTxStatusById(state, parsedBuyTxId))
 
@@ -160,8 +155,6 @@ export const TradeConfirm = () => {
         return TxStatus.Unknown
     }
   }, [buyTxid, isSubmitting, sellTradeId, status, trade?.sources])
-
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
 
   const sellTxLink = useMemo(
     () =>
@@ -208,10 +201,9 @@ export const TradeConfirm = () => {
     }
   }, [eventData, mixpanel, tradeStatus])
 
-  // This should not happen, but it could.
-  if (!trade) throw new Error('Trade is undefined')
-
   const onSubmit = async () => {
+    if (!trade) throw new Error('Trade is undefined')
+
     try {
       if (!isConnected || !swapper || !wallet) {
         /**
@@ -261,9 +253,7 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(feeAssetFiatRate ?? 1)
-    .times(selectedCurrencyToUsdRate)
+  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetFiatRate ?? 1)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
@@ -304,6 +294,8 @@ export const TradeConfirm = () => {
   }, [handleBack, tradeStatus])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
+    if (!trade) return null
+
     const tradeWarningElement = (
       <Flex direction='column' gap={2}>
         {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
@@ -335,49 +327,48 @@ export const TradeConfirm = () => {
       (child: JSX.Element | false) => !!child,
     )
     return shouldRenderWarnings ? tradeWarningElement : null
-  }, [fees?.tradeFeeSource, trade.buyAsset.assetId, translate])
+  }, [fees?.tradeFeeSource, trade, translate])
 
-  const sendReceiveSummary: JSX.Element = useMemo(
-    () => (
-      <Stack spacing={4}>
-        <Row>
-          <Row.Label>{translate('common.send')}</Row.Label>
-          <Row.Value textAlign='right'>
-            <Amount.Crypto
-              value={
-                fromBaseUnit(
-                  tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
-                  trade.sellAsset.precision,
-                ) ?? ''
-              }
-              symbol={trade.sellAsset.symbol}
-            />
-            <Amount.Fiat
-              color='gray.500'
-              value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
-              prefix='≈'
-            />
-          </Row.Value>
-        </Row>
-        <ReceiveSummary
-          symbol={trade.buyAsset.symbol ?? ''}
-          amount={buyAmountCryptoPrecision ?? ''}
-          beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
-          protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
-          shapeShiftFee='0'
-          slippage={slippage}
-          fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
-          swapperName={swapper?.name ?? ''}
-        />
-      </Stack>
-    ),
+  const sendReceiveSummary: JSX.Element | null = useMemo(
+    () =>
+      trade ? (
+        <Stack spacing={4}>
+          <Row>
+            <Row.Label>{translate('common.send')}</Row.Label>
+            <Row.Value textAlign='right'>
+              <Amount.Crypto
+                value={
+                  fromBaseUnit(
+                    tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
+                    trade.sellAsset.precision,
+                  ) ?? ''
+                }
+                symbol={trade.sellAsset.symbol}
+              />
+              <Amount.Fiat
+                color='gray.500'
+                value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
+                prefix='≈'
+              />
+            </Row.Value>
+          </Row>
+          <ReceiveSummary
+            symbol={trade.buyAsset.symbol ?? ''}
+            amount={buyAmountCryptoPrecision ?? ''}
+            beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
+            protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
+            shapeShiftFee='0'
+            slippage={slippage}
+            fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
+            swapperName={swapper?.name ?? ''}
+          />
+        </Stack>
+      ) : null,
     [
       buyAmountCryptoPrecision,
       slippage,
       swapper?.name,
-      trade.buyAsset.symbol,
-      trade.sellAsset.precision,
-      trade.sellAsset.symbol,
+      trade,
       tradeAmounts?.beforeFeesBuyAsset,
       tradeAmounts?.buyAmountAfterFeesFiat,
       tradeAmounts?.sellAmountBeforeFeesBaseUnit,
@@ -406,6 +397,8 @@ export const TradeConfirm = () => {
     ),
     [isSubmitting, sellTradeId],
   )
+
+  if (!trade) return null
 
   return (
     <SlideTransition>

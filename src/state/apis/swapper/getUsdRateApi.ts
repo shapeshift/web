@@ -5,7 +5,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { State } from 'state/apis/types'
 import { apiErrorHandler } from 'state/apis/utils'
 
-export type GetUsdRateArgs = { assetId: AssetId; activeSwapperType: SwapperType }
+export type GetUsdRateArgs = { assetId: AssetId; swapperType: SwapperType }
 type GetUsdRateReturn = string | undefined
 
 const getUsdRateErrorHandler = apiErrorHandler('getUsdRate: error fetching USD rate')
@@ -13,7 +13,7 @@ const getUsdRateErrorHandler = apiErrorHandler('getUsdRate: error fetching USD r
 export const getUsdRateApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getUsdRate: build.query<GetUsdRateReturn, GetUsdRateArgs>({
-      queryFn: async ({ assetId, activeSwapperType }, { getState }) => {
+      queryFn: async ({ assetId, swapperType }, { getState }) => {
         const state: State = getState() as unknown as State // ReduxState causes circular dependency
         const {
           assets,
@@ -25,7 +25,7 @@ export const getUsdRateApi = swapperApi.injectEndpoints({
 
           const swapperManager = await getSwapperManager(featureFlags)
           const swappers = swapperManager.swappers
-          const swapper = activeSwapperType ? swappers.get(activeSwapperType) : undefined
+          const swapper = swapperType ? swappers.get(swapperType) : undefined
           const rate = await swapper?.getUsdRate(asset)
           if (!rate)
             return getUsdRateErrorHandler({ message: 'getUsdRate: getUsdRate: No rate found' })

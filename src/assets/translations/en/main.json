@@ -558,6 +558,14 @@
         "infinite": "Infinite ∞",
         "amountUnavailable": "Unavailable"
       },
+      "bep20": {
+        "approve": "Approve",
+        "approveSymbol": "Approve %{symbol}",
+        "revoke": "Revoke",
+        "revokeSymbol": "Revoke %{symbol} approval",
+        "infinite": "Infinite ∞",
+        "amountUnavailable": "Unavailable"
+      },
       "staking": {
         "delegate": "Delegate",
         "begin_unbonding": "Undelegate",
@@ -648,6 +656,11 @@
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Insufficient sell amount"
+      }
     },
     "errors": {
       "title": "Something went wrong",
@@ -1594,6 +1607,11 @@
         "title": "✨ Get FOX rewards + more! ✨",
         "body": "Earn FOX rewards by completing tasks on DappBack",
         "cta": "Launch DappBack"
+      },
+      "bondProtocol": {
+        "title": "Buy FOX at a Discount!",
+        "body": "Buy FOX at a discount with BondProtocol",
+        "cta": "Launch BondProtocol"
       }
     },
     "analytics": {

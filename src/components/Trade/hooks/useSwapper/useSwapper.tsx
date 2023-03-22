@@ -110,6 +110,10 @@ export const useSwapper = () => {
 
   const getTrade = useCallback(async () => {
     if (!wallet) throw new Error('no wallet available')
+    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
+    if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
+    if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
+
     return await getTradeForWallet({
       wallet,
       sellAccountBip44Params,

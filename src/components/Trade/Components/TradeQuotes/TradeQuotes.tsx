@@ -1,6 +1,7 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { useState } from 'react'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeQuote } from './TradeQuote'
 
@@ -10,40 +11,64 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const [activeQuote, setActiveQuote] = useState('THORchain')
+  const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
+  const availableSwappersWithMetadata = useSwapperStore(
+    state => state.availableSwappersWithMetadata,
+  )
+  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
+  const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+
+  const bestQuote = availableSwappersWithMetadata?.[0]?.quote
+  const bestBuyAmountCryptoPrecision =
+    bestQuote && fromBaseUnit(bestQuote.buyAmountCryptoBaseUnit, bestQuote.buyAsset.precision)
+  const bestBuyAssetTradeFeeCryptoPrecision =
+    buyAssetFiatRate && bestQuote
+      ? bnOrZero(bestQuote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
+      : undefined
+  const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
+    ? bnOrZero(bestBuyAmountCryptoPrecision).minus(bestBuyAssetTradeFeeCryptoPrecision).toString()
+    : undefined
+  const quotes = availableSwappersWithMetadata
+    ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
+        const quote = swapperWithMetadata.quote
+        const buyAmountCryptoPrecision = fromBaseUnit(
+          quote.buyAmountCryptoBaseUnit,
+          quote.buyAsset.precision,
+        )
+        const buyAssetTradeFeeCryptoPrecision = buyAssetFiatRate
+          ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
+          : undefined
+
+        const totalReceiveAmountCryptoPrecision = buyAssetTradeFeeCryptoPrecision
+          ? bnOrZero(buyAmountCryptoPrecision).minus(buyAssetTradeFeeCryptoPrecision).toString()
+          : undefined
+
+        const isActive = activeSwapperName === swapperWithMetadata.swapper.name
+        const quoteDifference = bn(1)
+          .minus(
+            bnOrZero(totalReceiveAmountCryptoPrecision).div(
+              bestTotalReceiveAmountCryptoPrecision ?? 1,
+            ),
+          )
+          .toString()
+        return (
+          <TradeQuote
+            key={swapperWithMetadata.swapper.name}
+            isBest={i === 0}
+            isLoading={isLoading}
+            isActive={isActive}
+            swapperWithMetadata={swapperWithMetadata}
+            quoteDifference={quoteDifference}
+            totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
+          />
+        )
+      })
+    : null
+
   return (
     <Collapse in={isOpen}>
       <Flex flexDir='column' gap={2} width='full' px={4} py={2}>
-        <TradeQuote
-          assetId={foxAssetId}
-          isBest
-          isActive={activeQuote === 'THORchain'}
-          quoteAmountCryptoPrecision='999.9374'
-          gasFiatPrice='13.35'
-          protocol='THORchain'
-          isLoading={isLoading}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
-        <TradeQuote
-          assetId={foxAssetId}
-          quoteAmountCryptoPrecision='999.9374'
-          quoteDifference='-0.08'
-          gasFiatPrice='13.35'
-          protocol='COW Swap'
-          isLoading={isLoading}
-          isActive={activeQuote === 'COW Swap'}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
-        <TradeQuote
-          assetId={foxAssetId}
-          quoteAmountCryptoPrecision='999.9374'
-          gasFiatPrice='13.35'
-          quoteDifference='-0.59'
-          protocol='0x'
-          isLoading={isLoading}
-          isActive={activeQuote === '0x'}
-          onClick={protocol => setActiveQuote(protocol)}
-        />
+        {quotes}
       </Flex>
     </Collapse>
   )

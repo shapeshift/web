@@ -6,9 +6,9 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
-  isSupportedCosmosSdkSwappingChain,
-  isSupportedNonUtxoSwappingChain,
-  isSupportedUtxoSwappingChain,
+  isCosmosSdkSwap,
+  isEvmSwap,
+  isUtxoSwap,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -58,11 +58,13 @@ export const selectCheckApprovalNeededForWallet = (
 
 type SelectGetTradeForWalletArgs = {
   wallet: HDWallet
-  sellAccountBip44Params: BIP44Params | undefined
-  buyAccountBip44Params: BIP44Params | undefined
-  sellAccountMetadata: AccountMetadata | undefined
+  sellAccountBip44Params: BIP44Params
+  buyAccountBip44Params: BIP44Params
+  sellAccountMetadata: AccountMetadata
 }
+
 type SelectGetTradeForWalletReturn = Promise<Trade<ChainId> | undefined>
+
 export const selectGetTradeForWallet = (
   state: SwapperState,
 ): ((_: SelectGetTradeForWalletArgs) => SelectGetTradeForWalletReturn) => {
@@ -74,28 +76,19 @@ export const selectGetTradeForWallet = (
   }: SelectGetTradeForWalletArgs): SelectGetTradeForWalletReturn => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
-    const sellAsset = state.sellAsset
-    const sellAmountCryptoPrecision = state.sellAmountCryptoPrecision
     const buyAsset = state.buyAsset
-    const receiveAddress = state.receiveAddress
+    const sellAsset = state.sellAsset
     const sellAssetAccountId = state.sellAssetAccountId
-    const slippage = selectSlippage(state)
-    const isSendMax = state.isSendMax
+    const sellAmountCryptoPrecision = state.sellAmountCryptoPrecision
+    const receiveAddress = state.receiveAddress
 
     if (!activeSwapper) throw new Error('No swapper available')
     if (!activeQuote) throw new Error('No quote available')
-
-    if (!sellAsset) throw new Error('No sellAsset')
-    if (!activeSwapper) throw new Error('No swapper available')
-    if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
-    if (!sellAsset) throw new Error('Missing sellAsset')
     if (!buyAsset) throw new Error('Missing buyAsset')
-    if (!wallet) throw new Error('Missing wallet')
-    if (!receiveAddress) throw new Error('Missing receiveAddress')
+    if (!sellAsset) throw new Error('No sellAsset')
     if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
-    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
-    if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
-    if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
+    if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
+    if (!receiveAddress) throw new Error('Missing receiveAddress')
 
     const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
       sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
@@ -105,43 +98,41 @@ export const selectGetTradeForWallet = (
       sellAsset,
       buyAsset,
       wallet,
-      sendMax: isSendMax,
+      sendMax: state.isSendMax,
       receiveAddress,
-      slippage,
+      slippage: selectSlippage(state),
     }
-    const sellAssetChainId = sellAsset.chainId
-    if (isSupportedCosmosSdkSwappingChain(sellAssetChainId)) {
-      const { accountNumber } = sellAccountBip44Params
-      const { accountNumber: receiveAccountNumber } = buyAccountBip44Params
-      return activeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
-        accountNumber,
-        receiveAccountNumber,
-      })
-    } else if (isSupportedNonUtxoSwappingChain(sellAssetChainId)) {
-      const { accountNumber } = sellAccountBip44Params
-      return activeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
-        accountNumber,
-      })
-    } else if (isSupportedUtxoSwappingChain(sellAssetChainId)) {
-      const { accountType, bip44Params } = sellAccountMetadata
-      const { accountNumber } = bip44Params
-      if (!bip44Params) throw new Error('no bip44Params')
-      if (!accountType) throw new Error('no accountType')
+
+    if (isUtxoSwap(sellAsset.chainId)) {
+      const {
+        accountType,
+        bip44Params: { accountNumber },
+      } = sellAccountMetadata
+
+      if (!accountType) throw new Error('accountType required')
+
       const sellAssetChainAdapter = getChainAdapterManager().get(
-        sellAssetChainId,
+        sellAsset.chainId,
       ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
       const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
+
       return activeSwapper.buildTrade({
         ...buildTradeCommonArgs,
-        chainId: sellAssetChainId,
+        chainId: sellAsset.chainId,
         accountNumber,
         accountType,
         xpub,
       })
+    } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
+      return activeSwapper.buildTrade({
+        ...buildTradeCommonArgs,
+        chainId: sellAsset.chainId,
+        accountNumber: sellAccountBip44Params.accountNumber,
+        receiveAccountNumber: buyAccountBip44Params.accountNumber,
+      })
+    } else {
+      throw new Error('unsupported sellAsset.chainId')
     }
   }
 }

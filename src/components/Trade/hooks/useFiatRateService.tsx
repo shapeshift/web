@@ -2,8 +2,9 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -23,6 +24,7 @@ export const useFiatRateService = () => {
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Selectors
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellTradeAssetId = sellAsset?.assetId
@@ -33,8 +35,14 @@ export const useFiatRateService = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
-  const activeSwapperType = useSwapperStore(
-    state => state.activeSwapperWithMetadata?.swapper,
+
+  /*
+    We need to pick a source for our USD rates. If we update it basic on the active swapper the UI jumps
+    whenever the user changes the active swapper, which is not great UX. So, we use the best swapper
+    as our source of truth.
+   */
+  const bestSwapperType = useSwapperStore(
+    state => state.availableSwappersWithMetadata?.[0]?.swapper,
   )?.getType()
 
   // API
@@ -49,24 +57,36 @@ export const useFiatRateService = () => {
       buyTradeAssetId &&
       sellAssetFeeAssetId &&
       tradeQuoteArgs &&
-      activeSwapperType
+      bestSwapperType
     ) {
       setUsdRatesArgs({
         tradeQuoteArgs,
         feeAssetId: sellAssetFeeAssetId,
-        activeSwapperType,
+        swapperType: bestSwapperType,
       })
     }
-  }, [activeSwapperType, buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
+  }, [bestSwapperType, buyTradeAssetId, sellAssetFeeAssetId, sellTradeAssetId, tradeQuoteArgs])
 
   // Set fiat rates
   useEffect(() => {
     if (usdRates) {
-      updateSellAssetFiatRate(usdRates.sellAssetUsdRate)
-      updateBuyAssetFiatRate(usdRates.buyAssetUsdRate)
-      updateFeeAssetFiatRate(usdRates.feeAssetUsdRate)
+      updateSellAssetFiatRate(
+        bnOrZero(usdRates.sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
+      updateBuyAssetFiatRate(
+        bnOrZero(usdRates.buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
+      updateFeeAssetFiatRate(
+        bnOrZero(usdRates.feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+      )
     }
-  }, [updateBuyAssetFiatRate, updateFeeAssetFiatRate, updateSellAssetFiatRate, usdRates])
+  }, [
+    selectedCurrencyToUsdRate,
+    updateBuyAssetFiatRate,
+    updateFeeAssetFiatRate,
+    updateSellAssetFiatRate,
+    usdRates,
+  ])
 
   return { isLoadingFiatRateData }
 }

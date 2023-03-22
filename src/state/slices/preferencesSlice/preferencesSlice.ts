@@ -26,6 +26,7 @@ export type FeatureFlags = {
   SaversVaults: boolean
   Yearn: boolean
   DefiAggregation: boolean
+  DefiDashboard: boolean
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
@@ -36,6 +37,7 @@ export type FeatureFlags = {
   Mixpanel: boolean
   LiveSupport: boolean
   LifiSwap: boolean
+  FoxBondCTA: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -75,6 +77,7 @@ const initialState: Preferences = {
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiAggregation: getConfig().REACT_APP_FEATURE_DEFI_AGGREGATION,
+    DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
@@ -85,6 +88,7 @@ const initialState: Preferences = {
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
+    FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

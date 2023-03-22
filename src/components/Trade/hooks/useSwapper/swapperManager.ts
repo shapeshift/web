@@ -1,5 +1,5 @@
-import { avalancheChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
-import type { avalanche, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,
@@ -37,17 +37,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
-  const {
-    Cowswap,
-    LifiSwap,
-    OsmosisSwap,
-    ThorSwap,
-    ZrxAvalancheSwap,
-    ZrxEthereumSwap,
-    ZrxOptimismSwap,
-  } = flags
-
-  if (Cowswap) {
+  if (flags.Cowswap) {
     const cowSwapper = new CowSwapper({
       adapter: ethereumChainAdapter,
       apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
@@ -56,7 +46,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(cowSwapper)
   }
 
-  if (ZrxEthereumSwap) {
+  if (flags.ZrxEthereumSwap) {
     const zrxEthereumSwapper = new ZrxSwapper({
       web3: ethWeb3,
       adapter: ethereumChainAdapter,
@@ -64,7 +54,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxEthereumSwapper)
   }
 
-  if (ZrxAvalancheSwap) {
+  if (flags.ZrxAvalancheSwap) {
     const avalancheChainAdapter = adapterManager.get(
       KnownChainIds.AvalancheMainnet,
     ) as unknown as avalanche.ChainAdapter
@@ -76,7 +66,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxAvalancheSwapper)
   }
 
-  if (ZrxOptimismSwap) {
+  if (flags.ZrxOptimismSwap) {
     const optimismChainAdapter = adapterManager.get(
       KnownChainIds.OptimismMainnet,
     ) as unknown as optimism.ChainAdapter
@@ -88,7 +78,21 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
-  if (ThorSwap) {
+  if (flags.ZrxBnbSmartChain) {
+    const bscWeb3 = getWeb3InstanceByChainId(bscChainId)
+
+    const bscChainAdapter = adapterManager.get(
+      KnownChainIds.BnbSmartChainMainnet,
+    ) as unknown as bnbsmartchain.ChainAdapter
+
+    const zrxBscSwapper = new ZrxSwapper({
+      web3: bscWeb3,
+      adapter: bscChainAdapter,
+    })
+    _swapperManager.addSwapper(zrxBscSwapper)
+  }
+
+  if (flags.ThorSwap) {
     await (async () => {
       const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -103,14 +107,14 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     })()
   }
 
-  if (OsmosisSwap) {
+  if (flags.OsmosisSwap) {
     const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
     const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
     _swapperManager.addSwapper(osmoSwapper)
   }
 
-  if (LifiSwap) {
+  if (flags.LifiSwap) {
     const lifiSwapper = new LifiSwapper()
     await lifiSwapper.initialize()
     _swapperManager.addSwapper(lifiSwapper)

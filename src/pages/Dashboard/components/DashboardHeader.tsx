@@ -8,6 +8,7 @@ import { DefiIcon } from 'components/Icons/DeFi'
 import { RewardsIcon } from 'components/Icons/RewardsIcon'
 import { Text } from 'components/Text'
 import {
+  selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
@@ -16,6 +17,7 @@ import { useAppSelector } from 'state/store'
 import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
+  const claimableRewardsBalance = useAppSelector(state => selectClaimableRewards(state, {}))
   const earnBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const netWorth = useMemo(
@@ -53,7 +55,7 @@ export const DashboardHeader = () => {
         <DashboardTab
           label='defi.rewardBalance'
           icon={<RewardsIcon />}
-          fiatValue='2000'
+          fiatValue={claimableRewardsBalance}
           path='/dashboard/rewards'
           color='green.500'
         />

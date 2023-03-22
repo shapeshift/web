@@ -228,7 +228,6 @@ const endpoints = makeApi([
               z.object({
                 type: z.string(),
                 appId: z.string(),
-                key: z.string(),
                 groupId: z.string(),
                 network: z.enum([
                   'ethereum',
@@ -274,7 +273,7 @@ const endpoints = makeApi([
                     price: z.number(),
                     balance: z.number(),
                     balanceRaw: z.string(),
-                    balanceUSD: z.string(),
+                    balanceUSD: z.number(),
                   }),
                 ),
               }),

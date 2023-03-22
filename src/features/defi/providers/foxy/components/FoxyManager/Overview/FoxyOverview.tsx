@@ -90,14 +90,14 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       : undefined,
   )
 
-  const hasClaim = useAppSelector(state =>
+  const hasClaimableRewards = useAppSelector(state =>
     opportunityDataFilter ? selectHasClaimByUserStakingId(state, opportunityDataFilter) : undefined,
   )
 
-  const undelegation = useMemo(
+  const undelegations = useMemo(
     () =>
       foxyEarnOpportunityData && supportsUndelegations(foxyEarnOpportunityData)
-        ? foxyEarnOpportunityData.undelegations[0]
+        ? foxyEarnOpportunityData.undelegations
         : undefined,
     [foxyEarnOpportunityData],
   )
@@ -107,10 +107,22 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit,
   ).div(bn(10).pow(stakingAsset?.precision ?? 0))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(marketData.price)
-  const claimAvailable = Boolean(
-    undelegation && dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+
+  const hasPendingUndelegation = Boolean(
+    undelegations &&
+      undelegations.some(undelegation =>
+        dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+      ),
   )
-  const claimDisabled = !claimAvailable || !hasClaim
+
+  const hasAvailableUndelegation = Boolean(
+    undelegations &&
+      undelegations.some(undelegation =>
+        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
+      ),
+  )
+
+  const claimDisabled = !hasClaimableRewards && !hasAvailableUndelegation
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -125,7 +137,12 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     )
   }
 
-  if (bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).eq(0) && !hasClaim) {
+  if (
+    bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).eq(0) &&
+    !hasClaimableRewards &&
+    !hasPendingUndelegation &&
+    !hasAvailableUndelegation
+  ) {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}
@@ -190,7 +207,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toFixed(2)}
       apy={foxyEarnOpportunityData?.apy?.toString()}
     >
-      <WithdrawCard asset={stakingAsset} undelegation={undelegation} />
+      <WithdrawCard asset={stakingAsset} undelegation={undelegations?.[0]} />
     </Overview>
   )
 }

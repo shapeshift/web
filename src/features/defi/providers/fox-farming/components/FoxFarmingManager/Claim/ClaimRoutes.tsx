@@ -73,10 +73,10 @@ export const ClaimRoutes = ({
 
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      bnOrZero(opportunity?.rewardsAmountsCryptoBaseUnit?.[0])
+      bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0])
         .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0))
         .toFixed(),
-    [assets, opportunity?.rewardsAmountsCryptoBaseUnit, opportunity?.underlyingAssetId],
+    [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 
   const location = useLocation()

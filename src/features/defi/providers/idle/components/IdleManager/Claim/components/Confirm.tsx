@@ -145,14 +145,14 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     if (!opportunityData?.rewardAssetIds?.length) return false
 
     return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+      bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[i]).gt(0),
     )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const claimAmounts: ClaimAmount[] = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return []
 
-    return opportunityData?.rewardsAmountsCryptoBaseUnit
+    return opportunityData?.rewardsCryptoBaseUnit.amounts
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         const amountCryptoHuman = bnOrZero(amount)
@@ -169,15 +169,10 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         return token
       })
       .filter(isSome)
-  }, [
-    assets,
-    marketData,
-    opportunityData?.rewardAssetIds,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
-  ])
+  }, [assets, marketData, opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const claimableAssets = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return null
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return null
 
     return claimAmounts?.map(rewardAsset => {
       if (!rewardAsset?.assetId) return null
@@ -187,7 +182,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       }
       return <ClaimableAsset key={rewardAsset?.assetId} token={token} />
     })
-  }, [claimAmounts, opportunityData?.rewardsAmountsCryptoBaseUnit?.length])
+  }, [claimAmounts, opportunityData?.rewardsCryptoBaseUnit?.amounts.length])
 
   const handleCancel = useCallback(() => {
     history.push({

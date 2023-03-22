@@ -61,11 +61,14 @@ export type UserStakingOpportunityBase = {
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string
   // The amount of rewards available to claim for the farmed LP position
-  rewardsAmountsCryptoBaseUnit:
-    | readonly [string, string, string]
-    | readonly [string, string]
-    | readonly [string]
-    | readonly []
+  rewardsCryptoBaseUnit: {
+    amounts:
+      | readonly [string, string, string]
+      | readonly [string, string]
+      | readonly [string]
+      | readonly []
+    claimable: boolean
+  }
 }
 
 export type UserStakingOpportunity =

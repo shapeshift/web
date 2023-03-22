@@ -177,17 +177,17 @@ export const StakingOpportunities = ({
         display: { base: 'table-cell' },
         Cell: ({ row: { original: opportunityData } }) => (
           <Skeleton isLoaded={Boolean(opportunityData)}>
-            {bnOrZero(opportunityData.rewardsAmountsCryptoBaseUnit?.[0]).gt(0) ? (
+            {bnOrZero(opportunityData.rewardsCryptoBaseUnit?.amounts[0]).gt(0) ? (
               <HStack fontWeight={'normal'}>
                 <Amount.Crypto
-                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                  value={bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
                     .div(bn(10).pow(asset.precision))
                     .decimalPlaces(asset.precision)
                     .toString()}
                   symbol={asset.symbol}
                 />
                 <Amount.Fiat
-                  value={bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+                  value={bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
                     .div(bn(10).pow(asset.precision))
                     .times(bnOrZero(marketData.price))
                     .toPrecision()}

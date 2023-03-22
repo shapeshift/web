@@ -175,7 +175,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
           stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit,
-          rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+          rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
         })
 
         if (bn(withdrawBps).isZero()) return
@@ -225,7 +225,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     dustAmountCryptoBaseUnit,
     opportunity?.apy,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     withdrawFeeCryptoBaseUnit,
@@ -260,7 +260,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const withdrawBps = getWithdrawBps({
       withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
       stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-      rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+      rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
     })
     const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
 
@@ -298,7 +298,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
   ])
@@ -323,7 +323,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const bps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps })
@@ -359,7 +359,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw?.estimatedGasCrypto,
     state?.withdraw.cryptoAmount,
     opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     getEstimateFeesArgs,
     asset,
     chainId,
@@ -379,7 +379,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
       })
 
       if (bn(withdrawBps).isZero()) return
@@ -419,7 +419,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     getEstimateFeesArgs,
     state?.withdraw.cryptoAmount,
     asset,

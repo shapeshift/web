@@ -148,7 +148,7 @@ export const ethFoxStakingUserDataResolver = async ({
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)
   const stakedAmountCryptoBaseUnit = bnOrZero(stakedBalance.toString()).toString()
-  const rewardsAmountsCryptoBaseUnit = [earned.toString()] as [string]
+  const rewardsCryptoBaseUnit = { amounts: [earned.toString()] as [string], claimable: true }
 
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
@@ -157,7 +157,7 @@ export const ethFoxStakingUserDataResolver = async ({
       [userStakingId]: {
         userStakingId,
         stakedAmountCryptoBaseUnit,
-        rewardsAmountsCryptoBaseUnit,
+        rewardsCryptoBaseUnit,
       },
     },
     type: opportunityType,

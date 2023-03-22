@@ -174,9 +174,9 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   })
 
   const rewardAssets: AssetWithBalance[] = useMemo(() => {
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return []
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return []
 
-    return opportunityData!.rewardsAmountsCryptoBaseUnit
+    return opportunityData!.rewardsCryptoBaseUnit.amounts
       .map((amount, i) => {
         if (!opportunityData?.rewardAssetIds?.[i]) return undefined
         if (!assets[opportunityData.rewardAssetIds[i]]) return undefined
@@ -197,13 +197,13 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     if (!opportunityData?.rewardAssetIds?.length) return false
 
     return opportunityData.rewardAssetIds?.some((_rewardAssetId, i) =>
-      bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[i]).gt(0),
+      bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[i]).gt(0),
     )
-  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsAmountsCryptoBaseUnit])
+  }, [opportunityData?.rewardAssetIds, opportunityData?.rewardsCryptoBaseUnit])
 
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!(contractAddress && idleInvestor && opportunityData)) return defaultMenu
-    if (!opportunityData?.rewardsAmountsCryptoBaseUnit?.length) return defaultMenu
+    if (!opportunityData?.rewardsCryptoBaseUnit?.amounts.length) return defaultMenu
 
     return [
       ...defaultMenu,

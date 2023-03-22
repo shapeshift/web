@@ -196,7 +196,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         userStakingId,
         stakedAmountCryptoBaseUnit: '0',
-        rewardsAmountsCryptoBaseUnit: ['0'],
+        rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
       }
 
       return Promise.resolve({ data })
@@ -219,7 +219,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       userStakingId,
       stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
-      rewardsAmountsCryptoBaseUnit,
+      rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
     }
 
     return Promise.resolve({ data })

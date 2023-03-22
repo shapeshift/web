@@ -96,7 +96,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
       moduleLogger.debug(
         { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${assetId}`,
+        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
       )
       return []
     })) as AssetIdsTuple
@@ -206,7 +206,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         userStakingId,
         stakedAmountCryptoBaseUnit: '0',
-        rewardsAmountsCryptoBaseUnit: [],
+        rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
       }
       continue
     }
@@ -234,10 +234,20 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
       }) as [string] | [string, string]
     }
 
+    const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
+      moduleLogger.debug(
+        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
+        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
+      )
+      return []
+    })) as AssetIdsTuple
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       userStakingId,
       stakedAmountCryptoBaseUnit: balance,
-      rewardsAmountsCryptoBaseUnit,
+      rewardsCryptoBaseUnit: {
+        amounts: rewardsAmountsCryptoBaseUnit,
+        claimable: Boolean(rewardAssetIds.length),
+      },
     }
   }
 

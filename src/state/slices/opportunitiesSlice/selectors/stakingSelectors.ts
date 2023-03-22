@@ -211,10 +211,13 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
     return {
       // Overwritten by userOpportunity if it exists, else we keep defaulting to 0
       stakedAmountCryptoBaseUnit: '0',
-      rewardsAmountsCryptoBaseUnit: (opportunityMetadata.rewardAssetIds?.map(() => '0') ?? []) as
-        | []
-        | [string, string]
-        | [string],
+      rewardsCryptoBaseUnit: {
+        amounts: (opportunityMetadata.rewardAssetIds ?? []).map(_ => '0') as
+          | []
+          | [string, string]
+          | [string],
+        claimable: false,
+      },
       ...userOpportunity,
       ...opportunityMetadata,
       userStakingId,
@@ -236,7 +239,7 @@ export const selectHasClaimByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
   (userStakingOpportunity): boolean =>
     Boolean(
-      userStakingOpportunity?.rewardsAmountsCryptoBaseUnit.some(rewardAmount =>
+      userStakingOpportunity?.rewardsCryptoBaseUnit.amounts.some(rewardAmount =>
         bnOrZero(rewardAmount).gt(0),
       ),
     ),
@@ -323,11 +326,13 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       const stakedAmountCryptoBaseUnit = bnOrZero(acc?.stakedAmountCryptoBaseUnit)
         .plus(userStakingOpportunity.stakedAmountCryptoBaseUnit)
         .toFixed()
-      const rewardsAmountsCryptoBaseUnit = (
-        userStakingOpportunity.rewardsAmountsCryptoBaseUnit ?? []
-      ).map((amount, i) =>
-        bnOrZero(acc?.rewardsAmountsCryptoBaseUnit?.[i]).plus(amount).toString(),
-      ) as [string, string] | [string] | []
+
+      const rewardsCryptoBaseUnit = {
+        amounts: userStakingOpportunity.rewardsCryptoBaseUnit.amounts.map((amount, i) =>
+          bnOrZero(acc?.rewardsCryptoBaseUnit.amounts[i]).plus(amount).toString(),
+        ) as [string, string] | [string] | [],
+        claimable: userStakingOpportunity.isClaimableRewards,
+      }
       const undelegations = [
         ...(supportsUndelegations(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
@@ -338,7 +343,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
       return {
         ...userStakingOpportunityWithoutUserStakingId,
         stakedAmountCryptoBaseUnit,
-        rewardsAmountsCryptoBaseUnit,
+        rewardsCryptoBaseUnit,
         undelegations,
         userStakingId,
       }
@@ -558,7 +563,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         if (opportunity?.expired) {
           return (
             bnOrZero(opportunity.stakedAmountCryptoBaseUnit).gt(0) ||
-            opportunity?.rewardsAmountsCryptoBaseUnit?.some(rewardsAmount =>
+            opportunity?.rewardsCryptoBaseUnit?.amounts.some(rewardsAmount =>
               bnOrZero(rewardsAmount).gt(0),
             )
           )
@@ -584,8 +589,8 @@ export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputS
           .plus(acc?.stakedAmountCryptoBaseUnit ?? 0)
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
           .toString(),
-        fiatAmount: bnOrZero(currentOpportunity?.rewardsAmountsCryptoBaseUnit?.[0])
-          .plus(acc?.rewardsAmountsCryptoBaseUnit?.[0] ?? 0)
+        fiatAmount: bnOrZero(currentOpportunity?.rewardsCryptoBaseUnit?.amounts[0])
+          .plus(acc?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
           .toString(),
         stakedAmountCryptoBaseUnit: bnOrZero(currentOpportunity.stakedAmountCryptoBaseUnit)

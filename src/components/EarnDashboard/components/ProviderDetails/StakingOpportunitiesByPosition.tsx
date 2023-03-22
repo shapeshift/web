@@ -42,12 +42,12 @@ export type RowProps = Row<StakingEarnOpportunityType>
 type CalculateRewardFiatAmountArgs = {
   assets: Partial<Record<AssetId, Asset>>
   marketData: Partial<Record<AssetId, MarketData>>
-} & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsAmountsCryptoBaseUnit'>
+} & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
 
 type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
 
 const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
-  rewardsAmountsCryptoBaseUnit,
+  rewardsCryptoBaseUnit,
   rewardAssetIds,
   assets,
   marketData,
@@ -57,7 +57,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
     const asset = assets[assetId]
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketData[assetId]?.price)
-    const cryptoAmountPrecision = bnOrZero(rewardsAmountsCryptoBaseUnit?.[index]).div(
+    const cryptoAmountPrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index]).div(
       bn(10).pow(asset?.precision),
     )
     sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
@@ -174,11 +174,11 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
       },
       {
         Header: translate('defi.claimableRewards'),
-        accessor: 'rewardsAmountsCryptoBaseUnit',
+        accessor: 'rewardsCryptoBaseUnit',
         Cell: ({ row }: { row: RowProps }) => {
           const fiatAmount = calculateRewardFiatAmount({
             rewardAssetIds: row.original.rewardAssetIds,
-            rewardsAmountsCryptoBaseUnit: row.original.rewardsAmountsCryptoBaseUnit,
+            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
             assets,
             marketData,
           })
@@ -205,13 +205,13 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
         sortType: (a: RowProps, b: RowProps): number => {
           const aFiatPrice = calculateRewardFiatAmount({
             rewardAssetIds: a.original.rewardAssetIds,
-            rewardsAmountsCryptoBaseUnit: a.original.rewardsAmountsCryptoBaseUnit,
+            rewardsCryptoBaseUnit: a.original.rewardsCryptoBaseUnit,
             assets,
             marketData,
           })
           const bFiatPrice = calculateRewardFiatAmount({
             rewardAssetIds: b.original.rewardAssetIds,
-            rewardsAmountsCryptoBaseUnit: b.original.rewardsAmountsCryptoBaseUnit,
+            rewardsCryptoBaseUnit: b.original.rewardsCryptoBaseUnit,
             assets,
             marketData,
           })

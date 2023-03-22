@@ -118,11 +118,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   // user info
   const amountAvailableCryptoPrecision = useMemo(() => {
     return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-      .plus(bnOrZero(opportunityData?.rewardsAmountsCryptoBaseUnit?.[0])) // Savers rewards are denominated in a single asset
+      .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
       .div(bn(10).pow(asset.precision))
   }, [
     asset.precision,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
   ])
 
@@ -166,7 +166,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         const withdrawBps = getWithdrawBps({
           withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
           stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit,
-          rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+          rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
         })
 
         const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
@@ -210,7 +210,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       assetReference,
       accountId,
       opportunityData?.stakedAmountCryptoBaseUnit,
-      opportunityData?.rewardsAmountsCryptoBaseUnit,
+      opportunityData?.rewardsCryptoBaseUnit,
       dustAmountCryptoBaseUnit,
       asset,
       chainId,
@@ -384,7 +384,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        rewardsamountCryptoBaseUnit: opportunityData?.rewardsAmountsCryptoBaseUnit?.[0] ?? '0',
+        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
@@ -423,7 +423,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
     asset,
     inputValues,
     opportunityData?.apy,
-    opportunityData?.rewardsAmountsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
   ])
 

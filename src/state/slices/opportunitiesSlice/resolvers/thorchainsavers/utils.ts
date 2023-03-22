@@ -267,14 +267,14 @@ export const isAboveDepositDustThreshold = ({
 export const getWithdrawBps = ({
   withdrawAmountCryptoBaseUnit,
   stakedAmountCryptoBaseUnit,
-  rewardsamountCryptoBaseUnit,
+  rewardsAmountCryptoBaseUnit,
 }: {
   withdrawAmountCryptoBaseUnit: BigNumber.Value
   stakedAmountCryptoBaseUnit: BigNumber.Value
-  rewardsamountCryptoBaseUnit: BigNumber.Value
+  rewardsAmountCryptoBaseUnit: BigNumber.Value
 }) => {
   const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
-    rewardsamountCryptoBaseUnit,
+    rewardsAmountCryptoBaseUnit,
   )
 
   const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(

@@ -15,6 +15,7 @@ import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetMarketData } from './AssetHeader/AssetMarketData'
 import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
+import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
 
@@ -39,6 +40,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
           <MaybeChartUnavailable assetIds={assetIds} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
+          <RelatedAssets assetId={assetId} />
           <AssetAccounts assetId={assetId} accountId={accountId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />

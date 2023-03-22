@@ -75,20 +75,23 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
 
 export type PositionTableProps = {
   searchQuery: string
-  filterBy?: (
-    opportunities: AggregatedOpportunitiesByAssetIdReturn[],
-  ) => AggregatedOpportunitiesByAssetIdReturn[] | undefined
+  includeEarnBalances: boolean
+  includeRewardsBalances: boolean
 }
 
-export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery, filterBy }) => {
+export const PositionTable: React.FC<PositionTableProps> = ({
+  includeEarnBalances,
+  includeRewardsBalances,
+  searchQuery,
+}) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
-
-  const filteredPositions = useMemo(
-    () => (filterBy ? filterBy(positions) : positions) ?? [],
-    [filterBy, positions],
+  const positions = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByAssetId(state, {
+      includeEarnBalances,
+      includeRewardsBalances,
+    }),
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -190,8 +193,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery, filte
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
-  }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
+    return isSearching ? filterRowsBySearchTerm(positions, searchQuery) : positions
+  }, [filterRowsBySearchTerm, positions, searchQuery, isSearching])
 
   return (
     <ReactTable

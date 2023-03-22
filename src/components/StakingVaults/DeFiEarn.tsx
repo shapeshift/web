@@ -12,11 +12,15 @@ import { ProviderTable } from './ProviderTable'
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
   providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
+  includeEarnBalances?: boolean
+  includeRewardsBalances?: boolean
 } & FlexProps
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
   providerTableProps,
+  includeEarnBalances,
+  includeRewardsBalances,
   ...rest
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -41,10 +45,18 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
       </Flex>
       <TabPanels>
         <TabPanel>
-          <PositionTable searchQuery={searchQuery} {...positionTableProps} />
+          <PositionTable
+            searchQuery={searchQuery}
+            includeEarnBalances={Boolean(includeEarnBalances)}
+            includeRewardsBalances={Boolean(includeRewardsBalances)}
+          />
         </TabPanel>
         <TabPanel>
-          <ProviderTable searchQuery={searchQuery} {...providerTableProps} />
+          <ProviderTable
+            searchQuery={searchQuery}
+            includeEarnBalances={Boolean(includeEarnBalances)}
+            includeRewardsBalances={Boolean(includeRewardsBalances)}
+          />
         </TabPanel>
       </TabPanels>
     </Tabs>

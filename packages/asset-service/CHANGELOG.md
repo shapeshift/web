@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.11.0...@shapeshiftoss/asset-service-v8.11.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* english desc line endings and correction ([#1225](https://github.com/shapeshift/lib/issues/1225)) ([a7d9802](https://github.com/shapeshift/lib/commit/a7d9802061e00794d0daa0d86a6d2f41eaa6944f))
+
 # [@shapeshiftoss/asset-service-v8.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.10.0...@shapeshiftoss/asset-service-v8.11.0) (2023-03-21)
 
 

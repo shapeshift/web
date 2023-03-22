@@ -6,7 +6,6 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import { createApiClient } from './client'
 
-// const moduleLogger = logger.child({ module: 'zapperApi' })
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -27,7 +26,6 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    // TODO: First need to POST to run an initial refresh job
     getAppBalances: build.query<any, void>({
       queryFn: async () => {
         // Refresh job

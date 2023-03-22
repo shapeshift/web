@@ -6,6 +6,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { zapperApi } from './apis/zapper/zapperApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
@@ -46,6 +47,7 @@ export const apiSlices = {
   swapperApi,
   foxyApi,
   fiatRampApi,
+  zapperApi,
   opportunitiesApi,
   abiApi,
 }
@@ -58,6 +60,7 @@ export const apiReducers = {
   [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
+  [zapperApi.reducerPath]: zapperApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
 }

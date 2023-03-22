@@ -1,0 +1,899 @@
+import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
+import { z } from 'zod'
+
+const GasPricesResponse = z.object({
+  standard: z.object({}).partial(),
+  fast: z.object({}).partial(),
+  instant: z.object({}).partial(),
+  eip1559: z.boolean(),
+})
+
+export const schemas = {
+  GasPricesResponse,
+}
+
+const endpoints = makeApi([
+  {
+    method: 'get',
+    path: '/v2/api-clients/points',
+    description: `Get stats about the API client points`,
+    requestFormat: 'json',
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/apps',
+    requestFormat: 'json',
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/apps/:appSlug',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'appSlug',
+        type: 'Path',
+        schema: z.string(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/apps/:appSlug/balances',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'appSlug',
+        type: 'Path',
+        schema: z.string(),
+      },
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/apps/:appSlug/positions',
+    description: `Retrieve positions (non-tokenized) for a given application`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'appSlug',
+        type: 'Path',
+        schema: z.string(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z.enum([
+          'ethereum',
+          'polygon',
+          'optimism',
+          'gnosis',
+          'binance-smart-chain',
+          'fantom',
+          'avalanche',
+          'arbitrum',
+          'celo',
+          'harmony',
+          'moonriver',
+          'bitcoin',
+          'cronos',
+          'aurora',
+          'evmos',
+        ]),
+      },
+      {
+        name: 'groupId',
+        type: 'Query',
+        schema: z.string(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/apps/:appSlug/tokens',
+    description: `Retrieve tokens for a given application`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'appSlug',
+        type: 'Path',
+        schema: z.string(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z.enum([
+          'ethereum',
+          'polygon',
+          'optimism',
+          'gnosis',
+          'binance-smart-chain',
+          'fantom',
+          'avalanche',
+          'arbitrum',
+          'celo',
+          'harmony',
+          'moonriver',
+          'bitcoin',
+          'cronos',
+          'aurora',
+          'evmos',
+        ]),
+      },
+      {
+        name: 'groupId',
+        type: 'Query',
+        schema: z.string(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/balances/apps',
+    description: `Gets the app balances for a set of addresses and set of networks.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'networks[]',
+        type: 'Query',
+        schema: z
+          .array(
+            z.enum([
+              'ethereum',
+              'polygon',
+              'optimism',
+              'gnosis',
+              'binance-smart-chain',
+              'fantom',
+              'avalanche',
+              'arbitrum',
+              'celo',
+              'harmony',
+              'moonriver',
+              'bitcoin',
+              'cronos',
+              'aurora',
+              'evmos',
+            ]),
+          )
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'post',
+    path: '/v2/balances/apps',
+    description: `Recomputes the app balances for a set of addresses and set of networks.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'networks[]',
+        type: 'Query',
+        schema: z
+          .array(
+            z.enum([
+              'ethereum',
+              'polygon',
+              'optimism',
+              'gnosis',
+              'binance-smart-chain',
+              'fantom',
+              'avalanche',
+              'arbitrum',
+              'celo',
+              'harmony',
+              'moonriver',
+              'bitcoin',
+              'cronos',
+              'aurora',
+              'evmos',
+            ]),
+          )
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/balances/job-status',
+    description: `Gets the status of a single balance computation job.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'jobId',
+        type: 'Query',
+        schema: z.string(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/balances/tokens',
+    description: `Gets the token balances for a set of addresses and set of networks.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'networks[]',
+        type: 'Query',
+        schema: z
+          .array(
+            z.enum([
+              'ethereum',
+              'polygon',
+              'optimism',
+              'gnosis',
+              'binance-smart-chain',
+              'fantom',
+              'avalanche',
+              'arbitrum',
+              'celo',
+              'harmony',
+              'moonriver',
+              'bitcoin',
+              'cronos',
+              'aurora',
+              'evmos',
+            ]),
+          )
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'post',
+    path: '/v2/balances/tokens',
+    description: `Recomputes the token balances for a set of addresses and set of networks.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'networks[]',
+        type: 'Query',
+        schema: z
+          .array(
+            z.enum([
+              'ethereum',
+              'polygon',
+              'optimism',
+              'gnosis',
+              'binance-smart-chain',
+              'fantom',
+              'avalanche',
+              'arbitrum',
+              'celo',
+              'harmony',
+              'moonriver',
+              'bitcoin',
+              'cronos',
+              'aurora',
+              'evmos',
+            ]),
+          )
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/exchange/price',
+    description: `Returns data about the amount received if a trade would be made. **Should be called whenever a price needs to be calculated.**`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'gasPrice',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'maxFeePerGas',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'maxPriorityFeePerGas',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'sellTokenAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'buyTokenAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'sellAmount',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'buyAmount',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'ownerAddress',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'slippagePercentage',
+        type: 'Query',
+        schema: z.number().optional(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional()
+          .default('ethereum'),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/exchange/quote',
+    description: `Returns both the relative price for a trade as well as the call data used to sumbit a transaction for a trade. **Should only be called when a trade is ready to be submitted.**`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'gasPrice',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'maxFeePerGas',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'maxPriorityFeePerGas',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'sellTokenAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'buyTokenAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'sellAmount',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'buyAmount',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'ownerAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'slippagePercentage',
+        type: 'Query',
+        schema: z.number(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional()
+          .default('ethereum'),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/exchange/supported',
+    description: `Returns the exchanges supported by Zapper API.`,
+    requestFormat: 'json',
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/gas-prices',
+    description: `Retrieve a gas price aggregated from multiple different sources`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional()
+          .default('ethereum'),
+      },
+      {
+        name: 'eip1559',
+        type: 'Query',
+        schema: z.boolean(),
+      },
+    ],
+    response: GasPricesResponse,
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/balances/collections',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'minCollectionValueUsd',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'search',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'collectionAddresses[]',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.string().optional().default('25'),
+      },
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/balances/collections-totals',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'minCollectionValueUsd',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'search',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'collectionAddresses[]',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/balances/net-worth',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/balances/tokens',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'minEstimatedValueUsd',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'search',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'collectionAddresses[]',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.string().optional().default('25'),
+      },
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/balances/tokens-totals',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'addresses[]',
+        type: 'Query',
+        schema: z.array(z.string()),
+      },
+      {
+        name: 'minEstimatedValueUsd',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'search',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'collectionAddresses[]',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/collection/tokens',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'collectionAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z.enum([
+          'ethereum',
+          'polygon',
+          'optimism',
+          'gnosis',
+          'binance-smart-chain',
+          'fantom',
+          'avalanche',
+          'arbitrum',
+          'celo',
+          'harmony',
+          'moonriver',
+          'bitcoin',
+          'cronos',
+          'aurora',
+          'evmos',
+        ]),
+      },
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'tokenIds[]',
+        type: 'Query',
+        schema: z.array(z.string()).optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/nft/user/tokens',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'userAddress',
+        type: 'Query',
+        schema: z.string(),
+      },
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.string().optional().default(50),
+      },
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: 'get',
+    path: '/v2/prices',
+    description: `Retrieve supported tokens and their prices`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'network',
+        type: 'Query',
+        schema: z
+          .enum([
+            'ethereum',
+            'polygon',
+            'optimism',
+            'gnosis',
+            'binance-smart-chain',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+            'celo',
+            'harmony',
+            'moonriver',
+            'bitcoin',
+            'cronos',
+            'aurora',
+            'evmos',
+          ])
+          .optional(),
+      },
+    ],
+    response: z.void(),
+  },
+])
+
+export const api = new Zodios(endpoints)
+
+export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
+  return new Zodios(baseUrl, endpoints, options)
+}

@@ -25,6 +25,7 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { useGetAppBalancesQuery } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -78,6 +79,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // load fiat ramps
   useGetFiatRampsQuery()
+
+  // load Zapper data for debugging
+  useGetAppBalancesQuery()
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready

@@ -331,6 +331,8 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         amounts: userStakingOpportunity.rewardsCryptoBaseUnit.amounts.map((amount, i) =>
           bnOrZero(acc?.rewardsCryptoBaseUnit.amounts[i]).plus(amount).toString(),
         ) as [string, string] | [string] | [],
+        // This aggregates by StakingId, meaning this is the same opportunity over multiple amounts
+        // Same rewards AssetIds, same arity etc
         claimable: userStakingOpportunity.isClaimableRewards,
       }
       const undelegations = [

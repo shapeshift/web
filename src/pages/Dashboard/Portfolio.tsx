@@ -28,7 +28,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AccountTable } from './components/AccountList/AccountTable'
-import { PortfolioBreakdown } from './PortfolioBreakdown'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
@@ -112,7 +111,6 @@ export const Portfolio = () => {
         </Skeleton>
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
-      <PortfolioBreakdown />
       <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
       <Card>
         <Card.Header>

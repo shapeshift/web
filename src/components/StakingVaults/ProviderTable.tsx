@@ -62,14 +62,22 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
   )
 }
 
-type PositionTableProps = {
+export type ProviderTableProps = {
   searchQuery: string
+  filterBy?: (
+    opportunities: AggregatedOpportunitiesByProviderReturn[],
+  ) => AggregatedOpportunitiesByProviderReturn[] | undefined
 }
 
-export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
+export const ProviderTable: React.FC<ProviderTableProps> = ({ searchQuery, filterBy }) => {
   const translate = useTranslate()
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const providers = useAppSelector(selectAggregatedEarnOpportunitiesByProvider)
+
+  const filteredProviders = useMemo(
+    () => (filterBy ? filterBy(providers) : providers) ?? [],
+    [filterBy, providers],
+  )
 
   const columns: Column<AggregatedOpportunitiesByProviderReturn>[] = useMemo(
     () => [
@@ -160,8 +168,8 @@ export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
-  }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
+    return isSearching ? filterRowsBySearchTerm(filteredProviders, searchQuery) : filteredProviders
+  }, [filterRowsBySearchTerm, filteredProviders, searchQuery, isSearching])
 
   return (
     <ReactTable

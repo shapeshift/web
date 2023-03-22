@@ -18,6 +18,7 @@ import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { EarnDashboard } from 'pages/Dashboard/EarnDashboard'
+import { RewardsDashboard } from 'pages/Dashboard/RewardsDashboard'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
@@ -44,6 +45,11 @@ export const routes: NestedRoute[] = [
         label: 'Earn Dashboard',
         path: '/earn',
         main: EarnDashboard,
+      },
+      {
+        label: 'Rewards Dashboard',
+        path: '/rewards',
+        main: RewardsDashboard,
       },
     ],
   },

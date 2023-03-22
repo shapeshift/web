@@ -389,6 +389,7 @@
     "netWorth": "Net Worth",
     "walletBalance": "Wallet Balance",
     "earnBalance": "Earn Balance",
+    "rewardBalance": "Reward Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",

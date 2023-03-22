@@ -41,6 +41,8 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   useEffect(() => setHasSetDefaultValues(false), [location])
 
   useEffect(() => {
+    // Don't run this effect within the lifecycle of /trade routes
+    if (location.pathname === '/trade') return
     if (hasSetDefaultValues) return
     ;(async () => {
       const result = await getDefaultAssets()
@@ -72,6 +74,7 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     defaultBuyAssetId,
     getDefaultAssets,
     methods,
+    location,
     hasSetDefaultValues,
     defaultAssetIdPair?.sellAssetId,
     defaultAssetIdPair?.buyAssetId,

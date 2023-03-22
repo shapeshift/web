@@ -134,15 +134,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     const opportunityId = toOpportunityId(toAssetIdParts)
     const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-    if (bnOrZero(balance).eq(0)) {
-      stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-        userStakingId,
-        stakedAmountCryptoBaseUnit: '0',
-        rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
-      }
-      continue
-    }
-
     const opportunities = await foxyInvestor.getFoxyOpportunities()
 
     // investor-foxy is architected around many FOXy addresses/opportunity, but akchually there's only one

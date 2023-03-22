@@ -239,9 +239,10 @@ export const selectHasClaimByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
   (userStakingOpportunity): boolean =>
     Boolean(
-      userStakingOpportunity?.rewardsCryptoBaseUnit.amounts.some(rewardAmount =>
-        bnOrZero(rewardAmount).gt(0),
-      ),
+      userStakingOpportunity?.rewardsCryptoBaseUnit.claimable &&
+        userStakingOpportunity?.rewardsCryptoBaseUnit.amounts.some(rewardAmount =>
+          bnOrZero(rewardAmount).gt(0),
+        ),
     ),
 )
 

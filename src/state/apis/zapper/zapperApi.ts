@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { getConfig } from 'config'
 import { setTimeoutAsync } from 'lib/utils'
-// import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import { createApiClient } from './client'

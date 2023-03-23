@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
+import uniq from 'lodash/uniq'
 import qs from 'qs'
 import { setTimeoutAsync } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -35,9 +36,11 @@ export const zapperApi = createApi({
     getAppBalances: build.query<any, GetAppBalancesInput>({
       queryFn: async ({ accountIds }) => {
         // Refresh job
-        const evmAddresses = accountIds
-          .filter(accountId => isEvmChainId(fromAccountId(accountId).chainId))
-          .map(accountId => fromAccountId(accountId).account)
+        const evmAddresses = uniq(
+          accountIds
+            .filter(accountId => isEvmChainId(fromAccountId(accountId).chainId))
+            .map(accountId => fromAccountId(accountId).account),
+        )
         const evmNetworks = evmChainIds.map(chainId => chainIdToZapperNetwork(chainId))
         await zapperClient.post('/v2/balances/apps', undefined, {
           headers,

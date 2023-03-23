@@ -27,7 +27,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateIsExactAllowance = useSwapperStore(state => state.updateIsExactAllowance)
   const updateAmount = useSwapperStore(state => state.updateAmount)
-  const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
   const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
   const updateBuyAmountCryptoPrecision = useSwapperStore(
@@ -41,8 +40,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   useEffect(() => setHasSetDefaultValues(false), [location])
 
   useEffect(() => {
-    // Don't run this effect within the lifecycle of /trade routes
-    if (location.pathname === '/trade') return
     if (hasSetDefaultValues) return
     ;(async () => {
       const result = await getDefaultAssets()
@@ -60,7 +57,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
       updateSellAssetFiatRate(undefined)
       updateBuyAssetFiatRate(undefined)
       updateFeeAssetFiatRate(undefined)
-      updateTrade(undefined)
       const defaultAssetsAreChainDefaults =
         sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
         buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
@@ -87,7 +83,6 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     updateAction,
     updateIsExactAllowance,
     updateAmount,
-    updateTrade,
     updateBuyAsset,
     updateBuyAmountCryptoPrecision,
     updateSellAsset,

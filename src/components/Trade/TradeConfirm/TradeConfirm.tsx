@@ -83,6 +83,7 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
+  const updateTrade = useSwapperStore(state => state.updateTrade)
 
   const assets = useAppSelector(selectAssets)
 
@@ -249,9 +250,10 @@ export const TradeConfirm = () => {
   const handleBack = useCallback(() => {
     if (sellTradeId) {
       clearAmounts()
+      updateTrade(undefined)
     }
     history.push(TradeRoutePaths.Input)
-  }, [clearAmounts, history, sellTradeId])
+  }, [clearAmounts, history, sellTradeId, updateTrade])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetFiatRate ?? 1)
 

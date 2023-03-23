@@ -1,12 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { setTimeoutAsync } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { createApiClient, SupportedZapperNetworksEnum } from './client'
+import { chainIdToZapperNetwork, createApiClient } from './client'
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -34,8 +35,10 @@ export const zapperApi = createApi({
     getAppBalances: build.query<any, GetAppBalancesInput>({
       queryFn: async ({ accountIds }) => {
         // Refresh job
-        const evmAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
-        const evmNetworks = [SupportedZapperNetworksEnum.Ethereum]
+        const evmAddresses = accountIds
+          .filter(accountId => isEvmChainId(fromAccountId(accountId).chainId))
+          .map(accountId => fromAccountId(accountId).account)
+        const evmNetworks = evmChainIds.map(chainId => chainIdToZapperNetwork(chainId))
         await zapperClient.post('/v2/balances/apps', undefined, {
           headers,
           // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it

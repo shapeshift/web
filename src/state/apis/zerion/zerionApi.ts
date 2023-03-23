@@ -7,6 +7,7 @@ import { getConfig } from 'config'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import { FEE_ASSET_IDS } from 'state/slices/selectors'
 
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
@@ -37,6 +38,7 @@ export const zerionApi = createApi({
       queryFn: async assetId => {
         const { chainId, assetReference } = fromAssetId(assetId)
         if (!isEvmChainId(chainId)) return { data: [] } // EVM only
+        if (FEE_ASSET_IDS.includes(assetId)) return { data: [] } // tokens only
         try {
           //
           const filter = { params: { 'filter[implementation_address]': assetReference } }

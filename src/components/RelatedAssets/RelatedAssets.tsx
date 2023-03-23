@@ -15,7 +15,7 @@ type RelatedAssetsProps = {
 }
 
 export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
-  const { data, isLoading, isError } = useGetRelatedAssetIdsQuery(assetId)
+  const { data, isLoading } = useGetRelatedAssetIdsQuery(assetId)
   const assets = useAppSelector(selectAssets)
   const history = useHistory()
 
@@ -46,7 +46,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   )
 
   if (isLoading) return null
-  if ((!isLoading && !(data ?? []).length) || isError) return null
+  if (!data?.length) return null
 
   return (
     <Card>

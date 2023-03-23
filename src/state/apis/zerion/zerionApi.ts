@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -37,9 +37,8 @@ export const zerionApi = createApi({
      */
     getRelatedAssetIds: build.query<AssetId[], AssetId>({
       queryFn: async assetId => {
-        const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
+        const { chainId, assetReference } = fromAssetId(assetId)
         if (!isEvmChainId(chainId)) return { data: [] } // EVM only
-        if (assetNamespace !== 'erc20') return { data: [] } // ERC20 only
         // e.g. USDT https://api.zerion.io/v1/fungibles
         const url = `${ZERION_BASE_URL}/fungibles/` // trailing slash is important!
         try {
@@ -65,7 +64,14 @@ export const zerionApi = createApi({
                   const { chain_id, address: assetReference } = implementation
                   const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
                   if (!chainId) return undefined
-                  const assetNamespace = ASSET_NAMESPACE.erc20 // zerion only supports "fungibles", i.e. no NFTs
+                  const assetNamespace = (() => {
+                    switch (true) {
+                      case chainId === bscChainId:
+                        return ASSET_NAMESPACE.bep20
+                      default:
+                        return ASSET_NAMESPACE.erc20
+                    }
+                  })()
                   return toAssetId({ chainId, assetNamespace, assetReference })
                 })
                 .filter(isSome)

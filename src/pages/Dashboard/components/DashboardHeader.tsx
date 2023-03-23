@@ -74,7 +74,7 @@ export const DashboardHeader = () => {
           color='purple.500'
         />
         <DashboardTab
-          label='defi.rewardBalance'
+          label='defi.rewardsBalance'
           icon={<RewardsIcon />}
           fiatValue={claimableRewardsFiatBalance}
           path='/dashboard/rewards'

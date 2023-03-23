@@ -8,8 +8,27 @@ const GasPricesResponse = z.object({
   eip1559: z.boolean(),
 })
 
+const SupportedZapperChains = z.enum([
+  'ethereum',
+  'polygon',
+  'optimism',
+  'gnosis',
+  'binance-smart-chain',
+  'fantom',
+  'avalanche',
+  'arbitrum',
+  'celo',
+  'harmony',
+  'moonriver',
+  'bitcoin',
+  'cronos',
+  'aurora',
+  'evmos',
+])
+
 export const schemas = {
   GasPricesResponse,
+  SupportedZapperChains,
 }
 
 const endpoints = makeApi([
@@ -57,25 +76,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.void(),
@@ -94,23 +95,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z.enum([
-          'ethereum',
-          'polygon',
-          'optimism',
-          'gnosis',
-          'binance-smart-chain',
-          'fantom',
-          'avalanche',
-          'arbitrum',
-          'celo',
-          'harmony',
-          'moonriver',
-          'bitcoin',
-          'cronos',
-          'aurora',
-          'evmos',
-        ]),
+        schema: SupportedZapperChains,
       },
       {
         name: 'groupId',
@@ -134,23 +119,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z.enum([
-          'ethereum',
-          'polygon',
-          'optimism',
-          'gnosis',
-          'binance-smart-chain',
-          'fantom',
-          'avalanche',
-          'arbitrum',
-          'celo',
-          'harmony',
-          'moonriver',
-          'bitcoin',
-          'cronos',
-          'aurora',
-          'evmos',
-        ]),
+        schema: SupportedZapperChains,
       },
       {
         name: 'groupId',
@@ -174,25 +143,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.array(
@@ -202,23 +153,7 @@ const endpoints = makeApi([
         appId: z.string(),
         appName: z.string(),
         appImage: z.string(),
-        network: z.enum([
-          'ethereum',
-          'polygon',
-          'optimism',
-          'gnosis',
-          'binance-smart-chain',
-          'fantom',
-          'avalanche',
-          'arbitrum',
-          'celo',
-          'harmony',
-          'moonriver',
-          'bitcoin',
-          'cronos',
-          'aurora',
-          'evmos',
-        ]),
+        network: SupportedZapperChains,
         updatedAt: z.string(),
         balanceUSD: z.number(),
         products: z.array(
@@ -229,44 +164,12 @@ const endpoints = makeApi([
                 type: z.string(),
                 appId: z.string(),
                 groupId: z.string(),
-                network: z.enum([
-                  'ethereum',
-                  'polygon',
-                  'optimism',
-                  'gnosis',
-                  'binance-smart-chain',
-                  'fantom',
-                  'avalanche',
-                  'arbitrum',
-                  'celo',
-                  'harmony',
-                  'moonriver',
-                  'bitcoin',
-                  'cronos',
-                  'aurora',
-                  'evmos',
-                ]),
+                network: SupportedZapperChains,
 
                 address: z.string(),
                 tokens: z.array(
                   z.object({
-                    network: z.enum([
-                      'ethereum',
-                      'polygon',
-                      'optimism',
-                      'gnosis',
-                      'binance-smart-chain',
-                      'fantom',
-                      'avalanche',
-                      'arbitrum',
-                      'celo',
-                      'harmony',
-                      'moonriver',
-                      'bitcoin',
-                      'cronos',
-                      'aurora',
-                      'evmos',
-                    ]),
+                    network: SupportedZapperChains,
                     address: z.string(),
                     decimals: z.number(),
                     symbol: z.string(),
@@ -298,25 +201,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.object({
@@ -351,27 +236,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z
-          .array(
-            z.enum([
-              'ethereum',
-              'polygon',
-              'optimism',
-              'gnosis',
-              'binance-smart-chain',
-              'fantom',
-              'avalanche',
-              'arbitrum',
-              'celo',
-              'harmony',
-              'moonriver',
-              'bitcoin',
-              'cronos',
-              'aurora',
-              'evmos',
-            ]),
-          )
-          .optional(),
+        schema: z.array(SupportedZapperChains).optional(),
       },
     ],
     response: z.void(),
@@ -390,27 +255,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z
-          .array(
-            z.enum([
-              'ethereum',
-              'polygon',
-              'optimism',
-              'gnosis',
-              'binance-smart-chain',
-              'fantom',
-              'avalanche',
-              'arbitrum',
-              'celo',
-              'harmony',
-              'moonriver',
-              'bitcoin',
-              'cronos',
-              'aurora',
-              'evmos',
-            ]),
-          )
-          .optional(),
+        schema: z.array(SupportedZapperChains).optional(),
       },
     ],
     response: z.void(),
@@ -469,26 +314,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional()
-          .default('ethereum'),
+        schema: SupportedZapperChains.optional().default('ethereum'),
       },
     ],
     response: z.void(),
@@ -547,26 +373,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional()
-          .default('ethereum'),
+        schema: SupportedZapperChains.optional().default('ethereum'),
       },
     ],
     response: z.void(),
@@ -587,26 +394,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional()
-          .default('ethereum'),
+        schema: SupportedZapperChains.optional().default('ethereum'),
       },
       {
         name: 'eip1559',
@@ -644,25 +432,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
       {
         name: 'limit',
@@ -705,25 +475,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.void(),
@@ -769,25 +521,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
       {
         name: 'limit',
@@ -830,25 +564,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.void(),
@@ -866,23 +582,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z.enum([
-          'ethereum',
-          'polygon',
-          'optimism',
-          'gnosis',
-          'binance-smart-chain',
-          'fantom',
-          'avalanche',
-          'arbitrum',
-          'celo',
-          'harmony',
-          'moonriver',
-          'bitcoin',
-          'cronos',
-          'aurora',
-          'evmos',
-        ]),
+        schema: SupportedZapperChains,
       },
       {
         name: 'cursor',
@@ -910,25 +610,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
       {
         name: 'limit',
@@ -952,25 +634,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: z
-          .enum([
-            'ethereum',
-            'polygon',
-            'optimism',
-            'gnosis',
-            'binance-smart-chain',
-            'fantom',
-            'avalanche',
-            'arbitrum',
-            'celo',
-            'harmony',
-            'moonriver',
-            'bitcoin',
-            'cronos',
-            'aurora',
-            'evmos',
-          ])
-          .optional(),
+        schema: SupportedZapperChains.optional(),
       },
     ],
     response: z.void(),

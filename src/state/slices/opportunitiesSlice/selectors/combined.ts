@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
 import type { BN } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -17,7 +17,10 @@ import type {
 } from '../types'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
-import { selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty } from './stakingSelectors'
+import {
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectUserStakingOpportunitiesWithMetadataByFilter,
+} from './stakingSelectors'
 
 type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
 type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
@@ -139,6 +142,39 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     }
 
     return Object.values(byAssetId)
+  },
+)
+
+export const selectClaimableRewards = createDeepEqualOutputSelector(
+  selectUserStakingOpportunitiesWithMetadataByFilter,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  (userStakingOpportunitesWithMetadata, assets, marketData): string => {
+    return userStakingOpportunitesWithMetadata
+      .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
+        const rewardsAmountFiat = Array.from(
+          stakingOpportunityWithMetadata?.rewardAssetIds ?? [],
+        ).reduce((currentSum, assetId, index) => {
+          const asset = assets[assetId]
+          if (!asset) return currentSum
+          const marketDataPrice = marketData[assetId]?.price
+          const amountCryptoBaseUnit =
+            stakingOpportunityWithMetadata?.rewardsCryptoBaseUnit?.amounts[index]
+          const cryptoAmountPrecision = bnOrZero(
+            stakingOpportunityWithMetadata?.rewardsCryptoBaseUnit?.claimable
+              ? amountCryptoBaseUnit
+              : '0',
+          ).div(bnOrZero(10).pow(asset?.precision))
+
+          return bnOrZero(cryptoAmountPrecision)
+            .times(marketDataPrice ?? 0)
+            .plus(bnOrZero(currentSum))
+            .toNumber()
+        }, 0)
+        totalSum = bnOrZero(totalSum).plus(rewardsAmountFiat)
+        return totalSum
+      }, bn(0))
+      .toFixed()
   },
 )
 

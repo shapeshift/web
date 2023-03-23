@@ -6,7 +6,7 @@ import qs from 'qs'
 import { setTimeoutAsync } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { createApiClient } from './client'
+import { createApiClient, SupportedZapperNetworksEnum } from './client'
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -35,7 +35,7 @@ export const zapperApi = createApi({
       queryFn: async ({ accountIds }) => {
         // Refresh job
         const evmAddresses = accountIds.map(accountId => fromAccountId(accountId).account)
-        const evmNetworks = ['ethereum']
+        const evmNetworks = [SupportedZapperNetworksEnum.Ethereum]
         await zapperClient.post('/v2/balances/apps', undefined, {
           headers,
           // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it

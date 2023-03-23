@@ -1,3 +1,5 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
 import { z } from 'zod'
 
@@ -8,23 +10,37 @@ const GasPricesResponse = z.object({
   eip1559: z.boolean(),
 })
 
-const SupportedZapperChains = z.enum([
-  'ethereum',
-  'polygon',
-  'optimism',
-  'gnosis',
-  'binance-smart-chain',
-  'fantom',
-  'avalanche',
-  'arbitrum',
-  'celo',
-  'harmony',
-  'moonriver',
-  'bitcoin',
-  'cronos',
-  'aurora',
-  'evmos',
-])
+export enum SupportedZapperNetworksEnum {
+  Ethereum = 'ethereum',
+  Polygon = 'polygon',
+  Optimism = 'optimism',
+  Gnosis = 'gnosis',
+  BinanceSmartChain = 'binance-smart-chain',
+  Fantom = 'fantom',
+  Avalanche = 'avalanche',
+  Artbitrum = 'arbitrum',
+  Celo = 'celo',
+  Harmony = 'harmony',
+  Moonriver = 'moonriver',
+  Bitcoin = 'bitcoin',
+  Cronos = 'cronos',
+  Aurora = 'aurora',
+  Evmos = 'evmos',
+}
+
+const SupportedZapperChains = z.nativeEnum(SupportedZapperNetworksEnum)
+
+export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
+  Record<SupportedZapperNetworksEnum, ChainId>
+> = {
+  [SupportedZapperNetworksEnum.Avalanche]: avalancheChainId,
+  [SupportedZapperNetworksEnum.BinanceSmartChain]: bscChainId,
+  [SupportedZapperNetworksEnum.Ethereum]: ethChainId,
+  [SupportedZapperNetworksEnum.Optimism]: optimismChainId,
+}
+
+export const zapperNetworkToChainId = (network: SupportedZapperNetworksEnum): ChainId | undefined =>
+  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]
 
 const ZapperDisplayProps = z.object({
   label: z.string(),
@@ -346,7 +362,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional().default('ethereum'),
+        schema: SupportedZapperChains.optional().default(SupportedZapperNetworksEnum.Ethereum),
       },
     ],
     response: z.void(),

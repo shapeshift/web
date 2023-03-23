@@ -6,6 +6,10 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectIncludeEarnBalancesParamFromFilter,
+  selectIncludeRewardsBalancesParamFromFilter,
+} from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
@@ -40,11 +44,15 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   selectAggregatedEarnUserLpOpportunities,
   selectMarketDataSortedByMarketCap,
   selectAssets,
+  selectIncludeEarnBalancesParamFromFilter,
+  selectIncludeRewardsBalancesParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
     marketData,
     assets,
+    includeEarnBalances,
+    includeRewardsBalances,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
     const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
@@ -141,7 +149,18 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       byAssetId[assetId].netApy = netApy.toFixed()
     }
 
-    return Object.values(byAssetId)
+    const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
+
+    if (!includeEarnBalances && !includeRewardsBalances) return aggregatedEarnOpportunitiesByAssetId
+
+    const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
+      Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
+    )
+    const withRewardsBalances = Object.values(byAssetId).filter(opportunity =>
+      Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
+    )
+
+    return [...withEarnBalances, ...withRewardsBalances]
   },
 )
 
@@ -186,11 +205,15 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   selectAggregatedEarnUserLpOpportunities,
   selectMarketDataSortedByMarketCap,
   selectAssets,
+  selectIncludeEarnBalancesParamFromFilter,
+  selectIncludeRewardsBalancesParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
     marketData,
     assets,
+    includeEarnBalances,
+    includeRewardsBalances,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
     const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
@@ -273,12 +296,24 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       byProvider[provider as DefiProvider].netApy = netApy.toFixed()
     }
 
-    return Object.values(byProvider).reduce<AggregatedOpportunitiesByProviderReturn[]>(
-      (acc, cur) => {
-        if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
-        return acc
-      },
-      [],
+    const aggregatedEarnOpportunitiesByProvider = Object.values(byProvider).reduce<
+      AggregatedOpportunitiesByProviderReturn[]
+    >((acc, cur) => {
+      if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
+      return acc
+    }, [])
+
+    if (!includeEarnBalances && !includeRewardsBalances)
+      return Object.values(aggregatedEarnOpportunitiesByProvider)
+
+    const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
+      opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
     )
+    const withRewardsBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
+      opportunity =>
+        Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
+    )
+
+    return [...withEarnBalances, ...withRewardsBalances]
   },
 )

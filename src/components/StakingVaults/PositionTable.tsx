@@ -73,15 +73,26 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
   )
 }
 
-type PositionTableProps = {
+export type PositionTableProps = {
   searchQuery: string
+  includeEarnBalances?: boolean
+  includeRewardsBalances?: boolean
 }
 
-export const PositionTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
+export const PositionTable: React.FC<PositionTableProps> = ({
+  includeEarnBalances,
+  includeRewardsBalances,
+  searchQuery,
+}) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const positions = useAppSelector(selectAggregatedEarnOpportunitiesByAssetId)
+  const positions = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByAssetId(state, {
+      includeEarnBalances,
+      includeRewardsBalances,
+    }),
+  )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
     () => [

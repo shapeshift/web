@@ -173,20 +173,9 @@ export const TradeInput = () => {
       updateIsSendMax(false)
       updateAmount(amount)
 
-      if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
-        setTradeAmountsUsingExistingData({ amount, action })
-      } else {
-        setTradeAmountsUsingExistingData({ amount, action })
-      }
+      setTradeAmountsUsingExistingData({ amount, action })
     },
-    [
-      updateAction,
-      updateIsSendMax,
-      updateAmount,
-      isSwapperApiPending,
-      quoteAvailableForCurrentAssetPair,
-      setTradeAmountsUsingExistingData,
-    ],
+    [updateAction, updateIsSendMax, updateAmount, setTradeAmountsUsingExistingData],
   )
 
   const handleToggle = useCallback(() => handleAssetToggle(), [handleAssetToggle])

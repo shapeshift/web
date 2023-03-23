@@ -1,15 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheAssetId,
-  avalancheChainId,
-  bscChainId,
-  ethAssetId,
-  ethChainId,
-  optimismAssetId,
-  optimismChainId,
-} from '@shapeshiftoss/caip'
-
-import type { ZerionChainId, ZerionFeeAssetId } from './types'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [
   // shapeshift supported
@@ -26,11 +16,7 @@ export const ZERION_CHAINS = [
   // 'xdai',
 ] as const
 
-export const ZERION_FEE_ASSETS = [
-  'avax-avalanche-asset',
-  'eth-ethereum-asset',
-  'eth-optimism-asset',
-] as const
+export type ZerionChainId = typeof ZERION_CHAINS[number]
 
 export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   avalanche: avalancheChainId,
@@ -39,8 +25,5 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   optimism: optimismChainId,
 }
 
-export const ZERION_FEE_ASSETS_MAP: Record<ZerionFeeAssetId, AssetId> = {
-  'avax-avalanche-asset': avalancheAssetId,
-  'eth-ethereum-asset': ethAssetId,
-  'eth-optimism-asset': optimismAssetId,
-}
+export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>
+  ZERION_CHAINS_MAP[chainId]

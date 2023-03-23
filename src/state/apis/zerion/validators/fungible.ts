@@ -83,3 +83,5 @@ export const zerionFungiblesSchema = z.object({
   links: LinksSchema,
   data: DataSchema,
 })
+
+export type ZerionFungiblesSchema = z.TypeOf<typeof zerionFungiblesSchema>

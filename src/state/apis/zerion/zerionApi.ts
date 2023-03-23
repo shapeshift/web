@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -8,8 +8,9 @@ import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import type { ZerionFungiblesSchema } from './types'
-import { zerionAssetIdToAssetId } from './utils'
+import type { ZerionChainId } from './mapping'
+import { zerionChainIdToChainId } from './mapping'
+import type { ZerionFungiblesSchema } from './validators/fungible'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 const moduleLogger = logger.child({ module: 'zerionApi' })
@@ -36,8 +37,9 @@ export const zerionApi = createApi({
      */
     getRelatedAssetIds: build.query<AssetId[], AssetId>({
       queryFn: async assetId => {
-        const { chainId, assetReference } = fromAssetId(assetId)
+        const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
         if (!isEvmChainId(chainId)) return { data: [] } // EVM only
+        if (assetNamespace !== 'erc20') return { data: [] } // ERC20 only
         // e.g. USDT https://api.zerion.io/v1/fungibles
         const url = `${ZERION_BASE_URL}/fungibles/` // trailing slash is important!
         try {
@@ -60,9 +62,11 @@ export const zerionApi = createApi({
             const data =
               implementations
                 ?.map(implementation => {
-                  const { chain_id: zerionChainId, address } = implementation
-                  const assetId = zerionAssetIdToAssetId(`${address}-${zerionChainId}-asset`)
-                  return assetId
+                  const { chain_id, address: assetReference } = implementation
+                  const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
+                  if (!chainId) return undefined
+                  const assetNamespace = ASSET_NAMESPACE.erc20 // zerion only supports "fungibles", i.e. no NFTs
+                  return toAssetId({ chainId, assetNamespace, assetReference })
                 })
                 .filter(isSome)
                 // don't show input assetId in list of related assetIds

@@ -190,9 +190,7 @@ export const TradeInput = () => {
     ],
   )
 
-  const handleToggle = useCallback(() => {
-    handleAssetToggle()
-  }, [handleAssetToggle])
+  const handleToggle = useCallback(() => handleAssetToggle(), [handleAssetToggle])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return

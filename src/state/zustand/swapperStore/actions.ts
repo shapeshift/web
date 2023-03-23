@@ -77,6 +77,7 @@ export const handleAssetToggle =
         draft.buyAmountCryptoPrecision = '0'
         draft.sellAmountFiat = '0'
         draft.buyAmountFiat = '0'
+        draft.amount = '0'
         draft.feeAssetFiatRate = undefined
         draft.fees = undefined
         draft.trade = undefined

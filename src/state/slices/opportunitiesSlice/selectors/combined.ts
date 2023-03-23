@@ -193,39 +193,6 @@ export const selectClaimableRewards = createDeepEqualOutputSelector(
   },
 )
 
-export const selectClaimableRewards = createDeepEqualOutputSelector(
-  selectUserStakingOpportunitiesWithMetadataByFilter,
-  selectAssets,
-  selectMarketDataSortedByMarketCap,
-  (userStakingOpportunitesWithMetadata, assets, marketData): string => {
-    return userStakingOpportunitesWithMetadata
-      .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
-        const rewardsAmountFiat = Array.from(
-          stakingOpportunityWithMetadata?.rewardAssetIds ?? [],
-        ).reduce((currentSum, assetId, index) => {
-          const asset = assets[assetId]
-          if (!asset) return currentSum
-          const marketDataPrice = marketData[assetId]?.price
-          const amountCryptoBaseUnit =
-            stakingOpportunityWithMetadata?.rewardsCryptoBaseUnit?.amounts[index]
-          const cryptoAmountPrecision = bnOrZero(
-            stakingOpportunityWithMetadata?.rewardsCryptoBaseUnit?.claimable
-              ? amountCryptoBaseUnit
-              : '0',
-          ).div(bnOrZero(10).pow(asset?.precision))
-
-          return bnOrZero(cryptoAmountPrecision)
-            .times(marketDataPrice ?? 0)
-            .plus(bnOrZero(currentSum))
-            .toNumber()
-        }, 0)
-        totalSum = bnOrZero(totalSum).plus(rewardsAmountFiat)
-        return totalSum
-      }, bn(0))
-      .toFixed()
-  },
-)
-
 export const selectOpportunityApiPending = (state: ReduxState) =>
   Object.values(state.opportunitiesApi.queries).some(query => query?.status === QueryStatus.pending)
 

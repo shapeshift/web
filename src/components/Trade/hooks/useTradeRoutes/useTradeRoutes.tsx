@@ -1,7 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -14,7 +13,6 @@ export const useTradeRoutes = (): {
   handleAssetClick: (asset: Asset, action: AssetClickAction) => void
 } => {
   const history = useHistory()
-  const { setTradeAmountsRefetchData } = useTradeAmounts()
 
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
@@ -39,9 +37,11 @@ export const useTradeRoutes = (): {
   const updateBuyAmountCryptoPrecision = useSwapperStore(
     state => state.updateBuyAmountCryptoPrecision,
   )
+  const updateAction = useSwapperStore(state => state.updateAction)
+  const updateAmount = useSwapperStore(state => state.updateAmount)
 
   const handleAssetClick = useCallback(
-    async (asset: Asset, action: AssetClickAction) => {
+    (asset: Asset, action: AssetClickAction) => {
       const isBuy = action === AssetClickAction.Buy
       const isSell = action === AssetClickAction.Sell
       const isSameAsset = asset.assetId === (isBuy ? sellAsset?.assetId : buyAsset?.assetId)
@@ -70,25 +70,22 @@ export const useTradeRoutes = (): {
         updateFees(undefined)
       }
 
+      updateAction(TradeAmountInputField.SELL_FIAT)
+      updateAmount('0')
+
       clearAmounts()
       history.push(TradeRoutePaths.Input)
-
-      await setTradeAmountsRefetchData({
-        sellAssetId: isSell ? asset.assetId : undefined,
-        buyAssetId: isBuy ? asset.assetId : undefined,
-        amount: '0',
-        action: TradeAmountInputField.SELL_FIAT,
-      })
     },
     [
       sellAsset,
       buyAsset,
+      updateAction,
+      updateAmount,
       clearAmounts,
       history,
-      setTradeAmountsRefetchData,
       updateBuyAsset,
-      updateBuyAmountCryptoPrecision,
       updateSellAsset,
+      updateBuyAmountCryptoPrecision,
       updateSellAmountCryptoPrecision,
       updateSelectedBuyAssetAccountId,
       updateBuyAssetAccountId,

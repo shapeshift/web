@@ -151,12 +151,12 @@ export const selectClaimableRewards = createDeepEqualOutputSelector(
   selectMarketDataSortedByMarketCap,
   (userStakingOpportunitesWithMetadata, assets, marketData): string => {
     return userStakingOpportunitesWithMetadata
-      .reduce<BN>((sum, stakingOpportunityWithMetadata) => {
+      .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
         const rewardsAmountFiat = Array.from(
           stakingOpportunityWithMetadata?.rewardAssetIds ?? [],
-        ).reduce((sum, assetId, index) => {
+        ).reduce((currentSum, assetId, index) => {
           const asset = assets[assetId]
-          if (!asset) return sum
+          if (!asset) return currentSum
           const marketDataPrice = marketData[assetId]?.price
           const amountCryptoBaseUnit =
             stakingOpportunityWithMetadata?.rewardsCryptoBaseUnit?.amounts[index]
@@ -168,11 +168,11 @@ export const selectClaimableRewards = createDeepEqualOutputSelector(
 
           return bnOrZero(cryptoAmountPrecision)
             .times(marketDataPrice ?? 0)
-            .plus(bnOrZero(sum))
+            .plus(bnOrZero(currentSum))
             .toNumber()
         }, 0)
-        sum = bnOrZero(sum).plus(rewardsAmountFiat)
-        return sum
+        totalSum = bnOrZero(totalSum).plus(rewardsAmountFiat)
+        return totalSum
       }, bn(0))
       .toFixed()
   },

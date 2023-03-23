@@ -25,7 +25,7 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { useGetAppBalancesQuery } from 'state/apis/zapper/zapperApi'
+import { zapperApi } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -80,9 +80,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // load fiat ramps
   useGetFiatRampsQuery()
 
-  // load Zapper data for debugging
-  useGetAppBalancesQuery()
-
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
   useGetAssetsQuery()
@@ -110,6 +107,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const input = { accountNumber, chainIds, wallet }
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
+        const { getAppBalances } = zapperApi.endpoints
+        // load Zapper data for debugging
+        dispatch(getAppBalances.initiate({ accountIds }))
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
         // do *not* upsertOnFetch here - we need to check if the fetched account is empty

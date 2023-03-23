@@ -11,9 +11,9 @@ import { WalletDashboard } from './WalletDashboard'
 
 export const Dashboard = () => {
   const translate = useTranslate()
-  const isDashboardTabsEnabled = useFeatureFlag('DashboardTabs')
+  const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
 
-  if (isDashboardTabsEnabled)
+  if (isDefiDashboardEnabled)
     return (
       <Main headerComponent={<DashboardHeader />}>
         <SEO title={translate('navBar.dashboard')} />

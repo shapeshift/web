@@ -27,7 +27,15 @@ export const DashboardHeader = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   return (
     <Stack spacing={0} divider={<StackDivider />} borderColor={borderColor}>
-      <Flex width='full' bg='blackAlpha.100' px={8} py={4} alignItems='center' gap={6}>
+      <Flex
+        width='full'
+        bg='blackAlpha.100'
+        px={8}
+        py={4}
+        alignItems='center'
+        gap={{ base: 2, md: 6 }}
+        flexDir={{ base: 'column', md: 'row' }}
+      >
         <Text translation='navBar.dashboard' fontSize='xl' fontWeight='medium' />
         <Flex alignItems='center' gap={4}>
           <Flex alignItems='center' gap={2}>

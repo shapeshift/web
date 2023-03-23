@@ -28,7 +28,7 @@ export enum SupportedZapperNetworksEnum {
   Evmos = 'evmos',
 }
 
-const SupportedZapperChains = z.nativeEnum(SupportedZapperNetworksEnum)
+const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetworksEnum)
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
   Record<SupportedZapperNetworksEnum, ChainId>
@@ -67,7 +67,7 @@ const ZapperAsset = z.object({
   type: z.string(),
   appId: z.string(),
   groupId: z.string(),
-  network: SupportedZapperChains,
+  network: SupportedZapperNetworks,
   address: z.string(),
   price: z.number(),
   supply: z.number(),
@@ -83,7 +83,7 @@ const ZapperAsset = z.object({
   pricePerShare: z.array(z.union([z.string(), z.number()])),
   tokens: z.array(
     z.object({
-      network: SupportedZapperChains,
+      network: SupportedZapperNetworks,
       address: z.string(),
       decimals: z.number(),
       symbol: z.string(),
@@ -105,7 +105,7 @@ const V2BalancesAppsResponse = z.array(
     appId: z.string(),
     appName: z.string(),
     appImage: z.string(),
-    network: SupportedZapperChains,
+    network: SupportedZapperNetworks,
     updatedAt: z.string(),
     balanceUSD: z.number(),
     products: z.array(
@@ -163,7 +163,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
     ],
     response: z.void(),
@@ -182,7 +182,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains,
+        schema: SupportedZapperNetworks,
       },
       {
         name: 'groupId',
@@ -206,7 +206,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains,
+        schema: SupportedZapperNetworks,
       },
       {
         name: 'groupId',
@@ -230,7 +230,7 @@ const endpoints = makeApi([
       {
         name: 'networks',
         type: 'Query',
-        schema: z.array(SupportedZapperChains.optional()),
+        schema: z.array(SupportedZapperNetworks.optional()),
       },
     ],
     response: V2BalancesAppsResponse,
@@ -249,7 +249,7 @@ const endpoints = makeApi([
       {
         name: 'networks',
         type: 'Query',
-        schema: z.array(SupportedZapperChains.optional()),
+        schema: z.array(SupportedZapperNetworks.optional()),
       },
     ],
     response: z.object({
@@ -284,7 +284,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z.array(SupportedZapperChains).optional(),
+        schema: z.array(SupportedZapperNetworks).optional(),
       },
     ],
     response: z.void(),
@@ -303,7 +303,7 @@ const endpoints = makeApi([
       {
         name: 'networks[]',
         type: 'Query',
-        schema: z.array(SupportedZapperChains).optional(),
+        schema: z.array(SupportedZapperNetworks).optional(),
       },
     ],
     response: z.void(),
@@ -362,7 +362,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional().default(SupportedZapperNetworksEnum.Ethereum),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
       },
     ],
     response: z.void(),
@@ -421,7 +421,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional().default('ethereum'),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
       },
     ],
     response: z.void(),
@@ -442,7 +442,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional().default('ethereum'),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
       },
       {
         name: 'eip1559',
@@ -480,7 +480,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
       {
         name: 'limit',
@@ -523,7 +523,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
     ],
     response: z.void(),
@@ -569,7 +569,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
       {
         name: 'limit',
@@ -612,7 +612,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
     ],
     response: z.void(),
@@ -630,7 +630,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains,
+        schema: SupportedZapperNetworks,
       },
       {
         name: 'cursor',
@@ -658,7 +658,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
       {
         name: 'limit',
@@ -682,7 +682,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: SupportedZapperNetworks.optional(),
       },
     ],
     response: z.void(),

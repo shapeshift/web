@@ -184,6 +184,7 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "styled-components": "^5.3.6",
+    "uuid": "^9.0.0",
     "wagmi": "^0.6.5",
     "web-vitals": "^2.1.4",
     "web3": "1.7.4",

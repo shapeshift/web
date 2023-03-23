@@ -2,6 +2,7 @@ import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
@@ -56,6 +57,14 @@ export const Routes = () => {
     connectDemo,
   ])
 
+  // Most routes should be stable and not re-render when the location changes
+  // However, some routes are unstable and should actually re-render when location.pathname reference changes
+  // Which happens both on actual route change, or when the same route gets pushed
+  const unstableRoutes = useMemo(() => ['/trade'], [])
+  const isUnstableRoute = useMemo(
+    () => unstableRoutes.some(route => location.pathname.includes(route)),
+    [location.pathname, unstableRoutes],
+  )
   /**
    * Memoize the route list to avoid unnecessary cascading re-renders
    * It should only re-render if the wallet changes
@@ -64,13 +73,21 @@ export const Routes = () => {
     () =>
       appRoutes.map(route => {
         const MainComponent = route.main
+        const id = uuidv4()
         return (
-          <PrivateRoute key={'privateRoute'} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute
+            key={isUnstableRoute ? id : 'privateRoute'}
+            path={route.path}
+            exact
+            hasWallet={hasWallet}
+          >
             <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )
       }),
-    [appRoutes, hasWallet],
+    // We *actually* want to be reactive on the location.pathname reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appRoutes, hasWallet, isUnstableRoute, location],
   )
 
   return (

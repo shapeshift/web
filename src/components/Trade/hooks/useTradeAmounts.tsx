@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useReceiveAddress } from 'components/Trade/hooks/useReceiveAddress'
 import type { CalculateAmountsArgs } from 'components/Trade/hooks/useSwapper/calculateAmounts'
@@ -61,6 +61,8 @@ export const useTradeAmounts = () => {
   const sellAmountCryptoPrecisionSwapperState = useSwapperStore(
     state => state.sellAmountCryptoPrecision,
   )
+  const amountSwapperState = useSwapperStore(state => state.amount)
+  const actionSwapperState = useSwapperStore(state => state.action)
   const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const activeSwapperType = activeTradeSwapper?.getType()
 
@@ -292,6 +294,39 @@ export const useTradeAmounts = () => {
       updateFeeAssetFiatRate,
     ],
   )
+
+  useEffect(() => {
+    if (!buyAssetSwapperState || !sellAssetSwapperState || !buyAssetFiatRate || !sellAssetFiatRate)
+      return
+    const buyAssetTradeFeeFiat = bnOrZero(fees?.buyAssetTradeFeeUsd).times(
+      selectedCurrencyToUsdRate,
+    )
+    const sellAssetTradeFeeFiat = bnOrZero(fees?.sellAssetTradeFeeUsd).times(
+      selectedCurrencyToUsdRate,
+    )
+    const args: CalculateAmountsArgs = {
+      amount: amountSwapperState,
+      buyAsset: buyAssetSwapperState,
+      sellAsset: sellAssetSwapperState,
+      buyAssetFiatRate,
+      sellAssetFiatRate,
+      action: actionSwapperState,
+      buyAssetTradeFeeFiat,
+      sellAssetTradeFeeFiat,
+    }
+    setTradeAmounts(args)
+  }, [
+    actionSwapperState,
+    amountSwapperState,
+    buyAssetFiatRate,
+    buyAssetSwapperState,
+    fees?.buyAssetTradeFeeUsd,
+    fees?.sellAssetTradeFeeUsd,
+    selectedCurrencyToUsdRate,
+    sellAssetFiatRate,
+    sellAssetSwapperState,
+    setTradeAmounts,
+  ])
 
   return {
     setTradeAmountsUsingExistingData,

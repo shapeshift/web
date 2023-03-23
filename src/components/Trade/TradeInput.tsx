@@ -194,7 +194,7 @@ export const TradeInput = () => {
     handleAssetToggle()
   }, [handleAssetToggle])
 
-  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
+  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return
     const maxSendAmount = getSendMaxAmount(
       sellAsset,
@@ -206,15 +206,6 @@ export const TradeInput = () => {
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateIsSendMax(true)
     updateAmount(maxSendAmount)
-
-    // We need to get a fresh quote with the sendMax flag true
-    await setTradeAmountsRefetchData({
-      sellAssetId: sellAsset.assetId,
-      buyAssetId: buyAsset?.assetId,
-      amount: maxSendAmount,
-      action: TradeAmountInputField.SELL_CRYPTO,
-      sendMax: true,
-    })
   }, [
     sellAsset,
     activeQuote,
@@ -224,8 +215,6 @@ export const TradeInput = () => {
     updateAction,
     updateIsSendMax,
     updateAmount,
-    setTradeAmountsRefetchData,
-    buyAsset?.assetId,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)

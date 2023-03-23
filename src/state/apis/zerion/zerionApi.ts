@@ -21,10 +21,7 @@ const options = {
   url: ZERION_BASE_URL,
   headers: {
     accept: 'application/json',
-    authorization: `Basic ${Buffer.from(
-      `${getConfig().REACT_APP_ZERION_API_KEY}:`,
-      'binary',
-    ).toString('base64')}`,
+    authorization: `Basic ${getConfig().REACT_APP_ZERION_API_KEY}`,
   },
 }
 

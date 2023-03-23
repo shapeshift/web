@@ -17,12 +17,19 @@ import { useAppSelector } from 'state/store'
 import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
-  const claimableRewardsBalance = useAppSelector(state => selectClaimableRewards(state, {}))
-  const earnBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
+  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsFiatBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  )
+  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const netWorth = useMemo(
-    () => bnOrZero(earnBalance).plus(portfolioTotalFiatBalance).toFixed(),
-    [earnBalance, portfolioTotalFiatBalance],
+    () =>
+      bnOrZero(earnFiatBalance)
+        .plus(portfolioTotalFiatBalance)
+        .plus(claimableRewardsFiatBalance)
+        .toFixed(),
+    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   return (
@@ -62,14 +69,14 @@ export const DashboardHeader = () => {
         <DashboardTab
           label='defi.earnBalance'
           icon={<DefiIcon />}
-          fiatValue={earnBalance}
+          fiatValue={earnFiatBalance}
           path='/dashboard/earn'
           color='purple.500'
         />
         <DashboardTab
           label='defi.rewardBalance'
           icon={<RewardsIcon />}
-          fiatValue={claimableRewardsBalance}
+          fiatValue={claimableRewardsFiatBalance}
           path='/dashboard/rewards'
           color='green.500'
         />

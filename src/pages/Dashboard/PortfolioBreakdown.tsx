@@ -7,6 +7,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
+  selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
@@ -53,11 +54,19 @@ const BreakdownCard: React.FC<StatCardProps> = ({
 
 export const PortfolioBreakdown = () => {
   const history = useHistory()
-  const earnBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
+  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
+  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsFiatBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  )
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const netWorth = useMemo(
-    () => bnOrZero(earnBalance).plus(portfolioTotalFiatBalance).toFixed(),
-    [earnBalance, portfolioTotalFiatBalance],
+    () =>
+      bnOrZero(earnFiatBalance)
+        .plus(portfolioTotalFiatBalance)
+        .plus(claimableRewardsFiatBalance)
+        .toFixed(),
+    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
   )
 
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
@@ -73,8 +82,8 @@ export const PortfolioBreakdown = () => {
         onClick={() => history.push('/accounts')}
       />
       <BreakdownCard
-        value={earnBalance}
-        percentage={bnOrZero(earnBalance).div(netWorth).times(100).toNumber()}
+        value={earnFiatBalance}
+        percentage={bnOrZero(earnFiatBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
         onClick={() => history.push('/defi')}

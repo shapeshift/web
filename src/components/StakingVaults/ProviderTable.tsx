@@ -64,8 +64,8 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
 
 export type ProviderTableProps = {
   searchQuery: string
-  includeEarnBalances: boolean
-  includeRewardsBalances: boolean
+  includeEarnBalances?: boolean
+  includeRewardsBalances?: boolean
 }
 
 export const ProviderTable: React.FC<ProviderTableProps> = ({

@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -8,9 +8,7 @@ import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import type { ZerionChainId } from './mapping'
-import { zerionChainIdToChainId } from './mapping'
-import type { ZerionFungiblesSchema } from './validators/fungible'
+import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 const moduleLogger = logger.child({ module: 'zerionApi' })
@@ -39,44 +37,21 @@ export const zerionApi = createApi({
       queryFn: async assetId => {
         const { chainId, assetReference } = fromAssetId(assetId)
         if (!isEvmChainId(chainId)) return { data: [] } // EVM only
-        // e.g. USDT https://api.zerion.io/v1/fungibles
-        const url = `${ZERION_BASE_URL}/fungibles/` // trailing slash is important!
         try {
           //
-          const filter = {
-            params: {
-              // e.g. 0xdac17f958d2ee523a2206206994597c13d831ec7
-              'filter[implementation_address]': assetReference,
-            },
-          }
-          const { data } = await axios.request<ZerionFungiblesSchema>({
-            ...options,
-            ...filter,
-            url,
-          })
+          const filter = { params: { 'filter[implementation_address]': assetReference } }
+          // https://api.zerion.io/v1/fungibles
+          const url = `${ZERION_BASE_URL}/fungibles/` // trailing slash is important!
+          const payload = { ...options, ...filter, url }
+          const { data } = await axios.request(payload)
           const validationResult = zerionFungiblesSchema.safeParse(data)
           if (validationResult.success) {
-            const { attributes } = validationResult.data.data[0]
-            const { implementations } = attributes
+            const implementations = validationResult.data.data?.[0]?.attributes?.implementations
             const data =
               implementations
-                ?.map(implementation => {
-                  const { chain_id, address: assetReference } = implementation
-                  const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
-                  if (!chainId) return undefined
-                  const assetNamespace = (() => {
-                    switch (true) {
-                      case chainId === bscChainId:
-                        return ASSET_NAMESPACE.bep20
-                      default:
-                        return ASSET_NAMESPACE.erc20
-                    }
-                  })()
-                  return toAssetId({ chainId, assetNamespace, assetReference })
-                })
+                ?.map(zerionImplementationToMaybeAssetId)
                 .filter(isSome)
-                // don't show input assetId in list of related assetIds
-                .filter(id => id !== assetId) ?? []
+                .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
             return { data }
           } else {
             moduleLogger.warn(validationResult.error, '')

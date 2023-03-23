@@ -16,6 +16,8 @@ const ImplementationSchema = z.object({
   decimals: z.number(),
 })
 
+export type ZerionImplementation = z.infer<typeof ImplementationSchema>
+
 const ChangesSchema = z.object({
   percent_1d: z.number(),
   percent_30d: z.number(),

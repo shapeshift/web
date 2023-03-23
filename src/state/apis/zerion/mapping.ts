@@ -1,5 +1,14 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  optimismChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
+
+import type { ZerionImplementation } from './validators/fungible'
 
 export const ZERION_CHAINS = [
   // shapeshift supported
@@ -27,3 +36,20 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>
   ZERION_CHAINS_MAP[chainId]
+
+export const zerionImplementationToMaybeAssetId = (
+  implementation: ZerionImplementation,
+): AssetId | undefined => {
+  const { chain_id, address: assetReference } = implementation
+  const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
+  if (!chainId) return undefined
+  const assetNamespace = (() => {
+    switch (true) {
+      case chainId === bscChainId:
+        return ASSET_NAMESPACE.bep20
+      default:
+        return ASSET_NAMESPACE.erc20
+    }
+  })()
+  return toAssetId({ chainId, assetNamespace, assetReference })
+}

@@ -26,6 +26,26 @@ const SupportedZapperChains = z.enum([
   'evmos',
 ])
 
+const ZapperDisplayProps = z.object({
+  label: z.string(),
+  images: z.array(z.string()),
+  statsItems: z.array(
+    z.object({
+      label: z.string(),
+      value: z.union([
+        z.object({
+          type: z.string(),
+          value: z.union([z.number(), z.string()]),
+        }),
+        z.string(),
+        z.number(),
+      ]),
+    }),
+  ),
+  tertiaryLabel: z.string(),
+  secondaryLabel: z.string(),
+})
+
 const ZapperAsset = z.object({
   key: z.string(),
   type: z.string(),
@@ -35,7 +55,7 @@ const ZapperAsset = z.object({
   address: z.string(),
   price: z.number(),
   supply: z.number(),
-  symbol: z.number(),
+  symbol: z.string(),
   dataProps: z.object({
     apy: z.number(),
     fee: z.number(),
@@ -43,26 +63,8 @@ const ZapperAsset = z.object({
     reserves: z.array(z.number(), z.number()),
     liquidity: z.number(),
   }),
-  displayProps: z.object({
-    label: z.string(),
-    images: z.array(z.string()),
-    statsItems: z.array(
-      z.object({
-        label: z.string(),
-        value: z.union([
-          z.object({
-            type: z.string(),
-            value: z.union([z.number(), z.string()]),
-          }),
-          z.string(),
-          z.number(),
-        ]),
-      }),
-    ),
-    tertiaryLabel: z.string(),
-    secondaryLabel: z.string(),
-  }),
-  pricePerShare: z.array(z.string(), z.string()),
+  displayProps: ZapperDisplayProps,
+  pricePerShare: z.array(z.union([z.string(), z.number()])),
   tokens: z.array(
     z.object({
       network: SupportedZapperChains,
@@ -80,11 +82,25 @@ const ZapperAsset = z.object({
   balanceUSD: z.number(),
 })
 
-export const schemas = {
-  GasPricesResponse,
-  SupportedZapperChains,
-  ZapperAsset,
-}
+const V2BalancesAppsResponse = z.array(
+  z.object({
+    key: z.string(),
+    address: z.string(),
+    appId: z.string(),
+    appName: z.string(),
+    appImage: z.string(),
+    network: SupportedZapperChains,
+    updatedAt: z.string(),
+    balanceUSD: z.number(),
+    products: z.array(
+      z.object({
+        label: z.string(),
+        assets: z.array(ZapperAsset),
+        meta: z.array(z.any()),
+      }),
+    ),
+  }),
+)
 
 const endpoints = makeApi([
   {
@@ -191,35 +207,17 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'addresses[]',
+        name: 'addresses',
         type: 'Query',
-        schema: z.string(),
+        schema: z.array(z.string()),
       },
       {
-        name: 'networks[]',
+        name: 'networks',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: z.array(SupportedZapperChains.optional()),
       },
     ],
-    response: z.array(
-      z.object({
-        key: z.string(),
-        address: z.string(),
-        appId: z.string(),
-        appName: z.string(),
-        appImage: z.string(),
-        network: SupportedZapperChains,
-        updatedAt: z.string(),
-        balanceUSD: z.number(),
-        products: z.array(
-          z.object({
-            label: z.string(),
-            assets: z.array(ZapperAsset),
-            meta: z.array(z.any()),
-          }),
-        ), // TODO:
-      }),
-    ),
+    response: V2BalancesAppsResponse,
   },
   {
     method: 'post',
@@ -228,14 +226,14 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'addresses[]',
+        name: 'addresses',
         type: 'Query',
-        schema: z.string(),
+        schema: z.array(z.string()),
       },
       {
-        name: 'networks[]',
+        name: 'networks',
         type: 'Query',
-        schema: SupportedZapperChains.optional(),
+        schema: z.array(SupportedZapperChains.optional()),
       },
     ],
     response: z.object({

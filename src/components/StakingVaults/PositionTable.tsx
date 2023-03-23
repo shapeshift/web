@@ -75,8 +75,8 @@ const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
 
 export type PositionTableProps = {
   searchQuery: string
-  includeEarnBalances: boolean
-  includeRewardsBalances: boolean
+  includeEarnBalances?: boolean
+  includeRewardsBalances?: boolean
 }
 
 export const PositionTable: React.FC<PositionTableProps> = ({

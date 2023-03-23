@@ -149,7 +149,11 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       byAssetId[assetId].netApy = netApy.toFixed()
     }
 
-    const withEarnBalances = Object.values(byAssetId).filter(opportunity =>
+    const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
+
+    if (!includeEarnBalances && !includeRewardsBalances) return aggregatedEarnOpportunitiesByAssetId
+
+    const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
       Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
     )
     const withRewardsBalances = Object.values(byAssetId).filter(opportunity =>
@@ -298,6 +302,9 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
       return acc
     }, [])
+
+    if (!includeEarnBalances && !includeRewardsBalances)
+      return Object.values(aggregatedEarnOpportunitiesByProvider)
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
       opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),

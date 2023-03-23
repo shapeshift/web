@@ -37,7 +37,13 @@ export const DashboardHeader = () => {
           <Amount.Fiat value={netWorth} fontSize='xl' fontWeight='bold' />
         </Flex>
       </Flex>
-      <Flex bg='blackAlpha.100' borderBottomWidth={1} borderColor={borderColor} marginBottom='-1px'>
+      <Flex
+        flexDir={{ base: 'column', md: 'row' }}
+        bg='blackAlpha.100'
+        borderBottomWidth={1}
+        borderColor={borderColor}
+        marginBottom='-1px'
+      >
         <DashboardTab
           label='defi.walletBalance'
           icon={<AccountsIcon />}

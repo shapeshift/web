@@ -182,10 +182,10 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
             assets,
             marketData,
           })
-          const hasRewardBalance = bnOrZero(fiatAmount).gt(0)
-          return hasRewardBalance && row.original.isClaimableRewards ? (
+          const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
+          return hasRewardsBalance && row.original.isClaimableRewards ? (
             <Button
-              isDisabled={!hasRewardBalance}
+              isDisabled={!hasRewardsBalance}
               variant='ghost-filled'
               colorScheme='green'
               size='sm'

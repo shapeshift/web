@@ -18,7 +18,7 @@ const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 
 const options = {
   method: 'GET' as const,
-  url: ZERION_BASE_URL,
+  baseURL: ZERION_BASE_URL,
   headers: {
     accept: 'application/json',
     authorization: `Basic ${getConfig().REACT_APP_ZERION_API_KEY}`,
@@ -42,8 +42,7 @@ export const zerionApi = createApi({
         try {
           //
           const filter = { params: { 'filter[implementation_address]': assetReference } }
-          // https://api.zerion.io/v1/fungibles
-          const url = `${ZERION_BASE_URL}/fungibles/` // trailing slash is important!
+          const url = '/fungibles/' // trailing slash is important!
           const payload = { ...options, ...filter, url }
           const { data } = await axios.request(payload)
           const validationResult = zerionFungiblesSchema.safeParse(data)

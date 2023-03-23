@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
-import { invertBy } from 'lodash'
+import { invert } from 'lodash'
 import { z } from 'zod'
 
 const GasPricesResponse = z.object({
@@ -38,9 +38,11 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
   [SupportedZapperNetworksEnum.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetworksEnum.Ethereum]: ethChainId,
   [SupportedZapperNetworksEnum.Optimism]: optimismChainId,
-}
+} as const
 
-export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invertBy(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP)
+export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
+  Record<ChainId, SupportedZapperNetworksEnum>
+>
 
 export const zapperNetworkToChainId = (network: SupportedZapperNetworksEnum): ChainId | undefined =>
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]

@@ -52,7 +52,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     <Card>
       <Card.Header>
         <Card.Heading>
-          <Text translation='Related Assets' />
+          <Text translation='assets.assetCards.relatedAssets' />
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>

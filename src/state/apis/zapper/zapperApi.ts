@@ -5,7 +5,6 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import { createApiClient } from './client'
 
-
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
 const authorization = `Basic ${Buffer.from(

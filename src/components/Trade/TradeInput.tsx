@@ -66,7 +66,7 @@ export const TradeInput = () => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
-  const { setTradeAmountsUsingExistingData, setTradeAmountsRefetchData } = useTradeAmounts()
+  const { setTradeAmountsUsingExistingData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
@@ -167,14 +167,14 @@ export const TradeInput = () => {
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const handleInputChange = useCallback(
-    async (action: TradeAmountInputField, amount: string) => {
+    (action: TradeAmountInputField, amount: string) => {
       updateAction(action)
       // If we've overridden the input we are no longer in sendMax mode
       updateIsSendMax(false)
       updateAmount(amount)
 
       if (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) {
-        await setTradeAmountsRefetchData({ amount, action })
+        setTradeAmountsUsingExistingData({ amount, action })
       } else {
         setTradeAmountsUsingExistingData({ amount, action })
       }
@@ -185,7 +185,6 @@ export const TradeInput = () => {
       updateAmount,
       isSwapperApiPending,
       quoteAvailableForCurrentAssetPair,
-      setTradeAmountsRefetchData,
       setTradeAmountsUsingExistingData,
     ],
   )

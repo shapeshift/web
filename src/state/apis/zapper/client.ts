@@ -4,13 +4,6 @@ import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
 import { invert } from 'lodash'
 import { z } from 'zod'
 
-const GasPricesResponse = z.object({
-  standard: z.object({}).partial(),
-  fast: z.object({}).partial(),
-  instant: z.object({}).partial(),
-  eip1559: z.boolean(),
-})
-
 export enum SupportedZapperNetworksEnum {
   Ethereum = 'ethereum',
   Polygon = 'polygon',
@@ -28,8 +21,6 @@ export enum SupportedZapperNetworksEnum {
   Aurora = 'aurora',
   Evmos = 'evmos',
 }
-
-const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetworksEnum)
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
   Record<SupportedZapperNetworksEnum, ChainId>
@@ -50,7 +41,9 @@ export const zapperNetworkToChainId = (network: SupportedZapperNetworksEnum): Ch
 export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetworksEnum | undefined =>
   CHAIN_ID_TO_ZAPPER_NETWORK_MAP[chainId]
 
-const ZapperDisplayProps = z.object({
+const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetworksEnum)
+
+const ZapperDisplayPropsSchema = z.object({
   label: z.string(),
   images: z.array(z.string()),
   statsItems: z.array(
@@ -70,7 +63,26 @@ const ZapperDisplayProps = z.object({
   secondaryLabel: z.string(),
 })
 
-const ZapperAsset = z.object({
+const ZapperTokenSchema = z.object({
+  network: SupportedZapperNetworks,
+  address: z.string(),
+  decimals: z.number(),
+  symbol: z.string(),
+  price: z.number(),
+  balance: z.number(),
+  balanceRaw: z.string(),
+  balanceUSD: z.number(),
+})
+
+const ZapperDataPropsSchema = z.object({
+  apy: z.number(),
+  fee: z.number(),
+  volume: z.number(),
+  reserves: z.array(z.number(), z.number()),
+  liquidity: z.number(),
+})
+
+const ZapperAssetSchema = z.object({
   key: z.string(),
   type: z.string(),
   appId: z.string(),
@@ -80,30 +92,26 @@ const ZapperAsset = z.object({
   price: z.number(),
   supply: z.number(),
   symbol: z.string(),
-  dataProps: z.object({
-    apy: z.number(),
-    fee: z.number(),
-    volume: z.number(),
-    reserves: z.array(z.number(), z.number()),
-    liquidity: z.number(),
-  }),
-  displayProps: ZapperDisplayProps,
+  dataProps: ZapperDataPropsSchema,
+  displayProps: ZapperDisplayPropsSchema,
   pricePerShare: z.array(z.union([z.string(), z.number()])),
-  tokens: z.array(
-    z.object({
-      network: SupportedZapperNetworks,
-      address: z.string(),
-      decimals: z.number(),
-      symbol: z.string(),
-      price: z.number(),
-      balance: z.number(),
-      balanceRaw: z.string(),
-      balanceUSD: z.number(),
-    }),
-  ),
+  tokens: z.array(ZapperTokenSchema),
   balance: z.number(),
   balanceRaw: z.string(),
   balanceUSD: z.number(),
+})
+
+const GasPricesResponse = z.object({
+  standard: z.object({}).partial(),
+  fast: z.object({}).partial(),
+  instant: z.object({}).partial(),
+  eip1559: z.boolean(),
+})
+
+const ZapperProductSchema = z.object({
+  label: z.string(),
+  assets: z.array(ZapperAssetSchema),
+  meta: z.array(z.any()),
 })
 
 const V2BalancesAppsResponse = z.array(
@@ -116,13 +124,7 @@ const V2BalancesAppsResponse = z.array(
     network: SupportedZapperNetworks,
     updatedAt: z.string(),
     balanceUSD: z.number(),
-    products: z.array(
-      z.object({
-        label: z.string(),
-        assets: z.array(ZapperAsset),
-        meta: z.array(z.any()),
-      }),
-    ),
+    products: z.array(ZapperProductSchema),
   }),
 )
 

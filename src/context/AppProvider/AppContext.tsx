@@ -107,9 +107,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const input = { accountNumber, chainIds, wallet }
         const accountMetadataByAccountId = await deriveAccountIdsAndMetadata(input)
         const accountIds: AccountId[] = Object.keys(accountMetadataByAccountId)
-        const { getAppBalances } = zapperApi.endpoints
-        // load Zapper data for debugging
-        dispatch(getAppBalances.initiate({ accountIds }))
         const { getAccount } = portfolioApi.endpoints
         const opts = { forceRefetch: true }
         // do *not* upsertOnFetch here - we need to check if the fetched account is empty
@@ -178,6 +175,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
+      const { getAppBalances } = zapperApi.endpoints
+      // load Zapper data for debugging
+      dispatch(getAppBalances.initiate({ accountIds: requestedAccountIds }))
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {

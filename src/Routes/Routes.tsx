@@ -2,7 +2,6 @@ import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
@@ -73,10 +72,9 @@ export const Routes = () => {
     () =>
       appRoutes.map(route => {
         const MainComponent = route.main
-        const id = uuidv4()
         return (
           <PrivateRoute
-            key={isUnstableRoute ? id : 'privateRoute'}
+            key={isUnstableRoute ? Date.now() : 'privateRoute'}
             path={route.path}
             exact
             hasWallet={hasWallet}

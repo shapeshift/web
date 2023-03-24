@@ -23,7 +23,6 @@ import {
   selectAggregatedUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
-  selectLpOpportunityIdsByAccountId,
   selectUserStakingOpportunityByUserStakingId,
 } from '../selectors'
 import { serializeUserStakingId } from '../utils'
@@ -120,15 +119,6 @@ describe('opportunitiesSlice selectors', () => {
         userStaking,
       },
     }
-    describe('selectLpOpportunityIdsByAccountId', () => {
-      it('can get LP opportunities Ids for a given AccountId', () => {
-        const result = selectLpOpportunityIdsByAccountId(mockState, {
-          accountId: gomesAccountId,
-        })
-
-        expect(result).toEqual([mockLpContractOne, mockLpContractTwo])
-      })
-    })
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
       it('can get the highest balance AccountId for a given StakingId', () => {
         const result = selectHighestBalanceAccountIdByStakingId(mockState, {

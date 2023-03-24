@@ -238,16 +238,6 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-/**
- * TODO(0xdef1cafe): delete this when implementing idle - use selectPortfolioCryptoHumanBalanceByFilter
- * below which respects accountIds
- */
-export const selectPortfolioCryptoBalanceByAssetId = createCachedSelector(
-  selectPortfolioAssetBalances,
-  selectAssetIdParamFromFilter,
-  (byId, assetId): string | undefined => assetId && byId[assetId],
-)((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
-
 export const selectFirstAccountIdByChainId = createSelector(
   selectWalletAccountIds,
   (_s: ReduxState, chainId: ChainId) => chainId,
@@ -365,25 +355,6 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutp
       },
       {},
     )
-  },
-)
-
-export const selectPortfolioAssetIdsSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioAssetAccountBalancesSortedFiat,
-  (portfolioFiatAccountBalances): AssetId[] => {
-    const assetBalances = Object.values(portfolioFiatAccountBalances).reduce<Record<AssetId, BN>>(
-      (acc, account) => {
-        Object.entries(account).forEach(([assetId, fiatBalance]) => {
-          acc[assetId] = bnOrZero(acc[assetId]).plus(fiatBalance)
-        })
-        return acc
-      },
-      {},
-    )
-    const sortedAssetIds = Object.entries(assetBalances)
-      .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
-      .map(([assetId]) => assetId)
-    return sortedAssetIds
   },
 )
 
@@ -549,20 +520,6 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
         }, {})
     )
   },
-)
-
-export const selectPortfolioTotalFiatBalanceIncludingStaking = createSelector(
-  selectPortfolioAccountsFiatBalancesIncludingStaking,
-  (portfolioFiatBalancesIncludingStaking): string =>
-    Object.entries(portfolioFiatBalancesIncludingStaking)
-      .reduce((acc, [, accountBalanceByAssetId]) => {
-        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
-          // use the outer accumulator
-          acc = acc.plus(bnOrZero(assetBalance))
-        })
-        return acc
-      }, bn(0))
-      .toFixed(2),
 )
 
 export const selectFiatBalanceIncludingStakingByFilter = createCachedSelector(

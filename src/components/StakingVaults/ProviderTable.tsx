@@ -63,7 +63,11 @@ const ResultsEmpty = () => {
           letterSpacing='0.02em'
           translation='defi.noActivePositions'
         />
-        <Text color='gray.500' letterSpacing='0.012em' translation='defi.noActivePositionsBody' />
+        <Text
+          color='gray.500'
+          letterSpacing='0.012em'
+          translation='assets.assetCards.stakingBody'
+        />
         <Button as={Link} to='/defi/earn' mt={4}>
           {translate('defi.startEarning')}
         </Button>

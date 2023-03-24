@@ -82,6 +82,8 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
     }),
   )
 
+  console.log({ providers, includeRewardsBalances, includeEarnBalances })
+
   const columns: Column<AggregatedOpportunitiesByProviderReturn>[] = useMemo(
     () => [
       {

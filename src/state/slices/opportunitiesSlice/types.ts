@@ -176,13 +176,17 @@ type EarnOpportunityTypeBase = {
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
-  } & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+    // overriding optional opportunityName property
+  } & EarnOpportunityTypeBase & { opportunityName: string | undefined } & { type: DefiType.Staking } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+  // overriding optional opportunityName property
+} & EarnOpportunityTypeBase & { opportunityName: string | undefined } & {
+    type: DefiType.LiquidityPool
+  }
 
 export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
 

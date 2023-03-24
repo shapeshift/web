@@ -85,7 +85,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredDown = stakingOpportunities.filter(
+    e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+  )
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {

@@ -414,7 +414,6 @@
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
     "noActivePositions": "No Active Positions",
-    "noActivePositionsBody": "Your active DeFi opportunities will appear here.",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {

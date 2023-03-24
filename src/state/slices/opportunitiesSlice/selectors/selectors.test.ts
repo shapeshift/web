@@ -24,8 +24,6 @@ import {
   selectHighestBalanceAccountIdByLpId,
   selectHighestBalanceAccountIdByStakingId,
   selectLpOpportunityIdsByAccountId,
-  selectStakingOpportunityIdsByAccountId,
-  selectUserStakingOpportunitiesFromStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from '../selectors'
 import { serializeUserStakingId } from '../utils'
@@ -129,15 +127,6 @@ describe('opportunitiesSlice selectors', () => {
         })
 
         expect(result).toEqual([mockLpContractOne, mockLpContractTwo])
-      })
-    })
-    describe('selectStakingOpportunityIdsByAccountId', () => {
-      it('can get staking opportunities Ids for a given AccountId', () => {
-        const result = selectStakingOpportunityIdsByAccountId(mockState, {
-          accountId: gomesAccountId,
-        })
-
-        expect(result).toEqual([mockStakingContractOne, mockStakingContractTwo])
       })
     })
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
@@ -354,61 +343,7 @@ describe('opportunitiesSlice selectors', () => {
         userStaking,
       },
     }
-    describe('selectUserStakingOpportunitiesByStakingId', () => {
-      it('can get the staking data for a given StakingId', () => {
-        const result = selectUserStakingOpportunitiesFromStakingId(mockState, {
-          stakingId: mockStakingContractTwo,
-        })
-        expect(result).toEqual([
-          {
-            apy: '1000',
-            assetId: mockStakingContractTwo,
-            id: mockStakingContractTwo,
-            name: 'FOX Farming',
-            provider: DefiProvider.EthFoxStaking,
-            rewardsCryptoBaseUnit: {
-              amounts: ['420000000000000000000'] as [string],
-              claimable: true,
-            },
-            stakedAmountCryptoBaseUnit: '1337',
-            tvl: '91283233211',
-            type: DefiType.LiquidityPool,
-            underlyingAssetId: foxEthLpAssetId,
-            underlyingAssetIds: foxEthPair,
-            underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [
-              string,
-              string,
-            ],
-            userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
-            rewardAssetIds: [foxAssetId],
-            isClaimableRewards: true,
-          },
-          {
-            apy: '1000',
-            assetId: mockStakingContractTwo,
-            id: mockStakingContractTwo,
-            name: 'FOX Farming',
-            provider: DefiProvider.EthFoxStaking,
-            rewardsCryptoBaseUnit: {
-              amounts: ['1000000000000000000'] as [string],
-              claimable: true,
-            },
-            stakedAmountCryptoBaseUnit: '100',
-            tvl: '91283233211',
-            type: DefiType.LiquidityPool,
-            underlyingAssetId: foxEthLpAssetId,
-            underlyingAssetIds: foxEthPair,
-            underlyingAssetRatiosBaseUnit: ['5000000000000000', '202200000000000000000'] as [
-              string,
-              string,
-            ],
-            userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
-            rewardAssetIds: [foxAssetId],
-            isClaimableRewards: true,
-          },
-        ])
-      })
-    })
+
     describe('selectAggregatedUserStakingOpportunityByStakingId', () => {
       it('can get the aggregated staking opportunity for a given StakingId', () => {
         const result = selectAggregatedUserStakingOpportunityByStakingId(mockState, {

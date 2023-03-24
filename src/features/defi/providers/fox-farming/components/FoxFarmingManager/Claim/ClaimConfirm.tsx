@@ -19,6 +19,7 @@ import type {
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -63,7 +64,8 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const { state: walletState } = useWallet()
 
   const assets = useAppSelector(selectAssets)
-  const { query, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const history = useHistory()
   const { chainId, contractAddress } = query
 
   assertIsFoxEthStakingContractAddress(contractAddress)

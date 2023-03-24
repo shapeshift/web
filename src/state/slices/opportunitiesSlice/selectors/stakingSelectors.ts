@@ -239,8 +239,8 @@ export const selectHasClaimByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
   (userStakingOpportunity): boolean =>
     Boolean(
-      userStakingOpportunity?.rewardsCryptoBaseUnit.claimable &&
-        userStakingOpportunity?.rewardsCryptoBaseUnit.amounts.some(rewardAmount =>
+      userStakingOpportunity?.rewardsCryptoBaseUnit?.claimable &&
+        userStakingOpportunity?.rewardsCryptoBaseUnit?.amounts.some(rewardAmount =>
           bnOrZero(rewardAmount).gt(0),
         ),
     ),
@@ -329,9 +329,9 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         .toFixed()
 
       const rewardsCryptoBaseUnit = {
-        amounts: userStakingOpportunity.rewardsCryptoBaseUnit.amounts.map((amount, i) =>
-          bnOrZero(acc?.rewardsCryptoBaseUnit.amounts[i]).plus(amount).toString(),
-        ) as [string, string] | [string] | [],
+        amounts: (userStakingOpportunity.rewardsCryptoBaseUnit?.amounts.map((amount, i) =>
+          bnOrZero(acc?.rewardsCryptoBaseUnit?.amounts[i]).plus(amount).toString(),
+        ) ?? []) as [string, string] | [string] | [],
         // This aggregates by StakingId, meaning this is the same opportunity over multiple amounts
         // Same rewards AssetIds, same arity etc
         claimable: userStakingOpportunity.isClaimableRewards,

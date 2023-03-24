@@ -44,14 +44,16 @@ const makeClaimableStakingRewardsAmountFiat = ({
 }): number => {
   if (maybeStakingOpportunity.type !== DefiType.Staking) return 0
 
-  const rewardsAmountFiat = Array.from(maybeStakingOpportunity.rewardAssetIds ?? []).reduce(
+  const stakingOpportunity = maybeStakingOpportunity as StakingEarnOpportunityType
+
+  const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
     (sum, assetId, index) => {
       const asset = assets[assetId]
       if (!asset) return sum
       const marketDataPrice = marketData[assetId]?.price
-      const amountCryptoBaseUnit = maybeStakingOpportunity?.rewardsCryptoBaseUnit?.amounts[index]
+      const amountCryptoBaseUnit = stakingOpportunity?.rewardsCryptoBaseUnit?.amounts[index]
       const cryptoAmountPrecision = bnOrZero(
-        maybeStakingOpportunity?.rewardsCryptoBaseUnit?.claimable ? amountCryptoBaseUnit : '0',
+        stakingOpportunity?.rewardsCryptoBaseUnit?.claimable ? amountCryptoBaseUnit : '0',
       ).div(bnOrZero(10).pow(asset?.precision))
 
       return bnOrZero(cryptoAmountPrecision)

@@ -4,7 +4,7 @@ import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunity,
@@ -21,7 +21,7 @@ import { OpportunityTypes } from '../FoxCommon'
 export const useOtherOpportunities = (assetId: AssetId) => {
   const highestFarmingBalanceAccountIdFilter = useMemo(
     () => ({
-      stakingId: foxEthStakingAssetIdV5 as StakingId,
+      stakingId: foxEthStakingAssetIdV6 as StakingId,
     }),
     [],
   )
@@ -58,7 +58,7 @@ export const useOtherOpportunities = (assetId: AssetId) => {
   const stakingOpportunities = useAppSelector(selectStakingOpportunitiesById)
 
   const foxFarmingOpportunityMetadata = useMemo(
-    () => stakingOpportunities[foxEthStakingAssetIdV5 as StakingId],
+    () => stakingOpportunities[foxEthStakingAssetIdV6 as StakingId],
     [stakingOpportunities],
   )
 

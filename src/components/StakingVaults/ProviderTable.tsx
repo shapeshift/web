@@ -1,5 +1,14 @@
 import { ArrowDownIcon, ArrowUpIcon, Search2Icon } from '@chakra-ui/icons'
-import { Avatar, Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Avatar,
+  Button,
+  Circle,
+  Flex,
+  IconButton,
+  Link,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
@@ -8,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails/ProviderDetails'
+import { DefiIcon } from 'components/Icons/DeFi'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -36,7 +46,33 @@ const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
   )
 }
 
-const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
+const ResultsEmpty = () => {
+  const bgColor = useColorModeValue('gray.100', 'gray.750')
+  const translate = useTranslate()
+  return (
+    <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
+      <Flex>
+        <Circle bg={bgColor} size='40px'>
+          <DefiIcon />
+        </Circle>
+      </Flex>
+      <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
+        <Text
+          fontWeight='bold'
+          fontSize='lg'
+          letterSpacing='0.02em'
+          translation='defi.noActivePositions'
+        />
+        <Text color='gray.500' letterSpacing='0.012em' translation='defi.noActivePositionsBody' />
+        <Button as={Link} to='/defi/earn' mt={4}>
+          {translate('defi.startEarning')}
+        </Button>
+      </Flex>
+    </Flex>
+  )
+}
+
+const SearchEmpty = ({ searchQuery }: { searchQuery?: string }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   return (
     <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
@@ -183,7 +219,9 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
       renderSubComponent={({ original }) => (
         <ProviderDetails key={original.provider} {...original} />
       )}
-      renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
+      renderEmptyComponent={() =>
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+      }
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />
   )

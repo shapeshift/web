@@ -250,8 +250,8 @@ export const TradeConfirm = () => {
   const handleBack = useCallback(() => {
     if (sellTradeId) {
       clearAmounts()
-      updateTrade(undefined)
     }
+    updateTrade(undefined)
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId, updateTrade])
 

@@ -7,7 +7,7 @@ import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter, selectLpIdParamFromFilter } from 'state/selectors'
+import { selectLpIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -18,24 +18,11 @@ import {
 } from '../../common-selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
-import type { LpEarnOpportunityType, LpId, StakingEarnOpportunityType } from './../types'
-
-export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
+import type { LpEarnOpportunityType, StakingEarnOpportunityType } from './../types'
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
-
-// "Give me all the LP opportunities this AccountId has", so I can get their metadata from the slice, and then their data from the portfolio slice
-export const selectLpOpportunityIdsByAccountId = createDeepEqualOutputSelector(
-  selectLpOpportunitiesByAccountId,
-  selectAccountIdParamFromFilter,
-  (lpIdsByAccountId, accountId): LpId[] => {
-    if (!accountId) return []
-
-    return lpIdsByAccountId[accountId] ?? []
-  },
-)
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
 // TODO: testme

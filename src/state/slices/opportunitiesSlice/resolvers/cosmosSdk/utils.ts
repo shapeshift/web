@@ -1,16 +1,9 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  cosmosChainId,
-  fromAccountId,
-  fromAssetId,
-  osmosisChainId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import flatMapDeep from 'lodash/flatMapDeep'
-import flow from 'lodash/flow'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -141,16 +134,6 @@ export const getDefaultValidatorAddressFromChainId = (chainId: ChainId) => {
       throw new Error(`chainId ${chainId} is not a valid Cosmos SDK chainId`)
   }
 }
-export const getDefaultValidatorAddressFromAssetId = flow([
-  (assetId: AssetId) => fromAssetId(assetId).chainId,
-  getDefaultValidatorAddressFromChainId,
-])
-
-export const getDefaultValidatorAddressFromAccountId = flow(
-  (accountId: AccountId) => fromAccountId(accountId).chainId,
-  getDefaultValidatorAddressFromChainId,
-)
-
 export const makeTotalCosmosSdkUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
 

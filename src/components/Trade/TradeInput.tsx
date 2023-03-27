@@ -98,7 +98,7 @@ export const TradeInput = () => {
   )
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
-  const handleAssetToggle = useSwapperStore(state => state.handleAssetToggle)
+  const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAsset)
   const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAsset)
@@ -181,7 +181,7 @@ export const TradeInput = () => {
     [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
 
-  const handleToggle = useCallback(() => handleAssetToggle(), [handleAssetToggle])
+  const handleToggle = useCallback(() => handleSwitchAssets(), [handleSwitchAssets])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return

@@ -67,7 +67,7 @@ type SwapperAction = {
   updateBuyAsset: (buyAsset: SwapperStore['buyAsset']) => void
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
-  handleAssetToggle: () => void
+  handleSwitchAssets: () => void
   updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
   handleInputAmountChange: () => void
 }

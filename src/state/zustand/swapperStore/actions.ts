@@ -59,8 +59,8 @@ export const clearAmounts =
       `swapper/clearAmounts`,
     )
 
-export const handleAssetToggle =
-  (set: SetSwapperStoreAction<SwapperState>): SwapperState['handleAssetToggle'] =>
+export const handleSwitchAssets =
+  (set: SetSwapperStoreAction<SwapperState>): SwapperState['handleSwitchAssets'] =>
   () =>
     set(
       draft => {
@@ -88,7 +88,7 @@ export const handleAssetToggle =
         return draft
       },
       false,
-      `swapper/handleAssetToggle`,
+      `swapper/handleSwitchAssets`,
     )
 
 export const handleInputAmountChange =

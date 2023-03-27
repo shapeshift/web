@@ -4,8 +4,8 @@ import { immer } from 'zustand/middleware/immer'
 import { TradeAmountInputField } from 'components/Trade/types'
 import {
   clearAmounts,
-  handleAssetToggle,
   handleInputAmountChange,
+  handleSwitchAssets,
   toggleIsExactAllowance,
   updateTradeAmounts,
 } from 'state/zustand/swapperStore/actions'
@@ -63,7 +63,7 @@ export const useSwapperStore = (() => {
             set,
             'availableSwappersWithMetadata',
           ),
-          handleAssetToggle: handleAssetToggle(set),
+          handleSwitchAssets: handleSwitchAssets(set),
           updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
           handleInputAmountChange: handleInputAmountChange(set),
         }),

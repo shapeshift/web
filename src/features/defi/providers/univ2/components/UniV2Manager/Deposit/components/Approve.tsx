@@ -132,7 +132,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         MixPanelEvents.DepositApprove,
         {
           opportunity: lpOpportunity,
-          fiatAmounts: [state.deposit.asset1FiatAmount, state.deposit.asset0FiatAmount],
+          fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
           cryptoAmounts: [
             { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
             { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },

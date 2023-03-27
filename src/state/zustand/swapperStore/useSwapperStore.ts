@@ -29,7 +29,7 @@ export const useSwapperStore = (() => {
   return create<SwapperState>()(
     immer(
       devtools(
-        set => ({
+        (set, getState) => ({
           // State (initialize values)
           sellAmountFiat: '0',
           buyAmountFiat: '0',
@@ -58,7 +58,7 @@ export const useSwapperStore = (() => {
           clearAmounts: clearAmounts(set),
           updateAmount: createUpdateAction(set, 'amount'),
           updateIsExactAllowance: createUpdateAction(set, 'isExactAllowance'),
-          toggleIsExactAllowance: toggleIsExactAllowance(set),
+          toggleIsExactAllowance: toggleIsExactAllowance(set, getState),
           updateAction: createUpdateAction(set, 'action'),
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
@@ -69,9 +69,9 @@ export const useSwapperStore = (() => {
             set,
             'availableSwappersWithMetadata',
           ),
-          handleAssetToggle: handleAssetToggle(set),
+          handleAssetToggle: handleAssetToggle(set, getState),
           updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
-          handleInputAmountChange: handleInputAmountChange(set),
+          handleInputAmountChange: handleInputAmountChange(set, getState),
         }),
         { name: 'SwapperStore' },
       ),

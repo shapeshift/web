@@ -6,6 +6,7 @@ import type {
   SwapperAction,
   SwapperStore,
 } from 'state/zustand/swapperStore/types'
+import type { SwapperState } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const updateTradeAmounts =
   (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['updateTradeAmounts'] =>
@@ -31,11 +32,15 @@ export const updateTradeAmounts =
     )
 
 export const toggleIsExactAllowance =
-  (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['toggleIsExactAllowance'] =>
+  (
+    set: SetSwapperStoreAction<SwapperStore>,
+    getState: () => SwapperState,
+  ): SwapperAction['toggleIsExactAllowance'] =>
   () =>
     set(
       draft => {
-        draft.isExactAllowance = !draft.isExactAllowance
+        const currentState = getState()
+        draft.isExactAllowance = !currentState.isExactAllowance
         return draft
       },
       false,
@@ -64,14 +69,18 @@ export const clearAmounts =
     )
 
 export const handleAssetToggle =
-  (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['handleAssetToggle'] =>
+  (
+    set: SetSwapperStoreAction<SwapperStore>,
+    getState: () => SwapperState,
+  ): SwapperAction['handleAssetToggle'] =>
   () =>
     set(
       draft => {
-        const currentSellAsset = draft.sellAsset
-        const currentBuyAsset = draft.buyAsset
-        const currentSellAssetFiatRate = draft.sellAssetFiatRate
-        const currentBuyAssetFiatRate = draft.buyAssetFiatRate
+        const currentState = getState()
+        const currentSellAsset = currentState.sellAsset
+        const currentBuyAsset = currentState.buyAsset
+        const currentSellAssetFiatRate = currentState.sellAssetFiatRate
+        const currentBuyAssetFiatRate = currentState.buyAssetFiatRate
 
         draft.buyAsset = currentSellAsset
         draft.sellAsset = currentBuyAsset
@@ -96,12 +105,15 @@ export const handleAssetToggle =
     )
 
 export const handleInputAmountChange =
-  (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['handleInputAmountChange'] =>
+  (
+    set: SetSwapperStoreAction<SwapperStore>,
+    getState: () => SwapperState,
+  ): SwapperAction['handleInputAmountChange'] =>
   () =>
     set(
       draft => {
-        // fixme: fix type, or pass in state?
-        const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(draft)
+        const currentState = getState()
+        const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(currentState)
         const currentSellAsset = draft.sellAsset
         const currentBuyAsset = draft.buyAsset
         const {

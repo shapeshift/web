@@ -121,8 +121,10 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           provider: DefiProvider.Idle,
           type: DefiType.Staking,
           tags: [opportunity.strategy],
+          active: opportunity.active,
         }
       : {
+          active: opportunity.active,
           apy: opportunity.apy.toFixed(),
           assetId,
           cdoAddress: opportunity.metadata.cdoAddress,

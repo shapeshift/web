@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-idle-v2.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.6.2...@shapeshiftoss/investor-idle-v2.7.0) (2023-03-27)
+
+
+### Features
+
+* **investor-idle:** add active property ([#1226](https://github.com/shapeshift/lib/issues/1226)) ([4a07a37](https://github.com/shapeshift/lib/commit/4a07a373fadb1091c16ba23d6f5354c5ef025c96))
+
 # [@shapeshiftoss/investor-idle-v2.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-idle-v2.6.1...@shapeshiftoss/investor-idle-v2.6.2) (2023-03-03)
 
 

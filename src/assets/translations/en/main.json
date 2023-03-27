@@ -413,6 +413,7 @@
     "reawrds": "Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
+    "noActivePositions": "No Active Positions",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {

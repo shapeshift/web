@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
 import type {
@@ -65,6 +65,12 @@ export const Deposit: React.FC<DepositProps> = ({
   const lpOpportunity = useAppSelector(state =>
     selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
+
+  const feeAssetId = toAssetId({
+    chainId,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
+  })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
   const { lpAccountId } = useFoxEth()
@@ -76,8 +82,9 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
-  const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
+  const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetId1))
   const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetId0))
   const assets = useAppSelector(selectAssets)
@@ -108,6 +115,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const getDepositGasEstimateCryptoPrecision = async (
     deposit: DepositValues,
   ): Promise<string | undefined> => {
+    if (!feeAsset) return
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
       const gasData = await getDepositGasDataCryptoBaseUnit({
@@ -115,7 +123,7 @@ export const Deposit: React.FC<DepositProps> = ({
         token1Amount,
       })
       if (!gasData) return
-      return bnOrZero(gasData.average.txFee).div(bn(10).pow(asset0.precision)).toPrecision()
+      return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositGasEstimateCryptoPrecision', error },
@@ -132,7 +140,7 @@ export const Deposit: React.FC<DepositProps> = ({
   }
 
   const handleContinue = async (formValues: DepositValues) => {
-    if (!lpOpportunity) return
+    if (!lpOpportunity || !feeAsset) return
     // set deposit state for future use
     dispatch({
       type: UniV2DepositActionType.SET_DEPOSIT,
@@ -178,7 +186,7 @@ export const Deposit: React.FC<DepositProps> = ({
           type: UniV2DepositActionType.SET_APPROVE,
           payload: {
             estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
-              .div(bn(10).pow(asset0.precision))
+              .div(bn(10).pow(feeAsset.precision))
               .toPrecision(),
           },
         })

@@ -191,6 +191,7 @@ export const TradeInput = () => {
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateIsSendMax(true)
     updateAmount(maxSendAmount)
+    handleInputAmountChange()
   }, [
     sellAsset,
     activeQuote,
@@ -200,6 +201,7 @@ export const TradeInput = () => {
     updateAction,
     updateIsSendMax,
     updateAmount,
+    handleInputAmountChange,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)

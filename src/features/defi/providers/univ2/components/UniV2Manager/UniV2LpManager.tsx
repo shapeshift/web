@@ -9,9 +9,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
-import { FoxEthLpDeposit } from './Deposit/FoxEthLpDeposit'
-import { FoxEthLpOverview } from './Overview/FoxEthLpOverview'
-import { FoxEthLpWithdraw } from './Withdraw/FoxEthLpWithdraw'
+import { UniV2Deposit } from './Deposit/UniV2Deposit'
+import { UniV2Overview } from './Overview/UniV2Overview'
+import { UniV2Withdraw } from './Withdraw/UniV2Withdraw'
 
 export const FoxEthLpManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -30,17 +30,17 @@ export const FoxEthLpManager = () => {
     <AnimatePresence exitBeforeEnter initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
-          <FoxEthLpOverview accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
+          <UniV2Overview accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
       {modal === DefiAction.Deposit && (
         <SlideTransition key={DefiAction.Deposit}>
-          <FoxEthLpDeposit accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
+          <UniV2Deposit accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
       {modal === DefiAction.Withdraw && (
         <SlideTransition key={DefiAction.Withdraw}>
-          <FoxEthLpWithdraw accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
+          <UniV2Withdraw accountId={lpAccountId} onAccountIdChange={handleLpAccountIdChange} />
         </SlideTransition>
       )}
     </AnimatePresence>

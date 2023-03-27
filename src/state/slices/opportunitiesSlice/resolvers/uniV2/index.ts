@@ -4,6 +4,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
+import { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -79,10 +80,12 @@ export const uniV2LpMetadataResolver = async ({
 
   const token0Price = token0MarketData.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId)
+  const { assetReference } = fromAssetId(opportunityId)
+  // Checksum
+  const contractAddress = ethers.utils.getAddress(assetReference)
   // TODO(gomes): discrimination required because of typechain
-  // Import the standard UniV2 Pool ABI and cast `contractAddress` with it once we bring in Zerion SDK
-  // And know that a specific token is a UniV2 LP
+  // Import the standard UniV2 Pool ABI and cast `contractAddress` with it once we bring in Zerion/Zapper (soon)
+  // support for knowing that a specific token is a UniV2 LP
   const uniV2LPContract = getOrCreateContract(
     contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
   )

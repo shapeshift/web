@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
+import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -66,7 +67,10 @@ export const getOrCreateContract = <T extends KnownContractAddress>(
 }
 
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
-  const { assetReference: contractAddress, chainId } = fromAssetId(pairAssetId)
+  const { assetReference, chainId } = fromAssetId(pairAssetId)
+  // Checksum
+  const contractAddress = ethers.utils.getAddress(assetReference)
+  // TODO(gomes): remove casting
   const pair: IUniswapV2Pair = getOrCreateContract(
     contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
   )

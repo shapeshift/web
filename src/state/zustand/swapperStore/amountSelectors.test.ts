@@ -1,0 +1,185 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { Swapper } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import { ETH, FOX } from 'test/constants'
+import { TradeAmountInputField } from 'components/Trade/types'
+import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
+import type { SwapperState } from 'state/zustand/swapperStore/useSwapperStore'
+
+const baseSwapperState: SwapperState = {
+  sellAmountFiat: '33.00',
+  buyAmountFiat: '33.00',
+  amount: '33',
+  isExactAllowance: false,
+  action: TradeAmountInputField.SELL_FIAT,
+  isSendMax: false,
+  buyAmountCryptoPrecision: '989.157064',
+  sellAmountCryptoPrecision: '0.018665',
+  selectedCurrencyToUsdRate: '1',
+  sellAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
+  buyAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
+  availableSwappersWithMetadata: [
+    {
+      swapper: {
+        name: SwapperName.Zrx,
+      } as Swapper<ChainId>,
+      quote: {
+        rate: '52652.792329231222224912',
+        minimumCryptoHuman: '0.000565612596529604',
+        maximum: '100000000000000000000000000',
+        feeData: {
+          networkFeeCryptoBaseUnit: '2997000000000000',
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+        },
+        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+        buyAmountCryptoBaseUnit: '982764368825100762828',
+        sources: [
+          {
+            name: 'Uniswap_V2',
+            proportion: '1',
+          },
+        ],
+        allowanceContract: '0x0000000000000000000000000000000000000000',
+        buyAsset: FOX,
+        sellAsset: ETH,
+        accountNumber: 0,
+      },
+      inputOutputRatio: 0.8560784948911982,
+    },
+    {
+      swapper: {
+        name: SwapperName.Thorchain,
+      } as Swapper<ChainId>,
+      quote: {
+        rate: '52867.94647736405036163943',
+        maximum: '100000000000000000000000000',
+        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+        buyAmountCryptoBaseUnit: '986780221000000000000',
+        sources: [
+          {
+            name: 'THORChain',
+            proportion: '1',
+          },
+        ],
+        buyAsset: FOX,
+        sellAsset: ETH,
+        accountNumber: 0,
+        minimumCryptoHuman: '0.00576',
+        recommendedSlippage: '0.00009729507077504896',
+        allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+        feeData: {
+          networkFeeCryptoBaseUnit: '1800000000000000',
+          buyAssetTradeFeeUsd: '8.5196229516043797526224',
+          sellAssetTradeFeeUsd: '0',
+        },
+      },
+      inputOutputRatio: 0.6773207214158627,
+    },
+  ],
+  activeSwapperWithMetadata: {
+    swapper: {
+      name: SwapperName.Thorchain,
+    } as Swapper<ChainId>,
+    quote: {
+      rate: '52867.94647736405036163943',
+      maximum: '100000000000000000000000000',
+      sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+      buyAmountCryptoBaseUnit: '986780221000000000000',
+      sources: [
+        {
+          name: 'THORChain',
+          proportion: '1',
+        },
+      ],
+      buyAsset: FOX,
+      sellAsset: ETH,
+      accountNumber: 0,
+      minimumCryptoHuman: '0.00576',
+      recommendedSlippage: '0.00009729507077504896',
+      allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+      feeData: {
+        networkFeeCryptoBaseUnit: '1800000000000000',
+        buyAssetTradeFeeUsd: '8.5196229516043797526224',
+        sellAssetTradeFeeUsd: '0',
+      },
+    },
+    inputOutputRatio: 0.6773207214158627,
+  },
+  buyAsset: FOX,
+  sellAsset: ETH,
+  sellAssetFiatRate: '1767.99457108211749084991',
+  buyAssetFiatRate: '0.03336135366491256374',
+  feeAssetFiatRate: '1767.99457108211749084991',
+  receiveAddress: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+  selectedSellAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
+  selectedBuyAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
+  fees: {
+    chainSpecific: {
+      approvalFeeCryptoBaseUnit: '1800000000000000',
+      gasPriceCryptoBaseUnit: '18000000000',
+      estimatedGas: '100000',
+      totalFee: '0.0036',
+    },
+    tradeFeeSource: 'THORChain',
+    buyAssetTradeFeeUsd: '8.5196229516043797526224',
+    sellAssetTradeFeeUsd: '0',
+    networkFeeCryptoHuman: '0.0018',
+    networkFeeCryptoBaseUnit: '1800000000000000',
+  },
+} as SwapperState
+
+describe('calculateAmounts', () => {
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
+    const action = TradeAmountInputField.SELL_CRYPTO
+    const amount = '0.001'
+    const state = { ...baseSwapperState, action, amount }
+    const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
+
+    expect(tradeAmountsByActionAndAmount).toEqual({
+      sellAmountSellAssetBaseUnit: '1000000000000000',
+      buyAmountBuyAssetBaseUnit: '52990469959503958061',
+      fiatSellAmount: '1.77',
+      fiatBuyAmount: '1.77',
+    })
+  })
+
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
+    const action = TradeAmountInputField.BUY_CRYPTO
+    const state = { ...baseSwapperState, action }
+    const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
+
+    expect(tradeAmountsByActionAndAmount).toEqual({
+      sellAmountSellAssetBaseUnit: '622696861715069',
+      buyAmountBuyAssetBaseUnit: '33000000000000000000',
+      fiatSellAmount: '1.10',
+      fiatBuyAmount: '1.10',
+    })
+  })
+
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
+    const action = TradeAmountInputField.SELL_FIAT
+    const state = { ...baseSwapperState, action }
+    const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
+
+    expect(tradeAmountsByActionAndAmount).toEqual({
+      sellAmountSellAssetBaseUnit: '18665215685476932',
+      buyAmountBuyAssetBaseUnit: '989152246003175558217',
+      fiatSellAmount: '33.00',
+      fiatBuyAmount: '33.00',
+    })
+  })
+
+  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
+    const action = TradeAmountInputField.BUY_FIAT
+    const state = { ...baseSwapperState, action }
+    const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
+
+    expect(tradeAmountsByActionAndAmount).toEqual({
+      sellAmountSellAssetBaseUnit: '18665215685476932',
+      buyAmountBuyAssetBaseUnit: '989168495123367446659',
+      fiatSellAmount: '33.00',
+      fiatBuyAmount: '33.00',
+    })
+  })
+})

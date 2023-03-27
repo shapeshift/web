@@ -28,7 +28,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -44,6 +43,14 @@ import { assertUnreachable } from 'lib/utils'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+import {
+  selectBuyAmountAfterFeesFiat,
+  selectBuyAmountBeforeFeesBaseUnit,
+  selectBuyAmountBeforeFeesBuyAsset,
+  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesFiat,
+  selectTotalTradeFeeBuyAsset,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { selectSlippage } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -75,7 +82,6 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const tradeAmounts = useGetTradeAmounts()
   const trade = useSwapperStore(state => state.trade)
   const fees = useSwapperStore(state => state.fees)
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
@@ -84,6 +90,12 @@ export const TradeConfirm = () => {
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
   const updateTrade = useSwapperStore(state => state.updateTrade)
+  const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnit)
+  const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
+  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAsset)
+  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAsset)
+  const buyAmountAfterFeesFiat = useSwapperStore(selectBuyAmountAfterFeesFiat)
+  const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
   const assets = useAppSelector(selectAssets)
 
@@ -171,26 +183,33 @@ export const TradeConfirm = () => {
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
-    if (!(swapper && trade && tradeAmounts)) return null
+    if (!(swapper && trade)) return null
     const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
     const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
     const buyAmountCryptoPrecision = fromBaseUnit(
-      tradeAmounts.buyAmountBeforeFeesBaseUnit,
+      buyAmountBeforeFeesBaseUnit,
       trade.sellAsset.precision,
     )
     const sellAmountCryptoPrecision = fromBaseUnit(
-      tradeAmounts.sellAmountBeforeFeesBaseUnit,
+      sellAmountBeforeFeesBaseUnit,
       trade.buyAsset.precision,
     )
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      fiatAmount: tradeAmounts.sellAmountBeforeFeesFiat,
+      fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
-  }, [assets, swapper, trade, tradeAmounts])
+  }, [
+    assets,
+    buyAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesFiat,
+    swapper,
+    trade,
+  ])
 
   useEffect(() => {
     if (!mixpanel || !eventData) return
@@ -259,7 +278,7 @@ export const TradeConfirm = () => {
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
-    .dividedBy(tradeAmounts?.sellAmountBeforeFeesFiat ?? 1)
+    .dividedBy(sellAmountBeforeFeesFiat ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
@@ -340,42 +359,35 @@ export const TradeConfirm = () => {
             <Row.Value textAlign='right'>
               <Amount.Crypto
                 value={
-                  fromBaseUnit(
-                    tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
-                    trade.sellAsset.precision,
-                  ) ?? ''
+                  fromBaseUnit(sellAmountBeforeFeesBaseUnit ?? '', trade.sellAsset.precision) ?? ''
                 }
                 symbol={trade.sellAsset.symbol}
               />
-              <Amount.Fiat
-                color='gray.500'
-                value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
-                prefix='≈'
-              />
+              <Amount.Fiat color='gray.500' value={sellAmountBeforeFeesFiat ?? ''} prefix='≈' />
             </Row.Value>
           </Row>
           <ReceiveSummary
             symbol={trade.buyAsset.symbol ?? ''}
             amount={buyAmountCryptoPrecision ?? ''}
-            beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
-            protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
+            beforeFees={beforeFeesBuyAsset ?? ''}
+            protocolFee={totalTradeFeeBuyAsset ?? ''}
             shapeShiftFee='0'
             slippage={slippage}
-            fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
+            fiatAmount={buyAmountAfterFeesFiat ?? ''}
             swapperName={swapper?.name ?? ''}
           />
         </Stack>
       ) : null,
     [
+      beforeFeesBuyAsset,
+      buyAmountAfterFeesFiat,
       buyAmountCryptoPrecision,
+      sellAmountBeforeFeesBaseUnit,
+      sellAmountBeforeFeesFiat,
       slippage,
       swapper?.name,
+      totalTradeFeeBuyAsset,
       trade,
-      tradeAmounts?.beforeFeesBuyAsset,
-      tradeAmounts?.buyAmountAfterFeesFiat,
-      tradeAmounts?.sellAmountBeforeFeesBaseUnit,
-      tradeAmounts?.sellAmountBeforeFeesFiat,
-      tradeAmounts?.totalTradeFeeBuyAsset,
       translate,
     ],
   )

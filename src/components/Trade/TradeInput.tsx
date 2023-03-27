@@ -12,7 +12,6 @@ import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
@@ -38,6 +37,10 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectBuyAmountBeforeFeesBuyAsset,
+  selectTotalTradeFeeBuyAsset,
+} from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectCheckApprovalNeededForWallet,
   selectQuote,
@@ -97,6 +100,8 @@ export const TradeInput = () => {
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleAssetToggle = useSwapperStore(state => state.handleAssetToggle)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
+  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAsset)
+  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAsset)
 
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
@@ -105,7 +110,6 @@ export const TradeInput = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
   const wallet = useWallet().state.wallet
-  const tradeAmountConstants = useGetTradeAmounts()
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
@@ -543,8 +547,8 @@ export const TradeInput = () => {
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyAsset?.symbol ?? ''}
               amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={tradeAmountConstants?.beforeFeesBuyAsset ?? ''}
-              protocolFee={tradeAmountConstants?.totalTradeFeeBuyAsset ?? ''}
+              beforeFees={beforeFeesBuyAsset ?? ''}
+              protocolFee={totalTradeFeeBuyAsset ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
               swapperName={swapperName}

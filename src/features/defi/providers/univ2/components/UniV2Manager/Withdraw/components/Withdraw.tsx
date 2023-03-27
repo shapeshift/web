@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -52,6 +52,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
+  const feeAssetId = toAssetId({
+    chainId,
+    assetNamespace: 'slip44',
+    assetReference: ASSET_REFERENCE.Ethereum,
+  })
   const lpAssetId = toAssetId({
     chainId,
     assetNamespace,
@@ -87,15 +92,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
 
-  const asset = useAppSelector(state => selectAssetById(state, lpAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
   if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
 
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, lpAsset?.assetId))
   const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetId0))
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetId1))
 
@@ -104,12 +111,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [asset1AmountCryptoBaseUnit, asset1.precision],
   )
   const asset0AmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(asset0AmountCryptoBaseUnit, asset0.precision),
-    [asset0AmountCryptoBaseUnit, asset0.precision],
+    () => fromBaseUnit(asset0AmountCryptoBaseUnit, feeAsset.precision),
+    [asset0AmountCryptoBaseUnit, feeAsset.precision],
   )
 
   const fiatAmountAvailable = bnOrZero(uniV2Opportunity?.cryptoAmountBaseUnit)
-    .div(bn(10).pow(asset.precision))
+    .div(bn(10).pow(lpAsset.precision))
     .times(marketData?.[lpAssetId]?.price ?? '0')
     .toString()
 
@@ -120,7 +127,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(asset?.precision))
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(lpAsset?.precision))
 
   if (!state || !dispatch || !uniV2Opportunity?.icons) return null
 
@@ -132,7 +139,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         asset0AmountCryptoPrecision,
       )
       if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(asset0.precision)).toPrecision()
+      return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       moduleLogger.error(error, 'UniV2Withdraw:getWithdrawGasEstimate error:')
@@ -153,7 +160,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       },
     })
     const lpAllowance = await allowance(true)
-    const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${asset.precision}`)
+    const allowanceAmount = bnOrZero(lpAllowance).div(`1e+${lpAsset.precision}`)
 
     trackOpportunityEvent(
       MixPanelEvents.WithdrawContinue,
@@ -189,7 +196,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         type: UniV2WithdrawActionType.SET_APPROVE,
         payload: {
           estimatedGasCryptoPrecision: bnOrZero(estimatedGasCryptoPrecision.average.txFee)
-            .div(bn(10).pow(asset0.precision))
+            .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },
       })
@@ -239,7 +246,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(balance).div(`1e+${lpAsset.precision}`)
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -258,7 +265,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     <FormProvider {...methods}>
       <ReusableWithdraw
         accountId={accountId}
-        asset={asset}
+        asset={lpAsset}
         icons={uniV2Opportunity.icons}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={{

@@ -70,6 +70,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
 
+  const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
   const { approve, allowance, getWithdrawGasData } = useUniV2LiquidityPool({
@@ -79,9 +80,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     lpAssetId,
   })
 
+  const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const assets = useAppSelector(selectAssets)
+  if (!asset0) throw new Error('Asset 0 not found')
   if (!asset1) throw new Error('Asset 1 not found')
   if (!feeAsset) throw new Error('Fee asset not found')
 

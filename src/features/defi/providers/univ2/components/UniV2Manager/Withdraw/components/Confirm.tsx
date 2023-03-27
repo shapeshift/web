@@ -149,8 +149,8 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           fiatAmounts: [state.withdraw.lpFiatAmount],
           cryptoAmounts: [
             { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.lpAmount },
-            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
             { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
+            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
           ],
         },
         assets,

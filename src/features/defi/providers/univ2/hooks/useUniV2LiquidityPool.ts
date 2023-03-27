@@ -312,16 +312,16 @@ export const useUniV2LiquidityPool = ({
     const reserves = await uniV2LPContract.getReserves()
 
     const userOwnershipOfPool = bnOrZero(balance.toString()).div(bnOrZero(totalSupply.toString()))
-    const ethBalance = userOwnershipOfPool
+    const asset0Balance = userOwnershipOfPool
       .times(bnOrZero(reserves[0].toString()))
-      .div(`1e${asset0.precision}`)
-    const foxBalance = userOwnershipOfPool
+      .div(bn(10).pow(asset0.precision))
+    const asset1Balance = userOwnershipOfPool
       .times(bnOrZero(reserves[1].toString()))
-      .div(`1e${asset1.precision}`)
+      .div(bn(10).pow(asset1.precision))
 
     return {
-      ethBalance,
-      foxBalance,
+      asset0Balance,
+      asset1Balance,
       lpBalance: bnOrZero(balance.toString()).toString(),
     }
   }, [skip, uniV2LPContract, accountId, asset0.precision, asset1.precision])
@@ -330,7 +330,7 @@ export const useUniV2LiquidityPool = ({
     if (uniV2LPContract) {
       const reserves = await uniV2LPContract.getReserves()
       // Amount of Eth in liquidity pool
-      const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(`1e${asset0.precision}`)
+      const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(bn(10).pow(asset0.precision))
 
       // Total market cap of liquidity pool in usdc.
       // Multiplied by 2 to show equal amount of eth and fox.
@@ -343,7 +343,7 @@ export const useUniV2LiquidityPool = ({
     if (!skip && uniV2LPContract) {
       const tvl = await getLpTVL()
       const totalSupply = await uniV2LPContract.totalSupply()
-      return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(`1e${lpAsset.precision}`))
+      return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(bn(10).pow(lpAsset.precision)))
     }
   }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
 

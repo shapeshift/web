@@ -80,6 +80,7 @@ export class IdleOpportunity
   /**
    * Opportunity id e.g., contract address or validator address
    */
+  readonly active: boolean
   readonly id: string
   readonly version: string
   readonly strategy: string
@@ -146,6 +147,7 @@ export class IdleOpportunity
 
     // this.metadata = vault.metadata
     this.id = toLower(vault.address)
+    this.active = !vault.isPaused
     this.metadata = {
       ...vault,
       apy: {

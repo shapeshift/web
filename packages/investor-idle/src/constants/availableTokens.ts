@@ -19,6 +19,7 @@ export interface IdleVault {
   underlyingTVL: number
   underlyingAddress: string
   externalIntegration: boolean
+  isPaused: boolean
 }
 
 export const baseUrl = 'https://api.idle.finance/'

@@ -6,6 +6,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
@@ -48,6 +49,7 @@ export const apiSlices = {
   fiatRampApi,
   opportunitiesApi,
   abiApi,
+  zerionApi,
 }
 
 export const apiReducers = {
@@ -60,6 +62,7 @@ export const apiReducers = {
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
+  [zerionApi.reducerPath]: zerionApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

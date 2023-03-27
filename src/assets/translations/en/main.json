@@ -1477,6 +1477,7 @@
         "trade": "Trade"
       },
       "accountTokens": "Account Tokens",
+      "relatedAssets": "Related Assets",
       "showTokens": "Show Tokens (%{amount})",
       "hideTokens": "Hide Tokens (%{amount})",
       "underlyingAssets": "Underlying Assets",

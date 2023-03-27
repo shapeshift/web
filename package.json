@@ -187,6 +187,7 @@
     "wagmi": "^0.6.5",
     "web-vitals": "^2.1.4",
     "web3": "1.7.4",
+    "zod": "^3.21.4",
     "zustand": "^4.3.6"
   },
   "devDependencies": {

@@ -1,12 +1,16 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
+import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -15,13 +19,14 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -31,7 +36,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
+import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
 const moduleLogger = logger.child({ namespace: ['Confirm'] })
@@ -41,34 +46,49 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const mixpanel = getMixPanel()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetNamespace, assetReference } = query
 
-  const foxEthLpOpportunityFilter = useMemo(
+  const lpAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+  const lpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
+      lpId: lpAssetId as LpId,
+      assetId: lpAssetId,
       accountId,
     }),
-    [accountId],
+    [accountId, lpAssetId],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const lpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
 
   const translate = useTranslate()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
-  const { removeLiquidity } = useFoxEthLiquidityPool(lpAccountId)
 
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
-  const foxAsset = useAppSelector(state => {
-    return selectAssetById(state, foxAssetId)
+  const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
+  const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
+  const { removeLiquidity } = useUniV2LiquidityPool({
+    accountId: lpAccountId ?? '',
+    lpAssetId,
+    assetId0,
+    assetId1,
   })
-  const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
+
+  const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const asset1 = useAppSelector(state => {
+    return selectAssetById(state, assetId1)
+  })
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const assets = useAppSelector(selectAssets)
 
-  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
-  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
-  if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
+  if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
+  if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
 
   // user info
   const { state: walletState } = useWallet()
@@ -106,31 +126,31 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         state?.withdraw &&
         walletState.wallet &&
         supportsETH(walletState.wallet) &&
-        foxEthLpOpportunity
+        lpOpportunity
       )
     )
       return
     try {
-      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
+      dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
 
       const txid = await removeLiquidity(
         state.withdraw.lpAmount,
-        state.withdraw.foxAmount,
-        state.withdraw.ethAmount,
+        state.withdraw.asset1Amount,
+        state.withdraw.asset0Amount,
       )
       if (!txid) throw new Error(`Transaction failed`)
-      dispatch({ type: FoxEthLpWithdrawActionType.SET_TXID, payload: txid })
+      dispatch({ type: UniV2WithdrawActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvents.WithdrawConfirm,
         {
-          opportunity: foxEthLpOpportunity,
+          opportunity: lpOpportunity,
           fiatAmounts: [state.withdraw.lpFiatAmount],
           cryptoAmounts: [
             { assetId: lpAsset.assetId, amountCryptoHuman: state.withdraw.lpAmount },
-            { assetId: foxAssetId, amountCryptoHuman: state.withdraw.foxAmount },
-            { assetId: ethAssetId, amountCryptoHuman: state.withdraw.ethAmount },
+            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
+            { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
           ],
         },
         assets,
@@ -138,21 +158,23 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     } catch (error) {
       moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
     } finally {
-      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
     dispatch,
     state?.withdraw,
     walletState.wallet,
-    foxEthLpOpportunity,
+    lpOpportunity,
     removeLiquidity,
     onOngoingLpTxIdChange,
     onNext,
     lpAsset.assetId,
+    assetId1,
+    assetId0,
     assets,
   ])
 
-  if (!state || !dispatch || !foxEthLpOpportunity) return null
+  if (!state || !dispatch || !lpOpportunity) return null
 
   return (
     <ReusableConfirm
@@ -171,7 +193,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
               <PairIcons
-                icons={foxEthLpOpportunity.icons!}
+                icons={lpOpportunity.icons!}
                 iconBoxSize='5'
                 h='38px'
                 p={1}
@@ -190,20 +212,20 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={foxAsset.icon} />
-              <RawText>{foxAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.foxAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.asset1Amount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={ethAsset.icon} />
-              <RawText>{ethAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset0.icon} />
+              <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.withdraw.ethAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.asset0Amount} symbol={asset0.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -222,7 +244,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision).toFixed(5)}
-                symbol={ethAsset.symbol}
+                symbol={asset0.symbol}
               />
             </Box>
           </Row.Value>
@@ -230,7 +252,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: ethAsset.symbol }]} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset0.symbol }]} />
           </Alert>
         )}
       </Summary>

@@ -28,7 +28,7 @@ type KnownContract<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
 >
 
-type KnownContractAddress =
+export type KnownContractAddress =
   | typeof ETH_FOX_POOL_CONTRACT_ADDRESS
   | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS

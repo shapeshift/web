@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip/dist/accountId/accountId'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -17,58 +17,61 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
+  selectMarketDataById,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
+import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
-import { Withdraw } from './components/Withdraw'
-import { WithdrawContext } from './WithdrawContext'
-import { initialState, reducer } from './WithdrawReducer'
+import { DepositContext } from './DepositContext'
+import { initialState, reducer } from './DepositReducer'
 
-type FoxEthLpWithdrawProps = {
-  accountId: AccountId | undefined
+type UniV2DepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
+  accountId: AccountId | undefined
 }
 
-export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
+export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
+  const { chainId, assetNamespace, assetReference } = query
 
-  const assetNamespace = 'erc20'
-  // Asset info
-  const assetId = toAssetId({
-    chainId,
-    assetNamespace,
-    assetReference,
-  })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
 
-  const foxEthLpOpportunityFilter = useMemo(
+  const earnUserLpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
+      lpId: lpAssetId as LpId,
+      assetId: lpAssetId,
       accountId,
     }),
-    [accountId],
+    [accountId, lpAssetId],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const earnUserLpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, earnUserLpOpportunityFilter),
   )
 
-  // user info
+  const underlyingAsset = useAppSelector(
+    state =>
+      earnUserLpOpportunity?.underlyingAssetId &&
+      selectAssetById(state, earnUserLpOpportunity?.underlyingAssetId),
+  )
+  const marketData = useAppSelector(
+    state =>
+      earnUserLpOpportunity?.underlyingAssetId &&
+      selectMarketDataById(state, earnUserLpOpportunity?.underlyingAssetId),
+  )
+
   const loading = useSelector(selectPortfolioLoading)
 
   const handleBack = () => {
@@ -81,15 +84,17 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
     })
   }
 
-  const StepConfig: DefiStepProps = useMemo(() => {
+  const StepConfig: DefiStepProps | undefined = useMemo(() => {
+    if (!underlyingAsset) return
+
     return {
       [DefiStep.Info]: {
-        label: translate('defi.steps.withdraw.info.title'),
-        description: translate('defi.steps.withdraw.info.description', {
-          asset: asset.symbol,
+        label: translate('defi.steps.deposit.info.title'),
+        description: translate('defi.steps.deposit.info.description', {
+          asset: underlyingAsset.symbol,
         }),
         component: ownProps => (
-          <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
+          <Deposit {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
       },
       [DefiStep.Approve]: {
@@ -105,26 +110,27 @@ export const FoxEthLpWithdraw: React.FC<FoxEthLpWithdrawProps> = ({
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, asset.symbol, handleAccountIdChange, translate])
+  }, [accountId, underlyingAsset, handleAccountIdChange, translate])
 
-  if (loading || !asset || !foxEthLpOpportunity)
+  if (loading || !underlyingAsset || !marketData || !earnUserLpOpportunity || !StepConfig) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
+  }
 
   return (
-    <WithdrawContext.Provider value={{ state, dispatch }}>
+    <DepositContext.Provider value={{ state, dispatch }}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: foxEthLpOpportunity.opportunityName!,
+          title={translate('modals.deposit.depositInto', {
+            opportunity: earnUserLpOpportunity.opportunityName!,
           })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />
       </DefiModalContent>
-    </WithdrawContext.Provider>
+    </DepositContext.Provider>
   )
 }

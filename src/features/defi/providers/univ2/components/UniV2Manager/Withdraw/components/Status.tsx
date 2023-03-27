@@ -1,13 +1,8 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  ethAssetId,
-  foxAssetId,
-  fromAccountId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -36,23 +31,18 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { FoxEthLpDepositActionType } from '../DepositCommon'
-import { DepositContext } from '../DepositContext'
+import { UniV2WithdrawActionType } from '../WithdrawCommon'
+import { WithdrawContext } from '../WithdrawContext'
 
 type StatusProps = { accountId: AccountId | undefined }
 
 export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
-  const { state, dispatch } = useContext(DepositContext)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId } = query
+  const { state, dispatch } = useContext(WithdrawContext)
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetNamespace, assetReference } = query
 
-  const accountAddress = useMemo(
-    () => (accountId ? fromAccountId(accountId).account : null),
-    [accountId],
-  )
-
-  const foxEthLpOpportunityFilter = useMemo(
+  const lpOpportunityFilter = useMemo(
     () => ({
       lpId: foxEthLpAssetId,
       assetId: foxEthLpAssetId,
@@ -60,24 +50,35 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }),
     [accountId],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const lpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
 
-  const feeAssetId = toAssetId({
+  const lpAssetId = toAssetId({
     chainId,
-    assetNamespace: 'slip44',
-    assetReference: ASSET_REFERENCE.Ethereum,
+    assetNamespace,
+    assetReference,
   })
-  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const assets = useAppSelector(selectAssets)
-  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
-  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
-  if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+
+  const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
+  const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
+  const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
+  const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
+  const assets = useAppSelector(selectAssets)
+
+  if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
+  if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
+  if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
+
+  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : null),
+    [accountId],
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountAddress && accountId)) return ''
@@ -88,36 +89,37 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
-        type: FoxEthLpDepositActionType.SET_DEPOSIT,
+        type: UniV2WithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? bnOrZero(confirmedTransaction.fee.value)
-                .div(bn(10).pow(feeAsset?.precision))
-                .toString()
+            ? bnOrZero(confirmedTransaction.fee.value).div(bn(10).pow(asset0.precision)).toString()
             : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [confirmedTransaction, dispatch, asset0.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = browserHistory.goBack
+  const handleCancel = () => {
+    browserHistory.goBack()
+  }
 
   useEffect(() => {
-    if (!foxEthLpOpportunity) return
-    if (state?.deposit.txStatus === 'success') {
+    if (!lpOpportunity) return
+    if (state?.withdraw.txStatus === 'success') {
       trackOpportunityEvent(
-        MixPanelEvents.DepositSuccess,
+        MixPanelEvents.WithdrawSuccess,
         {
-          opportunity: foxEthLpOpportunity,
-          fiatAmounts: [state.deposit.ethFiatAmount, state.deposit.foxFiatAmount],
+          opportunity: lpOpportunity,
+          fiatAmounts: [state?.withdraw.lpFiatAmount],
           cryptoAmounts: [
-            { assetId: ethAssetId, amountCryptoHuman: state.deposit.ethCryptoAmount },
-            { assetId: foxAssetId, amountCryptoHuman: state.deposit.foxCryptoAmount },
+            { assetId: lpAssetId, amountCryptoHuman: state?.withdraw.lpAmount },
+            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
+            { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
           ],
         },
         assets,
@@ -125,40 +127,44 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [
     assets,
-    foxEthLpOpportunity,
-    state?.deposit.ethCryptoAmount,
-    state?.deposit.ethFiatAmount,
-    state?.deposit.foxCryptoAmount,
-    state?.deposit.foxFiatAmount,
-    state?.deposit.txStatus,
+    lpOpportunity,
+    lpAsset.assetId,
+    state?.withdraw.asset0Amount,
+    state?.withdraw.asset1Amount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.lpFiatAmount,
+    state?.withdraw.txStatus,
+    lpAssetId,
+    assetId1,
+    assetId0,
   ])
 
-  if (!state) return null
+  if (!state || !lpOpportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    switch (state.deposit.txStatus) {
+    switch (state.withdraw.txStatus) {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.success', {
-            opportunity: `FOX/ETH LP`,
-          }),
           statusBg: 'green.500',
+          statusBody: translate('modals.withdraw.status.success', {
+            opportunity: lpAsset.symbol,
+          }),
         }
       case 'failed':
         return {
           statusText: StatusTextEnum.failed,
           statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.failed'),
           statusBg: 'red.500',
+          statusBody: translate('modals.withdraw.status.failed'),
         }
       default:
         return {
           statusIcon: null,
           statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
           statusBg: 'transparent',
+          statusBody: translate('modals.withdraw.status.pending'),
         }
     }
   })()
@@ -166,36 +172,56 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   return (
     <TxStatus
       onClose={handleCancel}
-      onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.deposit.txStatus)}
+      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
+      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
+      continueText='modals.status.position'
       statusText={statusText}
       statusIcon={statusIcon}
-      statusBody={statusBody}
       statusBg={statusBg}
-      continueText='modals.status.position'
-      pairIcons={foxEthLpOpportunity?.icons}
+      statusBody={statusBody}
+      pairIcons={lpOpportunity.icons}
     >
       <Summary spacing={0} mx={6} mb={4}>
-        <Row variant='vert-gutter'>
+        <Row variant='vertical' p={4}>
           <Row.Label>
-            <Text translation='modals.confirm.amountToDeposit' />
+            <Text translation='modals.confirm.amountToWithdraw' />
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={foxAsset.icon} />
-              <RawText>{foxAsset.name}</RawText>
+              <PairIcons
+                icons={lpOpportunity.icons!}
+                iconBoxSize='5'
+                h='38px'
+                p={1}
+                borderRadius={8}
+              />
+              <RawText>{lpAsset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.foxCryptoAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.lpAmount} symbol={lpAsset.symbol} />
+            </Row.Value>
+          </Row>
+        </Row>
+        <Row variant='vertical' p={4}>
+          <Row.Label>
+            <Text translation='common.receive' />
+          </Row.Label>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.asset1Amount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={ethAsset.icon} />
-              <RawText>{ethAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset0.icon} />
+              <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.ethCryptoAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto value={state.withdraw.asset0Amount} symbol={asset0.symbol} />
             </Row.Value>
           </Row>
         </Row>
@@ -203,7 +229,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
+                state.withdraw.txStatus === 'pending'
                   ? 'modals.status.estimatedGas'
                   : 'modals.status.gasUsed'
               }
@@ -214,19 +240,19 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCryptoPrecision
-                    : state.deposit.usedGasFeeCryptoPrecision,
+                  state.withdraw.txStatus === 'pending'
+                    ? state.withdraw.estimatedGasCryptoPrecision
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 )
-                  .times(feeMarketData.price)
+                  .times(ethMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='gray.500'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
-                    ? state.deposit.estimatedGasCryptoPrecision
-                    : state.deposit.usedGasFeeCryptoPrecision,
+                  state.withdraw.txStatus === 'pending'
+                    ? state.withdraw.estimatedGasCryptoPrecision
+                    : state.withdraw.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
                 symbol='ETH'
               />
@@ -241,7 +267,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={<ExternalLinkIcon />}
-            href={`${ethAsset.explorerTxLink}${state.txid}`}
+            href={`${asset0.explorerTxLink}${state.txid}`}
           >
             {translate('defi.viewOnChain')}
           </Button>

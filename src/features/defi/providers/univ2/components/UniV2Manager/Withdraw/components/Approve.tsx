@@ -1,16 +1,21 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
+import type {
+  DefiParams,
+  DefiQueryParams,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
+import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -19,7 +24,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -28,40 +33,56 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxEthLpWithdrawActionType } from '../WithdrawCommon'
+import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type FoxEthLpApproveProps = StepComponentProps & {
+type UniV2ApproveProps = StepComponentProps & {
   accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
 
-const moduleLogger = logger.child({ namespace: ['FoxEthLpWithdraw:Approve'] })
+const moduleLogger = logger.child({ namespace: ['UniV2Withdraw:Approve'] })
 
-export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) => {
+export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { lpAccountId } = useFoxEth()
-  const { approve, allowance, getWithdrawGasData } = useFoxEthLiquidityPool(lpAccountId)
 
-  const foxEthLpOpportunityFilter = useMemo(
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chainId, assetNamespace, assetReference } = query
+  const lpAssetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
+
+  const lpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
+      lpId: lpAssetId as LpId,
+      assetId: lpAssetId,
       accountId,
     }),
-    [accountId],
+    [accountId, lpAssetId],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const lpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
 
-  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
+
+  const { approve, allowance, getWithdrawGasData } = useUniV2LiquidityPool({
+    accountId: lpAccountId ?? '',
+    assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
+    assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
+    lpAssetId,
+  })
+
+  const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const assets = useAppSelector(selectAssets)
-  if (!foxAsset) throw new Error('Fox asset not found')
+  if (!asset1) throw new Error('Asset 1 not found')
   if (!feeAsset) throw new Error('Fee asset not found')
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
@@ -75,16 +96,15 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
   const toast = useToast()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !state?.withdraw || !foxEthLpOpportunity || !wallet || !supportsETH(wallet))
-      return
+    if (!dispatch || !state?.withdraw || !lpOpportunity || !wallet || !supportsETH(wallet)) return
 
     try {
-      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: true })
+      dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
       await approve(true)
       await poll({
         fn: () => allowance(true),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(foxAsset.precision))
+          const allowance = bnOrZero(result).div(bn(10).pow(asset1.precision))
           return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
@@ -93,15 +113,15 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       // Get deposit gas estimate
       const gasData = await getWithdrawGasData(
         state.withdraw.lpAmount,
-        state.withdraw.foxAmount,
-        state.withdraw.ethAmount,
+        state.withdraw.asset1Amount,
+        state.withdraw.asset0Amount,
       )
       if (!gasData) return
       const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
-        type: FoxEthLpWithdrawActionType.SET_WITHDRAW,
+        type: UniV2WithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCryptoPrecision },
       })
 
@@ -109,7 +129,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       trackOpportunityEvent(
         MixPanelEvents.WithdrawApprove,
         {
-          opportunity: foxEthLpOpportunity,
+          opportunity: lpOpportunity,
           fiatAmounts: [],
           cryptoAmounts: [],
         },
@@ -124,12 +144,12 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
         status: 'error',
       })
     } finally {
-      dispatch({ type: FoxEthLpWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     }
   }, [
     dispatch,
     state?.withdraw,
-    foxEthLpOpportunity,
+    lpOpportunity,
     wallet,
     approve,
     getWithdrawGasData,
@@ -137,7 +157,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
     onNext,
     assets,
     allowance,
-    foxAsset.precision,
+    asset1.precision,
     toast,
     translate,
   ])
@@ -176,7 +196,7 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
 
   return (
     <ReusableApprove
-      asset={foxAsset}
+      asset={asset1}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
@@ -186,11 +206,11 @@ export const Approve: React.FC<FoxEthLpApproveProps> = ({ accountId, onNext }) =
       loading={state.loading}
       loadingText={translate('common.approveOnWallet')}
       preFooter={preFooter}
-      providerIcon={foxAsset?.icon}
+      providerIcon={asset1?.icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={fromAssetId(foxEthLpAssetId).assetReference}
+      contractAddress={fromAssetId(lpAssetId).assetReference}
     />
   )
 }

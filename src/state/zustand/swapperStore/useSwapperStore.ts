@@ -6,6 +6,7 @@ import { TradeAmountInputField } from 'components/Trade/types'
 import {
   clearAmounts,
   handleAssetToggle,
+  handleInputAmountChange,
   toggleIsExactAllowance,
   updateTradeAmounts,
 } from 'state/zustand/swapperStore/actions'
@@ -70,6 +71,7 @@ export const useSwapperStore = (() => {
           ),
           handleAssetToggle: handleAssetToggle(set),
           updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
+          handleInputAmountChange: handleInputAmountChange(set),
         }),
         { name: 'SwapperStore' },
       ),

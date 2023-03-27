@@ -1,4 +1,6 @@
 import { TradeAmountInputField } from 'components/Trade/types'
+import { fromBaseUnit } from 'lib/math'
+import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
 import type {
   SetSwapperStoreAction,
   SwapperAction,
@@ -91,4 +93,37 @@ export const handleAssetToggle =
       },
       false,
       `swapper/handleAssetToggle`,
+    )
+
+export const handleInputAmountChange =
+  (set: SetSwapperStoreAction<SwapperStore>): SwapperAction['handleInputAmountChange'] =>
+  () =>
+    set(
+      draft => {
+        // fixme: fix type, or pass in state?
+        const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(draft)
+        const currentSellAsset = draft.sellAsset
+        const currentBuyAsset = draft.buyAsset
+        const {
+          sellAmountSellAssetBaseUnit,
+          buyAmountBuyAssetBaseUnit,
+          fiatSellAmount,
+          fiatBuyAmount,
+        } = tradeAmountsByActionAndAmount
+        const buyAmountCryptoPrecision =
+          buyAmountBuyAssetBaseUnit && currentBuyAsset
+            ? fromBaseUnit(buyAmountBuyAssetBaseUnit, currentBuyAsset.precision)
+            : '0'
+        const sellAmountCryptoPrecision =
+          sellAmountSellAssetBaseUnit && currentSellAsset
+            ? fromBaseUnit(sellAmountSellAssetBaseUnit, currentSellAsset.precision)
+            : '0'
+        draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
+        draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+        if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
+        if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
+        return draft
+      },
+      false,
+      `swapper/handleInputAmountChange`,
     )

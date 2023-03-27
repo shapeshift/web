@@ -13,7 +13,6 @@ import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
@@ -76,8 +75,6 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
-  const { setTradeAmountsUsingExistingData } = useTradeAmounts()
-
   const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellAsset = useSwapperStore(state => state.sellAsset)
@@ -85,14 +82,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )
-  const action = useSwapperStore(state => state.action)
+  const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
 
   const handleSwapperSelection = useCallback(
     (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
       updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
-      setTradeAmountsUsingExistingData({ amount, action })
+      handleInputAmountChange()
     },
-    [action, amount, setTradeAmountsUsingExistingData, updateActiveSwapperWithMetadata],
+    [handleInputAmountChange, updateActiveSwapperWithMetadata],
   )
 
   const { quote, inputOutputRatio } = swapperWithMetadata

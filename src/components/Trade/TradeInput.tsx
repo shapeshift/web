@@ -17,7 +17,6 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
-import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -66,7 +65,6 @@ export const TradeInput = () => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
-  const { setTradeAmountsUsingExistingData } = useTradeAmounts()
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
@@ -98,6 +96,7 @@ export const TradeInput = () => {
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleAssetToggle = useSwapperStore(state => state.handleAssetToggle)
+  const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
 
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
@@ -173,9 +172,9 @@ export const TradeInput = () => {
       updateIsSendMax(false)
       updateAmount(amount)
 
-      setTradeAmountsUsingExistingData({ amount, action })
+      handleInputAmountChange()
     },
-    [updateAction, updateIsSendMax, updateAmount, setTradeAmountsUsingExistingData],
+    [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
 
   const handleToggle = useCallback(() => handleAssetToggle(), [handleAssetToggle])

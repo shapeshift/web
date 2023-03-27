@@ -69,6 +69,7 @@ export type SwapperAction = {
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleAssetToggle: () => void
   updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
+  handleInputAmountChange: () => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

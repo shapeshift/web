@@ -20,7 +20,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -42,23 +42,23 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
-  const lpOpportunityFilter = useMemo(
-    () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
-      accountId,
-    }),
-    [accountId],
-  )
-  const lpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
-  )
-
   const lpAssetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
+
+  const lpOpportunityFilter = useMemo(
+    () => ({
+      lpId: lpAssetId as LpId,
+      assetId: lpAssetId,
+      accountId,
+    }),
+    [accountId, lpAssetId],
+  )
+  const lpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
+  )
 
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
@@ -118,8 +118,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           fiatAmounts: [state?.withdraw.lpFiatAmount],
           cryptoAmounts: [
             { assetId: lpAssetId, amountCryptoHuman: state?.withdraw.lpAmount },
-            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
             { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
+            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
           ],
         },
         assets,

@@ -3,7 +3,7 @@ import type { Swapper } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { ETH, FOX } from 'test/constants'
 import { TradeAmountInputField } from 'components/Trade/types'
-import type { SwapperState } from 'state/zustand/swapperStore/useSwapperStore'
+import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 export const baseSwapperState: SwapperState = {
   sellAmountFiat: '33.00',

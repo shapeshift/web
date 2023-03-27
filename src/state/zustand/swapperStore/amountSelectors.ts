@@ -1,8 +1,9 @@
+import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { SwapperState } from 'state/zustand/swapperStore/useSwapperStore'
+import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 const selectAssetPriceRatio = createSelector(
   (state: SwapperState) => state.buyAssetFiatRate,
@@ -320,7 +321,17 @@ export const selectAmountBeforeFeesBuyAsset = createSelector(
   },
 )
 
-export const selectTradeAmountsByActionAndAmount = createSelector(
+type SelectTradeAmountsByActionAndAmountReturn = {
+  buyAmountBuyAssetBaseUnit: string | undefined
+  sellAmountSellAssetBaseUnit: string | undefined
+  fiatBuyAmount: string | undefined
+  fiatSellAmount: string | undefined
+}
+
+export const selectTradeAmountsByActionAndAmount: Selector<
+  SwapperState,
+  SelectTradeAmountsByActionAndAmountReturn
+> = createSelector(
   selectBuyAmountBeforeFeesFiat,
   selectSellAmountBeforeFeesFiat,
   selectSellAmountPlusFeesFiat,
@@ -347,7 +358,7 @@ export const selectTradeAmountsByActionAndAmount = createSelector(
     sellAsset,
     buyAsset,
   ) => {
-    const defaultReturn = {
+    const defaultReturn: SelectTradeAmountsByActionAndAmountReturn = {
       sellAmountSellAssetBaseUnit: '0',
       buyAmountBuyAssetBaseUnit: '0',
       fiatSellAmount: '0',

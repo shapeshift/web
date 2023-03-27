@@ -1,12 +1,13 @@
 import { TradeAmountInputField } from 'components/Trade/types'
 import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
 import { baseSwapperState } from 'state/zustand/swapperStore/testData'
+import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 describe('calculateAmounts', () => {
   it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
     const action = TradeAmountInputField.SELL_CRYPTO
     const amount = '0.001'
-    const state = { ...baseSwapperState, action, amount }
+    const state: SwapperState = { ...baseSwapperState, action, amount }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
@@ -19,7 +20,7 @@ describe('calculateAmounts', () => {
 
   it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
     const action = TradeAmountInputField.BUY_CRYPTO
-    const state = { ...baseSwapperState, action }
+    const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
@@ -32,7 +33,7 @@ describe('calculateAmounts', () => {
 
   it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
     const action = TradeAmountInputField.SELL_FIAT
-    const state = { ...baseSwapperState, action }
+    const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
@@ -45,7 +46,7 @@ describe('calculateAmounts', () => {
 
   it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
     const action = TradeAmountInputField.BUY_FIAT
-    const state = { ...baseSwapperState, action }
+    const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({

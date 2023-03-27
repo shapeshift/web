@@ -1,4 +1,3 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -10,26 +9,21 @@ import {
   toggleIsExactAllowance,
   updateTradeAmounts,
 } from 'state/zustand/swapperStore/actions'
-import type {
-  SetSwapperStoreAction,
-  SwapperAction,
-  SwapperStore,
-} from 'state/zustand/swapperStore/types'
+import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 const createUpdateAction =
-  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: T) =>
-  (value: SwapperStore[T]): void =>
+  <T extends keyof SwapperState>(set: SetSwapperStoreAction<SwapperState>, key: T) =>
+  (value: SwapperState[T]): void =>
     set(() => ({ [key]: value }), false, {
       type: `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
       value,
     })
 
-export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
 export const useSwapperStore = (() => {
   return create<SwapperState>()(
     immer(
       devtools(
-        (set, getState) => ({
+        set => ({
           // State (initialize values)
           sellAmountFiat: '0',
           buyAmountFiat: '0',
@@ -58,7 +52,7 @@ export const useSwapperStore = (() => {
           clearAmounts: clearAmounts(set),
           updateAmount: createUpdateAction(set, 'amount'),
           updateIsExactAllowance: createUpdateAction(set, 'isExactAllowance'),
-          toggleIsExactAllowance: toggleIsExactAllowance(set, getState),
+          toggleIsExactAllowance: toggleIsExactAllowance(set),
           updateAction: createUpdateAction(set, 'action'),
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
@@ -69,9 +63,9 @@ export const useSwapperStore = (() => {
             set,
             'availableSwappersWithMetadata',
           ),
-          handleAssetToggle: handleAssetToggle(set, getState),
+          handleAssetToggle: handleAssetToggle(set),
           updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
-          handleInputAmountChange: handleInputAmountChange(set, getState),
+          handleInputAmountChange: handleInputAmountChange(set),
         }),
         { name: 'SwapperStore' },
       ),

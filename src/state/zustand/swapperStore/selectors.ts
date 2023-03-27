@@ -14,7 +14,7 @@ import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import type { SwapperState } from 'state/zustand/swapperStore/useSwapperStore'
+import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE

@@ -17,7 +17,6 @@ export type FeatureFlags = {
   BnbSmartChain: boolean
   ThorSwap: boolean
   IdleFinance: boolean
-  IdleFinanceDeposits: boolean
   Axelar: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
@@ -67,7 +66,6 @@ const initialState: Preferences = {
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
-    IdleFinanceDeposits: getConfig().REACT_APP_FEATURE_IDLE_DEPOSITS,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,

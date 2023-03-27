@@ -68,6 +68,15 @@ export const selectSellAmountBeforeFeesBuyAsset = createSelector(
   },
 )
 
+export const selectSellAmountBeforeFeesBuyAssetBaseUnit = createSelector(
+  selectSellAmountBeforeFeesBuyAsset,
+  (state: SwapperState) => state.buyAsset?.precision,
+  (sellAmountBeforeFeesBuyAsset, buyAssetPrecision): string | undefined => {
+    if (!buyAssetPrecision) return undefined
+    return toBaseUnit(sellAmountBeforeFeesBuyAsset, buyAssetPrecision)
+  },
+)
+
 export const selectBuyAmountBeforeFeesBuyAsset = createSelector(
   selectBuyAmountBeforeFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
@@ -233,7 +242,7 @@ export const selectSellAmountPlusFeesFiat = createSelector(
   },
 )
 
-export const selectAmountBeforeFeesBuyAssetBaseUnit = createSelector(
+export const selectBuyAmountBeforeFeesBuyAssetBaseUnit = createSelector(
   selectBuyAmountBeforeFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
   (buyAmountBeforeFeesBaseUnit, buyAssetPrecision): string | undefined => {
@@ -243,11 +252,13 @@ export const selectAmountBeforeFeesBuyAssetBaseUnit = createSelector(
 )
 
 export const selectBuyAmountAfterFeesBaseUnit = createSelector(
-  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesBuyAssetBaseUnit,
   selectTotalTradeFeeBuyAssetBaseUnit,
-  (sellAmountBeforeFeesBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
-    if (!sellAmountBeforeFeesBaseUnit || !totalTradeFeeBuyAssetBaseUnit) return undefined
-    return bnOrZero(sellAmountBeforeFeesBaseUnit).minus(totalTradeFeeBuyAssetBaseUnit).toString()
+  (sellAmountBeforeFeesBuyAssetBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
+    if (!sellAmountBeforeFeesBuyAssetBaseUnit || !totalTradeFeeBuyAssetBaseUnit) return undefined
+    return bnOrZero(sellAmountBeforeFeesBuyAssetBaseUnit)
+      .minus(totalTradeFeeBuyAssetBaseUnit)
+      .toString()
   },
 )
 
@@ -305,6 +316,79 @@ export const selectAmountBeforeFeesBuyAsset = createSelector(
           .toString()
       default:
         return '0'
+    }
+  },
+)
+
+export const selectTradeAmountsByActionAndAmount = createSelector(
+  selectBuyAmountBeforeFeesFiat,
+  selectSellAmountBeforeFeesFiat,
+  selectSellAmountPlusFeesFiat,
+  selectBuyAmountAfterFeesFiat,
+  selectBuyAmountAfterFeesBaseUnit,
+  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountPlusFeesBaseUnit,
+  selectBuyAmountBeforeFeesBaseUnit,
+  (state: SwapperState) => state.amount,
+  (state: SwapperState) => state.action,
+  (state: SwapperState) => state.sellAsset,
+  (state: SwapperState) => state.buyAsset,
+  (
+    buyAmountBeforeFeesFiat,
+    sellAmountBeforeFeesFiat,
+    sellAmountPlusFeesFiat,
+    buyAmountAfterFeesFiat,
+    buyAmountAfterFeesBaseUnit,
+    sellAmountBeforeFeesBaseUnit,
+    sellAmountPlusFeesBaseUnit,
+    buyAmountBeforeFeesBaseUnit,
+    amount,
+    action,
+    sellAsset,
+    buyAsset,
+  ) => {
+    const defaultReturn = {
+      sellAmountSellAssetBaseUnit: '0',
+      buyAmountBuyAssetBaseUnit: '0',
+      fiatSellAmount: '0',
+      fiatBuyAmount: '0',
+    }
+    if (!sellAsset || !buyAsset) return defaultReturn
+    switch (action) {
+      case TradeAmountInputField.SELL_CRYPTO: {
+        return {
+          sellAmountSellAssetBaseUnit: toBaseUnit(amount, sellAsset.precision),
+          buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
+          fiatSellAmount: sellAmountBeforeFeesFiat,
+          fiatBuyAmount: buyAmountAfterFeesFiat,
+        }
+      }
+      case TradeAmountInputField.SELL_FIAT: {
+        return {
+          sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
+          buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
+          fiatSellAmount: bnOrZero(amount).toFixed(2),
+          fiatBuyAmount: buyAmountAfterFeesFiat,
+        }
+      }
+      case TradeAmountInputField.BUY_CRYPTO: {
+        return {
+          sellAmountSellAssetBaseUnit: sellAmountPlusFeesBaseUnit,
+          buyAmountBuyAssetBaseUnit: toBaseUnit(amount, buyAsset.precision),
+          fiatSellAmount: sellAmountPlusFeesFiat,
+          fiatBuyAmount: buyAmountBeforeFeesFiat,
+        }
+      }
+      case TradeAmountInputField.BUY_FIAT: {
+        return {
+          sellAmountSellAssetBaseUnit: sellAmountPlusFeesBaseUnit,
+          buyAmountBuyAssetBaseUnit: buyAmountBeforeFeesBaseUnit,
+          fiatSellAmount: sellAmountPlusFeesFiat,
+          fiatBuyAmount: bnOrZero(amount).toFixed(2),
+        }
+      }
+      default:
+        return defaultReturn
     }
   },
 )

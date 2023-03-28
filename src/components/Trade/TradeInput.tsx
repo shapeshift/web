@@ -38,8 +38,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
-  selectBuyAmountBeforeFeesBuyAsset,
-  selectTotalTradeFeeBuyAsset,
+  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectCheckApprovalNeededForWallet,
@@ -100,8 +100,8 @@ export const TradeInput = () => {
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
-  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAsset)
-  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAsset)
+  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAssetCryptoPrecision)
+  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAssetCryptoPrecision)
 
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()

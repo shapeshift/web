@@ -9,11 +9,11 @@ const selectAssetPriceRatio = createSelector(
   (state: SwapperState) => state.buyAssetFiatRate,
   (state: SwapperState) => state.sellAssetFiatRate,
   (buyAssetFiatRate, sellAssetFiatRate) => {
-    return bnOrZero(buyAssetFiatRate).dividedBy(bnOrZero(sellAssetFiatRate)).toString()
+    return bnOrZero(buyAssetFiatRate).dividedBy(bnOrZero(sellAssetFiatRate)).toFixed()
   },
 )
 
-export const selectSellAmountBeforeFeesBaseUnit = createSelector(
+export const selectSellAmountBeforeFeesBaseUnitByAction = createSelector(
   (state: SwapperState) => state.action,
   (state: SwapperState) => state.amount,
   (state: SwapperState) => state.sellAsset?.precision,
@@ -57,9 +57,9 @@ export const selectBuyAmountBeforeFeesBaseUnit = createSelector(
   },
 )
 
-export const selectSellAmountBeforeFeesBuyAsset = createSelector(
+export const selectSellAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
   selectAssetPriceRatio,
-  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesBaseUnitByAction,
   (state: SwapperState) => state.sellAsset?.precision,
   (assetPriceRatio, sellAmountBeforeFeesBaseUnit, sellAssetPrecision): string | undefined => {
     if (!sellAssetPrecision) return undefined
@@ -70,7 +70,7 @@ export const selectSellAmountBeforeFeesBuyAsset = createSelector(
 )
 
 export const selectSellAmountBeforeFeesBuyAssetBaseUnit = createSelector(
-  selectSellAmountBeforeFeesBuyAsset,
+  selectSellAmountBeforeFeesBuyAssetCryptoPrecision,
   (state: SwapperState) => state.buyAsset?.precision,
   (sellAmountBeforeFeesBuyAsset, buyAssetPrecision): string | undefined => {
     if (!buyAssetPrecision) return undefined
@@ -78,7 +78,7 @@ export const selectSellAmountBeforeFeesBuyAssetBaseUnit = createSelector(
   },
 )
 
-export const selectBuyAmountBeforeFeesBuyAsset = createSelector(
+export const selectBuyAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
   selectBuyAmountBeforeFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
   (buyAmountBeforeFeesBaseUnit, buyAssetPrecision): string | undefined => {
@@ -189,7 +189,7 @@ export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
   },
 )
 
-export const selectTotalTradeFeeBuyAsset = createSelector(
+export const selectTotalTradeFeeBuyAssetCryptoPrecision = createSelector(
   selectTotalTradeFeeBuyAssetBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
   (totalTradeFeeBuyAssetBaseUnit, buyAssetPrecision): string | undefined => {
@@ -199,7 +199,7 @@ export const selectTotalTradeFeeBuyAsset = createSelector(
 )
 
 export const selectSellAmountPlusFeesBaseUnit = createSelector(
-  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesBaseUnitByAction,
   selectTotalTradeFeeSellAssetBaseUnit,
   (sellAmountBeforeFeesBaseUnit, totalTradeFeeSellAssetBaseUnit): string | undefined => {
     if (!sellAmountBeforeFeesBaseUnit || !totalTradeFeeSellAssetBaseUnit) return undefined
@@ -220,7 +220,7 @@ export const selectBuyAmountBeforeFeesFiat = createSelector(
 )
 
 export const selectSellAmountBeforeFeesFiat = createSelector(
-  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesBaseUnitByAction,
   (state: SwapperState) => state.sellAsset?.precision,
   (state: SwapperState) => state.sellAssetFiatRate,
   (sellAmountBeforeFeesBaseUnit, sellAssetPrecision, sellAssetFiatRate): string | undefined => {
@@ -263,7 +263,7 @@ export const selectBuyAmountAfterFeesBaseUnit = createSelector(
   },
 )
 
-export const selectBuyAmountAfterFees = createSelector(
+export const selectBuyAmountAfterFeesCryptoPrecision = createSelector(
   selectBuyAmountAfterFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
   (buyAmountAfterFeesBaseUnit, buyAssetPrecision): string | undefined => {
@@ -284,8 +284,8 @@ export const selectBuyAmountAfterFeesFiat = createSelector(
   },
 )
 
-export const selectAmountBeforeFeesBuyAsset = createSelector(
-  selectSellAmountBeforeFeesBaseUnit,
+export const selectAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
+  selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountPlusFeesBaseUnit,
   selectAssetPriceRatio,
   (state: SwapperState) => state.sellAsset?.precision,
@@ -337,7 +337,7 @@ export const selectTradeAmountsByActionAndAmount: Selector<
   selectSellAmountPlusFeesFiat,
   selectBuyAmountAfterFeesFiat,
   selectBuyAmountAfterFeesBaseUnit,
-  selectSellAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountPlusFeesBaseUnit,
   selectBuyAmountBeforeFeesBaseUnit,
   (state: SwapperState) => state.amount,

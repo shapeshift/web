@@ -4,7 +4,7 @@ import { baseSwapperState } from 'state/zustand/swapperStore/testData'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 describe('calculateAmounts', () => {
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
+  it('returns sellAmountSellAssetBaseUnit, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
     const action = TradeAmountInputField.SELL_CRYPTO
     const amount = '0.001'
     const state: SwapperState = { ...baseSwapperState, action, amount }
@@ -18,7 +18,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
+  it('returns sellAmountSellAssetBaseUnit, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for BUY_CRYPTO action', () => {
     const action = TradeAmountInputField.BUY_CRYPTO
     const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
@@ -31,7 +31,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
+  it('returns sellAmountSellAssetBaseUnit, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for SELL_FIAT action', () => {
     const action = TradeAmountInputField.SELL_FIAT
     const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
@@ -44,7 +44,7 @@ describe('calculateAmounts', () => {
     })
   })
 
-  it('returns cryptoSellAmount, cryptoBuyAmount, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
+  it('returns sellAmountSellAssetBaseUnit, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for BUY_FIAT action', () => {
     const action = TradeAmountInputField.BUY_FIAT
     const state: SwapperState = { ...baseSwapperState, action }
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)

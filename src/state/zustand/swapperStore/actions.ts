@@ -64,13 +64,13 @@ export const handleSwitchAssets =
   () =>
     set(
       draft => {
-        const currentSellAsset = draft.sellAsset
-        const currentBuyAsset = draft.buyAsset
-        const currentSellAssetFiatRate = draft.sellAssetFiatRate
-        const currentBuyAssetFiatRate = draft.buyAssetFiatRate
+        const sellAsset = draft.sellAsset
+        const buyAsset = draft.buyAsset
+        const sellAssetFiatRate = draft.sellAssetFiatRate
+        const buyAssetFiatRate = draft.buyAssetFiatRate
 
-        draft.buyAsset = currentSellAsset
-        draft.sellAsset = currentBuyAsset
+        draft.buyAsset = sellAsset
+        draft.sellAsset = buyAsset
         draft.sellAmountCryptoPrecision = '0'
         draft.buyAmountCryptoPrecision = '0'
         draft.sellAmountFiat = '0'
@@ -83,8 +83,8 @@ export const handleSwitchAssets =
         draft.selectedBuyAssetAccountId = undefined
         draft.buyAssetAccountId = undefined
         draft.sellAssetAccountId = undefined
-        draft.buyAssetFiatRate = currentSellAssetFiatRate
-        draft.sellAssetFiatRate = currentBuyAssetFiatRate
+        draft.buyAssetFiatRate = sellAssetFiatRate
+        draft.sellAssetFiatRate = buyAssetFiatRate
         return draft
       },
       false,
@@ -97,8 +97,8 @@ export const handleInputAmountChange =
     set(
       draft => {
         const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(draft)
-        const currentSellAsset = draft.sellAsset
-        const currentBuyAsset = draft.buyAsset
+        const sellAsset = draft.sellAsset
+        const buyAsset = draft.buyAsset
         const {
           sellAmountSellAssetBaseUnit,
           buyAmountBuyAssetBaseUnit,
@@ -106,12 +106,12 @@ export const handleInputAmountChange =
           fiatBuyAmount,
         } = tradeAmountsByActionAndAmount
         const buyAmountCryptoPrecision =
-          buyAmountBuyAssetBaseUnit && currentBuyAsset
-            ? fromBaseUnit(buyAmountBuyAssetBaseUnit, currentBuyAsset.precision)
+          buyAmountBuyAssetBaseUnit && buyAsset
+            ? fromBaseUnit(buyAmountBuyAssetBaseUnit, buyAsset.precision)
             : '0'
         const sellAmountCryptoPrecision =
-          sellAmountSellAssetBaseUnit && currentSellAsset
-            ? fromBaseUnit(sellAmountSellAssetBaseUnit, currentSellAsset.precision)
+          sellAmountSellAssetBaseUnit && sellAsset
+            ? fromBaseUnit(sellAmountSellAssetBaseUnit, sellAsset.precision)
             : '0'
         draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
         draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision

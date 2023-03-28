@@ -46,10 +46,10 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountAfterFeesFiat,
   selectBuyAmountBeforeFeesBaseUnit,
-  selectBuyAmountBeforeFeesBuyAsset,
-  selectSellAmountBeforeFeesBaseUnit,
+  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
-  selectTotalTradeFeeBuyAsset,
+  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { selectSlippage } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -90,10 +90,10 @@ export const TradeConfirm = () => {
   const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
   const updateTrade = useSwapperStore(state => state.updateTrade)
-  const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnit)
+  const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
-  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAsset)
-  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAsset)
+  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAssetCryptoPrecision)
+  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAssetCryptoPrecision)
   const buyAmountAfterFeesFiat = useSwapperStore(selectBuyAmountAfterFeesFiat)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 

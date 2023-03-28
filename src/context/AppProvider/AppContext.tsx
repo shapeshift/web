@@ -25,6 +25,7 @@ import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { zapperApi } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -41,6 +42,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
+  selectFeatureFlags,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -72,6 +74,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
+  const featureFlags = useSelector(selectFeatureFlags)
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -171,6 +174,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
+      if (featureFlags.DynamicLPAssets) {
+        await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate({}))
+      }
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
@@ -221,6 +227,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     portfolioAssetIds,
     wallet,
     requestedAccountIds,
+    featureFlags.DynamicLPAssets,
   ])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets

@@ -36,6 +36,7 @@ export type FeatureFlags = {
   LiveSupport: boolean
   LifiSwap: boolean
   FoxBondCTA: boolean
+  DynamicLPAssets: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -85,6 +86,7 @@ const initialState: Preferences = {
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
+    DynamicLPAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

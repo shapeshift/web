@@ -143,6 +143,7 @@ export const assetApi = createApi({
           },
           {},
         )
+
         const data = {
           byId: assets,
           ids: Object.keys(assets) ?? [],

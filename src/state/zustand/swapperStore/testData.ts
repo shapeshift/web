@@ -3,9 +3,42 @@ import type { Swapper } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { ETH, FOX } from 'test/constants'
 import { TradeAmountInputField } from 'components/Trade/types'
-import type { SwapperState } from 'state/zustand/swapperStore/types'
+import type { SwapperAction, SwapperState } from 'state/zustand/swapperStore/types'
+
+const mockActions: SwapperAction = {
+  clearAmounts(): void {},
+  handleInputAmountChange(): void {},
+  handleSwitchAssets(): void {},
+  toggleIsExactAllowance(): void {},
+  updateAction(): void {},
+  updateActiveSwapperWithMetadata(): void {},
+  updateAmount(): void {},
+  updateAvailableSwappersWithMetadata(): void {},
+  updateBuyAmountCryptoPrecision(): void {},
+  updateBuyAmountFiat(): void {},
+  updateBuyAsset(): void {},
+  updateBuyAssetAccountId(): void {},
+  updateBuyAssetFiatRate(): void {},
+  updateFeeAssetFiatRate(): void {},
+  updateFees(): void {},
+  updateIsExactAllowance(): void {},
+  updateIsSendMax(): void {},
+  updateReceiveAddress(): void {},
+  updateSelectedBuyAssetAccountId(): void {},
+  updateSelectedCurrencyToUsdRate(): void {},
+  updateSelectedSellAssetAccountId(): void {},
+  updateSellAmountCryptoPrecision(): void {},
+  updateSellAmountFiat(): void {},
+  updateSellAsset(): void {},
+  updateSellAssetAccountId(): void {},
+  updateSellAssetFiatRate(): void {},
+  updateTrade(): void {},
+  updateTradeAmounts(): void {},
+}
 
 export const baseSwapperState: SwapperState = {
+  ...mockActions,
+  trade: undefined,
   sellAmountFiat: '33.00',
   buyAmountFiat: '33.00',
   amount: '33',
@@ -126,4 +159,4 @@ export const baseSwapperState: SwapperState = {
     networkFeeCryptoHuman: '0.0018',
     networkFeeCryptoBaseUnit: '1800000000000000',
   },
-} as SwapperState
+}

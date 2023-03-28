@@ -4,7 +4,7 @@ import type { CowTrade, SwapperWithQuoteMetadata, Trade } from '@shapeshiftoss/s
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
 
-type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
+export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
   selectedBuyAssetAccountId?: AccountId
   sellAssetAccountId?: AccountId
@@ -37,7 +37,7 @@ type TradeAmounts = {
   fiatBuyAmount?: string
 }
 
-type SwapperAction = {
+export type SwapperAction = {
   updateSelectedSellAssetAccountId: (accountId: SwapperStore['selectedSellAssetAccountId']) => void
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
   updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void

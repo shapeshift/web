@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.6.0...@shapeshiftoss/swapper-v17.6.1) (2023-03-28)
+
+
+### Bug Fixes
+
+* update osmosis min fee to comply with v15.0.0 min consensus fee update ([#1227](https://github.com/shapeshift/lib/issues/1227)) ([b89d78b](https://github.com/shapeshift/lib/commit/b89d78bd495b585894157c5c3c5974481ad3d59a))
+
 # [@shapeshiftoss/swapper-v17.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.5.0...@shapeshiftoss/swapper-v17.6.0) (2023-03-17)
 
 

@@ -6,20 +6,20 @@ import { z } from 'zod'
 
 export enum SupportedZapperNetworksEnum {
   Ethereum = 'ethereum',
-  Polygon = 'polygon',
+  // Polygon = 'polygon',
   Optimism = 'optimism',
-  Gnosis = 'gnosis',
+  // Gnosis = 'gnosis',
   BinanceSmartChain = 'binance-smart-chain',
-  Fantom = 'fantom',
+  // Fantom = 'fantom',
   Avalanche = 'avalanche',
-  Artbitrum = 'arbitrum',
-  Celo = 'celo',
-  Harmony = 'harmony',
-  Moonriver = 'moonriver',
-  Bitcoin = 'bitcoin',
-  Cronos = 'cronos',
-  Aurora = 'aurora',
-  Evmos = 'evmos',
+  // Artbitrum = 'arbitrum',
+  // Celo = 'celo',
+  // Harmony = 'harmony',
+  // Moonriver = 'moonriver',
+  // Bitcoin = 'bitcoin', "supported" by zapper but actually not anymore
+  // Cronos = 'cronos',
+  // Aurora = 'aurora',
+  // Evmos = 'evmos',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
@@ -59,8 +59,8 @@ const ZapperDisplayPropsSchema = z.object({
       ]),
     }),
   ),
-  tertiaryLabel: z.string(),
-  secondaryLabel: z.string(),
+  secondaryLabel: z.string().optional(),
+  tertiaryLabel: z.string().optional(),
 })
 
 const ZapperTokenSchema = z.object({
@@ -76,8 +76,8 @@ const ZapperTokenSchema = z.object({
 
 const ZapperDataPropsSchema = z.object({
   apy: z.number(),
-  fee: z.number(),
-  volume: z.number(),
+  fee: z.number().optional(),
+  volume: z.number().optional(),
   reserves: z.array(z.number(), z.number()),
   liquidity: z.number(),
 })

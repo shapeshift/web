@@ -132,7 +132,6 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
     // the tradeId is currently a lifi route ID
-    // TODO: determine a way to return actual txId per step (there could be mulitple)
     return await Promise.resolve({
       sellTxid: tradeResult.tradeId,
       buyTxid: tradeResult.tradeId,

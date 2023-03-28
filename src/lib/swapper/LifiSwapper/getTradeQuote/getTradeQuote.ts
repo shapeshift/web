@@ -49,24 +49,24 @@ export async function getTradeQuote(
     accountNumber,
   } = input
 
-  const fromLifiChainKey = lifiChainMap.get(sellAsset.chainId)
-  const toLifiChainKey = lifiChainMap.get(buyAsset.chainId)
-  const fromLifiToken = lifiAssetMap.get(sellAsset.assetId)
-  const toLifiToken = lifiAssetMap.get(buyAsset.assetId)
+  const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
+  const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+  const sellLifiToken = lifiAssetMap.get(sellAsset.assetId)
+  const buyLifiToken = lifiAssetMap.get(buyAsset.assetId)
 
-  if (fromLifiChainKey === undefined || fromLifiToken === undefined) {
+  if (sellLifiChainKey === undefined || sellLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (toLifiChainKey === undefined || toLifiToken === undefined) {
+  if (buyLifiChainKey === undefined || buyLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (fromLifiChainKey === toLifiChainKey) {
+  if (sellLifiChainKey === buyLifiChainKey) {
     throw new SwapError('[getTradeQuote] same chains swaps not supported', {
       code: SwapErrorType.UNSUPPORTED_PAIR,
     })
@@ -77,12 +77,12 @@ export async function getTradeQuote(
         asset: sellAsset,
         accountNumber,
         chainId,
-        outputPrecision: fromLifiToken.decimals,
+        outputPrecision: sellLifiToken.decimals,
       })
     : convertPrecision({
         value: sellAmountBeforeFeesCryptoBaseUnit,
         inputPrecision: sellAsset.precision,
-        outputPrecision: fromLifiToken.decimals,
+        outputPrecision: sellLifiToken.decimals,
       })
 
   // handle quotes that dont meet the minimum amount
@@ -108,8 +108,8 @@ export async function getTradeQuote(
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
     toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-    fromTokenAddress: fromLifiToken.address,
-    toTokenAddress: toLifiToken.address,
+    fromTokenAddress: sellLifiToken.address,
+    toTokenAddress: buyLifiToken.address,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: thresholdedAmountCryptoLifi,
@@ -143,14 +143,14 @@ export async function getTradeQuote(
 
   const minimumCryptoHuman = toHuman({
     value: getMinimumAmountFromRoutes(lifiRoutesResponse.routes, lifiBridges) ?? Infinity,
-    inputPrecision: fromLifiToken.decimals,
+    inputPrecision: sellLifiToken.decimals,
   }).toString()
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
     value: selectedRoute.toAmount,
-    inputPrecision: toLifiToken.decimals,
-    outputPrecision: fromLifiToken.decimals,
+    inputPrecision: buyLifiToken.decimals,
+    outputPrecision: sellLifiToken.decimals,
   })
     .dividedBy(bn(selectedRoute.fromAmount))
     .toString()
@@ -178,7 +178,7 @@ export async function getTradeQuote(
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
 
   const feeData = transformLifiFeeData({
-    buyAssetAddress: toLifiToken.address,
+    buyLifiToken,
     chainId,
     lifiAssetMap,
     selectedRoute,

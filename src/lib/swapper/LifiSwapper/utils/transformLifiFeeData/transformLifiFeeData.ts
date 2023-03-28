@@ -8,12 +8,12 @@ import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeA
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
 export const transformLifiFeeData = ({
-  buyAssetAddress,
+  buyLifiToken,
   chainId,
   lifiAssetMap,
   selectedRoute,
 }: {
-  buyAssetAddress: string
+  buyLifiToken: Token
   chainId: ChainId
   lifiAssetMap: Map<AssetId, Token>
   selectedRoute: Route
@@ -22,12 +22,12 @@ export const transformLifiFeeData = ({
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
   const buyAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === buyAssetAddress,
+    feeCost => feeCost.token.address === buyLifiToken.address,
   )
 
   // all fees that are not the buy asset (there may be multiple different tokens)
   const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address !== buyAssetAddress,
+    feeCost => feeCost.token.address !== buyLifiToken.address,
   )
 
   // this is the sum of all `feeCost` against the buy asset in USD

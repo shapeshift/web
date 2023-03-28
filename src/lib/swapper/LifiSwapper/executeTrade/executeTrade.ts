@@ -1,5 +1,5 @@
 import type Lifi from '@lifi/sdk/dist/Lifi'
-import type { Step } from '@lifi/sdk/dist/types'
+import type { Route } from '@lifi/sdk/dist/types'
 import type { BuildSendTxInput, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
@@ -14,15 +14,18 @@ const createBuildSendTxInput = async (
   lifi: Lifi,
   wallet: HDWallet,
   accountNumber: number,
-  lifiStep: Step,
+  lifiRoute: Route,
 ): Promise<BuildSendTxInput<EvmChainId>> => {
+  // the 0th step is used because its the first in the route, and this must be signed by the owner
+  const startStep = lifiRoute.steps[0]
+
   const transactionRequest: providers.TransactionRequest = await (async () => {
-    const transactionRequest = lifiStep?.transactionRequest
+    const transactionRequest = startStep?.transactionRequest
 
     if (transactionRequest !== undefined) return transactionRequest
 
     // if transactionRequest is not present, request it
-    const { transactionRequest: newTransactionRequest } = await lifi.getStepTransaction(lifiStep)
+    const { transactionRequest: newTransactionRequest } = await lifi.getStepTransaction(startStep)
     return newTransactionRequest ?? {}
   })()
 
@@ -36,7 +39,7 @@ const createBuildSendTxInput = async (
     gasLimit === undefined ||
     data === undefined
   ) {
-    throw new SwapError('[executeTrade] - incomplete or undefined transaction request', {
+    throw new SwapError('[createBuildSendTxInput] - incomplete or undefined transaction request', {
       code: SwapErrorType.EXECUTE_TRADE_FAILED,
       details: { transactionRequest },
     })
@@ -84,15 +87,13 @@ export const executeTrade = async ({
     // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error
     // handling in the UI so we can re-use the routes response here to avoid another fetch
     const routesResponse = await lifi.getRoutes(routesRequest)
-    const route = routesResponse.routes[SELECTED_ROUTE_INDEX]
-
-    const getStepTransaction = await lifi.getStepTransaction(route.steps[0])
+    const selectedRoute = routesResponse.routes[SELECTED_ROUTE_INDEX]
 
     const buildSendTxInput = await createBuildSendTxInput(
       lifi,
       wallet,
       accountNumber,
-      getStepTransaction,
+      selectedRoute,
     )
 
     const { txToSign } = await evmChainAdapter.buildSendTransaction(buildSendTxInput)

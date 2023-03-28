@@ -172,12 +172,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
+      const { getAppBalances } = zapperApi.endpoints
+      // load Zapper data for debugging
+      await dispatch(getAppBalances.initiate({ accountIds: requestedAccountIds }))
+
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
-      const { getAppBalances } = zapperApi.endpoints
-      // load Zapper data for debugging
-      dispatch(getAppBalances.initiate({ accountIds: requestedAccountIds }))
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         switch (chainId) {

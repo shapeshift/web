@@ -1,7 +1,7 @@
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
+import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,8 +46,8 @@ export const ethFoxStakingMetadataResolver = async ({
   }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
-  const foxFarmingContract = getOrCreateContract(contractAddress)
-  const uniV2LPContract = getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)
+  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
+  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
 
   // tvl
   const totalSupply = await foxFarmingContract.totalSupply()
@@ -143,7 +143,7 @@ export const ethFoxStakingUserDataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const foxFarmingContract = getOrCreateContract(contractAddress)
+  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
 
   const stakedBalance = await foxFarmingContract.balanceOf(accountAddress)
   const earned = await foxFarmingContract.earned(accountAddress)

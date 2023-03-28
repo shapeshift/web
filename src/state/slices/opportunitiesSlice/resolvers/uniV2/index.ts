@@ -3,12 +3,16 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContract } from 'contracts/contractManager'
+import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import uniq from 'lodash/uniq'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { toBaseUnit } from 'lib/math'
+import { zapperNetworkToChainId } from 'state/apis/zapper/client'
+import { selectZapperApiFullfilled } from 'state/apis/zapper/selectors'
+import type { GetAppBalancesOutput } from 'state/apis/zapper/zapperApi'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -16,9 +20,12 @@ import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/p
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
 
-import { foxEthLpAssetIds } from '../../constants'
-import type { GetOpportunityIdsOutput, GetOpportunityMetadataOutput } from '../../types'
-import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
+import type { GetOpportunityIdsOutput, GetOpportunityMetadataOutput, LpId } from '../../types'
+import type {
+  OpportunityIdsResolverInput,
+  OpportunityMetadataResolverInput,
+  OpportunityUserDataResolverInput,
+} from '../types'
 import { calculateAPRFromToken0 } from './utils'
 
 export const uniV2LpMetadataResolver = async ({
@@ -86,7 +93,7 @@ export const uniV2LpMetadataResolver = async ({
   // TODO(gomes): discrimination required because of typechain
   // Import the standard UniV2 Pool ABI and cast `contractAddress` with it once we bring in Zerion/Zapper (soon)
   // support for knowing that a specific token is a UniV2 LP
-  const uniV2LPContract = getOrCreateContract(
+  const uniV2LPContract = getOrCreateContractByAddress(
     contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
   )
   const apy = bnOrZero(calculatedApy).div(100).toString()
@@ -186,6 +193,30 @@ export const uniV2LpUserDataResolver = ({
   return Promise.resolve()
 }
 
-export const uniV2LpLpOpportunityIdsResolver = (): Promise<{
+export const uniV2LpLpOpportunityIdsResolver = ({
+  reduxApi,
+}: OpportunityIdsResolverInput): Promise<{
   data: GetOpportunityIdsOutput
-}> => Promise.resolve({ data: [...foxEthLpAssetIds] })
+}> => {
+  const { getState } = reduxApi
+  const state: any = getState()
+  const zapperApiQueries = selectZapperApiFullfilled(state)
+  const zapperData = (zapperApiQueries.find(query => Boolean(query?.data))?.data ??
+    []) as GetAppBalancesOutput
+  const uniV2Pools = Object.values(zapperData)
+    .flat()
+    .filter(app => app.appId === 'uniswap-v2')
+  const uniV2AssetIds = uniq(
+    uniV2Pools.flatMap(userPoolData =>
+      userPoolData.products[0].assets.map(
+        asset =>
+          toAssetId({
+            chainId: zapperNetworkToChainId(asset.network)!,
+            assetNamespace: 'erc20', // TODO: bep20
+            assetReference: asset.address,
+          }) as LpId,
+      ),
+    ),
+  )
+  return Promise.resolve({ data: [...uniV2AssetIds] })
+}

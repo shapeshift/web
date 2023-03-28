@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TokenAmount } from '@uniswap/sdk'
 import type { IUniswapV2Pair } from 'contracts/__generated'
 import type { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
-import { getOrCreateContract } from 'contracts/contractManager'
+import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -60,7 +60,7 @@ export const calculateAPRFromToken0 = memoize(
     // Checksum
     const contractAddress = ethers.utils.getAddress(assetReference)
     // TODO: Don't cast as one of ETH/FOX LP addresses. Make this programmatic when we bring Zerion SDK in
-    const pair: IUniswapV2Pair = getOrCreateContract(
+    const pair: IUniswapV2Pair = getOrCreateContractByAddress(
       contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
     )
 

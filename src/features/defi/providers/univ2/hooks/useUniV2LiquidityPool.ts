@@ -3,10 +3,11 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { ETH_FOX_POOL_CONTRACT_ADDRESS, FOX_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
+import type { FOX_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
-import { getOrCreateContract } from 'contracts/contractManager'
+import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ethers } from 'ethers'
+import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -72,7 +73,7 @@ export const useUniV2LiquidityPool = ({
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
+    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
   )
 
@@ -90,14 +91,21 @@ export const useUniV2LiquidityPool = ({
   const asset1Contract = useMemo(
     // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
-      skip ? null : getOrCreateContract(asset1ContractAddress as typeof FOX_TOKEN_CONTRACT_ADDRESS),
+      skip
+        ? null
+        : getOrCreateContractByAddress(asset1ContractAddress as typeof FOX_TOKEN_CONTRACT_ADDRESS),
     [asset1ContractAddress, skip],
   )
 
   const uniV2LPContract = useMemo(
     // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
-      skip ? null : getOrCreateContract(lpContractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS),
+      skip
+        ? null
+        : getOrCreateContractByType({
+            address: lpContractAddress,
+            type: DefiProvider.UniV2,
+          }),
     [lpContractAddress, skip],
   )
 

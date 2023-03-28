@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import uniq from 'lodash/uniq'
@@ -8,7 +8,8 @@ import qs from 'qs'
 import { setTimeoutAsync } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { chainIdToZapperNetwork, createApiClient } from './client'
+import type { V2BalancesAppsResponseType } from './client'
+import { chainIdToZapperNetwork, createApiClient, zapperNetworkToChainId } from './client'
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -28,12 +29,14 @@ type GetAppBalancesInput = {
   accountIds: AccountId[]
 }
 
+export type GetAppBalancesOutput = Record<AccountId, V2BalancesAppsResponseType>
+
 // https://docs.zapper.xyz/docs/apis/getting-started
 export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getAppBalances: build.query<any, GetAppBalancesInput>({
+    getAppBalances: build.query<GetAppBalancesOutput, GetAppBalancesInput>({
       queryFn: async ({ accountIds }) => {
         // Refresh job
         const evmAddresses = uniq(
@@ -57,7 +60,7 @@ export const zapperApi = createApi({
         // "Alternatively, you can just wait 10 seconds for the job to finish if you do not want to poll for the job status."
         await setTimeoutAsync(10000)
 
-        const data = await zapperClient.get('/v2/balances/apps', {
+        const zerionV2AppBalancesData = await zapperClient.get('/v2/balances/apps', {
           headers,
           // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
           paramsSerializer: params => {
@@ -68,7 +71,20 @@ export const zapperApi = createApi({
             addresses: evmAddresses,
           },
         })
-        console.log({ data })
+
+        const data = zerionV2AppBalancesData.reduce<GetAppBalancesOutput>((acc, current) => {
+          const chainId = zapperNetworkToChainId(current.network)
+          if (!chainId) return acc
+          const accountId = toAccountId({
+            account: current.address,
+            chainId,
+          })
+
+          if (!acc[accountId]) acc[accountId] = []
+          acc[accountId].push(current)
+
+          return acc
+        }, {})
         return { data }
       },
     }),

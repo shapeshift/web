@@ -3,14 +3,22 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { store } from 'state/store'
 
-import { foxEthLpAssetIds, foxEthStakingIds } from '../opportunitiesSlice/constants'
+import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 
 export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
-  const { getOpportunityMetadata, getOpportunitiesMetadata } = opportunitiesApi.endpoints
+  const { getOpportunityIds, getOpportunityMetadata, getOpportunitiesMetadata } =
+    opportunitiesApi.endpoints
+
+  const selectUniV2LpIds = getOpportunityIds.select({
+    defiType: DefiType.LiquidityPool,
+    defiProvider: DefiProvider.UniV2,
+  })
+
+  const uniV2LpIds = selectUniV2LpIds(store.getState()).data ?? []
 
   await Promise.allSettled([
-    ...foxEthLpAssetIds.map(opportunityId =>
+    ...uniV2LpIds.map(opportunityId =>
       store.dispatch(
         getOpportunityMetadata.initiate(
           {
@@ -261,10 +269,17 @@ export const fetchAllLpOpportunitiesUserdata = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityUserData } = opportunitiesApi.endpoints
+  const { getOpportunityIds, getOpportunityUserData } = opportunitiesApi.endpoints
+
+  const selectUniV2LpIds = getOpportunityIds.select({
+    defiType: DefiType.LiquidityPool,
+    defiProvider: DefiProvider.UniV2,
+  })
+
+  const uniV2LpIds = selectUniV2LpIds(store.getState()).data ?? []
 
   await Promise.allSettled([
-    ...foxEthLpAssetIds.map(
+    ...uniV2LpIds.map(
       async opportunityId =>
         await store.dispatch(
           getOpportunityUserData.initiate(

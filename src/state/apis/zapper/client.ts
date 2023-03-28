@@ -116,19 +116,21 @@ const ZapperProductSchema = z.object({
   meta: z.array(z.any()),
 })
 
-const V2BalancesAppsResponse = z.array(
-  z.object({
-    key: z.string(),
-    address: z.string(),
-    appId: z.string(),
-    appName: z.string(),
-    appImage: z.string(),
-    network: SupportedZapperNetworks,
-    updatedAt: z.string(),
-    balanceUSD: z.number(),
-    products: z.array(ZapperProductSchema),
-  }),
-)
+const ZerionV2AppBalance = z.object({
+  key: z.string(),
+  address: z.string(),
+  appId: z.string(),
+  appName: z.string(),
+  appImage: z.string(),
+  network: SupportedZapperNetworks,
+  updatedAt: z.string(),
+  balanceUSD: z.number(),
+  products: z.array(ZapperProductSchema),
+})
+
+export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
+
+const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)
 
 const endpoints = makeApi([
   {

@@ -43,24 +43,26 @@ export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork
 
 const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetworksEnum)
 
+const ZerionDisplayValue = z.union([
+  z.object({
+    type: z.string(),
+    value: z.union([z.number(), z.string()]),
+  }),
+  z.string(),
+  z.number(),
+])
+
 const ZapperDisplayPropsSchema = z.object({
   label: z.string(),
   images: z.array(z.string()),
   statsItems: z.array(
     z.object({
       label: z.string(),
-      value: z.union([
-        z.object({
-          type: z.string(),
-          value: z.union([z.number(), z.string()]),
-        }),
-        z.string(),
-        z.number(),
-      ]),
+      value: ZerionDisplayValue,
     }),
   ),
-  secondaryLabel: z.string().optional(),
-  tertiaryLabel: z.string().optional(),
+  secondaryLabel: ZerionDisplayValue.optional(),
+  tertiaryLabel: ZerionDisplayValue.optional(),
 })
 
 const ZapperTokenSchema = z.object({

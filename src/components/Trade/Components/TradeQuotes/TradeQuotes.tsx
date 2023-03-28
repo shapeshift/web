@@ -1,6 +1,11 @@
 import { Collapse, Flex } from '@chakra-ui/react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import {
+  selectActiveSwapperWithMetadata,
+  selectAvailableSwappersWithMetadata,
+  selectBuyAssetFiatRate,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeQuote } from './TradeQuote'
@@ -11,11 +16,9 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
-  const availableSwappersWithMetadata = useSwapperStore(
-    state => state.availableSwappersWithMetadata,
-  )
-  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
+  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
 
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote

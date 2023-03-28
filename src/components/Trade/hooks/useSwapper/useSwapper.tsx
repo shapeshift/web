@@ -13,7 +13,15 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectGetTradeForWallet, selectQuote } from 'state/zustand/swapperStore/selectors'
+import {
+  selectBuyAsset,
+  selectBuyAssetAccountId,
+  selectGetTradeForWallet,
+  selectIsExactAllowance,
+  selectQuote,
+  selectSellAsset,
+  selectSellAssetAccountId,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -23,11 +31,11 @@ It does not mutate state.
 export const useSwapper = () => {
   const activeQuote = useSwapperStore(selectQuote)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
-  const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
+  const isExactAllowance = useSwapperStore(selectIsExactAllowance)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
 
   // Selectors

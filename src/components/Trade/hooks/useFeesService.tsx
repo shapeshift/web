@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
-import { selectQuote } from 'state/zustand/swapperStore/selectors'
+import { selectQuote, selectSellAsset, selectTrade } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -14,12 +14,12 @@ export const useFeesService = () => {
   // Selectors
   const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const activeQuote = useSwapperStore(selectQuote)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const updateFees = useSwapperStore(state => state.updateFees)
-  const trade = useSwapperStore(state => state.trade)
+  const trade = useSwapperStore(selectTrade)
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 

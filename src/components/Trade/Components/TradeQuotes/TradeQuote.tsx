@@ -17,6 +17,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectAmount,
+  selectBuyAsset,
+  selectFeeAssetFiatRate,
+  selectSellAsset,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 const TradeQuoteLoading = () => {
@@ -75,10 +81,10 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const amount = useSwapperStore(state => state.amount)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const amount = useSwapperStore(selectAmount)
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )

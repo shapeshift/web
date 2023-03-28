@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { useAppDispatch } from 'state/store'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useIsTradingActive = () => {
@@ -9,8 +10,8 @@ export const useIsTradingActive = () => {
 
   const dispatch = useAppDispatch()
 
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetId = sellAsset?.assetId
   const buyAssetId = buyAsset?.assetId
 

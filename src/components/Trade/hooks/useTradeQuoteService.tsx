@@ -11,6 +11,14 @@ import {
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectBuyAsset,
+  selectIsSendMax,
+  selectReceiveAddress,
+  selectSellAmountCryptoPrecision,
+  selectSellAsset,
+  selectSellAssetAccountId,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -23,12 +31,12 @@ export const useTradeQuoteService = () => {
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<GetTradeQuoteInput | SkipToken>(skipToken)
 
   // Selectors
-  const isSendMax = useSwapperStore(state => state.isSendMax)
-  const receiveAddress = useSwapperStore(state => state.receiveAddress)
-  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
+  const isSendMax = useSwapperStore(selectIsSendMax)
+  const receiveAddress = useSwapperStore(selectReceiveAddress)
+  const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {

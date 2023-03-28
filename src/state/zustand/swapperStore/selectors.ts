@@ -16,6 +16,38 @@ import { toBaseUnit } from 'lib/math'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
+// Convenience selectors for accessing swapper store state
+export const selectSelectedSellAssetAccountId = (state: SwapperState) =>
+  state.selectedSellAssetAccountId
+export const selectSelectedBuyAssetAccountId = (state: SwapperState) =>
+  state.selectedBuyAssetAccountId
+export const selectSellAssetAccountId = (state: SwapperState) => state.sellAssetAccountId
+export const selectBuyAssetAccountId = (state: SwapperState) => state.buyAssetAccountId
+export const selectBuyAmountCryptoPrecision = (state: SwapperState) =>
+  state.buyAmountCryptoPrecision
+export const selectSellAmountCryptoPrecision = (state: SwapperState) =>
+  state.sellAmountCryptoPrecision
+export const selectSellAsset = (state: SwapperState) => state.sellAsset
+export const selectBuyAsset = (state: SwapperState) => state.buyAsset
+export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFiat
+export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
+export const selectSellAssetFiatRate = (state: SwapperState) => state.sellAssetFiatRate
+export const selectBuyAssetFiatRate = (state: SwapperState) => state.buyAssetFiatRate
+export const selectFeeAssetFiatRate = (state: SwapperState) => state.feeAssetFiatRate
+export const selectAction = (state: SwapperState) => state.action
+export const selectIsExactAllowance = (state: SwapperState) => state.isExactAllowance
+export const selectIsSendMax = (state: SwapperState) => state.isSendMax
+export const selectAmount = (state: SwapperState) => state.amount
+export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
+export const selectFees = (state: SwapperState) => state.fees
+export const selectTrade = (state: SwapperState) => state.trade
+export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
+  state.activeSwapperWithMetadata
+export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
+  state.availableSwappersWithMetadata
+export const selectSelectedCurrencyToUsdRate = (state: SwapperState) =>
+  state.selectedCurrencyToUsdRate
+
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
 

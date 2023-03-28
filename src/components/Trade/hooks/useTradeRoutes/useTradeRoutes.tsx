@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { TradeAmountInputField, TradeRoutePaths } from 'components/Trade/types'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export enum AssetClickAction {
@@ -27,8 +28,8 @@ export const useTradeRoutes = (): {
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
   const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
   const updateSellAsset = useSwapperStore(state => state.updateSellAsset)
   const updateSellAmountCryptoPrecision = useSwapperStore(

@@ -6,6 +6,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -25,8 +26,8 @@ export const useFiatRateService = () => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
   const sellTradeAssetId = sellAsset?.assetId
   const buyTradeAssetId = buyAsset?.assetId
   const sellAssetFeeAssetId = useAppSelector(state =>

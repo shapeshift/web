@@ -42,8 +42,19 @@ import {
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectBuyAmountCryptoPrecision,
+  selectBuyAmountFiat,
+  selectBuyAsset,
+  selectBuyAssetAccountId,
   selectCheckApprovalNeededForWallet,
+  selectFeeAssetFiatRate,
+  selectFees,
   selectQuote,
+  selectReceiveAddress,
+  selectSellAmountCryptoPrecision,
+  selectSellAmountFiat,
+  selectSellAsset,
+  selectSellAssetAccountId,
   selectSlippage,
   selectSwapperSupportsCrossAccountTrade,
 } from 'state/zustand/swapperStore/selectors'
@@ -70,8 +81,8 @@ export const TradeInput = () => {
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
-  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const updateSelectedSellAssetAccountId = useSwapperStore(
     state => state.updateSelectedSellAssetAccountId,
   )
@@ -79,20 +90,20 @@ export const TradeInput = () => {
     state => state.updateSelectedBuyAssetAccountId,
   )
   const activeQuote = useSwapperStore(selectQuote)
-  const fees = useSwapperStore(state => state.fees)
+  const fees = useSwapperStore(selectFees)
   const slippage = useSwapperStore(selectSlippage)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
-  const fiatBuyAmount = useSwapperStore(state => state.buyAmountFiat)
-  const fiatSellAmount = useSwapperStore(state => state.sellAmountFiat)
-  const receiveAddress = useSwapperStore(state => state.receiveAddress)
+  const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
+  const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
+  const receiveAddress = useSwapperStore(selectReceiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
-  const sellAmountCryptoPrecision = useSwapperStore(state => state.sellAmountCryptoPrecision)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
   const updateSellAmountCryptoPrecision = useSwapperStore(
     state => state.updateSellAmountCryptoPrecision,
   )

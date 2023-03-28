@@ -204,7 +204,7 @@ export const selectBuyAmountBeforeFeesFiat = createSelector(
     if (!buyAssetPrecision || !buyAssetFiatRate) return undefined
     return bnOrZero(fromBaseUnit(buyAmountBeforeFeesBaseUnit, buyAssetPrecision))
       .times(buyAssetFiatRate)
-      .toFixed(2)
+      .toFixed()
   },
 )
 
@@ -216,7 +216,7 @@ export const selectSellAmountBeforeFeesFiat = createSelector(
     if (!sellAssetPrecision || !sellAssetFiatRate) return undefined
     return bnOrZero(fromBaseUnit(sellAmountBeforeFeesBaseUnit, sellAssetPrecision))
       .times(sellAssetFiatRate)
-      .toFixed(2)
+      .toFixed()
   },
 )
 
@@ -228,7 +228,7 @@ export const selectSellAmountPlusFeesFiat = createSelector(
     if (!sellAssetPrecision || !sellAssetFiatRate || !sellAmountPlusFeesBaseUnit) return undefined
     return bnOrZero(fromBaseUnit(sellAmountPlusFeesBaseUnit, sellAssetPrecision))
       .times(sellAssetFiatRate)
-      .toFixed(2)
+      .toFixed()
   },
 )
 
@@ -251,7 +251,7 @@ export const selectBuyAmountAfterFeesFiat = createSelector(
     if (!buyAssetPrecision || !buyAssetFiatRate || !buyAmountAfterFeesBaseUnit) return undefined
     return bnOrZero(fromBaseUnit(buyAmountAfterFeesBaseUnit, buyAssetPrecision))
       .times(buyAssetFiatRate)
-      .toFixed(2)
+      .toFixed()
   },
 )
 
@@ -312,7 +312,7 @@ export const selectTradeAmountsByActionAndAmount: Selector<
         return {
           sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
           buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
-          fiatSellAmount: bnOrZero(amount).toFixed(2),
+          fiatSellAmount: bnOrZero(amount).toFixed(),
           fiatBuyAmount: buyAmountAfterFeesFiat,
         }
       }
@@ -329,7 +329,7 @@ export const selectTradeAmountsByActionAndAmount: Selector<
           sellAmountSellAssetBaseUnit: sellAmountPlusFeesBaseUnit,
           buyAmountBuyAssetBaseUnit: buyAmountBeforeFeesBaseUnit,
           fiatSellAmount: sellAmountPlusFeesFiat,
-          fiatBuyAmount: bnOrZero(amount).toFixed(2),
+          fiatBuyAmount: bnOrZero(amount).toFixed(),
         }
       }
       default:

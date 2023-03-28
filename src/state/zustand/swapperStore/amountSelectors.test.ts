@@ -12,9 +12,9 @@ describe('calculateAmounts', () => {
 
     expect(tradeAmountsByActionAndAmount).toEqual({
       sellAmountSellAssetBaseUnit: '1000000000000000',
-      buyAmountBuyAssetBaseUnit: '52990469959503958061',
-      fiatSellAmount: '1.77',
-      fiatBuyAmount: '1.77',
+      buyAmountBuyAssetBaseUnit: '53540633027089177171.70247933884298653524',
+      fiatSellAmount: '1.767',
+      fiatBuyAmount: '1.766840889',
     })
   })
 
@@ -24,10 +24,10 @@ describe('calculateAmounts', () => {
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
-      sellAmountSellAssetBaseUnit: '622696861715069',
+      sellAmountSellAssetBaseUnit: '616298811544992',
       buyAmountBuyAssetBaseUnit: '33000000000000000000',
-      fiatSellAmount: '1.10',
-      fiatBuyAmount: '1.10',
+      fiatSellAmount: '1.088472',
+      fiatBuyAmount: '1.089',
     })
   })
 
@@ -37,10 +37,10 @@ describe('calculateAmounts', () => {
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
-      sellAmountSellAssetBaseUnit: '18665215685476932',
-      buyAmountBuyAssetBaseUnit: '989152246003175558217',
-      fiatSellAmount: '33.00',
-      fiatBuyAmount: '33.00',
+      sellAmountSellAssetBaseUnit: '18675721561969440',
+      buyAmountBuyAssetBaseUnit: '999995178481634632496',
+      fiatSellAmount: '33',
+      fiatBuyAmount: '32.999840874',
     })
   })
 
@@ -50,10 +50,10 @@ describe('calculateAmounts', () => {
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
-      sellAmountSellAssetBaseUnit: '18665215685476932',
-      buyAmountBuyAssetBaseUnit: '989168495123367446659',
-      fiatSellAmount: '33.00',
-      fiatBuyAmount: '33.00',
+      sellAmountSellAssetBaseUnit: '18675721561969440',
+      buyAmountBuyAssetBaseUnit: '1000000000000000000000',
+      fiatSellAmount: '32.998725',
+      fiatBuyAmount: '33',
     })
   })
 })

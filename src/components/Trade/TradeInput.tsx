@@ -494,7 +494,7 @@ export const TradeInput = () => {
             assetSymbol={sellAsset?.symbol ?? ''}
             assetIcon={sellAsset?.icon ?? ''}
             cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatSellAmount).toString()}
+            fiatAmount={positiveOrZero(fiatSellAmount).toFixed(2)}
             isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
@@ -508,7 +508,7 @@ export const TradeInput = () => {
             assetSymbol={buyAsset?.symbol ?? ''}
             assetIcon={buyAsset?.icon ?? ''}
             cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatBuyAmount).toString()}
+            fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}

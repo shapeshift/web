@@ -367,7 +367,11 @@ export const TradeConfirm = () => {
                 }
                 symbol={trade.sellAsset.symbol}
               />
-              <Amount.Fiat color='gray.500' value={sellAmountBeforeFeesFiat ?? ''} prefix='≈' />
+              <Amount.Fiat
+                color='gray.500'
+                value={bnOrZero(sellAmountBeforeFeesFiat).toFixed(2)}
+                prefix='≈'
+              />
             </Row.Value>
           </Row>
           <ReceiveSummary
@@ -377,7 +381,7 @@ export const TradeConfirm = () => {
             protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
             shapeShiftFee='0'
             slippage={slippage}
-            fiatAmount={buyAmountAfterFeesFiat ?? ''}
+            fiatAmount={bnOrZero(buyAmountAfterFeesFiat).toFixed(2)}
             swapperName={swapper?.name ?? ''}
           />
         </Stack>

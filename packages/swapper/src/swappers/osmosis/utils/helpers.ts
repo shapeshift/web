@@ -303,7 +303,7 @@ export const buildTradeTx = async ({
     fee: {
       amount: [
         {
-          amount: '0',
+          amount: osmosis.MIN_FEE,
           denom: 'uosmo',
         },
       ],

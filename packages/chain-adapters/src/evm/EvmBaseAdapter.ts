@@ -11,7 +11,6 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 import { utils } from 'ethers'
 import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
@@ -66,16 +65,6 @@ export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
 ): maybeEvmChainId is EvmChainId => {
   return evmChainIds.includes(maybeEvmChainId as EvmChainId)
-}
-
-type ConfirmationSpeed = 'slow' | 'average' | 'fast'
-
-export const calcFee = (
-  fee: string | number | BigNumber,
-  speed: ConfirmationSpeed,
-  scalars: Record<ConfirmationSpeed, BigNumber>,
-): string => {
-  return bnOrZero(fee).times(scalars[speed]).toFixed(0, BigNumber.ROUND_CEIL).toString()
 }
 
 type EvmApi =

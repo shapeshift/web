@@ -411,7 +411,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         this.deps.cosmosUrl,
         buyAssetDenom,
         OSMO_COSMO_CHANNEL,
-        '0',
+        osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,
         ibcSequence,

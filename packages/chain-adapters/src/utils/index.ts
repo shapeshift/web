@@ -6,7 +6,9 @@ import {
   fromChainId,
 } from '@shapeshiftoss/caip'
 
+export * from './bignumber'
 export * from './bip44'
+export * from './fees'
 export * from './utxoUtils'
 
 export const getAssetNamespace = (type: string): AssetNamespace => {

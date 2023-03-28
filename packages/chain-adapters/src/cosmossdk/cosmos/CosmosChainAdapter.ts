@@ -16,13 +16,15 @@ import {
   GetFeeDataInput,
   SignTxInput,
 } from '../../types'
-import { toAddressNList } from '../../utils'
+import { bn, calcFee, toAddressNList } from '../../utils'
 import {
   assertIsValidatorAddress,
   ChainAdapterArgs,
   CosmosSdkBaseAdapter,
 } from '../CosmosSdkBaseAdapter'
 import { Message, ValidatorAction } from '../types'
+
+export const MIN_FEE = '2500'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet
@@ -275,12 +277,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }: Partial<GetFeeDataInput<KnownChainIds.CosmosMainnet>>): Promise<
     FeeDataEstimate<KnownChainIds.CosmosMainnet>
   > {
+    const gasLimit = '250000'
+    const scalars = { fast: bn(2), average: bn(1.5), slow: bn(1) }
+
     // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.
     // When we find a strategy to make this more dynamic, we can use 'sendMax' to define max amount.
     return {
-      fast: { txFee: '5000', chainSpecific: { gasLimit: '250000' } },
-      average: { txFee: '3500', chainSpecific: { gasLimit: '250000' } },
-      slow: { txFee: '2500', chainSpecific: { gasLimit: '250000' } },
+      fast: { txFee: calcFee(MIN_FEE, 'fast', scalars), chainSpecific: { gasLimit } },
+      average: { txFee: calcFee(MIN_FEE, 'average', scalars), chainSpecific: { gasLimit } },
+      slow: { txFee: calcFee(MIN_FEE, 'slow', scalars), chainSpecific: { gasLimit } },
     }
   }
 

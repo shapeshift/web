@@ -4,8 +4,8 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapterDisplayName } from '../../types'
 import { FeeDataEstimate, GetFeeDataInput } from '../../types'
-import { bn, bnOrZero } from '../../utils/bignumber'
-import { calcFee, ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
+import { bn, bnOrZero, calcFee } from '../../utils'
+import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
 import { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BnbSmartChainMainnet]

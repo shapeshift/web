@@ -1,4 +1,4 @@
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ApproveAmountInput, ApproveInfiniteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
@@ -7,6 +7,7 @@ import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/c
 import { grantAllowance } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { MAX_ALLOWANCE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 const grantAllowanceForAmount = async (
@@ -32,6 +33,16 @@ const grantAllowanceForAmount = async (
     })
   }
 
+  if (!isEvmChainAdapter(adapter)) {
+    throw new SwapError('[grantAllowanceForAmount] - non-EVM chain adapter detected', {
+      code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      details: {
+        chainAdapterName: adapter.getDisplayName(),
+        chainId: adapter.getChainId(),
+      },
+    })
+  }
+
   const approvalQuote: TradeQuote<EvmChainId> = {
     ...quote,
     sellAmountBeforeFeesCryptoBaseUnit: approvalAmountCryptoBaseUnit,
@@ -50,7 +61,7 @@ const grantAllowanceForAmount = async (
   return await grantAllowance({
     quote: approvalQuote,
     wallet,
-    adapter: adapter as unknown as EvmChainAdapter,
+    adapter,
     erc20Abi,
     web3,
   })

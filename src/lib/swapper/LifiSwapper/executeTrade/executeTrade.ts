@@ -1,6 +1,6 @@
 import type Lifi from '@lifi/sdk/dist/Lifi'
 import type { Route } from '@lifi/sdk/dist/types'
-import type { BuildSendTxInput, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { BuildSendTxInput, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
@@ -9,6 +9,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import type { LifiExecuteTradeInput } from 'lib/swapper/LifiSwapper/utils/types'
+import { isEvmChainAdapter } from 'lib/utils'
 
 const createBuildSendTxInput = async (
   lifi: Lifi,
@@ -80,7 +81,15 @@ export const executeTrade = async ({
       })
     }
 
-    const evmChainAdapter = adapter as unknown as EvmChainAdapter
+    if (!isEvmChainAdapter(adapter)) {
+      throw new SwapError('[executeTrade] - non-EVM chain adapter detected', {
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+        details: {
+          chainAdapterName: adapter.getDisplayName(),
+          chainId: adapter.getChainId(),
+        },
+      })
+    }
 
     // We need to refetch the route because the one in getTradeQuote has a different sell amount due to
     // logic surrounding minimumCryptoHuman.
@@ -96,16 +105,16 @@ export const executeTrade = async ({
       selectedRoute,
     )
 
-    const { txToSign } = await evmChainAdapter.buildSendTransaction(buildSendTxInput)
+    const { txToSign } = await adapter.buildSendTransaction(buildSendTxInput)
 
     if (wallet.supportsOfflineSigning()) {
-      const signedTx = await evmChainAdapter.signTransaction({ txToSign, wallet })
+      const signedTx = await adapter.signTransaction({ txToSign, wallet })
 
-      const txid = await evmChainAdapter.broadcastTransaction(signedTx)
+      const txid = await adapter.broadcastTransaction(signedTx)
 
       return { tradeId: txid }
-    } else if (wallet.supportsBroadcast() && evmChainAdapter.signAndBroadcastTransaction) {
-      const txid = await evmChainAdapter.signAndBroadcastTransaction?.({
+    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+      const txid = await adapter.signAndBroadcastTransaction?.({
         txToSign,
         wallet,
       })

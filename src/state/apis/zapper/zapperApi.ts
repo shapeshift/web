@@ -21,7 +21,6 @@ const headers = {
 
 const zapperClient = createApiClient(ZAPPER_BASE_URL)
 
-type GetAppBalancesInput = {}
 type GetAppBalancesOutput = AssetId[]
 
 // https://docs.zapper.xyz/docs/apis/getting-started
@@ -29,7 +28,7 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperUniV2PoolAssetIds: build.query<GetAppBalancesOutput, GetAppBalancesInput>({
+    getZapperUniV2PoolAssetIds: build.query<GetAppBalancesOutput, void>({
       queryFn: async () => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 

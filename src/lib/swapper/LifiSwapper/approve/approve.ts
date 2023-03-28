@@ -3,7 +3,6 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ApproveAmountInput, ApproveInfiniteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { erc20Abi } from '@shapeshiftoss/swapper/dist/swappers/utils/abi/erc20-abi'
-import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { grantAllowance } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { MAX_ALLOWANCE } from 'lib/swapper/LifiSwapper/utils/constants'
@@ -46,16 +45,6 @@ const grantAllowanceForAmount = async (
   const approvalQuote: TradeQuote<EvmChainId> = {
     ...quote,
     sellAmountBeforeFeesCryptoBaseUnit: approvalAmountCryptoBaseUnit,
-    feeData: {
-      ...quote.feeData,
-      chainSpecific: {
-        ...quote.feeData.chainSpecific,
-        // lifi handles approval gas internally but need to set a gas limit so the
-        // approval limit isnt exceeded when the trade is executed.
-        // TODO: see if there is a better way than just hardcoding an arbitrary limit
-        estimatedGas: APPROVAL_GAS_LIMIT,
-      },
-    },
   }
 
   return await grantAllowance({

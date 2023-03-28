@@ -1,3 +1,4 @@
+import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { fromBaseUnit } from 'lib/math'
 import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
@@ -121,4 +122,57 @@ export const handleInputAmountChange =
       },
       false,
       `swapper/handleInputAmountChange`,
+    )
+
+export const handleAssetSelection =
+  (set: SetSwapperStoreAction<SwapperState>): SwapperState['handleAssetSelection'] =>
+  ({ asset, action }) =>
+    set(
+      draft => {
+        const isBuy = action === AssetClickAction.Buy
+        const isSell = action === AssetClickAction.Sell
+        const sellAsset = draft.sellAsset
+        const buyAsset = draft.buyAsset
+        const isSameAsset = asset.assetId === (isBuy ? sellAsset?.assetId : buyAsset?.assetId)
+
+        if (isBuy) {
+          draft.buyAsset = asset
+          draft.buyAmountCryptoPrecision = ''
+          if (isSameAsset) {
+            draft.sellAsset = buyAsset
+            draft.sellAmountCryptoPrecision = ''
+          }
+          draft.selectedBuyAssetAccountId = undefined
+          draft.buyAssetAccountId = undefined
+        }
+
+        if (isSell) {
+          draft.sellAsset = asset
+          draft.sellAmountCryptoPrecision = ''
+          if (isSameAsset) {
+            draft.buyAsset = sellAsset
+            draft.buyAmountCryptoPrecision = ''
+          }
+          draft.selectedSellAssetAccountId = undefined
+          draft.sellAssetAccountId = undefined
+          draft.buyAssetFiatRate = undefined
+          draft.sellAssetFiatRate = undefined
+          draft.feeAssetFiatRate = undefined
+          draft.fees = undefined
+        }
+
+        draft.action = TradeAmountInputField.SELL_FIAT
+        draft.amount = '0'
+        draft.clearAmounts()
+
+        return draft
+      },
+      false,
+      {
+        type: `swapper/handleAssetSelection`,
+        value: {
+          asset,
+          action,
+        },
+      },
     )

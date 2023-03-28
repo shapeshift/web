@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { CowTrade, SwapperWithQuoteMetadata, Trade } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
@@ -37,6 +38,8 @@ type TradeAmounts = {
   fiatBuyAmount?: string
 }
 
+type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
+
 export type SwapperAction = {
   updateSelectedSellAssetAccountId: (accountId: SwapperStore['selectedSellAssetAccountId']) => void
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
@@ -70,6 +73,7 @@ export type SwapperAction = {
   handleSwitchAssets: () => void
   updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
   handleInputAmountChange: () => void
+  handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

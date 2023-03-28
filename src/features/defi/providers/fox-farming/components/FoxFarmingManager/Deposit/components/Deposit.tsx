@@ -8,8 +8,8 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
 import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
+import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -84,7 +84,12 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
   )
 
-  const { getLpTokenPrice } = useFoxEthLiquidityPool(accountId)
+  const { getLpTokenPrice } = useUniV2LiquidityPool({
+    accountId: accountId ?? '',
+    assetId0: foxFarmingOpportunity?.underlyingAssetIds[0] ?? '',
+    assetId1: foxFarmingOpportunity?.underlyingAssetIds[1] ?? '',
+    lpAssetId: underlyingAssetId ?? '',
+  })
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 

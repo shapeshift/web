@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, ethAssetId, foxAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useFoxEthLiquidityPool } from 'features/defi/providers/fox-eth-lp/hooks/useFoxEthLiquidityPool'
+import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -25,7 +25,7 @@ import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -35,10 +35,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxEthLpDepositActionType } from '../DepositCommon'
+import { UniV2DepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['FoxEthLpDeposit:Confirm'] })
+const moduleLogger = logger.child({ namespace: ['UniV2Deposit:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -48,33 +48,45 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const mixpanel = getMixPanel()
   const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { addLiquidity } = useFoxEthLiquidityPool(lpAccountId)
-  const foxEthLpOpportunityFilter = useMemo(
+  const { chainId, assetNamespace, assetReference } = query
+
+  const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
+
+  const lpOpportunityFilter = useMemo(
     () => ({
-      lpId: foxEthLpAssetId,
-      assetId: foxEthLpAssetId,
+      lpId: lpAssetId as LpId,
+      assetId: lpAssetId,
       accountId,
     }),
-    [accountId],
+    [accountId, lpAssetId],
   )
-  const foxEthLpOpportunity = useAppSelector(state =>
-    selectEarnUserLpOpportunity(state, foxEthLpOpportunityFilter),
+  const lpOpportunity = useAppSelector(state =>
+    selectEarnUserLpOpportunity(state, lpOpportunityFilter),
   )
-  const { chainId, assetReference } = query
+
+  const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
+  const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
+
+  const { addLiquidity } = useUniV2LiquidityPool({
+    accountId: lpAccountId ?? '',
+    assetId0,
+    assetId1,
+    lpAssetId,
+  })
 
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
-  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
+  const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
   const assets = useAppSelector(selectAssets)
 
-  if (!foxAsset) throw new Error(`Asset not found for AssetId ${foxAssetId}`)
-  if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
+  if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
+  if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   // user info
@@ -93,7 +105,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceCryptoHuman)
     .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
-    .minus(bnOrZero(state?.deposit.ethCryptoAmount))
+    .minus(bnOrZero(state?.deposit.asset0CryptoAmount))
     .gte(0)
 
   useEffect(() => {
@@ -107,29 +119,27 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const handleDeposit = async () => {
     try {
       if (
-        !(
-          assetReference &&
-          walletState.wallet &&
-          supportsETH(walletState.wallet) &&
-          foxEthLpOpportunity
-        )
+        !(assetReference && walletState.wallet && supportsETH(walletState.wallet) && lpOpportunity)
       )
         return
 
-      dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(state.deposit.ethCryptoAmount, state.deposit.foxCryptoAmount)
+      dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: true })
+      const txid = await addLiquidity(
+        state.deposit.asset0CryptoAmount,
+        state.deposit.asset1CryptoAmount,
+      )
       if (!txid) throw new Error('addLiquidity failed')
-      dispatch({ type: FoxEthLpDepositActionType.SET_TXID, payload: txid })
+      dispatch({ type: UniV2DepositActionType.SET_TXID, payload: txid })
       onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvents.DepositConfirm,
         {
-          opportunity: foxEthLpOpportunity,
-          fiatAmounts: [state.deposit.ethFiatAmount, state.deposit.foxFiatAmount],
+          opportunity: lpOpportunity,
+          fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
           cryptoAmounts: [
-            { assetId: ethAssetId, amountCryptoHuman: state.deposit.ethCryptoAmount },
-            { assetId: foxAssetId, amountCryptoHuman: state.deposit.foxCryptoAmount },
+            { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
+            { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },
           ],
         },
         assets,
@@ -143,7 +153,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         status: 'error',
       })
     } finally {
-      dispatch({ type: FoxEthLpDepositActionType.SET_LOADING, payload: false })
+      dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -167,20 +177,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={foxAsset.icon} />
-              <RawText>{foxAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.foxCryptoAmount} symbol={foxAsset.symbol} />
+              <Amount.Crypto value={state.deposit.asset1CryptoAmount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={ethAsset.icon} />
-              <RawText>{ethAsset.name}</RawText>
+              <AssetIcon size='xs' src={asset0.icon} />
+              <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.ethCryptoAmount} symbol={ethAsset.symbol} />
+              <Amount.Crypto value={state.deposit.asset0CryptoAmount} symbol={asset0.symbol} />
             </Row.Value>
           </Row>
         </Row>

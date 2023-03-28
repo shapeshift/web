@@ -4,7 +4,7 @@ import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
 import { invert } from 'lodash'
 import { z } from 'zod'
 
-export enum SupportedZapperNetworksEnum {
+export enum SupportedZapperNetwork {
   Ethereum = 'ethereum',
   // Polygon = 'polygon',
   Optimism = 'optimism',
@@ -22,26 +22,24 @@ export enum SupportedZapperNetworksEnum {
   // Evmos = 'evmos',
 }
 
-export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<
-  Record<SupportedZapperNetworksEnum, ChainId>
-> = {
-  [SupportedZapperNetworksEnum.Avalanche]: avalancheChainId,
-  [SupportedZapperNetworksEnum.BinanceSmartChain]: bscChainId,
-  [SupportedZapperNetworksEnum.Ethereum]: ethChainId,
-  [SupportedZapperNetworksEnum.Optimism]: optimismChainId,
+export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<Record<SupportedZapperNetwork, ChainId>> = {
+  [SupportedZapperNetwork.Avalanche]: avalancheChainId,
+  [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
+  [SupportedZapperNetwork.Ethereum]: ethChainId,
+  [SupportedZapperNetwork.Optimism]: optimismChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
-  Record<ChainId, SupportedZapperNetworksEnum>
+  Record<ChainId, SupportedZapperNetwork>
 >
 
-export const zapperNetworkToChainId = (network: SupportedZapperNetworksEnum): ChainId | undefined =>
+export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId | undefined =>
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]
 
-export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetworksEnum | undefined =>
+export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>
   CHAIN_ID_TO_ZAPPER_NETWORK_MAP[chainId]
 
-const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetworksEnum)
+const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetwork)
 
 const ZerionDisplayValue = z.union([
   z.object({
@@ -393,7 +391,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
       },
     ],
     response: z.void(),
@@ -452,7 +450,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
       },
     ],
     response: z.void(),
@@ -473,7 +471,7 @@ const endpoints = makeApi([
       {
         name: 'network',
         type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetworksEnum.Ethereum),
+        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
       },
       {
         name: 'eip1559',

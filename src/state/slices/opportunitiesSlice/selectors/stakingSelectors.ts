@@ -166,17 +166,6 @@ export const selectUserStakingOpportunitiesAggregatedByFilterFiat = createSelect
     stakingBalanceCryptoBaseUnit.div(bn(10).pow(asset?.precision ?? 1)).times(marketData.price),
 )
 
-// "Give me all the staking opportunities this AccountId has", so I can get their metadata and their data from the slice
-export const selectStakingOpportunityIdsByAccountId = createDeepEqualOutputSelector(
-  selectStakingOpportunitiesByAccountId,
-  selectAccountIdParamFromFilter,
-  (stakingIdsByAccountId, accountId): StakingId[] => {
-    if (!accountId) return []
-
-    return stakingIdsByAccountId[accountId] ?? []
-  },
-)
-
 export const selectDeserializedStakingIdFromUserStakingIdParam = createSelector(
   selectUserStakingIdParamFromFilter,
   (userStakingId): StakingId => {
@@ -239,8 +228,8 @@ export const selectHasClaimByUserStakingId = createSelector(
   selectUserStakingOpportunityByUserStakingId,
   (userStakingOpportunity): boolean =>
     Boolean(
-      userStakingOpportunity?.rewardsCryptoBaseUnit.claimable &&
-        userStakingOpportunity?.rewardsCryptoBaseUnit.amounts.some(rewardAmount =>
+      userStakingOpportunity?.rewardsCryptoBaseUnit?.claimable &&
+        userStakingOpportunity?.rewardsCryptoBaseUnit?.amounts.some(rewardAmount =>
           bnOrZero(rewardAmount).gt(0),
         ),
     ),
@@ -283,37 +272,6 @@ export const selectUserStakingOpportunitiesByStakingId = createDeepEqualOutputSe
     }, {}),
 )
 
-// "Give me the staking values of all my accounts for that specific opportunity"
-export const selectUserStakingOpportunitiesFromStakingId = createDeepEqualOutputSelector(
-  selectUserStakingOpportunitiesById,
-  selectStakingIdParamFromFilter,
-  selectUserStakingIds,
-  selectStakingOpportunitiesById,
-  (
-    userStakingOpportunities,
-    stakingId,
-    userStakingOpportunityIds,
-    stakingOpportunities,
-  ): UserStakingOpportunityWithMetadata[] => {
-    if (!stakingId) return []
-    // Filter out only the user data for this specific opportunity
-    const filteredUserStakingOpportunityIds = userStakingOpportunityIds.filter(userStakingId =>
-      filterUserStakingIdByStakingIdCompareFn(userStakingId, stakingId),
-    )
-
-    if (!userStakingOpportunityIds.length) return []
-
-    return filteredUserStakingOpportunityIds
-      .map(userStakingId => {
-        const opportunityData = userStakingOpportunities[userStakingId]
-        const opportunityMetadata = stakingOpportunities[stakingId]
-        if (!opportunityData || !opportunityMetadata) return undefined
-        return Object.assign({}, opportunityMetadata, opportunityData, { userStakingId })
-      })
-      .filter(isSome)
-  },
-)
-
 const getAggregatedUserStakingOpportunityByStakingId = (
   userStakingOpportunities: UserStakingOpportunityWithMetadata[],
 ): UserStakingOpportunityWithMetadata | undefined => {
@@ -329,9 +287,9 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         .toFixed()
 
       const rewardsCryptoBaseUnit = {
-        amounts: userStakingOpportunity.rewardsCryptoBaseUnit.amounts.map((amount, i) =>
-          bnOrZero(acc?.rewardsCryptoBaseUnit.amounts[i]).plus(amount).toString(),
-        ) as [string, string] | [string] | [],
+        amounts: (userStakingOpportunity.rewardsCryptoBaseUnit?.amounts.map((amount, i) =>
+          bnOrZero(acc?.rewardsCryptoBaseUnit?.amounts[i]).plus(amount).toString(),
+        ) ?? []) as [string, string] | [string] | [],
         // This aggregates by StakingId, meaning this is the same opportunity over multiple amounts
         // Same rewards AssetIds, same arity etc
         claimable: userStakingOpportunity.isClaimableRewards,
@@ -576,32 +534,6 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       })
     },
   )
-
-// All opportunities, across all accounts, aggregated into one
-// TODO: testme
-export const selectAggregatedEarnUserStakingOpportunity = createDeepEqualOutputSelector(
-  selectAggregatedEarnUserStakingOpportunities,
-  selectAssets,
-  (earnOpportunities, assets): StakingEarnOpportunityType | undefined =>
-    earnOpportunities.reduce<StakingEarnOpportunityType | undefined>((acc, currentOpportunity) => {
-      const asset = assets[currentOpportunity.assetId]
-      const underlyingAsset = assets[currentOpportunity.underlyingAssetId]
-
-      return Object.assign({}, acc, currentOpportunity, {
-        cryptoAmountBaseUnit: bnOrZero(currentOpportunity.stakedAmountCryptoBaseUnit)
-          .plus(acc?.stakedAmountCryptoBaseUnit ?? 0)
-          .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-          .toString(),
-        fiatAmount: bnOrZero(currentOpportunity?.rewardsCryptoBaseUnit?.amounts[0])
-          .plus(acc?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
-          .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-          .toString(),
-        stakedAmountCryptoBaseUnit: bnOrZero(currentOpportunity.stakedAmountCryptoBaseUnit)
-          .plus(acc?.stakedAmountCryptoBaseUnit ?? 0)
-          .toString(),
-      })
-    }, undefined),
-)
 
 // A staking opportunity parsed as an EarnOpportunityType
 // TODO: testme

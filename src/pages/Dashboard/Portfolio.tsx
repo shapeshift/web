@@ -20,6 +20,7 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
+  selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -36,11 +37,19 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const earnBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
+  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
   const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsFiatBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  )
   const totalBalance = useMemo(
-    () => bnOrZero(earnBalance).plus(portfolioTotalFiatBalance).toFixed(),
-    [earnBalance, portfolioTotalFiatBalance],
+    () =>
+      bnOrZero(earnFiatBalance)
+        .plus(portfolioTotalFiatBalance)
+        .plus(claimableRewardsFiatBalance)
+        .toFixed(),
+    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
   )
 
   const loading = useAppSelector(selectPortfolioLoading)

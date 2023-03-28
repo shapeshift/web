@@ -52,7 +52,7 @@ const Menu = ({ routes, level }: MenuProps) => {
   if (!routeList?.length) return null
   return (
     <Box borderBottom='1px' borderColor={borderColor} bg={bg} data-level={level}>
-      <Container maxW='container.xl'>
+      <Container maxW='container.xl' px={{ base: 4, xl: 8 }}>
         <HStack>{routeList}</HStack>
       </Container>
     </Box>

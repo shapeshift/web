@@ -56,6 +56,14 @@ export const Routes = () => {
     connectDemo,
   ])
 
+  // Most routes should be stable and not re-render when the location changes
+  // However, some routes are unstable and should actually re-render when location.pathname reference changes
+  // Which happens both on actual route change, or when the same route gets pushed
+  const unstableRoutes = useMemo(() => ['/trade'], [])
+  const isUnstableRoute = useMemo(
+    () => unstableRoutes.some(route => location.pathname.includes(route)),
+    [location.pathname, unstableRoutes],
+  )
   /**
    * Memoize the route list to avoid unnecessary cascading re-renders
    * It should only re-render if the wallet changes
@@ -65,12 +73,19 @@ export const Routes = () => {
       appRoutes.map(route => {
         const MainComponent = route.main
         return (
-          <PrivateRoute key={'privateRoute'} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute
+            key={isUnstableRoute ? Date.now() : 'privateRoute'}
+            path={route.path}
+            exact
+            hasWallet={hasWallet}
+          >
             <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )
       }),
-    [appRoutes, hasWallet],
+    // We *actually* want to be reactive on the location.pathname reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [appRoutes, hasWallet, isUnstableRoute, location],
   )
 
   return (

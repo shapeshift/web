@@ -46,7 +46,10 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectCryptoMarketData)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+
+  const filteredDown = lpOpportunities.filter(
+    e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+  )
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {

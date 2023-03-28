@@ -85,7 +85,9 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredDown = stakingOpportunities.filter(
+    e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
+  )
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
@@ -225,10 +227,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             assets,
             marketData,
           })
-          const hasRewardBalance = bnOrZero(fiatAmount).gt(0)
-          return hasRewardBalance && row.original.isClaimableRewards ? (
+          const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
+          return hasRewardsBalance && row.original.isClaimableRewards ? (
             <Button
-              isDisabled={!hasRewardBalance}
+              isDisabled={!hasRewardsBalance}
               variant='ghost-filled'
               colorScheme='green'
               size='sm'

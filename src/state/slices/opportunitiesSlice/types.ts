@@ -45,6 +45,7 @@ export type OpportunityMetadataBase = {
   isClaimableRewards: boolean
   // claimableRewards: boolean
   expired?: boolean
+  active?: boolean
   name: string
   version?: string
   tags?: string[]
@@ -164,6 +165,7 @@ type EarnOpportunityTypeBase = {
   cryptoAmountPrecision: string
   cryptoAmountBaseUnit: string
   expired?: boolean
+  active?: boolean
   chainId: ChainId
   showAssetSymbol?: boolean
   isLoaded: boolean

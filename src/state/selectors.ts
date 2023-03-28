@@ -33,6 +33,8 @@ type ParamFilter = Partial<{
   defiProvider: DefiProvider
   defiType: DefiType
   queryStatus: QueryStatus
+  includeEarnBalances: boolean
+  includeRewardsBalances: boolean
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -58,3 +60,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
+export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
+export const selectIncludeRewardsBalancesParamFromFilter =
+  selectParamFromFilter('includeRewardsBalances')

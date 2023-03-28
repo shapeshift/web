@@ -1,5 +1,5 @@
-import { ArrowDownIcon, ArrowUpIcon, Search2Icon } from '@chakra-ui/icons'
-import { Avatar, Circle, Flex, IconButton, Tag, useColorModeValue } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Avatar, Flex, IconButton, Tag } from '@chakra-ui/react'
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
@@ -9,7 +9,7 @@ import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ProviderDetails } from 'components/EarnDashboard/components/ProviderDetails/ProviderDetails'
 import { ReactTable } from 'components/ReactTable/ReactTable'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -17,6 +17,9 @@ import {
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { ResultsEmpty } from './ResultsEmpty'
+import { SearchEmpty } from './SearchEmpty'
 
 export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
 
@@ -36,40 +39,25 @@ const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
   )
 }
 
-const ResultsEmpty = ({ searchQuery }: { searchQuery?: string }) => {
-  const bgColor = useColorModeValue('gray.100', 'gray.750')
-  return (
-    <Flex p={6} textAlign='center' alignItems='center' width='full' flexDir='column' gap={4}>
-      <Flex>
-        <Circle bg={bgColor} size='40px'>
-          <Search2Icon />
-        </Circle>
-      </Flex>
-      <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
-        <Text
-          fontWeight='bold'
-          fontSize='lg'
-          letterSpacing='0.02em'
-          translation='common.noResultsFound'
-        />
-        <Text
-          color='gray.500'
-          letterSpacing='0.012em'
-          translation={['common.noResultsBody', { searchQuery: `"${searchQuery}"` }]}
-        />
-      </Flex>
-    </Flex>
-  )
-}
-
-type PositionTableProps = {
+export type ProviderTableProps = {
   searchQuery: string
+  includeEarnBalances?: boolean
+  includeRewardsBalances?: boolean
 }
 
-export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => {
+export const ProviderTable: React.FC<ProviderTableProps> = ({
+  includeEarnBalances,
+  includeRewardsBalances,
+  searchQuery,
+}) => {
   const translate = useTranslate()
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const providers = useAppSelector(selectAggregatedEarnOpportunitiesByProvider)
+  const providers = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByProvider(state, {
+      includeEarnBalances,
+      includeRewardsBalances,
+    }),
+  )
 
   const columns: Column<AggregatedOpportunitiesByProviderReturn>[] = useMemo(
     () => [
@@ -172,7 +160,9 @@ export const ProviderTable: React.FC<PositionTableProps> = ({ searchQuery }) => 
       renderSubComponent={({ original }) => (
         <ProviderDetails key={original.provider} {...original} />
       )}
-      renderEmptyComponent={() => <ResultsEmpty searchQuery={searchQuery} />}
+      renderEmptyComponent={() =>
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+      }
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />
   )

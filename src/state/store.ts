@@ -10,6 +10,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { zapperApi } from './apis/zapper/zapperApi'
+import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
@@ -40,6 +41,7 @@ const apiMiddleware = [
   zapperApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
+  zerionApi.middleware,
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

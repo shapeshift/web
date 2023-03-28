@@ -29,6 +29,7 @@ export const mockStore: ReduxState = {
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  zerionApi: mockApiFactory('zerionApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -63,7 +64,6 @@ export const mockStore: ReduxState = {
       ThorSwap: false,
       Cowswap: false,
       IdleFinance: false,
-      IdleFinanceDeposits: false,
       Axelar: false,
       Yat: false,
       WalletConnectToDapps: false,
@@ -71,7 +71,6 @@ export const mockStore: ReduxState = {
       Wherever: false,
       SaversVaults: false,
       Yearn: false,
-      DefiAggregation: false,
       DefiDashboard: false,
       ArkeoAirdrop: false,
       TradeRates: false,

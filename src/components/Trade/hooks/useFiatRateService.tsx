@@ -24,7 +24,7 @@ export const useFiatRateService = () => {
   const [usdRatesArgs, setUsdRatesArgs] = useState<UsdRatesInputArgs>(skipToken)
 
   // Selectors
-  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate).toString()
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
   const sellAsset = useSwapperStore(state => state.sellAsset)
   const buyAsset = useSwapperStore(state => state.buyAsset)
   const sellTradeAssetId = sellAsset?.assetId

@@ -100,8 +100,12 @@ export const TradeInput = () => {
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
-  const beforeFeesBuyAsset = useSwapperStore(selectBuyAmountBeforeFeesBuyAssetCryptoPrecision)
-  const totalTradeFeeBuyAsset = useSwapperStore(selectTotalTradeFeeBuyAssetCryptoPrecision)
+  const buyAmountBeforeFeesBuyAssetCryptoPrecision = useSwapperStore(
+    selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  )
+  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
+    selectTotalTradeFeeBuyAssetCryptoPrecision,
+  )
 
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
@@ -180,8 +184,6 @@ export const TradeInput = () => {
     },
     [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
-
-  const handleToggle = useCallback(() => handleSwitchAssets(), [handleSwitchAssets])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return
@@ -460,7 +462,7 @@ export const TradeInput = () => {
               label={translate('trade.from')}
             />
             <IconButton
-              onClick={handleToggle}
+              onClick={handleSwitchAssets}
               isRound
               mx={{ base: 0, md: -3 }}
               my={{ base: -3, md: 0 }}
@@ -547,8 +549,8 @@ export const TradeInput = () => {
               isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
               symbol={buyAsset?.symbol ?? ''}
               amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={beforeFeesBuyAsset ?? ''}
-              protocolFee={totalTradeFeeBuyAsset ?? ''}
+              beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}
+              protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
               shapeShiftFee='0'
               slippage={slippage}
               swapperName={swapperName}

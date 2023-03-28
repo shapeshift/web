@@ -143,7 +143,6 @@ const ZerionV2AppBalance = z.object({
 })
 
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
-
 const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)
 
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)

@@ -22,8 +22,7 @@ const headers = {
 const zapperClient = createApiClient(ZAPPER_BASE_URL)
 
 type GetAppBalancesInput = {}
-
-export type GetAppBalancesOutput = AssetId[]
+type GetAppBalancesOutput = AssetId[]
 
 // https://docs.zapper.xyz/docs/apis/getting-started
 export const zapperApi = createApi({
@@ -32,7 +31,6 @@ export const zapperApi = createApi({
   endpoints: build => ({
     getZapperUniV2PoolAssetIds: build.query<GetAppBalancesOutput, GetAppBalancesInput>({
       queryFn: async () => {
-        // Refresh job
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
         const zerionV2AppTokensData = await zapperClient.getV2AppTokens({
@@ -44,7 +42,7 @@ export const zapperApi = createApi({
           paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
           queries: {
             groupId: 'pool',
-            networks: evmNetworks, // TODO: programmatic
+            networks: evmNetworks,
           },
         })
 
@@ -55,8 +53,6 @@ export const zapperApi = createApi({
             assetReference: appTokenData.address,
           }),
         )
-
-        console.log({ data })
 
         return { data }
       },

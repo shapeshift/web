@@ -78,6 +78,7 @@ export const mockStore: ReduxState = {
       LiveSupport: false,
       LifiSwap: false,
       FoxBondCTA: false,
+      DynamicLPAssets: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

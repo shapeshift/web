@@ -87,7 +87,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }
 
-  const handleClearCacheClick = async () => {
+  const handleClearCacheClick = useCallback(async () => {
     try {
       // clear store
       await persistor.purge()
@@ -96,7 +96,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
       // reload the page
       window.location.reload()
     } catch (e) {}
-  }
+  }, [appHistory])
 
   return (
     <SlideTransition>

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useState } from 'react'
-import { FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
+import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
@@ -32,7 +32,7 @@ import {
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { persistor, useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -85,6 +85,17 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
         mobileLogger.error(e, 'Error deleting wallets')
       }
     }
+  }
+
+  const handleClearCacheClick = async () => {
+    try {
+      // clear store
+      await persistor.purge()
+      // send them back to dashboard in case the bug was something to do with the current page
+      appHistory.replace('/')
+      // reload the page
+      window.location.reload()
+    } catch (e) {}
   }
 
   return (
@@ -152,6 +163,13 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
           >
             <BalanceThresholdInput />
           </SettingsListItem>
+          <Divider my={1} />
+          <SettingsListItem
+            label='modals.settings.clearCache'
+            icon={<Icon as={FaBroom} color='gray.500' />}
+            tooltipText='modals.settings.clearCacheTooltip'
+            onClick={handleClearCacheClick}
+          />
           <Divider my={1} />
           <SettingsListItem
             label='common.terms'

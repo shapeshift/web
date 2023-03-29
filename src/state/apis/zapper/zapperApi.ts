@@ -75,6 +75,8 @@ export const zapperApi = createApi({
               symbol: appTokenData.symbol,
               name: appTokenData.displayProps.label,
               precision: appTokenData.decimals,
+              // TODO: introspect underlying assets if they exist, and display WETH as ETH
+              icons: appTokenData.displayProps.images,
             })
             acc.ids.push(assetId)
             return acc

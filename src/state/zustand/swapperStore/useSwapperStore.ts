@@ -8,7 +8,6 @@ import {
   handleInputAmountChange,
   handleSwitchAssets,
   toggleIsExactAllowance,
-  updateTradeAmounts,
 } from 'state/zustand/swapperStore/actions'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
@@ -49,7 +48,6 @@ export const useSwapperStore = (() => {
           updateBuyAsset: createUpdateAction(set, 'buyAsset'),
           updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
           updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
-          updateTradeAmounts: updateTradeAmounts(set),
           clearAmounts: clearAmounts(set),
           updateAmount: createUpdateAction(set, 'amount'),
           updateIsExactAllowance: createUpdateAction(set, 'isExactAllowance'),

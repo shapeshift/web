@@ -4,29 +4,6 @@ import { fromBaseUnit } from 'lib/math'
 import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
-export const updateTradeAmounts =
-  (set: SetSwapperStoreAction<SwapperState>): SwapperState['updateTradeAmounts'] =>
-  ({ fiatSellAmount, fiatBuyAmount, buyAmountCryptoPrecision, sellAmountCryptoPrecision }) =>
-    set(
-      draft => {
-        if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
-        if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
-        if (buyAmountCryptoPrecision) draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
-        if (sellAmountCryptoPrecision) draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision
-        return draft
-      },
-      false,
-      {
-        type: `swapper/updateTradeAmounts`,
-        value: {
-          fiatSellAmount,
-          fiatBuyAmount,
-          buyAmountCryptoPrecision,
-          sellAmountCryptoPrecision,
-        },
-      },
-    )
-
 export const toggleIsExactAllowance =
   (set: SetSwapperStoreAction<SwapperState>): SwapperState['toggleIsExactAllowance'] =>
   () =>

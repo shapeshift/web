@@ -33,7 +33,6 @@ const mockActions: SwapperAction = {
   updateSellAssetAccountId(): void {},
   updateSellAssetFiatRate(): void {},
   updateTrade(): void {},
-  updateTradeAmounts(): void {},
   handleAssetSelection(): void {},
 }
 

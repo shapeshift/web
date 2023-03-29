@@ -31,13 +31,6 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedCurrencyToUsdRate?: string
 }
 
-type TradeAmounts = {
-  buyAmountCryptoPrecision?: string
-  sellAmountCryptoPrecision?: string
-  fiatSellAmount?: string
-  fiatBuyAmount?: string
-}
-
 type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
 
 export type SwapperAction = {
@@ -50,7 +43,6 @@ export type SwapperAction = {
   updateSellAssetFiatRate: (sellAssetFiatRate: SwapperStore['sellAssetFiatRate']) => void
   updateBuyAssetFiatRate: (buyAssetFiatRate: SwapperStore['buyAssetFiatRate']) => void
   updateFeeAssetFiatRate: (feeAssetFiatRate: SwapperStore['feeAssetFiatRate']) => void
-  updateTradeAmounts: (tradeAmounts: TradeAmounts) => void
   clearAmounts: () => void
   updateAction: (action: SwapperStore['action']) => void
   updateIsExactAllowance: (isExactAllowance: SwapperStore['isExactAllowance']) => void

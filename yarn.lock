@@ -6693,6 +6693,11 @@
   resolved "https://registry.yarnpkg.com/@zag-js/focus-visible/-/focus-visible-0.1.0.tgz#9777bbaff8316d0b3a14a9095631e1494f69dbc7"
   integrity sha512-PeaBcTmdZWcFf7n1aM+oiOdZc+sy14qi0emPIeUuGMTjbP0xLGrZu43kdpHnWSXy7/r4Ubp/vlg50MCV8+9Isg==
 
+"@zodios/core@^10.8.0":
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/@zodios/core/-/core-10.8.0.tgz#397f499ee38a6a2fc31431145d41a0a6858302b5"
+  integrity sha512-e2nGu3OVQWcLCoc+Sx2+Jp8RbDarqPuzY5Ebwv3MQziFVMugGd65F3yV1Lmtpu17FPfAhKHh8zy8xRJBo1NewA==
+
 "@zxing/text-encoding@0.9.0", "@zxing/text-encoding@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@zxing/text-encoding/-/text-encoding-0.9.0.tgz#fb50ffabc6c7c66a0c96b4c03e3d9be74864b70b"

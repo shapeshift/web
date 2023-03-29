@@ -62,9 +62,11 @@ export const resolveYat: ResolveYat = async args => {
     const maybeAddress = (() => {
       switch (assetId) {
         case USDC_ASSET_ID: {
-          if (!maybeUSDCData) return ''
           // USDC|USD Coin|ETH|D4f520a44cdB0f123108b187Fac9D0009104f8e9|test|
-          return maybeUSDCData.data.split('|')[3]
+          if (maybeUSDCData) return maybeUSDCData.data.split('|')[3]
+          // if no USDC address, fall back to ETH
+          if (maybeETHData) return maybeETHData.data.split('|')[0]
+          return ''
         }
         default: {
           if (!maybeETHData) return ''

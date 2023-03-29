@@ -4,6 +4,8 @@ import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import { assets, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 
 import {
   chainIdToZapperNetwork,
@@ -35,7 +37,7 @@ export const zapperApi = createApi({
   reducerPath: 'zapperApi',
   endpoints: build => ({
     getZapperUniV2PoolAssetIds: build.query<GetAppBalancesOutput, void>({
-      queryFn: async () => {
+      queryFn: async (_, { dispatch }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
         const zerionV2AppTokensData = await zapperClient.getV2AppTokens({
@@ -59,6 +61,28 @@ export const zapperApi = createApi({
             assetReference: appTokenData.address,
           }),
         )
+
+        const zapperAssets = zerionV2AppTokensData.reduce<AssetsState>(
+          (acc, appTokenData) => {
+            const assetId = toAssetId({
+              chainId: zapperNetworkToChainId(appTokenData.network)!,
+              assetNamespace: 'erc20', // TODO: bep20
+              assetReference: appTokenData.address,
+            })
+
+            acc.byId[assetId] = makeAsset({
+              assetId,
+              symbol: appTokenData.symbol,
+              name: appTokenData.displayProps.label,
+              precision: appTokenData.decimals,
+            })
+            acc.ids.push(assetId)
+            return acc
+          },
+          { byId: {}, ids: [] },
+        )
+
+        dispatch(assets.actions.upsertAssets(zapperAssets))
 
         return { data }
       },

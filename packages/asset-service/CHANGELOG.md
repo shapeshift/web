@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v8.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.11.2...@shapeshiftoss/asset-service-v8.12.0) (2023-03-29)
+
+
+### Features
+
+* optional icons property in Asset type ([#1229](https://github.com/shapeshift/lib/issues/1229)) ([10e9c9c](https://github.com/shapeshift/lib/commit/10e9c9c01800e93c4cb91a3e6a76012c167b33b8))
+
 # [@shapeshiftoss/asset-service-v8.11.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.11.1...@shapeshiftoss/asset-service-v8.11.2) (2023-03-29)
 
 # [@shapeshiftoss/asset-service-v8.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v8.11.0...@shapeshiftoss/asset-service-v8.11.1) (2023-03-22)

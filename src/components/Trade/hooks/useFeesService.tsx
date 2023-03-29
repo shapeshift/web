@@ -1,3 +1,4 @@
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,11 +12,13 @@ The only mutation is on Swapper State's fees property.
 export const useFeesService = () => {
   // Selectors
   const sellAsset = useSwapperStore(selectSellAsset)
-  const sellFeeAsset = useAppSelector(state => selectFeeAssetById(state, sellAsset?.assetId ?? ''))
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
+  )
   const updateFees = useSwapperStore(state => state.updateFees)
   const trade = useSwapperStore(selectTrade)
 
-  if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
-
-  useEffect(() => updateFees(sellFeeAsset), [updateFees, trade, sellFeeAsset])
+  useEffect(() => {
+    sellFeeAsset && updateFees(sellFeeAsset)
+  }, [updateFees, trade, sellFeeAsset, sellAsset?.assetId])
 }

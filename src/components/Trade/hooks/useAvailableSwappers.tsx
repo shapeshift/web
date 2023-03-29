@@ -83,8 +83,7 @@ export const useAvailableSwappers = () => {
     const activeSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
     updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
     updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
-    if (!feeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
-    updateFees(feeAsset)
+    feeAsset && updateFees(feeAsset)
   }, [
     feeAsset,
     sellAsset?.assetId,

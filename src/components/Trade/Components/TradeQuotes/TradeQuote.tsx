@@ -7,6 +7,7 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -84,7 +85,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
-  const sellFeeAsset = useAppSelector(state => selectFeeAssetById(state, sellAsset?.assetId ?? ''))
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
+  )
   const amount = useSwapperStore(selectAmount)
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,

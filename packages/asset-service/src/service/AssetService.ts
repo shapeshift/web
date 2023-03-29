@@ -19,6 +19,7 @@ export type Asset = {
   color: string
   networkColor?: string
   icon: string
+  icons?: string[]
   networkIcon?: string
   explorer: string
   explorerTxLink: string

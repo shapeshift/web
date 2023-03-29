@@ -17,6 +17,7 @@ import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -42,7 +43,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  selectFeatureFlags,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -74,7 +74,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const featureFlags = useSelector(selectFeatureFlags)
+  const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
@@ -174,7 +174,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
-      if (featureFlags.DynamicLPAssets) {
+      if (DynamicLpAssets) {
         await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate())
       }
       await fetchAllOpportunitiesIds()
@@ -227,7 +227,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     portfolioAssetIds,
     wallet,
     requestedAccountIds,
-    featureFlags.DynamicLPAssets,
+    DynamicLpAssets,
   ])
 
   // once the portfolio is loaded, fetch market data for all portfolio assets

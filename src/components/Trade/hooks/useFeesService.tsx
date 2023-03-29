@@ -1,6 +1,4 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
-import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { selectQuote, selectSellAsset, selectTrade } from 'state/zustand/swapperStore/selectors'
@@ -15,24 +13,14 @@ export const useFeesService = () => {
   const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const activeQuote = useSwapperStore(selectQuote)
   const sellAsset = useSwapperStore(selectSellAsset)
-  const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
-  )
+  const sellFeeAsset = useAppSelector(state => selectFeeAssetById(state, sellAsset?.assetId ?? ''))
   const updateFees = useSwapperStore(state => state.updateFees)
   const trade = useSwapperStore(selectTrade)
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
-  useEffect(() => {
-    const feeTrade = trade ?? activeQuote
-    if (sellAsset && activeTradeSwapper && feeTrade) {
-      const formFees = getFormFees({
-        trade: feeTrade,
-        sellAsset,
-        tradeFeeSource: activeTradeSwapper.name,
-        feeAsset: sellFeeAsset,
-      })
-      updateFees(formFees)
-    }
-  }, [activeTradeSwapper, activeQuote, sellAsset, sellFeeAsset, trade, updateFees])
+  useEffect(
+    () => updateFees(sellFeeAsset),
+    [sellFeeAsset, updateFees, activeQuote, activeTradeSwapper, trade],
+  )
 }

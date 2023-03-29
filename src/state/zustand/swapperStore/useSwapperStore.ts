@@ -8,6 +8,7 @@ import {
   handleInputAmountChange,
   handleSwitchAssets,
   toggleIsExactAllowance,
+  updateFees,
 } from 'state/zustand/swapperStore/actions'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
@@ -55,7 +56,7 @@ export const useSwapperStore = (() => {
           updateAction: createUpdateAction(set, 'action'),
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
-          updateFees: createUpdateAction(set, 'fees'),
+          updateFees: updateFees(set),
           updateTrade: createUpdateAction(set, 'trade'),
           updateActiveSwapperWithMetadata: createUpdateAction(set, 'activeSwapperWithMetadata'),
           updateAvailableSwappersWithMetadata: createUpdateAction(

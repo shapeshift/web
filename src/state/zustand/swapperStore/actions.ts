@@ -1,7 +1,10 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
+import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { fromBaseUnit } from 'lib/math'
 import { selectTradeAmountsByActionAndAmount } from 'state/zustand/swapperStore/amountSelectors'
+import { selectQuote } from 'state/zustand/swapperStore/selectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 export const toggleIsExactAllowance =
@@ -148,3 +151,25 @@ export const handleAssetSelection =
         },
       },
     )
+
+export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFeeAsset: Asset) =>
+  set(
+    draft => {
+      const feeTrade = draft.trade ?? selectQuote(draft)
+      const sellAsset = draft.sellAsset
+      const activeTradeSwapper = draft.activeSwapperWithMetadata?.swapper
+      if (sellAsset && activeTradeSwapper && feeTrade) {
+        const fees = getFormFees({
+          trade: feeTrade,
+          sellAsset,
+          tradeFeeSource: activeTradeSwapper.name,
+          feeAsset: sellFeeAsset,
+        })
+
+        draft.fees = fees
+      }
+      return draft
+    },
+    false,
+    `swapper/updateFees`,
+  )

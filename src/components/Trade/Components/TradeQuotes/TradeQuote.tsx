@@ -15,7 +15,7 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
   selectAmount,
@@ -84,18 +84,28 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const sellFeeAsset = useAppSelector(state => selectFeeAssetById(state, sellAsset?.assetId ?? ''))
   const amount = useSwapperStore(selectAmount)
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )
+  const updateFees = useSwapperStore(state => state.updateFees)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
 
   const handleSwapperSelection = useCallback(
     (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
       updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
+      if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
+      updateFees(sellFeeAsset)
       handleInputAmountChange()
     },
-    [handleInputAmountChange, updateActiveSwapperWithMetadata],
+    [
+      handleInputAmountChange,
+      sellAsset?.assetId,
+      sellFeeAsset,
+      updateActiveSwapperWithMetadata,
+      updateFees,
+    ],
   )
 
   const { quote, inputOutputRatio } = swapperWithMetadata

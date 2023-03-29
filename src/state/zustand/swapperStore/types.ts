@@ -50,7 +50,6 @@ export type SwapperAction = {
   updateAmount: (amount: SwapperStore['amount']) => void
   updateReceiveAddress: (receiveAddress: SwapperStore['receiveAddress']) => void
   toggleIsExactAllowance: () => void
-  updateFees: (fees: SwapperStore['fees']) => void
   updateTrade: (trade: SwapperStore['trade']) => void
   updateActiveSwapperWithMetadata: (
     activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],
@@ -66,6 +65,7 @@ export type SwapperAction = {
   updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
   handleInputAmountChange: () => void
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
+  updateFees: (sellFeeAsset: Asset) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

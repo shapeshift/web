@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import { parse } from 'eth-url-parser'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -22,13 +22,14 @@ type VanityAddressValidatorsByChainId = {
 }
 
 // @TODO: Implement BIP21
-const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, value }) => {
+const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ assetId, chainId, value }) => {
   switch (chainId) {
     case ethChainId:
       try {
         const parsedUrl = parse(value)
 
         return {
+          assetId,
           value: !parsedUrl.parameters ? parsedUrl.target_address : value,
           chainId,
         }
@@ -37,10 +38,10 @@ const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ chainId, valu
       }
       break
     default:
-      return { chainId, value }
+      return { assetId, chainId, value }
   }
 
-  return { chainId, value }
+  return { assetId, chainId, value }
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
@@ -58,6 +59,7 @@ const getVanityAddressValidatorsByChain = (): VanityAddressValidatorsByChainId =
 }
 
 type ValidateVanityAddressArgs = {
+  assetId?: AssetId
   value: string
   chainId: ChainId
 }
@@ -80,6 +82,7 @@ export const validateVanityAddress: ValidateVanityAddress = async args => {
 
 // resolvers - given a vanity address and a chainId, resolve it to an on chain address
 export type ResolveVanityAddressArgs = {
+  assetId?: AssetId
   chainId: ChainId
   value: string // may be any type of vanity address, e.g. a .eth or a .crypto, or a regular address on any chain
 }
@@ -169,6 +172,7 @@ export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
  * which may both be empty strings, one may be empty, or both may be populated
  */
 type ParseAddressInputArgs = {
+  assetId?: AssetId
   chainId: ChainId
   value: string
 }

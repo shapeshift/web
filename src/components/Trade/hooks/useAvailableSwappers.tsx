@@ -23,6 +23,7 @@ export const useAvailableSwappers = () => {
   )
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const updateFees = useSwapperStore(state => state.updateFees)
 
   // Constants
   const buyAssetId = buyAsset?.assetId
@@ -66,13 +67,7 @@ export const useAvailableSwappers = () => {
             : undefined
         })
         .filter(isSome)
-      // Handle a race condition between form state and useTradeQuoteService
-      if (
-        tradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
-        tradeQuoteArgs?.sellAsset.assetId === sellAssetId
-      ) {
-        setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
-      }
+      setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
     })()
   }, [
     buyAssetId,
@@ -88,9 +83,14 @@ export const useAvailableSwappers = () => {
     const activeSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
     updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
     updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
+    if (!feeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
+    updateFees(feeAsset)
   }, [
+    feeAsset,
+    sellAsset?.assetId,
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,
+    updateFees,
   ])
 }

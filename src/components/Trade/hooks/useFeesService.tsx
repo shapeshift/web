@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
-import { selectQuote, selectSellAsset, selectTrade } from 'state/zustand/swapperStore/selectors'
+import { selectSellAsset, selectTrade } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -10,8 +10,6 @@ The only mutation is on Swapper State's fees property.
 */
 export const useFeesService = () => {
   // Selectors
-  const activeTradeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const activeQuote = useSwapperStore(selectQuote)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state => selectFeeAssetById(state, sellAsset?.assetId ?? ''))
   const updateFees = useSwapperStore(state => state.updateFees)
@@ -19,8 +17,5 @@ export const useFeesService = () => {
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
-  useEffect(
-    () => updateFees(sellFeeAsset),
-    [sellFeeAsset, updateFees, activeQuote, activeTradeSwapper, trade],
-  )
+  useEffect(() => updateFees(sellFeeAsset), [updateFees, trade, sellFeeAsset])
 }

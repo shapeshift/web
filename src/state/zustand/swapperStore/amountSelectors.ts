@@ -112,7 +112,7 @@ export const selectSellAssetTradeFeeSellAssetBaseUnit = createSelector(
 )
 
 export const selectBuyAssetTradeFeeBuyAssetBaseUnit = createSelector(
-  selectSellAssetFiatRate,
+  selectBuyAssetFiatRate,
   selectSelectedCurrencyToUsdRate,
   (state: SwapperState) => state.fees?.buyAssetTradeFeeUsd,
   (state: SwapperState) => state.buyAsset?.precision,

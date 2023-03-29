@@ -175,7 +175,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const options = { forceRefetch: true }
 
       if (featureFlags.DynamicLPAssets) {
-        await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate({}))
+        await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate())
       }
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()

@@ -67,7 +67,13 @@ export const useAvailableSwappers = () => {
             : undefined
         })
         .filter(isSome)
-      setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
+      // Handle a race condition between form state and useTradeQuoteService
+      if (
+        tradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
+        tradeQuoteArgs?.sellAsset.assetId === sellAssetId
+      ) {
+        setSwappersWithQuoteMetadata(availableSwappersWithQuoteMetadata)
+      }
     })()
   }, [
     buyAssetId,

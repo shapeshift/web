@@ -5,7 +5,13 @@ import { getConfig } from 'config'
 import qs from 'qs'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
-import { chainIdToZapperNetwork, createApiClient, zapperNetworkToChainId } from './client'
+import {
+  chainIdToZapperNetwork,
+  createApiClient,
+  ZapperAppId,
+  ZapperGroupId,
+  zapperNetworkToChainId,
+} from './client'
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -34,13 +40,14 @@ export const zapperApi = createApi({
 
         const zerionV2AppTokensData = await zapperClient.getV2AppTokens({
           params: {
-            appSlug: 'uniswap-v2',
+            // Only get uniswap v2 pools for now
+            appSlug: ZapperAppId.UniswapV2,
           },
           headers,
           // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
           paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
           queries: {
-            groupId: 'pool',
+            groupId: ZapperGroupId.Pool,
             networks: evmNetworks,
           },
         })

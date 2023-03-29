@@ -1,5 +1,5 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Circle, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
@@ -22,7 +22,7 @@ type AssetWithNetworkProps = {
   assetId: AssetId
 } & AvatarProps
 
-const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...rest }) => {
+const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src, ...rest }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
@@ -31,7 +31,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...r
     `0 0 0 0.2em ${feeAsset?.color ?? 'white'}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
   )
   return (
-    <Avatar src={asset?.icon} icon={icon} border={0} bg='none' {...rest}>
+    <Avatar src={src ?? asset?.icon} icon={icon} border={0} bg='none' {...rest}>
       {showNetwork && (
         <Avatar
           boxSize='0.85em'
@@ -51,12 +51,29 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, ...r
 }
 
 export const AssetIcon = ({ asset, assetId, src, ...rest }: AssetIconProps) => {
+  const _asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
 
   if (!asset && !assetId && !src) return null
 
   if (assetId) {
+    if (_asset && _asset.icons) {
+      return (
+        <Flex flexDirection='row' alignItems='center'>
+          {_asset.icons.map((iconSrc, i) => (
+            <AssetWithNetwork
+              assetId={assetId}
+              src={iconSrc}
+              boxSize='14'
+              ml={i === 0 ? '0' : '-2.5'}
+              icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+              {...rest}
+            />
+          ))}
+        </Flex>
+      )
+    }
     return (
       <AssetWithNetwork
         assetId={assetId}

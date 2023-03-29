@@ -19,6 +19,7 @@ import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -76,7 +77,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
-  const [showQuotes, setShowQuotes] = useState(false)
+  const [showQuotes, toggleShowQuotes] = useToggle(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
@@ -532,7 +533,7 @@ export const TradeInput = () => {
                   size='sm'
                   icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
                   aria-label='Expand Quotes'
-                  onClick={() => setShowQuotes(!showQuotes)}
+                  onClick={toggleShowQuotes}
                 />
               ) : (
                 <></>

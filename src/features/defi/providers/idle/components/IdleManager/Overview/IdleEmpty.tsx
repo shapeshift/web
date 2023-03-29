@@ -194,6 +194,8 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
     })
   }, [tags, textShadow, translate])
 
+  if (!asset) return null
+
   return (
     <SlideTransition>
       <DefiModalContent
@@ -204,11 +206,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
         overflow='hidden'
         borderRadius='2xl'
       >
-        <EmptyOverview
-          assets={[{ icon: asset?.icon ?? '' }]}
-          stackProps={{ pb: 0 }}
-          footer={renderFooter}
-        >
+        <EmptyOverview assets={[asset]} stackProps={{ pb: 0 }} footer={renderFooter}>
           <Stack spacing={4} justifyContent='center'>
             <Text
               fontWeight='bold'

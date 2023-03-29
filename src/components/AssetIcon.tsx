@@ -65,7 +65,6 @@ export const AssetIcon = ({ asset, assetId, src, ...rest }: AssetIconProps) => {
             <AssetWithNetwork
               assetId={assetId}
               src={iconSrc}
-              boxSize='14'
               ml={i === 0 ? '0' : '-2.5'}
               icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
               {...rest}

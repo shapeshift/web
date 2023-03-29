@@ -137,10 +137,10 @@ export const handleAssetSelection =
 
         if (isBuy) {
           draft.buyAsset = asset
-          draft.buyAmountCryptoPrecision = ''
+          draft.buyAmountCryptoPrecision = '0'
           if (isSameAsset) {
             draft.sellAsset = buyAsset
-            draft.sellAmountCryptoPrecision = ''
+            draft.sellAmountCryptoPrecision = '0'
           }
           draft.selectedBuyAssetAccountId = undefined
           draft.buyAssetAccountId = undefined
@@ -148,10 +148,10 @@ export const handleAssetSelection =
 
         if (isSell) {
           draft.sellAsset = asset
-          draft.sellAmountCryptoPrecision = ''
+          draft.sellAmountCryptoPrecision = '0'
           if (isSameAsset) {
             draft.buyAsset = sellAsset
-            draft.buyAmountCryptoPrecision = ''
+            draft.buyAmountCryptoPrecision = '0'
           }
           draft.selectedSellAssetAccountId = undefined
           draft.sellAssetAccountId = undefined

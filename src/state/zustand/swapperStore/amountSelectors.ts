@@ -70,9 +70,18 @@ export const selectSellAmountBeforeFeesBuyAssetBaseUnit = createSelector(
   selectAssetPriceRatio,
   selectSellAmountBeforeFeesBaseUnitByAction,
   (state: SwapperState) => state.sellAsset?.precision,
-  (assetPriceRatio, sellAmountBeforeFeesBaseUnit, sellAssetPrecision): string | undefined => {
-    if (!sellAssetPrecision) return undefined
-    return bnOrZero(sellAmountBeforeFeesBaseUnit).div(assetPriceRatio).toString()
+  (state: SwapperState) => state.buyAsset?.precision,
+  (
+    assetPriceRatio,
+    sellAmountBeforeFeesBaseUnit,
+    sellAssetPrecision,
+    buyAssetPrecision,
+  ): string | undefined => {
+    if (!sellAssetPrecision || !buyAssetPrecision) return undefined
+    return toBaseUnit(
+      fromBaseUnit(bnOrZero(sellAmountBeforeFeesBaseUnit).div(assetPriceRatio), sellAssetPrecision),
+      buyAssetPrecision,
+    ).toString()
   },
 )
 

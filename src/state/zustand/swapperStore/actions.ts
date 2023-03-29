@@ -114,33 +114,28 @@ export const handleAssetSelection =
 
         if (isBuy) {
           draft.buyAsset = asset
-          draft.buyAmountCryptoPrecision = '0'
-          if (isSameAsset) {
-            draft.sellAsset = buyAsset
-            draft.sellAmountCryptoPrecision = '0'
-          }
+          draft.buyAssetFiatRate = undefined
+          if (isSameAsset) draft.sellAsset = buyAsset
           draft.selectedBuyAssetAccountId = undefined
           draft.buyAssetAccountId = undefined
         }
 
         if (isSell) {
           draft.sellAsset = asset
-          draft.sellAmountCryptoPrecision = '0'
-          if (isSameAsset) {
-            draft.buyAsset = sellAsset
-            draft.buyAmountCryptoPrecision = '0'
-          }
+          if (isSameAsset) draft.buyAsset = sellAsset
           draft.selectedSellAssetAccountId = undefined
           draft.sellAssetAccountId = undefined
-          draft.buyAssetFiatRate = undefined
           draft.sellAssetFiatRate = undefined
           draft.feeAssetFiatRate = undefined
-          draft.fees = undefined
         }
 
+        draft.fees = undefined
         draft.action = TradeAmountInputField.SELL_FIAT
         draft.amount = '0'
-        draft.clearAmounts()
+        draft.buyAmountCryptoPrecision = '0'
+        draft.sellAmountCryptoPrecision = '0'
+        draft.buyAmountFiat = '0'
+        draft.sellAmountFiat = '0'
 
         return draft
       },

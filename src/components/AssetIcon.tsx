@@ -1,15 +1,17 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxIcon } from './Icons/FoxIcon'
 
 type AssetIconProps = {
-  asset?: Asset
   assetId?: string
+  // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
+  showNetworkIcon?: boolean
 } & AvatarProps
 
 // @TODO: this will be replaced with whatever we do for icons later
@@ -50,18 +52,22 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
   )
 }
 
-export const AssetIcon = ({ asset, assetId, src, ...rest }: AssetIconProps) => {
-  const _asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
+
+  const chainAdapterManager = getChainAdapterManager()
+  const chainId = assetId && fromAssetId(assetId).chainId
+  const nativeAssetId = chainAdapterManager.get(chainId ?? '')?.getFeeAssetId()
 
   if (!asset && !assetId && !src) return null
 
   if (assetId) {
-    if (_asset && _asset.icons) {
+    if (asset && asset.icons) {
       return (
         <Flex flexDirection='row' alignItems='center'>
-          {_asset.icons.map((iconSrc, i) => (
+          {asset.icons.map((iconSrc, i) => (
             <AssetWithNetwork
               assetId={assetId}
               src={iconSrc}
@@ -73,20 +79,20 @@ export const AssetIcon = ({ asset, assetId, src, ...rest }: AssetIconProps) => {
         </Flex>
       )
     }
+
+    if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon)
+      return (
+        <Avatar
+          src={asset.networkIcon}
+          bg={assetIconBg}
+          icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+          {...rest}
+        />
+      )
+
     return (
       <AssetWithNetwork
         assetId={assetId}
-        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-        {...rest}
-      />
-    )
-  }
-
-  if (asset) {
-    return (
-      <Avatar
-        src={asset?.networkIcon ?? asset?.icon}
-        bg={assetIconBg}
         icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
         {...rest}
       />

@@ -56,7 +56,7 @@ const ChainOption = forwardRef<ChainOptionProps, 'button'>(
       onClick={() => setSelectedChainId(chainId)}
     >
       <Stack direction='row' spacing={0} ml={0}>
-        <AssetIcon size='xs' asset={asset} mr={3} />
+        <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
         <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
       </Stack>
     </MenuItemOption>
@@ -172,7 +172,7 @@ export const AddAccountModal = () => {
                   rightIcon={<ChevronDownIcon />}
                 >
                   <Stack spacing={0} direction='row' alignItems='center'>
-                    <AssetIcon size='xs' asset={asset} mr={3} />
+                    <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
                     <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
                   </Stack>
                 </MenuButton>

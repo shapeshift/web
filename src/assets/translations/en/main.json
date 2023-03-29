@@ -1017,8 +1017,6 @@
       "loadingText": "Pairing Wallet"
     },
     "settings": {
-      "clearCache": "Clear cache",
-      "clearCacheTooltip": "Clear cache and reload app",
       "settings": "Settings",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",

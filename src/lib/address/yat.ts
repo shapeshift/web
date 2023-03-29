@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import GraphemeSplitter from 'grapheme-splitter'
@@ -12,6 +13,7 @@ type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
 
 // resolve a yat
 type ResolveYatArgs = {
+  assetId?: AssetId
   value: string
 }
 type ResolveYatReturn = string
@@ -37,19 +39,43 @@ export const validateYat: ValidateYat = ({ value }) => {
 }
 
 export const resolveYat: ResolveYat = async args => {
+  const { value, assetId } = args
   try {
     const { data } = await axios.get<YatResponse>(
-      `${getConfig().REACT_APP_YAT_NODE_URL}/emoji_id/${args.value}`,
+      `${getConfig().REACT_APP_YAT_NODE_URL}/emoji_id/${value}`,
     )
     if (data.error) return ''
 
-    const found = data.result.find(
-      emoji => emoji.tag === '0x1004', // 0x1004 is eth address
-    )
+    // see https://a.y.at/emoji_id/%F0%9F%A6%8A%F0%9F%9A%80%F0%9F%8C%88 for example
+    // https://api-docs.y.at/docs/sdks/nodejs/docs/emojiidapi#lookupemojiidpayment
+    /**
+     * y.at allows different addresses to be mapped to different assets
+     * this hands the case of a USDC address and an ETH address
+     */
+    const USDC_TAG_ID = '0x6300'
+    const ETH_TAG_ID = '0x1004'
+    const maybeUSDCData = data.result.find(emoji => emoji.tag === USDC_TAG_ID)
+    const maybeETHData = data.result.find(emoji => emoji.tag === ETH_TAG_ID)
 
-    if (!found) return ''
-    // data format: address|description|signature|default
-    return toChecksumAddress(found.data.split('|')[0])
+    const USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+
+    const maybeAddress = (() => {
+      switch (assetId) {
+        case USDC_ASSET_ID: {
+          if (!maybeUSDCData) return ''
+          // USDC|USD Coin|ETH|D4f520a44cdB0f123108b187Fac9D0009104f8e9|test|
+          return maybeUSDCData.data.split('|')[3]
+        }
+        default: {
+          if (!maybeETHData) return ''
+          // 05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c|willywonka.eth
+          return maybeETHData.data.split('|')[0]
+        }
+      }
+    })()
+
+    if (!maybeAddress) return ''
+    return toChecksumAddress(maybeAddress)
   } catch (e) {
     return ''
   }

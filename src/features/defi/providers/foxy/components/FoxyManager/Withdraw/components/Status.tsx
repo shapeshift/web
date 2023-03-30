@@ -40,7 +40,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   if (!state || !dispatch) return null

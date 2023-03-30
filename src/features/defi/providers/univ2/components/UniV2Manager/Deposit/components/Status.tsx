@@ -101,7 +101,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [confirmedTransaction, dispatch, feeAsset.precision])
 
   const handleViewPosition = () => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }
 
   const handleCancel = browserHistory.goBack

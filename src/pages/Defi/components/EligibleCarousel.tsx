@@ -41,7 +41,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
         justifyContent='space-between'
       >
         <Card.Heading>{translate('defi.eligibleOpportunities')}</Card.Heading>
-        <Button as={NavLink} to='/defi/earn' variant='link' colorScheme='blue'>
+        <Button as={NavLink} to='/earn' variant='link' colorScheme='blue'>
           {translate('common.viewAll')}
         </Button>
       </Card.Header>

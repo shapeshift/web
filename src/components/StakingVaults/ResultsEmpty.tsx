@@ -31,7 +31,7 @@ export const ResultsEmpty = () => {
         <Button
           colorScheme='purple'
           as={Link}
-          to='/defi/earn'
+          to='/earn'
           mt={4}
           rightIcon={<ArrowForwardIcon />}
         >

@@ -106,7 +106,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
               colorScheme='blue'
               ml='auto'
               as={NavLink}
-              to='/defi/earn'
+              to='/earn'
               rightIcon={<ArrowForwardIcon />}
             >
               <Text translation='common.seeAll' />

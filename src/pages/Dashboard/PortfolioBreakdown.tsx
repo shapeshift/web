@@ -86,7 +86,7 @@ export const PortfolioBreakdown = () => {
         percentage={bnOrZero(earnFiatBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
-        onClick={() => history.push('/defi')}
+        onClick={() => history.push('/earn')}
       />
     </Flex>
   )

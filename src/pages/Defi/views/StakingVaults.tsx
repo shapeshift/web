@@ -8,8 +8,8 @@ import { EligibleSlider } from '../components/EligibleSlider'
 const DefiHeader = () => {
   const translate = useTranslate()
   return (
-    <Box>
-      <Heading>{translate('defi.defi')}</Heading>
+    <Box pb={6}>
+      <Heading>{translate('defi.earn')}</Heading>
     </Box>
   )
 }

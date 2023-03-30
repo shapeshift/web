@@ -42,7 +42,7 @@ export const OpportunityCardList = () => {
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}
           as={NavLink}
-          to='/defi/earn'
+          to='/earn'
         >
           <Text translation='common.seeAll' />
         </Button>
@@ -79,7 +79,7 @@ export const OpportunityCardList = () => {
               variant='ghost'
               colorScheme='blue'
               as={NavLink}
-              to='/defi/earn'
+              to='/earn'
               data-test='defi-view-opportunities-button'
             >
               <Text translation='defi.empty.stakingVaults.cta' />

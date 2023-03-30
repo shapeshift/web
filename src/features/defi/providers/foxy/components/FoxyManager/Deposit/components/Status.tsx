@@ -28,7 +28,7 @@ export const Status = () => {
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

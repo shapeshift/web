@@ -92,7 +92,7 @@ export const OpportunityCard = (opportunity: OpportunityCardProps) => {
         assets,
       )
       history.push({
-        pathname: '/defi',
+        pathname: '/earn',
         search: qs.stringify({
           provider,
           type,

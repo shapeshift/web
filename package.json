@@ -118,7 +118,6 @@
     "@visx/gradient": "^2.10.0",
     "@visx/responsive": "^2.10.0",
     "@visx/xychart": "^2.12.2",
-    "@wagmi/core": "^0.10.8",
     "@walletconnect/legacy-types": "^2.0.0",
     "@walletconnect/utils": "^2.4.4",
     "@walletconnect/web3-provider": "^1.8.0",

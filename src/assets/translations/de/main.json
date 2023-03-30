@@ -389,6 +389,7 @@
     "netWorth": "Nettovermögen",
     "walletBalance": "Wallet Kontostand",
     "earnBalance": "Guthaben Kontostand",
+    "rewardsBalance": "Belohnungssaldo",
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
@@ -405,6 +406,8 @@
     "currentAPR": "Aktuelle APR",
     "yearn": "Yearn Finance",
     "totalValue": "Gesamtwert",
+    "byPosition": "Nach Position",
+    "byProvider": "Nach Anbieter",
     "netApy": "Netto APY",
     "claimableRewards": "Forderbare Belohnungen",
     "reawrds": "Belohnungen",
@@ -555,6 +558,14 @@
         "infinite": "Unendlich ∞",
         "amountUnavailable": "Nicht verfügbar"
       },
+      "bep20": {
+        "approve": "Genehmige",
+        "approveSymbol": "Genehmige %{symbol}",
+        "revoke": "Widerrufe",
+        "revokeSymbol": "Widerrufe %{symbol} Genehmigung ",
+        "infinite": "Unendlich ∞",
+        "amountUnavailable": "Nicht verfügbar"
+      },
       "staking": {
         "delegate": "Delegieren",
         "begin_unbonding": "Undelegieren",
@@ -645,6 +656,11 @@
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Unzureichender Verkaufsbetrag"
+      }
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
@@ -1591,6 +1607,11 @@
         "title": "✨ Erhalte FOX-Belohnungen + mehr! ✨",
         "body": "Verdienen Sie FOX-Belohnungen, indem Sie Aufgaben auf DappBack erledigen",
         "cta": "Starte DappBack"
+      },
+      "bondProtocol": {
+        "title": "FOX mit Rabatt kaufen!",
+        "body": "FOX mit Rabatt kaufen über BondProtocol",
+        "cta": "BondProtokoll starten"
       }
     },
     "analytics": {

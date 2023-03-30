@@ -69,6 +69,8 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     translate,
   ])
 
+  if (!asset) return null
+
   return (
     <DefiModalContent
       backgroundImage={SaversVaultTop}
@@ -76,7 +78,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
       backgroundPosition='center -160px'
       backgroundRepeat='no-repeat'
     >
-      <EmptyOverview assets={[{ icon: asset?.icon ?? '' }]} footer={renderFooter}>
+      <EmptyOverview assets={[asset]} footer={renderFooter}>
         <Stack spacing={4} justifyContent='center' mb={4}>
           <Text
             fontWeight='bold'

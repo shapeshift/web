@@ -22,6 +22,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Address } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -63,7 +64,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const bip44Params = accountMetadata?.bip44Params
 
   const { data: ensName, isSuccess: isEnsNameLoaded } = useEnsName({
-    address: receiveAddress,
+    address: receiveAddress as Address,
     enabled: asset.chainId === KnownChainIds.EthereumMainnet,
     cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
     staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload

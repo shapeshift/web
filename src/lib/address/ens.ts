@@ -1,4 +1,5 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type { Address } from '@wagmi/core'
 import { fetchEnsAddress, fetchEnsName } from '@wagmi/core'
 import memoize from 'lodash/memoize'
 
@@ -26,7 +27,7 @@ export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAd
 
 export const ensReverseLookup = memoize(
   async (
-    address: string,
+    address: Address,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
     const lookupName = await fetchEnsName({
       address,
@@ -42,6 +43,6 @@ export const ensReverseLookup = memoize(
  * right now to make it compile, so map the type sigs to the old lookup impl
  */
 export const ensReverseLookupShim: ReverseLookupVanityAddress = async ({ value: address }) => {
-  const { name, error } = await ensReverseLookup(address)
+  const { name, error } = await ensReverseLookup(address as Address)
   return error ? '' : name
 }

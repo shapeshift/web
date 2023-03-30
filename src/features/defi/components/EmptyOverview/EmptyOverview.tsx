@@ -1,5 +1,6 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Flex, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { PropsWithChildren } from 'react'
 import { Fragment } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
@@ -7,18 +8,8 @@ import { AssetIcon } from 'components/AssetIcon'
 
 import { PairIcons } from '../PairIcons/PairIcons'
 
-export type EmptyOverviewAsset =
-  | {
-      icon: string
-      icons?: never
-    }
-  | {
-      icon?: never
-      icons: string[]
-    }
-
 type EmptyOverviewProps = {
-  assets: EmptyOverviewAsset[]
+  assets: Asset[]
   footer?: React.ReactNode
   stackProps?: StackProps
 } & PropsWithChildren

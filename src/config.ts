@@ -137,6 +137,7 @@ const validators = {
   }),
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
+  REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

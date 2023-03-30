@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import type { Address } from '@wagmi/core'
 import { parse } from 'eth-url-parser'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
@@ -145,7 +146,7 @@ export const reverseLookupVanityAddress: ReverseLookupVanityAddress = async args
       if (result) return result
     } catch (e) {}
   }
-  return ''
+  return '' as Address
 }
 
 // validate a given address

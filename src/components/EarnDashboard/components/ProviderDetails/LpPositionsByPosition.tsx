@@ -135,5 +135,11 @@ export const LpPositionsByPosition: React.FC<LpPositionsByPositionProps> = ({ id
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return (
+    <ReactTable
+      data={filteredDown}
+      columns={columns}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+    />
+  )
 }

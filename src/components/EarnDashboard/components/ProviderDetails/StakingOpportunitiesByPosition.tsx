@@ -136,10 +136,13 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
           const chainName = isCosmosSdkStaking
             ? getChainAdapterManager().get(row.original.chainId)?.getDisplayName()
             : ''
+          const subText = []
+          if (chainName) subText.push(chainName)
+          if (row.original.version) subText.push(row.original.version)
           return (
             <AssetCell
               assetId={row.original.underlyingAssetId ?? row.original.assetId}
-              subText={chainName}
+              subText={subText.join(' • ')}
               icons={row.original.icons}
               opportunityName={row.original.opportunityName}
               showAssetSymbol={row.original.showAssetSymbol}
@@ -241,5 +244,11 @@ export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProp
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return (
+    <ReactTable
+      data={filteredDown}
+      columns={columns}
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+    />
+  )
 }

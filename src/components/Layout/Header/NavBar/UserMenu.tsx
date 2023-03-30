@@ -1,6 +1,7 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, ButtonGroup, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
+import type { Address } from '@wagmi/core'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
@@ -72,7 +73,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     isSuccess: isEnsNameLoaded,
     isLoading: isEnsNameLoading,
   } = useEnsName({
-    address: walletInfo?.meta?.address,
+    address: walletInfo?.meta?.address as Address,
     cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
     staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
   })

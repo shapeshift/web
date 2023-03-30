@@ -68,9 +68,9 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 // Estimated miner fees are approximative since there might be a reconciliation Tx
 // and an actual savers Tx with different fees, and we're doubling the fees
-// So the actual buffer is at best 3 Txs (4 -1 Tx), at worst 2 Txs (4 - 2 Txs)
-// Or even a bit less
-const TXS_BUFFER = 8
+// This does NOT ensure dust will be kept for future Txs, but will ensure we are conservative WRT gas used
+// so that the final outbound Tx can go through
+const TXS_BUFFER = 10
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
@@ -280,16 +280,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           bn(10).pow(asset.precision),
         )
 
-        if (cryptoAmountBaseUnit.lt(cryptoAmountBaseUnit)) {
-          // If this throws, we know we goof'd up
-          throw new Error('Cannot send more than asset balance')
-        }
-
         const needsFeeDeduction = cryptoAmountBaseUnit
           .plus(fastFeesBaseUnit)
           .gte(assetBalanceCryptoBaseUnit)
 
-        if (needsFeeDeduction)
+        if (state?.deposit.sendMax) {
+          maybeGasDeductedCryptoAmountCryptoPrecision = bnOrZero(assetBalanceCryptoBaseUnit)
+            .minus(bn(fastFeesBaseUnit).times(TXS_BUFFER))
+            .div(bn(10).pow(asset.precision))
+            .toFixed()
+        } else if (needsFeeDeduction)
           // We tend to overestimate so that SHOULD be safe but this is both
           // a safety factor as well as ensuring we keep a bit of gas away for another Tx
           maybeGasDeductedCryptoAmountCryptoPrecision = bnOrZero(state.deposit.cryptoAmount)
@@ -304,7 +304,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         asset,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,
-        sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
+        sendMax: Boolean(state?.deposit.sendMax),
         accountId,
         memo: supportedEvmChainIds.includes(chainId)
           ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))

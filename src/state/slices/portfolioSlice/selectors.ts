@@ -74,7 +74,7 @@ import type {
 import { findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = [
+export const FEE_ASSET_IDS = [
   ethAssetId,
   btcAssetId,
   bchAssetId,

@@ -17,6 +17,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   makeDefiProviderDisplayName,
@@ -90,6 +91,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       opportunityData?.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
         .map(icon => icon ?? '') ?? [],
+    [assets, opportunityData?.underlyingAssetIds],
+  )
+
+  const underlyingAssets = useMemo(
+    () => opportunityData?.underlyingAssetIds.map(assetId => assets[assetId]).filter(isSome) ?? [],
     [assets, opportunityData?.underlyingAssetIds],
   )
 
@@ -172,7 +178,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   if (!opportunityData.expired && cryptoAmountAvailable.eq(0) && rewardAmountAvailable.eq(0)) {
     return (
       <FoxFarmingEmpty
-        assets={[{ icons: underlyingAssetsIcons }, rewardAsset]}
+        assets={underlyingAssets}
         apy={opportunityData.apy.toString() ?? ''}
         opportunityName={opportunityData.name ?? ''}
         onClick={() =>

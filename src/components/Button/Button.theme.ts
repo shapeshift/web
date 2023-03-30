@@ -17,6 +17,7 @@ export const ButtonStyle: ComponentStyleConfig = {
         width: '1rem',
         height: '1rem',
       },
+      lineHeight: '12px',
     },
     'sm-multiline': {
       svg: {

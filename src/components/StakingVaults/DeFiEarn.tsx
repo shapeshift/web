@@ -14,6 +14,7 @@ type DefiEarnProps = {
   providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
+  header?: JSX.Element
 } & FlexProps
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
@@ -21,44 +22,48 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   providerTableProps,
   includeEarnBalances,
   includeRewardsBalances,
+  header,
   ...rest
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const translate = useTranslate()
   return (
-    <Tabs isLazy variant='soft-rounded' size='sm'>
-      <Flex
-        justifyContent='space-between'
-        alignItems='center'
-        px={4}
-        flexDir={{ base: 'column', md: 'row' }}
-        gap={4}
-        {...rest}
-      >
-        <TabList m={0}>
-          <Tab>{translate('defi.byPosition')}</Tab>
-          <Tab>{translate('defi.byProvider')}</Tab>
-        </TabList>
-        <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full'>
-          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+    <Flex width='full' flexDir='column' gap={6}>
+      {header && header}
+      <Tabs isLazy variant='soft-rounded' size='sm'>
+        <Flex
+          justifyContent='space-between'
+          alignItems='center'
+          px={4}
+          flexDir={{ base: 'column', md: 'row' }}
+          gap={4}
+          {...rest}
+        >
+          <TabList m={0}>
+            <Tab>{translate('defi.byPosition')}</Tab>
+            <Tab>{translate('defi.byProvider')}</Tab>
+          </TabList>
+          <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full'>
+            <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+          </Flex>
         </Flex>
-      </Flex>
-      <TabPanels>
-        <TabPanel>
-          <PositionTable
-            searchQuery={searchQuery}
-            includeEarnBalances={Boolean(includeEarnBalances)}
-            includeRewardsBalances={Boolean(includeRewardsBalances)}
-          />
-        </TabPanel>
-        <TabPanel>
-          <ProviderTable
-            searchQuery={searchQuery}
-            includeEarnBalances={Boolean(includeEarnBalances)}
-            includeRewardsBalances={Boolean(includeRewardsBalances)}
-          />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+        <TabPanels>
+          <TabPanel>
+            <PositionTable
+              searchQuery={searchQuery}
+              includeEarnBalances={Boolean(includeEarnBalances)}
+              includeRewardsBalances={Boolean(includeRewardsBalances)}
+            />
+          </TabPanel>
+          <TabPanel>
+            <ProviderTable
+              searchQuery={searchQuery}
+              includeEarnBalances={Boolean(includeEarnBalances)}
+              includeRewardsBalances={Boolean(includeRewardsBalances)}
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Flex>
   )
 }

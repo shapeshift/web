@@ -212,7 +212,6 @@
     "apy": "年化收益率",
     "apr": "年利率",
     "balance": "余额",
-    "defi": "去中心化金融",
     "defiBody": "探索成长中的去中心化金融宇宙。",
     "netWorth": "净值",
     "walletBalance": "钱包余额",
@@ -227,9 +226,6 @@
     "farmingBalance": "流动性挖矿余额",
     "liquidityPoolBalance": "流动性池余额",
     "poolValue": "流动性池价值",
-    "currentValue": "当前价值",
-    "currentAPY": "当前年化收益率",
-    "currentAPR": "当前年利率",
     "yearn": "Yearn Finance",
     "emptyEarn": "赚取机会将在这里出现。",
     "empty": {

@@ -28,13 +28,7 @@ export const ResultsEmpty = () => {
           letterSpacing='0.012em'
           translation='assets.assetCards.stakingBody'
         />
-        <Button
-          colorScheme='purple'
-          as={Link}
-          to='/defi/earn'
-          mt={4}
-          rightIcon={<ArrowForwardIcon />}
-        >
+        <Button colorScheme='purple' as={Link} to='/earn' mt={4} rightIcon={<ArrowForwardIcon />}>
           {translate('defi.startEarning')}
         </Button>
       </Flex>

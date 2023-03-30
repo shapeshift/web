@@ -71,7 +71,7 @@ export const Status = () => {
   }, [confirmedTransaction, dispatch])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

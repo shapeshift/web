@@ -158,7 +158,7 @@ export const Status = () => {
   }, [claimAmounts])
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = useCallback(() => {

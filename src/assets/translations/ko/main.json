@@ -213,7 +213,6 @@
     "apy": "APY",
     "apr": "APR",
     "balance": "잔액",
-    "defi": "디파이",
     "defiBody": "성장하는 디파이 유니버스에서 각종 기회를 창출해 보세요!",
     "netWorth": "순자산",
     "walletBalance": "보유 자산",
@@ -228,9 +227,6 @@
     "farmingBalance": "파밍 자산",
     "liquidityPoolBalance": "유동성 풀 자산",
     "poolValue": "풀 가치",
-    "currentValue": "현재 시가",
-    "currentAPY": "현재 연 수익률",
-    "currentAPR": "현재 연 이자율",
     "yearn": "연 파이낸스(Yearn Finance)",
     "emptyEarn": "각종 이자 수익을 얻으실 수 있는 여러 기회들이 여기에 올라옵니다.",
     "empty": {

@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -106,6 +106,10 @@ const stateSanitizer = (state: any) => {
 export const createStore = () =>
   configureStore({
     reducer: persistedReducer,
+    enhancers: existingEnhancers => {
+      // Add the autobatch enhancer to the store setup
+      return existingEnhancers.concat(autoBatchEnhancer())
+    },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         immutableCheck: {

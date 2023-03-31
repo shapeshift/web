@@ -42,7 +42,6 @@ export const Main: React.FC<MainProps> = ({
           bg={bg}
           borderColor={borderColor}
           ref={ref}
-          zIndex='sticky'
           shadow={y > height ? 'sm' : undefined}
         >
           <>

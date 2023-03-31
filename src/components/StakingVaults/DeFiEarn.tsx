@@ -46,10 +46,10 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           flexWrap='wrap'
           {...rest}
         >
-          <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full', md: 'auto' }}>
+          <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
             <TabList m={0} width={{ base: 'full', md: 'auto' }}>
-              <Tab flex={1}>{translate('defi.byPosition')}</Tab>
-              <Tab flex={1}>{translate('defi.byProvider')}</Tab>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byPosition')}</Tab>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byProvider')}</Tab>
             </TabList>
           </Flex>
           <ChainDropdown

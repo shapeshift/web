@@ -133,10 +133,13 @@ export const useAvailableSwappers = () => {
 
       const [active, halted] = partitionedSwapperPromises.filter(isFulfilled).map(p => p.value)
 
-      // Put all halted swappers last
-      const reOrderedSwappers = [...active, ...halted]
-      const activeSwapperWithQuoteMetadata = reOrderedSwappers?.[0]
-      updateAvailableSwappersWithMetadata(reOrderedSwappers)
+      /*
+        If we have active swappers, show only them. Else, show any halted swappers so the user knows the trade pair
+        is actually supported by us, it's just currently halted.
+       */
+      const swappersToDisplay = active.length > 0 ? active : halted
+      const activeSwapperWithQuoteMetadata = swappersToDisplay?.[0]
+      updateAvailableSwappersWithMetadata(swappersToDisplay)
       updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
       feeAsset && updateFees(feeAsset)
     })()

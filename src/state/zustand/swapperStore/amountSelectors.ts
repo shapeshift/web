@@ -18,7 +18,9 @@ const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,
   selectSellAssetFiatRate,
   (buyAssetFiatRate, sellAssetFiatRate) => {
-    return bnOrZero(buyAssetFiatRate).dividedBy(bnOrZero(sellAssetFiatRate)).toFixed()
+    return bnOrZero(buyAssetFiatRate)
+      .dividedBy(sellAssetFiatRate ?? '1')
+      .toFixed()
   },
 )
 

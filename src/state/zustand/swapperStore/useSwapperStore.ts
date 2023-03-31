@@ -1,28 +1,25 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { TradeAmountInputField } from 'components/Trade/types'
 import {
   clearAmounts,
+  handleAssetSelection,
+  handleInputAmountChange,
+  handleSwitchAssets,
   toggleIsExactAllowance,
-  updateTradeAmounts,
+  updateFees,
 } from 'state/zustand/swapperStore/actions'
-import type {
-  SetSwapperStoreAction,
-  SwapperAction,
-  SwapperStore,
-} from 'state/zustand/swapperStore/types'
+import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 const createUpdateAction =
-  <T extends keyof SwapperStore>(set: SetSwapperStoreAction<SwapperStore>, key: T) =>
-  (value: SwapperStore[T]): void =>
+  <T extends keyof SwapperState>(set: SetSwapperStoreAction<SwapperState>, key: T) =>
+  (value: SwapperState[T]): void =>
     set(() => ({ [key]: value }), false, {
       type: `swapper/update${key.charAt(0).toUpperCase() + key.slice(1)}`,
       value,
     })
 
-export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
 export const useSwapperStore = (() => {
   return create<SwapperState>()(
     immer(
@@ -52,7 +49,6 @@ export const useSwapperStore = (() => {
           updateBuyAsset: createUpdateAction(set, 'buyAsset'),
           updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
           updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
-          updateTradeAmounts: updateTradeAmounts(set),
           clearAmounts: clearAmounts(set),
           updateAmount: createUpdateAction(set, 'amount'),
           updateIsExactAllowance: createUpdateAction(set, 'isExactAllowance'),
@@ -60,13 +56,17 @@ export const useSwapperStore = (() => {
           updateAction: createUpdateAction(set, 'action'),
           updateIsSendMax: createUpdateAction(set, 'isSendMax'),
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
-          updateFees: createUpdateAction(set, 'fees'),
+          updateFees: updateFees(set),
           updateTrade: createUpdateAction(set, 'trade'),
           updateActiveSwapperWithMetadata: createUpdateAction(set, 'activeSwapperWithMetadata'),
           updateAvailableSwappersWithMetadata: createUpdateAction(
             set,
             'availableSwappersWithMetadata',
           ),
+          handleSwitchAssets: handleSwitchAssets(set),
+          updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
+          handleInputAmountChange: handleInputAmountChange(set),
+          handleAssetSelection: handleAssetSelection(set),
         }),
         { name: 'SwapperStore' },
       ),

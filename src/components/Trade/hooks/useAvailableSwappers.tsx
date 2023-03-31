@@ -7,6 +7,7 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
@@ -20,8 +21,9 @@ export const useAvailableSwappers = () => {
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const updateFees = useSwapperStore(state => state.updateFees)
 
   // Constants
   const buyAssetId = buyAsset?.assetId
@@ -87,9 +89,13 @@ export const useAvailableSwappers = () => {
     const activeSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
     updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
     updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
+    feeAsset && updateFees(feeAsset)
   }, [
+    feeAsset,
+    sellAsset?.assetId,
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,
+    updateFees,
   ])
 }

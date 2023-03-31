@@ -2,7 +2,15 @@ import { useEffect, useMemo } from 'react'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectSwapperSupportsCrossAccountTrade } from 'state/zustand/swapperStore/selectors'
+import {
+  selectBuyAsset,
+  selectBuyAssetAccountId,
+  selectSelectedBuyAssetAccountId,
+  selectSelectedSellAssetAccountId,
+  selectSellAsset,
+  selectSellAssetAccountId,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -11,15 +19,15 @@ It sets sellAssetAccountId and buyAssetAccountId properties.
 */
 export const useAccountsService = () => {
   // Selectors
-  const stateBuyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
-  const stateSellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
+  const stateBuyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
+  const stateSellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const updateBuyAssetAccountId = useSwapperStore(state => state.updateBuyAssetAccountId)
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
-  const selectedBuyAssetAccountId = useSwapperStore(state => state.selectedBuyAssetAccountId)
-  const selectedSellAssetAccountId = useSwapperStore(state => state.selectedSellAssetAccountId)
+  const selectedBuyAssetAccountId = useSwapperStore(selectSelectedBuyAssetAccountId)
+  const selectedSellAssetAccountId = useSwapperStore(selectSelectedSellAssetAccountId)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
 
   const sellAssetId = sellAsset?.assetId

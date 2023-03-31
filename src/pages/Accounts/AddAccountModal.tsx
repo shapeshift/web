@@ -5,10 +5,8 @@ import {
   AlertIcon,
   Box,
   Button,
-  forwardRef,
   Menu,
   MenuButton,
-  MenuItemOption,
   MenuList,
   MenuOptionGroup,
   Modal,
@@ -21,13 +19,13 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { AssetIcon } from 'components/AssetIcon'
+import { ChainOption } from 'components/ChainOption/ChainOption'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -42,27 +40,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type ChainOptionProps = {
-  chainId: ChainId
-  asset: Asset
-  setSelectedChainId: (chainId: ChainId) => void
-}
-const ChainOption = forwardRef<ChainOptionProps, 'button'>(
-  ({ chainId, asset, setSelectedChainId }, ref) => (
-    <MenuItemOption
-      ref={ref}
-      key={chainId}
-      iconSpacing={0}
-      onClick={() => setSelectedChainId(chainId)}
-    >
-      <Stack direction='row' spacing={0} ml={0}>
-        <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
-        <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
-      </Stack>
-    </MenuItemOption>
-  ),
-)
-
 export const AddAccountModal = () => {
   const translate = useTranslate()
   const toast = useToast()
@@ -76,7 +53,7 @@ export const AddAccountModal = () => {
   const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
-  const [selectedChainId, setSelectedChainId] = useState<ChainId>(firstChainId)
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>

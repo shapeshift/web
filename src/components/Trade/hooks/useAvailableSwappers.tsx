@@ -94,8 +94,8 @@ export const useAvailableSwappers = () => {
     ;(async () => {
       if (!swappersWithQuoteMetadata) return
       /*
-        The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate.
-        A halted swapper may well have the best rate, but we want to put it last in the list.
+        The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
+        A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
        */
       const partitionedSwapperPromises = await Promise.allSettled(
         partition(swappersWithQuoteMetadata, async swapperWithQuoteMetadata => {

@@ -1,6 +1,7 @@
 import { Box, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
 
 import { EligibleSlider } from '../components/EligibleSlider'
@@ -17,6 +18,7 @@ const DefiHeader = () => {
 export const StakingVaults = () => {
   return (
     <Main titleComponent={<DefiHeader />}>
+      <SEO title={'Earn'} description={'Earn'} />
       <EligibleSlider />
       <DeFiEarn mt={6} />
     </Main>

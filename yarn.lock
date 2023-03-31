@@ -13563,9 +13563,9 @@ jest@^27.4.3:
     jest-cli "^27.5.1"
 
 jose@^4.3.5:
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.8.0.tgz#470c4c045f2abc899b924872aecb000c28947288"
-  integrity sha512-XmcX4PdqRlfDCSn9UPAvGoVylQxuJxtCZNlX4U0KgmOSHUvxYCalgnU/JNdNJQ20mGth3+xrPSkFj9rxS9tYWQ==
+  version "4.13.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.13.1.tgz#449111bb5ab171db85c03f1bd2cb1647ca06db1c"
+  integrity sha512-MSJQC5vXco5Br38mzaQKiq9mwt7lwj2eXpgpRyQYNHYt2lq1PjkWa7DLXX0WVcQLE9HhMh3jPiufS7fhJf+CLQ==
 
 js-crypto-env@^0.3.2:
   version "0.3.2"

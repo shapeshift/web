@@ -33,7 +33,6 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectFeatureFlags,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
@@ -41,25 +40,9 @@ import {
   selectSelectedLocale,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { IdleEmpty } from './IdleEmpty'
-
-const { IdleFinanceDeposits } = selectFeatureFlags(store.getState())
-
-const defaultMenu: DefiButtonProps[] = [
-  {
-    label: 'common.deposit',
-    icon: <ArrowUpIcon />,
-    action: DefiAction.Deposit,
-    isDisabled: !IdleFinanceDeposits,
-  },
-  {
-    label: 'common.withdraw',
-    icon: <ArrowDownIcon />,
-    action: DefiAction.Withdraw,
-  },
-]
 
 const idleTagDescriptions: Record<IdleTag, TagDescription> = {
   [IdleTag.BestYield]: {
@@ -153,6 +136,23 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
+  const defaultMenu: DefiButtonProps[] = useMemo(
+    () => [
+      {
+        label: 'common.deposit',
+        icon: <ArrowUpIcon />,
+        action: DefiAction.Deposit,
+        isDisabled: Boolean(!opportunityData?.active),
+      },
+      {
+        label: 'common.withdraw',
+        icon: <ArrowDownIcon />,
+        action: DefiAction.Withdraw,
+      },
+    ],
+    [opportunityData?.active],
+  )
+
   const underlyingAssetId = useMemo(
     () => opportunityData?.underlyingAssetIds?.[0],
     [opportunityData?.underlyingAssetIds],
@@ -217,7 +217,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
         toolTip: translate('defi.modals.overview.noWithdrawals'),
       },
     ]
-  }, [contractAddress, idleInvestor, opportunityData, hasClaimBalance, translate])
+  }, [contractAddress, idleInvestor, opportunityData, defaultMenu, hasClaimBalance, translate])
 
   const renderTags = useMemo(() => {
     return opportunityData?.tags?.map(tag => {

@@ -212,7 +212,6 @@
     "apy": "APY",
     "apr": "APR",
     "balance": "Saldo",
-    "defi": "DeFi",
     "defiBody": "Jelajahi dunia peluang DeFi yang terus berkembang.",
     "netWorth": "Kekayaan Bersih",
     "walletBalance": "Saldo Dompet",
@@ -227,9 +226,6 @@
     "farmingBalance": "Saldo Farming",
     "liquidityPoolBalance": "Saldo Pool Likuiditas",
     "poolValue": " Nilai Pool",
-    "currentValue": "Nilai saat Ini",
-    "currentAPY": "APY saat ini",
-    "currentAPR": "APR saat ini",
     "yearn": "Yearn Finance",
     "emptyEarn": "Dapatkan peluang akan muncul di sini.",
     "empty": {

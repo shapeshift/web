@@ -6,6 +6,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useGetUsdRatesQuery } from 'state/apis/swapper/getUsdRatesApi'
 import { selectFeeAssetById, selectFiatToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 /*
@@ -25,8 +26,8 @@ export const useFiatRateService = () => {
 
   // Selectors
   const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAsset = useSwapperStore(selectBuyAsset)
   const sellTradeAssetId = sellAsset?.assetId
   const buyTradeAssetId = buyAsset?.assetId
   const sellAssetFeeAssetId = useAppSelector(state =>
@@ -35,6 +36,9 @@ export const useFiatRateService = () => {
   const updateSellAssetFiatRate = useSwapperStore(state => state.updateSellAssetFiatRate)
   const updateBuyAssetFiatRate = useSwapperStore(state => state.updateBuyAssetFiatRate)
   const updateFeeAssetFiatRate = useSwapperStore(state => state.updateFeeAssetFiatRate)
+  const updateSelectedCurrencyToUsdRate = useSwapperStore(
+    state => state.updateSelectedCurrencyToUsdRate,
+  )
 
   /*
     We need to pick a source for our USD rates. If we update it basic on the active swapper the UI jumps
@@ -69,21 +73,20 @@ export const useFiatRateService = () => {
 
   // Set fiat rates
   useEffect(() => {
+    updateSelectedCurrencyToUsdRate(selectedCurrencyToUsdRate)
     if (usdRates) {
+      const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = usdRates
       updateSellAssetFiatRate(
-        bnOrZero(usdRates.sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
+        bnOrZero(sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
       )
-      updateBuyAssetFiatRate(
-        bnOrZero(usdRates.buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
-      )
-      updateFeeAssetFiatRate(
-        bnOrZero(usdRates.feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString(),
-      )
+      updateBuyAssetFiatRate(bnOrZero(buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString())
+      updateFeeAssetFiatRate(bnOrZero(feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString())
     }
   }, [
     selectedCurrencyToUsdRate,
     updateBuyAssetFiatRate,
     updateFeeAssetFiatRate,
+    updateSelectedCurrencyToUsdRate,
     updateSellAssetFiatRate,
     usdRates,
   ])

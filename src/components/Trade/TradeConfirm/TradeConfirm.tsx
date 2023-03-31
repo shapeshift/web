@@ -28,7 +28,6 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useGetTradeAmounts } from 'components/Trade/hooks/useGetTradeAmounts'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -44,7 +43,23 @@ import { assertUnreachable } from 'lib/utils'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
-import { selectSlippage } from 'state/zustand/swapperStore/selectors'
+import {
+  selectBuyAmountAfterFeesFiat,
+  selectBuyAmountBeforeFeesBaseUnit,
+  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectSellAmountBeforeFeesBaseUnitByAction,
+  selectSellAmountBeforeFeesFiat,
+  selectTotalTradeFeeBuyAssetCryptoPrecision,
+} from 'state/zustand/swapperStore/amountSelectors'
+import {
+  selectBuyAmountCryptoPrecision,
+  selectBuyAssetAccountId,
+  selectFeeAssetFiatRate,
+  selectFees,
+  selectSellAssetAccountId,
+  selectSlippage,
+  selectTrade,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeRoutePaths } from '../types'
@@ -75,15 +90,24 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const tradeAmounts = useGetTradeAmounts()
-  const trade = useSwapperStore(state => state.trade)
-  const fees = useSwapperStore(state => state.fees)
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
+  const trade = useSwapperStore(selectTrade)
+  const fees = useSwapperStore(selectFees)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
-  const buyAssetAccountId = useSwapperStore(state => state.buyAssetAccountId)
-  const sellAssetAccountId = useSwapperStore(state => state.sellAssetAccountId)
-  const buyAmountCryptoPrecision = useSwapperStore(state => state.buyAmountCryptoPrecision)
+  const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
+  const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
+  const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const updateTrade = useSwapperStore(state => state.updateTrade)
+  const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
+  const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
+  const buyAmountBeforeFeesBuyAssetCryptoPrecision = useSwapperStore(
+    selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  )
+  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
+    selectTotalTradeFeeBuyAssetCryptoPrecision,
+  )
+  const buyAmountAfterFeesFiat = useSwapperStore(selectBuyAmountAfterFeesFiat)
+  const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
   const assets = useAppSelector(selectAssets)
 
@@ -171,26 +195,33 @@ export const TradeConfirm = () => {
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
-    if (!(swapper && trade && tradeAmounts)) return null
+    if (!(swapper && trade)) return null
     const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
     const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
     const buyAmountCryptoPrecision = fromBaseUnit(
-      tradeAmounts.buyAmountBeforeFeesBaseUnit,
+      buyAmountBeforeFeesBaseUnit,
       trade.sellAsset.precision,
     )
     const sellAmountCryptoPrecision = fromBaseUnit(
-      tradeAmounts.sellAmountBeforeFeesBaseUnit,
+      sellAmountBeforeFeesBaseUnit,
       trade.buyAsset.precision,
     )
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      fiatAmount: tradeAmounts.sellAmountBeforeFeesFiat,
+      fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
-  }, [assets, swapper, trade, tradeAmounts])
+  }, [
+    assets,
+    buyAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesFiat,
+    swapper,
+    trade,
+  ])
 
   useEffect(() => {
     if (!mixpanel || !eventData) return
@@ -259,7 +290,7 @@ export const TradeConfirm = () => {
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
-    .dividedBy(tradeAmounts?.sellAmountBeforeFeesFiat ?? 1)
+    .dividedBy(sellAmountBeforeFeesFiat ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
@@ -340,16 +371,13 @@ export const TradeConfirm = () => {
             <Row.Value textAlign='right'>
               <Amount.Crypto
                 value={
-                  fromBaseUnit(
-                    tradeAmounts?.sellAmountBeforeFeesBaseUnit ?? '',
-                    trade.sellAsset.precision,
-                  ) ?? ''
+                  fromBaseUnit(sellAmountBeforeFeesBaseUnit ?? '', trade.sellAsset.precision) ?? ''
                 }
                 symbol={trade.sellAsset.symbol}
               />
               <Amount.Fiat
                 color='gray.500'
-                value={tradeAmounts?.sellAmountBeforeFeesFiat ?? ''}
+                value={bnOrZero(sellAmountBeforeFeesFiat).toFixed(2)}
                 prefix='≈'
               />
             </Row.Value>
@@ -357,25 +385,25 @@ export const TradeConfirm = () => {
           <ReceiveSummary
             symbol={trade.buyAsset.symbol ?? ''}
             amount={buyAmountCryptoPrecision ?? ''}
-            beforeFees={tradeAmounts?.beforeFeesBuyAsset ?? ''}
-            protocolFee={tradeAmounts?.totalTradeFeeBuyAsset ?? ''}
+            beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}
+            protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
             shapeShiftFee='0'
             slippage={slippage}
-            fiatAmount={tradeAmounts?.buyAmountAfterFeesFiat ?? ''}
+            fiatAmount={bnOrZero(buyAmountAfterFeesFiat).toFixed(2)}
             swapperName={swapper?.name ?? ''}
           />
         </Stack>
       ) : null,
     [
+      buyAmountBeforeFeesBuyAssetCryptoPrecision,
+      buyAmountAfterFeesFiat,
       buyAmountCryptoPrecision,
+      sellAmountBeforeFeesBaseUnit,
+      sellAmountBeforeFeesFiat,
       slippage,
       swapper?.name,
+      totalTradeFeeBuyAssetCryptoPrecision,
       trade,
-      tradeAmounts?.beforeFeesBuyAsset,
-      tradeAmounts?.buyAmountAfterFeesFiat,
-      tradeAmounts?.sellAmountBeforeFeesBaseUnit,
-      tradeAmounts?.sellAmountBeforeFeesFiat,
-      tradeAmounts?.totalTradeFeeBuyAsset,
       translate,
     ],
   )

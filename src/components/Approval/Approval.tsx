@@ -37,6 +37,9 @@ import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
   selectCheckApprovalNeededForWallet,
+  selectFeeAssetFiatRate,
+  selectFees,
+  selectIsExactAllowance,
   selectQuote,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -59,10 +62,10 @@ export const Approval = () => {
   } = useFormContext()
 
   const activeQuote = useSwapperStore(selectQuote)
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const isExactAllowance = useSwapperStore(state => state.isExactAllowance)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const isExactAllowance = useSwapperStore(selectIsExactAllowance)
   const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
-  const fees = useSwapperStore(state => state.fees) as DisplayFeeData<EvmChainId> | undefined
+  const fees = useSwapperStore(selectFees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
 

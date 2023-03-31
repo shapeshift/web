@@ -1,7 +1,11 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
+import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'
 import type { PositionTableProps } from './PositionTable'
@@ -14,6 +18,7 @@ type DefiEarnProps = {
   providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
+  header?: JSX.Element
 } & FlexProps
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
@@ -21,44 +26,62 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   providerTableProps,
   includeEarnBalances,
   includeRewardsBalances,
+  header,
   ...rest
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const translate = useTranslate()
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
+
   return (
-    <Tabs isLazy variant='soft-rounded' size='sm'>
-      <Flex
-        justifyContent='space-between'
-        alignItems='center'
-        px={4}
-        flexDir={{ base: 'column', md: 'row' }}
-        gap={4}
-        {...rest}
-      >
-        <TabList m={0}>
-          <Tab>{translate('defi.byPosition')}</Tab>
-          <Tab>{translate('defi.byProvider')}</Tab>
-        </TabList>
-        <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full'>
-          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+    <Flex width='full' flexDir='column' gap={6}>
+      {header && header}
+      <Tabs isLazy variant='soft-rounded' size='sm'>
+        <Flex
+          justifyContent='space-between'
+          alignItems='center'
+          px={4}
+          gap={4}
+          flexWrap='wrap'
+          {...rest}
+        >
+          <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
+            <TabList m={0} width={{ base: 'full', md: 'auto' }}>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byPosition')}</Tab>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byProvider')}</Tab>
+            </TabList>
+          </Flex>
+          <ChainDropdown
+            chainIds={portfolioChainIds}
+            chainId={selectedChainId}
+            onClick={setSelectedChainId}
+            showAll
+            includeBalance
+          />
+          <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full' gap={4}>
+            <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+          </Flex>
         </Flex>
-      </Flex>
-      <TabPanels>
-        <TabPanel>
-          <PositionTable
-            searchQuery={searchQuery}
-            includeEarnBalances={Boolean(includeEarnBalances)}
-            includeRewardsBalances={Boolean(includeRewardsBalances)}
-          />
-        </TabPanel>
-        <TabPanel>
-          <ProviderTable
-            searchQuery={searchQuery}
-            includeEarnBalances={Boolean(includeEarnBalances)}
-            includeRewardsBalances={Boolean(includeRewardsBalances)}
-          />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+        <TabPanels>
+          <TabPanel>
+            <PositionTable
+              chainId={selectedChainId}
+              searchQuery={searchQuery}
+              includeEarnBalances={Boolean(includeEarnBalances)}
+              includeRewardsBalances={Boolean(includeRewardsBalances)}
+            />
+          </TabPanel>
+          <TabPanel>
+            <ProviderTable
+              chainId={selectedChainId}
+              searchQuery={searchQuery}
+              includeEarnBalances={Boolean(includeEarnBalances)}
+              includeRewardsBalances={Boolean(includeRewardsBalances)}
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Flex>
   )
 }

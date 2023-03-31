@@ -44,7 +44,7 @@ const AFFILIATE_BPS = 0
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS = {
-  [btcAssetId]: '10000',
+  [btcAssetId]: '30000',
   [bchAssetId]: '10000',
   [ltcAssetId]: '10000',
   [dogeAssetId]: '100000000',

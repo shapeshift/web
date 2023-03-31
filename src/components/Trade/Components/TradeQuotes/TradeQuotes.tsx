@@ -1,6 +1,13 @@
 import { Collapse, Flex } from '@chakra-ui/react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { selectSellAmountBeforeFeesBuyAssetBaseUnit } from 'state/zustand/swapperStore/amountSelectors'
+import {
+  selectActiveSwapperWithMetadata,
+  selectAvailableSwappersWithMetadata,
+  selectBuyAsset,
+  selectBuyAssetFiatRate,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeQuote } from './TradeQuote'
@@ -11,12 +18,11 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const buyAssetFiatRate = useSwapperStore(state => state.buyAssetFiatRate)
-  const availableSwappersWithMetadata = useSwapperStore(
-    state => state.availableSwappersWithMetadata,
-  )
-  const activeSwapperWithMetadata = useSwapperStore(state => state.activeSwapperWithMetadata)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
+  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+  const buyAsset = useSwapperStore(selectBuyAsset)
 
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
@@ -28,20 +34,31 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
     ? bnOrZero(bestBuyAmountCryptoPrecision).minus(bestBuyAssetTradeFeeCryptoPrecision).toString()
     : undefined
+
+  const sellAmountBeforeFeesBuyAssetBaseUnit = useSwapperStore(
+    selectSellAmountBeforeFeesBuyAssetBaseUnit,
+  )
+
   const quotes = availableSwappersWithMetadata
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
-        const buyAmountCryptoPrecision = fromBaseUnit(
-          quote.buyAmountCryptoBaseUnit,
-          quote.buyAsset.precision,
-        )
-        const buyAssetTradeFeeCryptoPrecision = buyAssetFiatRate
+        const buyAmountBeforeFeesCryptoPrecision =
+          sellAmountBeforeFeesBuyAssetBaseUnit && buyAsset
+            ? fromBaseUnit(sellAmountBeforeFeesBuyAssetBaseUnit, buyAsset.precision)
+            : undefined
+
+        const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate
           ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
           : undefined
 
-        const totalReceiveAmountCryptoPrecision = buyAssetTradeFeeCryptoPrecision
-          ? bnOrZero(buyAmountCryptoPrecision).minus(buyAssetTradeFeeCryptoPrecision).toString()
+        const sellAssetTradeFeeBuyCryptoPrecision = buyAssetFiatRate
+          ? bnOrZero(quote.feeData.sellAssetTradeFeeUsd).div(buyAssetFiatRate)
           : undefined
+
+        const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
+          .minus(buyAssetTradeFeeBuyAssetCryptoPrecision ?? 0)
+          .minus(sellAssetTradeFeeBuyCryptoPrecision ?? 0)
+          .toString()
 
         const isActive = activeSwapperName === swapperWithMetadata.swapper.name
         const quoteDifference = bn(1)

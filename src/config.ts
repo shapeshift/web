@@ -57,9 +57,10 @@ const validators = {
   REACT_APP_MTPELERIN_SELL_URL: url(),
   REACT_APP_MTPELERIN_REFERRAL_CODE: str(),
   REACT_APP_FRIENDLY_CAPTCHA_SITE_KEY: str(),
-  REACT_APP_FEATURE_DEFI_AGGREGATION: bool({ default: false }),
   REACT_APP_FEATURE_DASHBOARD_TABS: bool({ default: false }),
+  REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
+  REACT_APP_ZAPPER_API_KEY: str(),
   REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
@@ -76,7 +77,6 @@ const validators = {
   REACT_APP_FEATURE_ZRX_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
-  REACT_APP_FEATURE_IDLE_DEPOSITS: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_AXELAR: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
@@ -137,6 +137,7 @@ const validators = {
   }),
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
+  REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

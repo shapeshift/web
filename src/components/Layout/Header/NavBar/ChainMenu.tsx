@@ -41,7 +41,7 @@ const ChainMenuItem: React.FC<{
 
   return (
     <MenuItem
-      icon={<AssetIcon asset={nativeAsset} width='6' height='auto' />}
+      icon={<AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />}
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
       onClick={() => onClick(ethNetwork)}
       borderRadius='lg'
@@ -147,7 +147,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
           <MenuButton as={Button} iconSpacing={2} px={2} width={{ base: 'full', md: 'auto' }}>
             <Flex alignItems='center' justifyContent='center'>
               {currentChainNativeAsset ? (
-                <AssetIcon asset={currentChainNativeAsset} size='xs' />
+                <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon size='xs' />
               ) : (
                 <WarningIcon color='yellow.300' boxSize='4' />
               )}

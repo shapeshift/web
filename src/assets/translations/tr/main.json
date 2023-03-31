@@ -382,13 +382,13 @@
     "apr": "APR",
     "ended": "Bitti",
     "balance": "Bakiye",
-    "defi": "DeFi",
     "startEarning": "Kazanmaya başla",
     "eligibleOpportunities": "Uygun Fırsatlar",
     "defiBody": "Büyüyen evrende DeFi fırsatlarını keşfedin.",
     "netWorth": "Net Değer",
     "walletBalance": "Cüzdan Bakiyesi",
     "earnBalance": "Kazanç Bakiyesi",
+    "rewardsBalance": "Ödül Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
@@ -400,11 +400,10 @@
     "farmingBalance": "Çiftçilik Bakiyesi",
     "liquidityPoolBalance": "Likidite Havuzu Bakiyesi",
     "poolValue": "Havuz Değeri",
-    "currentValue": "Mevcut Değer",
-    "currentAPY": "Mevcut APY",
-    "currentAPR": "Mevcut APR",
     "yearn": "Yearn Finance",
     "totalValue": "Toplam Değer",
+    "byPosition": "Pozisyona Göre",
+    "byProvider": "Sağlayıcıya Göre",
     "netApy": "Net APY",
     "claimableRewards": "Talep Edilebilir Ödüller",
     "reawrds": "Ödüller",
@@ -555,6 +554,14 @@
         "infinite": "Sonsuz ∞",
         "amountUnavailable": "Kullanım dışı"
       },
+      "bep20": {
+        "approve": "Onayla",
+        "approveSymbol": "Onayla %{symbol}",
+        "revoke": "İptal",
+        "revokeSymbol": "%{symbol} onayını iptal edin",
+        "infinite": "Sonsuz ∞",
+        "amountUnavailable": "Kullanılamıyor"
+      },
       "staking": {
         "delegate": "Yetki",
         "begin_unbonding": "Yetkiyi geri al",
@@ -645,6 +652,11 @@
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Yetersiz satış tutarı"
+      }
     },
     "errors": {
       "title": "Bir şeyler ters gitti",
@@ -1591,6 +1603,11 @@
         "title": "✨ FOX ödüllerini ve daha fazlasını alın! ✨",
         "body": "DappBack'teki görevleri tamamlayarak FOX ödülleri kazanın",
         "cta": "DappBack'i Başlatın"
+      },
+      "bondProtocol": {
+        "title": "FOX'u İndirimli Satın Alın!",
+        "body": "BondProtocol ile FOX'u indirimli satın alın",
+        "cta": "BondProtocol'ü Başlat"
       }
     },
     "analytics": {

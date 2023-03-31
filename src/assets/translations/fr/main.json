@@ -382,13 +382,13 @@
     "apr": "APR",
     "ended": "Terminé",
     "balance": "Solde",
-    "defi": "DeFi",
     "startEarning": "Commencer à gagner",
     "eligibleOpportunities": "Opportunités éligibles",
     "defiBody": "Explorez un univers d'opportunités DeFi en expansion.",
     "netWorth": "Patrimoine net",
     "walletBalance": "Solde du porte-monnaie",
     "earnBalance": "Solde dans Gagner",
+    "rewardsBalance": "Solde des récompenses",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
@@ -400,11 +400,10 @@
     "farmingBalance": "Solde du farming",
     "liquidityPoolBalance": "Solde pools de liquidité",
     "poolValue": "Valeur du pool",
-    "currentValue": "Valeur actuelle",
-    "currentAPY": "APY actuel",
-    "currentAPR": "APR actuel",
     "yearn": "Yearn Finance",
     "totalValue": "Valeur totale",
+    "byPosition": "Par position",
+    "byProvider": "Par fournisseur",
     "netApy": "APY Net",
     "claimableRewards": "Récompenses réclamables",
     "reawrds": "Récompenses",
@@ -555,6 +554,14 @@
         "infinite": "Infini ∞",
         "amountUnavailable": "Indisponible"
       },
+      "bep20": {
+        "approve": "Autorisation",
+        "approveSymbol": "Autorisation %{symbol}",
+        "revoke": "Révocation",
+        "revokeSymbol": "Révocation d'autoris. %{symbol}",
+        "infinite": "Infini ∞",
+        "amountUnavailable": "Indisponible"
+      },
       "staking": {
         "delegate": "Déléguation",
         "begin_unbonding": "Annulation de délégation",
@@ -645,6 +652,11 @@
       "protocol": "C'est le protocole avec lequel votre échange est acheminé.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Montant de vente insuffisant"
+      }
     },
     "errors": {
       "title": "Il y a eu un problème",
@@ -1591,6 +1603,11 @@
         "title": "✨ Récompenses en FOX et plus encore ! ✨",
         "body": "Gagnez des récompenses en FOX en accomplissant des tâches sur DappBack",
         "cta": "Lancer DappBack"
+      },
+      "bondProtocol": {
+        "title": "Achetez de FOX à prix réduit !",
+        "body": "Achetez FOX à prix réduit avec BondProtocol",
+        "cta": "Lancer BondProtocol"
       }
     },
     "analytics": {

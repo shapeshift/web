@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import { FaCreditCard, FaFlag, FaLock, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -19,9 +19,6 @@ import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { EarnDashboard } from 'pages/Dashboard/EarnDashboard'
 import { RewardsDashboard } from 'pages/Dashboard/RewardsDashboard'
-import { Farming } from 'pages/Defi/views/Farming'
-import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
-import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
 import { Trade } from 'pages/Trade/Trade'
@@ -127,41 +124,13 @@ export const routes: NestedRoute[] = [
     ],
   },
   {
-    path: '/defi',
-    label: 'navBar.defi',
+    path: '/earn',
+    label: 'defi.earn',
     icon: <DefiIcon />,
-    main: null,
+    main: StakingVaults,
     category: RouteCategory.Explore,
     mobileNav: true,
     priority: 3,
-    routes: [
-      {
-        path: '/',
-        label: 'defi.overview',
-        main: Overview,
-        icon: <FaTable />,
-      },
-      {
-        path: '/liquidity-pools',
-        label: 'defi.liquidityPools',
-        main: LiquidityPools,
-        icon: <FaWater />,
-        disable: true,
-      },
-      {
-        path: '/earn',
-        label: 'defi.earn',
-        main: StakingVaults,
-        icon: <FaLock />,
-      },
-      {
-        path: '/farming',
-        label: 'defi.farming',
-        main: Farming,
-        icon: <FaTractor />,
-        disable: true,
-      },
-    ],
   },
   {
     path: '/transaction-history',

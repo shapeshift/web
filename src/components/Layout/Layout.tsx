@@ -56,6 +56,8 @@ const DegradedStateBanner = () => {
     )
   }, [dispatch, erroredAccountIds])
 
+  if (!erroredAccountNames?.length) return null
+
   return (
     <Alert
       status='warning'

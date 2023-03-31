@@ -1,28 +1,26 @@
 import { Box, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
-import { AllEarnOpportunities } from 'components/StakingVaults/AllEarnOpportunities'
+import { SEO } from 'components/Layout/Seo'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { EligibleSlider } from '../components/EligibleSlider'
 
 const DefiHeader = () => {
   const translate = useTranslate()
   return (
-    <Box>
-      <Heading>{translate('defi.defi')}</Heading>
+    <Box pb={6}>
+      <Heading>{translate('defi.earn')}</Heading>
     </Box>
   )
 }
 
 export const StakingVaults = () => {
-  const isDefiAggregationEnabled = useFeatureFlag('DefiAggregation')
   return (
     <Main titleComponent={<DefiHeader />}>
+      <SEO title={'Earn'} description={'Earn'} />
       <EligibleSlider />
-
-      {isDefiAggregationEnabled ? <DeFiEarn mt={6} /> : <AllEarnOpportunities />}
+      <DeFiEarn mt={6} />
     </Main>
   )
 }

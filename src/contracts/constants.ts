@@ -16,11 +16,11 @@ export const ETH_FOX_STAKING_CONTRACT_ADDRESS_V6 =
   '0xc065ad7e7d4555f9cfc0243563975a2f0b634ce6' as const
 
 // Exported as a string literal for contract address discrimination purposes
-export const ETH_FOX_POOL_CONTRACT_ADDRESS = '0x470e8de2ebaef52014a47cb5e6af86884947f08c' as const
+export const ETH_FOX_POOL_CONTRACT_ADDRESS = '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c' as const
 
 // Exported as a string literal for contract address discrimination purposes
 export const UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS =
-  '0x7a250d5630b4cf539739df2c5dacb4c659f2488d' as const
+  '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' as const
 
 // Checksummed addresses - used to check against unchained Txs
 

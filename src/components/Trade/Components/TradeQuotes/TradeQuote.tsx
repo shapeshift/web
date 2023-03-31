@@ -7,17 +7,23 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { useTradeAmounts } from 'components/Trade/hooks/useTradeAmounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import {
+  selectAmount,
+  selectBuyAsset,
+  selectFeeAssetFiatRate,
+  selectSellAsset,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 const TradeQuoteLoading = () => {
@@ -76,23 +82,33 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
-  const { setTradeAmountsUsingExistingData } = useTradeAmounts()
-
-  const feeAssetFiatRate = useSwapperStore(state => state.feeAssetFiatRate)
-  const buyAsset = useSwapperStore(state => state.buyAsset)
-  const sellAsset = useSwapperStore(state => state.sellAsset)
-  const amount = useSwapperStore(state => state.amount)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const buyAsset = useSwapperStore(selectBuyAsset)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const sellFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
+  )
+  const amount = useSwapperStore(selectAmount)
   const updateActiveSwapperWithMetadata = useSwapperStore(
     state => state.updateActiveSwapperWithMetadata,
   )
-  const action = useSwapperStore(state => state.action)
+  const updateFees = useSwapperStore(state => state.updateFees)
+  const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
 
   const handleSwapperSelection = useCallback(
     (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
       updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
-      setTradeAmountsUsingExistingData({ amount, action })
+      if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
+      updateFees(sellFeeAsset)
+      handleInputAmountChange()
     },
-    [action, amount, setTradeAmountsUsingExistingData, updateActiveSwapperWithMetadata],
+    [
+      handleInputAmountChange,
+      sellAsset?.assetId,
+      sellFeeAsset,
+      updateActiveSwapperWithMetadata,
+      updateFees,
+    ],
   )
 
   const { quote, inputOutputRatio } = swapperWithMetadata

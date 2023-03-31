@@ -17,7 +17,6 @@ export type FeatureFlags = {
   BnbSmartChain: boolean
   ThorSwap: boolean
   IdleFinance: boolean
-  IdleFinanceDeposits: boolean
   Axelar: boolean
   Yat: boolean
   WalletConnectToDapps: boolean
@@ -25,7 +24,6 @@ export type FeatureFlags = {
   Wherever: boolean
   SaversVaults: boolean
   Yearn: boolean
-  DefiAggregation: boolean
   DefiDashboard: boolean
   ArkeoAirdrop: boolean
   TradeRates: boolean
@@ -38,6 +36,7 @@ export type FeatureFlags = {
   LiveSupport: boolean
   LifiSwap: boolean
   FoxBondCTA: boolean
+  DynamicLpAssets: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -68,7 +67,6 @@ const initialState: Preferences = {
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
-    IdleFinanceDeposits: getConfig().REACT_APP_FEATURE_IDLE_DEPOSITS,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
@@ -76,7 +74,6 @@ const initialState: Preferences = {
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
-    DefiAggregation: getConfig().REACT_APP_FEATURE_DEFI_AGGREGATION,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
@@ -89,6 +86,7 @@ const initialState: Preferences = {
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
+    DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

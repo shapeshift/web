@@ -382,13 +382,13 @@
     "apr": "APR",
     "ended": "Finalizado",
     "balance": "Balance",
-    "defi": "DeFi",
     "startEarning": "Empezar a ganar",
     "eligibleOpportunities": "Oportunidades elegibles",
     "defiBody": "Explore un universo creciente de oportunidades DeFi.",
     "netWorth": "Valor neto",
     "walletBalance": "Saldo de la Billetera",
     "earnBalance": "Balance ganado",
+    "rewardsBalance": "Balance Recompensas",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
     "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
@@ -400,11 +400,10 @@
     "farmingBalance": "Balance de Farming",
     "liquidityPoolBalance": "Balance Pool de Liquídez",
     "poolValue": "Valor de Pool",
-    "currentValue": "Valor Actual",
-    "currentAPY": "APY Actual",
-    "currentAPR": "APR Actual",
     "yearn": "Yearn Finance",
     "totalValue": "Valor Total",
+    "byPosition": "Por Posición",
+    "byProvider": "Por Proveedor",
     "netApy": "APY neto",
     "claimableRewards": "Recompensas reclamables",
     "reawrds": "Recompensas",
@@ -555,6 +554,14 @@
         "infinite": "Infinito ∞",
         "amountUnavailable": "No disponible"
       },
+      "bep20": {
+        "approve": "Aprobar",
+        "approveSymbol": "Aprobar %{symbol}",
+        "revoke": "Revocar",
+        "revokeSymbol": "Revocar Autorización %{symbol} ",
+        "infinite": "Infinito ∞",
+        "amountUnavailable": "No disponible"
+      },
       "staking": {
         "delegate": "Delegar",
         "begin_unbonding": "Retirar Delegación",
@@ -645,6 +652,11 @@
       "protocol": "Este es el protocolo donde se enruta su intercambio.",
       "protocolFee": "Esta es la tarifa cobrada por el protocolo seleccionado para procesar, No es una tarifa cobrada por ShapeShift",
       "shapeshiftFee": "ShapeShift no agrega tarifas a los intercambios 🎉"
+    },
+    "rates": {
+      "tags": {
+        "negativeRatio": "Monto de venta insuficiente"
+      }
     },
     "errors": {
       "title": "Algo salió mal",
@@ -1591,6 +1603,11 @@
         "title": "✨ ¡Obtén recompensas FOX y más! ✨",
         "body": "Gana recompensas FOX completando tareas en DappBack",
         "cta": "Iniciar DappBack"
+      },
+      "bondProtocol": {
+        "title": "Compre FOX con descuento!",
+        "body": "Compre FOX con descuento en BondProtocol",
+        "cta": "Iniciar BondProtocol"
       }
     },
     "analytics": {

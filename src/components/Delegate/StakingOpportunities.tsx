@@ -231,7 +231,7 @@ export const StakingOpportunities = ({
             variant='link'
             colorScheme='blue'
             as={NavLink}
-            to='/defi/earn'
+            to='/earn'
             rightIcon={<ArrowForwardIcon />}
           >
             <Text translation='common.seeAll' />

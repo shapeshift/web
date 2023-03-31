@@ -75,7 +75,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const handleViewPosition = useCallback(() => {
-    browserHistory.push('/defi')
+    browserHistory.push('/earn')
   }, [browserHistory])
 
   const handleCancel = history.goBack

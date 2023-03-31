@@ -1,7 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { BN } from '@shapeshiftoss/investor-foxy'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -114,19 +113,6 @@ export const supportsUndelegations = (
 
 export const makeTotalUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
-
-export const makeTotalCosmosSdkBondingsCryptoBaseUnit = (
-  userStakingOpportunity: Partial<UserStakingOpportunity>,
-): BN =>
-  bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
-    .plus(userStakingOpportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? 0)
-    .plus(
-      makeTotalUndelegationsCryptoBaseUnit([
-        ...(supportsUndelegations(userStakingOpportunity)
-          ? userStakingOpportunity.undelegations
-          : []),
-      ]),
-    )
 
 export const isActiveStakingOpportunity = (
   userStakingOpportunity: UserStakingOpportunity | UserStakingOpportunityWithMetadata,

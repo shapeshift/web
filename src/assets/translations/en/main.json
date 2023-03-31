@@ -94,7 +94,8 @@
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now",
     "manage": "Manage",
-    "selectedAccount": "Selected Account"
+    "selectedAccount": "Selected Account",
+    "allChains": "All Chains"
   },
   "consentBanner": {
     "body": {
@@ -382,7 +383,6 @@
     "apr": "APR",
     "ended": "Ended",
     "balance": "Balance",
-    "defi": "DeFi",
     "startEarning": "Start Earning",
     "eligibleOpportunities": "Eligible Opportunities",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
@@ -393,6 +393,11 @@
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
+    "myPositions": "My Positions",
+    "myPositionsBody": "Your active positions will appear here.",
+    "myRewards": "My Rewards",
+    "myRewardsBody": "Your active positions with claimable rewards will appear here.",
+    "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
@@ -401,9 +406,6 @@
     "farmingBalance": "Farming Balance",
     "liquidityPoolBalance": "Liquidity Pool Balance",
     "poolValue": "Pool Value",
-    "currentValue": "Current Value",
-    "currentAPY": "Current APY",
-    "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
     "totalValue": "Total Value",
     "byPosition": "By Position",
@@ -413,6 +415,7 @@
     "reawrds": "Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
+    "noActivePositions": "No Active Positions",
     "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {
@@ -1476,6 +1479,7 @@
         "trade": "Trade"
       },
       "accountTokens": "Account Tokens",
+      "relatedAssets": "Related Assets",
       "showTokens": "Show Tokens (%{amount})",
       "hideTokens": "Hide Tokens (%{amount})",
       "underlyingAssets": "Underlying Assets",

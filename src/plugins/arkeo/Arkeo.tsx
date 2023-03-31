@@ -12,7 +12,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { foxEthLpAssetId, foxEthStakingAssetIdV5 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
 import { FoxTokenHolders } from './FoxTokenHolders'
@@ -27,7 +27,7 @@ const cosmosOsmosLpAssetId = 'cosmos:osmosis-1/ibc:gamm/pool/1'
 const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b'
 
 const opportunities: OpportunityReturn = {
-  staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV5, osmosisAssetId, cosmosAssetId],
+  staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV6, osmosisAssetId, cosmosAssetId],
   lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
 }
 

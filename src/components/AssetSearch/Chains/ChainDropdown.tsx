@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
+import type { ButtonProps, MenuProps } from '@chakra-ui/react'
 import {
   Button,
   Flex,
@@ -20,42 +21,51 @@ import { useAppSelector } from 'state/store'
 import { ChainRow } from './ChainRow'
 
 type ChainDropdownProps = {
-  activeChain?: ChainId
+  chainId?: ChainId
   onClick: (arg: ChainId | undefined) => void
   chainIds: ChainId[]
-}
+  showAll?: boolean
+  includeBalance?: boolean
+  buttonProps?: ButtonProps
+} & Omit<MenuProps, 'children'>
 
-export const ChainDropdown: React.FC<ChainDropdownProps> = ({ chainIds, activeChain, onClick }) => {
+export const ChainDropdown: React.FC<ChainDropdownProps> = ({
+  chainIds,
+  chainId,
+  onClick,
+  showAll,
+  includeBalance,
+  buttonProps,
+  ...menuProps
+}) => {
   const totalPortfolioFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
   const translate = useTranslate()
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
       <MenuItemOption value={chainId} key={chainId}>
-        <ChainRow chainId={chainId} includeBalance />
+        <ChainRow chainId={chainId} includeBalance={includeBalance} />
       </MenuItemOption>
     ))
-  }, [chainIds])
+  }, [chainIds, includeBalance])
 
   return (
-    <Menu>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-        {activeChain ? <ChainRow chainId={activeChain} /> : translate('common.allChains')}
+    <Menu {...menuProps}>
+      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} {...buttonProps}>
+        {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <MenuList>
-        <MenuOptionGroup
-          type='radio'
-          value={activeChain}
-          onChange={value => onClick(value as ChainId)}
-        >
-          <MenuItemOption value=''>
-            <Flex alignItems='center' gap={4}>
-              <IconCircle boxSize='24px'>
-                <GridIcon />
-              </IconCircle>
-              {translate('common.allChains')}
-              <Amount.Fiat value={totalPortfolioFiatBalance} />
-            </Flex>
-          </MenuItemOption>
+        <MenuOptionGroup type='radio' value={chainId} onChange={value => onClick(value as ChainId)}>
+          {showAll && (
+            <MenuItemOption value=''>
+              <Flex alignItems='center' gap={4}>
+                <IconCircle boxSize='24px'>
+                  <GridIcon />
+                </IconCircle>
+                {translate('common.allChains')}
+                <Amount.Fiat ml='auto' value={totalPortfolioFiatBalance} />
+              </Flex>
+            </MenuItemOption>
+          )}
           {renderChains}
         </MenuOptionGroup>
       </MenuList>

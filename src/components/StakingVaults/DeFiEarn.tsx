@@ -54,8 +54,10 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           </Flex>
           <ChainDropdown
             chainIds={portfolioChainIds}
-            activeChain={selectedChainId}
+            chainId={selectedChainId}
             onClick={setSelectedChainId}
+            showAll
+            includeBalance
           />
           <Flex flex={1} maxWidth={{ base: '100%', md: '300px' }} width='full' gap={4}>
             <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />

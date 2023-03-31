@@ -1,14 +1,9 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   Box,
   Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuOptionGroup,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -24,14 +19,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { AssetIcon } from 'components/AssetIcon'
-import { ChainOption } from 'components/ChainOption/ChainOption'
+import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
@@ -54,6 +47,7 @@ export const AddAccountModal = () => {
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
@@ -66,22 +60,6 @@ export const AddAccountModal = () => {
   useEffect(() => {
     setSelectedChainId(chainIds[0])
   }, [chainIds])
-
-  const menuOptions = useMemo(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    return chainIds
-      .map(chainId => {
-        const chainAdapter = chainAdapterManager.get(chainId)
-        if (!chainAdapter) return null
-        const assetId = chainAdapter.getFeeAssetId()
-        const asset = assets?.[assetId]
-        if (!asset) return null
-        const key = chainId
-        const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
-        return <ChainOption {...chainOptionsProps} />
-      })
-      .filter(isSome)
-  }, [assets, chainIds])
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
@@ -139,26 +117,13 @@ export const AddAccountModal = () => {
               </RawText>
             </Stack>
             <Box pt={4} width='full'>
-              <Menu matchWidth>
-                <MenuButton
-                  mb={4}
-                  as={Button}
-                  width='full'
-                  variant='outline'
-                  iconSpacing={0}
-                  rightIcon={<ChevronDownIcon />}
-                >
-                  <Stack spacing={0} direction='row' alignItems='center'>
-                    <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
-                    <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
-                  </Stack>
-                </MenuButton>
-                <MenuList>
-                  <MenuOptionGroup defaultValue='asc' type='radio'>
-                    {menuOptions}
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
+              <ChainDropdown
+                chainIds={portfolioChainIds}
+                chainId={selectedChainId}
+                onClick={setSelectedChainId}
+                matchWidth
+                buttonProps={{ width: 'full' }}
+              />
             </Box>
             {!isAbleToAddAccount && (
               <Alert size='sm'>

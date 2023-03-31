@@ -9,28 +9,23 @@ import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from 'state/slices
 import { useAppSelector } from 'state/store'
 
 type ChainOptionProps = {
-  chainId: ChainId | undefined
+  chainId?: ChainId
   asset?: Asset
-  setSelectedChainId: (chainId?: ChainId) => void
+  showFiatBalance?: boolean
 }
 
 export const ChainOption = forwardRef<ChainOptionProps, 'button'>(
-  ({ chainId, asset, setSelectedChainId }, ref) => {
+  ({ chainId, asset, showFiatBalance }, ref) => {
     const filter = useMemo(() => ({ chainId }), [chainId])
     const chainFiatBalance = useAppSelector(s =>
       selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
     )
     return (
-      <MenuItemOption
-        ref={ref}
-        key={chainId}
-        iconSpacing={0}
-        onClick={() => setSelectedChainId(chainId)}
-      >
+      <MenuItemOption ref={ref} key={chainId} iconSpacing={0} value={chainId}>
         <Stack direction='row' spacing={0} ml={0}>
           <AssetIcon size='xs' assetId={asset?.assetId} showNetworkIcon mr={3} />
           <RawText fontWeight='bold'>{asset?.networkName ?? asset?.name}</RawText>
-          {chainFiatBalance && <Amount.Fiat value={chainFiatBalance} />}
+          {showFiatBalance && chainFiatBalance && <Amount.Fiat value={chainFiatBalance} />}
         </Stack>
       </MenuItemOption>
     )

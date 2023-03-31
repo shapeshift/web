@@ -94,7 +94,8 @@
     "needAsset": "Need some %{asset}?",
     "buyNow": "Buy Now",
     "manage": "Manage",
-    "selectedAccount": "Selected Account"
+    "selectedAccount": "Selected Account",
+    "allChains": "All Chains"
   },
   "consentBanner": {
     "body": {

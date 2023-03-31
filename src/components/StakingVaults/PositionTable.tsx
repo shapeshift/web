@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Tag } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
@@ -51,6 +51,7 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 }
 
 export type PositionTableProps = {
+  chainIdFilter?: ChainId
   searchQuery: string
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean

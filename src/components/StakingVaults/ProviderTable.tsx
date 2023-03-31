@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Avatar, Flex, IconButton, Tag } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
@@ -40,6 +41,7 @@ const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
 }
 
 export type ProviderTableProps = {
+  chainIdFilter?: ChainId
   searchQuery: string
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean

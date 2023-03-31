@@ -51,13 +51,14 @@ const AssetCell = ({ assetId }: { assetId: AssetId }) => {
 }
 
 export type PositionTableProps = {
-  chainIdFilter?: ChainId
+  chainId?: ChainId
   searchQuery: string
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
 }
 
 export const PositionTable: React.FC<PositionTableProps> = ({
+  chainId,
   includeEarnBalances,
   includeRewardsBalances,
   searchQuery,
@@ -67,6 +68,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const positions = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByAssetId(state, {
+      chainId,
       includeEarnBalances,
       includeRewardsBalances,
     }),

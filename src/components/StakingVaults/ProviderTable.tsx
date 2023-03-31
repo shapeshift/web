@@ -41,13 +41,14 @@ const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
 }
 
 export type ProviderTableProps = {
-  chainIdFilter?: ChainId
+  chainId?: ChainId
   searchQuery: string
   includeEarnBalances?: boolean
   includeRewardsBalances?: boolean
 }
 
 export const ProviderTable: React.FC<ProviderTableProps> = ({
+  chainId,
   includeEarnBalances,
   includeRewardsBalances,
   searchQuery,
@@ -56,6 +57,7 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const providers = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByProvider(state, {
+      chainId,
       includeEarnBalances,
       includeRewardsBalances,
     }),

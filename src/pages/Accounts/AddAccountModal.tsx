@@ -1,16 +1,9 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   Box,
   Button,
-  forwardRef,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -21,19 +14,17 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { AssetIcon } from 'components/AssetIcon'
+import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { isSome } from 'lib/utils'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
@@ -41,27 +32,6 @@ import {
   selectPortfolioChainIdsSortedFiat,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-type ChainOptionProps = {
-  chainId: ChainId
-  asset: Asset
-  setSelectedChainId: (chainId: ChainId) => void
-}
-const ChainOption = forwardRef<ChainOptionProps, 'button'>(
-  ({ chainId, asset, setSelectedChainId }, ref) => (
-    <MenuItemOption
-      ref={ref}
-      key={chainId}
-      iconSpacing={0}
-      onClick={() => setSelectedChainId(chainId)}
-    >
-      <Stack direction='row' spacing={0} ml={0}>
-        <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
-        <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
-      </Stack>
-    </MenuItemOption>
-  ),
-)
 
 export const AddAccountModal = () => {
   const translate = useTranslate()
@@ -76,7 +46,8 @@ export const AddAccountModal = () => {
   const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
-  const [selectedChainId, setSelectedChainId] = useState<ChainId>(firstChainId)
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
@@ -89,22 +60,6 @@ export const AddAccountModal = () => {
   useEffect(() => {
     setSelectedChainId(chainIds[0])
   }, [chainIds])
-
-  const menuOptions = useMemo(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    return chainIds
-      .map(chainId => {
-        const chainAdapter = chainAdapterManager.get(chainId)
-        if (!chainAdapter) return null
-        const assetId = chainAdapter.getFeeAssetId()
-        const asset = assets?.[assetId]
-        if (!asset) return null
-        const key = chainId
-        const chainOptionsProps = { chainId, setSelectedChainId, asset, key }
-        return <ChainOption {...chainOptionsProps} />
-      })
-      .filter(isSome)
-  }, [assets, chainIds])
 
   const asset = useMemo(() => {
     if (!selectedChainId) return
@@ -162,26 +117,13 @@ export const AddAccountModal = () => {
               </RawText>
             </Stack>
             <Box pt={4} width='full'>
-              <Menu matchWidth>
-                <MenuButton
-                  mb={4}
-                  as={Button}
-                  width='full'
-                  variant='outline'
-                  iconSpacing={0}
-                  rightIcon={<ChevronDownIcon />}
-                >
-                  <Stack spacing={0} direction='row' alignItems='center'>
-                    <AssetIcon size='xs' assetId={asset.assetId} showNetworkIcon mr={3} />
-                    <RawText fontWeight='bold'>{asset?.networkName ?? asset.name}</RawText>
-                  </Stack>
-                </MenuButton>
-                <MenuList>
-                  <MenuOptionGroup defaultValue='asc' type='radio'>
-                    {menuOptions}
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
+              <ChainDropdown
+                chainIds={portfolioChainIds}
+                chainId={selectedChainId}
+                onClick={setSelectedChainId}
+                matchWidth
+                buttonProps={{ width: 'full' }}
+              />
             </Box>
             {!isAbleToAddAccount && (
               <Alert size='sm'>

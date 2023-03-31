@@ -9,6 +9,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  selectChainIdParamFromFilter,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
 } from 'state/selectors'
@@ -82,6 +83,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
+  selectChainIdParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
@@ -89,6 +91,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     assets,
     includeEarnBalances,
     includeRewardsBalances,
+    chainId,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
     const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
@@ -97,6 +100,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       (acc, cur) => {
         const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
         const underlyingAssetIds = [cur[depositKey]].flat()
+        if (chainId && cur.chainId !== chainId) return acc
         underlyingAssetIds.forEach(assetId => {
           if (!acc[assetId]) {
             acc[assetId] = {
@@ -236,6 +240,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
+  selectChainIdParamFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
@@ -243,6 +248,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     assets,
     includeEarnBalances,
     includeRewardsBalances,
+    chainId,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
     const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
@@ -275,6 +281,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
+
+      if (chainId && chainId !== cur.chainId) return acc
 
       totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
       projectedAnnualizedYieldByProvider[provider] = bnOrZero(

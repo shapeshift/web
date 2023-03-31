@@ -100,6 +100,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       (acc, cur) => {
         const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
         const underlyingAssetIds = [cur[depositKey]].flat()
+        if (chainId && cur.chainId !== chainId) return acc
         underlyingAssetIds.forEach(assetId => {
           if (!acc[assetId]) {
             acc[assetId] = {
@@ -117,7 +118,6 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           }
           const asset = assets[assetId]
           if (!asset) return acc
-          if (chainId && asset.chainId !== chainId) return acc
 
           const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
             ...cur,

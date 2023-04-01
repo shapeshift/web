@@ -54,7 +54,7 @@ export const foxEthStakingAssetIdV4: AssetId =
 export const foxEthStakingAssetIdV5: AssetId =
   'eip155:1/erc20:0xc14eaa8284feff79edc118e06cadbf3813a7e555'
 export const foxEthStakingAssetIdV6: AssetId =
-  'eip155:1/erc20:0xc065ad7e7d4555f9cfc0243563975a2f0b634ce6'
+  'eip155:1/erc20:0xebb1761ad43034fd7faa64d84e5bbd8cb5c40b68'
 
 // Tuple of all staking contracts as AssetIds, to iterate over and dispatch RTK queries for
 export const foxEthAssetIds = [

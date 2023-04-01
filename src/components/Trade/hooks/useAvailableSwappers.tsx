@@ -1,10 +1,12 @@
-import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
+import type {
+  GetSwappersWithQuoteMetadataReturn,
+  SwapperWithQuoteMetadata,
+} from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { partition } from 'lodash'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import { isFulfilled, isSome } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
@@ -97,41 +99,49 @@ export const useAvailableSwappers = () => {
         The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
         A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
        */
-      const partitionedSwapperPromises = await Promise.allSettled(
-        partition(swappersWithQuoteMetadata, async swapperWithQuoteMetadata => {
-          const activeSwapper = swapperWithQuoteMetadata.swapper
-          const isThorSwapper = activeSwapper.name === SwapperName.Thorchain
-          // Avoid unnecessary network requests unless we have a THORChain swapper
-          if (isThorSwapper) {
-            const isTradingActiveOnSellPoolResult =
-              sellAssetId &&
-              activeSwapper &&
-              (
-                await dispatch(
-                  getIsTradingActive.initiate({
-                    assetId: sellAssetId,
-                    swapperName: activeSwapper.name,
-                  }),
-                )
-              ).data
+      const active: SwapperWithQuoteMetadata[] = []
+      const halted: SwapperWithQuoteMetadata[] = []
+      await Promise.allSettled(
+        swappersWithQuoteMetadata.map(async swapperWithQuoteMetadata => {
+          const isActive = await (async () => {
+            const activeSwapper = swapperWithQuoteMetadata.swapper
+            const isThorSwapper = activeSwapper.name === SwapperName.Thorchain
+            // Avoid unnecessary network requests unless we have a THORChain swapper
+            if (isThorSwapper) {
+              const isTradingActiveOnSellPoolResult =
+                sellAssetId &&
+                activeSwapper &&
+                (
+                  await dispatch(
+                    getIsTradingActive.initiate({
+                      assetId: sellAssetId,
+                      swapperName: activeSwapper.name,
+                    }),
+                  )
+                ).data
 
-            const isTradingActiveOnBuyPoolResult =
-              buyAssetId &&
-              activeSwapper &&
-              (
-                await dispatch(
-                  getIsTradingActive.initiate({
-                    assetId: buyAssetId,
-                    swapperName: activeSwapper.name,
-                  }),
-                )
-              ).data
-            return !!isTradingActiveOnSellPoolResult && !!isTradingActiveOnBuyPoolResult
-          } else return true
+              const isTradingActiveOnBuyPoolResult =
+                buyAssetId &&
+                activeSwapper &&
+                (
+                  await dispatch(
+                    getIsTradingActive.initiate({
+                      assetId: buyAssetId,
+                      swapperName: activeSwapper.name,
+                    }),
+                  )
+                ).data
+              return !!isTradingActiveOnSellPoolResult && !!isTradingActiveOnBuyPoolResult
+            } else return true
+          })()
+
+          if (isActive) {
+            active.push(swapperWithQuoteMetadata)
+          } else {
+            halted.push(swapperWithQuoteMetadata)
+          }
         }),
       )
-
-      const [active, halted] = partitionedSwapperPromises.filter(isFulfilled).map(p => p.value)
 
       /*
         If we have active swappers, show only them. Else, show any halted swappers so the user knows the trade pair

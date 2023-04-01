@@ -101,7 +101,7 @@ export const useAvailableSwappers = () => {
        */
       const active: SwapperWithQuoteMetadata[] = []
       const halted: SwapperWithQuoteMetadata[] = []
-      await Promise.allSettled(
+      await Promise.all(
         swappersWithQuoteMetadata.map(async swapperWithQuoteMetadata => {
           const isActive = await (async () => {
             const activeSwapper = swapperWithQuoteMetadata.swapper

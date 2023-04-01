@@ -1,8 +1,13 @@
-import type { GetSwappersWithQuoteMetadataReturn } from '@shapeshiftoss/swapper'
+import type {
+  GetSwappersWithQuoteMetadataReturn,
+  SwapperWithQuoteMetadata,
+} from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { isSome } from 'lib/utils'
+import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -35,6 +40,8 @@ export const useAvailableSwappers = () => {
   const [swappersWithQuoteMetadata, setSwappersWithQuoteMetadata] =
     useState<GetSwappersWithQuoteMetadataReturn>()
   const dispatch = useAppDispatch()
+
+  const { getIsTradingActive } = getIsTradingActiveApi.endpoints
 
   const featureFlags = useAppSelector(selectFeatureFlags)
   const { getAvailableSwappers } = getSwappersApi.endpoints
@@ -86,13 +93,73 @@ export const useAvailableSwappers = () => {
   ])
 
   useEffect(() => {
-    const activeSwapperWithQuoteMetadata = swappersWithQuoteMetadata?.[0]
-    updateAvailableSwappersWithMetadata(swappersWithQuoteMetadata)
-    updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
-    feeAsset && updateFees(feeAsset)
+    ;(async () => {
+      if (!swappersWithQuoteMetadata) return
+      /*
+        The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
+        A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
+       */
+      const active: SwapperWithQuoteMetadata[] = []
+      const halted: SwapperWithQuoteMetadata[] = []
+      await Promise.all(
+        swappersWithQuoteMetadata.map(async swapperWithQuoteMetadata => {
+          const isActive = await (async () => {
+            const activeSwapper = swapperWithQuoteMetadata.swapper
+            const isThorSwapper = activeSwapper.name === SwapperName.Thorchain
+            // Avoid unnecessary network requests unless we have a THORChain swapper
+            if (isThorSwapper) {
+              const isTradingActiveOnSellPoolResult =
+                sellAssetId &&
+                activeSwapper &&
+                (
+                  await dispatch(
+                    getIsTradingActive.initiate({
+                      assetId: sellAssetId,
+                      swapperName: activeSwapper.name,
+                    }),
+                  )
+                ).data
+
+              const isTradingActiveOnBuyPoolResult =
+                buyAssetId &&
+                activeSwapper &&
+                (
+                  await dispatch(
+                    getIsTradingActive.initiate({
+                      assetId: buyAssetId,
+                      swapperName: activeSwapper.name,
+                    }),
+                  )
+                ).data
+              return !!isTradingActiveOnSellPoolResult && !!isTradingActiveOnBuyPoolResult
+            } else return true
+          })()
+
+          if (isActive) {
+            active.push(swapperWithQuoteMetadata)
+          } else {
+            halted.push(swapperWithQuoteMetadata)
+          }
+        }),
+      )
+
+      /*
+        If we have active swappers, show only them. Else, show any halted swappers so the user knows the trade pair
+        is actually supported by us, it's just currently halted.
+       */
+      const swappersToDisplay = active.length > 0 ? active : halted
+      const activeSwapperWithQuoteMetadata = swappersToDisplay?.[0]
+      updateAvailableSwappersWithMetadata(swappersToDisplay)
+      updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
+      feeAsset && updateFees(feeAsset)
+    })()
   }, [
+    buyAssetId,
+    dispatch,
     feeAsset,
+    getIsTradingActive,
     sellAsset?.assetId,
+    sellAssetId,
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,

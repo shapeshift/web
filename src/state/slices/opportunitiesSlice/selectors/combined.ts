@@ -132,7 +132,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId] = {
               assetId,
               underlyingAssetIds: cur.underlyingAssetIds,
-              netApy: '0',
+              apy: '0',
               fiatAmount: '0',
               cryptoBalancePrecision: '0',
               fiatRewardsAmount: '0',
@@ -213,10 +213,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     )
 
     for (const [assetId, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByAssetId)) {
-      const netApy = bnOrZero(projectedAnnualizedYieldByAssetId[assetId]).div(
-        totalVirtualFiatAmount,
-      )
-      byAssetId[assetId].netApy = netApy.toFixed()
+      const apy = bnOrZero(projectedAnnualizedYieldByAssetId[assetId]).div(totalVirtualFiatAmount)
+      byAssetId[assetId].apy = apy.toFixed()
     }
 
     const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
@@ -294,7 +292,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
       provider,
-      netApy: '0',
+      apy: '0',
       fiatAmount: '0',
       fiatRewardsAmount: '0',
       opportunities: {
@@ -356,10 +354,10 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     }, initial)
 
     for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
-      const netApy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
+      const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
         totalVirtualFiatAmount,
       )
-      byProvider[provider as DefiProvider].netApy = netApy.toFixed()
+      byProvider[provider as DefiProvider].apy = apy.toFixed()
     }
 
     const aggregatedEarnOpportunitiesByProvider = Object.values(byProvider).reduce<

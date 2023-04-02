@@ -102,13 +102,13 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         },
       },
       {
-        Header: translate('defi.netApy'),
-        accessor: 'netApy',
+        Header: translate('defi.apy'),
+        accessor: 'apy',
         textAlign: 'right',
         Cell: ({ row }: { row: RowProps }) => (
           <Flex justifyContent={{ base: 'flex-end', md: 'flex-start' }}>
             <Tag colorScheme='green' size={{ base: 'sm', md: 'md' }}>
-              <Amount.Percent value={row.original.netApy} />
+              <Amount.Percent value={row.original.apy} />
             </Tag>
           </Flex>
         ),

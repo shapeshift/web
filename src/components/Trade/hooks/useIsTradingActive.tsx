@@ -49,5 +49,9 @@ export const useIsTradingActive = () => {
     })()
   }, [activeSwapper, buyAssetId, dispatch, getIsTradingActive, sellAssetId])
 
-  return { isTradingActiveOnSellPool, isTradingActiveOnBuyPool }
+  return {
+    isTradingActiveOnSellPool,
+    isTradingActiveOnBuyPool,
+    isTradingActive: isTradingActiveOnSellPool && isTradingActiveOnBuyPool,
+  }
 }

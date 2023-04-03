@@ -97,8 +97,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
     const projectedAnnualizedYieldByAssetId: Record<AssetId, BN> = {}
 
-    // TODO(gomes): make me a selector?
-    const hasActiveStakingByAssetId = combined.reduce<Record<AssetId, boolean>>((acc, cur) => {
+    const isActiveOpportunityByAssetId = combined.reduce<Record<AssetId, boolean>>((acc, cur) => {
       const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
       const underlyingAssetIds = [cur[depositKey]].flat()
       underlyingAssetIds.forEach(assetId => {
@@ -141,7 +140,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         const underlyingAssetIds = [cur[depositKey]].flat()
         if (chainId && cur.chainId !== chainId) return acc
         underlyingAssetIds.forEach(assetId => {
-          const hasActiveStakingForAssetId = hasActiveStakingByAssetId[assetId]
+          const isActiveAssetId = isActiveOpportunityByAssetId[assetId]
           if (!acc[assetId]) {
             acc[assetId] = {
               assetId,
@@ -176,15 +175,16 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             assets,
           })
 
+          const isActiveOpportunityByFilter =
+            (!includeEarnBalances && !includeRewardsBalances) ||
+            (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
+            (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+
           acc[assetId].fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
             .plus(acc[assetId].fiatRewardsAmount)
             .toFixed(2)
 
-          if (
-            (!includeEarnBalances && !includeRewardsBalances) ||
-            (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
-            (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-          ) {
+          if (isActiveOpportunityByFilter) {
             acc[assetId].opportunities[cur.type].push(cur.id as OpportunityId)
           }
 
@@ -195,15 +195,14 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             .plus(bnOrZero(amountFiat))
             .toFixed(2)
 
-          if (hasActiveStakingForAssetId) debugger
           // No active staking for the current AssetId, use a virtual buck for all opportunities
-          if (!hasActiveStakingForAssetId) {
+          if (!isActiveAssetId) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
             projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
               projectedAnnualizedYieldByAssetId[assetId],
             ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
             // Else if staking is active, only blend APYs for the active opportunities
-          } else if (bnOrZero(amountFiat).gt(0)) {
+          } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
               amountFiat,
             )
@@ -327,48 +326,55 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
-    // TODO(gomes): make me a selector?
-    const hasActiveStakingByProviderAndFilter = combined.reduce<Record<DefiProvider, boolean>>(
-      (acc, cur) => {
-        const { provider } = cur
+    const isActiveStakingByFilter = combined.reduce<Record<DefiProvider, boolean>>((acc, cur) => {
+      const { provider } = cur
 
-        if (chainId && chainId !== cur.chainId) return acc
+      if (chainId && chainId !== cur.chainId) return acc
 
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-          maybeStakingOpportunity: cur,
-          marketData,
-          assets,
-        })
+      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+        maybeStakingOpportunity: cur,
+        marketData,
+        assets,
+      })
 
-        if (
-          (!includeEarnBalances && !includeRewardsBalances) ||
-          (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-        ) {
-          acc[provider] = true
-          return acc
-        }
+      const isActiveOpportunityByFilter =
+        (!includeEarnBalances && !includeRewardsBalances) ||
+        (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+        (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
 
+      if (isActiveOpportunityByFilter) {
+        acc[provider] = true
         return acc
-      },
-      {} as Record<DefiProvider, boolean>,
-    )
+      }
+
+      return acc
+    }, {} as Record<DefiProvider, boolean>)
 
     const byProvider = combined.reduce<
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
-      const hasActiveStakingForProvider = hasActiveStakingByProviderAndFilter[provider]
+      const isActiveProvider = isActiveStakingByFilter[provider]
 
       if (chainId && chainId !== cur.chainId) return acc
 
+      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+        maybeStakingOpportunity: cur,
+        marketData,
+        assets,
+      })
+
+      const isActiveOpportunityByFilter =
+        (!includeEarnBalances && !includeRewardsBalances) ||
+        (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+        (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
       // No active staking for the current provider, use a virtual buck for all opportunities
-      if (!hasActiveStakingForProvider) {
+      if (!isActiveProvider) {
         totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
         projectedAnnualizedYieldByProvider[provider] = bnOrZero(
           projectedAnnualizedYieldByProvider[provider],
         ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
-      } else if (bnOrZero(cur.fiatAmount).gt(0)) {
+      } else if (isActiveOpportunityByFilter) {
         totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
           cur.fiatAmount,
         )
@@ -381,17 +387,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         acc[provider].opportunities.lp.push(cur.id)
       }
 
-      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-        maybeStakingOpportunity: cur,
-        marketData,
-        assets,
-      })
-
-      if (
-        (!includeEarnBalances && !includeRewardsBalances) ||
-        (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
-        (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-      ) {
+      if (isActiveOpportunityByFilter) {
         acc[provider].opportunities.staking.push(cur.id)
       }
 

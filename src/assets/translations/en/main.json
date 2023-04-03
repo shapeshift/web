@@ -278,13 +278,15 @@
       },
       "foxFarmingOverview": {
         "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
-        "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
+        "body": "Approve and stake your FOX-ETH UniswapV2 liquidity pool tokens tokens to earn bonus FOX rewards.",
         "rewards": "The rewards you earn will accrue automatically.",
         "cta": "Deposit ETH-FOX LP tokens Now",
         "foxFarmingBalance": "ETH-FOX LP tokens Balance",
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
-        "availableDate": "available %{date}"
+        "availableDate": "available %{date}",
+        "emptyBalanceBody": "or deposit FOX & ETH to UniswapV2 to start earning.",
+        "emptyCta": "Deposit into Liquidity Pool"
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",

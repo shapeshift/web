@@ -33,7 +33,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type StakingPositionsByPositionProps = {
+type StakingPositionsByAssetProps = {
   ids: OpportunityId[]
 }
 
@@ -65,7 +65,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByPosition: React.FC<StakingPositionsByPositionProps> = ({ ids }) => {
+export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = ({ ids }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()

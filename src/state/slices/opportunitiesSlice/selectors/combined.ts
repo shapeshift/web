@@ -123,7 +123,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         })
 
         if (
-          (!includeEarnBalances && !includeRewardsBalances) ||
+          (!includeEarnBalances && !includeRewardsBalances && bnOrZero(amountFiat).gt(0)) ||
           (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
           (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
         ) {
@@ -337,7 +337,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       })
 
       const isActiveOpportunityByFilter =
-        (!includeEarnBalances && !includeRewardsBalances) ||
+        (!includeEarnBalances && !includeRewardsBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
         (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
         (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
 

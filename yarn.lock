@@ -4420,10 +4420,10 @@
     google-protobuf "^3.17.0"
     osmojs "^0.37.0"
 
-"@shapeshiftoss/swapper@^17.6.1":
-  version "17.6.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.6.1.tgz#667e28ee7ef96a96bdd4a4f750df37fb7528d5c4"
-  integrity sha512-o6LlgG5WxOTvBjGTuvZ9j9FmKy40S+Y7cA65z8nZDhnCBz98e5WY6TC/3VDDrApyynSIApr31gcrhR9YrC7Zcg==
+"@shapeshiftoss/swapper@^17.6.2":
+  version "17.6.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-17.6.2.tgz#fd24948f8f5fe9df64ef47b8ebdf5f9118059427"
+  integrity sha512-8c7kxDhQRsjHfE/Xd6IpALV1m0ouDkmlKfK7I1aIRAY17ZBIMvpA0y5haE5rsVFyp3Hug8jCPFxhgrOxgd1eNQ==
   dependencies:
     axios "^0.26.1"
     axios-cache-adapter "^2.7.3"

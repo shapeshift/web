@@ -128,12 +128,16 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
-  const amountEntered = bnOrZero(amount).gt(0)
-  const negativeRatio = !!inputOutputRatio && amountEntered && inputOutputRatio <= 0
-  const hasAmountWithPositiveReceive = amountEntered && !negativeRatio
+  const isAmountEntered = bnOrZero(amount).gt(0)
+  const hasNegativeRatio =
+    inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
+  const hasAmountWithPositiveReceive =
+    isAmountEntered &&
+    !hasNegativeRatio &&
+    bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
   const tag: JSX.Element = useMemo(() => {
     switch (true) {
-      case negativeRatio:
+      case !hasAmountWithPositiveReceive:
         return (
           <Tag size='sm' colorScheme='red'>
             {translate('trade.rates.tags.negativeRatio')}
@@ -148,7 +152,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [isBest, negativeRatio, translate])
+  }, [isBest, hasAmountWithPositiveReceive, translate])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor

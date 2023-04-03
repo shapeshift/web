@@ -194,7 +194,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approveOnWallet')}
+      loadingText={translate('common.approve')}
       preFooter={preFooter}
       providerIcon='https://assets.coincap.io/assets/icons/256/fox.png'
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'

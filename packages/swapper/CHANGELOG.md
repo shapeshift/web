@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v17.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.6.1...@shapeshiftoss/swapper-v17.6.2) (2023-04-03)
+
+
+### Bug Fixes
+
+* cowswap buyAmountCryptoBaseUnit logic ([#1230](https://github.com/shapeshift/lib/issues/1230)) ([c24b9e1](https://github.com/shapeshift/lib/commit/c24b9e10295c5bc9b5a495ad0f8aac079fcb0b5a))
+
 # [@shapeshiftoss/swapper-v17.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v17.6.0...@shapeshiftoss/swapper-v17.6.1) (2023-03-28)
 
 

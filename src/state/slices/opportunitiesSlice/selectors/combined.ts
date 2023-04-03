@@ -116,8 +116,22 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             ? underlyingAssetBalances[assetId].fiatAmount
             : cur.fiatAmount
 
-        acc[assetId] = acc[assetId] || bnOrZero(amountFiat).gt(0)
+        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+          maybeStakingOpportunity: cur,
+          marketData,
+          assets,
+        })
+
+        if (
+          (!includeEarnBalances && !includeRewardsBalances) ||
+          (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+        ) {
+          acc[assetId] = true
+          return acc
+        }
       })
+
       return acc
     }, {})
 
@@ -181,6 +195,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             .plus(bnOrZero(amountFiat))
             .toFixed(2)
 
+          if (hasActiveStakingForAssetId) debugger
           // No active staking for the current AssetId, use a virtual buck for all opportunities
           if (!hasActiveStakingForAssetId) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
@@ -312,13 +327,27 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
-    const hasActiveStakingByProvider = combined.reduce<Record<DefiProvider, boolean>>(
+    // TODO(gomes): make me a selector?
+    const hasActiveStakingByProviderAndFilter = combined.reduce<Record<DefiProvider, boolean>>(
       (acc, cur) => {
         const { provider } = cur
 
         if (chainId && chainId !== cur.chainId) return acc
 
-        acc[provider] = acc[provider] || bnOrZero(cur.fiatAmount).gt(0)
+        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+          maybeStakingOpportunity: cur,
+          marketData,
+          assets,
+        })
+
+        if (
+          (!includeEarnBalances && !includeRewardsBalances) ||
+          (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+        ) {
+          acc[provider] = true
+          return acc
+        }
 
         return acc
       },
@@ -329,7 +358,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
-      const hasActiveStakingForProvider = hasActiveStakingByProvider[provider]
+      const hasActiveStakingForProvider = hasActiveStakingByProviderAndFilter[provider]
 
       if (chainId && chainId !== cur.chainId) return acc
 

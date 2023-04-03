@@ -14,6 +14,7 @@ import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
@@ -79,8 +80,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const translate = useTranslate()
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const greenColor = useColorModeValue('green.500', 'green.200')
+  const redColor = useColorModeValue('red.500', 'red.200')
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
+
+  const { isTradingActive } = useIsTradingActive()
 
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
@@ -124,12 +128,16 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
-  const amountEntered = bnOrZero(amount).gt(0)
-  const negativeRatio = !!inputOutputRatio && amountEntered && inputOutputRatio <= 0
-  const hasAmountWithPositiveReceive = amountEntered && !negativeRatio
+  const isAmountEntered = bnOrZero(amount).gt(0)
+  const hasNegativeRatio =
+    inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
+  const hasAmountWithPositiveReceive =
+    isAmountEntered &&
+    !hasNegativeRatio &&
+    bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
   const tag: JSX.Element = useMemo(() => {
     switch (true) {
-      case negativeRatio:
+      case !hasAmountWithPositiveReceive:
         return (
           <Tag size='sm' colorScheme='red'>
             {translate('trade.rates.tags.negativeRatio')}
@@ -144,14 +152,22 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [isBest, negativeRatio, translate])
+  }, [isBest, hasAmountWithPositiveReceive, translate])
+
+  const activeSwapperColor = (() => {
+    if (!isTradingActive) return redColor
+    if (!hasAmountWithPositiveReceive) return redColor
+    if (isActive) return greenColor
+    return borderColor
+  })()
+
   return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
       cursor='pointer'
-      borderColor={isActive ? greenColor : borderColor}
-      _hover={{ borderColor: isActive ? greenColor : hoverColor }}
-      _active={{ borderColor: isActive ? greenColor : focusColor }}
+      borderColor={isActive ? activeSwapperColor : borderColor}
+      _hover={{ borderColor: isActive ? activeSwapperColor : hoverColor }}
+      _active={{ borderColor: isActive ? activeSwapperColor : focusColor }}
       borderRadius='xl'
       flexDir='column'
       gap={2}

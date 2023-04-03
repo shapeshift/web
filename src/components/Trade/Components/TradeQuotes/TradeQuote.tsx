@@ -129,7 +129,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const protocol = swapperWithMetadata.swapper.name
   const amountEntered = bnOrZero(amount).gt(0)
-  const negativeRatio = !!inputOutputRatio && amountEntered && inputOutputRatio <= 0
+  const negativeRatio = inputOutputRatio !== undefined && amountEntered && inputOutputRatio <= 0
   const hasAmountWithPositiveReceive = amountEntered && !negativeRatio
   const tag: JSX.Element = useMemo(() => {
     switch (true) {

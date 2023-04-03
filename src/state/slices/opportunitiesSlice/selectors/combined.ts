@@ -312,17 +312,41 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
+    const hasActiveStakingByProvider = combined.reduce<Record<DefiProvider, boolean>>(
+      (acc, cur) => {
+        const { provider } = cur
+
+        if (chainId && chainId !== cur.chainId) return acc
+
+        acc[provider] = acc[provider] || bnOrZero(cur.fiatAmount).gt(0)
+
+        return acc
+      },
+      {} as Record<DefiProvider, boolean>,
+    )
+
     const byProvider = combined.reduce<
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
+      const hasActiveStakingForProvider = hasActiveStakingByProvider[provider]
 
       if (chainId && chainId !== cur.chainId) return acc
 
-      totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
-      projectedAnnualizedYieldByProvider[provider] = bnOrZero(
-        projectedAnnualizedYieldByProvider[provider],
-      ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+      // No active staking for the current provider, use a virtual buck for all opportunities
+      if (!hasActiveStakingForProvider) {
+        totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
+        projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+          projectedAnnualizedYieldByProvider[provider],
+        ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+      } else if (bnOrZero(cur.fiatAmount).gt(0)) {
+        totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
+          cur.fiatAmount,
+        )
+        projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+          projectedAnnualizedYieldByProvider[provider],
+        ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
+      }
 
       if (cur.type === DefiType.LiquidityPool) {
         acc[provider].opportunities.lp.push(cur.id)

@@ -2,6 +2,7 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -195,13 +196,9 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             .plus(bnOrZero(amountFiat))
             .toFixed(2)
 
-          // No active staking for the current AssetId, use a virtual buck for all opportunities
+          // No active staking for the current AssetId, show the highest APY
           if (!isActiveAssetId) {
-            totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
-            projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
-              projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
-            // Else if staking is active, only blend APYs for the active opportunities
+            acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy).toFixed()
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
               amountFiat,
@@ -227,6 +224,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     )
 
     for (const [assetId, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByAssetId)) {
+      // Use the highest APY for inactive opportunities
+      if (!isActiveOpportunityByAssetId[assetId]) continue
       const apy = bnOrZero(projectedAnnualizedYieldByAssetId[assetId]).div(totalVirtualFiatAmount)
       byAssetId[assetId].apy = apy.toFixed()
     }
@@ -368,12 +367,9 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         (!includeEarnBalances && !includeRewardsBalances) ||
         (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
         (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-      // No active staking for the current provider, use a virtual buck for all opportunities
+      // No active staking for the current provider, show the highest APY
       if (!isActiveProvider) {
-        totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(1) // 1 virtual buck
-        projectedAnnualizedYieldByProvider[provider] = bnOrZero(
-          projectedAnnualizedYieldByProvider[provider],
-        ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+        acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
       } else if (isActiveOpportunityByFilter) {
         totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
           cur.fiatAmount,
@@ -403,6 +399,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     }, initial)
 
     for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
+      // Use the highest APY for inactive opportunities
+      if (!isActiveStakingByFilter[provider as DefiProvider]) continue
       const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
         totalVirtualFiatAmount,
       )

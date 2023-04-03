@@ -291,7 +291,7 @@ export const TradeInput = () => {
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(
-      bnOrZero(activeQuote?.minimum),
+      bnOrZero(activeQuote?.minimumCryptoHuman),
       activeQuote?.sellAsset.precision || 0,
     )
 
@@ -305,7 +305,7 @@ export const TradeInput = () => {
   }, [
     hasValidSellAmount,
     isTradeQuotePending,
-    activeQuote?.minimum,
+    activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.precision,
     sellAmountCryptoPrecision,
     sellAsset?.precision,
@@ -339,7 +339,7 @@ export const TradeInput = () => {
       .minus(tradeDeduction)
       .gte(0)
 
-    const minLimit = `${bnOrZero(activeQuote?.minimum).decimalPlaces(6)} ${
+    const minLimit = `${bnOrZero(activeQuote?.minimumCryptoHuman).decimalPlaces(6)} ${
       activeQuote?.sellAsset.symbol
     }`
 
@@ -408,7 +408,7 @@ export const TradeInput = () => {
     swapperName,
     feeAssetBalance,
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
-    activeQuote?.minimum,
+    activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
     wallet,

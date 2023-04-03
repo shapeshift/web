@@ -96,12 +96,38 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
     const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
     const projectedAnnualizedYieldByAssetId: Record<AssetId, BN> = {}
+
+    // TODO(gomes): make me a selector?
+    const hasActiveStakingByAssetId = combined.reduce<Record<AssetId, boolean>>((acc, cur) => {
+      const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
+      const underlyingAssetIds = [cur[depositKey]].flat()
+      underlyingAssetIds.forEach(assetId => {
+        const asset = assets[assetId]
+        if (!asset) return acc
+
+        const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
+          ...cur,
+          assets,
+          marketData,
+        })
+
+        const amountFiat =
+          cur.type === DefiType.LiquidityPool
+            ? underlyingAssetBalances[assetId].fiatAmount
+            : cur.fiatAmount
+
+        acc[assetId] = acc[assetId] || bnOrZero(amountFiat).gt(0)
+      })
+      return acc
+    }, {})
+
     const byAssetId = combined.reduce<Record<AssetId, AggregatedOpportunitiesByAssetIdReturn>>(
       (acc, cur) => {
         const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
         const underlyingAssetIds = [cur[depositKey]].flat()
         if (chainId && cur.chainId !== chainId) return acc
         underlyingAssetIds.forEach(assetId => {
+          const hasActiveStakingForAssetId = hasActiveStakingByAssetId[assetId]
           if (!acc[assetId]) {
             acc[assetId] = {
               assetId,
@@ -155,10 +181,21 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             .plus(bnOrZero(amountFiat))
             .toFixed(2)
 
-          totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
-          projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
-            projectedAnnualizedYieldByAssetId[assetId],
-          ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+          // No active staking for the current AssetId, use a virtual buck for all opportunities
+          if (!hasActiveStakingForAssetId) {
+            totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(1) // 1 virtual buck
+            projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
+              projectedAnnualizedYieldByAssetId[assetId],
+            ).plus(bnOrZero(1).times(cur.apy)) // 1 virtual buck
+            // Else if staking is active, only blend APYs for the active opportunities
+          } else if (bnOrZero(amountFiat).gt(0)) {
+            totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
+              amountFiat,
+            )
+            projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
+              projectedAnnualizedYieldByAssetId[assetId],
+            ).plus(bnOrZero(amountFiat).times(cur.apy))
+          }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
             .plus(

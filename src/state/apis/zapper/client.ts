@@ -549,6 +549,45 @@ export enum ZapperGroupId {
   Farm = 'farm',
 }
 
+const mediaSchema = z.object({
+  type: z.string(),
+  originalUrl: z.string().url(),
+})
+
+const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
+
+const collectionSchema = z.object({
+  address: z.string().optional(),
+  network: z.string().optional(),
+  name: z.string().optional(),
+  nftStandard: z.string().nonempty(),
+  type: z.string().optional(),
+  floorPriceEth: z.string().optional().nullable(),
+  logoImageUrl: optionalUrl,
+  openseaId: z.string().optional().nullable(),
+})
+
+const tokenSchema = z.object({
+  id: z.string().nonempty(),
+  name: z.string().nonempty(),
+  tokenId: z.string().nonempty(),
+  lastSaleEth: z.string().nullable(),
+  rarityRank: z.number().int().nullable(),
+  estimatedValueEth: z.number().nullable(),
+  medias: z.array(mediaSchema),
+  collection: collectionSchema,
+})
+
+const userNftTokenSchema = z.object({
+  cursor: z.string().nonempty(),
+  items: z.array(
+    z.object({
+      balance: z.string().nonempty(),
+      token: tokenSchema,
+    }),
+  ),
+})
+
 const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
 
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
@@ -556,6 +595,11 @@ const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)
 
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
+
+const V2NftUserTokensResponse = userNftTokenSchema
+export type V2NftUserTokensResponseType = z.infer<typeof V2NftUserTokensResponse>
+
+export type V2ZapperNft = z.infer<typeof tokenSchema>
 
 const endpoints = makeApi([
   {
@@ -1089,6 +1133,7 @@ const endpoints = makeApi([
     method: 'get',
     path: '/v2/nft/user/tokens',
     requestFormat: 'json',
+    alias: 'getV2NftUserTokens',
     parameters: [
       {
         name: 'userAddress',
@@ -1111,7 +1156,7 @@ const endpoints = makeApi([
         schema: z.string().optional(),
       },
     ],
-    response: z.void(),
+    response: V2NftUserTokensResponse,
   },
   {
     method: 'get',

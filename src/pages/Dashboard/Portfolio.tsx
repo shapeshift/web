@@ -16,6 +16,7 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
+import { NftTable } from 'components/Nfts/NftTable'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
@@ -123,6 +124,16 @@ export const Portfolio = () => {
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
       <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
+      <Card>
+        <Card.Header>
+          <Card.Heading>
+            <Text translation='NFTs' />
+          </Card.Heading>
+        </Card.Header>
+        <Card.Body px={2} pt={0}>
+          <NftTable />
+        </Card.Body>
+      </Card>
       <Card>
         <Card.Header>
           <Card.Heading>

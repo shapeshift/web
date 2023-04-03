@@ -285,8 +285,8 @@
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}",
-        "emptyBalanceBody": "or deposit FOX & ETH to UniswapV2 to start earning.",
-        "emptyCta": "Add Liquidity"
+        "emptyBalanceBody": "or provide liqudity for FOX & ETH on UniswapV2 to start earning.",
+        "emptyCta": "Provide Liquidity"
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",

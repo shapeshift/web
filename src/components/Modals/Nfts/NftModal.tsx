@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Flex,
   Image,
@@ -6,6 +7,7 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
+  Skeleton,
   Stat,
   StatGroup,
   StatLabel,
@@ -19,7 +21,7 @@ import {
   Tag,
   TagLeftIcon,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
@@ -39,6 +41,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const { nft } = useModal()
   const { close, isOpen } = nft
   const translate = useTranslate()
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   const imageUrl = zapperNft?.medias?.[0]?.originalUrl
   const name = zapperNft?.name
@@ -57,34 +60,41 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
 
   const nftModalImage = useMemo(() => {
     return (
-      <Flex
-        backgroundImage={imageUrl}
-        backgroundSize='cover'
-        backgroundPosition='center center'
-        flex={1}
-      >
+      <Skeleton flex={1} isLoaded={imageLoaded}>
         <Flex
-          direction='row'
-          alignItems='center'
-          p={{ base: 8, md: 20 }}
-          justifyContent={{ base: 'flex-start', md: 'center' }}
-          bg='blackAlpha.500'
-          backdropFilter='auto'
-          backdropBlur='xl'
-          transform='translate3d(0, 0, 0)'
-          width='full'
+          flex={1}
+          height='full'
+          backgroundImage={imageUrl}
+          backgroundSize='cover'
+          backgroundPosition='center center'
         >
-          <Image
-            borderRadius='xl'
-            boxSize={{ base: '150px', md: '350px' }}
-            src={imageUrl}
-            boxShadow='dark-lg'
-            mb={{ base: -14, md: 0 }}
-          />
+          <Flex
+            direction='row'
+            alignItems='center'
+            p={{ base: 8, md: 20 }}
+            justifyContent={{ base: 'flex-start', md: 'center' }}
+            bg='blackAlpha.500'
+            transition='all 1s ease-in-out'
+            backdropFilter='auto'
+            backdropBlur='3xl'
+            transform='translate3d(0, 0, 0)'
+            width='full'
+          >
+            <Image
+              width='full'
+              height='auto'
+              objectFit='contain'
+              src={imageUrl}
+              boxShadow='dark-lg'
+              borderRadius='xl'
+              mb={{ base: -14, md: 0 }}
+              onLoad={() => setImageLoaded(true)}
+            />
+          </Flex>
         </Flex>
-      </Flex>
+      </Skeleton>
     )
-  }, [imageUrl])
+  }, [imageLoaded, imageUrl])
 
   const nftModalOverview = useMemo(() => {
     return (
@@ -135,23 +145,25 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
 
   const nftModalDetails = useMemo(() => {
     return (
-      <Tabs position='relative' variant='unstyled' flex={1}>
-        <TabList gap={4} px={8} bg='#1C212E'>
-          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
-            {translate('nft.overview')}
-          </Tab>
-          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
-            {translate('nft.properties')}
-          </Tab>
-          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
-            {translate('nft.collection')}
-          </Tab>
-        </TabList>
-        <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
+      <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
+        <Box position='relative'>
+          <TabList gap={4} px={8} bg='#1C212E'>
+            <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+              {translate('nft.overview')}
+            </Tab>
+            <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+              {translate('nft.properties')}
+            </Tab>
+            <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+              {translate('nft.collection')}
+            </Tab>
+          </TabList>
+          <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
+        </Box>
         <TabPanels
           bg='gray.800'
           maxHeight={{ base: 'auto', md: '450px' }}
-          minHeight='450px'
+          minHeight='500px'
           overflowY='auto'
         >
           <TabPanel p={0}>

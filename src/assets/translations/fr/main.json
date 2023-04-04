@@ -642,8 +642,7 @@
     "slowSwapTitle": "Échange %{protocol}",
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
     "updatingQuote": "Mise à jour du devis...",
-    "intoRUNETitle": "Échanger en RUNE",
-    "intoRUNEBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en RUNE est temporairement indisponible",
+    "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",

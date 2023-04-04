@@ -91,6 +91,13 @@
       "rules": {
         "@shapeshiftoss/logger/no-native-console": "off"
       }
+    },
+    {
+      "files": ["**/__tests__/mockData/*.ts"],
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-anonymous-default-export": "off"
+      }
     }
   ]
 }

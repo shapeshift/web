@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v11.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.2.1...@shapeshiftoss/chain-adapters-v11.2.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* keepkey swaps from RUNE ([#1231](https://github.com/shapeshift/lib/issues/1231)) ([eb889d6](https://github.com/shapeshift/lib/commit/eb889d656a4ca76672a0eda00925f6929da8f2d0))
+
 # [@shapeshiftoss/chain-adapters-v11.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v11.2.0...@shapeshiftoss/chain-adapters-v11.2.1) (2023-03-28)
 
 

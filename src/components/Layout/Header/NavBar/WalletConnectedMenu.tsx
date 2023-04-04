@@ -1,4 +1,4 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
@@ -37,32 +37,38 @@ export const WalletConnectedMenu = ({
   const ConnectedMenu = () => {
     return (
       <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
-        <MenuItem
-          closeOnSelect={!connectedWalletMenuRoutes}
-          isDisabled={!connectedWalletMenuRoutes}
-          onClick={
-            connectedWalletMenuRoutes
-              ? () =>
-                  navigateToRoute(
-                    (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
-                      WalletConnectedRoutes.Connected,
-                  )
-              : undefined
-          }
-          icon={<WalletImage walletInfo={walletInfo} />}
-        >
-          <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-            <RawText>{walletInfo?.name}</RawText>
-            {!isConnected && (
-              <Text
-                translation={'connectWallet.menu.disconnected'}
-                fontSize='sm'
-                color='yellow.500'
-              />
-            )}
-            {connectedWalletMenuRoutes && <ChevronRightIcon />}
-          </Flex>
-        </MenuItem>
+        {walletInfo ? (
+          <MenuItem
+            closeOnSelect={!connectedWalletMenuRoutes}
+            isDisabled={!connectedWalletMenuRoutes}
+            onClick={
+              connectedWalletMenuRoutes
+                ? () =>
+                    navigateToRoute(
+                      (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
+                        WalletConnectedRoutes.Connected,
+                    )
+                : undefined
+            }
+            icon={<WalletImage walletInfo={walletInfo} />}
+          >
+            <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+              <RawText>{walletInfo?.name}</RawText>
+              {!isConnected && (
+                <Text
+                  translation={'connectWallet.menu.disconnected'}
+                  fontSize='sm'
+                  color='yellow.500'
+                />
+              )}
+              {connectedWalletMenuRoutes && <ChevronRightIcon />}
+            </Flex>
+          </MenuItem>
+        ) : (
+          <MenuItem icon={<WarningTwoIcon />} onClick={onSwitchProvider} isDisabled={true}>
+            {translate('connectWallet.menu.connecting')}
+          </MenuItem>
+        )}
         {ConnectMenuComponent && <ConnectMenuComponent />}
         <MenuDivider />
         <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>

@@ -222,7 +222,8 @@
       "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet Provider",
       "disconnect": "Disconnect",
-      "disconnected": "(Disconnected)"
+      "disconnected": "(Disconnected)",
+      "connecting": "Connecting..."
     }
   },
   "defi": {

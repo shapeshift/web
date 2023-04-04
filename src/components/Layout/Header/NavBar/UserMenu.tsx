@@ -104,7 +104,6 @@ const WalletButton: FC<WalletButtonProps> = ({
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
       variant='outline'
-      isLoading={isLoadingLocalWallet}
       rightIcon={<ChevronDownIcon />}
       leftIcon={
         <HStack>
@@ -167,7 +166,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
           // Override zIndex to prevent InputLeftElement displaying over menu
           zIndex={2}
         >
-          {hasWallet ? (
+          {hasWallet || isLoadingLocalWallet ? (
             <WalletConnected
               isConnected={isConnected || isDemoWallet}
               walletInfo={walletInfo}

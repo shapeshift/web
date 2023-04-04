@@ -578,17 +578,19 @@ const tokenSchema = z.object({
   collection: collectionSchema,
 })
 
+const userNftItemSchema = z.object({
+  balance: z.string().nonempty(),
+  token: tokenSchema,
+})
+
 const userNftTokenSchema = z.object({
-  cursor: z.string().nonempty(),
-  items: z.array(
-    z.object({
-      balance: z.string().nonempty(),
-      token: tokenSchema,
-    }),
-  ),
+  cursor: z.string().nonempty().optional(),
+  items: z.array(userNftItemSchema).optional(),
 })
 
 const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
+
+export type V2NftUserItem = z.infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
 const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)

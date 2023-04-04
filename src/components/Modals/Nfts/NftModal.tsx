@@ -92,7 +92,13 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         <Flex alignItems='center' justifyContent='space-between'>
           <Flex flexDir='column'>
             {collectionAddress && (
-              <Button variant='link' color='blue.200' fontSize='xs' rightIcon={<ArrowRightUp />}>
+              <Button
+                justifyContent='flex-start'
+                variant='link'
+                color='blue.200'
+                fontSize='xs'
+                rightIcon={<ArrowRightUp />}
+              >
                 {collectionName}
               </Button>
             )}

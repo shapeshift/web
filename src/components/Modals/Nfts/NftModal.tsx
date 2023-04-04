@@ -148,7 +148,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           </Tab>
         </TabList>
         <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
-        <TabPanels bg='gray.800'>
+        <TabPanels
+          bg='gray.800'
+          maxHeight={{ base: 'auto', md: '450px' }}
+          minHeight='450px'
+          overflowY='auto'
+        >
           <TabPanel p={0}>
             <NftOverview />
           </TabPanel>

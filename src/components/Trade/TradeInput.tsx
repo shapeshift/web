@@ -4,7 +4,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -32,6 +32,7 @@ import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
   selectSwapperApiUsdRatesPending,
+  selectSwapperQueriesInitiated,
 } from 'state/apis/swapper/selectors'
 import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
@@ -78,7 +79,6 @@ export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const [showQuotes, toggleShowQuotes] = useToggle(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
@@ -163,6 +163,7 @@ export const TradeInput = () => {
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
   const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
+  const isSwapperApiInitiated = useSelector(selectSwapperQueriesInitiated)
 
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
     if (!activeQuote) return false
@@ -198,14 +199,6 @@ export const TradeInput = () => {
     },
     [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
-
-  /*
-     On initial load we are missing a swapper, among other things, which causes invalid errors and warning to be shown
-     to the user. We want to wait until we've started making network calls before validating the state.
-   */
-  useEffect(() => {
-    if (isInitialLoad && isSwapperApiPending) setIsInitialLoad(false)
-  }, [isSwapperApiPending, isInitialLoad])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return
@@ -352,7 +345,7 @@ export const TradeInput = () => {
       activeQuote?.sellAsset.symbol
     }`
 
-    if (isSwapperApiPending || isInitialLoad) return 'common.loadingText'
+    if (isSwapperApiPending || !isSwapperApiInitiated) return 'common.loadingText'
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
       return [
@@ -420,7 +413,7 @@ export const TradeInput = () => {
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
-    isInitialLoad,
+    isSwapperApiInitiated,
     wallet,
     walletSupportsSellAssetChain,
     translate,
@@ -473,8 +466,8 @@ export const TradeInput = () => {
   )
 
   const tradeStateLoading = useMemo(
-    () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || isInitialLoad,
-    [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isInitialLoad],
+    () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || !isSwapperApiInitiated,
+    [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isSwapperApiInitiated],
   )
 
   return (

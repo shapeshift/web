@@ -1,7 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -82,6 +83,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
+  const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const assets = useAppSelector(selectAssets)
   if (!asset0) throw new Error('Asset 0 not found')
@@ -195,11 +197,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  if (!state || !dispatch || !lpOpportunity) return null
+  if (!state || !dispatch || !lpOpportunity || !lpAsset) return null
 
   return (
     <ReusableApprove
-      asset={asset1}
+      asset={lpAsset}
       feeAsset={feeAsset}
       spenderName={lpOpportunity.provider}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
@@ -214,7 +216,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      spenderContractAddress={fromAssetId(lpAssetId).assetReference}
+      spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
     />
   )
 }

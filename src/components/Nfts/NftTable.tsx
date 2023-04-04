@@ -1,4 +1,5 @@
-import { Box } from '@chakra-ui/react'
+import { SimpleGrid } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
 
 import { NftCard } from './NftCard'
@@ -9,13 +10,16 @@ export const NftTable = () => {
   // const accountIds = useAppSelector(selectWalletAccountIds)
   const { data } = useGetZapperNftUserTokensQuery({ accountIds })
 
+  const renderNftCards = useMemo(() => {
+    if (!data?.length) return null
+    return data.map(({ token }) => <NftCard zapperNft={token} />)
+  }, [data])
+
   if (!data?.length) return null
 
   return (
-    <Box display='flex' flexWrap='wrap'>
-      {data.map(({ token }) => (
-        <NftCard zapperNft={token} />
-      ))}
-    </Box>
+    <SimpleGrid gridGap={4} gridTemplateColumns='repeat(auto-fit, minmax(150px, 1fr))'>
+      {renderNftCards}
+    </SimpleGrid>
   )
 }

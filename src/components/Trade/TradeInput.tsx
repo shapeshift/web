@@ -4,7 +4,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -78,6 +78,7 @@ export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
   const [showQuotes, toggleShowQuotes] = useToggle(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
 
@@ -197,6 +198,14 @@ export const TradeInput = () => {
     },
     [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
+
+  /*
+     On initial load we are missing a swapper, among other things, which causes invalid errors and warning to be shown
+     to the user. We want to wait until we've started making network calls before validating the state.
+   */
+  useEffect(() => {
+    if (isInitialLoad && isSwapperApiPending) setIsInitialLoad(false)
+  }, [isSwapperApiPending, isInitialLoad])
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
     if (!(sellAsset && activeQuote)) return
@@ -343,7 +352,7 @@ export const TradeInput = () => {
       activeQuote?.sellAsset.symbol
     }`
 
-    if (isSwapperApiPending) return 'common.loadingText'
+    if (isSwapperApiPending || isInitialLoad) return 'common.loadingText'
     if (!wallet) return 'common.connectWallet'
     if (!walletSupportsSellAssetChain)
       return [
@@ -411,6 +420,7 @@ export const TradeInput = () => {
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
+    isInitialLoad,
     wallet,
     walletSupportsSellAssetChain,
     translate,
@@ -462,6 +472,11 @@ export const TradeInput = () => {
     [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
   )
 
+  const tradeStateLoading = useMemo(
+    () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || isInitialLoad,
+    [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isInitialLoad],
+  )
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -508,7 +523,7 @@ export const TradeInput = () => {
             assetIcon={sellAsset?.icon ?? ''}
             cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
             fiatAmount={positiveOrZero(fiatSellAmount).toFixed(2)}
-            isSendMaxDisabled={isSwapperApiPending || !quoteAvailableForCurrentAssetPair}
+            isSendMaxDisabled={tradeStateLoading}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onPercentOptionClick={handleSendMax}
@@ -524,8 +539,8 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            showInputSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
-            showFiatSkeleton={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+            showInputSkeleton={tradeStateLoading}
+            showFiatSkeleton={tradeStateLoading}
             label={translate('trade.youGet')}
             rightRegion={
               isTradeRatesEnabled ? (
@@ -541,10 +556,7 @@ export const TradeInput = () => {
             }
           >
             {isTradeRatesEnabled && (
-              <TradeQuotes
-                isOpen={showQuotes}
-                isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
-              />
+              <TradeQuotes isOpen={showQuotes} isLoading={tradeStateLoading} />
             )}
           </TradeAssetInput>
         </Stack>
@@ -554,12 +566,12 @@ export const TradeInput = () => {
             buySymbol={buyAsset?.symbol}
             gasFee={gasFeeFiat}
             rate={activeQuote?.rate}
-            isLoading={isSwapperApiPending && !quoteAvailableForCurrentAssetPair}
+            isLoading={tradeStateLoading}
             isError={!walletSupportsTradeAssetChains}
           />
           {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
             <ReceiveSummary
-              isLoading={!quoteAvailableForCurrentAssetPair && isSwapperApiPending}
+              isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
               amount={buyAmountCryptoPrecision ?? ''}
               beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}

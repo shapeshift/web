@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
@@ -51,16 +51,15 @@ export const Trade = () => {
       titleComponent={<TradeHeader />}
     >
       <Stack alignSelf='stretch' flex={1} minHeight={0} spacing={0}>
-        <Box width='full' overflow='hidden' position='relative'>
-          <Container
-            maxWidth={{ base: '100%', lg: 'container.sm' }}
-            p={{ base: 0, md: 8 }}
-            position='relative'
-            zIndex='2'
-          >
-            <TradeCard defaultBuyAssetId={passedAssetId} />
-          </Container>
-        </Box>
+        <Container
+          maxWidth={{ base: '100%', lg: 'container.sm' }}
+          p={{ base: 0, md: 8 }}
+          position='relative'
+          zIndex='2'
+        >
+          <TradeCard defaultBuyAssetId={passedAssetId} />
+        </Container>
+
         <Stack flexGrow={1}>
           <RecentTransactions variant='unstyled' />
         </Stack>

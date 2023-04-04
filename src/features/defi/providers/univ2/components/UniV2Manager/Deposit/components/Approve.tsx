@@ -9,7 +9,11 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProviderMetadata,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -211,7 +215,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       preFooter={preFooter}
-      providerIcon={asset1?.icon}
+      providerIcon={DefiProviderMetadata[lpOpportunity.provider].icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

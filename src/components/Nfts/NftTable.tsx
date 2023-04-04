@@ -1,4 +1,4 @@
-import { Wrap, WrapItem } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -13,14 +13,10 @@ export const NftTable = () => {
   if (!data) return null
 
   return (
-    <Wrap spacing='30px'>
-      {data.items.map(({ token }) => {
-        return (
-          <WrapItem key={token.id}>
-            <NftCard {...token} />
-          </WrapItem>
-        )
-      })}
-    </Wrap>
+    <Box display='flex' flexWrap='wrap'>
+      {data.items.map(({ token }) => (
+        <NftCard {...token} />
+      ))}
+    </Box>
   )
 }

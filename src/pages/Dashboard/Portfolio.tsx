@@ -18,6 +18,7 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { NftTable } from 'components/Nfts/NftTable'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
@@ -35,6 +36,7 @@ import { PortfolioBreakdown } from './PortfolioBreakdown'
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
+  const isNftsEnabled = useFeatureFlag('Jaypegz')
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
@@ -124,16 +126,18 @@ export const Portfolio = () => {
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
       <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
-      <Card>
-        <Card.Header>
-          <Card.Heading>
-            <Text translation='NFTs' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body px={2} pt={0}>
-          <NftTable />
-        </Card.Body>
-      </Card>
+      {isNftsEnabled && (
+        <Card>
+          <Card.Header>
+            <Card.Heading>
+              <Text translation='NFTs' />
+            </Card.Heading>
+          </Card.Header>
+          <Card.Body px={2} pt={0}>
+            <NftTable />
+          </Card.Body>
+        </Card>
+      )}
       <Card>
         <Card.Header>
           <Card.Heading>

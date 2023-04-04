@@ -7,10 +7,10 @@ export const NftCard: React.FC<V2ZapperNft> = props => {
   const imageUrl = medias?.[0]?.originalUrl
 
   return (
-    <Box borderWidth='1px' borderRadius='xl' overflow='hidden' maxWidth='150px'>
+    <Box m={4} borderWidth='1px' borderRadius='xl' overflow='hidden' width='150px'>
       <Image src={imageUrl} alt={name} maxHeight='150px' />
 
-      <Box p='4'>
+      <Box p={4}>
         <Box display='flex' alignItems='baseline'>
           <Text fontWeight='bold' fontSize='xl' mr='2' wordBreak='break-word'>
             {name}

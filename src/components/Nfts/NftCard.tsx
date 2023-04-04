@@ -1,13 +1,30 @@
 import { Box, Image, Text } from '@chakra-ui/react'
+import { useCallback } from 'react'
+import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 
-export const NftCard: React.FC<V2ZapperNft> = props => {
-  const { collection, medias, name } = props
+type NftCardProps = {
+  zapperNft: V2ZapperNft
+}
+
+export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
+  const { collection, medias, name } = zapperNft
   const { floorPriceEth } = collection
   const imageUrl = medias?.[0]?.originalUrl
 
+  const { nft } = useModal()
+
+  const handleClick = useCallback(() => nft.open({ zapperNft }), [nft, zapperNft])
+
   return (
-    <Box m={4} borderWidth='1px' borderRadius='xl' overflow='hidden' width='150px'>
+    <Box
+      m={4}
+      borderWidth='1px'
+      borderRadius='xl'
+      overflow='hidden'
+      width='150px'
+      onClick={handleClick}
+    >
       <Image src={imageUrl} alt={name} maxHeight='150px' />
 
       <Box p={4}>

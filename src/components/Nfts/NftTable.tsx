@@ -15,7 +15,7 @@ export const NftTable = () => {
   return (
     <Box display='flex' flexWrap='wrap'>
       {data.items.map(({ token }) => (
-        <NftCard {...token} />
+        <NftCard zapperNft={token} />
       ))}
     </Box>
   )

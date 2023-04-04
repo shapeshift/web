@@ -1,5 +1,9 @@
-import { Box, Image, Text } from '@chakra-ui/react'
+import { Box, Flex, Image, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import Placeholder from 'assets/placeholder.png'
+import PlaceholderDrk from 'assets/placeholder-drk.png'
+import { Amount } from 'components/Amount/Amount'
+import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 
@@ -8,9 +12,12 @@ type NftCardProps = {
 }
 
 export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
-  const { collection, medias, name } = zapperNft
+  const { collection, medias, name, rarityRank } = zapperNft
   const { floorPriceEth } = collection
   const imageUrl = medias?.[0]?.originalUrl
+  const bg = useColorModeValue('gray.50', 'gray.750')
+  const bgHover = useColorModeValue('gray.100', 'gray.700')
+  const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const { nft } = useModal()
 
@@ -18,29 +25,64 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
 
   return (
     <Box
-      m={4}
-      borderWidth='1px'
+      as='a'
+      cursor='pointer'
       borderRadius='xl'
       overflow='hidden'
-      width='150px'
       onClick={handleClick}
+      bg={bg}
+      _hover={{ bg: bgHover }}
+      sx={{ ':hover .nft-image': { transform: 'scale(1.4)' } }}
+      _active={{ transform: 'translateY(2px)' }}
+      transitionDuration='100ms'
+      transitionProperty='all'
+      transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
     >
-      <Image src={imageUrl} alt={name} maxHeight='150px' />
-
+      <Box paddingBottom='100%' position='relative' overflow='hidden'>
+        <Image
+          src={imageUrl ?? placeholderImage}
+          alt={name}
+          position='absolute'
+          width='full'
+          height='full'
+          left={0}
+          top={0}
+          objectFit='cover'
+          className='nft-image'
+          transitionDuration='200ms'
+          transitionProperty='all'
+          transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
+        />
+        {rarityRank && (
+          <Tag
+            colorScheme='black'
+            flexShrink={0}
+            position='absolute'
+            right='0.5rem'
+            top='0.5rem'
+            backdropFilter='auto'
+            backdropBlur='3xl'
+            transform='translate3d(0, 0, 0)'
+          >
+            <TagLeftIcon as={DiamondIcon} />
+            {rarityRank}
+          </Tag>
+        )}
+      </Box>
       <Box p={4}>
-        <Box display='flex' alignItems='baseline'>
-          <Text fontWeight='bold' fontSize='xl' mr='2' wordBreak='break-word'>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontWeight='bold' fontSize='sm' wordBreak='break-word'>
             {name}
           </Text>
-        </Box>
+        </Flex>
 
         <Box>
-          <Text fontSize='sm' color='gray.500' mb='1'>
-            Floor price
-          </Text>
-          <Text fontSize='lg' fontWeight='bold'>
-            {floorPriceEth} ETH
-          </Text>
+          <Amount.Crypto
+            color='gray.500'
+            fontWeight='bold'
+            value={floorPriceEth ?? ''}
+            symbol='ETH'
+          />
         </Box>
       </Box>
     </Box>

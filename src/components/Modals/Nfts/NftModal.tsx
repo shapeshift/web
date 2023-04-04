@@ -9,16 +9,27 @@ import {
   Stat,
   StatGroup,
   StatLabel,
+  StatNumber,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tag,
   TagLeftIcon,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
+
+import { NftOverview } from './components/NftOverview'
+import { NftProperties } from './components/NftProperties'
 
 type NftModalProps = {
   zapperNft: V2ZapperNft
@@ -27,6 +38,7 @@ type NftModalProps = {
 export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const { nft } = useModal()
   const { close, isOpen } = nft
+  const translate = useTranslate()
 
   const imageUrl = zapperNft?.medias?.[0]?.originalUrl
   const name = zapperNft?.name
@@ -45,17 +57,30 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
 
   const nftModalImage = useMemo(() => {
     return (
-      <Flex backgroundImage={imageUrl} backgroundSize='cover' backgroundPosition='center center'>
+      <Flex
+        backgroundImage={imageUrl}
+        backgroundSize='cover'
+        backgroundPosition='center center'
+        flex={1}
+      >
         <Flex
           direction='row'
           alignItems='center'
+          p={{ base: 8, md: 20 }}
+          justifyContent={{ base: 'flex-start', md: 'center' }}
           bg='blackAlpha.500'
           backdropFilter='auto'
           backdropBlur='xl'
           transform='translate3d(0, 0, 0)'
           width='full'
         >
-          <Image borderRadius='lg' boxSize='300px' m={50} src={imageUrl} boxShadow='dark-lg' />
+          <Image
+            borderRadius='xl'
+            boxSize={{ base: '150px', md: '350px' }}
+            src={imageUrl}
+            boxShadow='dark-lg'
+            mb={{ base: -14, md: 0 }}
+          />
         </Flex>
       </Flex>
     )
@@ -63,16 +88,11 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
 
   const nftModalOverview = useMemo(() => {
     return (
-      <Flex flexDir='column' px={8} pb={6} pt={12} flex={1} bg='#1C212E'>
+      <Flex flexDir='column' px={8} pb={6} pt={12} bg='#1C212E' gap={4}>
         <Flex alignItems='center' justifyContent='space-between'>
           <Flex flexDir='column'>
             {collectionAddress && (
-              <Button
-                size='sm'
-                variant='link'
-                color='blue.200'
-                rightIcon={<ArrowRightUp boxSize='12px' />}
-              >
+              <Button variant='link' color='blue.200' fontSize='xs' rightIcon={<ArrowRightUp />}>
                 {collectionName}
               </Button>
             )}
@@ -80,7 +100,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
               {name}
             </RawText>
           </Flex>
-          <Tag size='sm' colorScheme='purple'>
+          <Tag colorScheme='purple' variant='solid'>
             <TagLeftIcon as={DiamondIcon} />
             14th
           </Tag>
@@ -88,29 +108,70 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         <StatGroup>
           <Stat>
             <StatLabel>Floor Price</StatLabel>
-            <Amount.Fiat value='0.96' />
+            <StatNumber>
+              <Amount.Fiat value='0.96' />
+            </StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Last Price</StatLabel>
+            <StatNumber>
+              <Amount.Fiat value='0.96' />
+            </StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Rarity</StatLabel>
+            <StatNumber>14th/19,462</StatNumber>
           </Stat>
         </StatGroup>
       </Flex>
     )
   }, [name, collectionAddress, collectionName])
 
-  const nftModalDetails = useMemo(() => {}, [])
+  const nftModalDetails = useMemo(() => {
+    return (
+      <Tabs position='relative' variant='unstyled' flex={1}>
+        <TabList gap={4} px={8} bg='#1C212E'>
+          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+            {translate('nft.overview')}
+          </Tab>
+          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+            {translate('nft.properties')}
+          </Tab>
+          <Tab color='gray.500' px={0} _selected={{ color: 'white' }}>
+            {translate('nft.collection')}
+          </Tab>
+        </TabList>
+        <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
+        <TabPanels bg='gray.800'>
+          <TabPanel p={0}>
+            <NftOverview />
+          </TabPanel>
+          <TabPanel p={0}>
+            <NftProperties />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    )
+  }, [translate])
 
   const nftModalContent = useMemo(() => {
     return (
-      <>
+      <Flex flexDir='column' flex={1}>
         {nftModalOverview}
         {nftModalDetails}
-      </>
+      </Flex>
     )
   }, [nftModalOverview, nftModalDetails])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered>
+    <Modal isOpen={isOpen} onClose={close}>
       <ModalOverlay />
-      <ModalContent maxWidth='container.lg' overflow='hidden' flexDir='row'>
-        <ModalCloseButton />
+      <ModalContent
+        maxWidth='container.lg'
+        overflow='hidden'
+        flexDir={{ base: 'column', md: 'row' }}
+      >
+        <ModalCloseButton zIndex='base' />
         {nftModalImage}
         {nftModalContent}
       </ModalContent>

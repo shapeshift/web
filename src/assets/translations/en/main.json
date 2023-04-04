@@ -1920,5 +1920,21 @@
         "cta": "Create one"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Floor Price",
+    "lastPrice": "Last Price",
+    "rarity": "Rarity",
+    "overview": "Overview",
+    "properties": "Properties",
+    "collection": "Collection",
+    "tokenId": "Token ID",
+    "address": "Address",
+    "network": "Network",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Details",
+    "attributes": "Attributes",
+    "aboutCollection": "About %{collectionName}"
   }
 }

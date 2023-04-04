@@ -1,4 +1,4 @@
-import { Scope, Variable } from 'eslint-scope'
+import type { Scope, Variable } from 'eslint-scope'
 
 export const getVariableByName = (initScope: Scope | null, name: string): Variable | null => {
   let scope = initScope

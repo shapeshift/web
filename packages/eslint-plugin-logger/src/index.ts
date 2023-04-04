@@ -1,4 +1,4 @@
-import { TSESTree, TSESLint } from '@typescript-eslint/utils'
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils'
 import type { Reference, Scope } from 'eslint-scope'
 
 import { getVariableByName } from './utils'
@@ -59,7 +59,8 @@ export const rules: Record<
               .filter(isMemberAccess)
               .filter(reference => {
                 const node = reference.identifier as TSESTree.BaseNode
-                const method = (node.parent as TSESTree.MemberExpressionNonComputedName).property.name
+                const method = (node.parent as TSESTree.MemberExpressionNonComputedName).property
+                  .name
 
                 return method !== 'consoleFn' // Exclude moduleLogger itself from being reported
               })

@@ -36,7 +36,7 @@
     "jsx": "react-jsx",
   },
   "include": ["src/**/*", "cypress"],
-  "exclude": ["dist"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "src/env/loader.js"],
   "references": [
     { "path": "./packages/errors" },
   ]

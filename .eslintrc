@@ -1,9 +1,19 @@
 {
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "react-app",
     "react-app/jest",
     "plugin:jsx-a11y/recommended",
     "prettier"
+  ],
+  "ignorePatterns": [
+    "build",
+    "dist",
+    "coverage",
+    "generated",
+    "node_modules",
+    "react-app-rewired",
+    "scripts"
   ],
   "plugins": [
     "jest",
@@ -11,7 +21,6 @@
     "simple-import-sort",
     "@shapeshiftoss/logger"
   ],
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module"
   },
@@ -75,5 +84,13 @@
     "@shapeshiftoss/logger/no-native-console": "error",
     "require-await": "error",
     "import/no-duplicates": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/*/*.test.ts"],
+      "rules": {
+        "@shapeshiftoss/logger/no-native-console": "off"
+      }
+    }
+  ]
 }

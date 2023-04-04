@@ -5766,21 +5766,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:packages/caip":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/caip@workspace:packages/caip"
+  dependencies:
+    "@shapeshiftoss/types": ^8.1.0
+    "@yfi/sdk": ^1.2.0
+  languageName: unknown
+  linkType: soft
+
 "@shapeshiftoss/caip@npm:3.0.0":
   version: 3.0.0
   resolution: "@shapeshiftoss/caip@npm:3.0.0"
   peerDependencies:
     "@shapeshiftoss/types": 3.1.3
   checksum: eaa5ea33330b137fe0819b7be0d1f0307c28e5abcf58f59fad583cbb6aab6e662412c7ec374c2fd9727ac84d815d0c4c60ffef93f0f2eefc9ded02281d69d8a4
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/caip@npm:^8.15.0":
-  version: 8.15.0
-  resolution: "@shapeshiftoss/caip@npm:8.15.0"
-  peerDependencies:
-    "@shapeshiftoss/types": ^8.1.0
-  checksum: d9cde4e0fac3a2dbebd5054d7a985e6a828b9028b9914cbbfbd293ff59cf48b195b425b620decfc54988cf2bf3a8a59a3809475f26af264b77034136736aa4e4
   languageName: node
   linkType: hard
 
@@ -6172,17 +6172,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/types@8.6.0, @shapeshiftoss/types@^8.1.0, @shapeshiftoss/types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/types@workspace:packages/types"
+  languageName: unknown
+  linkType: soft
+
 "@shapeshiftoss/types@npm:3.1.3":
   version: 3.1.3
   resolution: "@shapeshiftoss/types@npm:3.1.3"
   checksum: 8b02c5296f8726f88c6601275e70b94e093be1453f62c6dbad30bcb585f87260c9242df762fb3930390d1e0ffd82849c0c901bb6fa9c76965943a823c37544bd
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/types@npm:8.6.0":
-  version: 8.6.0
-  resolution: "@shapeshiftoss/types@npm:8.6.0"
-  checksum: 2309f8ede8b7c93d0b1228623d9606955654a0fa55fb261af85d3d5b12753f730dbb4d0b49298bcfb831e5afccbef3b53990dd9439c5ff3588389eb6cc5b2fc1
   languageName: node
   linkType: hard
 

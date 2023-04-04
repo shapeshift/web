@@ -1,0 +1,29 @@
+{
+  "name": "@shapeshiftoss/caip",
+  "version": "8.15.0",
+  "description": "CAIP Implementation",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch",
+    "generate": "yarn generate:coingecko && yarn generate:coincap && yarn generate:yearn && yarn generate:osmosis",
+    "generate:coingecko": "yarn run -T ts-node src/adapters/coingecko/generate.ts",
+    "generate:coincap": "yarn run -T ts-node src/adapters/coincap/generate.ts",
+    "generate:yearn": "yarn run -T ts-node src/adapters/yearn/generate.ts",
+    "generate:osmosis": "yarn run -T ts-node src/adapters/osmosis/generate.ts"
+  },
+  "devDependencies": {
+    "@shapeshiftoss/types": "^8.1.0",
+    "@yfi/sdk": "^1.2.0"
+  }
+}

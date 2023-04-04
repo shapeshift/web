@@ -2,19 +2,22 @@
   "name": "@shapeshiftoss/web",
   "version": "1.27.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "version": "independent"
+  },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
-    "build": "yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run build",
+    "build": "yarn workspaces foreach -ptv --exclude @shapeshiftoss/web run build",
     "build:web": "yarn build && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./scripts/writeHeaders.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && ts-node --skipProject ./scripts/writeBuildMetadata.ts",
-    "clean": "rm -rf node_modules && yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run clean",
+    "clean": "rm -rf node_modules build coverage && yarn workspaces foreach -ptv --exclude @shapeshiftoss/web run clean",
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
     "dev:silent": "BROWSER=none yarn dev",
     "dev:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev",
-    "dev:packages": "yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run dev",
+    "dev:packages": "yarn workspaces foreach -ptv --exclude @shapeshiftoss/web run dev",
     "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
     "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
     "lint:cypress": "yarn eslint -c ./cypress/.eslintrc cypress --ext .ts,.tsx",

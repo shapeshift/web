@@ -195,7 +195,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !lpOpportunity) return null
 
   return (
     <ReusableApprove

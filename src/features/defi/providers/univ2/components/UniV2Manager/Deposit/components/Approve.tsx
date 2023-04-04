@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ethers } from 'ethers'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -69,10 +69,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const asset1ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId1).assetReference),
-    [assetId1],
-  )
+
   const { approve, allowance, getDepositGasDataCryptoBaseUnit } = useUniV2LiquidityPool({
     accountId: lpAccountId ?? '',
     lpAssetId,
@@ -218,7 +215,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      spenderContractAddress={asset1ContractAddress}
+      spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
     />
   )
 }

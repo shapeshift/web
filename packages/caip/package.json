@@ -22,8 +22,10 @@
     "generate:yearn": "yarn run -T ts-node src/adapters/yearn/generate.ts",
     "generate:osmosis": "yarn run -T ts-node src/adapters/osmosis/generate.ts"
   },
+  "dependencies": {
+    "@shapeshiftoss/types": "workspace:^"
+  },
   "devDependencies": {
-    "@shapeshiftoss/types": "^8.1.0",
     "@yfi/sdk": "^1.2.0"
   }
 }

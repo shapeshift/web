@@ -18,10 +18,10 @@
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^8.3.0",
-    "@shapeshiftoss/logger": "^1.1.2",
-    "@shapeshiftoss/types": "^8.1.0",
+    "@shapeshiftoss/logger": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
     "@yfi/sdk": "^1.2.0",
     "ethers": "^5.5.3",
     "isomorphic-ws": "^4.0.1",

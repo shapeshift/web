@@ -87,6 +87,12 @@
   },
   "overrides": [
     {
+      "files": ["**/*.stories.*"],
+      "rules": {
+        "import/no-anonymous-default-export": "off"
+      }
+    },
+    {
       "files": ["**/*/*.test.ts"],
       "rules": {
         "@shapeshiftoss/logger/no-native-console": "off"

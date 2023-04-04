@@ -11,9 +11,9 @@
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
-    "build": "yarn workspaces foreach -ptv --exclude @shapeshiftoss/web run build",
+    "build": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run build",
     "build:web": "yarn build && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./scripts/writeHeaders.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && ts-node --skipProject ./scripts/writeBuildMetadata.ts",
-    "clean": "rm -rf node_modules build coverage && yarn workspaces foreach -ptv --exclude @shapeshiftoss/web run clean",
+    "clean": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run clean && rm -rf node_modules build coverage",
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
     "dev:silent": "BROWSER=none yarn dev",
     "dev:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev",
@@ -39,19 +39,6 @@
     "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "env": "yarn ts-node --skipProject ./scripts/bootstrap-env.ts",
     "deadcode": "yarn ts-prune"
-  },
-  "eslintConfig": {
-    "extends": "react-app",
-    "overrides": [
-      {
-        "files": [
-          "**/*.stories.*"
-        ],
-        "rules": {
-          "import/no-anonymous-default-export": "off"
-        }
-      }
-    ]
   },
   "browserslist": {
     "production": [
@@ -92,9 +79,9 @@
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.9.3",
     "@shapeshiftoss/asset-service": "^8.12.0",
-    "@shapeshiftoss/caip": "^8.15.0",
+    "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "11.2.2",
-    "@shapeshiftoss/errors": "^1.1.3",
+    "@shapeshiftoss/errors": "workspace:^",
     "@shapeshiftoss/hdwallet-core": "^1.46.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.46.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.46.0",
@@ -109,11 +96,11 @@
     "@shapeshiftoss/investor-foxy": "^8.0.1",
     "@shapeshiftoss/investor-idle": "^2.7.0",
     "@shapeshiftoss/investor-yearn": "^6.4.4",
-    "@shapeshiftoss/logger": "^1.1.3",
+    "@shapeshiftoss/logger": "workspace:^",
     "@shapeshiftoss/market-service": "^7.8.0",
     "@shapeshiftoss/swapper": "^17.6.2",
-    "@shapeshiftoss/types": "8.6.0",
-    "@shapeshiftoss/unchained-client": "^10.14.0",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/unchained-client": "workspace:^",
     "@uniswap/sdk": "^3.0.3",
     "@unstoppabledomains/resolution": "^8.3.3",
     "@visx/gradient": "^2.10.0",
@@ -196,7 +183,7 @@
     "@commitlint/config-conventional": "^15.0.0",
     "@keplr-wallet/types": "^0.10.5",
     "@peculiar/webcrypto": "^1.3.3",
-    "@shapeshiftoss/eslint-plugin-logger": "^1.1.0",
+    "@shapeshiftoss/eslint-plugin-logger": "workspace:^",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.1",

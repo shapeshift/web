@@ -5869,15 +5869,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@^8.0.0, @shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:packages/caip":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/caip@workspace:packages/caip"
-  dependencies:
-    "@shapeshiftoss/types": ^8.1.0
-    "@yfi/sdk": ^1.2.0
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/caip@npm:3.0.0":
   version: 3.0.0
   resolution: "@shapeshiftoss/caip@npm:3.0.0"
@@ -5886,6 +5877,15 @@ __metadata:
   checksum: eaa5ea33330b137fe0819b7be0d1f0307c28e5abcf58f59fad583cbb6aab6e662412c7ec374c2fd9727ac84d815d0c4c60ffef93f0f2eefc9ded02281d69d8a4
   languageName: node
   linkType: hard
+
+"@shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/caip@workspace:packages/caip"
+  dependencies:
+    "@shapeshiftoss/types": "workspace:^"
+    "@yfi/sdk": ^1.2.0
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/chain-adapters@npm:11.2.2":
   version: 11.2.2
@@ -5927,7 +5927,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/errors@^1.1.3, @shapeshiftoss/errors@workspace:packages/errors":
+"@shapeshiftoss/errors@workspace:^, @shapeshiftoss/errors@workspace:packages/errors":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/errors@workspace:packages/errors"
   dependencies:
@@ -5938,7 +5938,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/eslint-plugin-logger@^1.1.0, @shapeshiftoss/eslint-plugin-logger@workspace:packages/eslint-plugin-logger":
+"@shapeshiftoss/eslint-plugin-logger@workspace:^, @shapeshiftoss/eslint-plugin-logger@workspace:packages/eslint-plugin-logger":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/eslint-plugin-logger@workspace:packages/eslint-plugin-logger"
   dependencies:
@@ -6225,12 +6225,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/logger@npm:^1.1.2, @shapeshiftoss/logger@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "@shapeshiftoss/logger@npm:1.1.3"
-  checksum: e0523fe08bc20f25c1da57bc5f1506ca99efcefbb0851026f2ffb3256ca313966f4429ff1411fd144ea70fb84522c273b41134905d5f5ab453daf97eb0bbe48c
-  languageName: node
-  linkType: hard
+"@shapeshiftoss/investor@workspace:packages/investor":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/investor@workspace:packages/investor"
+  dependencies:
+    "@shapeshiftoss/types": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
+"@shapeshiftoss/logger@^1.1.2, @shapeshiftoss/logger@workspace:^, @shapeshiftoss/logger@workspace:packages/logger":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/logger@workspace:packages/logger"
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/market-service@npm:^7.8.0":
   version: 7.8.0
@@ -6292,12 +6299,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/types@8.6.0, @shapeshiftoss/types@^8.1.0, @shapeshiftoss/types@workspace:packages/types":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/types@workspace:packages/types"
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/types@npm:3.1.3":
   version: 3.1.3
   resolution: "@shapeshiftoss/types@npm:3.1.3"
@@ -6305,26 +6306,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/unchained-client@^10.14.0, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
+"@shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/types@workspace:packages/types"
+  languageName: unknown
+  linkType: soft
+
+"@shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/unchained-client@workspace:packages/unchained-client"
   dependencies:
     "@openapitools/openapi-generator-cli": ^2.5.1
-    "@shapeshiftoss/caip": ^8.0.0
+    "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^8.3.0
-    "@shapeshiftoss/logger": ^1.1.2
-    "@shapeshiftoss/types": ^8.1.0
+    "@shapeshiftoss/logger": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
     "@types/ws": ^8.2.1
     "@yfi/sdk": ^1.2.0
-    axios: ^0.26.1
-    bignumber.js: ^9.1.1
     ethers: ^5.5.3
     isomorphic-ws: ^4.0.1
     ws: ^8.3.0
-  peerDependencies:
-    "@shapeshiftoss/caip": ^8.0.0
-    "@shapeshiftoss/logger": ^1.1.2
-    "@shapeshiftoss/types": ^8.1.0
   languageName: unknown
   linkType: soft
 
@@ -6354,10 +6355,10 @@ __metadata:
     "@react-spring/web": ^9.5.2
     "@reduxjs/toolkit": ^1.9.3
     "@shapeshiftoss/asset-service": ^8.12.0
-    "@shapeshiftoss/caip": ^8.15.0
+    "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": 11.2.2
-    "@shapeshiftoss/errors": ^1.1.3
-    "@shapeshiftoss/eslint-plugin-logger": ^1.1.0
+    "@shapeshiftoss/errors": "workspace:^"
+    "@shapeshiftoss/eslint-plugin-logger": "workspace:^"
     "@shapeshiftoss/hdwallet-core": ^1.46.0
     "@shapeshiftoss/hdwallet-keepkey": ^1.46.0
     "@shapeshiftoss/hdwallet-keepkey-webusb": ^1.46.0
@@ -6372,11 +6373,11 @@ __metadata:
     "@shapeshiftoss/investor-foxy": ^8.0.1
     "@shapeshiftoss/investor-idle": ^2.7.0
     "@shapeshiftoss/investor-yearn": ^6.4.4
-    "@shapeshiftoss/logger": ^1.1.3
+    "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/market-service": ^7.8.0
     "@shapeshiftoss/swapper": ^17.6.2
-    "@shapeshiftoss/types": 8.6.0
-    "@shapeshiftoss/unchained-client": ^10.14.0
+    "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^"
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.3.0
     "@testing-library/user-event": ^14.2.1

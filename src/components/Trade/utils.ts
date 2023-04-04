@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { getInboundAddressDataForChain, isRune, SwapperName } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -39,3 +39,6 @@ export const isTradingActive = async (
       return true
   }
 }
+
+// All chains currently support Tx history, but that might not be the case as we support more chains
+export const chainSupportsTxHistory = (_chainId: ChainId): boolean => true

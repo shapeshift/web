@@ -2,36 +2,40 @@
   "name": "@shapeshiftoss/web",
   "version": "1.27.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
-    "link-packages": "./scripts/link-packages.sh",
-    "unlink-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
-    "build": "NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./scripts/writeHeaders.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && ts-node --skipProject ./scripts/writeBuildMetadata.ts",
-    "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true react-app-rewired start",
+    "build": "yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run build",
+    "build:web": "yarn build && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./scripts/writeHeaders.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && ts-node --skipProject ./scripts/writeBuildMetadata.ts",
+    "clean": "rm -rf node_modules && yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run clean",
+    "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
     "dev:silent": "BROWSER=none yarn dev",
     "dev:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev",
+    "dev:packages": "yarn workspaces foreach -ptiR --exclude @shapeshiftoss/web run dev",
     "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
-    "lint": "eslint -c .eslintrc src cypress --ext .ts,.tsx",
-    "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
+    "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
+    "lint:cypress": "yarn eslint -c ./cypress/.eslintrc cypress --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "lint:cypress:fix": "yarn lint:cypress --fix",
     "minify": "yarn yarn-minify",
     "test": "yarn jest --preset ts-jest react-app-rewired && react-app-rewired test --coverage --watchAll=false",
+    "test:packages": "yarn jest packages",
     "test:cypress": "yarn cypress open",
     "test:cypress:headless": "yarn cypress run --browser chrome --headless",
     "test:cypress:rerecord": "yarn cypress run --browser chrome --headless --env forceRecord=true",
     "test:cypress:clean": "yarn cypress run --browser chrome --headless --env cleanMocks=true",
-    "clean": "rimraf node_modules",
-    "test:dev": "react-app-rewired test --watch",
-    "type-check": "tsc --project ./tsconfig.json --noEmit",
-    "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
+    "test:dev": "yarn react-app-rewired test --watch",
+    "type-check": "yarn tsc --noEmit",
+    "type-check-watch": "yarn tsc --noEmit --watch",
     "postinstall": "./scripts/postinstall.sh",
-    "release": "ts-node --skipProject ./scripts/release.ts",
-    "remove-outdated-translations": "ts-node --skipProject ./scripts/removeOutdatedTranslations.ts",
-    "scrape-walletconnect-dapps": "ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
-    "env": "ts-node --skipProject ./scripts/bootstrap-env.ts",
-    "deadcode": "ts-prune"
+    "release": "yarn ts-node --skipProject ./scripts/release.ts",
+    "remove-outdated-translations": "yarn ts-node --skipProject ./scripts/removeOutdatedTranslations.ts",
+    "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
+    "env": "yarn ts-node --skipProject ./scripts/bootstrap-env.ts",
+    "deadcode": "yarn ts-prune"
   },
   "eslintConfig": {
     "extends": "react-app",
@@ -44,12 +48,6 @@
           "import/no-anonymous-default-export": "off"
         }
       }
-    ]
-  },
-  "jest": {
-    "collectCoverageFrom": [],
-    "coveragePathIgnorePatterns": [
-      "./src/env"
     ]
   },
   "browserslist": {
@@ -207,7 +205,7 @@
     "@types/eth-url-parser": "^1.0.0",
     "@types/git-semver-tags": "^4.1.1",
     "@types/history": "^4.7.11",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^29.5.0",
     "@types/lodash": "^4.14.178",
     "@types/mixpanel-browser": "^2.38.1",
     "@types/node": "^16.11.12",
@@ -233,6 +231,7 @@
     "circular-dependency-plugin": "^5.2.2",
     "cypress": "^10.11.0",
     "dotenv": "^16.0.1",
+    "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.26.0",
@@ -240,6 +239,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
     "inquirer": "8.2.4",
+    "jest": "^27.1.0",
     "jest-mock": "^27.5.1",
     "lit-html": "^2.6.1",
     "msw": "^0.36.5",
@@ -258,7 +258,7 @@
     "ts-node": "^10.8.0",
     "ts-prune": "^0.10.3",
     "typechain": "^8.1.1",
-    "typescript": "^4.7.0",
+    "typescript": "^4.9.0",
     "val-loader": "^4.0.0",
     "webpack": "5.76.0",
     "webpack-subresource-integrity": "^5.0.0",

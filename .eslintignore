@@ -1,3 +1,7 @@
 build
 coverage
+dist
+generated
 node_modules
+react-app-rewired
+scripts

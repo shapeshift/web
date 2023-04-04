@@ -9,16 +9,24 @@
 !.yarn/sdks
 !.yarn/versions
 
+# generated files
+packages/unchained-client/src/generated
+
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage
 
 # production
 /build
+*.tsbuildinfo
+dist
+
+# Optional eslint cache
+.eslintcache
 
 # misc
 .DS_Store

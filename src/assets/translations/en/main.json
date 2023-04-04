@@ -957,7 +957,7 @@
       }
     },
     "approve": {
-      "header": "Allow %{contractName} to use your %{asset}",
+      "header": "Allow %{spenderName} to use your %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",

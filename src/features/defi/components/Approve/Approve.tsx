@@ -94,10 +94,7 @@ export const Approve = ({
         <Stack>
           <Text
             fontWeight='bold'
-            translation={[
-              'modals.approve.header',
-              { asset: asset.name, contractName: spenderName },
-            ]}
+            translation={['modals.approve.header', { asset: asset.name, spenderName }]}
           />
           <CText color='gray.500'>
             <Link

@@ -46,7 +46,7 @@ export const NftProperties = () => {
   }, [bgColor])
   return (
     <Flex gap={4} px={8} py={6} flexDir='column'>
-      <Text translation='nft.attributes' />
+      <Text fontWeight='medium' translation='nft.attributes' />
       <Flex gap={4} flexWrap='wrap'>
         {renderProperties}
       </Flex>

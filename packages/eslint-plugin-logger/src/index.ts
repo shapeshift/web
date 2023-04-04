@@ -1,9 +1,4 @@
-import type {
-  BaseNode,
-  MemberExpressionNonComputedName,
-} from '@typescript-eslint/types/dist/ast-spec'
-import type { TSESTree } from '@typescript-eslint/utils'
-import type { RuleModule } from '@typescript-eslint/utils/dist/ts-eslint'
+import { TSESTree, TSESLint } from '@typescript-eslint/utils'
 import type { Reference, Scope } from 'eslint-scope'
 
 import { getVariableByName } from './utils'
@@ -23,7 +18,7 @@ function isConsole(reference: Reference) {
 
 export const rules: Record<
   string,
-  { meta: { type: string }; create: RuleModule<string>['create'] }
+  { meta: { type: string }; create: TSESLint.RuleModule<string>['create'] }
 > = {
   'no-native-console': {
     meta: {
@@ -31,8 +26,8 @@ export const rules: Record<
     },
     create(context) {
       function report(reference: Reference) {
-        const node = reference.identifier as BaseNode
-        const method = (node.parent as MemberExpressionNonComputedName).property.name
+        const node = reference.identifier as TSESTree.BaseNode
+        const method = (node.parent as TSESTree.MemberExpressionNonComputedName).property.name
         const consoleCallNode = node?.parent?.parent
 
         node.loc &&
@@ -63,8 +58,8 @@ export const rules: Record<
             references
               .filter(isMemberAccess)
               .filter(reference => {
-                const node = reference.identifier as BaseNode
-                const method = (node.parent as MemberExpressionNonComputedName).property.name
+                const node = reference.identifier as TSESTree.BaseNode
+                const method = (node.parent as TSESTree.MemberExpressionNonComputedName).property.name
 
                 return method !== 'consoleFn' // Exclude moduleLogger itself from being reported
               })

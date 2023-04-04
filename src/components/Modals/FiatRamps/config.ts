@@ -3,6 +3,7 @@ import { adapters, btcAssetId } from '@shapeshiftoss/caip'
 import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import CoinbaseLogo from 'assets/coinbase-logo.svg'
+import GateFiLogo from 'assets/gatefi.svg'
 import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
@@ -13,6 +14,11 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 import type commonFiatCurrencyList from './FiatCurrencyList.json'
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import { createCoinbaseUrl, getCoinbaseSupportedAssets } from './fiatRampProviders/coinbase'
+import {
+  createGateFiUrl,
+  getGateFiAssets,
+  getSupportedGateFiFiatCurrencies,
+} from './fiatRampProviders/gateFi'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -66,7 +72,7 @@ export interface SupportedFiatRampConfig {
   // array of keys of translation jsons, will be used to show the tags in the list
   tags?: string[]
   logo: string
-  // manul sort of the ramps
+  // manual sort of the ramps
   order: number
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
@@ -75,7 +81,15 @@ export interface SupportedFiatRampConfig {
   minimumSellThreshold?: number
 }
 
-const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
+const fiatRamps = [
+  'Gem',
+  'Banxa',
+  'JunoPay',
+  'MtPelerin',
+  'OnRamper',
+  'Coinbase',
+  'GateFi',
+] as const
 export type FiatRamp = typeof fiatRamps[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
@@ -210,6 +224,28 @@ export const supportedFiatRamps: SupportedFiatRamp = {
         return mtPelerinCheckoutUrl
       } catch (err) {
         moduleLogger.error(err, { fn: 'MtPelerin onSubmit' }, 'Asset not supported by MtPelerin')
+      }
+    },
+  },
+  GateFi: {
+    id: 'GateFi',
+    label: 'fiatRamps.gateFi',
+    tags: ['fiatRamps.noKYC', 'fiatRamps.nonUS'],
+    logo: GateFiLogo,
+    order: 6,
+    isActive: () => true,
+    minimumSellThreshold: 0,
+    getBuyAndSellList: async () => {
+      const buyAndSellAssetIds = await getGateFiAssets()
+      return [buyAndSellAssetIds, buyAndSellAssetIds]
+    },
+    getSupportedFiatList: () => getSupportedGateFiFiatCurrencies(),
+    onSubmit: props => {
+      try {
+        const gateFiCheckouturl = createGateFiUrl(props)
+        return gateFiCheckouturl
+      } catch (err) {
+        moduleLogger.error(err, { fn: 'GateFi onSubmit' }, 'Asset not supported by GateFi')
       }
     },
   },

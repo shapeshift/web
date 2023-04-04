@@ -200,7 +200,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   return (
     <ReusableApprove
       asset={asset}
-      contractName={DefiProvider.ShapeShift}
+      spenderName={DefiProvider.ShapeShift}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))

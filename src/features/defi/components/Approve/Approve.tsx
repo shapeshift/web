@@ -16,7 +16,7 @@ import { PairIcons } from './PairIcons'
 
 type ApproveProps = {
   asset: Asset
-  contractName: string
+  spenderName: string
   disabled?: boolean
   providerIcon?: string
   icons?: string[]
@@ -37,7 +37,7 @@ type ApproveProps = {
 export const Approve = ({
   asset,
   contractAddress,
-  contractName,
+  spenderName: contractName,
   estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,

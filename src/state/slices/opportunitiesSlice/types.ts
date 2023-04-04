@@ -191,7 +191,7 @@ export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunity
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  netApy: string
+  apy: string
   fiatAmount: string
   cryptoBalancePrecision: string
   fiatRewardsAmount: string
@@ -200,7 +200,7 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
 
 export type AggregatedOpportunitiesByProviderReturn = {
   provider: DefiProvider
-  netApy: string
+  apy: string
   fiatAmount: string
   fiatRewardsAmount: string
   opportunities: Record<DefiType, OpportunityId[]>

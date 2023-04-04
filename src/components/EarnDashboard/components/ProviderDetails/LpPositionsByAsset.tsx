@@ -18,13 +18,13 @@ import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportun
 import { selectAggregatedEarnUserLpOpportunities, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type LpPositionsByPositionProps = {
+type LpPositionsByAssetProps = {
   ids: OpportunityId[]
 }
 
 export type RowProps = Row<LpEarnOpportunityType>
 
-export const LpPositionsByPosition: React.FC<LpPositionsByPositionProps> = ({ ids }) => {
+export const LpPositionsByAsset: React.FC<LpPositionsByAssetProps> = ({ ids }) => {
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()

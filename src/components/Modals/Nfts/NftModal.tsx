@@ -22,6 +22,7 @@ import {
   Tag,
   TagLeftIcon,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -31,6 +32,7 @@ import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
+import { breakpoints } from 'theme/theme'
 
 import { NftOverview } from './components/NftOverview'
 import { NftProperties } from './components/NftProperties'
@@ -59,6 +61,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const imageUrl = zapperNft?.medias?.[0]?.originalUrl
   const name = zapperNft?.name
@@ -198,7 +201,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   }, [nftModalOverview, nftModalDetails])
 
   return (
-    <Modal isOpen={isOpen} onClose={close}>
+    <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd}>
       <ModalOverlay />
       <ModalContent
         maxWidth='container.lg'

@@ -219,6 +219,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
+      spenderName={translate('modals.approve.routerName')}
       estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}
@@ -234,7 +235,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={ssRouterContractAddress}
+      spenderContractAddress={ssRouterContractAddress}
     />
   )
 }

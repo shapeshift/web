@@ -63,6 +63,7 @@ import {
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { TradeRoutePaths } from '../types'
+import { chainSupportsTxHistory } from '../utils'
 import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
@@ -344,12 +345,12 @@ export const TradeConfirm = () => {
             </Stack>
           </Alert>
         )}
-        {trade.buyAsset.assetId === thorchainAssetId && (
+        {!chainSupportsTxHistory(trade.buyAsset.chainId) && (
           <Alert status='info' width='auto' mb={3} fontSize='sm'>
             <AlertIcon />
             <Stack spacing={0}>
               <AlertDescription lineHeight='short'>
-                {translate('trade.intoRUNEBody')}
+                {translate('trade.intoAssetSymbolBody', { assetSymbol: trade.buyAsset.symbol })}
               </AlertDescription>
             </Stack>
           </Alert>

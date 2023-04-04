@@ -13,12 +13,14 @@ import { Page } from './Page'
 export type MainProps = {
   titleComponent?: ReactNode
   headerComponent?: ReactNode
+  hideBreadcrumbs?: boolean
 } & ContainerProps
 
 export const Main: React.FC<MainProps> = ({
   children,
   titleComponent,
   headerComponent,
+  hideBreadcrumbs = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -47,9 +49,12 @@ export const Main: React.FC<MainProps> = ({
           <>
             <Container maxW='container.xl' px={{ base: 4, xl: 8 }} pt={4}>
               <Stack>
-                <HStack width='full' justifyContent='space-between'>
-                  <Breadcrumbs />
-                </HStack>
+                {!hideBreadcrumbs && (
+                  <HStack width='full' justifyContent='space-between'>
+                    <Breadcrumbs />
+                  </HStack>
+                )}
+
                 {titleComponent}
               </Stack>
             </Container>

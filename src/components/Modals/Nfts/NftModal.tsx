@@ -26,7 +26,6 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
@@ -67,7 +66,6 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const name = zapperNft?.name
   const collectionName = zapperNft?.collection?.name
   const collectionAddress = zapperNft?.collection?.address
-  const hasCollectionData = Boolean(zapperNft?.collection)
   const rarityRank = zapperNft?.rarityRank
 
   const floorPriceEth = zapperNft?.collection.floorPriceEth
@@ -189,7 +187,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           <TabList gap={4} px={8} bg={modalHeaderBg}>
             <NftTab>{translate('nft.overview')}</NftTab>
             {/* <NftTab>{translate('nft.properties')}</NftTab> */}
-            {hasCollectionData && <NftTab>{translate('nft.collection')}</NftTab>}
+            {/* {<NftTab>{translate('nft.collection')}</NftTab>} */}
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
         </Box>
@@ -208,7 +206,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </TabPanels>
       </Tabs>
     )
-  }, [hasCollectionData, modalHeaderBg, translate, zapperNft])
+  }, [modalHeaderBg, translate, zapperNft])
 
   const nftModalContent = useMemo(() => {
     return (

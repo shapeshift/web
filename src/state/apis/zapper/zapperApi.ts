@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import qs from 'qs'
+import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
@@ -15,6 +17,8 @@ import {
   ZapperGroupId,
   zapperNetworkToChainId,
 } from './client'
+
+const moduleLogger = logger.child({ namespace: ['zapperApi'] })
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -33,7 +37,7 @@ const zapperClient = createApiClient(ZAPPER_BASE_URL)
 type GetAppBalancesOutput = AssetId[]
 
 type GetZapperNftUserTokens = {
-  accountId: AccountId
+  accountIds: AccountId[]
 }
 
 // https://docs.zapper.xyz/docs/apis/getting-started
@@ -95,27 +99,42 @@ export const zapperApi = createApi({
       },
     }),
     getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokens>({
-      queryFn: async ({ accountId }) => {
-        const { account } = fromAccountId(accountId)
-        // TODO(0xdef1cafe): remove
-        const userAddress = '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c' ?? account // willywonka.eth
+      queryFn: async ({ accountIds }) => {
+        // addresses are repeated across EVM chains
+        const userAddresses = Array.from(
+          new Set(
+            accountIds
+              .map(fromAccountId)
+              .filter(({ chainId }) => isEvmChainId(chainId))
+              .map(({ account }) => account),
+          ),
+        )
+
         let data: V2NftUserItem[] = []
-        // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
-        /**
-         * docs about cursor are wrong lmeow
-         * check the length of returned items to see if there are more
-         */
-        const limit = 100
-        while (true) {
-          const res = await zapperClient.getV2NftUserTokens({
-            // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
-            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-            headers,
-            queries: { userAddress, limit: limit.toString() },
-          })
-          if (!res?.items?.length) break
-          if (res?.items?.length) data = data.concat(res.items)
-          if (res?.items?.length < limit) break
+
+        for (const userAddress of userAddresses) {
+          // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
+          /**
+           * docs about cursor are wrong lmeow
+           * check the length of returned items to see if there are more
+           */
+          const limit = 100
+          while (true) {
+            try {
+              const res = await zapperClient.getV2NftUserTokens({
+                // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
+                paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+                headers,
+                queries: { userAddress, limit: limit.toString() },
+              })
+              if (!res?.items?.length) break
+              if (res?.items?.length) data = data.concat(res.items)
+              if (res?.items?.length < limit) break
+            } catch (e) {
+              moduleLogger.warn(e, 'getZapperNftUserTokens')
+              break
+            }
+          }
         }
         return { data }
       },

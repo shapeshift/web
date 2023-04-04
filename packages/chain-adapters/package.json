@@ -15,7 +15,7 @@
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
-    "cli": "yarn run -T ts-node src/ChainAdapterCLI.ts"
+    "cli": "yarn build && yarn node dist/ChainAdapterCLI.js"
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",

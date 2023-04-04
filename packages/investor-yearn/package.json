@@ -18,7 +18,7 @@
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
-    "cli": "yarn build && node ./dist/yearncli.js"
+    "cli": "yarn build && yarn node dist/yearncli.js"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",

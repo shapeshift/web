@@ -18,7 +18,7 @@
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
-    "cli": "yarn run -T ts-node src/foxycli.ts"
+    "cli": "yarn build && yarn node dist/foxycli.js"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",

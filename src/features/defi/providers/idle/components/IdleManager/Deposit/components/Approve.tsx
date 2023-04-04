@@ -247,7 +247,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={ssRouterContractAddress}
+      spenderContractAddress={ssRouterContractAddress}
     />
   )
 }

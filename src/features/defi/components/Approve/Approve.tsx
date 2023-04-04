@@ -27,7 +27,7 @@ type ApproveProps = {
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
-  contractAddress: string
+  spenderContractAddress: string
   preFooter?: React.ReactNode
   onToggle?(): void
   onConfirm(): Promise<void>
@@ -36,7 +36,7 @@ type ApproveProps = {
 
 export const Approve = ({
   asset,
-  contractAddress,
+  spenderContractAddress,
   spenderName,
   estimatedGasFeeCryptoPrecision,
   disabled,
@@ -101,7 +101,7 @@ export const Approve = ({
           />
           <CText color='gray.500'>
             <Link
-              href={`${asset.explorerAddressLink}${contractAddress}`}
+              href={`${asset.explorerAddressLink}${spenderContractAddress}`}
               color='blue.500'
               me={1}
               isExternal

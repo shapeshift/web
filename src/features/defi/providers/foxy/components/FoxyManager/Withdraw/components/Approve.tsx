@@ -227,7 +227,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={contractAddress}
+      spenderContractAddress={contractAddress}
     />
   )
 }

@@ -235,7 +235,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={ssRouterContractAddress}
+      spenderContractAddress={ssRouterContractAddress}
     />
   )
 }

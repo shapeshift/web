@@ -214,7 +214,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={fromAssetId(lpAssetId).assetReference}
+      spenderContractAddress={fromAssetId(lpAssetId).assetReference}
     />
   )
 }

@@ -201,7 +201,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={foxFarmingOpportunity?.contractAddress ?? ''}
+      spenderContractAddress={foxFarmingOpportunity?.contractAddress ?? ''}
     />
   )
 }

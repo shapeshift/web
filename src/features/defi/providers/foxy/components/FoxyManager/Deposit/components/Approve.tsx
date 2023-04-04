@@ -217,7 +217,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       isExactAllowance={state.isExactAllowance}
       onCancel={() => history.push('/')}
       onConfirm={handleApprove}
-      contractAddress={contractAddress}
+      spenderContractAddress={contractAddress}
       onToggle={() =>
         dispatch({
           type: FoxyDepositActionType.SET_IS_EXACT_ALLOWANCE,

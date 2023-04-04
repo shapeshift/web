@@ -201,6 +201,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset1}
       feeAsset={feeAsset}
+      contractName={lpOpportunity.provider}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)

@@ -4,7 +4,11 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProvider,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -208,6 +212,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
+      contractName={DefiProvider.ShapeShift}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset.precision))
         .toFixed(5)}

@@ -184,8 +184,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   return (
     <ReusableApprove
       asset={asset}
+      contractName={foxFarmingOpportunity.provider}
       feeAsset={feeAsset}
-      icons={foxFarmingOpportunity?.icons}
+      icons={foxFarmingOpportunity.icons}
       estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoPrecision).toFixed(
         5,
       )}

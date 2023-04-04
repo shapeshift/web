@@ -16,6 +16,7 @@ import { PairIcons } from './PairIcons'
 
 type ApproveProps = {
   asset: Asset
+  contractName: string
   disabled?: boolean
   providerIcon?: string
   icons?: string[]
@@ -36,6 +37,7 @@ type ApproveProps = {
 export const Approve = ({
   asset,
   contractAddress,
+  contractName,
   estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,
@@ -90,7 +92,10 @@ export const Approve = ({
           )}
         </Stack>
         <Stack>
-          <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
+          <Text
+            fontWeight='bold'
+            translation={['modals.approve.header', { asset: asset.name, contractName }]}
+          />
           <CText color='gray.500'>
             <Link
               href={`${asset.explorerAddressLink}${contractAddress}`}

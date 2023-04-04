@@ -30,12 +30,12 @@ import { Amount } from 'components/Amount/Amount'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
+import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 import { breakpoints } from 'theme/theme'
 
 import { NftOverview } from './components/NftOverview'
-import { NftProperties } from './components/NftProperties'
 
 const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')
@@ -68,6 +68,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const collectionName = zapperNft?.collection?.name
   const collectionAddress = zapperNft?.collection?.address
   const hasCollectionData = Boolean(zapperNft?.collection)
+  const rarityRank = zapperNft?.rarityRank
+
+  const floorPriceEth = zapperNft?.collection.floorPriceEth
+  const lastSaleEth = zapperNft?.lastSaleEth
+
+  const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
 
   // const collectionLink = (() => {
   //   const zapperNetwork = zapperNft?.collection?.network
@@ -77,7 +83,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   //   return `https://opensea.io/collection/${collectionAddress}`
   // })()
 
-  console.log(JSON.stringify(zapperNft, null, 2))
+  // console.log(JSON.stringify(zapperNft, null, 2))
 
   const nftModalImage = useMemo(() => {
     return (
@@ -137,32 +143,44 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
               {name}
             </RawText>
           </Flex>
-          <Tag colorScheme='purple' variant='solid'>
-            <TagLeftIcon as={DiamondIcon} />
-            14th
-          </Tag>
         </Flex>
         <StatGroup>
-          <Stat>
-            <StatLabel>Floor Price</StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='0.96' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Last Price</StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='0.96' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>Rarity</StatLabel>
-            <StatNumber>14th/19,462</StatNumber>
-          </Stat>
+          {floorPriceEth && (
+            <Stat>
+              <StatLabel>{translate('nft.floorPrice')}</StatLabel>
+              <StatNumber>{floorPriceEth} ETH</StatNumber>
+            </Stat>
+          )}
+          {lastSaleEth && (
+            <Stat>
+              <StatLabel>{translate('nft.lastPrice')}</StatLabel>
+              <StatNumber>{lastSaleEth} ETH</StatNumber>
+            </Stat>
+          )}
+          {rarityDisplay && (
+            <Stat>
+              <StatLabel>{translate('nft.rarity')}</StatLabel>
+              <StatNumber>
+                <Tag colorScheme='purple' variant='solid'>
+                  <TagLeftIcon as={DiamondIcon} />
+                  {rarityDisplay}
+                </Tag>
+              </StatNumber>
+            </Stat>
+          )}
         </StatGroup>
       </Flex>
     )
-  }, [modalHeaderBg, collectionAddress, collectionName, name])
+  }, [
+    modalHeaderBg,
+    collectionAddress,
+    collectionName,
+    name,
+    translate,
+    floorPriceEth,
+    lastSaleEth,
+    rarityDisplay,
+  ])
 
   const nftModalDetails = useMemo(() => {
     return (
@@ -170,7 +188,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         <Box position='relative'>
           <TabList gap={4} px={8} bg={modalHeaderBg}>
             <NftTab>{translate('nft.overview')}</NftTab>
-            <NftTab>{translate('nft.properties')}</NftTab>
+            {/* <NftTab>{translate('nft.properties')}</NftTab> */}
             {hasCollectionData && <NftTab>{translate('nft.collection')}</NftTab>}
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
@@ -184,9 +202,9 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           <TabPanel p={0}>
             <NftOverview zapperNft={zapperNft} />
           </TabPanel>
-          <TabPanel p={0}>
+          {/* <TabPanel p={0}>
             <NftProperties />
-          </TabPanel>
+          </TabPanel> */}
         </TabPanels>
       </Tabs>
     )

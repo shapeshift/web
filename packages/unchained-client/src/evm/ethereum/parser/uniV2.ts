@@ -175,15 +175,15 @@ export class Parser implements SubParser<Tx> {
     }
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return this.parseUniV2(tx)
+    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return await this.parseUniV2(tx)
+
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
-    if (
-      UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract => txInteractsWithContract(tx, contract))
+    const isFoxStakingRewards = UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract =>
+      txInteractsWithContract(tx, contract),
     )
-      return this.parseStakingRewards(tx)
-    return
+
+    if (isFoxStakingRewards) return await Promise.resolve(this.parseStakingRewards(tx))
   }
 
   private static pairFor(tokenA: string, tokenB: string): string {

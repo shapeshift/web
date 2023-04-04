@@ -67,7 +67,6 @@ export class Parser implements SubParser<Tx> {
     })()
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, this.routerContract)) return
     if (!tx.inputData) return
@@ -89,11 +88,17 @@ export class Parser implements SubParser<Tx> {
     const [type] = decoded.args.memo.split(':')
 
     if (SWAP_TYPES.includes(type) || type === 'OUT') {
-      return { trade: { dexName: Dex.Thor, type: TradeType.Trade, memo: decoded.args.memo }, data }
+      return await Promise.resolve({
+        trade: { dexName: Dex.Thor, type: TradeType.Trade, memo: decoded.args.memo },
+        data,
+      })
     }
 
     if (type === 'REFUND') {
-      return { trade: { dexName: Dex.Thor, type: TradeType.Refund, memo: decoded.args.memo }, data }
+      return await Promise.resolve({
+        trade: { dexName: Dex.Thor, type: TradeType.Refund, memo: decoded.args.memo },
+        data,
+      })
     }
 
     // memo type not supported

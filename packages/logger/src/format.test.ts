@@ -1,4 +1,4 @@
-import format from './format'
+import { format } from './format'
 
 class RuntimeError extends Error {}
 
@@ -57,7 +57,7 @@ describe('format(x: any)', () => {
 
   it.each([[undefined], [null], [0], [true], [new Date()], [/abc/]])(
     'should return undefined for any other value',
-    (x) => {
+    x => {
       expect(format(x)).toBeUndefined()
     },
   )

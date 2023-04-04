@@ -22,7 +22,6 @@ export class BaseTransactionParser<T extends Tx> {
     this.assetId = args.assetId
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: T, address: string): Promise<ParsedTx> {
     const parsedTx: ParsedTx = {
       address,
@@ -78,7 +77,7 @@ export class BaseTransactionParser<T extends Tx> {
       }
     })
 
-    return parsedTx
+    return await Promise.resolve(parsedTx)
   }
 
   private getStatus(tx: T): TxStatus {

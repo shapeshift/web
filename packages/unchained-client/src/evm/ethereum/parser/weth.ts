@@ -47,7 +47,6 @@ export class Parser implements SubParser<Tx> {
     })()
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, this.wethContract)) return
     if (!tx.inputData) return
@@ -109,12 +108,12 @@ export class Parser implements SubParser<Tx> {
     // no supported function detected
     if (!transfers) return
 
-    return {
+    return await Promise.resolve({
       transfers,
       data: {
         parser: 'weth',
         method: decoded.name,
       },
-    }
+    })
   }
 }

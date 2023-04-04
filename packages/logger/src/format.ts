@@ -1,4 +1,4 @@
-import { FormattedError, FormattedObject } from './logger.type'
+import type { FormattedError, FormattedObject } from './logger.type'
 
 const objectProto = Object.getPrototypeOf(Object())
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -34,7 +34,7 @@ function isErrorWithDetails(value: unknown): value is Error & {
 
 // this function accepts anything (string, object, array, or error) and
 // returns an object that datadog knows how to ingest
-export default function format(x: unknown): FormattedObject | undefined {
+export function format(x: unknown): FormattedObject | undefined {
   // plain strings can only be included if they have a key in the result object
   if (typeof x === 'string') return { message: x }
   // Create a shallow copy of objects

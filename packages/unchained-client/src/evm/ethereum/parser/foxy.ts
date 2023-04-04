@@ -21,7 +21,6 @@ export class Parser implements SubParser<Tx> {
     claimWithdrawSigHash: this.abiInterface.getSighash('claimWithdraw'),
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, FOXY_STAKING_CONTRACT)) return
     if (!tx.inputData) return
@@ -35,11 +34,11 @@ export class Parser implements SubParser<Tx> {
     // failed to decode input data
     if (!decoded) return
 
-    return {
+    return await Promise.resolve({
       data: {
         method: decoded.name,
         parser: 'foxy',
       },
-    }
+    })
   }
 }

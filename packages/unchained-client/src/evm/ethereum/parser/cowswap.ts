@@ -10,12 +10,11 @@ export interface TxMetadata extends BaseTxMetadata {
 }
 
 export class Parser implements SubParser<Tx> {
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, COWSWAP_CONTRACT_MAINNET)) return
     if (!(tx.tokenTransfers && tx.tokenTransfers.length)) return
 
-    return {
+    return await Promise.resolve({
       trade: {
         dexName: Dex.CowSwap,
         type: TradeType.Trade,
@@ -24,6 +23,6 @@ export class Parser implements SubParser<Tx> {
         method: undefined,
         parser: 'cowswap',
       },
-    }
+    })
   }
 }

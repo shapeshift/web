@@ -5887,28 +5887,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/chain-adapters@npm:11.2.2":
-  version: 11.2.2
-  resolution: "@shapeshiftoss/chain-adapters@npm:11.2.2"
+"@shapeshiftoss/chain-adapters@11.2.2, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
-    axios: ^0.26.1
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^"
+    "@types/multicoin-address-validator": ^0.5.0
     bech32: ^2.0.0
-    bignumber.js: ^9.1.1
     bitcoinjs-lib: ^5.2.0
     coinselect: ^3.1.13
-    ethers: ^5.4.7
     multicoin-address-validator: ^0.5.12
     web3-utils: 1.7.4
-  peerDependencies:
-    "@shapeshiftoss/caip": ^8.0.0
-    "@shapeshiftoss/hdwallet-core": ^1.46.0
-    "@shapeshiftoss/hdwallet-native": ^1.46.0
-    "@shapeshiftoss/types": ^8.1.0
-    "@shapeshiftoss/unchained-client": ^10.11.0
-    bs58check: ^2.0.2
-  checksum: 32bd2d67fd84930d527c1327732371bc4af98a4ebebcfdea53f0747946be7e0d5f43aa1d972883ed3ebf5309b5a35ac49cdb3d9db18afdb27d487517867fd156
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/common-api@npm:^8.3.0":
   version: 8.3.0
@@ -6323,7 +6316,6 @@ __metadata:
     "@shapeshiftoss/types": "workspace:^"
     "@types/ws": ^8.2.1
     "@yfi/sdk": ^1.2.0
-    ethers: ^5.5.3
     isomorphic-ws: ^4.0.1
     ws: ^8.3.0
   languageName: unknown
@@ -6383,6 +6375,7 @@ __metadata:
     "@testing-library/user-event": ^14.2.1
     "@typechain/ethers-v5": ^10.1.1
     "@types/bignumber.js": ^5.0.0
+    "@types/bs58check": ^2.1.0
     "@types/circular-dependency-plugin": ^5.0.5
     "@types/d3-array": ^3.0.1
     "@types/dompurify": ^2.3.2
@@ -6449,6 +6442,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-simple-import-sort: ^7.0.0
     eth-url-parser: ^1.0.4
+    ethers: ^5.5.3
     fast-json-stable-stringify: ^2.1.0
     framer-motion: ^6.3.11
     friendly-challenge: 0.9.2
@@ -7278,6 +7272,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bs58check@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@types/bs58check@npm:2.1.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: 1a54c922b45d0ea6b945cd4700195b58484b488abb8f75ea4882939bbef58bb7351fb0e203bb9e98d242d7abb8e10182277158b60dac97c4b5d422206ab91b86
+  languageName: node
+  linkType: hard
+
 "@types/circular-dependency-plugin@npm:^5.0.5":
   version: 5.0.5
   resolution: "@types/circular-dependency-plugin@npm:5.0.5"
@@ -7669,6 +7672,13 @@ __metadata:
   version: 2.38.1
   resolution: "@types/mixpanel-browser@npm:2.38.1"
   checksum: ff32a3ca24d62a7e71d68f943b15e825899627c94b107df99196ed12321f9f3eaa4c717fed900627e1d377e3e5b44cffa503317ac0f6f9b89eb906dddc1aebbb
+  languageName: node
+  linkType: hard
+
+"@types/multicoin-address-validator@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@types/multicoin-address-validator@npm:0.5.0"
+  checksum: 94a1f9147fdc7420bd3708dbe39774072dbb9983197b11c2d93fa204387dbb98efb8caf98a0b1b34d2fe82c16992e5fe741f627e8484bd2b3a6fade42d800fa6
   languageName: node
   linkType: hard
 

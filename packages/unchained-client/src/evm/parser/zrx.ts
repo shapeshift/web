@@ -19,12 +19,11 @@ export class Parser implements SubParser<Tx> {
     this.proxyContract = args.proxyContract
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!txInteractsWithContract(tx, this.proxyContract)) return
     if (!(tx.tokenTransfers && tx.tokenTransfers.length)) return
 
-    return {
+    return await Promise.resolve({
       trade: {
         dexName: Dex.Zrx,
         type: TradeType.Trade,
@@ -33,6 +32,6 @@ export class Parser implements SubParser<Tx> {
         method: undefined, // TODO - add zrx ABI and decode
         parser: 'zrx',
       },
-    }
+    })
   }
 }

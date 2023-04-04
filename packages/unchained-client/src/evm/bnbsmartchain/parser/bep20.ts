@@ -34,7 +34,6 @@ export class Parser<T extends Tx> implements SubParser<T> {
     this.chainId = args.chainId
   }
 
-  // eslint-disable-next-line require-await
   async parse(tx: T): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
 
@@ -59,12 +58,15 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
     switch (txSigHash) {
       case this.supportedFunctions.approveSigHash: {
-        const value = decoded.args.amount as BigNumber
-        if (value.isZero()) return { data: { ...data, method: 'revoke', value: value.toString() } }
-        return { data: { ...data, value: value.toString() } }
+        const amount = decoded.args.amount as BigNumber
+        const value = amount.toString()
+        if (amount.isZero()) {
+          return await Promise.resolve({ data: { ...data, method: 'revoke', value } })
+        }
+        return await Promise.resolve({ data: { ...data, value } })
       }
       default:
-        return { data }
+        return await Promise.resolve({ data })
     }
   }
 }

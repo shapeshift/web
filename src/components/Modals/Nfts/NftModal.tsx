@@ -64,6 +64,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const name = zapperNft?.name
   const collectionName = zapperNft?.collection?.name
   const collectionAddress = zapperNft?.collection?.address
+  const hasCollectionData = Boolean(zapperNft?.collection)
 
   // const collectionLink = (() => {
   //   const zapperNetwork = zapperNft?.collection?.network
@@ -167,7 +168,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           <TabList gap={4} px={8} bg={modalHeaderBg}>
             <NftTab>{translate('nft.overview')}</NftTab>
             <NftTab>{translate('nft.properties')}</NftTab>
-            <NftTab>{translate('nft.collection')}</NftTab>
+            {hasCollectionData && <NftTab>{translate('nft.collection')}</NftTab>}
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
         </Box>
@@ -186,7 +187,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </TabPanels>
       </Tabs>
     )
-  }, [modalHeaderBg, translate])
+  }, [hasCollectionData, modalHeaderBg, translate])
 
   const nftModalContent = useMemo(() => {
     return (

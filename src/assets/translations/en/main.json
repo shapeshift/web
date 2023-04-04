@@ -650,8 +650,7 @@
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "updatingQuote": "Updating quote...",
-    "intoRUNETitle": "Trading into RUNE",
-    "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
+    "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",

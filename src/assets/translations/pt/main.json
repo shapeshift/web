@@ -642,8 +642,7 @@
     "slowSwapTitle": "%{protocol} negocie",
     "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
     "updatingQuote": "Atualizando dados...",
-    "intoRUNETitle": "Negociando com a RUNE",
-    "intoRUNEBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber RUNE está temporariamente indisponível",
+    "intoAssetSymbolBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber %{assetSymbol} está temporariamente indisponível",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",

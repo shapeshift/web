@@ -950,7 +950,7 @@
     },
     "approve": {
       "header": "ShapeShift DAO-Router erlauben, Ihr %{asset} zu verwenden",
-      "routerName": "ShapeShift DAO Router",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "benötigt Ihre Erlaubnis, um Ihr %{asset} zu verwenden",
       "learnMore": "Warum muss ich das tun?",
       "depositFee": "Es wird eine separate Gasgebühr zu hinterlegen sein.",

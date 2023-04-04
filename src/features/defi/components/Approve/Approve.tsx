@@ -37,7 +37,7 @@ type ApproveProps = {
 export const Approve = ({
   asset,
   contractAddress,
-  spenderName: contractName,
+  spenderName,
   estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,
@@ -94,7 +94,10 @@ export const Approve = ({
         <Stack>
           <Text
             fontWeight='bold'
-            translation={['modals.approve.header', { asset: asset.name, contractName }]}
+            translation={[
+              'modals.approve.header',
+              { asset: asset.name, contractName: spenderName },
+            ]}
           />
           <CText color='gray.500'>
             <Link
@@ -103,7 +106,7 @@ export const Approve = ({
               me={1}
               isExternal
             >
-              {translate('modals.approve.routerName')}
+              {spenderName}
             </Link>
             {translate('modals.approve.body', { asset: asset.name })}
           </CText>

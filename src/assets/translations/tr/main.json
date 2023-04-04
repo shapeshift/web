@@ -950,7 +950,7 @@
     },
     "approve": {
       "header": "ShapeShift DAO Router'ın %{asset} varlığınızı kullanmasına izin verin",
-      "routerName": "ShapeShift DAO Yönlendirici",
+      "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
       "depositFee": "Yatırmak için ayrı bir gaz ücreti gerekecektir.",

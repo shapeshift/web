@@ -230,7 +230,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   return (
     <ReusableApprove
       asset={asset}
-      spenderName={'ShapeShift DAO Router'}
+      spenderName={translate('modals.approve.shapeshiftRouterName')}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))

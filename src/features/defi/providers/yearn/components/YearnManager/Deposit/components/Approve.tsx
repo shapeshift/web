@@ -219,7 +219,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
     <ReusableApprove
       asset={asset}
       feeAsset={feeAsset}
-      spenderName={'ShapeShift DAO Router'}
+      spenderName={translate('modals.approve.routerName')}
       estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoBaseUnit)
         .div(bn(10).pow(feeAsset?.precision))
         .toFixed(5)}

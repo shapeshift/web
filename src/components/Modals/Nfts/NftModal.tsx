@@ -171,7 +171,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         overflow='hidden'
         flexDir={{ base: 'column', md: 'row' }}
       >
-        <ModalCloseButton zIndex='base' />
+        <ModalCloseButton zIndex='sticky' />
         {nftModalImage}
         {nftModalContent}
       </ModalContent>

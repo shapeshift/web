@@ -12,7 +12,16 @@ export const StatStyle = {
     },
   },
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    md: {
+      label: {
+        fontSize: 'md',
+      },
+      number: {
+        fontSize: 'md',
+      },
+    },
+  },
   // Styles for the visual style variations
   variants: {},
   // The default `size` or `variant` values

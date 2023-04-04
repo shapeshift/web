@@ -48,7 +48,7 @@ const NftTab: React.FC<TabProps> = props => {
   )
 }
 
-type NftModalProps = {
+export type NftModalProps = {
   zapperNft: V2ZapperNft
 }
 
@@ -74,7 +74,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   //   return `https://opensea.io/collection/${collectionAddress}`
   // })()
 
-  // console.log(JSON.stringify(zapperNft, null, 2))
+  console.log(JSON.stringify(zapperNft, null, 2))
 
   const nftModalImage = useMemo(() => {
     return (
@@ -179,7 +179,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           flex={1}
         >
           <TabPanel p={0}>
-            <NftOverview />
+            <NftOverview zapperNft={zapperNft} />
           </TabPanel>
           <TabPanel p={0}>
             <NftProperties />
@@ -187,7 +187,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </TabPanels>
       </Tabs>
     )
-  }, [hasCollectionData, modalHeaderBg, translate])
+  }, [hasCollectionData, modalHeaderBg, translate, zapperNft])
 
   const nftModalContent = useMemo(() => {
     return (

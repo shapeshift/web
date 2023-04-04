@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 
@@ -28,11 +27,7 @@ const TradeHeader = () => {
 export const Trade = () => {
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [passedAssetId, setPassedAssetId] = useState<AssetId>(ethAssetId)
-  const {
-    state: { isDemoWallet },
-  } = useWallet()
-  const top = isDemoWallet ? '7rem' : '4.5rem'
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
+
   useEffect(() => {
     // Auto select asset when passed in via params
     if (chainId && assetSubId) {

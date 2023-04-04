@@ -933,7 +933,7 @@
     },
     "approve": {
       "header": "Дозвольте ShapeShift DAO Router використовувати ваш %{asset}",
-      "routerName": "ShapeShift DAO Router",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "потребує вашого дозволу на використання %{asset}",
       "learnMore": "Навіщо мені це робити?",
       "depositFee": "Плата за газ буде сплачуватися окремо.",

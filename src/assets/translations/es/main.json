@@ -949,7 +949,7 @@
     },
     "approve": {
       "header": "Permita que el enrutador ShapeShift DAO gaste su %{asset}",
-      "routerName": "Enrutador ShapeShift DAO",
+      "shapeshiftRouterName": "Enrutador ShapeShift DAO",
       "body": "Necesitamos su permiso para usar su %{asset}",
       "learnMore": "¿Por qué necesito hacer esto?",
       "depositFee": "Habrá una tarifa de gas por separado para depositar.",

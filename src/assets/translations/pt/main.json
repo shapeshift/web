@@ -949,7 +949,7 @@
     },
     "approve": {
       "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
-      "routerName": "Roteador ShapeShift DAO",
+      "shapeshiftRouterName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
       "depositFee": "Haverá incidência de taxa ao depositar.",

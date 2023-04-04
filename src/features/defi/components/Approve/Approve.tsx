@@ -16,6 +16,7 @@ import { PairIcons } from './PairIcons'
 
 type ApproveProps = {
   asset: Asset
+  spenderName: string
   disabled?: boolean
   providerIcon?: string
   icons?: string[]
@@ -26,7 +27,7 @@ type ApproveProps = {
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
-  contractAddress: string
+  spenderContractAddress: string
   preFooter?: React.ReactNode
   onToggle?(): void
   onConfirm(): Promise<void>
@@ -35,7 +36,8 @@ type ApproveProps = {
 
 export const Approve = ({
   asset,
-  contractAddress,
+  spenderContractAddress,
+  spenderName,
   estimatedGasFeeCryptoPrecision,
   disabled,
   feeAsset,
@@ -90,15 +92,18 @@ export const Approve = ({
           )}
         </Stack>
         <Stack>
-          <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
+          <Text
+            fontWeight='bold'
+            translation={['modals.approve.header', { asset: asset.name, spenderName }]}
+          />
           <CText color='gray.500'>
             <Link
-              href={`${asset.explorerAddressLink}${contractAddress}`}
+              href={`${asset.explorerAddressLink}${spenderContractAddress}`}
               color='blue.500'
               me={1}
               isExternal
             >
-              {translate('modals.approve.routerName')}
+              {spenderName}
             </Link>
             {translate('modals.approve.body', { asset: asset.name })}
           </CText>

@@ -183,6 +183,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   return (
     <ReusableApprove
       asset={underlyingAsset}
+      spenderName={opportunity.provider}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
@@ -195,7 +196,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={contractAddress}
+      spenderContractAddress={contractAddress}
     />
   )
 }

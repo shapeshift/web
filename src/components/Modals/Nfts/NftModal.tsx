@@ -58,7 +58,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const translate = useTranslate()
   const [imageLoaded, setImageLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
-  const modalHeaderBg = useColorModeValue('gray.50', 'gray.750')
+  const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
 
   const imageUrl = zapperNft?.medias?.[0]?.originalUrl
   const name = zapperNft?.name

@@ -7,7 +7,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 
-import type { V2NftUserTokensResponseType } from './client'
+import type { V2NftUserItem } from './client'
 import {
   chainIdToZapperNetwork,
   createApiClient,
@@ -94,17 +94,29 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<V2NftUserTokensResponseType, GetZapperNftUserTokens>({
+    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokens>({
       queryFn: async ({ accountId }) => {
         const { account } = fromAccountId(accountId)
         // TODO(0xdef1cafe): remove
         const userAddress = '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c' ?? account // willywonka.eth
-        const data = await zapperClient.getV2NftUserTokens({
-          // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
-          paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-          headers,
-          queries: { userAddress },
-        })
+        let data: V2NftUserItem[] = []
+        // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
+        /**
+         * docs about cursor are wrong lmeow
+         * check the length of returned items to see if there are more
+         */
+        const limit = 100
+        while (true) {
+          const res = await zapperClient.getV2NftUserTokens({
+            // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
+            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+            headers,
+            queries: { userAddress, limit: limit.toString() },
+          })
+          if (!res?.items?.length) break
+          if (res?.items?.length) data = data.concat(res.items)
+          if (res?.items?.length < limit) break
+        }
         return { data }
       },
     }),

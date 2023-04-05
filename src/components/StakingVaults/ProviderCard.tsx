@@ -3,6 +3,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
+import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
@@ -17,7 +18,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   fiatAmount,
   apy,
   fiatRewardsAmount,
-  opportunities: { staking },
+  opportunities: { staking, lp },
   isLoading,
 }) => {
   const { icon } = DefiProviderMetadata[provider]
@@ -37,6 +38,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       </Card.Header>
       <Card.Body px={2} pb={2}>
         <WalletStakingByAsset ids={staking} />
+        <WalletLpByAsset ids={lp} />
       </Card.Body>
     </Card>
   )

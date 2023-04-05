@@ -5,9 +5,9 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { getRewardBalances } from 'state/slices/opportunitiesSlice/utils'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -25,6 +25,7 @@ type RewardRowProps = {
 const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRewards }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const translate = useTranslate()
   if (!asset) return null
   return (
     <ListItem
@@ -65,7 +66,7 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
         <AssetCell
           className='reward-asset'
           assetId={assetId}
-          subText={isClaimableRewards ? 'Reward • Claimable' : 'Reward • Accrued'}
+          subText={translate('defi.modals.overview.underlyingToken')}
           position='relative'
           _after={{
             content: '""',
@@ -93,8 +94,8 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
           value={balances.cryptoBalancePrecision}
           symbol={asset.symbol}
           fontSize='sm'
-          fontWeight='medium'
           color='chakra-body-text'
+          fontWeight='medium'
           display={{ base: 'none', md: 'block ' }}
           whiteSpace='break-spaces'
         />
@@ -106,9 +107,9 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
             value={balances.fiatAmount}
           />
           <Amount.Percent
+            fontSize='xs'
             value={bnOrZero(marketData.changePercent24Hr).div(100).toString()}
             autoColor
-            fontSize='xs'
           />
         </Flex>
       </Button>
@@ -116,25 +117,29 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
   )
 }
 
-export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
+export const LpOpportunity: React.FC<LpEarnOpportunityType> = props => {
   const {
+    assetId,
     underlyingAssetId,
     fiatAmount,
-    stakedAmountCryptoBaseUnit,
     version,
     opportunityName,
     type,
     rewardAssetIds,
-    rewardsCryptoBaseUnit,
     isClaimableRewards,
+    underlyingAssetIds,
+    underlyingAssetRatiosBaseUnit,
+    cryptoAmountBaseUnit,
   } = props
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
-  const rewardBalances = getRewardBalances({
-    rewardAssetIds,
-    rewardsCryptoBaseUnit,
+  const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
+    assetId,
+    underlyingAssetIds,
+    underlyingAssetRatiosBaseUnit,
+    cryptoAmountBaseUnit,
     assets,
     marketData,
   })
@@ -172,9 +177,13 @@ export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
           alignItems='center'
           textAlign='left'
         >
-          <AssetCell assetId={underlyingAssetId} subText='Deposit' justifyContent='flex-start' />
+          <AssetCell
+            assetId={underlyingAssetId}
+            subText='Liquidity Position'
+            justifyContent='flex-start'
+          />
           <Amount.Crypto
-            value={bnOrZero(stakedAmountCryptoBaseUnit)
+            value={bnOrZero(cryptoAmountBaseUnit)
               .div(bn(10).pow(asset.precision))
               .decimalPlaces(asset.precision)
               .toString()}
@@ -185,22 +194,29 @@ export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
             color='chakra-body-text'
             display={{ base: 'none', md: 'block ' }}
           />
-          <Amount.Fiat
-            color='chakra-body-text'
-            fontSize='sm'
-            fontWeight='medium'
-            value={fiatAmount}
-          />
+          <Flex flexDir='column'>
+            <Amount.Fiat
+              color='chakra-body-text'
+              fontSize='sm'
+              fontWeight='medium'
+              value={fiatAmount}
+            />
+            <Amount.Percent
+              fontSize='xs'
+              value={bnOrZero(marketData[asset.assetId]?.changePercent24Hr).div(100).toString()}
+              autoColor
+            />
+          </Flex>
         </Button>
         {rewardAssetIds && (
           <List style={{ marginTop: 0 }}>
-            {rewardAssetIds.map(rewardAssetId => {
-              if (!rewardBalances[rewardAssetId]) return null
+            {underlyingAssetIds.map(underlyingAssetId => {
+              if (!underlyingAssetBalances[underlyingAssetId]) return null
               return (
                 <RewardRow
                   isClaimableRewards={isClaimableRewards}
-                  assetId={rewardAssetId}
-                  balances={rewardBalances[rewardAssetId]}
+                  assetId={underlyingAssetId}
+                  balances={underlyingAssetBalances[underlyingAssetId]}
                 />
               )
             })}

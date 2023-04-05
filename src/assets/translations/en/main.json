@@ -12,6 +12,7 @@
     "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
+    "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
@@ -290,6 +291,7 @@
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
+        "underlyingToken": "Underlying Token",
         "availableRewards": "Available Rewards",
         "about": "About",
         "tvl": "TVL",

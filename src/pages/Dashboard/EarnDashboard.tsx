@@ -35,7 +35,7 @@ const EarnHeader = () => {
 export const EarnDashboard = () => {
   return (
     <Main headerComponent={<DashboardHeader />}>
-      <WalletDefiEarn includeEarnBalances header={<EarnHeader />} />
+      <WalletDefiEarn header={<EarnHeader />} />
     </Main>
   )
 }

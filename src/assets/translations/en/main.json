@@ -1934,6 +1934,8 @@
     "description": "Description",
     "details": "Details",
     "attributes": "Attributes",
-    "aboutCollection": "About %{collectionName}"
+    "aboutCollection": "About %{collectionName}",
+    "emptyTitle": "Where did all the NFTs go?",
+    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
   }
 }

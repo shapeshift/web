@@ -2,9 +2,14 @@ import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, SimpleGrid } from '@chakra-ui/react'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
+import { NarwhalIcon } from 'components/Icons/Narwhal'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import type { V2NftUserItem } from 'state/apis/zapper/client'
 import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { useAppSelector } from 'state/store'
 
 // import { selectWalletAccountIds } from 'state/slices/common-selectors'
 // import { useAppSelector } from 'state/store'
@@ -28,8 +33,8 @@ export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
   // TODO(0xdef1cafe): remove - this is willywonka.eth
-  const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
-  // const accountIds = useAppSelector(selectWalletAccountIds)
+  // const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
+  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const { data, isLoading } = useGetZapperNftUserTokensQuery({ accountIds })
 
@@ -63,7 +68,14 @@ export const NftTable = () => {
         ))}
       </NftGrid>
     )
-  if (!isLoading && !data?.length) return <div>No NFTs found</div>
+  if (!isLoading && !data?.length)
+    return (
+      <ResultsEmpty
+        title='nft.emptyTitle'
+        body='nft.emptyBody'
+        icon={<NarwhalIcon color='pink.200' />}
+      />
+    )
 
   return (
     <>
@@ -71,7 +83,7 @@ export const NftTable = () => {
         <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
       </Box>
       {isSearching && !renderNftCards?.length ? (
-        <div>Empty search state</div>
+        <SearchEmpty searchQuery={searchQuery} />
       ) : (
         <NftGrid>{renderNftCards}</NftGrid>
       )}

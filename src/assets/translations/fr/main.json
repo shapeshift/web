@@ -94,7 +94,8 @@
     "needAsset": "Besoin de %{asset} ?",
     "buyNow": "Acheter maintenant",
     "manage": "Gérer",
-    "selectedAccount": "Compte sélectionné"
+    "selectedAccount": "Compte sélectionné",
+    "allChains": "Toutes les chaînes"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +222,8 @@
       "triggerButton": "Connecter un porte-monnaie",
       "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
-      "disconnected": "(Déconnecté)"
+      "disconnected": "(Déconnecté)",
+      "connecting": "Connexion..."
     }
   },
   "defi": {
@@ -392,6 +394,11 @@
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
+    "myPositions": "Mes positions",
+    "myPositionsBody": "Vos positions actives apparaîtront ici.",
+    "myRewards": "Mes récompenses",
+    "myRewardsBody": "Vos positions actives avec des récompenses réclamables apparaîtront ici.",
+    "viewAllPositions": "Voir toutes les positions",
     "liquidityPools": "Pools de liquidité",
     "stakingVaults": "Mises et Coffres-forts",
     "farming": "Farming",
@@ -402,12 +409,13 @@
     "poolValue": "Valeur du pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valeur totale",
-    "byPosition": "Par position",
+    "byAsset": "Par actif",
     "byProvider": "Par fournisseur",
     "claimableRewards": "Récompenses réclamables",
     "reawrds": "Récompenses",
     "stakingPosition": "Position de mises",
     "liquidityPool": "Pool de liquidités",
+    "noActivePositions": "Aucune position active",
     "emptyEarn": "Les opportunités de gains apparaîtront ici.",
     "empty": {
       "farming": {
@@ -1470,6 +1478,7 @@
         "trade": "Échanger"
       },
       "accountTokens": "Jetons du compte",
+      "relatedAssets": "Actifs connexes",
       "showTokens": "Montrer les jetons (%{amount})",
       "hideTokens": "Cacher les jetons (%{amount})",
       "underlyingAssets": "Actifs sous-jacents",

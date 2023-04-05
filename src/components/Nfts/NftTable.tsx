@@ -5,6 +5,8 @@ import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import type { V2NftUserItem } from 'state/apis/zapper/client'
 import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
 
+// import { selectWalletAccountIds } from 'state/slices/common-selectors'
+// import { useAppSelector } from 'state/store'
 import { NftCard } from './NftCard'
 
 export const NftTable = () => {
@@ -14,7 +16,7 @@ export const NftTable = () => {
   const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
   // const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const { data } = useGetZapperNftUserTokensQuery({ accountIds })
+  const { data, isLoading } = useGetZapperNftUserTokensQuery({ accountIds })
 
   const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
@@ -38,16 +40,21 @@ export const NftTable = () => {
     return filteredNfts?.map(({ token }) => <NftCard zapperNft={token} />)
   }, [data?.length, filteredNfts])
 
-  if (!data?.length) return null
+  if (isLoading) return <div>Loading...</div>
+  if (!isLoading && !data?.length) return <div>No NFTs found</div>
 
   return (
     <>
       <Box mb={4}>
         <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
       </Box>
-      <SimpleGrid gridGap={4} gridTemplateColumns='repeat(auto-fit, minmax(150px, 1fr))'>
-        {renderNftCards}
-      </SimpleGrid>
+      {isSearching && !renderNftCards?.length ? (
+        <div>Empty search state</div>
+      ) : (
+        <SimpleGrid gridGap={4} gridTemplateColumns='repeat(auto-fit, minmax(150px, 1fr))'>
+          {renderNftCards}
+        </SimpleGrid>
+      )}
     </>
   )
 }

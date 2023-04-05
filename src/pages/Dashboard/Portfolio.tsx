@@ -7,6 +7,11 @@ import {
   StatArrow,
   StatNumber,
   Switch,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -17,7 +22,7 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { NftTable } from 'components/Nfts/NftTable'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
@@ -126,27 +131,43 @@ export const Portfolio = () => {
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
       <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
-      {isNftsEnabled && (
-        <Card>
-          <Card.Header>
-            <Card.Heading>
-              <Text translation='NFTs' />
-            </Card.Heading>
-          </Card.Header>
-          <Card.Body px={2} pt={0}>
-            <NftTable />
-          </Card.Body>
-        </Card>
-      )}
       <Card>
-        <Card.Header>
-          <Card.Heading>
-            <Text translation='dashboard.portfolio.yourAssets' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body px={2} pt={0}>
-          <AccountTable />
-        </Card.Body>
+        <Tabs isLazy variant='unstyled'>
+          <Card.Header px={2}>
+            <TabList>
+              <Tab
+                color='gray.500'
+                _selected={{ color: 'chakra-body-text' }}
+                _hover={{ color: 'chakra-body-text' }}
+              >
+                <Card.Heading>
+                  <Text translation='dashboard.portfolio.yourAssets' />
+                </Card.Heading>
+              </Tab>
+              {isNftsEnabled && (
+                <Tab
+                  color='gray.500'
+                  _selected={{ color: 'chakra-body-text' }}
+                  _hover={{ color: 'chakra-body-text' }}
+                >
+                  <Card.Heading>
+                    <RawText>NFTs</RawText>
+                  </Card.Heading>
+                </Tab>
+              )}
+            </TabList>
+          </Card.Header>
+          <TabPanels>
+            <TabPanel px={2} pt={0}>
+              <AccountTable />
+            </TabPanel>
+            {isNftsEnabled && (
+              <TabPanel px={6} pt={0}>
+                <NftTable />
+              </TabPanel>
+            )}
+          </TabPanels>
+        </Tabs>
       </Card>
     </Stack>
   )

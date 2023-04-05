@@ -1,4 +1,4 @@
-import { Button, Flex, Link, Text } from '@chakra-ui/react'
+import { Box, Button, Flex, Link, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
@@ -17,18 +17,23 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
 
   const socialLinkPills = useMemo(() => {
     if (!collection?.socialLinks) return null
-    return collection?.socialLinks.map(link => (
-      <Button
-        as={Link}
-        isExternal
-        href={link.url}
-        size='sm'
-        colorScheme='whiteAlpha'
-        rightIcon={<ArrowRightUp />}
-      >
-        {link.label}
-      </Button>
-    ))
+    return (
+      <Box>
+        {collection?.socialLinks.map(link => (
+          <Button
+            as={Link}
+            isExternal
+            href={link.url}
+            size='sm'
+            mr={2}
+            colorScheme='whiteAlpha'
+            rightIcon={<ArrowRightUp />}
+          >
+            {link.label}
+          </Button>
+        ))}
+      </Box>
+    )
   }, [collection?.socialLinks])
 
   if (!collection) return null

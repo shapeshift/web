@@ -37,6 +37,7 @@ import { getMediaType } from 'state/apis/zapper/client'
 import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
 import { breakpoints } from 'theme/theme'
 
+import { NftCollection } from './components/NftCollection'
 import { NftOverview } from './components/NftOverview'
 
 const NftTab: React.FC<TabProps> = props => {
@@ -76,8 +77,6 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     { accountIds, collectionAddresses },
     { skip: !collectionAddresses?.length },
   )
-
-  zapperCollection && console.log({ zapperCollection })
 
   const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
@@ -232,13 +231,17 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   ])
 
   const nftModalDetails = useMemo(() => {
+    const hasUsefulCollectionData = Boolean(
+      zapperCollection?.[0]?.collection.description ||
+        zapperCollection?.[0]?.collection?.socialLinks?.length,
+    )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
         <Box position='relative'>
           <TabList gap={4} px={8} bg={modalHeaderBg}>
             <NftTab>{translate('nft.overview')}</NftTab>
             {/* <NftTab>{translate('nft.properties')}</NftTab> */}
-            {/* {<NftTab>{translate('nft.collection')}</NftTab>} */}
+            {hasUsefulCollectionData && <NftTab>{translate('nft.collection')}</NftTab>}
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
         </Box>
@@ -246,9 +249,11 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           <TabPanel p={0}>
             <NftOverview zapperNft={zapperNft} zapperCollection={zapperCollection} />
           </TabPanel>
-          {/* <TabPanel p={0}>
-            <NftProperties />
-          </TabPanel> */}
+          {hasUsefulCollectionData && (
+            <TabPanel p={0}>
+              <NftCollection zapperCollection={zapperCollection} />
+            </TabPanel>
+          )}
         </TabPanels>
       </Tabs>
     )

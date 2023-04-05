@@ -72,12 +72,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     () => (zapperNft?.collection?.address ? [zapperNft?.collection?.address] : []),
     [zapperNft?.collection?.address],
   )
-  const { data: collectionData } = useGetZapperCollectionsQuery(
+  const { data: zapperCollection } = useGetZapperCollectionsQuery(
     { accountIds, collectionAddresses },
     { skip: !collectionAddresses?.length },
   )
 
-  collectionData && console.log({ collectionData })
+  zapperCollection && console.log({ zapperCollection })
 
   const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
@@ -244,7 +244,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview zapperNft={zapperNft} />
+            <NftOverview zapperNft={zapperNft} zapperCollection={zapperCollection} />
           </TabPanel>
           {/* <TabPanel p={0}>
             <NftProperties />
@@ -252,7 +252,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </TabPanels>
       </Tabs>
     )
-  }, [modalHeaderBg, translate, zapperNft])
+  }, [modalHeaderBg, translate, zapperCollection, zapperNft])
 
   const nftModalContent = useMemo(() => {
     return (

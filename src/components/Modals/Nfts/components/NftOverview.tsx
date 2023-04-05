@@ -1,21 +1,31 @@
-import { Button, Flex, Link, Tag } from '@chakra-ui/react'
+import { Button, Divider, Flex, Link, Tag } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { SupportedZapperNetwork } from 'state/apis/zapper/client'
+import { markdownLinkToHTML } from 'lib/utils'
+import type {
+  SupportedZapperNetwork,
+  V2NftCollectionType,
+  V2ZapperNft,
+} from 'state/apis/zapper/client'
 import { ZAPPER_NETWORKS_TO_CHAIN_ID_MAP } from 'state/apis/zapper/client'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { NftModalProps } from '../NftModal'
+type NftOverviewProps = {
+  zapperNft: V2ZapperNft
+  zapperCollection?: V2NftCollectionType[]
+}
 
-export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
+export const NftOverview: React.FC<NftOverviewProps> = ({ zapperCollection, zapperNft }) => {
   const translate = useTranslate()
 
+  const description = zapperCollection?.[0]?.collection.description
   const collection = zapperNft?.collection
   const tokenId = zapperNft?.tokenId
   const address = collection?.address
@@ -91,15 +101,17 @@ export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
           </Row>
         </Flex>
       </Flex>
-      {/* <Divider />
-      <Flex gap={4} flexDir='column' px={8} py={6}>
-        <Text translation='nft.description' fontWeight='medium' />
-        <RawText color='gray.500'>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip{' '}
-        </RawText>
-      </Flex> */}
+      {description && (
+        <>
+          <Divider />
+          <Flex gap={4} flexDir='column' px={8} py={6}>
+            <Text translation='nft.description' fontWeight='medium' />
+            <RawText color='gray.500'>
+              <ParsedHtml innerHtml={markdownLinkToHTML(description)} />
+            </RawText>
+          </Flex>
+        </>
+      )}
     </Flex>
   )
 }

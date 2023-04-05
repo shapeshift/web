@@ -549,9 +549,18 @@ export enum ZapperGroupId {
   Farm = 'farm',
 }
 
+const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
+export type MediaFileType = typeof MEDIA_FILETYPE[number]
 const mediaSchema = z.object({
   type: z.string(),
-  originalUrl: z.string().url(),
+  originalUrl: z
+    .string()
+    .url()
+    .refine(url => {
+      const mediaFileType = url.split('.').pop() ?? ''
+      if (!mediaFileType) return false
+      return MEDIA_FILETYPE.includes(mediaFileType as MediaFileType)
+    }, 'Media filetype not supported'),
 })
 
 const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])

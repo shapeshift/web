@@ -1,20 +1,25 @@
 import { Box, Flex, Image, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { Amount } from 'components/Amount/Amount'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { useModal } from 'hooks/useModal/useModal'
-import type { V2ZapperNft } from 'state/apis/zapper/client'
+import type { MediaFileType, V2ZapperNft } from 'state/apis/zapper/client'
 
 type NftCardProps = {
   zapperNft: V2ZapperNft
 }
 
+type MediaType = 'video' | 'image'
+
 export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const { collection, medias, name, rarityRank } = zapperNft
   const { floorPriceEth } = collection
-  const imageUrl = medias?.[0]?.originalUrl
+  const mediaUrl = medias?.[0]?.originalUrl
+  const mediaFiletype = mediaUrl?.split('.').pop() as MediaFileType | undefined
+  const mediaType: MediaType | undefined =
+    mediaFiletype && (mediaFiletype.match(/mp4/) ? 'video' : 'image')
   const bg = useColorModeValue('gray.50', 'gray.750')
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
@@ -22,6 +27,24 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const { nft } = useModal()
 
   const handleClick = useCallback(() => nft.open({ zapperNft }), [nft, zapperNft])
+
+  // should take the JSX props below and make them an object instead
+  const mediaBoxProps = useMemo(
+    () =>
+      ({
+        position: 'absolute',
+        width: 'full',
+        height: 'full',
+        left: 0,
+        top: 0,
+        objectFit: 'cover',
+        className: 'nft-image',
+        transitionDuration: '200ms',
+        transitionProperty: 'all',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      } as const),
+    [],
+  )
 
   return (
     <Box
@@ -39,20 +62,19 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
       transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
     >
       <Box paddingBottom='100%' position='relative' overflow='hidden'>
-        <Image
-          src={imageUrl ?? placeholderImage}
-          alt={name}
-          position='absolute'
-          width='full'
-          height='full'
-          left={0}
-          top={0}
-          objectFit='cover'
-          className='nft-image'
-          transitionDuration='200ms'
-          transitionProperty='all'
-          transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
-        />
+        {!mediaUrl || mediaType === 'image' ? (
+          <Image src={mediaUrl ?? placeholderImage} alt={name} {...mediaBoxProps} />
+        ) : (
+          <Box
+            as='video'
+            src={mediaUrl}
+            loop
+            // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
+            muted
+            autoPlay
+            {...mediaBoxProps}
+          />
+        )}
         {rarityRank && (
           <Tag
             colorScheme='black'

@@ -66,11 +66,12 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   )
 
   return (
-    <Box
+    <Flex
       as='a'
       cursor='pointer'
       borderRadius='xl'
       overflow='hidden'
+      flexDir='column'
       onClick={handleClick}
       bg={bg}
       _hover={{ bg: bgHover }}
@@ -129,14 +130,14 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
           </Tag>
         )}
       </Box>
-      <Box p={4}>
+      <Flex p={4} flexDir='column' height='100%'>
         <Flex justifyContent='space-between' alignItems='center'>
           <Text fontWeight='bold' fontSize='sm' wordBreak='break-word'>
             {name}
           </Text>
         </Flex>
 
-        <Box>
+        <Box mt='auto'>
           <Amount.Crypto
             color='gray.500'
             fontWeight='bold'
@@ -144,7 +145,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             symbol='ETH'
           />
         </Box>
-      </Box>
-    </Box>
+      </Flex>
+    </Flex>
   )
 }

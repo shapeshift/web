@@ -1,14 +1,14 @@
-import { Flex, Tag } from '@chakra-ui/react'
+import { Button, Flex, Link, Tag } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { SupportedZapperNetwork } from 'state/apis/zapper/client'
 import { ZAPPER_NETWORKS_TO_CHAIN_ID_MAP } from 'state/apis/zapper/client'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import type { NftModalProps } from '../NftModal'
@@ -26,6 +26,8 @@ export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const chainDisplayName = maybeChainAdapter?.getDisplayName()
   const maybeFeeAsset = useAppSelector(s => selectAssetById(s, maybeFeeAssetId ?? ''))
+  const maybeExplorerLinkBase = maybeFeeAsset?.explorerAddressLink
+  const maybeCollectionLink = `${maybeExplorerLinkBase}${address}`
 
   return (
     <Flex flexDir='column'>
@@ -39,16 +41,35 @@ export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
           {address && (
             <Row>
               <Row.Label>{translate('nft.address')}</Row.Label>
-              <Row.Value>{firstFourLastFour(address)}</Row.Value>
+              <Row.Value>
+                <Button
+                  as={Link}
+                  isExternal
+                  href={maybeCollectionLink}
+                  variant='ghost'
+                  colorScheme='blue'
+                  bg='transparent'
+                  fontWeight='normal'
+                  fontFamily='monospace'
+                  onClick={e => e.stopPropagation()}
+                  mt={1}
+                  p={0}
+                  height='auto'
+                  fontSize='inherit'
+                  _hover={{ bg: 'transparent' }}
+                  display='flex'
+                  alignItems='center'
+                >
+                  <MiddleEllipsis value={address} />
+                </Button>
+              </Row.Value>
             </Row>
           )}
           {chainDisplayName && (
             <Row>
               <Row.Label>{translate('nft.chain')}</Row.Label>
-              <Row.Value>
-                <>
-                  <AssetIcon src={maybeFeeAsset?.icon} size='xs' /> {chainDisplayName}
-                </>
+              <Row.Value display='flex' alignItems='center'>
+                <AssetIcon src={maybeFeeAsset?.icon} size='2xs' mr={2} /> {chainDisplayName}
               </Row.Value>
             </Row>
           )}

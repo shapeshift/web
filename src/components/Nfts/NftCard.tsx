@@ -5,6 +5,8 @@ import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { Amount } from 'components/Amount/Amount'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { useModal } from 'hooks/useModal/useModal'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 import { getMediaType } from 'state/apis/zapper/client'
 
@@ -23,7 +25,22 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
 
   const { nft } = useModal()
 
-  const handleClick = useCallback(() => nft.open({ zapperNft }), [nft, zapperNft])
+  const handleClick = useCallback(() => {
+    nft.open({ zapperNft })
+
+    const mixpanel = getMixPanel()
+    const eventData = {
+      name: zapperNft.name,
+      id: zapperNft.id,
+      collectionName: zapperNft.collection.name,
+      collectionAddress: zapperNft.collection.address,
+      estimatedValueEth: zapperNft.estimatedValueEth,
+      collectionFloorPriceEth: zapperNft.collection.floorPriceEth,
+      nftMediaUrls: (zapperNft.medias ?? []).map(media => media.originalUrl),
+    }
+
+    mixpanel?.track(MixPanelEvents.ClickNft, eventData)
+  }, [nft, zapperNft])
 
   // should take the JSX props below and make them an object instead
   const mediaBoxProps = useMemo(

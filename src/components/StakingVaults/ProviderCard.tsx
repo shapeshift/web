@@ -3,7 +3,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { StakingPositionsByAsset } from 'components/EarnDashboard/components/ProviderDetails/StakingOpportunitiesByAsset'
+import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { RawText } from 'components/Text'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 
@@ -14,7 +14,7 @@ export const ProviderCard: React.FC<AggregatedOpportunitiesByProviderReturn> = (
   fiatRewardsAmount,
   opportunities: { staking },
 }) => {
-  const { icon, type } = DefiProviderMetadata[provider]
+  const { icon } = DefiProviderMetadata[provider]
   const netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toString()
   return (
     <Card>
@@ -26,8 +26,8 @@ export const ProviderCard: React.FC<AggregatedOpportunitiesByProviderReturn> = (
           <Amount.Percent value={apy} /> Net APY
         </Tag>
       </Card.Header>
-      <Card.Body px={2}>
-        <StakingPositionsByAsset ids={staking} />
+      <Card.Body px={2} pb={2}>
+        <WalletStakingByAsset ids={staking} />
       </Card.Body>
     </Card>
   )

@@ -19,7 +19,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ProviderCard } from './ProviderCard'
 import { ResultsEmpty } from './ResultsEmpty'
 import { SearchEmpty } from './SearchEmpty'
 
@@ -143,26 +142,19 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
     return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
   }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
-  // return (
-  //   <ReactTable
-  //     onRowClick={row => row.toggleRowExpanded()}
-  //     data={rows}
-  //     columns={columns}
-  //     isLoading={isLoading}
-  //     renderSubComponent={({ original }) => (
-  //       <ProviderDetails key={original.provider} {...original} />
-  //     )}
-  //     renderEmptyComponent={() =>
-  //       searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
-  //     }
-  //     initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-  //   />
-  // )
   return (
-    <Flex gap={4} flexDir='column'>
-      {rows.map(row => (
-        <ProviderCard {...row} />
-      ))}
-    </Flex>
+    <ReactTable
+      onRowClick={row => row.toggleRowExpanded()}
+      data={rows}
+      columns={columns}
+      isLoading={isLoading}
+      renderSubComponent={({ original }) => (
+        <ProviderDetails key={original.provider} {...original} />
+      )}
+      renderEmptyComponent={() =>
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+      }
+      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+    />
   )
 }

@@ -68,7 +68,13 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   //   </Flex>
   // )
   return (
-    <Button variant='tab' onClick={handleClick} isActive={isActive}>
+    <Button
+      variant='tab'
+      onClick={handleClick}
+      isActive={isActive}
+      _active={{ color, borderColor: color }}
+      _hover={{ color, borderColor: color }}
+    >
       {translate(label)}
     </Button>
   )

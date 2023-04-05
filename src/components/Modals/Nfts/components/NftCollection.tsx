@@ -1,5 +1,7 @@
-import { Flex, Text } from '@chakra-ui/react'
+import { Button, Flex, Link, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { RawText } from 'components/Text'
 import { markdownLinkToHTML } from 'lib/utils'
@@ -13,6 +15,22 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
   const translate = useTranslate()
   const collection = zapperCollection?.[0]?.collection
 
+  const socialLinkPills = useMemo(() => {
+    if (!collection?.socialLinks) return null
+    return collection?.socialLinks.map(link => (
+      <Button
+        as={Link}
+        isExternal
+        href={link.url}
+        size='sm'
+        colorScheme='whiteAlpha'
+        rightIcon={<ArrowRightUp />}
+      >
+        {link.label}
+      </Button>
+    ))
+  }, [collection?.socialLinks])
+
   if (!collection) return null
 
   const { description, name: collectionName } = collection
@@ -23,6 +41,7 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
       <RawText color='gray.500'>
         <ParsedHtml innerHtml={markdownLinkToHTML(description)} />
       </RawText>
+      {socialLinkPills}
     </Flex>
   )
 }

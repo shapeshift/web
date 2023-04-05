@@ -9,7 +9,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 
-import type { V2NftUserItem } from './client'
+import type { V2NftCollectionType, V2NftUserItem } from './client'
 import {
   chainIdToZapperNetwork,
   createApiClient,
@@ -39,6 +39,22 @@ type GetAppBalancesOutput = AssetId[]
 type GetZapperNftUserTokens = {
   accountIds: AccountId[]
 }
+
+type GetZapperCollections = {
+  accountIds: AccountId[]
+  collectionAddresses: string[]
+}
+
+// addresses are repeated across EVM chains
+const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
+  Array.from(
+    new Set(
+      accountIds
+        .map(fromAccountId)
+        .filter(({ chainId }) => isEvmChainId(chainId))
+        .map(({ account }) => account),
+    ),
+  )
 
 // https://docs.zapper.xyz/docs/apis/getting-started
 export const zapperApi = createApi({
@@ -100,17 +116,9 @@ export const zapperApi = createApi({
     }),
     getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokens>({
       queryFn: async ({ accountIds }) => {
-        // addresses are repeated across EVM chains
-        const userAddresses = Array.from(
-          new Set(
-            accountIds
-              .map(fromAccountId)
-              .filter(({ chainId }) => isEvmChainId(chainId))
-              .map(({ account }) => account),
-          ),
-        )
-
         let data: V2NftUserItem[] = []
+
+        const userAddresses = accountIdsToEvmAddresses(accountIds)
 
         for (const userAddress of userAddresses) {
           // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
@@ -139,7 +147,25 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
+    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollections>({
+      queryFn: async ({ accountIds, collectionAddresses }) => {
+        const addresses = accountIdsToEvmAddresses(accountIds)
+        const { items: data } = await zapperClient.getV2NftBalancesCollections({
+          headers,
+          // yes this is actually how the api expects it
+          queries: {
+            'addresses[]': addresses,
+            'collectionAddresses[]': collectionAddresses,
+          },
+        })
+        return { data }
+      },
+    }),
   }),
 })
 
-export const { useGetZapperUniV2PoolAssetIdsQuery, useGetZapperNftUserTokensQuery } = zapperApi
+export const {
+  useGetZapperUniV2PoolAssetIdsQuery,
+  useGetZapperNftUserTokensQuery,
+  useGetZapperCollectionsQuery,
+} = zapperApi

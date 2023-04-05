@@ -34,6 +34,7 @@ import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/Na
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 import { getMediaType } from 'state/apis/zapper/client'
+import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
 import { breakpoints } from 'theme/theme'
 
 import { NftOverview } from './components/NftOverview'
@@ -63,6 +64,16 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  // TODO(0xdef1cafe): remove hardcoded accountIds
+  const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
+  // const accountIds = useAppSelector(selectWalletAccountIds)
+
+  const collectionAddresses = useMemo(
+    () => (zapperNft?.collection?.address ? [zapperNft?.collection?.address] : []),
+    [zapperNft?.collection?.address],
+  )
+  const { data: collectionData } = useGetZapperCollectionsQuery({ accountIds, collectionAddresses })
+  console.log({ collectionData })
 
   const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)

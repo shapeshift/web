@@ -579,6 +579,53 @@ const mediaSchema = z.object({
     }, 'Media filetype not supported'),
 })
 
+const socialLinkSchema = z.object({
+  name: z.string(),
+  label: z.string(),
+  url: z.string().url(),
+  logoUrl: z.string().url(),
+})
+
+const statsSchema = z.object({
+  hourlyVolumeEth: z.string(),
+  hourlyVolumeEthPercentChange: z.nullable(z.string()),
+  dailyVolumeEth: z.string(),
+  dailyVolumeEthPercentChange: z.nullable(z.string()),
+  weeklyVolumeEth: z.string(),
+  weeklyVolumeEthPercentChange: z.nullable(z.string()),
+  monthlyVolumeEth: z.string(),
+  monthlyVolumeEthPercentChange: z.nullable(z.string()),
+  totalVolumeEth: z.string(),
+})
+
+const fullCollectionSchema = z.object({
+  name: z.string(),
+  network: z.string(),
+  description: z.string(),
+  logoImageUrl: z.string().nullable(),
+  cardImageUrl: z.string().nullable(),
+  bannerImageUrl: z.string().nullable(),
+  nftStandard: z.string(),
+  floorPriceEth: z.string(),
+  marketCap: z.string(),
+  openseaId: z.string(),
+  socialLinks: z.array(socialLinkSchema),
+  stats: statsSchema,
+})
+
+const nftCollectionSchema = z.object({
+  balance: z.string(),
+  balanceUSD: z.string(),
+  collection: fullCollectionSchema,
+})
+
+const cursorSchema = z.string()
+
+const v2NftBalancesCollectionsSchema = z.object({
+  items: z.array(nftCollectionSchema),
+  cursor: cursorSchema,
+})
+
 const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
 
 const collectionSchema = z.object({
@@ -625,6 +672,11 @@ export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
 
 const V2NftUserTokensResponse = userNftTokenSchema
 export type V2NftUserTokensResponseType = z.infer<typeof V2NftUserTokensResponse>
+
+export type V2NftCollectionType = z.infer<typeof nftCollectionSchema>
+
+const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
+export type V2NftBalancesCollectionsResponseType = z.infer<typeof V2NftBalancesCollectionsResponse>
 
 export type V2ZapperNft = z.infer<typeof tokenSchema>
 
@@ -966,6 +1018,7 @@ const endpoints = makeApi([
   {
     method: 'get',
     path: '/v2/nft/balances/collections',
+    alias: 'getV2NftBalancesCollections',
     requestFormat: 'json',
     parameters: [
       {
@@ -1004,7 +1057,7 @@ const endpoints = makeApi([
         schema: z.string().optional(),
       },
     ],
-    response: z.void(),
+    response: V2NftBalancesCollectionsResponse,
   },
   {
     method: 'get',

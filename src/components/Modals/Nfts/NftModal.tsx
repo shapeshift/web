@@ -72,8 +72,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     () => (zapperNft?.collection?.address ? [zapperNft?.collection?.address] : []),
     [zapperNft?.collection?.address],
   )
-  const { data: collectionData } = useGetZapperCollectionsQuery({ accountIds, collectionAddresses })
-  console.log({ collectionData })
+  const { data: collectionData } = useGetZapperCollectionsQuery(
+    { accountIds, collectionAddresses },
+    { skip: !collectionAddresses?.length },
+  )
+
+  collectionData && console.log({ collectionData })
 
   const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)

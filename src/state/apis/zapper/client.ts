@@ -587,15 +587,15 @@ const socialLinkSchema = z.object({
 })
 
 const statsSchema = z.object({
-  hourlyVolumeEth: z.string(),
-  hourlyVolumeEthPercentChange: z.nullable(z.string()),
-  dailyVolumeEth: z.string(),
-  dailyVolumeEthPercentChange: z.nullable(z.string()),
-  weeklyVolumeEth: z.string(),
-  weeklyVolumeEthPercentChange: z.nullable(z.string()),
-  monthlyVolumeEth: z.string(),
-  monthlyVolumeEthPercentChange: z.nullable(z.string()),
-  totalVolumeEth: z.string(),
+  hourlyVolumeEth: z.number(),
+  hourlyVolumeEthPercentChange: z.nullable(z.number()),
+  dailyVolumeEth: z.number(),
+  dailyVolumeEthPercentChange: z.nullable(z.number()),
+  weeklyVolumeEth: z.number(),
+  weeklyVolumeEthPercentChange: z.nullable(z.number()),
+  monthlyVolumeEth: z.number(),
+  monthlyVolumeEthPercentChange: z.nullable(z.number()),
+  totalVolumeEth: z.number(),
 })
 
 const fullCollectionSchema = z.object({
@@ -606,9 +606,9 @@ const fullCollectionSchema = z.object({
   cardImageUrl: z.string().nullable(),
   bannerImageUrl: z.string().nullable(),
   nftStandard: z.string(),
-  floorPriceEth: z.string(),
-  marketCap: z.string(),
-  openseaId: z.string(),
+  floorPriceEth: z.string().nullable(),
+  marketCap: z.string().optional(),
+  openseaId: z.string().nullable(),
   socialLinks: z.array(socialLinkSchema),
   stats: statsSchema,
 })

@@ -1,5 +1,14 @@
-import { Box, Flex, Image, Tag, TagLeftIcon, Text, useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import {
+  Box,
+  Flex,
+  Image,
+  Skeleton,
+  Tag,
+  TagLeftIcon,
+  Text,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import { useCallback, useMemo, useState } from 'react'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { Amount } from 'components/Amount/Amount'
@@ -22,6 +31,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const bg = useColorModeValue('gray.50', 'gray.750')
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   const { nft } = useModal()
 
@@ -46,11 +56,6 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const mediaBoxProps = useMemo(
     () =>
       ({
-        position: 'absolute',
-        width: 'full',
-        height: 'full',
-        left: 0,
-        top: 0,
         objectFit: 'cover',
         className: 'nft-image',
         transitionDuration: '200ms',
@@ -69,7 +74,10 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
       onClick={handleClick}
       bg={bg}
       _hover={{ bg: bgHover }}
-      sx={{ ':hover .nft-image': { transform: 'scale(1.4)' } }}
+      sx={{
+        ':hover .nft-image': { transform: 'scale(1.4)' },
+        ':hover .rarity-tag': { bg: 'white', color: 'black' },
+      }}
       _active={{ transform: 'translateY(2px)' }}
       transitionDuration='100ms'
       transitionProperty='all'
@@ -77,7 +85,22 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
     >
       <Box paddingBottom='100%' position='relative' overflow='hidden'>
         {!mediaUrl || mediaType === 'image' ? (
-          <Image src={mediaUrl ?? placeholderImage} alt={name} {...mediaBoxProps} />
+          <Skeleton
+            borderRadius='none'
+            isLoaded={imageLoaded}
+            position='absolute'
+            width='full'
+            height='full'
+            left={0}
+            top={0}
+          >
+            <Image
+              src={mediaUrl ?? placeholderImage}
+              alt={name}
+              onLoad={() => setImageLoaded(true)}
+              {...mediaBoxProps}
+            />
+          </Skeleton>
         ) : (
           <Box
             as='video'
@@ -92,6 +115,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
         {rarityRank && (
           <Tag
             colorScheme='black'
+            className='rarity-tag'
             flexShrink={0}
             position='absolute'
             right='0.5rem'

@@ -12,10 +12,12 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Tag,
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useMemo, useState } from 'react'
+import { translate, useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
@@ -42,6 +44,7 @@ export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
   const [percentChange, setPercentChange] = useState(0)
   const isNftsEnabled = useFeatureFlag('Jaypegz')
+  const translate = useTranslate()
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
@@ -150,8 +153,17 @@ export const Portfolio = () => {
                   _selected={{ color: 'chakra-body-text' }}
                   _hover={{ color: 'chakra-body-text' }}
                 >
-                  <Card.Heading>
+                  <Card.Heading display='flex' gap={2} alignItems='center'>
                     <RawText>NFTs</RawText>
+                    <Tag
+                      colorScheme='pink'
+                      size='sm'
+                      fontSize='xs'
+                      fontWeight='bold'
+                      lineHeight={1}
+                    >
+                      {translate('common.new')}
+                    </Tag>
                   </Card.Heading>
                 </Tab>
               )}

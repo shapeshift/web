@@ -5,21 +5,18 @@ import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { Amount } from 'components/Amount/Amount'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { useModal } from 'hooks/useModal/useModal'
-import type { MediaFileType, V2ZapperNft } from 'state/apis/zapper/client'
+import type { V2ZapperNft } from 'state/apis/zapper/client'
+import { getMediaType } from 'state/apis/zapper/client'
 
 type NftCardProps = {
   zapperNft: V2ZapperNft
 }
 
-type MediaType = 'video' | 'image'
-
 export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const { collection, medias, name, rarityRank } = zapperNft
   const { floorPriceEth } = collection
   const mediaUrl = medias?.[0]?.originalUrl
-  const mediaFiletype = mediaUrl?.split('.').pop() as MediaFileType | undefined
-  const mediaType: MediaType | undefined =
-    mediaFiletype && (mediaFiletype.match(/mp4/) ? 'video' : 'image')
+  const mediaType = getMediaType(mediaUrl)
   const bg = useColorModeValue('gray.50', 'gray.750')
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)

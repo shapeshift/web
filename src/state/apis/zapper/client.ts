@@ -551,13 +551,29 @@ export enum ZapperGroupId {
 
 const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
 export type MediaFileType = typeof MEDIA_FILETYPE[number]
+export type MediaType = 'video' | 'image'
+
+export const getMediaFileType = (mediaUrl: string | undefined): MediaFileType | undefined => {
+  if (!mediaUrl) return undefined
+  const mediaFiletype = mediaUrl.split('.').pop()
+  return mediaFiletype as MediaFileType | undefined
+}
+
+export const getMediaType = (mediaUrl: string | undefined) => {
+  const mediaFileType = getMediaFileType(mediaUrl)
+  if (!mediaFileType) return undefined
+
+  if (mediaFileType === 'mp4') return 'video'
+  return 'image'
+}
+
 const mediaSchema = z.object({
   type: z.string(),
   originalUrl: z
     .string()
     .url()
     .refine(url => {
-      const mediaFileType = url.split('.').pop() ?? ''
+      const mediaFileType = getMediaFileType(url)
       if (!mediaFileType) return false
       return MEDIA_FILETYPE.includes(mediaFileType as MediaFileType)
     }, 'Media filetype not supported'),

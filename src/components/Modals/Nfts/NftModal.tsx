@@ -32,6 +32,7 @@ import { RawText } from 'components/Text'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
+import { getMediaType } from 'state/apis/zapper/client'
 import { breakpoints } from 'theme/theme'
 
 import { NftOverview } from './components/NftOverview'
@@ -57,12 +58,14 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const { nft } = useModal()
   const { close, isOpen } = nft
   const translate = useTranslate()
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [isMediaLoaded, setIsMediaLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
-  const imageUrl = zapperNft?.medias?.[0]?.originalUrl
+  const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
+  const mediaType = getMediaType(mediaUrl)
+
   const name = zapperNft?.name
   const collectionName = zapperNft?.collection?.name
   const rarityRank = zapperNft?.rarityRank
@@ -72,13 +75,29 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
 
-  const nftModalImage = useMemo(() => {
+  // Poor man's onLoad for videos since chakra doesn't properly forwards onLoad to the <video /> tag
+  // So we have to be optimistic and assume the video is loaded
+  const isLoaded = Boolean(isMediaLoaded || mediaType === 'video')
+
+  const mediaBoxProps = useMemo(
+    () =>
+      ({
+        width: 'full',
+        height: 'auto',
+        objectFit: 'contain',
+        boxShadow: 'dark-lg',
+        borderRadius: 'xl',
+        mb: { base: -14, md: 0 },
+      } as const),
+    [],
+  )
+  const nftModalMedia = useMemo(() => {
     return (
-      <Skeleton flex={1} isLoaded={imageLoaded}>
+      <Skeleton flex={1} isLoaded={isLoaded}>
         <Flex
           flex={1}
           height='full'
-          backgroundImage={imageUrl}
+          backgroundImage={mediaUrl}
           backgroundSize='cover'
           backgroundPosition='center center'
         >
@@ -94,21 +113,25 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
             transform='translate3d(0, 0, 0)'
             width='full'
           >
-            <Image
-              width='full'
-              height='auto'
-              objectFit='contain'
-              src={imageUrl}
-              boxShadow='dark-lg'
-              borderRadius='xl'
-              mb={{ base: -14, md: 0 }}
-              onLoad={() => setImageLoaded(true)}
-            />
+            {mediaType === 'image' ? (
+              <Image src={mediaUrl} onLoad={() => setIsMediaLoaded(true)} {...mediaBoxProps} />
+            ) : (
+              <Box
+                as='video'
+                src={mediaUrl}
+                preload='auto'
+                loop
+                // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
+                muted
+                autoPlay
+                {...mediaBoxProps}
+              />
+            )}
           </Flex>
         </Flex>
       </Skeleton>
     )
-  }, [imageLoaded, imageUrl])
+  }, [isLoaded, mediaBoxProps, mediaType, mediaUrl])
 
   const nftModalOverview = useMemo(() => {
     return (
@@ -221,7 +244,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         flexDir={{ base: 'column', md: 'row' }}
       >
         <ModalCloseButton zIndex='sticky' />
-        {nftModalImage}
+        {nftModalMedia}
         {nftModalContent}
       </ModalContent>
     </Modal>

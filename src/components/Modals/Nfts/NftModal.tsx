@@ -75,10 +75,6 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
 
-  // Poor man's onLoad for videos since chakra doesn't properly forwards onLoad to the <video /> tag
-  // So we have to be optimistic and assume the video is loaded
-  const isLoaded = Boolean(isMediaLoaded || mediaType === 'video')
-
   const mediaBoxProps = useMemo(
     () =>
       ({
@@ -93,7 +89,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   )
   const nftModalMedia = useMemo(() => {
     return (
-      <Skeleton flex={1} isLoaded={isLoaded}>
+      <Skeleton flex={1} isLoaded={isMediaLoaded}>
         <Flex
           flex={1}
           height='full'
@@ -119,7 +115,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
               <Box
                 as='video'
                 src={mediaUrl}
-                preload='auto'
+                onCanPlayThrough={() => setIsMediaLoaded(true)}
                 loop
                 // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
                 muted
@@ -131,7 +127,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Flex>
       </Skeleton>
     )
-  }, [isLoaded, mediaBoxProps, mediaType, mediaUrl])
+  }, [isMediaLoaded, mediaBoxProps, mediaType, mediaUrl])
 
   const nftModalOverview = useMemo(() => {
     return (

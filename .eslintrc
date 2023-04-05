@@ -13,7 +13,8 @@
     "generated",
     "node_modules",
     "react-app-rewired",
-    "scripts"
+    "scripts",
+    "cypress*"
   ],
   "plugins": [
     "jest",

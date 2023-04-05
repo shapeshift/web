@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   Image,
+  Link,
   Modal,
   ModalCloseButton,
   ModalContent,
@@ -67,13 +68,20 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const mediaType = getMediaType(mediaUrl)
 
   const name = zapperNft?.name
+  const nftId = zapperNft?.tokenId
   const collectionName = zapperNft?.collection?.name
   const rarityRank = zapperNft?.rarityRank
   const floorPriceEth = zapperNft?.collection.floorPriceEth
   const lastSaleEth = zapperNft?.lastSaleEth
   const openseaId = zapperNft?.collection?.openseaId
+  const collectionNetwork = zapperNft?.collection?.network
+  const collectionAddress = zapperNft?.collection?.address
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
+  const assetLink =
+    collectionNetwork && collectionAddress && nftId
+      ? `https://opensea.io/assets/${collectionNetwork}/${collectionAddress}/${nftId}`
+      : null
 
   const mediaBoxProps = useMemo(
     () =>
@@ -108,7 +116,23 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
             backdropBlur='3xl'
             transform='translate3d(0, 0, 0)'
             width='full'
+            flexDir='column'
+            gap={4}
           >
+            <Flex position={{ base: 'static', md: 'absolute' }} right='1em' top='1em'>
+              {assetLink && (
+                <Button
+                  as={Link}
+                  isExternal
+                  href={assetLink}
+                  size='sm'
+                  colorScheme='whiteAlpha'
+                  rightIcon={<ArrowRightUp />}
+                >
+                  OpenSea
+                </Button>
+              )}
+            </Flex>
             {mediaType === 'image' ? (
               <Image src={mediaUrl} onLoad={() => setIsMediaLoaded(true)} {...mediaBoxProps} />
             ) : (
@@ -127,7 +151,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Flex>
       </Skeleton>
     )
-  }, [isMediaLoaded, mediaBoxProps, mediaType, mediaUrl])
+  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl])
 
   const nftModalOverview = useMemo(() => {
     return (
@@ -203,12 +227,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           </TabList>
           <TabIndicator mt='-1.5px' height='2px' bg='blue.200' borderRadius='1px' />
         </Box>
-        <TabPanels
-          maxHeight={{ base: 'auto', md: '500px' }}
-          minHeight='500px'
-          overflowY='auto'
-          flex={1}
-        >
+        <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
             <NftOverview zapperNft={zapperNft} />
           </TabPanel>

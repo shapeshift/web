@@ -5,9 +5,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import type { V2NftUserItem } from 'state/apis/zapper/client'
 import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { useAppSelector } from 'state/store'
 
-// import { selectWalletAccountIds } from 'state/slices/common-selectors'
-// import { useAppSelector } from 'state/store'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 
@@ -26,11 +26,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
-
-  // TODO(0xdef1cafe): remove - this is willywonka.eth
-  const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
-  // const accountIds = useAppSelector(selectWalletAccountIds)
-
+  const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetZapperNftUserTokensQuery({ accountIds })
 
   const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {

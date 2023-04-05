@@ -191,6 +191,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
               {name}
             </RawText>
           </Flex>
+          {rarityDisplay && (
+            <Tag colorScheme='purple' variant='solid'>
+              <TagLeftIcon as={DiamondIcon} />
+              {rarityDisplay}
+            </Tag>
+          )}
         </Flex>
         <StatGroup>
           {floorPriceEth && (
@@ -203,17 +209,6 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
             <Stat>
               <StatLabel>{translate('nft.lastPrice')}</StatLabel>
               <StatNumber>{lastSaleEth} ETH</StatNumber>
-            </Stat>
-          )}
-          {rarityDisplay && (
-            <Stat>
-              <StatLabel>{translate('nft.rarity')}</StatLabel>
-              <StatNumber>
-                <Tag colorScheme='purple' variant='solid'>
-                  <TagLeftIcon as={DiamondIcon} />
-                  {rarityDisplay}
-                </Tag>
-              </StatNumber>
             </Stat>
           )}
         </StatGroup>

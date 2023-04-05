@@ -21,10 +21,8 @@ export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
   const address = collection?.address
   const maybeNetwork = collection?.network
   const nftStandard = collection?.nftStandard
-
-  const maybeChainAdapter = getChainAdapterManager().get(
-    ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[maybeNetwork as SupportedZapperNetwork] as ChainId,
-  )
+  const maybeChainId = ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[maybeNetwork as SupportedZapperNetwork]
+  const maybeChainAdapter = getChainAdapterManager().get(maybeChainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const chainDisplayName = maybeChainAdapter?.getDisplayName()
   const maybeFeeAsset = useAppSelector(s => selectAssetById(s, maybeFeeAssetId ?? ''))

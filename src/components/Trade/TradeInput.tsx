@@ -41,7 +41,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
-  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectQuoteBuyAmountCryptoPrecision,
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -114,9 +114,7 @@ export const TradeInput = () => {
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
-  const buyAmountBeforeFeesBuyAssetCryptoPrecision = useSwapperStore(
-    selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
-  )
+  const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
@@ -567,7 +565,7 @@ export const TradeInput = () => {
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
               amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}
+              beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
               protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
               shapeShiftFee='0'
               slippage={slippage}

@@ -46,7 +46,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountAfterFeesFiat,
   selectBuyAmountBeforeFeesBaseUnit,
-  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
   selectTotalTradeFeeBuyAssetCryptoPrecision,
@@ -101,9 +101,7 @@ export const TradeConfirm = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
-  const buyAmountBeforeFeesBuyAssetCryptoPrecision = useSwapperStore(
-    selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
-  )
+  const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
@@ -386,7 +384,7 @@ export const TradeConfirm = () => {
           <ReceiveSummary
             symbol={trade.buyAsset.symbol ?? ''}
             amount={buyAmountCryptoPrecision ?? ''}
-            beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}
+            beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
             protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
             shapeShiftFee='0'
             slippage={slippage}
@@ -396,7 +394,7 @@ export const TradeConfirm = () => {
         </Stack>
       ) : null,
     [
-      buyAmountBeforeFeesBuyAssetCryptoPrecision,
+      quoteBuyAmountCryptoPrecision,
       buyAmountAfterFeesFiat,
       buyAmountCryptoPrecision,
       sellAmountBeforeFeesBaseUnit,

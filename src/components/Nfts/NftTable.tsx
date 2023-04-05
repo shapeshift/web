@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@chakra-ui/react'
+import { Box, SimpleGrid } from '@chakra-ui/react'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
@@ -42,7 +42,9 @@ export const NftTable = () => {
 
   return (
     <>
-      <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+      <Box mb={4}>
+        <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+      </Box>
       <SimpleGrid gridGap={4} gridTemplateColumns='repeat(auto-fit, minmax(150px, 1fr))'>
         {renderNftCards}
       </SimpleGrid>

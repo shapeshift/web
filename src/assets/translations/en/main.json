@@ -1930,7 +1930,7 @@
     "collection": "Collection",
     "tokenId": "Token ID",
     "address": "Address",
-    "network": "Network",
+    "chain": "Chain",
     "standard": "Standard",
     "description": "Description",
     "details": "Details",

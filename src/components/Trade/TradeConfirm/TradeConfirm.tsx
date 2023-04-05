@@ -32,7 +32,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -44,7 +44,6 @@ import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
-  selectBuyAmountAfterFeesFiat,
   selectBuyAmountBeforeFeesBaseUnit,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
@@ -53,6 +52,7 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectBuyAmountCryptoPrecision,
+  selectBuyAmountFiat,
   selectBuyAssetAccountId,
   selectFeeAssetFiatRate,
   selectFees,
@@ -105,7 +105,7 @@ export const TradeConfirm = () => {
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
-  const buyAmountAfterFeesFiat = useSwapperStore(selectBuyAmountAfterFeesFiat)
+  const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
   const assets = useAppSelector(selectAssets)
@@ -388,14 +388,13 @@ export const TradeConfirm = () => {
             protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
             shapeShiftFee='0'
             slippage={slippage}
-            fiatAmount={bnOrZero(buyAmountAfterFeesFiat).toFixed(2)}
+            fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
           />
         </Stack>
       ) : null,
     [
       quoteBuyAmountCryptoPrecision,
-      buyAmountAfterFeesFiat,
       buyAmountCryptoPrecision,
       sellAmountBeforeFeesBaseUnit,
       sellAmountBeforeFeesFiat,

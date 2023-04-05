@@ -35,6 +35,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { V2ZapperNft } from 'state/apis/zapper/client'
 import { getMediaType } from 'state/apis/zapper/client'
 import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
@@ -65,9 +67,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  // TODO(0xdef1cafe): remove hardcoded accountIds
-  const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
-  // const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const collectionAddresses = useMemo(
     () => (zapperNft?.collection?.address ? [zapperNft?.collection?.address] : []),

@@ -9,6 +9,7 @@ import {
   handleSwitchAssets,
   toggleIsExactAllowance,
   updateFees,
+  updateTradeAmountsFromQuote,
 } from 'state/zustand/swapperStore/actions'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
@@ -67,6 +68,7 @@ export const useSwapperStore = (() => {
           updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
           handleInputAmountChange: handleInputAmountChange(set),
           handleAssetSelection: handleAssetSelection(set),
+          updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),
         }),
         { name: 'SwapperStore' },
       ),

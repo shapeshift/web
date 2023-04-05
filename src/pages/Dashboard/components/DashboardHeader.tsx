@@ -1,6 +1,17 @@
-import { Flex, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
+import {
+  Container,
+  Flex,
+  Stack,
+  StackDivider,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
+import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { BoltIcon } from 'components/Icons/Bolt'
@@ -17,6 +28,7 @@ import { useAppSelector } from 'state/store'
 import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
+  const location = useLocation()
   const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
   const claimableRewardsFiatBalance = useAppSelector(state =>
     selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
@@ -33,10 +45,11 @@ export const DashboardHeader = () => {
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   return (
-    <Stack spacing={0} divider={<StackDivider />} borderColor={borderColor}>
-      <Flex
+    <Stack spacing={0} borderColor={borderColor}>
+      <Container
         width='full'
-        bg='blackAlpha.100'
+        display='flex'
+        maxWidth='container.xl'
         px={8}
         py={4}
         alignItems='center'
@@ -51,35 +64,53 @@ export const DashboardHeader = () => {
           </Flex>
           <Amount.Fiat value={netWorth} fontSize='xl' fontWeight='bold' />
         </Flex>
-      </Flex>
+      </Container>
       <Flex
         flexDir={{ base: 'column', md: 'row' }}
-        bg='blackAlpha.100'
         borderBottomWidth={1}
         borderColor={borderColor}
         marginBottom='-1px'
+        gap={8}
+        position='sticky'
+        top='72px'
       >
-        <DashboardTab
-          label='defi.walletBalance'
-          icon={<AccountsIcon />}
-          fiatValue={portfolioTotalFiatBalance}
-          path='/dashboard'
-          color='blue.500'
-        />
-        <DashboardTab
-          label='defi.earnBalance'
-          icon={<DefiIcon />}
-          fiatValue={earnFiatBalance}
-          path='/dashboard/earn'
-          color='purple.500'
-        />
-        <DashboardTab
-          label='defi.rewardsBalance'
-          icon={<RewardsIcon />}
-          fiatValue={claimableRewardsFiatBalance}
-          path='/dashboard/rewards'
-          color='green.500'
-        />
+        <Container maxWidth='container.xl' display='flex' gap={8} px={8}>
+          <DashboardTab
+            label='common.overview'
+            icon={<AccountsIcon />}
+            fiatValue={portfolioTotalFiatBalance}
+            path='/dashboard'
+            color='blue.500'
+          />
+          <DashboardTab
+            label='navBar.wallet'
+            icon={<AccountsIcon />}
+            fiatValue=''
+            path='/wallet'
+            color='blue.500'
+          />
+          <DashboardTab
+            label='navBar.earn'
+            icon={<DefiIcon />}
+            fiatValue={earnFiatBalance}
+            path='/dashboard/earn'
+            color='purple.500'
+          />
+          <DashboardTab
+            label='defi.rewardsBalance'
+            icon={<RewardsIcon />}
+            fiatValue={claimableRewardsFiatBalance}
+            path='/dashboard/rewards'
+            color='green.500'
+          />
+          <DashboardTab
+            label='common.activity'
+            icon={<RewardsIcon />}
+            fiatValue=''
+            path='/transaction-history'
+            color='green.500'
+          />
+        </Container>
       </Flex>
     </Stack>
   )

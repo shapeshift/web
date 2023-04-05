@@ -19,6 +19,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ProviderCard } from './ProviderCard'
 import { ResultsEmpty } from './ResultsEmpty'
 import { SearchEmpty } from './SearchEmpty'
 
@@ -103,19 +104,6 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
         ),
       },
       {
-        Header: translate('defi.claimableRewards'),
-        accessor: 'fiatRewardsAmount',
-        display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: RowProps }) => {
-          const hasRewards = bnOrZero(row.original.fiatRewardsAmount).gt(0)
-          return hasRewards ? (
-            <Amount.Fiat value={row.original.fiatRewardsAmount} />
-          ) : (
-            <RawText variant='sub-text'>-</RawText>
-          )
-        },
-      },
-      {
         Header: () => null,
         id: 'expander',
         textAlign: 'right',
@@ -155,19 +143,26 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
     return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
   }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
+  // return (
+  //   <ReactTable
+  //     onRowClick={row => row.toggleRowExpanded()}
+  //     data={rows}
+  //     columns={columns}
+  //     isLoading={isLoading}
+  //     renderSubComponent={({ original }) => (
+  //       <ProviderDetails key={original.provider} {...original} />
+  //     )}
+  //     renderEmptyComponent={() =>
+  //       searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+  //     }
+  //     initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+  //   />
+  // )
   return (
-    <ReactTable
-      onRowClick={row => row.toggleRowExpanded()}
-      data={rows}
-      columns={columns}
-      isLoading={isLoading}
-      renderSubComponent={({ original }) => (
-        <ProviderDetails key={original.provider} {...original} />
-      )}
-      renderEmptyComponent={() =>
-        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
-      }
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
-    />
+    <Flex gap={4} flexDir='column'>
+      {rows.map(row => (
+        <ProviderCard {...row} />
+      ))}
+    </Flex>
   )
 }

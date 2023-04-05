@@ -33,6 +33,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { StakingOppority } from './StakingOpportunity'
+
 type StakingPositionsByAssetProps = {
   ids: OpportunityId[]
 }
@@ -176,52 +178,6 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         ),
       },
       {
-        Header: translate('defi.claimableRewards'),
-        accessor: 'rewardsCryptoBaseUnit',
-        Cell: ({ row }: { row: RowProps }) => {
-          const fiatAmount = calculateRewardFiatAmount({
-            rewardAssetIds: row.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
-          return hasRewardsBalance && row.original.isClaimableRewards ? (
-            <Button
-              isDisabled={!hasRewardsBalance}
-              variant='ghost-filled'
-              colorScheme='green'
-              size='sm'
-              minHeight='1.5rem'
-              height='auto'
-              borderRadius='lg'
-              px={2}
-              rightIcon={<ArrowForwardIcon />}
-              onClick={() => handleClick(row, DefiAction.Claim)}
-            >
-              <Amount.Fiat value={fiatAmount} />
-            </Button>
-          ) : (
-            <RawText variant='sub-text'>-</RawText>
-          )
-        },
-        sortType: (a: RowProps, b: RowProps): number => {
-          const aFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: a.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: a.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          const bFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: b.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: b.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          return aFiatPrice - bFiatPrice
-        },
-      },
-      {
         Header: () => null,
         id: 'expander',
         Cell: ({ row }: { row: RowProps }) => (
@@ -239,16 +195,23 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         ),
       },
     ],
-    [assets, handleClick, marketData, translate],
+    [handleClick, translate],
   )
 
   if (!filteredDown.length) return null
 
+  // return (
+  //   <ReactTable
+  //     data={filteredDown}
+  //     columns={columns}
+  //     initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
+  //   />
+  // )
   return (
-    <ReactTable
-      data={filteredDown}
-      columns={columns}
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }] }}
-    />
+    <Flex flexDir='column' gap={8}>
+      {filteredDown.map(staking => (
+        <StakingOppority {...staking} />
+      ))}
+    </Flex>
   )
 }

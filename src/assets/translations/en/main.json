@@ -9,6 +9,7 @@
     "continue": "Continue",
     "approve": "Approve",
     "confirm": "Confirm",
+    "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
     "created": "Created %{date}",

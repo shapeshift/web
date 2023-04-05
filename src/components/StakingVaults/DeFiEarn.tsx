@@ -38,14 +38,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
     <Flex width='full' flexDir='column' gap={6}>
       {header && header}
       <Tabs isLazy variant='soft-rounded' size='sm'>
-        <Flex
-          justifyContent='space-between'
-          alignItems='center'
-          px={4}
-          gap={4}
-          flexWrap='wrap'
-          {...rest}
-        >
+        <Flex justifyContent='space-between' alignItems='center' gap={4} flexWrap='wrap' {...rest}>
           <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
             <TabList m={0} width={{ base: 'full', md: 'auto' }}>
               <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
@@ -64,7 +57,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           </Flex>
         </Flex>
         <TabPanels>
-          <TabPanel>
+          <TabPanel px={0}>
             <PositionTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
@@ -72,7 +65,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
               includeRewardsBalances={Boolean(includeRewardsBalances)}
             />
           </TabPanel>
-          <TabPanel>
+          <TabPanel px={0}>
             <ProviderTable
               chainId={selectedChainId}
               searchQuery={searchQuery}

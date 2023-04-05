@@ -62,7 +62,7 @@ type GetUnderlyingAssetIdsBalancesArgs = {
   marketData: Partial<Record<AssetId, MarketData>>
 } & Pick<OpportunityMetadataBase, 'underlyingAssetRatiosBaseUnit' | 'underlyingAssetIds'>
 
-type UnderlyingAssetIdsBalances = { fiatAmount: string; cryptoBalancePrecision: string }
+export type UnderlyingAssetIdsBalances = { fiatAmount: string; cryptoBalancePrecision: string }
 type GetUnderlyingAssetIdsBalancesReturn = Record<AssetId, UnderlyingAssetIdsBalances>
 
 type GetUnderlyingAssetIdsBalances = (
@@ -93,6 +93,37 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
       acc[underlyingAssetId] = {
         fiatAmount,
         cryptoBalancePrecision: cryptoBalancePrecision.toFixed(),
+      }
+      return acc
+    },
+    {},
+  )
+}
+type GetRewardBalancesArgs = {
+  assets: Partial<Record<AssetId, Asset>>
+  marketData: Partial<Record<AssetId, MarketData>>
+} & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
+
+type GetRewardBalances = (args: GetRewardBalancesArgs) => GetUnderlyingAssetIdsBalancesReturn
+export const getRewardBalances: GetRewardBalances = ({
+  rewardsCryptoBaseUnit,
+  rewardAssetIds,
+  assets,
+  marketData,
+}) => {
+  if (!rewardAssetIds) return {}
+  return Array.from(rewardAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
+    (acc, assetId, index) => {
+      const asset = assets[assetId]
+      if (!asset) return acc
+      const marketDataPrice = bnOrZero(marketData[assetId]?.price)
+      const cryptoBalancePrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index])
+        .div(bn(10).pow(asset?.precision))
+        .toString()
+      const fiatAmount = bnOrZero(cryptoBalancePrecision).times(marketDataPrice).toString()
+      acc[assetId] = {
+        fiatAmount,
+        cryptoBalancePrecision,
       }
       return acc
     },

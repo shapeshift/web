@@ -1,3 +1,4 @@
+import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
   HStack,
@@ -30,7 +31,7 @@ type AssetCellProps = {
   icons?: string[]
   opportunityName?: string
   version?: string
-}
+} & StackProps
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
   if (showAssetSymbol && postFix) {
@@ -57,6 +58,7 @@ export const AssetCell = ({
   icons,
   opportunityName,
   version,
+  ...rest
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -69,7 +71,7 @@ export const AssetCell = ({
   const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='defi-earn-asset-row'>
+    <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>
@@ -89,7 +91,7 @@ export const AssetCell = ({
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
-          <Stack spacing={0} flex={1}>
+          <Stack spacing={0} flex={1} alignItems='flex-start'>
             <HStack>
               <Box
                 position='relative'

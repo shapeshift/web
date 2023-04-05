@@ -12,7 +12,7 @@ const EarnHeader = () => {
   const translate = useTranslate()
 
   return (
-    <Flex alignItems={{ base: 'flex-start', md: 'center' }} px={4} flexWrap='wrap'>
+    <Flex alignItems={{ base: 'flex-start', md: 'center' }} flexWrap='wrap'>
       <Flex width='full' justifyContent='space-between' alignItems='center'>
         <Heading fontSize='xl'>{translate('defi.myPositions')}</Heading>
         <Button

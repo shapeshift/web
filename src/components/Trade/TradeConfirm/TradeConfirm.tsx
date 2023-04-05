@@ -394,15 +394,16 @@ export const TradeConfirm = () => {
         </Stack>
       ) : null,
     [
-      quoteBuyAmountCryptoPrecision,
-      buyAmountCryptoPrecision,
-      sellAmountBeforeFeesBaseUnit,
-      sellAmountBeforeFeesFiat,
-      slippage,
-      swapper?.name,
-      totalTradeFeeBuyAssetCryptoPrecision,
       trade,
       translate,
+      sellAmountBeforeFeesBaseUnit,
+      sellAmountBeforeFeesFiat,
+      buyAmountCryptoPrecision,
+      quoteBuyAmountCryptoPrecision,
+      totalTradeFeeBuyAssetCryptoPrecision,
+      slippage,
+      fiatBuyAmount,
+      swapper?.name,
     ],
   )
 

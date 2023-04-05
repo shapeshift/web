@@ -6,6 +6,7 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { SupportedZapperNetwork } from 'state/apis/zapper/client'
 import { ZAPPER_NETWORKS_TO_CHAIN_ID_MAP } from 'state/apis/zapper/client'
+import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 
 import type { NftModalProps } from '../NftModal'
 
@@ -34,7 +35,7 @@ export const NftOverview: React.FC<NftModalProps> = ({ zapperNft }) => {
           {address && (
             <Row>
               <Row.Label>{translate('nft.address')}</Row.Label>
-              <Row.Value>{address}</Row.Value>
+              <Row.Value>{firstFourLastFour(address)}</Row.Value>
             </Row>
           )}
           {networkDisplayName && (

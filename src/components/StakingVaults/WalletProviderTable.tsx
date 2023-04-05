@@ -1,11 +1,7 @@
-import { Avatar, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
-import type { Row } from 'react-table'
-import { RawText } from 'components/Text'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
@@ -13,25 +9,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ProviderCard } from './ProviderCard'
-
-export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
-
-type ProviderCellProps = {
-  provider: DefiProvider
-}
-
-const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
-  const { icon, type } = DefiProviderMetadata[provider]
-  return (
-    <Flex alignItems='center' gap={4}>
-      <Avatar size='sm' src={icon} />
-      <Flex flexDir='column'>
-        <RawText>{type}</RawText>
-      </Flex>
-    </Flex>
-  )
-}
+import { ProviderCard, ProviderCardLoading } from './ProviderCard'
 
 export type ProviderTableProps = {
   chainId?: ChainId
@@ -74,10 +52,20 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
   }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
+  if (isLoading) {
+    return (
+      <Flex gap={4} flexDir='column'>
+        {Array.from({ length: 10 }).map((_, index) => (
+          <ProviderCardLoading key={index} />
+        ))}
+      </Flex>
+    )
+  }
+
   return (
     <Flex gap={4} flexDir='column'>
-      {rows.map(row => (
-        <ProviderCard {...row} />
+      {rows.map((row, index) => (
+        <ProviderCard key={`provider-${index}`} {...row} />
       ))}
     </Flex>
   )

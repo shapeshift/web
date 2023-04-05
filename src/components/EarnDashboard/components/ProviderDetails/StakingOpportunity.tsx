@@ -1,17 +1,12 @@
-import { Button, Flex, List, ListItem, SimpleGrid, SimpleGridProps, Tag } from '@chakra-ui/react'
+import { Button, Flex, List, ListItem, SimpleGrid, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { NestedList } from 'components/NestedList'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import {
-  getRewardBalances,
-  getUnderlyingAssetIdsBalances,
-} from 'state/slices/opportunitiesSlice/utils'
+import { getRewardBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -113,7 +108,6 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
 
 export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
   const {
-    assetId,
     underlyingAssetId,
     fiatAmount,
     stakedAmountCryptoBaseUnit,

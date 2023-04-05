@@ -65,23 +65,17 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const imageUrl = zapperNft?.medias?.[0]?.originalUrl
   const name = zapperNft?.name
   const collectionName = zapperNft?.collection?.name
-  const collectionAddress = zapperNft?.collection?.address
   const rarityRank = zapperNft?.rarityRank
 
   const floorPriceEth = zapperNft?.collection.floorPriceEth
   const lastSaleEth = zapperNft?.lastSaleEth
 
+  const openseaId = zapperNft?.collection?.openseaId
+  const collectionLink = (() => (openseaId ? `https://opensea.io/collection/${openseaId}` : null))()
+
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
 
-  // const collectionLink = (() => {
-  //   const zapperNetwork = zapperNft?.collection?.network
-  //   if (!zapperNetwork) return null
-  //   if (!collectionAddress) return null
-  //   const chainId = zapperNetworkToChainId(zapperNetwork as SupportedZapperNetwork)
-  //   return `https://opensea.io/collection/${collectionAddress}`
-  // })()
-
-  // console.log(JSON.stringify(zapperNft, null, 2))
+  console.log(JSON.stringify(zapperNft, null, 2))
 
   const nftModalImage = useMemo(() => {
     return (
@@ -126,8 +120,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
       <Flex flexDir='column' px={8} pb={6} pt={12} bg={modalHeaderBg} gap={4}>
         <Flex alignItems='center' justifyContent='space-between'>
           <Flex flexDir='column'>
-            {collectionAddress && (
+            {collectionLink && (
               <Button
+                as='a'
+                href={collectionLink}
+                target='_blank'
+                rel='noopener noreferrer'
                 justifyContent='flex-start'
                 variant='link'
                 color='blue.200'
@@ -171,11 +169,11 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     )
   }, [
     modalHeaderBg,
-    collectionAddress,
+    collectionLink,
     collectionName,
     name,
-    translate,
     floorPriceEth,
+    translate,
     lastSaleEth,
     rarityDisplay,
   ])

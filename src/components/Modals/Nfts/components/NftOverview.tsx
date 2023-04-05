@@ -1,5 +1,6 @@
 import { Button, Divider, Flex, Link, Tag } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -44,9 +45,19 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ zapperCollection, zapp
       <Flex flexDir='column' gap={4} px={8} py={6}>
         <Text translation='nft.details' fontWeight='medium' />
         <Flex flexDir='column' gap={4}>
-          <Row>
+          <Row alignItems='center'>
             <Row.Label>{translate('nft.tokenId')}</Row.Label>
-            <Row.Value>{tokenId}</Row.Value>
+            <Flex gap={2} alignItems='center'>
+              <Row.Value
+                whiteSpace='nowrap'
+                maxWidth='200px'
+                overflow='hidden'
+                textOverflow='ellipsis'
+              >
+                {tokenId}
+              </Row.Value>
+              <CopyButton value={tokenId} />
+            </Flex>
           </Row>
           {address && (
             <Row>

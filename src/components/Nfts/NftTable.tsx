@@ -29,7 +29,8 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
-  const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = ['eip155:1:0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c']
+  // const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetZapperNftUserTokensQuery({ accountIds })
 
   const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {

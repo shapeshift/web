@@ -642,8 +642,7 @@
     "slowSwapTitle": "%{protocol} intercambiar",
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "updatingQuote": "Actualizando cotización...",
-    "intoRUNETitle": "Intercambiando a RUNE",
-    "intoRUNEBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir RUNE no está disponible temporalmente",
+    "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
@@ -950,7 +949,7 @@
     },
     "approve": {
       "header": "Permita que el enrutador ShapeShift DAO gaste su %{asset}",
-      "routerName": "Enrutador ShapeShift DAO",
+      "shapeshiftRouterName": "Enrutador ShapeShift DAO",
       "body": "Necesitamos su permiso para usar su %{asset}",
       "learnMore": "¿Por qué necesito hacer esto?",
       "depositFee": "Habrá una tarifa de gas por separado para depositar.",

@@ -184,8 +184,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   return (
     <ReusableApprove
       asset={asset}
+      spenderName={foxFarmingOpportunity.provider}
       feeAsset={feeAsset}
-      icons={foxFarmingOpportunity?.icons}
+      icons={foxFarmingOpportunity.icons}
       estimatedGasFeeCryptoPrecision={bnOrZero(state.approve.estimatedGasCryptoPrecision).toFixed(
         5,
       )}
@@ -200,7 +201,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={foxFarmingOpportunity?.contractAddress ?? ''}
+      spenderContractAddress={foxFarmingOpportunity?.contractAddress ?? ''}
     />
   )
 }

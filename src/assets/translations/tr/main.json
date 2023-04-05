@@ -642,8 +642,7 @@
     "slowSwapTitle": "%{protocol} Takas",
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "updatingQuote": "Alıntı güncelleniyor...",
-    "intoRUNETitle": "RUNE ile ticaret",
-    "intoRUNEBody": "Bu ticarete devam edebilirsiniz, ancak RUNE almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
@@ -950,7 +949,7 @@
     },
     "approve": {
       "header": "ShapeShift DAO Router'ın %{asset} varlığınızı kullanmasına izin verin",
-      "routerName": "ShapeShift DAO Yönlendirici",
+      "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
       "depositFee": "Yatırmak için ayrı bir gaz ücreti gerekecektir.",

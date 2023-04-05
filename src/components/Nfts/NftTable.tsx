@@ -51,7 +51,15 @@ export const NftTable = () => {
       {isSearching && !renderNftCards?.length ? (
         <div>Empty search state</div>
       ) : (
-        <SimpleGrid gridGap={4} gridTemplateColumns='repeat(auto-fit, minmax(150px, 1fr))'>
+        <SimpleGrid
+          gridGap={4}
+          gridTemplateColumns={{
+            base: 'repeat(auto-fit, minmax(150px, 1fr))',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(4, 1fr)',
+          }}
+        >
           {renderNftCards}
         </SimpleGrid>
       )}

@@ -66,16 +66,11 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const name = zapperNft?.name
   const collectionName = zapperNft?.collection?.name
   const rarityRank = zapperNft?.rarityRank
-
   const floorPriceEth = zapperNft?.collection.floorPriceEth
   const lastSaleEth = zapperNft?.lastSaleEth
-
   const openseaId = zapperNft?.collection?.openseaId
-  const collectionLink = (() => (openseaId ? `https://opensea.io/collection/${openseaId}` : null))()
-
+  const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
-
-  console.log(JSON.stringify(zapperNft, null, 2))
 
   const nftModalImage = useMemo(() => {
     return (

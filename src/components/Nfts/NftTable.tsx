@@ -1,3 +1,4 @@
+import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, SimpleGrid } from '@chakra-ui/react'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
@@ -8,6 +9,20 @@ import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
 // import { selectWalletAccountIds } from 'state/slices/common-selectors'
 // import { useAppSelector } from 'state/store'
 import { NftCard } from './NftCard'
+import { NftCardLoading } from './NftLoadingCard'
+
+const NftGrid: React.FC<SimpleGridProps> = props => (
+  <SimpleGrid
+    gridGap={4}
+    gridTemplateColumns={{
+      base: 'repeat(auto-fit, minmax(150px, 1fr))',
+      sm: 'repeat(2, 1fr)',
+      md: 'repeat(3, 1fr)',
+      lg: 'repeat(4, 1fr)',
+    }}
+    {...props}
+  />
+)
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -40,7 +55,14 @@ export const NftTable = () => {
     return filteredNfts?.map(({ token }) => <NftCard zapperNft={token} />)
   }, [data?.length, filteredNfts])
 
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading)
+    return (
+      <NftGrid>
+        {Array.from({ length: 8 }).map((_, index) => (
+          <NftCardLoading key={index} />
+        ))}
+      </NftGrid>
+    )
   if (!isLoading && !data?.length) return <div>No NFTs found</div>
 
   return (
@@ -51,17 +73,7 @@ export const NftTable = () => {
       {isSearching && !renderNftCards?.length ? (
         <div>Empty search state</div>
       ) : (
-        <SimpleGrid
-          gridGap={4}
-          gridTemplateColumns={{
-            base: 'repeat(auto-fit, minmax(150px, 1fr))',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-            lg: 'repeat(4, 1fr)',
-          }}
-        >
-          {renderNftCards}
-        </SimpleGrid>
+        <NftGrid>{renderNftCards}</NftGrid>
       )}
     </>
   )

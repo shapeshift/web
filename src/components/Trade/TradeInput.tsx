@@ -120,7 +120,6 @@ export const TradeInput = () => {
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
-
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
@@ -524,6 +523,7 @@ export const TradeInput = () => {
             label={translate('trade.youPay')}
           />
           <TradeAssetInput
+            isReadOnly={true}
             accountId={buyAssetAccountId}
             assetId={buyAsset?.assetId}
             assetSymbol={buyAsset?.symbol ?? ''}

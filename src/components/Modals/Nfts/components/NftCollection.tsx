@@ -1,7 +1,6 @@
 import { Button, Flex, Link, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { RawText } from 'components/Text'
 import { markdownLinkToHTML } from 'lib/utils'
@@ -17,18 +16,22 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
 
   const socialLinkPills = useMemo(() => {
     if (!collection?.socialLinks) return null
-    return collection?.socialLinks.map(link => (
-      <Button
-        as={Link}
-        isExternal
-        href={link.url}
-        size='sm'
-        colorScheme='whiteAlpha'
-        rightIcon={<ArrowRightUp />}
-      >
-        {link.label}
-      </Button>
-    ))
+    return (
+      <Flex gap={2} flexWrap='wrap'>
+        {collection?.socialLinks.map(link => (
+          <Button
+            as={Link}
+            isExternal
+            href={link.url}
+            size='xs'
+            colorScheme='blue'
+            variant='ghost-filled'
+          >
+            {link.label}
+          </Button>
+        ))}
+      </Flex>
+    )
   }, [collection?.socialLinks])
 
   if (!collection) return null

@@ -109,6 +109,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             // Needed because of chrome autoplay policy: https://developer.chrome.com/blog/autoplay/#new-behaviors
             muted
             autoPlay
+            onCanPlayThrough={() => setIsMediaLoaded(true)}
             {...mediaBoxProps}
           />
         )}

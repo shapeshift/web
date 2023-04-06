@@ -45,6 +45,7 @@ import {
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectAction,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAsset,
@@ -118,6 +119,7 @@ export const TradeInput = () => {
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
+  const action = useSwapperStore(selectAction)
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
@@ -467,6 +469,17 @@ export const TradeInput = () => {
     [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isSwapperApiInitiated],
   )
 
+  const isSellAction = useMemo(() => {
+    return (
+      action === TradeAmountInputField.SELL_CRYPTO || action === TradeAmountInputField.SELL_FIAT
+    )
+  }, [action])
+
+  const receiveAmountLoading = useMemo(
+    () => isSwapperApiPending && isSellAction,
+    [isSwapperApiPending, isSellAction],
+  )
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -530,8 +543,8 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            showInputSkeleton={tradeStateLoading}
-            showFiatSkeleton={tradeStateLoading}
+            showInputSkeleton={receiveAmountLoading}
+            showFiatSkeleton={receiveAmountLoading}
             label={translate('trade.youGet')}
             rightRegion={
               isTradeRatesEnabled ? (

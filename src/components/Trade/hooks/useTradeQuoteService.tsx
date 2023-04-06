@@ -12,7 +12,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
-  selectBuyAmountCryptoPrecision,
   selectBuyAsset,
   selectIsSendMax,
   selectReceiveAddress,
@@ -38,7 +37,6 @@ export const useTradeQuoteService = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
-  const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {
@@ -90,7 +88,6 @@ export const useTradeQuoteService = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     wallet,
-    buyAmountCryptoPrecision,
   ])
 
   return {

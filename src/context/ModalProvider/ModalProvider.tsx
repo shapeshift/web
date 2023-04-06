@@ -8,6 +8,7 @@ import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
 import { LiveSupportModal } from 'components/Modals/LiveSupport/LiveSupport'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
+import { NftModal } from 'components/Modals/Nfts/NftModal'
 import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
@@ -32,6 +33,7 @@ const MODALS = {
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
   liveSupport: LiveSupportModal,
+  nft: NftModal,
 }
 
 // state

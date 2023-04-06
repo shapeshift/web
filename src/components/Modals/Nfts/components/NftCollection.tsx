@@ -23,6 +23,7 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
             as={Link}
             isExternal
             href={link.url}
+            key={link.label}
             size='xs'
             colorScheme='blue'
             variant='ghost-filled'

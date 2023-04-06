@@ -164,8 +164,4 @@ export const zapperApi = createApi({
   }),
 })
 
-export const {
-  useGetZapperUniV2PoolAssetIdsQuery,
-  useGetZapperNftUserTokensQuery,
-  useGetZapperCollectionsQuery,
-} = zapperApi
+export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi

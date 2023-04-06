@@ -2,7 +2,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { fromBaseUnit } from 'lib/math'
 import {
   selectTradeAmountsByActionAndAmount,
   selectTradeAmountsByActionAndAmountFromQuote,
@@ -80,25 +79,16 @@ export const handleInputAmountChange =
   () =>
     set(
       draft => {
-        const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(draft)
-        const sellAsset = draft.sellAsset
-        const buyAsset = draft.buyAsset
         const {
-          sellAmountSellAssetBaseUnit,
-          buyAmountBuyAssetBaseUnit,
+          sellAmountSellAssetCryptoPrecision,
+          buyAmountBuyAssetCryptoPrecision,
           fiatSellAmount,
           fiatBuyAmount,
-        } = tradeAmountsByActionAndAmount
-        const buyAmountCryptoPrecision =
-          buyAmountBuyAssetBaseUnit && buyAsset
-            ? fromBaseUnit(buyAmountBuyAssetBaseUnit, buyAsset.precision)
-            : '0'
-        const sellAmountCryptoPrecision =
-          sellAmountSellAssetBaseUnit && sellAsset
-            ? fromBaseUnit(sellAmountSellAssetBaseUnit, sellAsset.precision)
-            : '0'
-        draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
-        draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+        } = selectTradeAmountsByActionAndAmount(draft)
+        if (buyAmountBuyAssetCryptoPrecision)
+          draft.buyAmountCryptoPrecision = buyAmountBuyAssetCryptoPrecision
+        if (sellAmountSellAssetCryptoPrecision)
+          draft.sellAmountCryptoPrecision = sellAmountSellAssetCryptoPrecision
         if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
         if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
         return draft
@@ -180,25 +170,16 @@ export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFee
 export const updateTradeAmountsFromQuote = (set: SetSwapperStoreAction<SwapperState>) => () =>
   set(
     draft => {
-      const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmountFromQuote(draft)
-      const sellAsset = draft.sellAsset
-      const buyAsset = draft.buyAsset
       const {
-        sellAmountSellAssetBaseUnit,
-        buyAmountBuyAssetBaseUnit,
+        sellAmountSellAssetCryptoPrecision,
+        buyAmountBuyAssetCryptoPrecision,
         fiatSellAmount,
         fiatBuyAmount,
-      } = tradeAmountsByActionAndAmount
-      const buyAmountCryptoPrecision =
-        buyAmountBuyAssetBaseUnit && buyAsset
-          ? fromBaseUnit(buyAmountBuyAssetBaseUnit, buyAsset.precision)
-          : '0'
-      const sellAmountCryptoPrecision =
-        sellAmountSellAssetBaseUnit && sellAsset
-          ? fromBaseUnit(sellAmountSellAssetBaseUnit, sellAsset.precision)
-          : '0'
-      draft.buyAmountCryptoPrecision = buyAmountCryptoPrecision
-      draft.sellAmountCryptoPrecision = sellAmountCryptoPrecision
+      } = selectTradeAmountsByActionAndAmountFromQuote(draft)
+      if (buyAmountBuyAssetCryptoPrecision)
+        draft.buyAmountCryptoPrecision = buyAmountBuyAssetCryptoPrecision
+      if (sellAmountSellAssetCryptoPrecision)
+        draft.sellAmountCryptoPrecision = sellAmountSellAssetCryptoPrecision
       if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
       if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
       return draft

@@ -619,11 +619,11 @@ const nftCollectionSchema = z.object({
   collection: fullCollectionSchema,
 })
 
-const cursorSchema = z.string()
+const cursorSchema = z.string().nonempty()
 
 const v2NftBalancesCollectionsSchema = z.object({
   items: z.array(nftCollectionSchema),
-  cursor: cursorSchema,
+  cursor: cursorSchema.optional(),
 })
 
 const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
@@ -656,7 +656,7 @@ const userNftItemSchema = z.object({
 })
 
 const userNftTokenSchema = z.object({
-  cursor: z.string().nonempty().optional(),
+  cursor: cursorSchema.optional(),
   items: z.array(userNftItemSchema).optional(),
 })
 

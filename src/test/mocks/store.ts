@@ -50,6 +50,7 @@ export const mockStore: ReduxState = {
   },
   preferences: {
     featureFlags: {
+      Jaypegz: false,
       Optimism: false,
       BnbSmartChain: false,
       ZrxAvalancheSwap: false,

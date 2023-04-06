@@ -19,7 +19,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ResultsEmpty } from './ResultsEmpty'
+import { ResultsEmpty } from '../ResultsEmpty'
 import { SearchEmpty } from './SearchEmpty'
 
 export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
@@ -152,7 +152,7 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
         <ProviderDetails key={original.provider} {...original} />
       )}
       renderEmptyComponent={() =>
-        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
       }
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />

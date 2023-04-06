@@ -445,7 +445,7 @@ export enum ZapperAppId {
 }
 
 const ZapperAppIdSchema = z.nativeEnum(ZapperAppId)
-const ZerionDisplayValue = z.union([
+const ZapperDisplayValue = z.union([
   z.object({
     type: z.string(),
     value: z.union([z.number(), z.string()]),
@@ -460,11 +460,11 @@ const ZapperDisplayPropsSchema = z.object({
   statsItems: z.array(
     z.object({
       label: z.string(),
-      value: ZerionDisplayValue,
+      value: ZapperDisplayValue,
     }),
   ),
-  secondaryLabel: ZerionDisplayValue.optional(),
-  tertiaryLabel: ZerionDisplayValue.optional(),
+  secondaryLabel: ZapperDisplayValue.optional(),
+  tertiaryLabel: ZapperDisplayValue.optional(),
 })
 
 const ZapperTokenBaseSchema = z.object({
@@ -532,7 +532,7 @@ const ZapperProductSchema = z.object({
   meta: z.array(z.any()),
 })
 
-const ZerionV2AppBalance = z.object({
+const ZapperV2AppBalance = z.object({
   key: z.string(),
   address: z.string(),
   appId: ZapperAppIdSchema,
@@ -665,7 +665,7 @@ const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
 export type V2NftUserItem = z.infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
-const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)
+const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>

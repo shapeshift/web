@@ -4,8 +4,6 @@
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "composite": true,
     "skipLibCheck": true,
 
@@ -19,7 +17,7 @@
     "baseUrl": "src",
     "moduleResolution": "node",
     "paths": {
-      "@shapeshiftoss/*": ["$1/src/*"]
+      "@shapeshiftoss/*": ["packages/$1/src/*"]
     },
     "resolveJsonModule": true,
 
@@ -35,9 +33,23 @@
     "experimentalDecorators": true,
     "jsx": "react-jsx",
   },
-  "include": ["src/**/*", "cypress"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "src/env/loader.js"],
+  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "cypress/**/*"],
+  "files": [],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
   "references": [
+    { "path": "./packages/asset-service" },
+    { "path": "./packages/caip" },
+    { "path": "./packages/chain-adapters" },
     { "path": "./packages/errors" },
+    { "path": "./packages/eslint-plugin-logger" },
+    { "path": "./packages/investor" },
+    { "path": "./packages/investor-foxy" },
+    { "path": "./packages/investor-idle" },
+    { "path": "./packages/investor-yearn" },
+    { "path": "./packages/logger" },
+    { "path": "./packages/market-service" },
+    { "path": "./packages/swapper" },
+    { "path": "./packages/types" },
+    { "path": "./packages/unchained-client" },
   ]
 }

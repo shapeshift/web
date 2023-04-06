@@ -1,10 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "module": "commonjs",
     "rootDir": "src",
     "outDir": "dist"
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip" },
+    { "path": "../investor-idle" },
+    { "path": "../types" },
+  ]
 }

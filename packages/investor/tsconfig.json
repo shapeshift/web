@@ -1,10 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "module": "commonjs",
     "rootDir": "src",
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../types" },
+  ]
 }

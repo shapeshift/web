@@ -163,7 +163,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
-      // slippage going into position - 0.007 ETH for 5 ETH deposit
+      // slippage going into position - e.g. 0.007 ETH for 5 ETH deposit
       // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
       const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
         .times(slippagePercentage)

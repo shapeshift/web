@@ -1,4 +1,4 @@
-import { Flex, List, ListItem, SimpleGrid, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
+import { Flex, List, ListItem, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
@@ -7,8 +7,6 @@ import { OpportunityRowGrid } from 'components/EarnDashboard/components/Provider
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { NestedListItem } from 'components/List/NestedListItem'
-import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 

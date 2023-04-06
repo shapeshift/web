@@ -19,8 +19,8 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BN } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
@@ -292,3 +292,39 @@ export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
 export const waitForSaversUpdate = () => setTimeoutAsync(SAVERS_UPDATE_TIME)
+
+export const makeDaysToBreakEven = ({
+  expectedAmountOutThorBaseUnit,
+  amountCryptoBaseUnit,
+  asset,
+  apy,
+}: {
+  expectedAmountOutThorBaseUnit: string
+  amountCryptoBaseUnit: BigNumber
+  asset: Asset
+  apy: string
+}) => {
+  const amountCryptoThorBaseUnit = toThorBaseUnit({
+    valueCryptoBaseUnit: amountCryptoBaseUnit,
+    asset,
+  })
+  // The total downside that goes into a savers deposit, from THOR docs;
+  // "the minimum amount of the target asset the user can expect to deposit after fees"
+  // https://thornode.ninerealms.com/thorchain/doc/
+  const depositFeeCryptoPrecision = bnOrZero(
+    fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit)),
+  )
+  // Daily upside
+  const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expectedAmountOutThorBaseUnit))
+    .times(apy)
+    .div(365)
+
+  const daysToBreakEvenOrZero = bnOrZero(1)
+    .div(dailyEarnAmount.div(depositFeeCryptoPrecision))
+    .toFixed()
+  // If daysToBreakEvenOrZero is a fraction of 1, the daily upside is effectively higher than the fees
+  // meaning the user will break even in a timeframe between the first rewards accrual (e.g next THOR block after deposit is confirmed)
+  // and ~ a day after deposit
+  const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
+  return daysToBreakEven
+}

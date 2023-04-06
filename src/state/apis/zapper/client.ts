@@ -559,7 +559,7 @@ export const getMediaFileType = (mediaUrl: string | undefined): MediaFileType | 
   return mediaFiletype as MediaFileType | undefined
 }
 
-export const getMediaType = (mediaUrl: string | undefined) => {
+export const getMediaType = (mediaUrl: string | undefined): MediaType | undefined => {
   const mediaFileType = getMediaFileType(mediaUrl)
   if (!mediaFileType) return undefined
 

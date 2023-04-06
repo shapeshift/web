@@ -1,11 +1,14 @@
-import { Flex, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
+import { Flex, List, ListItem, SimpleGrid, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
+import { OpportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { NestedListItem } from 'components/List/NestedListItem'
+import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 
@@ -87,6 +90,34 @@ export const ProviderCardLoading: React.FC = () => {
           </Tag>
         </Skeleton>
       </Card.Header>
+      <Card.Body px={0} pb={2} pt={0}>
+        <Flex flexDir='column' gap={8}>
+          <List ml={0} mt={0} spacing={4} position='relative'>
+            <ListItem
+              display='grid'
+              columnGap={4}
+              gridTemplateColumns={OpportunityRowGrid}
+              px={{ base: 4, md: 6 }}
+              py={4}
+            >
+              <Flex alignItems='center' gap={4}>
+                <SkeletonCircle>
+                  <LazyLoadAvatar size='sm' />
+                </SkeletonCircle>
+                <Skeleton>
+                  <RawText textTransform='capitalize'>I'm a pirate arggg!</RawText>
+                </Skeleton>
+              </Flex>
+              <Skeleton display={{ base: 'none', md: 'block' }}>
+                <RawText textTransform='capitalize'>Loading</RawText>
+              </Skeleton>
+              <Skeleton>
+                <RawText textTransform='capitalize'>Loading</RawText>
+              </Skeleton>
+            </ListItem>
+          </List>
+        </Flex>
+      </Card.Body>
     </Card>
   )
 }

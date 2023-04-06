@@ -323,7 +323,8 @@ export const makeDaysToBreakEven = ({
     .div(dailyEarnAmount.div(depositFeeCryptoPrecision))
     .toFixed()
   // If daysToBreakEvenOrZero is a fraction of 1, the daily upside is effectively higher than the fees
-  // meaning the user will break even as soon as rewards accrue, i.e on the next Thorchain block
+  // meaning the user will break even in a timeframe between the first rewards accrual (e.g next THOR block after deposit is confirmed)
+  // and ~ a day after deposit
   const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
   return daysToBreakEven
 }

@@ -30,6 +30,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
       chainId,
       includeEarnBalances,
       includeRewardsBalances,
+      searchQuery,
     }),
   )
 

@@ -2,6 +2,8 @@ import { Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
+import { Card } from 'components/Card/Card'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
@@ -10,6 +12,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { ProviderCard, ProviderCardLoading } from './ProviderCard'
+import { SearchEmpty } from './SearchEmpty'
 
 export type ProviderTableProps = {
   chainId?: ChainId
@@ -52,6 +55,29 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     return isSearching ? filterRowsBySearchTerm(providers, searchQuery) : providers
   }, [filterRowsBySearchTerm, providers, searchQuery, isSearching])
 
+  const renderProviders = useMemo(() => {
+    if (rows.length === 0) {
+      return (
+        <Card>
+          <Card.Body>
+            {searchQuery ? (
+              <SearchEmpty searchQuery={searchQuery} />
+            ) : (
+              <ResultsEmpty ctaHref='/earn' />
+            )}
+          </Card.Body>
+        </Card>
+      )
+    }
+    return (
+      <Flex gap={4} flexDir='column'>
+        {rows.map((row, index) => (
+          <ProviderCard key={`provider-${index}`} {...row} />
+        ))}
+      </Flex>
+    )
+  }, [rows, searchQuery])
+
   if (isLoading) {
     return (
       <Flex gap={4} flexDir='column'>
@@ -62,11 +88,5 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     )
   }
 
-  return (
-    <Flex gap={4} flexDir='column'>
-      {rows.map((row, index) => (
-        <ProviderCard key={`provider-${index}`} {...row} />
-      ))}
-    </Flex>
-  )
+  return renderProviders
 }

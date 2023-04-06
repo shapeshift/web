@@ -18,7 +18,6 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -59,7 +58,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
-  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
     cryptoAmount: string
@@ -388,23 +386,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
       })
 
       const quote = await getThorchainSaversWithdrawQuote({ asset, accountId, bps: withdrawBps })
-      const { dust_amount, slippage_bps, expected_amount_out } = quote
+      const { dust_amount, slippage_bps } = quote
       const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
       // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
       const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
       setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
-      // daily upside
-      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
-        .times(opportunityData?.apy ?? 0)
-        .div(365)
-
-      const daysToBreakEven = cryptoSlippageAmountPrecision
-        .div(dailyEarnAmount)
-        .toFixed(0)
-        .toString()
-      setDaysToBreakEven(daysToBreakEven)
       setDustAmountCryptoBaseUnit(
         bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
           asset.precision,
@@ -468,21 +456,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           <Row.Value>
             <Skeleton isLoaded={!quoteLoading}>
               <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!quoteLoading}>
-              {translate(
-                `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-                { amount: daysToBreakEven ?? '0' },
-              )}
             </Skeleton>
           </Row.Value>
         </Row>

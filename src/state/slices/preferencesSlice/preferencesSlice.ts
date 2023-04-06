@@ -37,6 +37,7 @@ export type FeatureFlags = {
   LifiSwap: boolean
   FoxBondCTA: boolean
   DynamicLpAssets: boolean
+  Jaypegz: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -58,6 +59,7 @@ export type Preferences = {
 
 const initialState: Preferences = {
   featureFlags: {
+    Jaypegz: getConfig().REACT_APP_FEATURE_JAYPEGZ,
     OsmosisSend: getConfig().REACT_APP_FEATURE_OSMOSIS_SEND,
     OsmosisStaking: getConfig().REACT_APP_FEATURE_OSMOSIS_STAKING,
     OsmosisSwap: getConfig().REACT_APP_FEATURE_OSMOSIS_SWAP,

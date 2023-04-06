@@ -47,6 +47,15 @@ export const selectSellAmountBeforeFeesBaseUnitByAction = createSelector(
   },
 )
 
+export const selectSellAmountBeforeFeesCryptoPrecision = createSelector(
+  selectSellAmountBeforeFeesBaseUnitByAction,
+  (state: SwapperState) => state.sellAsset?.precision,
+  (sellAmountBeforeFeesBaseUnit, sellAssetPrecision) => {
+    if (!sellAssetPrecision) return undefined
+    return fromBaseUnit(sellAmountBeforeFeesBaseUnit, sellAssetPrecision)
+  },
+)
+
 export const selectBuyAmountBeforeFeesBaseUnit = createSelector(
   selectAction,
   selectAmount,
@@ -298,6 +307,15 @@ export const selectBuyAmountAfterFeesBaseUnit = createSelector(
   },
 )
 
+export const selectBuyAmountAfterFeesCryptoPrecision = createSelector(
+  selectBuyAmountAfterFeesBaseUnit,
+  (state: SwapperState) => state.buyAsset?.precision,
+  (buyAmountAfterFeesBaseUnit, buyAssetPrecision): string | undefined => {
+    if (!buyAssetPrecision || !buyAmountAfterFeesBaseUnit) return undefined
+    return fromBaseUnit(buyAmountAfterFeesBaseUnit, buyAssetPrecision)
+  },
+)
+
 export const selectBuyAmountAfterFeesFiat = createSelector(
   selectBuyAmountAfterFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
@@ -329,8 +347,8 @@ export const selectQuoteBuyAmountFiat = createSelector(
 )
 
 type SelectTradeAmountsByActionAndAmountReturn = {
-  buyAmountBuyAssetBaseUnit: string | undefined
-  sellAmountSellAssetBaseUnit: string | undefined
+  buyAmountBuyAssetCryptoPrecision: string | undefined
+  sellAmountSellAssetCryptoPrecision: string | undefined
   fiatBuyAmount: string | undefined
   fiatSellAmount: string | undefined
 }
@@ -343,8 +361,8 @@ export const selectTradeAmountsByActionAndAmount: Selector<
 > = createSelector(
   selectBuyAmountBeforeFeesFiat,
   selectSellAmountBeforeFeesFiat,
-  selectSellAmountBeforeFeesBaseUnitByAction,
-  selectBuyAmountBeforeFeesBaseUnit,
+  selectSellAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
   selectAmount,
   selectAction,
   selectSellAsset,
@@ -352,16 +370,16 @@ export const selectTradeAmountsByActionAndAmount: Selector<
   (
     buyAmountBeforeFeesFiat,
     sellAmountBeforeFeesFiat,
-    sellAmountBeforeFeesBaseUnit,
-    buyAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesCryptoPrecision,
+    buyAmountBeforeFeesBuyAssetCryptoPrecision,
     amount,
     action,
     sellAsset,
     buyAsset,
   ) => {
     const defaultReturn: SelectTradeAmountsByActionAndAmountReturn = {
-      sellAmountSellAssetBaseUnit: '0',
-      buyAmountBuyAssetBaseUnit: '0',
+      buyAmountBuyAssetCryptoPrecision: '0',
+      sellAmountSellAssetCryptoPrecision: '0',
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
     }
@@ -370,32 +388,32 @@ export const selectTradeAmountsByActionAndAmount: Selector<
       // TODO: the 0's should be undefined
       case TradeAmountInputField.SELL_CRYPTO: {
         return {
-          sellAmountSellAssetBaseUnit: toBaseUnit(amount, sellAsset.precision),
-          buyAmountBuyAssetBaseUnit: '0',
+          sellAmountSellAssetCryptoPrecision: amount,
+          buyAmountBuyAssetCryptoPrecision: '0',
           fiatSellAmount: sellAmountBeforeFeesFiat,
           fiatBuyAmount: '0',
         }
       }
       case TradeAmountInputField.SELL_FIAT: {
         return {
-          sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
-          buyAmountBuyAssetBaseUnit: '0',
+          sellAmountSellAssetCryptoPrecision: sellAmountBeforeFeesCryptoPrecision,
+          buyAmountBuyAssetCryptoPrecision: '0',
           fiatSellAmount: bnOrZero(amount).toFixed(),
           fiatBuyAmount: '0',
         }
       }
       case TradeAmountInputField.BUY_CRYPTO: {
         return {
-          sellAmountSellAssetBaseUnit: '0',
-          buyAmountBuyAssetBaseUnit: toBaseUnit(amount, buyAsset.precision),
+          sellAmountSellAssetCryptoPrecision: '0',
+          buyAmountBuyAssetCryptoPrecision: amount,
           fiatSellAmount: '0',
           fiatBuyAmount: buyAmountBeforeFeesFiat,
         }
       }
       case TradeAmountInputField.BUY_FIAT: {
         return {
-          sellAmountSellAssetBaseUnit: '0',
-          buyAmountBuyAssetBaseUnit: buyAmountBeforeFeesBaseUnit,
+          sellAmountSellAssetCryptoPrecision: '0',
+          buyAmountBuyAssetCryptoPrecision: buyAmountBeforeFeesBuyAssetCryptoPrecision,
           fiatSellAmount: '0',
           fiatBuyAmount: bnOrZero(amount).toFixed(),
         }
@@ -413,9 +431,9 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
   selectBuyAmountBeforeFeesFiat,
   selectSellAmountBeforeFeesFiat,
   selectBuyAmountAfterFeesFiat,
-  selectBuyAmountAfterFeesBaseUnit,
-  selectSellAmountBeforeFeesBaseUnitByAction,
-  selectBuyAmountBeforeFeesBaseUnit,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectSellAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
   selectAction,
   selectSellAsset,
   selectBuyAsset,
@@ -428,9 +446,9 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
     buyAmountBeforeFeesFiat,
     sellAmountBeforeFeesFiat,
     buyAmountAfterFeesFiat,
-    buyAmountAfterFeesBaseUnit,
-    sellAmountBeforeFeesBaseUnit,
-    buyAmountBeforeFeesBaseUnit,
+    buyAmountAfterFeesCryptoPrecision,
+    sellAmountBeforeFeesCryptoPrecision,
+    buyAmountBeforeFeesCryptoPrecision,
     action,
     sellAsset,
     buyAsset,
@@ -441,8 +459,8 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
     quoteBuyAmountFiat,
   ) => {
     const defaultReturn: SelectTradeAmountsByActionAndAmountReturn = {
-      sellAmountSellAssetBaseUnit: '0',
-      buyAmountBuyAssetBaseUnit: '0',
+      buyAmountBuyAssetCryptoPrecision: '0',
+      sellAmountSellAssetCryptoPrecision: '0',
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
     }
@@ -450,32 +468,44 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
     switch (action) {
       case TradeAmountInputField.SELL_CRYPTO: {
         return {
-          sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
-          buyAmountBuyAssetBaseUnit: quote?.buyAmountCryptoBaseUnit,
+          sellAmountSellAssetCryptoPrecision: amount,
+          buyAmountBuyAssetCryptoPrecision: fromBaseUnit(
+            quote?.buyAmountCryptoBaseUnit ?? '0',
+            buyAsset.precision,
+          ),
           fiatSellAmount: sellAmountBeforeFeesFiat,
           fiatBuyAmount: quoteBuyAmountFiat,
         }
       }
       case TradeAmountInputField.SELL_FIAT: {
         return {
-          sellAmountSellAssetBaseUnit: sellAmountBeforeFeesBaseUnit,
-          buyAmountBuyAssetBaseUnit: quote?.buyAmountCryptoBaseUnit,
+          sellAmountSellAssetCryptoPrecision: sellAmountBeforeFeesCryptoPrecision,
+          buyAmountBuyAssetCryptoPrecision: fromBaseUnit(
+            quote?.buyAmountCryptoBaseUnit ?? '0',
+            buyAsset.precision,
+          ),
           fiatSellAmount: sellAmountBeforeFeesFiat,
           fiatBuyAmount: quoteBuyAmountFiat,
         }
       }
       case TradeAmountInputField.BUY_CRYPTO: {
         return {
-          sellAmountSellAssetBaseUnit: quoteSellAmountPlusFeesBaseUnit,
-          buyAmountBuyAssetBaseUnit: buyAmountAfterFeesBaseUnit,
+          sellAmountSellAssetCryptoPrecision: fromBaseUnit(
+            quoteSellAmountPlusFeesBaseUnit ?? '0',
+            sellAsset.precision,
+          ),
+          buyAmountBuyAssetCryptoPrecision: buyAmountAfterFeesCryptoPrecision,
           fiatSellAmount: quoteSellAmountPlusFeesFiat,
           fiatBuyAmount: buyAmountBeforeFeesFiat,
         }
       }
       case TradeAmountInputField.BUY_FIAT: {
         return {
-          sellAmountSellAssetBaseUnit: quoteSellAmountPlusFeesBaseUnit,
-          buyAmountBuyAssetBaseUnit: buyAmountBeforeFeesBaseUnit,
+          sellAmountSellAssetCryptoPrecision: fromBaseUnit(
+            quoteSellAmountPlusFeesBaseUnit ?? '0',
+            sellAsset.precision,
+          ),
+          buyAmountBuyAssetCryptoPrecision: buyAmountBeforeFeesCryptoPrecision,
           fiatSellAmount: quoteSellAmountPlusFeesFiat,
           fiatBuyAmount: buyAmountAfterFeesFiat,
         }

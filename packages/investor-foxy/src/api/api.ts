@@ -246,9 +246,9 @@ export class FoxyApi {
     return bnOrZero(gasPrice)
   }
 
-  async getTxReceipt({ txid }: TxReceipt): Promise<TransactionReceipt> {
+  getTxReceipt({ txid }: TxReceipt): Promise<TransactionReceipt> {
     if (!txid) throw new Error('Must pass txid')
-    return await this.web3.eth.getTransactionReceipt(txid)
+    return this.web3.eth.getTransactionReceipt(txid)
   }
 
   async estimateClaimWithdrawGas(input: ClaimWithdrawal): Promise<BigNumber> {
@@ -562,38 +562,36 @@ export class FoxyApi {
       }
     })()
 
-    const epoch = await (async () => {
+    const epoch = await (() => {
       try {
-        return await stakingContract.methods.epoch().call()
+        return stakingContract.methods.epoch().call()
       } catch (err) {
         logger.error(err, 'failed to get epoch')
         return {}
       }
     })()
 
-    const requestedWithdrawals = await (async () => {
+    const requestedWithdrawals = await (() => {
       try {
-        return await tokePoolContract.methods
-          .requestedWithdrawals(stakingContract.options.address)
-          .call()
+        return tokePoolContract.methods.requestedWithdrawals(stakingContract.options.address).call()
       } catch (err) {
         logger.error(err, 'failed to get requestedWithdrawals')
         return {}
       }
     })()
 
-    const currentCycleIndex = await (async () => {
+    const currentCycleIndex = await (() => {
       try {
-        return await tokeManagerContract.methods.getCurrentCycleIndex().call()
+        return tokeManagerContract.methods.getCurrentCycleIndex().call()
       } catch (err) {
         logger.error(err, 'failed to get currentCycleIndex')
         return 0
       }
     })()
 
-    const withdrawalAmount = await (async () => {
+    const withdrawalAmount = await (() => {
       try {
-        return await stakingContract.methods.withdrawalAmount().call()
+        return stakingContract.methods.withdrawalAmount().call()
       } catch (err) {
         logger.error(err, 'failed to get currentCycleIndex')
         return 0
@@ -665,54 +663,54 @@ export class FoxyApi {
     const { stakingContract } = input
     const tokeManagerContract = new this.web3.eth.Contract(tokeManagerAbi, tokeManagerAddress)
 
-    const requestWithdrawalAmount = await (async () => {
+    const requestWithdrawalAmount = await (() => {
       try {
-        return await stakingContract.methods.requestWithdrawalAmount().call()
+        return stakingContract.methods.requestWithdrawalAmount().call()
       } catch (err) {
         logger.error(err, 'failed to get requestWithdrawalAmount')
         return 0
       }
     })()
 
-    const timeLeftToRequestWithdrawal = await (async () => {
+    const timeLeftToRequestWithdrawal = await (() => {
       try {
-        return await stakingContract.methods.timeLeftToRequestWithdrawal().call()
+        return stakingContract.methods.timeLeftToRequestWithdrawal().call()
       } catch (err) {
         logger.error(err, 'failed to get timeLeftToRequestWithdrawal')
         return 0
       }
     })()
 
-    const lastTokeCycleIndex = await (async () => {
+    const lastTokeCycleIndex = await (() => {
       try {
-        return await stakingContract.methods.lastTokeCycleIndex().call()
+        return stakingContract.methods.lastTokeCycleIndex().call()
       } catch (err) {
         logger.error(err, 'failed to get lastTokeCycleIndex')
         return 0
       }
     })()
 
-    const duration = await (async () => {
+    const duration = await (() => {
       try {
-        return await tokeManagerContract.methods.getCycleDuration().call()
+        return tokeManagerContract.methods.getCycleDuration().call()
       } catch (err) {
         logger.error(err, 'failed to get cycleDuration')
         return 0
       }
     })()
 
-    const currentCycleIndex = await (async () => {
+    const currentCycleIndex = await (() => {
       try {
-        return await tokeManagerContract.methods.getCurrentCycleIndex().call()
+        return tokeManagerContract.methods.getCurrentCycleIndex().call()
       } catch (err) {
         logger.error(err, 'failed to get currentCycleIndex')
         return 0
       }
     })()
 
-    const currentCycleStart = await (async () => {
+    const currentCycleStart = await (() => {
       try {
-        return await tokeManagerContract.methods.getCurrentCycle().call()
+        return tokeManagerContract.methods.getCurrentCycle().call()
       } catch (err) {
         logger.error(err, 'failed to get currentCycle')
         return 0
@@ -999,16 +997,16 @@ export class FoxyApi {
   async getClaimFromTokemakArgs(input: ContractAddressInput): Promise<GetTokeRewardAmount> {
     const { contractAddress } = input
     const rewardHashContract = new this.web3.eth.Contract(tokeRewardHashAbi, tokeRewardHashAddress)
-    const latestCycleIndex = await (async () => {
+    const latestCycleIndex = await (() => {
       try {
-        return await rewardHashContract.methods.latestCycleIndex().call()
+        return rewardHashContract.methods.latestCycleIndex().call()
       } catch (err) {
         throw new Error(`Failed to get latestCycleIndex, ${err}`)
       }
     })()
-    const cycleHashes = await (async () => {
+    const cycleHashes = await (() => {
       try {
-        return await rewardHashContract.methods.cycleHashes(latestCycleIndex).call()
+        return rewardHashContract.methods.cycleHashes(latestCycleIndex).call()
       } catch (err) {
         throw new Error(`Failed to get latestCycleIndex, ${err}`)
       }

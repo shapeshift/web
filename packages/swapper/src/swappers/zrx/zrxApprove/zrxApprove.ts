@@ -7,7 +7,7 @@ import type { ZrxSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
 import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
-const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
+const grantAllowanceForAmount = <T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<T>,
   approvalAmount: string,
@@ -25,7 +25,7 @@ const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
       },
     },
   }
-  return await grantAllowance<T>({
+  return grantAllowance<T>({
     quote: approvalQuote,
     wallet,
     adapter,
@@ -34,14 +34,14 @@ const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
   })
 }
 
-export async function zrxApproveAmount<T extends ZrxSupportedChainId>(
+export function zrxApproveAmount<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveAmountInput<T>,
 ) {
   try {
     // If no amount is specified we use the quotes sell amount
     const approvalAmount = args.amount ?? args.quote.sellAmountBeforeFeesCryptoBaseUnit
-    return await grantAllowanceForAmount(deps, args, approvalAmount)
+    return grantAllowanceForAmount(deps, args, approvalAmount)
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveAmount]', {
@@ -51,12 +51,12 @@ export async function zrxApproveAmount<T extends ZrxSupportedChainId>(
   }
 }
 
-export async function zrxApproveInfinite<T extends ZrxSupportedChainId>(
+export function zrxApproveInfinite<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveInfiniteInput<T>,
 ) {
   try {
-    return await grantAllowanceForAmount(deps, args, MAX_ALLOWANCE)
+    return grantAllowanceForAmount(deps, args, MAX_ALLOWANCE)
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxApproveInfinite]', {

@@ -20,7 +20,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
     this.assetId = args.assetId
   }
 
-  async parse(tx: T, address: string): Promise<ParsedTx> {
+  parse(tx: T, address: string): Promise<ParsedTx> {
     const parsedTx: ParsedTx = {
       address,
       blockHash: tx.blockHash,
@@ -73,6 +73,6 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       }
     })
 
-    return await Promise.resolve(parsedTx)
+    return Promise.resolve(parsedTx)
   }
 }

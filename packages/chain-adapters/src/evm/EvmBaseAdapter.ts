@@ -414,8 +414,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async broadcastTransaction(hex: string) {
-    return await this.providers.http.sendTx({ sendTxBody: { hex } })
+  broadcastTransaction(hex: string): Promise<string> {
+    return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {

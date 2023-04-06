@@ -66,32 +66,32 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
-    return await zrxBuildTrade<T>(this.deps, args)
+  buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
+    return zrxBuildTrade<T>(this.deps, args)
   }
 
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
-    return await getZrxTradeQuote<T>(input)
+  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+    return getZrxTradeQuote<T>(input)
   }
 
-  async getUsdRate(input: Asset): Promise<string> {
-    return await getUsdRate(input)
+  getUsdRate(input: Asset): Promise<string> {
+    return getUsdRate(input)
   }
 
-  async executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
-    return await zrxExecuteTrade<T>(this.deps, args)
+  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
+    return zrxExecuteTrade<T>(this.deps, args)
   }
 
-  async approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
-    return await zrxApprovalNeeded<T>(this.deps, args)
+  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
+    return zrxApprovalNeeded<T>(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
-    return await zrxApproveInfinite<T>(this.deps, args)
+  approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
+    return zrxApproveInfinite<T>(this.deps, args)
   }
 
-  async approveAmount(args: ApproveAmountInput<T>): Promise<string> {
-    return await zrxApproveAmount<T>(this.deps, args)
+  approveAmount(args: ApproveAmountInput<T>): Promise<string> {
+    return zrxApproveAmount<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -110,8 +110,8 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     )
   }
 
-  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    return await Promise.resolve({
+  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+    return Promise.resolve({
       sellTxid: tradeResult.tradeId,
       buyTxid: tradeResult.tradeId,
     })

@@ -327,9 +327,9 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     return { txToSign }
   }
 
-  async broadcastTransaction(hex: string): Promise<string> {
+  broadcastTransaction(hex: string): Promise<string> {
     try {
-      return await this.providers.http.sendTx({ body: { rawTx: hex } })
+      return this.providers.http.sendTx({ body: { rawTx: hex } })
     } catch (err) {
       return ErrorHandler(err)
     }

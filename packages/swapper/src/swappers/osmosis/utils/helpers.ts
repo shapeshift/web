@@ -39,8 +39,8 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
 }
 
 // TODO: leverage chain-adapters websockets
-export const pollForComplete = async (txid: string, baseUrl: string): Promise<string> => {
-  return await new Promise((resolve, reject) => {
+export const pollForComplete = (txid: string, baseUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
@@ -64,9 +64,9 @@ export const pollForComplete = async (txid: string, baseUrl: string): Promise<st
 }
 
 export const getAtomChannelBalance = async (address: string, osmoUrl: string) => {
-  const osmoResponseBalance = await (async () => {
+  const osmoResponseBalance = await (() => {
     try {
-      return await axios.get(`${osmoUrl}/bank/balances/${address}`)
+      return axios.get(`${osmoUrl}/bank/balances/${address}`)
     } catch (e) {
       throw new SwapError('failed to get balance', {
         code: SwapErrorType.RESPONSE_ERROR,
@@ -86,11 +86,8 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
   return toAtomChannelBalance
 }
 
-export const pollForAtomChannelBalance = async (
-  address: string,
-  osmoUrl: string,
-): Promise<string> => {
-  return await new Promise((resolve, reject) => {
+export const pollForAtomChannelBalance = (address: string, osmoUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
@@ -119,9 +116,9 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
 
   const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
 
-  const poolsResponse = await (async () => {
+  const poolsResponse = await (() => {
     try {
-      return await osmoService.get(poolsUrl)
+      return osmoService.get(poolsUrl)
     } catch (e) {
       throw new SwapError('failed to get pool', {
         code: SwapErrorType.POOL_NOT_FOUND,
@@ -213,9 +210,9 @@ export const performIbcTransfer = async (
 ): Promise<TradeResult> => {
   const { sender, receiver, amount } = input
 
-  const responseLatestBlock = await (async () => {
+  const responseLatestBlock = await (() => {
     try {
-      return await axios.get(`${blockBaseUrl}/blocks/latest`)
+      return axios.get(`${blockBaseUrl}/blocks/latest`)
     } catch (e) {
       throw new SwapError('failed to get latest block', {
         code: SwapErrorType.RESPONSE_ERROR,

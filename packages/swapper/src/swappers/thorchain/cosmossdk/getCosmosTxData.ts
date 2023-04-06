@@ -66,10 +66,10 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     limit,
   })
 
-  const builtTxResponse = await (async () => {
+  const builtTxResponse = await (() => {
     switch (true) {
       case fromThorAsset:
-        return await (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
+        return (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
           accountNumber,
           value: sellAmountCryptoBaseUnit,
           wallet,
@@ -86,7 +86,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
             fn: 'buildTrade',
             details: { chainId: input.chainId },
           })
-        return await (
+        return (
           sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
         ).buildSendTransaction({
           accountNumber,

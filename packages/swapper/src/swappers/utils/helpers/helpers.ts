@@ -45,15 +45,15 @@ type GrantAllowanceArgs<T extends EvmChainId> = {
   web3: Web3
 }
 
-export const getERC20Allowance = async ({
+export const getERC20Allowance = ({
   erc20AllowanceAbi,
   web3,
   sellAssetErc20Address,
   ownerAddress,
   spenderAddress,
-}: GetERC20AllowanceArgs) => {
+}: GetERC20AllowanceArgs): Promise<any> => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
-  return await erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
+  return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }
 
 export const isApprovalRequired = async ({

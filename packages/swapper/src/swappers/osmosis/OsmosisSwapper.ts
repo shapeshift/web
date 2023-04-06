@@ -119,20 +119,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async approvalNeeded(): Promise<ApprovalNeededOutput> {
-    return await Promise.resolve({ approvalNeeded: false })
+  approvalNeeded(): Promise<ApprovalNeededOutput> {
+    return Promise.resolve({ approvalNeeded: false })
   }
 
-  async approveInfinite(): Promise<string> {
-    return await Promise.reject(
+  approveInfinite(): Promise<string> {
+    return Promise.reject(
       new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
         code: SwapErrorType.RESPONSE_ERROR,
       }),
     )
   }
 
-  async approveAmount(): Promise<string> {
-    return await Promise.reject(
+  approveAmount(): Promise<string> {
+    return Promise.reject(
       new SwapError('Osmosis: approveAmount unimplemented', {
         code: SwapErrorType.RESPONSE_ERROR,
       }),

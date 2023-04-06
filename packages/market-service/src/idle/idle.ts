@@ -48,7 +48,7 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
       if (maybeOpportunities.length) return maybeOpportunities
 
       await this.idleInvestor.initialize()
-      return await this.idleInvestor.findAll()
+      return this.idleInvestor.findAll()
     })()
 
     const marketDataById: MarketCapResult = {}
@@ -82,10 +82,10 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     const opportunity = await (async () => {
       const maybeOpportunities = await this.idleInvestor.findAll()
-      if (maybeOpportunities.length) return await this.idleInvestor.findByOpportunityId(assetId)
+      if (maybeOpportunities.length) return this.idleInvestor.findByOpportunityId(assetId)
 
       await this.idleInvestor.initialize()
-      return await this.idleInvestor.findByOpportunityId(assetId)
+      return this.idleInvestor.findByOpportunityId(assetId)
     })()
 
     if (!opportunity) return null
@@ -106,7 +106,7 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
     }
   }
 
-  async findPriceHistoryByAssetId() {
-    return await Promise.resolve([])
+  findPriceHistoryByAssetId() {
+    return Promise.resolve([])
   }
 }

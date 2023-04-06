@@ -54,8 +54,8 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
     this.#opportunities = vaults.map(vault => new IdleOpportunity(this.#deps, vault))
   }
 
-  async findAll() {
-    return await Promise.resolve(this.#opportunities)
+  findAll() {
+    return Promise.resolve(this.#opportunities)
   }
 
   async findByOpportunityId(opportunityId: string) {

@@ -63,7 +63,6 @@ describe('foxy market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(foxyMarketService.findByAssetId(args)).rejects.toEqual(
         new Error('FoxyMarketService(findByAssetId): error fetching market data'),
       )
@@ -98,7 +97,6 @@ describe('foxy market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(foxyMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history'),
       )

@@ -112,8 +112,8 @@ export class YearnTokenMarketCapService implements MarketService {
     }
   }
 
-  async findPriceHistoryByAssetId(): Promise<HistoryData[]> {
+  findPriceHistoryByAssetId(): Promise<HistoryData[]> {
     // TODO: figure out a way to get zapper and underlying token historical data.
-    return await Promise.resolve([])
+    return Promise.resolve([])
   }
 }

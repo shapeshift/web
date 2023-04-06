@@ -419,12 +419,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     const txs = await Promise.all(
-      (data.txs ?? []).map(async tx => {
+      (data.txs ?? []).map(tx => {
         const addresses = getAddresses(tx).filter(addr =>
           this.accountAddresses[input.pubkey].includes(addr),
         )
 
-        return await Promise.all(
+        return Promise.all(
           addresses.map(async addr => {
             const parsedTx = await this.parser.parse(tx, addr)
 
@@ -460,8 +460,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async broadcastTransaction(hex: string): Promise<string> {
-    return await this.providers.http.sendTx({ sendTxBody: { hex } })
+  broadcastTransaction(hex: string): Promise<string> {
+    return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
 
   async subscribeTxs(

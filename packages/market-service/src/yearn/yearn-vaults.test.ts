@@ -106,7 +106,6 @@ describe('yearn market service', () => {
 
     it('should return null on network error', async () => {
       mockedYearnSdk.vaults.get.mockRejectedValueOnce(Error as never)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(yearnVaultMarketCapService.findByAssetId(args)).rejects.toEqual(
         new Error('YearnMarketService(findByAssetId): error fetching market data'),
       )
@@ -132,7 +131,6 @@ describe('yearn market service', () => {
 
     it('should return null on network error', async () => {
       mockedYearnSdk.services.subgraph.fetchQuery.mockRejectedValueOnce(Error as never)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(yearnVaultMarketCapService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('YearnMarketService(getPriceHistory): error fetching price history'),
       )

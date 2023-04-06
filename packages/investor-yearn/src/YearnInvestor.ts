@@ -51,8 +51,8 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
     )
   }
 
-  async findAll() {
-    return await Promise.resolve(this.#opportunities)
+  findAll() {
+    return Promise.resolve(this.#opportunities)
   }
 
   async findByOpportunityId(opportunityId: string) {

@@ -48,38 +48,34 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return SwapperType.CowSwap
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
-    return await cowBuildTrade(this.deps, args)
+  buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+    return cowBuildTrade(this.deps, args)
   }
 
-  async getTradeQuote(
-    input: GetTradeQuoteInput,
-  ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
-    return await getCowSwapTradeQuote(this.deps, input)
+  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+    return getCowSwapTradeQuote(this.deps, input)
   }
 
-  async getUsdRate(input: Asset): Promise<string> {
-    return await getUsdRate(this.deps, input)
+  getUsdRate(input: Asset): Promise<string> {
+    return getUsdRate(this.deps, input)
   }
 
-  async executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
-    return await cowExecuteTrade(this.deps, args)
+  executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
+    return cowExecuteTrade(this.deps, args)
   }
 
-  async approvalNeeded(
+  approvalNeeded(
     args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
   ): Promise<ApprovalNeededOutput> {
-    return await cowApprovalNeeded(this.deps, args)
+    return cowApprovalNeeded(this.deps, args)
   }
 
-  async approveInfinite(
-    args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<string> {
-    return await cowApproveInfinite(this.deps, args)
+  approveInfinite(args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>): Promise<string> {
+    return cowApproveInfinite(this.deps, args)
   }
 
-  async approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
-    return await cowApproveAmount(this.deps, args)
+  approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
+    return cowApproveAmount(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -109,8 +105,8 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     })
   }
 
-  async getTradeTxs(args: TradeResult): Promise<TradeTxs> {
-    return await cowGetTradeTxs(this.deps, args)
+  getTradeTxs(args: TradeResult): Promise<TradeTxs> {
+    return cowGetTradeTxs(this.deps, args)
   }
 }
 

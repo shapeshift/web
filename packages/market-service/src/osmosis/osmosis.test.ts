@@ -132,7 +132,6 @@ describe('osmosis market service', () => {
         timeframe: HistoryTimeframe.YEAR,
       }
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(osmosisMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('MarketService(findPriceHistoryByAssetId): error fetching price history'),
       )

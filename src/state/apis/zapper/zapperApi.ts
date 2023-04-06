@@ -71,7 +71,7 @@ export const zapperApi = createApi({
             appSlug: ZapperAppId.UniswapV2,
           },
           headers,
-          // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
+          // Encode query params with arrayFormat: 'repeat' because zapper api expects it
           paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
           queries: {
             groupId: ZapperGroupId.Pool,
@@ -130,7 +130,7 @@ export const zapperApi = createApi({
           while (true) {
             try {
               const res = await zapperClient.getV2NftUserTokens({
-                // Encode query params with arrayFormat: 'repeat' because zapper api derpexcts it
+                // Encode query params with arrayFormat: 'repeat' because zapper api expects it
                 paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
                 headers,
                 queries: { userAddress, limit: limit.toString() },

@@ -1,9 +1,10 @@
-import { Button, Flex, List, ListItem, SimpleGrid, Tag } from '@chakra-ui/react'
+import { Button, Flex, List, ListItem, Tag, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useTranslate } from 'react-polyglot'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
@@ -20,22 +21,46 @@ type RewardRowProps = {
   assetId: AssetId
   balances: UnderlyingAssetIdsBalances
   isClaimableRewards: boolean
+  onClick: () => void
 }
 
-const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRewards }) => {
+const RewardRow: React.FC<RewardRowProps> = ({
+  assetId,
+  balances,
+  isClaimableRewards,
+  onClick,
+}) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const subText = [<Text translation='common.reward' />]
+  if (isClaimableRewards) subText.push(<Text color='green.200' translation='common.claimable' />)
+  const subTextJoined = subText.map((element, index) => (
+    <>
+      {index > 0 && <RawText>•</RawText>}
+      {element}
+    </>
+  ))
   if (!asset) return null
   return (
     <ListItem
       display='grid'
-      pl='3rem'
+      pl={{ base: 0, md: '3rem' }}
       position='relative'
       _before={{
         content: '""',
         position: 'absolute',
-        top: 0,
-        bottom: 0,
+        top: {
+          base: 'auto',
+          md: 0,
+        },
+        bottom: {
+          base: '2rem',
+          md: 0,
+        },
+        height: {
+          base: '3.5rem',
+          md: 'auto',
+        },
         left: 'calc(2rem - 1px)',
         display: 'block',
         width: 0,
@@ -44,8 +69,14 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
       }}
       _last={{
         ':before': {
-          height: '1.5rem',
-          bottom: 'auto',
+          height: {
+            base: '3.5rem',
+            md: '1.5rem',
+          },
+          bottom: {
+            base: '2rem',
+            md: 'auto',
+          },
         },
         '.reward-asset:after': {
           borderBottomLeftRadius: '8px',
@@ -57,21 +88,34 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
         height='auto'
         py={4}
         display='grid'
-        gridTemplateColumns='1fr repeat(3, 170px)'
+        gridTemplateColumns={{
+          base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
+          md: '1fr repeat(2, 170px)',
+        }}
         columnGap={4}
         alignItems='center'
         textAlign='left'
+        isDisabled={!isClaimableRewards}
+        _disabled={{ opacity: 1, cursor: 'default' }}
+        onClick={onClick}
       >
         <AssetCell
           className='reward-asset'
           assetId={assetId}
-          subText={isClaimableRewards ? 'Reward • Claimable' : 'Reward • Accrued'}
+          subText={
+            <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+              {subTextJoined}
+            </Flex>
+          }
           position='relative'
           _after={{
             content: '""',
             position: 'absolute',
             left: 'calc(-1 * 2rem - 1px)',
-            display: 'block',
+            display: {
+              base: 'none',
+              md: 'block',
+            },
             height: '50%',
             marginTop: '-1em',
             width: '1em',
@@ -80,15 +124,6 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
             borderColor: 'gray.700',
           }}
         />
-
-        <Flex>
-          {isClaimableRewards && (
-            <Tag colorScheme='green' size='sm'>
-              Claimable
-            </Tag>
-          )}
-        </Flex>
-
         <Amount.Crypto
           value={balances.cryptoBalancePrecision}
           symbol={asset.symbol}
@@ -98,37 +133,42 @@ const RewardRow: React.FC<RewardRowProps> = ({ assetId, balances, isClaimableRew
           display={{ base: 'none', md: 'block ' }}
           whiteSpace='break-spaces'
         />
-        <Flex flexDir='column'>
+        <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
           <Amount.Fiat
             color='chakra-body-text'
             fontSize='sm'
             fontWeight='medium'
             value={balances.fiatAmount}
+            height='20px'
+            lineHeight='shorter'
           />
           <Amount.Percent
             value={bnOrZero(marketData.changePercent24Hr).div(100).toString()}
             autoColor
+            size='xs'
             fontSize='xs'
+            lineHeight='shorter'
           />
         </Flex>
       </Button>
     </ListItem>
   )
 }
-
-export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
+type StakingOpporityProps = {
+  onClick: (opportunity: StakingEarnOpportunityType, action: DefiAction) => void
+} & StakingEarnOpportunityType
+export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...opportunity }) => {
   const {
     underlyingAssetId,
     fiatAmount,
     stakedAmountCryptoBaseUnit,
-    version,
-    opportunityName,
-    type,
     rewardAssetIds,
     rewardsCryptoBaseUnit,
     isClaimableRewards,
-  } = props
-  const translate = useTranslate()
+    type,
+    apy,
+  } = opportunity
+  const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
@@ -138,41 +178,55 @@ export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
     assets,
     marketData,
   })
+  const handleClick = useCallback(
+    (action: DefiAction) => {
+      onClick(opportunity, action)
+    },
+    [onClick, opportunity],
+  )
+  const subText = [<Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />]
+  if (bnOrZero(stakedAmountCryptoBaseUnit).gt(0))
+    subText.push(<RawText textTransform='capitalize'>{type}</RawText>)
+  const subTextJoined = subText.map((element, index) => (
+    <>
+      {index > 0 && <RawText>•</RawText>}
+      {element}
+    </>
+  ))
   if (!asset) return null
   return (
-    <Flex flexDir='column' gap={4}>
-      <SimpleGrid
-        gridTemplateColumns='1fr repeat(2, 170px)'
-        color='gray.500'
-        textTransform='uppercase'
-        fontSize='xs'
-        letterSpacing='0.02em'
-        fontWeight='bold'
-        borderBottomWidth={1}
-        borderColor='gray.750'
-        columnGap={4}
-        pb={2}
-        px={4}
-      >
-        <RawText>
-          {version ?? opportunityName} {type}
-        </RawText>
-        <RawText>{translate('common.balance')}</RawText>
-        <RawText>{translate('common.value')}</RawText>
-      </SimpleGrid>
-      <List ml={0} mt={0} spacing={4}>
+    <Flex
+      flexDir='column'
+      gap={4}
+      borderBottomWidth={1}
+      borderColor={borderColor}
+      _last={{ borderBottomWidth: 0 }}
+    >
+      <List ml={0} mt={0} spacing={4} position='relative'>
         <Button
           variant='ghost'
           py={4}
           width='full'
           height='auto'
           display='grid'
-          gridTemplateColumns='1fr repeat(2, 170px)'
+          gridTemplateColumns={{
+            base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
+            md: '1fr repeat(2, 170px)',
+          }}
           columnGap={4}
           alignItems='center'
           textAlign='left'
+          onClick={() => handleClick(DefiAction.Overview)}
         >
-          <AssetCell assetId={underlyingAssetId} subText='Deposit' justifyContent='flex-start' />
+          <AssetCell
+            assetId={underlyingAssetId}
+            subText={
+              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+                {subTextJoined}
+              </Flex>
+            }
+            justifyContent='flex-start'
+          />
           <Amount.Crypto
             value={bnOrZero(stakedAmountCryptoBaseUnit)
               .div(bn(10).pow(asset.precision))
@@ -185,22 +239,34 @@ export const StakingOppority: React.FC<StakingEarnOpportunityType> = props => {
             color='chakra-body-text'
             display={{ base: 'none', md: 'block ' }}
           />
-          <Amount.Fiat
-            color='chakra-body-text'
-            fontSize='sm'
-            fontWeight='medium'
-            value={fiatAmount}
-          />
+          <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
+            <Amount.Fiat
+              color='chakra-body-text'
+              fontSize='sm'
+              fontWeight='medium'
+              value={fiatAmount}
+              height='20px'
+              lineHeight='shorter'
+            />
+            <Amount.Percent
+              value={bnOrZero(marketData[asset.assetId]?.changePercent24Hr).div(100).toString()}
+              autoColor
+              fontSize='xs'
+              lineHeight='shorter'
+            />
+          </Flex>
         </Button>
         {rewardAssetIds && (
           <List style={{ marginTop: 0 }}>
             {rewardAssetIds.map(rewardAssetId => {
               if (!rewardBalances[rewardAssetId]) return null
+              if (bnOrZero(rewardBalances[rewardAssetId].cryptoBalancePrecision).eq(0)) return null
               return (
                 <RewardRow
                   isClaimableRewards={isClaimableRewards}
                   assetId={rewardAssetId}
                   balances={rewardBalances[rewardAssetId]}
+                  onClick={() => handleClick(DefiAction.Claim)}
                 />
               )
             })}

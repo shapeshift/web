@@ -13,9 +13,9 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
-import { useState } from 'react'
+import { isValidElement, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { AssetIcon } from 'components/AssetIcon'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,7 +24,7 @@ import { AssetTeaser } from './AssetTeaser'
 
 type AssetCellProps = {
   assetId: AssetId
-  subText?: string
+  subText?: string | JSX.Element
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
@@ -87,7 +87,7 @@ export const AssetCell = ({
           {icons ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='sm' />
+            <LazyLoadAvatar src={asset.icon} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
@@ -116,16 +116,18 @@ export const AssetCell = ({
                   display='block'
                   maxWidth='100%'
                   color={linkColor}
+                  fontSize={{ base: 'sm', md: 'md' }}
                 >
                   {rowTitle}
                 </RawText>
               </Box>
             </HStack>
-            {subText && (
+            {typeof subText === 'string' && (
               <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
                 {subText}
               </RawText>
             )}
+            {isValidElement(subText) && subText}
             {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>

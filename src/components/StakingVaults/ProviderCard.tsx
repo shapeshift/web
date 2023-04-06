@@ -1,4 +1,4 @@
-import { Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
+import { Flex, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
@@ -25,18 +25,42 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toString()
   const isLoaded = !isLoading
   return (
-    <Card>
-      <Card.Header display='flex' gap={4} alignItems='center' fontSize='xl' fontWeight='bold'>
-        <SkeletonCircle isLoaded={isLoaded}>
-          <LazyLoadAvatar src={icon} size='sm' />
-        </SkeletonCircle>
-        <RawText textTransform='capitalize'>{provider}</RawText>
-        <Amount.Fiat value={netProviderFiatAmount} />
-        <Tag colorScheme='green'>
-          <Amount.Percent value={apy} /> Net APY
-        </Tag>
+    <Card variant='default'>
+      <Card.Header
+        display='flex'
+        flexDir={{ base: 'column', md: 'row' }}
+        gap={4}
+        alignItems={{ base: 'flex-start', md: 'center' }}
+        fontSize={{ base: 'md', md: 'xl' }}
+        fontWeight='bold'
+      >
+        <Flex
+          width='full'
+          gap={{ base: 2, md: 4 }}
+          alignItems='center'
+          justifyContent='space-between'
+        >
+          <SkeletonCircle isLoaded={isLoaded}>
+            <LazyLoadAvatar src={icon} size='sm' />
+          </SkeletonCircle>
+          <RawText textTransform='capitalize'>{provider}</RawText>
+          <Amount.Fiat
+            fontSize='lg'
+            value={netProviderFiatAmount}
+            display={{ base: 'none', md: 'block' }}
+          />
+          <Tag colorScheme='green' ml='auto'>
+            <Amount.Percent value={apy} suffix='Net APY' />
+          </Tag>
+        </Flex>
+
+        <Amount.Fiat
+          fontSize='lg'
+          value={netProviderFiatAmount}
+          display={{ base: 'block', md: 'none' }}
+        />
       </Card.Header>
-      <Card.Body px={2} pb={2}>
+      <Card.Body px={0} pb={2}>
         <WalletStakingByAsset ids={staking} />
         <WalletLpByAsset ids={lp} />
       </Card.Body>

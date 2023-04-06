@@ -27,6 +27,8 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import Placeholder from 'assets/placeholder.png'
+import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
@@ -80,6 +82,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
 
   const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
+  const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const name = zapperNft?.name
   const nftId = zapperNft?.tokenId
@@ -147,8 +150,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
                 </Button>
               )}
             </Flex>
-            {mediaType === 'image' ? (
-              <Image src={mediaUrl} onLoad={() => setIsMediaLoaded(true)} {...mediaBoxProps} />
+            {!mediaUrl || mediaType === 'image' ? (
+              <Image
+                src={mediaUrl ?? placeholderImage}
+                onLoad={() => setIsMediaLoaded(true)}
+                {...mediaBoxProps}
+              />
             ) : (
               <Box
                 as='video'

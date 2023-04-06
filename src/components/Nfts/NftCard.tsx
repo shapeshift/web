@@ -52,7 +52,6 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
     mixpanel?.track(MixPanelEvents.ClickNft, eventData)
   }, [nft, zapperNft])
 
-  // should take the JSX props below and make them an object instead
   const mediaBoxProps = useMemo(
     () =>
       ({

@@ -1,5 +1,6 @@
 import './wdyr'
 import 'lib/polyfills'
+import 'assets/fonts/Inter/inter.css'
 
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'

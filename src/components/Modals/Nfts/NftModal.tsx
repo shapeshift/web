@@ -61,7 +61,7 @@ export type NftModalProps = {
 
 export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const { nft } = useModal()
-  const { close, isOpen } = nft
+  const { close: handleClose, isOpen } = nft
   const translate = useTranslate()
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
@@ -264,7 +264,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   }, [nftModalOverview, nftModalDetails])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd}>
+    <Modal isOpen={isOpen} onClose={handleClose} isCentered={isLargerThanMd}>
       <ModalOverlay />
       <ModalContent
         maxWidth='container.lg'

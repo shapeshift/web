@@ -1,7 +1,6 @@
 import { Collapse, Flex } from '@chakra-ui/react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectSellAmountBeforeFeesBuyAssetBaseUnit } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
@@ -35,17 +34,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     ? bnOrZero(bestBuyAmountCryptoPrecision).minus(bestBuyAssetTradeFeeCryptoPrecision).toString()
     : undefined
 
-  const sellAmountBeforeFeesBuyAssetBaseUnit = useSwapperStore(
-    selectSellAmountBeforeFeesBuyAssetBaseUnit,
-  )
-
   const quotes = availableSwappersWithMetadata
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
-        const buyAmountBeforeFeesCryptoPrecision =
-          sellAmountBeforeFeesBuyAssetBaseUnit && buyAsset
-            ? fromBaseUnit(sellAmountBeforeFeesBuyAssetBaseUnit, buyAsset.precision)
-            : undefined
+        const buyAmountBeforeFeesCryptoPrecision = buyAsset
+          ? fromBaseUnit(quote.buyAmountCryptoBaseUnit, buyAsset.precision)
+          : undefined
 
         const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate
           ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)

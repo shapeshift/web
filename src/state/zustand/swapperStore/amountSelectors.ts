@@ -432,18 +432,19 @@ export const selectQuoteBuyAmountAfterFeesBaseUnit = createSelector(
     buyAssetTradeFeeBuyAssetBaseUnit,
     sellAssetTradeFeeBuyAssetBaseUnit,
     quoteBuyAmountCryptoPrecision,
-    buyAmountCryptoBaseUnit,
+    buyAssetPrecision,
   ): string | undefined => {
     if (
       !buyAssetTradeFeeBuyAssetBaseUnit ||
       !sellAssetTradeFeeBuyAssetBaseUnit ||
       !quoteBuyAmountCryptoPrecision ||
-      !buyAmountCryptoBaseUnit
+      !buyAssetPrecision
     )
       return undefined
+
     const quoteBuyAmountCryptoBaseUnit = toBaseUnit(
       quoteBuyAmountCryptoPrecision,
-      buyAmountCryptoBaseUnit,
+      buyAssetPrecision,
     )
     return bnOrZero(quoteBuyAmountCryptoBaseUnit)
       .minus(buyAssetTradeFeeBuyAssetBaseUnit)
@@ -458,6 +459,15 @@ export const selectQuoteBuyAmountAfterFeesCryptoPrecision = createSelector(
   (quoteBuyAmountAfterFeesBaseUnit, buyAssetPrecision): string | undefined => {
     if (!quoteBuyAmountAfterFeesBaseUnit || !buyAssetPrecision) return undefined
     return fromBaseUnit(quoteBuyAmountAfterFeesBaseUnit, buyAssetPrecision)
+  },
+)
+
+export const selectQuoteBuyAmountAfterFeesFiat = createSelector(
+  selectQuoteBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAssetFiatRate,
+  (quoteBuyAmountAfterFeesCryptoPrecision, buyAssetFiatRate): string | undefined => {
+    if (!quoteBuyAmountAfterFeesCryptoPrecision || !buyAssetFiatRate) return undefined
+    return bnOrZero(quoteBuyAmountAfterFeesCryptoPrecision).times(buyAssetFiatRate).toFixed()
   },
 )
 
@@ -477,8 +487,8 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
   selectAmount,
   selectQuoteSellAmountPlusFeesBaseUnit,
   selectQuoteSellAmountPlusFeesFiat,
-  selectQuoteBuyAmountFiat,
   selectQuoteBuyAmountAfterFeesCryptoPrecision,
+  selectQuoteBuyAmountAfterFeesFiat,
   (
     buyAmountBeforeFeesFiat,
     sellAmountBeforeFeesFiat,
@@ -492,8 +502,8 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
     amount,
     quoteSellAmountPlusFeesBaseUnit,
     quoteSellAmountPlusFeesFiat,
-    quoteBuyAmountFiat,
     quoteBuyAmountAfterFeesCryptoPrecision,
+    quoteBuyAmountAfterFeesFiat,
   ) => {
     const defaultReturn: SelectTradeAmountsByActionAndAmountReturn = {
       buyAmountBuyAssetCryptoPrecision: '0',
@@ -508,15 +518,15 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
           sellAmountSellAssetCryptoPrecision: amount,
           buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecision,
           fiatSellAmount: sellAmountBeforeFeesFiat,
-          fiatBuyAmount: quoteBuyAmountFiat,
+          fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }
       }
       case TradeAmountInputField.SELL_FIAT: {
         return {
           sellAmountSellAssetCryptoPrecision: sellAmountBeforeFeesCryptoPrecision,
           buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecision,
-          fiatSellAmount: sellAmountBeforeFeesFiat,
-          fiatBuyAmount: quoteBuyAmountFiat,
+          fiatSellAmount: amount,
+          fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }
       }
       case TradeAmountInputField.BUY_CRYPTO: {

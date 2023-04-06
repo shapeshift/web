@@ -1,13 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "noEmit": false,
     "module": "commonjs",
-    "paths": {
-      "@shapeshiftoss/*": ["packages/$1/src/*"]
-    },
   },
-  "include": ["packages"],
-  "exclude": ["src", "dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
+  "include": [],
+  "exclude": [],
   "references": [
     { "path": "./packages/asset-service" },
     { "path": "./packages/caip" },

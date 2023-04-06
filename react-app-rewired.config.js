@@ -6,9 +6,6 @@ tsNode.register({
   compilerOptions: {
     module: 'CommonJS',
   },
-  watchOptions: {
-    excludeDirectories: ["packages"]
-  }
 })
 
 module.exports = require('./react-app-rewired').default

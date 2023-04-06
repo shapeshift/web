@@ -344,6 +344,7 @@ const reactAppRewireConfig = {
     return (...args) => {
       const config = configFunction(...args)
       config.headers = headers
+      config.watchFiles = ['src/**/*', 'node_modules']
       return config
     }
   },

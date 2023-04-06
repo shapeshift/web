@@ -36,11 +36,11 @@ const zapperClient = createApiClient(ZAPPER_BASE_URL)
 
 type GetAppBalancesOutput = AssetId[]
 
-type GetZapperNftUserTokens = {
+type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
 }
 
-type GetZapperCollections = {
+type GetZapperCollectionsInput = {
   accountIds: AccountId[]
   collectionAddresses: string[]
 }
@@ -114,7 +114,7 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokens>({
+    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 
@@ -147,7 +147,7 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollections>({
+    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionAddresses }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const { items: data } = await zapperClient.getV2NftBalancesCollections({

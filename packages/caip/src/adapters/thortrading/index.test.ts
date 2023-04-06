@@ -26,9 +26,6 @@ describe('thortrading', () => {
     })
 
     it('returns undefined for an asset that uses asset abbreviations', () => {
-      // Ignore console.error for test
-      jest.spyOn(console, 'error').mockReturnValue(undefined)
-
       const result = poolAssetIdToAssetId('ETH.USDT-ec7')
       expect(result).toEqual(undefined)
     })

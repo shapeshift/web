@@ -3,7 +3,8 @@ module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: ['/node_modules/', '.d.ts', '.js', '__mocks__', 'mockData'],
   clearMocks: true,
-  collectCoverage: true,
+  //collectCoverage: true,
+  setupFiles: ['<rootDir>/.jest/setup.js'],
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: ['/node_modules/', 'dist', '__mocks__', 'mockData'],
   moduleNameMapper: {

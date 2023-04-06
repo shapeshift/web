@@ -56,10 +56,7 @@ import type {
 
 export * from './foxy-types'
 
-const logger = new Logger({
-  namespace: ['investor-foxy', 'api'],
-  level: process.env.LOG_LEVEL,
-})
+const logger = new Logger({ namespace: ['investor-foxy', 'api'] })
 
 type EthereumChainReference =
   | typeof CHAIN_REFERENCE.EthereumMainnet

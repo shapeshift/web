@@ -5825,7 +5825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/asset-service@^8.12.0, @shapeshiftoss/asset-service@workspace:packages/asset-service":
+"@shapeshiftoss/asset-service@workspace:^, @shapeshiftoss/asset-service@workspace:packages/asset-service":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/asset-service@workspace:packages/asset-service"
   dependencies:
@@ -6224,27 +6224,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/market-service@npm:^7.8.0":
-  version: 7.8.0
-  resolution: "@shapeshiftoss/market-service@npm:7.8.0"
+"@shapeshiftoss/market-service@workspace:^, @shapeshiftoss/market-service@workspace:packages/market-service":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/market-service@workspace:packages/market-service"
   dependencies:
     "@ethersproject/providers": ^5.5.3
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/investor-foxy": "workspace:^"
+    "@shapeshiftoss/investor-idle": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^"
     "@yfi/sdk": ^1.2.0
-    axios: ^0.26.1
     axios-rate-limit: ^1.3.0
-    bignumber.js: ^9.1.1
-    dayjs: ^1.10.6
+    limiter: ^2.1.0
     p-ratelimit: ^1.0.1
-  peerDependencies:
-    "@shapeshiftoss/caip": ^8.0.0
-    "@shapeshiftoss/chain-adapters": ^11.0.0
-    "@shapeshiftoss/investor-foxy": ^8.0.0
-    "@shapeshiftoss/investor-idle": ^2.3.2
-    "@shapeshiftoss/types": ^8.1.0
-    "@shapeshiftoss/unchained-client": ^10.0.1
-  checksum: dd6fe83bba31fcdae23198fc7a25ae68ff278c1b006acfb5e33770d9569b0854d19ba4f239a7cb9b32a279da9c766be7dab40566c13a7b413ce65d29b57caffd
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/proto-tx-builder@npm:^0.7.0":
   version: 0.7.0
@@ -6263,26 +6259,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/swapper@npm:^17.6.2":
-  version: 17.6.2
-  resolution: "@shapeshiftoss/swapper@npm:17.6.2"
+"@shapeshiftoss/swapper@workspace:^, @shapeshiftoss/swapper@workspace:packages/swapper":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
-    axios: ^0.26.1
+    "@shapeshiftoss/asset-service": "workspace:^"
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/errors": "workspace:^"
+    "@shapeshiftoss/logger": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    "@types/readline-sync": ^1.4.4
     axios-cache-adapter: ^2.7.3
-    bignumber.js: ^9.1.1
-    lodash: ^4.17.21
+    readline-sync: ^1.4.10
     retry-axios: ^2.6.0
-    web3: 1.7.4
-  peerDependencies:
-    "@shapeshiftoss/asset-service": ^8.0.1
-    "@shapeshiftoss/caip": ^8.0.0
-    "@shapeshiftoss/chain-adapters": ^11.0.0
-    "@shapeshiftoss/errors": ^1.1.2
-    "@shapeshiftoss/hdwallet-core": ^1.46.0
-    "@shapeshiftoss/types": ^8.1.0
-  checksum: 126f0dea7529276de811e78b5f8512791ed8a94d63f1d7d6973a4cbc61b4bc23881e9ee87e5003028d93292c5a0a85497591932a0347fda5b966249724c2d880
-  languageName: node
-  linkType: hard
+    web3-utils: 1.7.4
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/types@npm:3.1.3":
   version: 3.1.3
@@ -6338,7 +6331,7 @@ __metadata:
     "@peculiar/webcrypto": ^1.3.3
     "@react-spring/web": ^9.5.2
     "@reduxjs/toolkit": ^1.9.3
-    "@shapeshiftoss/asset-service": ^8.12.0
+    "@shapeshiftoss/asset-service": "workspace:^"
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
@@ -6358,8 +6351,8 @@ __metadata:
     "@shapeshiftoss/investor-idle": "workspace:^"
     "@shapeshiftoss/investor-yearn": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/market-service": ^7.8.0
-    "@shapeshiftoss/swapper": ^17.6.2
+    "@shapeshiftoss/market-service": "workspace:^"
+    "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@testing-library/jest-dom": ^5.16.4
@@ -13589,7 +13582,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.10.4, dayjs@npm:^1.10.6, dayjs@npm:^1.11.3, dayjs@npm:^1.11.5":
+"dayjs@npm:^1.10.4, dayjs@npm:^1.11.3, dayjs@npm:^1.11.5":
   version: 1.11.7
   resolution: "dayjs@npm:1.11.7"
   checksum: 5003a7c1dd9ed51385beb658231c3548700b82d3548c0cfbe549d85f2d08e90e972510282b7506941452c58d32136d6362f009c77ca55381a09c704e9f177ebb
@@ -19700,6 +19693,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"just-performance@npm:4.3.0":
+  version: 4.3.0
+  resolution: "just-performance@npm:4.3.0"
+  checksum: 37e226e308689b27ad7e0cdb2b2181c8be85f28cb0026db4b68c189f4894828a2865ea4a7a5f3488f4e3390bac1f9428fc6e40a554c068b08e5992e26920e376
+  languageName: node
+  linkType: hard
+
 "keccak@npm:^1.0.2, keccak@npm:^1.3.0":
   version: 1.4.0
   resolution: "keccak@npm:1.4.0"
@@ -20022,6 +20022,15 @@ __metadata:
   version: 2.0.4
   resolution: "lilconfig@npm:2.0.4"
   checksum: 02ae530aa49218d782eb79e92c600ea5220828987f85aa3403fa512cadc7efe38c0ac7d0cd2edf600ad3fae1f6c1752f5b4bb78c0d9950435b044d53d507c9e1
+  languageName: node
+  linkType: hard
+
+"limiter@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "limiter@npm:2.1.0"
+  dependencies:
+    just-performance: 4.3.0
+  checksum: 989092bfdafeefb37bd139f6451f165d449a628cd6fbe9308ed5147a9af24631f031e16466a3e48283418e0bea45c06aa1710f8f8945bc56ea7ef01f94ed5c65
   languageName: node
   linkType: hard
 

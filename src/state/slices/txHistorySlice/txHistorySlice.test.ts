@@ -12,12 +12,6 @@ import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
 
 describe('txHistorySlice', () => {
-  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
-  beforeAll(() => {
-    jest.resetModules()
-  })
-  afterAll(() => consoleInfoSpy.mockRestore())
-
   it('returns empty object for initialState', () => {
     expect(store.getState().txHistory).toEqual({
       txs: {

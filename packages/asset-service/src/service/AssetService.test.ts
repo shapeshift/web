@@ -21,49 +21,41 @@ const EthAsset: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-jest.mock(
-  './descriptions',
-  () => ({
-    descriptions: {
-      en: {
-        'eip155:1/slip44:60': 'overridden en description',
-      },
-      es: {
-        'eip155:1/slip44:60': 'overridden es description',
-      },
-      fr: {
-        'eip155:1/slip44:60': 'overridden fr description',
-      },
-      id: {
-        'eip155:1/slip44:60': 'overridden id description',
-      },
-      ko: {
-        'eip155:1/slip44:60': 'overridden ko description',
-      },
-      pt: {
-        'eip155:1/slip44:60': 'overridden pt description',
-      },
-      ru: {
-        'eip155:1/slip44:60': 'overridden ru description',
-      },
-      zh: {
-        'eip155:1/slip44:60': 'overridden zh description',
-      },
+jest.mock('./descriptions', () => ({
+  descriptions: {
+    en: {
+      'eip155:1/slip44:60': 'overridden en description',
     },
-  }),
-  { virtual: true },
-)
+    es: {
+      'eip155:1/slip44:60': 'overridden es description',
+    },
+    fr: {
+      'eip155:1/slip44:60': 'overridden fr description',
+    },
+    id: {
+      'eip155:1/slip44:60': 'overridden id description',
+    },
+    ko: {
+      'eip155:1/slip44:60': 'overridden ko description',
+    },
+    pt: {
+      'eip155:1/slip44:60': 'overridden pt description',
+    },
+    ru: {
+      'eip155:1/slip44:60': 'overridden ru description',
+    },
+    zh: {
+      'eip155:1/slip44:60': 'overridden zh description',
+    },
+  },
+}))
 
-jest.mock(
-  './generatedAssetData.json',
-  () => ({
-    'eip155:1/slip44:60': {
-      assetId: 'eip155:1/slip44:60',
-      chainId: 'eip155:1',
-    },
-  }),
-  { virtual: true },
-)
+jest.mock('./generatedAssetData.json', () => ({
+  'eip155:1/slip44:60': {
+    assetId: 'eip155:1/slip44:60',
+    chainId: 'eip155:1',
+  },
+}))
 
 describe('AssetService', () => {
   describe('description', () => {

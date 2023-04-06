@@ -40,8 +40,6 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('portfolioSlice', () => {
-  const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => void 0)
-  afterAll(() => consoleInfoSpy.mockRestore())
   const bip44Params: BIP44Params = {
     purpose: 0,
     coinType: 0,

@@ -51,7 +51,9 @@ export const NftTable = () => {
 
   const renderNftCards = useMemo(() => {
     if (!data?.length) return null
-    return filteredNfts?.map(({ token }) => <NftCard zapperNft={token} />)
+    return filteredNfts?.map(({ token }) => (
+      <NftCard zapperNft={token} key={`${token.collection.address}/${token.id}`} />
+    ))
   }, [data?.length, filteredNfts])
 
   if (isLoading)

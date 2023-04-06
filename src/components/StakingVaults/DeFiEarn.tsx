@@ -11,7 +11,7 @@ import { GlobalFilter } from './GlobalFilter'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
 import type { ProviderTableProps } from './ProviderTable'
-import { ProviderTable } from './ProviderTable'
+import { WalletProviderTable } from './WalletProviderTable'
 
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
@@ -66,7 +66,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
             />
           </TabPanel>
           <TabPanel px={0}>
-            <ProviderTable
+            <WalletProviderTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
               includeEarnBalances={Boolean(includeEarnBalances)}

@@ -6,7 +6,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { markdownLinkToHTML } from 'lib/utils'
 import type {
@@ -117,9 +117,7 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ zapperCollection, zapp
           <Divider />
           <Flex gap={4} flexDir='column' px={8} py={6}>
             <Text translation='nft.description' fontWeight='medium' />
-            <RawText color='gray.500'>
-              <ParsedHtml innerHtml={markdownLinkToHTML(description)} />
-            </RawText>
+            <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
           </Flex>
         </>
       )}

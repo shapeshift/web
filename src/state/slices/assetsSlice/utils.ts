@@ -66,8 +66,15 @@ export const chainIdFeeAssetReferenceMap = (
   })()
 }
 
-type GetFeeAssetByChainId = (assetsById: AssetsById, chainId: ChainId) => Asset | undefined
-type GetFeeAssetByAssetId = (assetsById: AssetsById, assetId: AssetId) => Asset | undefined
+type GetFeeAssetByChainId = (
+  assetsById: AssetsById,
+  chainId: ChainId | undefined,
+) => Asset | undefined
+
+type GetFeeAssetByAssetId = (
+  assetsById: AssetsById,
+  assetId: AssetId | undefined,
+) => Asset | undefined
 
 export const getFeeAssetByChainId: GetFeeAssetByChainId = (assetsById, chainId) => {
   if (!chainId) return undefined
@@ -81,6 +88,7 @@ export const getFeeAssetByChainId: GetFeeAssetByChainId = (assetsById, chainId) 
 }
 
 export const getFeeAssetByAssetId: GetFeeAssetByAssetId = (assetsById, assetId) => {
+  if (!assetId) return undefined
   const { chainNamespace, chainReference } = fromAssetId(assetId)
   const feeAssetId = toAssetId({
     chainNamespace,

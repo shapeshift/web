@@ -1924,7 +1924,6 @@
   "nft": {
     "floorPrice": "Floor Price",
     "lastPrice": "Last Price",
-    "rarity": "Rarity",
     "overview": "Overview",
     "properties": "Properties",
     "collection": "Collection",

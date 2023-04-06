@@ -2,7 +2,6 @@ import { Button, Flex, Link, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
-import { RawText } from 'components/Text'
 import { markdownLinkToHTML } from 'lib/utils'
 import type { V2NftCollectionType } from 'state/apis/zapper/client'
 
@@ -42,9 +41,7 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ zapperCollection }
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>
       <Text fontWeight='medium'>{translate('nft.aboutCollection', { collectionName })}</Text>
-      <RawText color='gray.500'>
-        <ParsedHtml innerHtml={markdownLinkToHTML(description)} />
-      </RawText>
+      <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
       {socialLinkPills}
     </Flex>
   )

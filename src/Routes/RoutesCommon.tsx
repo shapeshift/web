@@ -83,7 +83,6 @@ export const routes: NestedRoute[] = [
     icon: <AccountsIcon />,
     category: RouteCategory.Wallet,
     mobileNav: true,
-    hide: true,
     priority: 1,
     routes: [
       {
@@ -139,7 +138,6 @@ export const routes: NestedRoute[] = [
     icon: <TxHistoryIcon />,
     main: TransactionHistory,
     category: RouteCategory.Wallet,
-    hide: true,
   },
   {
     path: '/trade',

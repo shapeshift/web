@@ -41,7 +41,7 @@ export const PortfolioChart = () => {
   const [isRainbowChart, setIsRainbowChart] = useState(false)
   const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
   return (
-    <Card variant='unstyled'>
+    <Card>
       <Card.Header
         display='flex'
         justifyContent={{ base: 'center', md: 'space-between' }}

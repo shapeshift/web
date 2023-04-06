@@ -7,7 +7,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { DashboardHeader } from './components/DashboardHeader'
 import { DashboardSidebar } from './DashboardSidebar'
 import { Portfolio } from './Portfolio'
-import { PortfolioChart } from './PortfolioChart'
 import { WalletDashboard } from './WalletDashboard'
 
 export const Dashboard = () => {
@@ -26,7 +25,6 @@ export const Dashboard = () => {
   return (
     <Main>
       <SEO title={translate('navBar.dashboard')} />
-      <PortfolioChart />
       <Stack
         alignItems='flex-start'
         spacing={4}

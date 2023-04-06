@@ -2,12 +2,10 @@ import { Flex, Stack } from '@chakra-ui/react'
 
 import { DashboardSidebar } from './DashboardSidebar'
 import { Portfolio } from './Portfolio'
-import { PortfolioChart } from './PortfolioChart'
 
 export const WalletDashboard = () => {
   return (
     <Flex gap={4} flexDir='column'>
-      <PortfolioChart />
       <Stack
         alignItems='flex-start'
         spacing={4}

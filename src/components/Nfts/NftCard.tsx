@@ -31,7 +31,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const bg = useColorModeValue('gray.50', 'gray.750')
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
   const { nft } = useModal()
 
@@ -87,7 +87,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
         {!mediaUrl || mediaType === 'image' ? (
           <Skeleton
             borderRadius='none'
-            isLoaded={imageLoaded}
+            isLoaded={isMediaLoaded}
             position='absolute'
             width='full'
             height='full'
@@ -97,7 +97,7 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             <Image
               src={mediaUrl ?? placeholderImage}
               alt={name}
-              onLoad={() => setImageLoaded(true)}
+              onLoad={() => setIsMediaLoaded(true)}
               {...mediaBoxProps}
             />
           </Skeleton>

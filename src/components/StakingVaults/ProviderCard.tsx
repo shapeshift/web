@@ -60,7 +60,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
           display={{ base: 'block', md: 'none' }}
         />
       </Card.Header>
-      <Card.Body px={0} pb={2}>
+      <Card.Body px={0} pb={2} pt={0}>
         <WalletStakingByAsset ids={staking} />
         <WalletLpByAsset ids={lp} />
       </Card.Body>

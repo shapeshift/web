@@ -2,8 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import type { Row } from 'react-table'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -11,11 +10,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAggregatedEarnUserLpOpportunities,
-  selectAssets,
-  selectCryptoMarketData,
-} from 'state/slices/selectors'
+import { selectAggregatedEarnUserLpOpportunities, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LpOpportunity } from './LpOpportunity'
@@ -29,19 +24,16 @@ export type RowProps = Row<LpEarnOpportunityType>
 export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const location = useLocation()
   const history = useHistory()
-  const translate = useTranslate()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketData)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
 
   const handleClick = useCallback(
-    (row: RowProps, action: DefiAction) => {
-      const { original: opportunity } = row
+    (opportunity: LpEarnOpportunityType, action: DefiAction) => {
       const {
         type,
         provider,
@@ -86,13 +78,15 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
     [assets, dispatch, history, isConnected, isDemoWallet, location],
   )
 
+  const renderRows = useMemo(() => {
+    return filteredDown.map(lp => <LpOpportunity onClick={handleClick} {...lp} />)
+  }, [filteredDown, handleClick])
+
   if (!filteredDown.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>
-      {filteredDown.map(lp => (
-        <LpOpportunity {...lp} />
-      ))}
+      {renderRows}
     </Flex>
   )
 }

@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -21,6 +21,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { OpportunityTableHeader } from './OpportunityTableHeader'
 import { StakingOppority } from './StakingOpportunity'
 
 type StakingPositionsByAssetProps = {
@@ -33,7 +34,6 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -110,29 +110,14 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
           const [name, values] = group
           return (
             <>
-              <SimpleGrid
-                gridTemplateColumns={{
-                  base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-                  md: '1fr repeat(2, 170px)',
-                }}
-                color='gray.500'
-                textTransform='uppercase'
-                fontSize='xs'
-                letterSpacing='0.02em'
-                fontWeight='bold'
-                borderBottomWidth={1}
-                borderColor={borderColor}
-                columnGap={4}
-                pb={2}
-                px={6}
-              >
+              <OpportunityTableHeader>
                 <RawText>{name}</RawText>
                 <RawText display={{ base: 'none', md: 'block' }}>
                   {translate('common.balance')}
                 </RawText>
                 <RawText>{translate('common.value')}</RawText>
-              </SimpleGrid>
-              <Flex px={2} flexDirection='column'>
+              </OpportunityTableHeader>
+              <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
                 {values.map((staking: StakingEarnOpportunityType) => (
                   <StakingOppority key={staking.id} onClick={handleClick} {...staking} />
                 ))}
@@ -142,7 +127,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
         })}
       </Flex>
     )
-  }, [borderColor, groupedItems, handleClick, translate])
+  }, [groupedItems, handleClick, translate])
 
   if (!filteredDown.length) return null
 

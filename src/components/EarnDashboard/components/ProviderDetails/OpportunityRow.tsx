@@ -1,12 +1,19 @@
 import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { getRewardBalances } from 'state/slices/opportunitiesSlice/utils'
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
+import {
+  getRewardBalances,
+  getUnderlyingAssetIdsBalances,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -17,31 +24,79 @@ import { useAppSelector } from 'state/store'
 import { NestedAsset } from './NestedAsset'
 import { OpportunityRowGrid } from './OpportunityTableHeader'
 
-type StakingOpporityProps = {
-  onClick: (opportunity: StakingEarnOpportunityType, action: DefiAction) => void
-} & StakingEarnOpportunityType
-export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...opportunity }) => {
+type OpportunityRowProps<T extends StakingEarnOpportunityType | LpEarnOpportunityType> = {
+  onClick: (opportunity: T, action: DefiAction) => void
+  opportunity: T
+}
+
+export const OpportunityRow: React.FC<
+  OpportunityRowProps<StakingEarnOpportunityType | LpEarnOpportunityType>
+> = ({ onClick, opportunity }) => {
   const {
+    assetId,
     underlyingAssetId,
     fiatAmount,
-    stakedAmountCryptoBaseUnit,
-    rewardAssetIds,
-    rewardsCryptoBaseUnit,
     isClaimableRewards,
+    underlyingAssetRatiosBaseUnit,
+    cryptoAmountBaseUnit,
+    underlyingAssetIds,
     type,
     apy,
+    icons,
   } = opportunity
-
+  const translate = useTranslate()
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
-  const rewardBalances = getRewardBalances({
-    rewardAssetIds,
-    rewardsCryptoBaseUnit,
+
+  const underlyingAssetLabel = useMemo(() => {
+    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
+      return 'common.reward'
+    } else {
+      return 'defi.underlyingAsset'
+    }
+  }, [opportunity])
+
+  const underlyingAssetBalances = useMemo(() => {
+    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
+      const earnOpportunity = opportunity as StakingEarnOpportunityType
+      return getRewardBalances({
+        rewardAssetIds: earnOpportunity.rewardAssetIds,
+        rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
+        assets,
+        marketData,
+      })
+    } else {
+      return getUnderlyingAssetIdsBalances({
+        assetId,
+        underlyingAssetIds,
+        underlyingAssetRatiosBaseUnit,
+        cryptoAmountBaseUnit,
+        assets,
+        marketData,
+      })
+    }
+  }, [
+    assetId,
     assets,
+    cryptoAmountBaseUnit,
     marketData,
-  })
+    opportunity,
+    underlyingAssetIds,
+    underlyingAssetRatiosBaseUnit,
+  ])
+
+  const nestedAssetIds = useMemo(() => {
+    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
+      const earnOpportunity = opportunity as StakingEarnOpportunityType
+      return earnOpportunity.rewardAssetIds
+    } else {
+      const lpOpportunity = opportunity as LpEarnOpportunityType
+      return lpOpportunity.underlyingAssetIds
+    }
+  }, [opportunity])
+
   const handleClick = useCallback(
     (action: DefiAction) => {
       onClick(opportunity, action)
@@ -49,7 +104,7 @@ export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...op
     [onClick, opportunity],
   )
   const subText = [<Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />]
-  if (bnOrZero(stakedAmountCryptoBaseUnit).gt(0))
+  if (bnOrZero(cryptoAmountBaseUnit).gt(0))
     subText.push(<RawText textTransform='capitalize'>{type}</RawText>)
   const subTextJoined = subText.map((element, index) => (
     <>
@@ -59,25 +114,32 @@ export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...op
   ))
 
   const renderRewardAssets = useMemo(() => {
-    if (!rewardAssetIds) return null
+    if (!nestedAssetIds) return null
     return (
       <List style={{ marginTop: 0 }}>
-        {rewardAssetIds.map(rewardAssetId => {
-          if (!rewardBalances[rewardAssetId]) return null
-          if (bnOrZero(rewardBalances[rewardAssetId].cryptoBalancePrecision).eq(0)) return null
+        {nestedAssetIds.map(assetId => {
+          if (!underlyingAssetBalances[assetId]) return null
+          if (bnOrZero(underlyingAssetBalances[assetId].cryptoBalancePrecision).eq(0)) return null
           return (
             <NestedAsset
               isClaimableRewards={isClaimableRewards}
-              assetId={rewardAssetId}
-              balances={rewardBalances[rewardAssetId]}
+              assetId={assetId}
+              balances={underlyingAssetBalances[assetId]}
               onClick={() => handleClick(DefiAction.Claim)}
-              type='Reward'
+              type={translate(underlyingAssetLabel)}
             />
           )
         })}
       </List>
     )
-  }, [handleClick, isClaimableRewards, rewardAssetIds, rewardBalances])
+  }, [
+    nestedAssetIds,
+    underlyingAssetBalances,
+    isClaimableRewards,
+    translate,
+    underlyingAssetLabel,
+    handleClick,
+  ])
   if (!asset) return null
   return (
     <Flex
@@ -102,6 +164,7 @@ export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...op
         >
           <AssetCell
             assetId={underlyingAssetId}
+            icons={icons}
             subText={
               <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
                 {subTextJoined}
@@ -110,7 +173,7 @@ export const StakingOppority: React.FC<StakingOpporityProps> = ({ onClick, ...op
             justifyContent='flex-start'
           />
           <Amount.Crypto
-            value={bnOrZero(stakedAmountCryptoBaseUnit)
+            value={bnOrZero(cryptoAmountBaseUnit)
               .div(bn(10).pow(asset.precision))
               .decimalPlaces(asset.precision)
               .toString()}

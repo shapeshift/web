@@ -358,6 +358,7 @@
     "validatorMoniker": "%{moniker} Validator",
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
+    "underlyingAsset": "Underlying Asset",
     "gasFee": "Gas Fee",
     "provider": "Provider",
     "currentTvl": "Current TVL",

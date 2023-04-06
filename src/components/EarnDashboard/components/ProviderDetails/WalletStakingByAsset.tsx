@@ -21,8 +21,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { OpportunityRow } from './OpportunityRow'
 import { OpportunityTableHeader } from './OpportunityTableHeader'
-import { StakingOppority } from './StakingOpportunity'
 
 type StakingPositionsByAssetProps = {
   ids: OpportunityId[]
@@ -118,8 +118,12 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
                 <RawText>{translate('common.value')}</RawText>
               </OpportunityTableHeader>
               <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
-                {values.map((staking: StakingEarnOpportunityType) => (
-                  <StakingOppority key={staking.id} onClick={handleClick} {...staking} />
+                {values.map((opportunity: StakingEarnOpportunityType) => (
+                  <OpportunityRow
+                    key={opportunity.id}
+                    onClick={handleClick}
+                    opportunity={opportunity}
+                  />
                 ))}
               </Flex>
             </>

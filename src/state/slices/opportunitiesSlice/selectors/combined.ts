@@ -16,6 +16,8 @@ import {
   selectIncludeRewardsBalancesParamFromFilter,
   selectSearchQueryFromFilter,
 } from 'state/selectors'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
@@ -328,25 +330,53 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
      * i search for "compound" - i should see all compound vaults, not just the one i'm looking for
      */
 
-    /**
-      matchSorter(nestedObjList, 'doe', {
-        keys: [
-          item => item.name.map(i => i.first),
-          item => item.name.map(i => i.last),
-        ],
-      })
-     */
+    const searchOpportunities = <T extends LpEarnOpportunityType | StakingEarnOpportunityType>(
+      searchQuery: string | undefined,
+      combined: T[],
+      assets: AssetsById,
+    ): T[] => {
+      if (!searchQuery) return combined
 
-    const filtered = searchQuery
-      ? matchSorter(combined, searchQuery, {
-          keys: [
-            // asset name
-            opportunity => assets[opportunity.assetId]?.name ?? '',
-            // chain name
-            // opportunity => opportunity.chainId
-          ],
-        })
-      : combined
+      return matchSorter(combined, searchQuery, {
+        keys: [
+          'name',
+          'provider',
+          'opportunityName',
+          'version',
+          ({ assetId }) => [assets[assetId]?.name, assets[assetId]?.symbol].join(' '),
+          ({ underlyingAssetId }) =>
+            [assets[underlyingAssetId]?.name, assets[underlyingAssetId]?.symbol].join(' '),
+          ({ chainId }) => {
+            const maybeFeeAsset = getFeeAssetByChainId(assets, chainId)
+            if (!maybeFeeAsset) return ''
+            const { name, symbol, networkName } = maybeFeeAsset
+            return [name, symbol, networkName].join(' ')
+          },
+          item =>
+            item.rewardAssetIds
+              .map((id: AssetId) => {
+                const maybeAsset = assets[id]
+                if (!maybeAsset) return ''
+                const { name, symbol } = maybeAsset
+                return [name, symbol].join(' ')
+              })
+              .join(' '),
+          item =>
+            item.underlyingAssetIds
+              .map((id: AssetId) => {
+                const maybeAsset = assets[id]
+                if (!maybeAsset) return ''
+                const { name, symbol } = maybeAsset
+                return [name, symbol].join(' ')
+              })
+              .join(' '),
+          item => (item?.tags ?? []).join(' '),
+        ],
+        threshold: matchSorter.rankings.CONTAINS,
+      })
+    }
+
+    const filtered = searchOpportunities(searchQuery, combined, assets)
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
       provider,
@@ -394,7 +424,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       return acc
     }, {} as Record<DefiProvider, boolean>)
 
-    const byProvider = combined.reduce<
+    const byProvider = filtered.reduce<
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur

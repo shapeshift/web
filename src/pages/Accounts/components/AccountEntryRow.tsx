@@ -61,7 +61,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         data-test='account-asset-row-button'
         fontSize={{ base: 'sm', md: 'md' }}
         leftIcon={<Avatar size='sm' src={icon} />}
-        onClick={() => history.push(generatePath('/accounts/:accountId/:assetId', filter))}
+        onClick={() =>
+          history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter))
+        }
         {...buttonProps}
       >
         <Stack alignItems='flex-start' spacing={0} flex={1}>

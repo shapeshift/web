@@ -8,6 +8,7 @@ import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { DashboardHeader } from 'pages/Dashboard/components/DashboardHeader'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
 import { ChainRow } from './components/ChainRow'
@@ -56,7 +57,7 @@ export const Accounts = () => {
   )
 
   return (
-    <Main titleComponent={<AccountHeader />}>
+    <Main headerComponent={<DashboardHeader />}>
       <List ml={0} mt={0} spacing={4}>
         {chainRows}
       </List>

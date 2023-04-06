@@ -474,6 +474,8 @@
   },
   "navBar": {
     "home": "Home",
+    "activity": "Activity",
+    "myWallet": "My Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
     "assets": "Assets",

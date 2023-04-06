@@ -1,12 +1,12 @@
-import { Flex, Heading } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { isSome } from 'lib/utils'
+import { DashboardHeader } from 'pages/Dashboard/components/DashboardHeader'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,11 +41,8 @@ export const TransactionHistory = () => {
   }, [handleInputChange, resetFilters])
 
   return (
-    <Main>
+    <Main headerComponent={<DashboardHeader />}>
       <SEO title={translate('transactionHistory.transactionHistory')} />
-      <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
-        <Text translation='transactionHistory.transactionHistory' />
-      </Heading>
       <Card>
         <Card.Heading p={[2, 3, 6]}>
           <Flex justifyContent='space-between'>

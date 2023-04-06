@@ -86,7 +86,7 @@ export const DashboardHeader = () => {
             label='navBar.wallet'
             icon={<AccountsIcon />}
             fiatValue=''
-            path='/wallet'
+            path='/dashboard/accounts'
             color='blue.500'
           />
           <DashboardTab
@@ -104,10 +104,10 @@ export const DashboardHeader = () => {
             color='green.500'
           />
           <DashboardTab
-            label='common.activity'
+            label='navBar.activity'
             icon={<RewardsIcon />}
             fiatValue=''
-            path='/transaction-history'
+            path='/dashboard/transaction-history'
             color='green.500'
           />
         </Container>

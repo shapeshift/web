@@ -30,7 +30,7 @@ import { RouteCategory } from './helpers'
 export const routes: NestedRoute[] = [
   {
     path: '/dashboard',
-    label: 'navBar.dashboard',
+    label: 'navBar.myWallet',
     shortLabel: 'navBar.dashboardShort',
     icon: <DashboardIcon />,
     main: Dashboard,
@@ -47,6 +47,60 @@ export const routes: NestedRoute[] = [
         label: 'Rewards Dashboard',
         path: '/rewards',
         main: RewardsDashboard,
+      },
+      {
+        path: '/transaction-history',
+        label: 'navBar.transactionHistory',
+        icon: <TxHistoryIcon />,
+        main: TransactionHistory,
+        category: RouteCategory.Wallet,
+      },
+      {
+        path: '/accounts',
+        label: 'navBar.accounts',
+        main: Accounts,
+        icon: <AccountsIcon />,
+        category: RouteCategory.Wallet,
+        mobileNav: true,
+        priority: 1,
+        routes: [
+          {
+            path: '/:accountId',
+            label: 'Account Details',
+            main: null,
+            hide: true,
+            routes: [
+              {
+                path: '/',
+                label: 'navBar.overview',
+                main: Account,
+              },
+              {
+                path: '/transactions',
+                label: 'navBar.transactions',
+                main: AccountTxHistory,
+              },
+              {
+                path: '/:assetId',
+                label: 'navBar.overview',
+                main: null,
+                hide: true,
+                routes: [
+                  {
+                    path: '/',
+                    main: AccountToken,
+                    label: 'navBar.overview',
+                  },
+                  {
+                    path: '/transactions',
+                    main: AccountTokenTxHistory,
+                    label: 'navBar.transactions',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
     ],
   },
@@ -77,53 +131,6 @@ export const routes: NestedRoute[] = [
     })),
   },
   {
-    path: '/accounts',
-    label: 'navBar.accounts',
-    main: Accounts,
-    icon: <AccountsIcon />,
-    category: RouteCategory.Wallet,
-    mobileNav: true,
-    priority: 1,
-    routes: [
-      {
-        path: '/:accountId',
-        label: 'Account Details',
-        main: null,
-        hide: true,
-        routes: [
-          {
-            path: '/',
-            label: 'navBar.overview',
-            main: Account,
-          },
-          {
-            path: '/transactions',
-            label: 'navBar.transactions',
-            main: AccountTxHistory,
-          },
-          {
-            path: '/:assetId',
-            label: 'navBar.overview',
-            main: null,
-            hide: true,
-            routes: [
-              {
-                path: '/',
-                main: AccountToken,
-                label: 'navBar.overview',
-              },
-              {
-                path: '/transactions',
-                main: AccountTokenTxHistory,
-                label: 'navBar.transactions',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
     path: '/earn',
     label: 'defi.earn',
     icon: <DefiIcon />,
@@ -131,13 +138,6 @@ export const routes: NestedRoute[] = [
     category: RouteCategory.Explore,
     mobileNav: true,
     priority: 3,
-  },
-  {
-    path: '/transaction-history',
-    label: 'navBar.transactionHistory',
-    icon: <TxHistoryIcon />,
-    main: TransactionHistory,
-    category: RouteCategory.Wallet,
   },
   {
     path: '/trade',

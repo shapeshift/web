@@ -1,7 +1,8 @@
-import { Button, Flex, ListItem, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { Amount } from 'components/Amount/Amount'
+import { NestedListItem } from 'components/List/NestedListItem'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
@@ -38,47 +39,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
   ))
   if (!asset) return null
   return (
-    <ListItem
-      display='grid'
-      pl={{ base: 0, md: '3rem' }}
-      position='relative'
-      _before={{
-        content: '""',
-        position: 'absolute',
-        top: {
-          base: 'auto',
-          md: 0,
-        },
-        bottom: {
-          base: '2rem',
-          md: 0,
-        },
-        height: {
-          base: '3.5rem',
-          md: 'auto',
-        },
-        left: 'calc(2rem - 1px)',
-        display: 'block',
-        width: 0,
-        borderLeftWidth: 2,
-        borderColor,
-      }}
-      _last={{
-        ':before': {
-          height: {
-            base: '3.5rem',
-            md: '1.5rem',
-          },
-          bottom: {
-            base: '2rem',
-            md: 'auto',
-          },
-        },
-        '.reward-asset:after': {
-          borderBottomLeftRadius: '8px',
-        },
-      }}
-    >
+    <NestedListItem>
       <Button
         variant='ghost'
         height='auto'
@@ -144,6 +105,6 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
           />
         </Flex>
       </Button>
-    </ListItem>
+    </NestedListItem>
   )
 }

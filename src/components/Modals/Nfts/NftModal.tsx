@@ -172,7 +172,7 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Flex>
       </Skeleton>
     )
-  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl])
+  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl, placeholderImage])
 
   const nftModalOverview = useMemo(() => {
     return (

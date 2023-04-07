@@ -20,7 +20,7 @@ export const NestedListItem: React.FC<ListItemProps> = props => {
           md: 0,
         },
         height: {
-          base: '3.5rem',
+          base: '3.25rem',
           md: 'auto',
         },
         left: 'calc(2rem - 1px)',
@@ -32,7 +32,7 @@ export const NestedListItem: React.FC<ListItemProps> = props => {
       _last={{
         ':before': {
           height: {
-            base: '3.5rem',
+            base: '3.25rem',
             md: '1.5rem',
           },
           bottom: {

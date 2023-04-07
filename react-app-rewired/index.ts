@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import CircularDependencyPlugin from 'circular-dependency-plugin'
 import stableStringify from 'fast-json-stable-stringify'
 import * as fs from 'fs'
@@ -344,7 +345,6 @@ const reactAppRewireConfig = {
     return (...args) => {
       const config = configFunction(...args)
       config.headers = headers
-      config.watchFiles = ['src/**/*', 'node_modules']
       return config
     }
   },

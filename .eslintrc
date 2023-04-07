@@ -11,10 +11,7 @@
     "dist",
     "coverage",
     "generated",
-    "node_modules",
-    "react-app-rewired",
-    "scripts",
-    "cypress*"
+    "node_modules"
   ],
   "plugins": [
     "jest",
@@ -94,7 +91,7 @@
       }
     },
     {
-      "files": ["**/*/*.test.ts"],
+      "files": ["**/*/*.test.ts", "scripts/**/*"],
       "rules": {
         "@shapeshiftoss/logger/no-native-console": "off"
       }

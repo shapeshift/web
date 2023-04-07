@@ -30,6 +30,7 @@
     "test": "yarn test:packages && yarn test:web",
     "test:web": "yarn jest react-app-rewired && react-app-rewired test --coverage --watchAll=false",
     "test:packages": "yarn jest packages",
+    "test:ci": "yarn test:packages --coverage false && yarn test:web --coverage false",
     "test:cypress": "yarn cypress open",
     "test:cypress:headless": "yarn cypress run --browser chrome --headless",
     "test:cypress:rerecord": "yarn cypress run --browser chrome --headless --env forceRecord=true",

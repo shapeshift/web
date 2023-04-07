@@ -7,7 +7,7 @@ import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
@@ -115,7 +115,7 @@ export const DashboardHeader = () => {
         <Flex alignItems='center' gap={4}>
           {walletId && <LazyLoadAvatar borderRadius={6} size='xl' src={walletImage} />}
           <Flex flexDir='column'>
-            <RawText>Net worth</RawText>
+            <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
             <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
           </Flex>
         </Flex>

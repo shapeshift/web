@@ -3,7 +3,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { OpportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
+import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
@@ -94,7 +94,7 @@ export const ProviderCardLoading: React.FC = () => {
             <ListItem
               display='grid'
               columnGap={4}
-              gridTemplateColumns={OpportunityRowGrid}
+              gridTemplateColumns={opportunityRowGrid}
               px={{ base: 4, md: 6 }}
               py={4}
             >

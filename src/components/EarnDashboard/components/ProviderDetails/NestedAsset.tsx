@@ -1,6 +1,7 @@
 import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { NestedListItem } from 'components/List/NestedListItem'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -9,7 +10,7 @@ import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { OpportunityRowGrid } from './OpportunityTableHeader'
+import { opportunityRowGrid } from './OpportunityTableHeader'
 
 type NestedAssetProps = {
   assetId: AssetId
@@ -29,14 +30,19 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const subText = [<RawText>{type}</RawText>]
-  if (isClaimableRewards) subText.push(<Text color='green.200' translation='common.claimable' />)
-  const subTextJoined = subText.map((element, index) => (
-    <>
-      {index > 0 && <RawText>•</RawText>}
-      {element}
-    </>
-  ))
+
+  const subTextJoined = useMemo(() => {
+    const typeElement = <RawText>{type}</RawText>
+    const claimableElement = <Text color='green.200' translation='common.claimable' />
+    const subText = [typeElement, [...(isClaimableRewards ? [claimableElement] : [])]]
+    return subText.map((element, index) => (
+      <>
+        {index > 0 && <RawText>•</RawText>}
+        {element}
+      </>
+    ))
+  }, [isClaimableRewards, type])
+
   if (!asset) return null
   return (
     <NestedListItem>
@@ -45,7 +51,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
         height='auto'
         py={4}
         display='grid'
-        gridTemplateColumns={OpportunityRowGrid}
+        gridTemplateColumns={opportunityRowGrid}
         columnGap={4}
         alignItems='center'
         textAlign='left'

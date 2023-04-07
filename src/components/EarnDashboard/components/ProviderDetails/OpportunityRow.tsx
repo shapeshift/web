@@ -22,7 +22,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'
-import { OpportunityRowGrid } from './OpportunityTableHeader'
+import { opportunityRowGrid } from './OpportunityTableHeader'
 
 type OpportunityRowProps<T extends StakingEarnOpportunityType | LpEarnOpportunityType> = {
   onClick: (opportunity: T, action: DefiAction) => void
@@ -67,16 +67,15 @@ export const OpportunityRow: React.FC<
         assets,
         marketData,
       })
-    } else {
-      return getUnderlyingAssetIdsBalances({
-        assetId,
-        underlyingAssetIds,
-        underlyingAssetRatiosBaseUnit,
-        cryptoAmountBaseUnit,
-        assets,
-        marketData,
-      })
     }
+    return getUnderlyingAssetIdsBalances({
+      assetId,
+      underlyingAssetIds,
+      underlyingAssetRatiosBaseUnit,
+      cryptoAmountBaseUnit,
+      assets,
+      marketData,
+    })
   }, [
     assetId,
     assets,
@@ -103,15 +102,21 @@ export const OpportunityRow: React.FC<
     },
     [onClick, opportunity],
   )
-  const subText = [<Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />]
-  if (bnOrZero(cryptoAmountBaseUnit).gt(0))
-    subText.push(<RawText textTransform='capitalize'>{type}</RawText>)
-  const subTextJoined = subText.map((element, index) => (
-    <>
-      {index > 0 && <RawText>•</RawText>}
-      {element}
-    </>
-  ))
+
+  const subTextJoined = useMemo(() => {
+    const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+    const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
+    const subText = [
+      aprElement,
+      [...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : [])],
+    ]
+    return subText.map((element, index) => (
+      <>
+        {index > 0 && <RawText>•</RawText>}
+        {element}
+      </>
+    ))
+  }, [apy, cryptoAmountBaseUnit, type])
 
   const renderRewardAssets = useMemo(() => {
     if (!nestedAssetIds) return null
@@ -122,6 +127,7 @@ export const OpportunityRow: React.FC<
           if (bnOrZero(underlyingAssetBalances[assetId].cryptoBalancePrecision).eq(0)) return null
           return (
             <NestedAsset
+              key={assetId}
               isClaimableRewards={isClaimableRewards}
               assetId={assetId}
               balances={underlyingAssetBalances[assetId]}
@@ -156,7 +162,7 @@ export const OpportunityRow: React.FC<
           width='full'
           height='auto'
           display='grid'
-          gridTemplateColumns={OpportunityRowGrid}
+          gridTemplateColumns={opportunityRowGrid}
           columnGap={4}
           alignItems='center'
           textAlign='left'
@@ -176,7 +182,7 @@ export const OpportunityRow: React.FC<
             value={bnOrZero(cryptoAmountBaseUnit)
               .div(bn(10).pow(asset.precision))
               .decimalPlaces(asset.precision)
-              .toString()}
+              .toFixed(asset.precision)}
             symbol={asset.symbol}
             fontSize='sm'
             fontWeight='medium'

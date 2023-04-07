@@ -1,7 +1,7 @@
 import type { GridProps, SimpleGridProps } from '@chakra-ui/react'
 import { SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 
-export const OpportunityRowGrid: GridProps['gridTemplateColumns'] = {
+export const opportunityRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
   md: '1fr repeat(2, 170px)',
 }

@@ -13,7 +13,7 @@ import { PositionTable } from './PositionTable'
 import type { ProviderTableProps } from './ProviderTable'
 import { WalletProviderTable } from './WalletProviderTable'
 
-type DefiEarnProps = {
+type WalletDefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
   providerTableProps?: Omit<ProviderTableProps, 'searchQuery'>
   includeEarnBalances?: boolean
@@ -21,7 +21,7 @@ type DefiEarnProps = {
   header?: JSX.Element
 } & FlexProps
 
-export const WalletDefiEarn: React.FC<DefiEarnProps> = ({
+export const WalletDefiEarn: React.FC<WalletDefiEarnProps> = ({
   positionTableProps,
   providerTableProps,
   includeEarnBalances,

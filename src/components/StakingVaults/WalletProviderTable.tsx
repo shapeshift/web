@@ -36,7 +36,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   )
 
   const renderProviders = useMemo(() => {
-    if (rows.length === 0) {
+    if (!rows.length) {
       return (
         <Card>
           <Card.Body>

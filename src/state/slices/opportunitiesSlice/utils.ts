@@ -114,11 +114,11 @@ export const getRewardBalances: GetRewardBalances = ({
   if (!rewardAssetIds) return {}
   return Array.from(rewardAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
     (acc, assetId, index) => {
-      const asset = assets[assetId]
-      if (!asset) return acc
+      const rewardAsset = assets[assetId]
+      if (!rewardAsset) return acc
       const marketDataPrice = bnOrZero(marketData[assetId]?.price)
       const cryptoBalancePrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index])
-        .div(bn(10).pow(asset?.precision))
+        .div(bn(10).pow(rewardAsset?.precision))
         .toString()
       const fiatAmount = bnOrZero(cryptoBalancePrecision).times(marketDataPrice).toString()
       acc[assetId] = {

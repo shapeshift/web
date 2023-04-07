@@ -67,8 +67,8 @@ const promoData: PromoItem[] = [
 export const DashboardSidebar = () => {
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      <TradeCard />
       <PromoCard data={promoData} />
+      <TradeCard />
       <EligibleCarousel display={{ base: 'none', md: 'flex' }} />
       <RecentTransactions limit={4} viewMoreLink />
     </Flex>

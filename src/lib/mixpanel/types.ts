@@ -20,6 +20,7 @@ export enum MixPanelEvents {
   ClaimConfirm = 'Claim Confirm',
   ClaimSuccess = 'Claim Success',
   ClickOpportunity = 'Click Opportunity',
+  ClickNft = 'Click NFT',
   InsufficientFunds = 'Insufficient Funds',
   TradePreview = 'Trade Preview',
   TradeConfirm = 'Trade Confirm',

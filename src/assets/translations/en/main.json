@@ -6,6 +6,7 @@
     "error": "Error",
     "cancel": "Cancel",
     "close": "Close",
+    "new": "New",
     "continue": "Continue",
     "approve": "Approve",
     "confirm": "Confirm",
@@ -310,7 +311,7 @@
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
         "vaultCap": "Vault Cap",
-        "vaultCapTooltip": "Something about vault caps",
+        "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedTitle": "Deposits are temporarily halted.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "estimatedFee": "Estimated Fee",
@@ -650,8 +651,7 @@
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "updatingQuote": "Updating quote...",
-    "intoRUNETitle": "Trading into RUNE",
-    "intoRUNEBody": "You can proceed with this trade, but transaction history for receiving RUNE is temporarily unavailable",
+    "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -957,8 +957,8 @@
       }
     },
     "approve": {
-      "header": "Allow ShapeShift DAO Router to use your %{asset}",
-      "routerName": "ShapeShift DAO Router",
+      "header": "Allow %{spenderName} to use your %{asset}",
+      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be a separate gas fee to deposit.",
@@ -1920,5 +1920,22 @@
         "cta": "Create one"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Floor Price",
+    "lastPrice": "Last Price",
+    "overview": "Overview",
+    "properties": "Properties",
+    "collection": "Collection",
+    "tokenId": "Token ID",
+    "address": "Address",
+    "chain": "Chain",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Details",
+    "attributes": "Attributes",
+    "aboutCollection": "About %{collectionName}",
+    "emptyTitle": "Where did all the NFTs go?",
+    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
   }
 }

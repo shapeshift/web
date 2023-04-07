@@ -445,7 +445,7 @@ export enum ZapperAppId {
 }
 
 const ZapperAppIdSchema = z.nativeEnum(ZapperAppId)
-const ZerionDisplayValue = z.union([
+const ZapperDisplayValue = z.union([
   z.object({
     type: z.string(),
     value: z.union([z.number(), z.string()]),
@@ -460,11 +460,11 @@ const ZapperDisplayPropsSchema = z.object({
   statsItems: z.array(
     z.object({
       label: z.string(),
-      value: ZerionDisplayValue,
+      value: ZapperDisplayValue,
     }),
   ),
-  secondaryLabel: ZerionDisplayValue.optional(),
-  tertiaryLabel: ZerionDisplayValue.optional(),
+  secondaryLabel: ZapperDisplayValue.optional(),
+  tertiaryLabel: ZapperDisplayValue.optional(),
 })
 
 const ZapperTokenBaseSchema = z.object({
@@ -532,7 +532,7 @@ const ZapperProductSchema = z.object({
   meta: z.array(z.any()),
 })
 
-const ZerionV2AppBalance = z.object({
+const ZapperV2AppBalance = z.object({
   key: z.string(),
   address: z.string(),
   appId: ZapperAppIdSchema,
@@ -549,13 +549,136 @@ export enum ZapperGroupId {
   Farm = 'farm',
 }
 
+const MEDIA_FILETYPE = ['mp4', 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'] as const
+export type MediaFileType = typeof MEDIA_FILETYPE[number]
+export type MediaType = 'video' | 'image'
+
+export const getMediaFileType = (mediaUrl: string | undefined): MediaFileType | undefined => {
+  if (!mediaUrl) return undefined
+  const mediaFiletype = mediaUrl.split('.').pop()
+  return mediaFiletype as MediaFileType | undefined
+}
+
+export const getMediaType = (mediaUrl: string | undefined): MediaType | undefined => {
+  const mediaFileType = getMediaFileType(mediaUrl)
+  if (!mediaFileType) return undefined
+
+  if (mediaFileType === 'mp4') return 'video'
+  return 'image'
+}
+
+const mediaSchema = z.object({
+  type: z.string(),
+  originalUrl: z
+    .string()
+    .url()
+    .refine(url => {
+      const mediaFileType = getMediaFileType(url)
+      if (!mediaFileType) return false
+      return MEDIA_FILETYPE.includes(mediaFileType as MediaFileType)
+    }, 'Media filetype not supported'),
+})
+
+const socialLinkSchema = z.object({
+  name: z.string(),
+  label: z.string(),
+  url: z.string().url(),
+  logoUrl: z.string().url(),
+})
+
+const statsSchema = z.object({
+  hourlyVolumeEth: z.number(),
+  hourlyVolumeEthPercentChange: z.nullable(z.number()),
+  dailyVolumeEth: z.number(),
+  dailyVolumeEthPercentChange: z.nullable(z.number()),
+  weeklyVolumeEth: z.number(),
+  weeklyVolumeEthPercentChange: z.nullable(z.number()),
+  monthlyVolumeEth: z.number(),
+  monthlyVolumeEthPercentChange: z.nullable(z.number()),
+  totalVolumeEth: z.number(),
+})
+
+const fullCollectionSchema = z.object({
+  name: z.string(),
+  network: z.string(),
+  description: z.string(),
+  logoImageUrl: z.string().nullable(),
+  cardImageUrl: z.string().nullable(),
+  bannerImageUrl: z.string().nullable(),
+  nftStandard: z.string(),
+  floorPriceEth: z.string().nullable(),
+  marketCap: z.string().optional(),
+  openseaId: z.string().nullable(),
+  socialLinks: z.array(socialLinkSchema),
+  stats: statsSchema,
+})
+
+const nftCollectionSchema = z.object({
+  balance: z.string(),
+  balanceUSD: z.string(),
+  collection: fullCollectionSchema,
+})
+
+const cursorSchema = z.string().nonempty()
+
+const v2NftBalancesCollectionsSchema = z.object({
+  items: z.array(nftCollectionSchema),
+  cursor: cursorSchema.optional(),
+})
+
+const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
+
+const collectionSchema = z.object({
+  address: z.string().optional(),
+  network: z.string().optional(),
+  name: z.string().optional(),
+  nftStandard: z.string().nonempty(),
+  type: z.string().optional(),
+  floorPriceEth: z.string().optional().nullable(),
+  logoImageUrl: optionalUrl,
+  openseaId: z.string().optional().nullable(),
+})
+
+const tokenSchema = z.object({
+  id: z.string().nonempty(),
+  name: z.string().nonempty(),
+  tokenId: z.string().nonempty(),
+  lastSaleEth: z.string().nullable(),
+  rarityRank: z.number().int().nullable(),
+  estimatedValueEth: z.number().nullable(),
+  medias: z.array(mediaSchema),
+  collection: collectionSchema,
+})
+
+const userNftItemSchema = z.object({
+  balance: z.string().nonempty(),
+  token: tokenSchema,
+})
+
+const userNftTokenSchema = z.object({
+  cursor: cursorSchema.optional(),
+  items: z.array(userNftItemSchema).optional(),
+})
+
 const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
 
+export type V2NftUserItem = z.infer<typeof userNftItemSchema>
+
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
-const V2BalancesAppsResponse = z.array(ZerionV2AppBalance)
+const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
+
+const V2NftUserTokensResponse = userNftTokenSchema
+export type V2NftUserTokensResponseType = z.infer<typeof V2NftUserTokensResponse>
+
+export type V2NftCollectionType = z.infer<typeof nftCollectionSchema>
+
+const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
+export type V2NftBalancesCollectionsResponseType = z.infer<typeof V2NftBalancesCollectionsResponse>
+
+export type V2ZapperNft = z.infer<typeof tokenSchema>
 
 const endpoints = makeApi([
   {
@@ -895,6 +1018,7 @@ const endpoints = makeApi([
   {
     method: 'get',
     path: '/v2/nft/balances/collections',
+    alias: 'getV2NftBalancesCollections',
     requestFormat: 'json',
     parameters: [
       {
@@ -933,7 +1057,7 @@ const endpoints = makeApi([
         schema: z.string().optional(),
       },
     ],
-    response: z.void(),
+    response: V2NftBalancesCollectionsResponse,
   },
   {
     method: 'get',
@@ -1089,6 +1213,7 @@ const endpoints = makeApi([
     method: 'get',
     path: '/v2/nft/user/tokens',
     requestFormat: 'json',
+    alias: 'getV2NftUserTokens',
     parameters: [
       {
         name: 'userAddress',
@@ -1111,7 +1236,7 @@ const endpoints = makeApi([
         schema: z.string().optional(),
       },
     ],
-    response: z.void(),
+    response: V2NftUserTokensResponse,
   },
   {
     method: 'get',

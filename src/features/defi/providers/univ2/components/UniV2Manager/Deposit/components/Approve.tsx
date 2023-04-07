@@ -1,15 +1,19 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ethers } from 'ethers'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  DefiProviderMetadata,
+  DefiStep,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -69,10 +73,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const asset1ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId1).assetReference),
-    [assetId1],
-  )
+
   const { approve, allowance, getDepositGasDataCryptoBaseUnit } = useUniV2LiquidityPool({
     accountId: lpAccountId ?? '',
     lpAssetId,
@@ -199,12 +200,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  if (!state || !dispatch) return null
+  if (!state || !dispatch || !lpOpportunity) return null
 
   return (
     <ReusableApprove
       asset={asset1}
       feeAsset={feeAsset}
+      spenderName={lpOpportunity.provider}
       estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoPrecision).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
@@ -213,11 +215,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       preFooter={preFooter}
-      providerIcon={asset1?.icon}
+      providerIcon={DefiProviderMetadata[lpOpportunity.provider].icon}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}
-      contractAddress={asset1ContractAddress}
+      spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
     />
   )
 }

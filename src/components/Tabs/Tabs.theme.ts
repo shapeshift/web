@@ -8,6 +8,14 @@ export const TabsStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
+    line: {
+      tablist: {
+        gap: 6,
+      },
+      tab: {
+        px: 0,
+      },
+    },
     enclosed: (props: Record<string, any>) => ({
       tablist: {
         borerColor: mode('gray.100', 'gray.750')(props),

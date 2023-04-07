@@ -17,7 +17,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,8 +45,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  // TODO(gomes): remove this old boi
-  const { onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -141,7 +138,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: UniV2DepositActionType.SET_TXID, payload: txid })
-      onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvents.DepositConfirm,

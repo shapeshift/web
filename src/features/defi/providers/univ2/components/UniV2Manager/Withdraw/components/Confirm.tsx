@@ -18,7 +18,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -67,7 +66,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   )
 
   const translate = useTranslate()
-  const { onOngoingLpTxIdChange } = useFoxEth()
 
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
@@ -142,7 +140,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
       )
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: UniV2WithdrawActionType.SET_TXID, payload: txid })
-      onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvents.WithdrawConfirm,
@@ -168,7 +165,6 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     walletState.wallet,
     lpOpportunity,
     removeLiquidity,
-    onOngoingLpTxIdChange,
     onNext,
     lpAsset.assetId,
     assetId1,

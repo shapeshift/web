@@ -44,14 +44,13 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const { setLpAccountId, setFarmingAccountId } = useFoxEth()
+  const { setFarmingAccountId } = useFoxEth()
 
   useEffect(() => {
     if (accountId) {
       setFarmingAccountId(accountId)
-      setLpAccountId(accountId)
     }
-  }, [setLpAccountId, setFarmingAccountId, accountId])
+  }, [setFarmingAccountId, accountId])
 
   const allRows = [...lpOpportunities, ...stakingOpportunities].filter(
     row =>

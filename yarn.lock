@@ -6323,6 +6323,7 @@ __metadata:
     "@formatjs/intl-locale": ^3.0.2
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
+    "@jest/types": ^29.5.0
     "@keepkey/hdwallet-keepkey-rest": 1.40.12
     "@keepkey/keepkey-sdk": 0.2.26
     "@keplr-wallet/types": ^0.10.5

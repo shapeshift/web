@@ -1,4 +1,5 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
+import type { Config } from '@jest/types'
 import CircularDependencyPlugin from 'circular-dependency-plugin'
 import stableStringify from 'fast-json-stable-stringify'
 import * as fs from 'fs'
@@ -339,6 +340,13 @@ const reactAppRewireConfig = {
       }
     })
 
+    return config
+  },
+  jest: (config: Config.InitialOptions) => {
+    config.transformIgnorePatterns = [
+      '/node_modules/(?!(@wagmi)/)',
+      '^.+\\.module\\.(css|sass|scss)$',
+    ]
     return config
   },
   devServer: (configFunction: DevServerConfigFunction): DevServerConfigFunction => {

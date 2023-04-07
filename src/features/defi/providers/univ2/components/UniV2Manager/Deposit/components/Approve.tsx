@@ -265,6 +265,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
+  // When isAsset0AllowanceGranted or isAsset1AllowanceGranted changes, move to next step if both are true
+  useEffect(() => {
+    if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
+      onNext(DefiStep.Confirm)
+    }
+  }, [isAsset0AllowanceGranted, isAsset1AllowanceGranted, onNext])
+
   const approvalElements = useMemo(
     () => [
       ...(!isAsset0AllowanceGranted
@@ -354,6 +361,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   if (!lpOpportunity) return null
 
   // We only show one approval at a time, and the array's head is going away as approval goes
-  // Until it is empty and we route to the next DefiStep
+  // This effectively peeks the next approval, until it exhausts all approvals needed and we route to the next DefiStep in the useEffect() above
   return <Flex flexDirection='column'>{approvalElements[0]}</Flex>
 }

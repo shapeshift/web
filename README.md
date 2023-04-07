@@ -36,7 +36,6 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Dependencies
 - [hdwallet](https://github.com/shapeshift/hdwallet)
-- [lib](https://github.com/shapeshift/lib)
 - [unchained](https://github.com/shapeshift/unchained)
 - [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (optional; must be installed manually)
 
@@ -62,6 +61,12 @@ If you are using Linux and macOS it works out of the box following these steps:
   ```sh
   # This is short for `yarn install`; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
   yarn
+  ```
+
+3. Build Packages:
+
+  ```sh
+  yarn build
   ```
 
 4. Run `yarn env dev` to generate a `.env` file
@@ -118,7 +123,7 @@ yarn test:cypress:headless
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-yarn build
+yarn build:web
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -128,25 +133,6 @@ yarn build
 > Your app is ready to be deployed!
 >
 > See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### Linking
-
-If you're developing locally in this `web` repository, and need to make changes affecting packages in `lib`
-or `unchained` (backend), use the following steps to link packages locally for developing.
-If your changes only touch `web` these steps are unnecessary.
-
-**Initial, one-off setup:**
-
-1. Clone the `lib` repo, `cd` into it, and run `yarn build`
-1. From `lib`, run `yarn link`
-1. Clone `unchained`, `cd` into it, and run `yarn build`
-1. From `unchained`, `cd packages/client` and `yarn link`, then do the same from `packages/parser`
-
-**When working in `web`, and using local changes in `lib` or `unchained`:**
-
-1. Run `yarn link-packages` in `web` to use local versions of `lib` and `unchained` - now your `web`'s chain-adapters have a symlink to your `lib`'s.
-1. `yarn show-linked-packages` will show what's currently linked
-1. Once you're done developing locally, run `yarn unlink-packages` to use published upstream versions
 
 ## Developer Onboarding
 

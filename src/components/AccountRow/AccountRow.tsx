@@ -9,7 +9,7 @@ import { RawText } from 'components/Text'
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -29,7 +29,8 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const cryptoValue =
-    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, { assetId })) ?? '0'
+    useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId })) ??
+    '0'
   const fiatValue =
     useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId })) ?? '0'
 

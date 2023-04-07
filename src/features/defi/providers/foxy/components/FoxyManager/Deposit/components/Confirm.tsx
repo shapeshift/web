@@ -21,7 +21,7 @@ import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -64,7 +64,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const handleDeposit = useCallback(async () => {

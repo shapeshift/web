@@ -13,9 +13,9 @@ describe('calculateAmounts', () => {
     // Negative values are expected as the swapper fees are higher than the sell amount
     expect(tradeAmountsByActionAndAmount).toEqual({
       sellAmountSellAssetBaseUnit: '1000000000000000',
-      buyAmountBuyAssetBaseUnit: '-204624938472859992504',
+      buyAmountBuyAssetBaseUnit: '-204624937927405447829',
       fiatSellAmount: '1.767',
-      fiatBuyAmount: '-6.752622954',
+      fiatBuyAmount: '-6.752622951604379778357',
     })
   })
 
@@ -25,9 +25,9 @@ describe('calculateAmounts', () => {
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
-      sellAmountSellAssetBaseUnit: '5437298811544992',
+      sellAmountSellAssetBaseUnit: '5437817176912496',
       buyAmountBuyAssetBaseUnit: '33000000000000000000',
-      fiatSellAmount: '9.607179',
+      fiatSellAmount: '9.608622951604380432',
       fiatBuyAmount: '1.089',
     })
   })
@@ -41,7 +41,7 @@ describe('calculateAmounts', () => {
       sellAmountSellAssetBaseUnit: '18675721561969440',
       buyAmountBuyAssetBaseUnit: '741829607527140007496',
       fiatSellAmount: '33',
-      fiatBuyAmount: '24.480377031',
+      fiatBuyAmount: '24.480377048395620247368',
     })
   })
 
@@ -51,9 +51,9 @@ describe('calculateAmounts', () => {
     const tradeAmountsByActionAndAmount = selectTradeAmountsByActionAndAmount(state)
 
     expect(tradeAmountsByActionAndAmount).toEqual({
-      sellAmountSellAssetBaseUnit: '23496721561969440',
+      sellAmountSellAssetBaseUnit: '23497239927336944',
       buyAmountBuyAssetBaseUnit: '1000000000000000000000',
-      fiatSellAmount: '41.517432',
+      fiatSellAmount: '41.519622951604380048',
       fiatBuyAmount: '33',
     })
   })

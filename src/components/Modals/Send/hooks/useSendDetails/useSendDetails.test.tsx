@@ -16,7 +16,7 @@ import {
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 
@@ -40,7 +40,7 @@ jest.mock('lib/address/ens', () => ({ ensLookup: jest.fn() }))
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectFeeAssetById: jest.fn(),
-  selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
+  selectPortfolioCryptoPrecisionBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(),
@@ -101,7 +101,7 @@ const setup = ({
     return fakeMarketData[assetId]
   })
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  mocked(selectPortfolioCryptoHumanBalanceByFilter).mockReturnValue(
+  mocked(selectPortfolioCryptoPrecisionBalanceByFilter).mockReturnValue(
     fromBaseUnit(assetBalance, asset.precision),
   )
   mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(assetBalance)

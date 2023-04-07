@@ -31,7 +31,7 @@ import {
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -100,7 +100,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalanceCryptoHuman = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceCryptoHuman)

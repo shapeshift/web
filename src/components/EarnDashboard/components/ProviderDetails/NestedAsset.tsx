@@ -34,7 +34,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
   const subTextJoined = useMemo(() => {
     const typeElement = <RawText>{type}</RawText>
     const claimableElement = <Text color='green.200' translation='common.claimable' />
-    const subText = [typeElement, [...(isClaimableRewards ? [claimableElement] : [])]]
+    const subText = [typeElement, ...(isClaimableRewards ? [claimableElement] : [])]
     return subText.map((element, index) => (
       <>
         {index > 0 && <RawText>•</RawText>}

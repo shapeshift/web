@@ -173,9 +173,6 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const { assetReference } = fromAssetId(opportunityId)
     // Checksum
     const contractAddress = ethers.utils.getAddress(assetReference)
-    // TODO(gomes): discrimination required because of typechain
-    // Import the standard UniV2 Pool ABI and cast `contractAddress` with it once we bring in Zerion/Zapper (soon)
-    // support for knowing that a specific token is a UniV2 LP
     const uniV2LPContract = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,
@@ -201,11 +198,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
       bn(10).pow(token0Decimals ?? 18),
     )
 
-    // TODO(gomes): Use zapper price if the flag is on, which is a less hacky way
-    // and will simplify this resolver quite a lot
-    // Total market cap of liquidity pool in usdc.
-    // Multiplied by 2 to show equal amount of token0 and token1.
-    const totalLiquidityFiat = token0ReservesCryptoPrecision.times(token0Price).times(2)
+    const totalLiquidityFiat = zapperAppBalanceData
+      ? bnOrZero(zapperAppBalanceData.dataProps.liquidity)
+      : token0ReservesCryptoPrecision.times(token0Price).times(2)
     const tvl = totalLiquidityFiat.toString()
     const price = bnOrZero(tvl)
       .div(bnOrZero(totalSupplyBaseUnit.toString()).div(bn(10).pow(18)))

@@ -233,17 +233,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         })
       })
     })()
-    // TODO(gomes): revert me
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    // dispatch,
-    portfolioLoadingStatus,
-    // portfolioAccounts,
-    // portfolioAssetIds,
-    // wallet,
-    // requestedAccountIds,
-    DynamicLpAssets,
-  ])
+  }, [portfolioLoadingStatus, DynamicLpAssets, dispatch, requestedAccountIds, portfolioAssetIds])
 
   const uniV2LpIdsData = useAppSelector(selectUniV2LpIds)
 

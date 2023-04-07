@@ -58,7 +58,6 @@ export const calculateAPRFromToken0 = memoize(
 
     // Checksum
     const contractAddress = ethers.utils.getAddress(assetReference)
-    // TODO: Don't cast as one of ETH/FOX LP addresses. Make this programmatic when we bring Zerion SDK in
     const pair: IUniswapV2Pair = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,

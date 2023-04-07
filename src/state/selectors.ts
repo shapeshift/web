@@ -35,6 +35,7 @@ type ParamFilter = Partial<{
   queryStatus: QueryStatus
   includeEarnBalances: boolean
   includeRewardsBalances: boolean
+  searchQuery: string
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -63,3 +64,4 @@ export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStat
 export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
 export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')
+export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')

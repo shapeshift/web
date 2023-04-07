@@ -12,6 +12,7 @@ const { cleanEnv, str, url, num } = envalid
 // note env vars must be prefixed with REACT_APP_
 const validators = {
   REACT_APP_LOG_LEVEL: str({ default: 'info' }),
+  REACT_APP_REDUX_WINDOW: bool({ default: false }),
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url(),
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: url(),

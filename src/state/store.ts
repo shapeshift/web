@@ -1,4 +1,5 @@
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { getConfig } from 'config'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -105,8 +106,6 @@ const stateSanitizer = (state: any) => {
 
 /// This allows us to create an empty store for tests
 export const createStore = () => {
-  const isLocalhost = window?.location?.hostname === 'localhost'
-
   return configureStore({
     reducer: persistedReducer,
     enhancers: existingEnhancers => {
@@ -127,7 +126,7 @@ export const createStore = () => {
         },
       })
         .concat(apiMiddleware)
-        .concat(isLocalhost ? [updateWindowStoreMiddleware] : []),
+        .concat(getConfig().REACT_APP_REDUX_WINDOW ? [updateWindowStoreMiddleware] : []),
     devTools: {
       actionSanitizer,
       stateSanitizer,
@@ -141,7 +140,7 @@ export const persistor = persistStore(store)
 export type ReduxStore = typeof store
 
 // dev QoL to access the store in the console
-if (window) window.store = store
+if (window && getConfig().REACT_APP_REDUX_WINDOW) window.store = store
 
 getStateWith(store.getState)
 registerSelectors(selectors)

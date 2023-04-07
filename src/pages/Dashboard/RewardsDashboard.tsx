@@ -11,7 +11,7 @@ import { DashboardHeader } from './components/DashboardHeader'
 const RewardsHeader = () => {
   const translate = useTranslate()
   return (
-    <Flex alignItems={{ base: 'flex-start', md: 'center' }} px={4} flexWrap='wrap'>
+    <Flex alignItems={{ base: 'flex-start', md: 'center' }} px={{ base: 4, md: 0 }} flexWrap='wrap'>
       <Flex width='full' justifyContent='space-between' alignItems='center'>
         <Heading fontSize='xl'>{translate('defi.myRewards')}</Heading>
         <Button

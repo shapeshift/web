@@ -23,7 +23,7 @@ import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
-import { selectPortfolioCryptoHumanBalanceByFilter } from '../common-selectors'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
@@ -527,7 +527,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioCryptoHumanBalanceByFilter', () => {
+    describe('selectPortfolioCryptoPrecisionBalanceByFilter', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
@@ -579,13 +579,13 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1.200009'
-        const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '0.2001'
-        const result = selectPortfolioCryptoHumanBalanceByFilter(state, {
+        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
           accountId: ethAccount2Id,
           assetId: foxAssetId,
         })

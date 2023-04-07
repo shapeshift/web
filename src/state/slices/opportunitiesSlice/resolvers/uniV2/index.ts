@@ -14,7 +14,10 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
-import { selectMarketDataById, selectPortfolioAccountBalances } from 'state/slices/selectors'
+import {
+  selectMarketDataById,
+  selectPortfolioAccountBalancesBaseUnit,
+} from 'state/slices/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type { GetOpportunityIdsOutput, GetOpportunityMetadataOutput } from '../../types'
@@ -173,7 +176,7 @@ export const uniV2LpUserDataResolver = ({
   if (portfolioLoadingStatusGranular?.[accountId] === 'loading')
     throw new Error(`Portfolio data not loaded for ${accountId}`)
 
-  const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalances(state)
+  const balances: PortfolioAccountBalancesById = selectPortfolioAccountBalancesBaseUnit(state)
 
   const hasPortfolioData = Boolean(balances[accountId][opportunityId])
 

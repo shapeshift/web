@@ -1,0 +1,121 @@
+import { Flex, List, ListItem, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { Amount } from 'components/Amount/Amount'
+import { Card } from 'components/Card/Card'
+import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
+import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
+import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { RawText } from 'components/Text'
+import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
+
+type ProviderCardProps = {
+  isLoading?: boolean
+} & AggregatedOpportunitiesByProviderReturn
+
+export const ProviderCard: React.FC<ProviderCardProps> = ({
+  provider,
+  fiatAmount,
+  apy,
+  fiatRewardsAmount,
+  opportunities: { staking, lp },
+  isLoading,
+}) => {
+  const { icon } = DefiProviderMetadata[provider]
+  const netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toString()
+  const isLoaded = !isLoading
+  return (
+    <Card variant='default'>
+      <Card.Header
+        display='flex'
+        flexDir={{ base: 'column', md: 'row' }}
+        gap={4}
+        alignItems={{ base: 'flex-start', md: 'center' }}
+        fontSize={{ base: 'md', md: 'xl' }}
+        fontWeight='bold'
+      >
+        <Flex
+          width='full'
+          gap={{ base: 2, md: 4 }}
+          alignItems='center'
+          justifyContent='space-between'
+        >
+          <SkeletonCircle isLoaded={isLoaded}>
+            <LazyLoadAvatar src={icon} size='sm' />
+          </SkeletonCircle>
+          <RawText textTransform='capitalize'>{provider}</RawText>
+          <Amount.Fiat
+            fontSize='lg'
+            value={netProviderFiatAmount}
+            display={{ base: 'none', md: 'block' }}
+          />
+          <Tag colorScheme='green' ml='auto'>
+            <Amount.Percent value={apy} suffix='Net APY' />
+          </Tag>
+        </Flex>
+
+        <Amount.Fiat
+          fontSize='lg'
+          value={netProviderFiatAmount}
+          display={{ base: 'block', md: 'none' }}
+        />
+      </Card.Header>
+      <Card.Body px={0} pb={2} pt={0}>
+        <WalletStakingByAsset ids={staking} />
+        <WalletLpByAsset ids={lp} />
+      </Card.Body>
+    </Card>
+  )
+}
+
+export const ProviderCardLoading: React.FC = () => {
+  return (
+    <Card>
+      <Card.Header display='flex' gap={4} alignItems='center' fontSize='xl' fontWeight='bold'>
+        <SkeletonCircle>
+          <LazyLoadAvatar size='sm' />
+        </SkeletonCircle>
+        <Skeleton>
+          <RawText textTransform='capitalize'>Loading</RawText>
+        </Skeleton>
+        <Skeleton>
+          <Amount.Fiat value='0' />
+        </Skeleton>
+        <Skeleton>
+          <Tag colorScheme='green'>
+            <Amount.Percent value='0' /> Net APY
+          </Tag>
+        </Skeleton>
+      </Card.Header>
+      <Card.Body px={0} pb={2} pt={0}>
+        <Flex flexDir='column' gap={8}>
+          <List ml={0} mt={0} spacing={4} position='relative'>
+            <ListItem
+              display='grid'
+              columnGap={4}
+              gridTemplateColumns={opportunityRowGrid}
+              px={{ base: 4, md: 6 }}
+              py={4}
+            >
+              <Flex alignItems='center' gap={4}>
+                <SkeletonCircle>
+                  <LazyLoadAvatar size='sm' />
+                </SkeletonCircle>
+                <Skeleton>
+                  <RawText textTransform='capitalize'>I'm a pirate arggg!</RawText>
+                </Skeleton>
+              </Flex>
+              <Skeleton display={{ base: 'none', md: 'block' }}>
+                <RawText textTransform='capitalize'>Loading</RawText>
+              </Skeleton>
+              <Skeleton>
+                <RawText textTransform='capitalize'>Loading</RawText>
+              </Skeleton>
+            </ListItem>
+          </List>
+        </Flex>
+      </Card.Body>
+    </Card>
+  )
+}

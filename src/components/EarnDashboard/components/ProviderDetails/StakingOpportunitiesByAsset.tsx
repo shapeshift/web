@@ -1,11 +1,7 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import type { MarketData } from '@shapeshiftoss/types'
 import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -19,7 +15,6 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
@@ -29,7 +24,6 @@ import type {
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
-  selectCryptoMarketData,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,32 +32,6 @@ type StakingPositionsByAssetProps = {
 }
 
 export type RowProps = Row<StakingEarnOpportunityType>
-
-type CalculateRewardFiatAmountArgs = {
-  assets: Partial<Record<AssetId, Asset>>
-  marketData: Partial<Record<AssetId, MarketData>>
-} & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
-
-type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
-
-const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
-  rewardsCryptoBaseUnit,
-  rewardAssetIds,
-  assets,
-  marketData,
-}) => {
-  if (!rewardAssetIds) return 0
-  return Array.from(rewardAssetIds).reduce((sum, assetId, index) => {
-    const asset = assets[assetId]
-    if (!asset) return sum
-    const marketDataPrice = bnOrZero(marketData[assetId]?.price)
-    const cryptoAmountPrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index]).div(
-      bn(10).pow(asset?.precision),
-    )
-    sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
-    return sum
-  }, 0)
-}
 
 export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = ({ ids }) => {
   const location = useLocation()
@@ -74,7 +42,6 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketData)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -176,52 +143,6 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         ),
       },
       {
-        Header: translate('defi.claimableRewards'),
-        accessor: 'rewardsCryptoBaseUnit',
-        Cell: ({ row }: { row: RowProps }) => {
-          const fiatAmount = calculateRewardFiatAmount({
-            rewardAssetIds: row.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
-          return hasRewardsBalance && row.original.isClaimableRewards ? (
-            <Button
-              isDisabled={!hasRewardsBalance}
-              variant='ghost-filled'
-              colorScheme='green'
-              size='sm'
-              minHeight='1.5rem'
-              height='auto'
-              borderRadius='lg'
-              px={2}
-              rightIcon={<ArrowForwardIcon />}
-              onClick={() => handleClick(row, DefiAction.Claim)}
-            >
-              <Amount.Fiat value={fiatAmount} />
-            </Button>
-          ) : (
-            <RawText variant='sub-text'>-</RawText>
-          )
-        },
-        sortType: (a: RowProps, b: RowProps): number => {
-          const aFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: a.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: a.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          const bFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: b.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: b.original.rewardsCryptoBaseUnit,
-            assets,
-            marketData,
-          })
-          return aFiatPrice - bFiatPrice
-        },
-      },
-      {
         Header: () => null,
         id: 'expander',
         Cell: ({ row }: { row: RowProps }) => (
@@ -239,7 +160,7 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         ),
       },
     ],
-    [assets, handleClick, marketData, translate],
+    [handleClick, translate],
   )
 
   if (!filteredDown.length) return null

@@ -1,3 +1,4 @@
+import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
   HStack,
@@ -12,9 +13,9 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
-import { useState } from 'react'
+import { isValidElement, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { AssetIcon } from 'components/AssetIcon'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -23,14 +24,14 @@ import { AssetTeaser } from './AssetTeaser'
 
 type AssetCellProps = {
   assetId: AssetId
-  subText?: string
+  subText?: string | JSX.Element
   postFix?: string
   showTeaser?: boolean
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
   version?: string
-}
+} & StackProps
 
 const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean): string => {
   if (showAssetSymbol && postFix) {
@@ -57,6 +58,7 @@ export const AssetCell = ({
   icons,
   opportunityName,
   version,
+  ...rest
 }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
   const linkColor = useColorModeValue('black', 'white')
@@ -69,7 +71,7 @@ export const AssetCell = ({
   const rowTitle = opportunityName ?? buildRowTitle(asset, postFix, showAssetSymbol)
 
   return (
-    <HStack width='full' data-test='defi-earn-asset-row'>
+    <HStack width='full' data-test='defi-earn-asset-row' {...rest}>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>
@@ -85,11 +87,11 @@ export const AssetCell = ({
           {icons ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='sm' />
+            <LazyLoadAvatar src={asset.icon} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
-          <Stack spacing={0} flex={1}>
+          <Stack spacing={0} flex={1} alignItems='flex-start'>
             <HStack>
               <Box
                 position='relative'
@@ -114,16 +116,18 @@ export const AssetCell = ({
                   display='block'
                   maxWidth='100%'
                   color={linkColor}
+                  fontSize={{ base: 'sm', md: 'md' }}
                 >
                   {rowTitle}
                 </RawText>
               </Box>
             </HStack>
-            {subText && (
+            {typeof subText === 'string' && (
               <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
                 {subText}
               </RawText>
             )}
+            {isValidElement(subText) && subText}
             {version && <RawText>{version}</RawText>}
           </Stack>
         </SkeletonText>

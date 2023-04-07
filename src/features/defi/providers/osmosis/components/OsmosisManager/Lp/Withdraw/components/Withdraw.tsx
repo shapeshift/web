@@ -35,7 +35,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataSortedByMarketCap,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -96,7 +96,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const lpAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: osmosisOpportunity?.assetId,
       accountId: accountId ?? '',
     }),

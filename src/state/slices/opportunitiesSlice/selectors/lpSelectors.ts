@@ -11,9 +11,9 @@ import { selectLpIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
@@ -29,7 +29,7 @@ export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunit
 export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
   selectLpIdParamFromFilter,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
   selectMarketDataSortedByMarketCap,
   (
@@ -135,7 +135,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
 export const selectHighestBalanceAccountIdByLpId = createSelector(
-  selectPortfolioAccountBalances,
+  selectPortfolioAccountBalancesBaseUnit,
   selectLpIdParamFromFilter,
   (portfolioAccountBalances, lpId): AccountId | undefined => {
     if (!lpId) return '*' // Narrowing flavoured type
@@ -211,7 +211,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
 /* Get LP opportunities for all assets with balance data aggregated across all accounts */
 export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
   selectMarketDataSortedByMarketCap,
   (

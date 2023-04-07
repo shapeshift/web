@@ -15,7 +15,7 @@ import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSli
 import {
   selectFeeAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
@@ -41,7 +41,7 @@ jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectFeeAssetById: jest.fn(),
   selectPortfolioCryptoPrecisionBalanceByFilter: jest.fn(),
-  selectPortfolioCryptoBalanceByFilter: jest.fn(),
+  selectPortfolioCryptoBalanceBaseUnitByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(),
 }))
@@ -104,7 +104,7 @@ const setup = ({
   mocked(selectPortfolioCryptoPrecisionBalanceByFilter).mockReturnValue(
     fromBaseUnit(assetBalance, asset.precision),
   )
-  mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(assetBalance)
+  mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
   mocked(selectPortfolioFiatBalanceByFilter).mockReturnValue(runeFiatAmount)
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),

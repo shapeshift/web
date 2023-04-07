@@ -27,7 +27,7 @@ import {
   selectEarnUserLpOpportunity,
   selectMarketDataById,
   selectMarketDataSortedByMarketCap,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -125,7 +125,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     () => ({ assetId: uniV2Opportunity?.assetId ?? '', accountId: accountId ?? '' }),
     [uniV2Opportunity?.assetId, accountId],
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+  )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(lpAsset?.precision))
 

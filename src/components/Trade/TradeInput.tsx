@@ -36,7 +36,7 @@ import {
 } from 'state/apis/swapper/selectors'
 import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -154,7 +154,7 @@ export const TradeInput = () => {
     [sellAssetAccountId, sellAsset?.assetId],
   )
   const sellAssetBalanceCrypto = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, sellAssetBalanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),

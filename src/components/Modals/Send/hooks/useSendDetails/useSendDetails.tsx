@@ -21,7 +21,7 @@ import { tokenOrUndefined } from 'lib/utils'
 import {
   selectFeeAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
@@ -87,12 +87,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, {
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
         assetId: feeAsset.assetId,
         accountId,
       }),

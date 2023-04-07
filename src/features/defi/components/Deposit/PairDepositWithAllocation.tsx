@@ -23,7 +23,7 @@ import type {
 import {
   selectAssetById,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -125,13 +125,13 @@ export const PairDepositWithAllocation = ({
   )
 
   const underlyingAsset0Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: opportunity?.underlyingAssetIds[0],
       accountId: accountId ?? '',
     }),
   )
   const underlyingAsset1Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: opportunity?.underlyingAssetIds[1],
       accountId: accountId ?? '',
     }),

@@ -13,7 +13,10 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { selectMarketDataById, selectPortfolioCryptoBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
@@ -52,7 +55,9 @@ export const Deposit: React.FC<DepositProps> = ({
     [accountId],
   )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+  )
 
   // notify
   const toast = useToast()

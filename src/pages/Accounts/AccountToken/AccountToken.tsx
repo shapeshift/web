@@ -13,6 +13,8 @@ import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectWalletAccountIds } from 'state/slices/selectors'
+
+import { AccountBalance } from './AccountBalance'
 export type MatchParams = {
   accountId: AccountId
   assetId: AssetId
@@ -46,11 +48,10 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
       direction={{ base: 'column', xl: 'row' }}
     >
       <Stack spacing={4} flex='1 1 0%' width='full'>
-        {accountId && <AccountAssets assetId={id} accountId={accountId} />}
-        <RelatedAssets assetId={id} />
+        <AccountBalance assetId={id} accountId={accountId} />
         <AssetAccounts assetId={id} accountId={accountId} />
         <EarnOpportunities assetId={id} accountId={accountId} />
-        <AssetTransactionHistory limit={10} assetId={id} accountId={accountId} />
+        <AssetTransactionHistory assetId={id} accountId={accountId} />
       </Stack>
       <Flex
         flexDir='column'

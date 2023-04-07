@@ -104,8 +104,10 @@ const stateSanitizer = (state: any) => {
 }
 
 /// This allows us to create an empty store for tests
-export const createStore = () =>
-  configureStore({
+export const createStore = () => {
+  const isLocalhost = window?.location?.hostname === 'localhost'
+
+  return configureStore({
     reducer: persistedReducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
@@ -125,12 +127,13 @@ export const createStore = () =>
         },
       })
         .concat(apiMiddleware)
-        .concat(updateWindowStoreMiddleware),
+        .concat(isLocalhost ? [updateWindowStoreMiddleware] : []),
     devTools: {
       actionSanitizer,
       stateSanitizer,
     },
   })
+}
 
 export const store = createStore()
 export const persistor = persistStore(store)

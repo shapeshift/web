@@ -37,7 +37,7 @@ import {
 import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -146,7 +146,7 @@ export const TradeInput = () => {
     [sellAssetAccountId, sellFeeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const sellAssetBalanceFilter = useMemo(
@@ -157,7 +157,7 @@ export const TradeInput = () => {
     selectPortfolioCryptoBalanceByFilter(state, sellAssetBalanceFilter),
   )
   const sellAssetBalanceHuman = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByFilter(state, sellAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)

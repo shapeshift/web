@@ -11,7 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { firstNonZeroDecimal } from 'lib/math'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,7 +30,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
   const filter = useMemo(() => ({ assetId }), [assetId])
   const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
   const cryptoHumanBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, filter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
   const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
   if (!asset) return null

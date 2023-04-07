@@ -53,7 +53,7 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
+export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,

@@ -22,7 +22,7 @@ import {
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,7 +75,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByFilter(state, {
+      selectPortfolioCryptoPrecisionBalanceByFilter(state, {
         assetId,
         accountId,
       }),

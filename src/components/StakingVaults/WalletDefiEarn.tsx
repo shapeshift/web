@@ -37,7 +37,7 @@ export const WalletDefiEarn: React.FC<WalletDefiEarnProps> = ({
   return (
     <Flex width='full' flexDir='column' gap={6}>
       {header && header}
-      <Tabs isLazy variant='soft-rounded' size='sm'>
+      <Tabs isLazy lazyBehavior='keepMounted' variant='soft-rounded' size='sm'>
         <Flex
           justifyContent='space-between'
           alignItems='center'

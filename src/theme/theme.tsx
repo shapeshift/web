@@ -42,7 +42,7 @@ const styles = {
     body: {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
-      fontFeatureSettings: "'zero'",
+      fontFeatureSettings: `'zero' on`,
     },
     html: {
       scrollBehavior: 'smooth',

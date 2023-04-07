@@ -3,9 +3,10 @@ import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
+import { OpportunityRow } from 'components/EarnDashboard/components/ProviderDetails/OpportunityRow'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -87,6 +88,12 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     })
   }
 
+  const renderRows = useMemo(() => {
+    return allRows.map(row => (
+      <OpportunityRow onClick={() => console.info('click')} opportunity={row} />
+    ))
+  }, [allRows])
+
   if (allRows.length === 0) return null
 
   return (
@@ -116,7 +123,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       </Card.Header>
       {Boolean(allRows?.length) && (
         <Card.Body pt={0} px={2}>
-          <StakingTable data={allRows} onClick={handleClick} />
+          {renderRows}
         </Card.Body>
       )}
     </Card>

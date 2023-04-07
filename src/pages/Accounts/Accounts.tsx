@@ -1,53 +1,47 @@
-import { AddIcon } from '@chakra-ui/icons'
-import { Button, Heading, List, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { List } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
-import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { DashboardHeader } from 'pages/Dashboard/components/DashboardHeader'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
 import { ChainRow } from './components/ChainRow'
 
-const AccountHeader = () => {
-  const translate = useTranslate()
-  const {
-    state: { wallet },
-  } = useWallet()
-  const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
+// const AccountHeader = () => {
+//   const translate = useTranslate()
+//   const {
+//     state: { wallet },
+//   } = useWallet()
+//   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
-  useEffect(() => {
-    if (!wallet) return
-    setIsMultiAccountWallet(wallet.supportsBip44Accounts())
-  }, [wallet])
+//   useEffect(() => {
+//     if (!wallet) return
+//     setIsMultiAccountWallet(wallet.supportsBip44Accounts())
+//   }, [wallet])
 
-  const { addAccount } = useModal()
-  const { open } = addAccount
+//   const { addAccount } = useModal()
+//   const { open } = addAccount
 
-  return (
-    <Stack direction='row' justifyContent='space-between' alignItems='center' pb={6}>
-      <SEO title={translate('accounts.accounts')} />
-      <Heading>
-        <Text translation='accounts.accounts' />
-      </Heading>
-      {isMultiAccountWallet && (
-        <Button
-          loadingText={translate('accounts.addAccount')}
-          leftIcon={<AddIcon />}
-          colorScheme='blue'
-          onClick={open}
-          data-test='add-account-button'
-        >
-          <Text translation='accounts.addAccount' />
-        </Button>
-      )}
-    </Stack>
-  )
-}
+//   return (
+//     <Stack direction='row' justifyContent='space-between' alignItems='center' pb={6}>
+//       <SEO title={translate('accounts.accounts')} />
+//       <Heading>
+//         <Text translation='accounts.accounts' />
+//       </Heading>
+//       {isMultiAccountWallet && (
+//         <Button
+//           loadingText={translate('accounts.addAccount')}
+//           leftIcon={<AddIcon />}
+//           colorScheme='blue'
+//           onClick={open}
+//           data-test='add-account-button'
+//         >
+//           <Text translation='accounts.addAccount' />
+//         </Button>
+//       )}
+//     </Stack>
+//   )
+// }
 
 export const Accounts = () => {
   const portfolioChainIdsSortedFiat = useSelector(selectPortfolioChainIdsSortedFiat)

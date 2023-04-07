@@ -1,22 +1,9 @@
-import {
-  Container,
-  Flex,
-  Stack,
-  StackDivider,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { AccountsIcon } from 'components/Icons/Accounts'
 import { BoltIcon } from 'components/Icons/Bolt'
-import { DefiIcon } from 'components/Icons/DeFi'
-import { RewardsIcon } from 'components/Icons/RewardsIcon'
 import { Text } from 'components/Text'
 import {
   selectClaimableRewards,
@@ -29,6 +16,8 @@ import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
   const location = useLocation()
+  const activeRef = useRef<HTMLButtonElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
   const claimableRewardsFiatBalance = useAppSelector(state =>
     selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
@@ -44,6 +33,59 @@ export const DashboardHeader = () => {
     [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  useEffect(() => {
+    if (activeRef.current) {
+      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+    }
+  }, [location])
+
+  const NavItems = useMemo(() => {
+    return [
+      {
+        label: 'common.overview',
+        path: '/dashboard',
+        color: 'blue.500',
+      },
+      {
+        label: 'navBar.wallet',
+        path: '/dashboard/accounts',
+        color: 'blue.500',
+        fiatAmount: portfolioTotalFiatBalance,
+      },
+      {
+        label: 'navBar.earn',
+        path: '/dashboard/earn',
+        color: 'purple.500',
+        fiatAmount: earnFiatBalance,
+      },
+      {
+        label: 'navBar.rewards',
+        path: '/dashboard/rewards',
+        color: 'green.500',
+        fiatAmount: claimableRewardsFiatBalance,
+      },
+      {
+        label: 'navBar.activity',
+        path: '/dashboard/transaction-history',
+        color: 'blue.500',
+      },
+    ]
+  }, [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance])
+
+  const renderNavItems = useMemo(() => {
+    return NavItems.map(navItem => (
+      <DashboardTab
+        label={navItem.label}
+        path={navItem.path}
+        ref={location.pathname === navItem.path ? activeRef : null}
+        isActive={location.pathname === navItem.path}
+        color={navItem.color}
+        fiatAmount={navItem.fiatAmount}
+      />
+    ))
+  }, [NavItems, location.pathname])
+
   return (
     <Stack spacing={0} borderColor={borderColor}>
       <Container
@@ -74,42 +116,21 @@ export const DashboardHeader = () => {
         position='sticky'
         top='72px'
       >
-        <Container maxWidth='container.xl' display='flex' gap={8} px={8}>
-          <DashboardTab
-            label='common.overview'
-            icon={<AccountsIcon />}
-            fiatValue={portfolioTotalFiatBalance}
-            path='/dashboard'
-            color='blue.500'
-          />
-          <DashboardTab
-            label='navBar.wallet'
-            icon={<AccountsIcon />}
-            fiatValue=''
-            path='/dashboard/accounts'
-            color='blue.500'
-          />
-          <DashboardTab
-            label='navBar.earn'
-            icon={<DefiIcon />}
-            fiatValue={earnFiatBalance}
-            path='/dashboard/earn'
-            color='purple.500'
-          />
-          <DashboardTab
-            label='defi.rewardsBalance'
-            icon={<RewardsIcon />}
-            fiatValue={claimableRewardsFiatBalance}
-            path='/dashboard/rewards'
-            color='green.500'
-          />
-          <DashboardTab
-            label='navBar.activity'
-            icon={<RewardsIcon />}
-            fiatValue=''
-            path='/dashboard/transaction-history'
-            color='green.500'
-          />
+        <Container
+          ref={containerRef}
+          maxWidth='container.xl'
+          className='navbar-scroller'
+          display='flex'
+          gap={8}
+          px={8}
+          overflowY='auto'
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
+        >
+          {renderNavItems}
         </Container>
       </Flex>
     </Stack>

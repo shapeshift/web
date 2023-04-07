@@ -266,5 +266,6 @@
   },
   "peerDependencies": {
     "lit-html": "^2.6.1"
-  }
+  },
+  "packageManager": "yarn@3.5.0"
 }

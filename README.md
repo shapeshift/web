@@ -60,7 +60,7 @@ If you are using Linux and macOS it works out of the box following these steps:
 3. Install Dependencies:
 
   ```sh
-  # This is short for `yarn install`; be sure to use `yarn install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+  # This is short for `yarn install`; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
   yarn
   ```
 

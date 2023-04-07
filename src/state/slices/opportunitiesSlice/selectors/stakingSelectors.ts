@@ -52,7 +52,10 @@ import {
   supportsUndelegations,
 } from '../utils'
 
-export const selectStakingIds = (state: ReduxState) => state.opportunities.staking.ids
+export const selectStakingIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.opportunities.staking.ids,
+  ids => ids,
+)
 
 export const selectUserStakingIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
@@ -63,8 +66,10 @@ export const selectUserStakingIds = createDeepEqualOutputSelector(
     ),
 )
 
-export const selectStakingOpportunitiesByAccountId = (state: ReduxState) =>
-  state.opportunities.staking.byAccountId
+export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.opportunities.staking.byAccountId,
+  byId => byId,
+)
 
 export const selectUserStakingOpportunitiesById = createSelector(
   selectWalletAccountIds,

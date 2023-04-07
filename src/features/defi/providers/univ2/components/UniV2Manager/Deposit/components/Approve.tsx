@@ -166,36 +166,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         contractAddress === asset0ContractAddress
           ? setIsAsset0AllowanceGranted(true)
           : setIsAsset1AllowanceGranted(true)
-
-        if (!(isAsset0AllowanceGranted && isAsset1AllowanceGranted)) return
-
-        // Get deposit gas estimate
-        const gasData = await getDepositGasDataCryptoBaseUnit({
-          token0Amount: state.deposit.asset0CryptoAmount,
-          token1Amount: state.deposit.asset1CryptoAmount,
-        })
-        if (!gasData) return
-        const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
-          .div(bn(10).pow(feeAsset.precision))
-          .toPrecision()
-        dispatch({
-          type: UniV2DepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCryptoPrecision },
-        })
-
-        onNext(DefiStep.Confirm)
-        trackOpportunityEvent(
-          MixPanelEvents.DepositApprove,
-          {
-            opportunity: lpOpportunity,
-            fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
-            cryptoAmounts: [
-              { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
-              { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },
-            ],
-          },
-          assets,
-        )
       } catch (error) {
         moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
         toast({
@@ -213,19 +183,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     },
     [
       dispatch,
-      state?.deposit,
+      state.deposit,
       lpOpportunity,
       wallet,
       asset0ContractAddress,
       approveAsset,
-      isAsset0AllowanceGranted,
-      isAsset1AllowanceGranted,
-      getDepositGasDataCryptoBaseUnit,
-      feeAsset.precision,
-      onNext,
-      assetId0,
-      assetId1,
-      assets,
       asset0Allowance,
       asset1Allowance,
       asset0.precision,
@@ -265,12 +227,58 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [hasEnoughBalanceForGas, mixpanel])
 
-  // When isAsset0AllowanceGranted or isAsset1AllowanceGranted changes, move to next step if both are true
+  // After both are approved, estimate gas and move to the confirm step
   useEffect(() => {
-    if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
-      onNext(DefiStep.Confirm)
-    }
-  }, [isAsset0AllowanceGranted, isAsset1AllowanceGranted, onNext])
+    ;(async () => {
+      if (!(state && dispatch && lpOpportunity)) return
+      if (!(isApprove0Needed || isApprove1Needed)) return
+      if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
+        debugger
+        // Get deposit gas estimate
+        const gasData = await getDepositGasDataCryptoBaseUnit({
+          token0Amount: state.deposit.asset0CryptoAmount,
+          token1Amount: state.deposit.asset1CryptoAmount,
+        })
+        if (!gasData) return
+        const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+          .div(bn(10).pow(feeAsset.precision))
+          .toPrecision()
+        dispatch({
+          type: UniV2DepositActionType.SET_DEPOSIT,
+          payload: { estimatedGasCryptoPrecision },
+        })
+
+        trackOpportunityEvent(
+          MixPanelEvents.DepositApprove,
+          {
+            opportunity: lpOpportunity,
+            fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
+            cryptoAmounts: [
+              { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
+              { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },
+            ],
+          },
+          assets,
+        )
+
+        onNext(DefiStep.Confirm)
+      }
+    })()
+  }, [
+    assetId0,
+    assetId1,
+    assets,
+    dispatch,
+    feeAsset.precision,
+    getDepositGasDataCryptoBaseUnit,
+    isApprove0Needed,
+    isApprove1Needed,
+    isAsset0AllowanceGranted,
+    isAsset1AllowanceGranted,
+    lpOpportunity,
+    onNext,
+    state,
+  ])
 
   const approvalElements = useMemo(
     () => [

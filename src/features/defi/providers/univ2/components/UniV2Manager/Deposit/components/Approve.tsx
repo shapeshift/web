@@ -183,7 +183,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     },
     [
       dispatch,
-      state.deposit,
+      state?.deposit,
       lpOpportunity,
       wallet,
       asset0ContractAddress,

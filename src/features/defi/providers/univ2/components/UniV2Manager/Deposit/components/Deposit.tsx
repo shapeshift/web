@@ -119,7 +119,7 @@ export const Deposit: React.FC<DepositProps> = ({
     try {
       const gasData = await getDepositGasDataCryptoBaseUnit({
         token0Amount,
-        token1AmountCryptoPrecision: token1Amount,
+        token1Amount,
       })
       if (!gasData) return
       return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()

@@ -1,23 +1,39 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "declaration": true,
+    "composite": true,
+    "skipLibCheck": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": "src",
+
+    /* Type Checking */
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true
+    "strict": true,
+
+    /* Module Resolution Options */
+    "baseUrl": "src",
+    "moduleResolution": "node",
+    "paths": {
+      "@shapeshiftoss/*": ["packages/$1/src/*"]
+    },
+    "resolveJsonModule": true,
+
+    /* Interop Constraints */
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+
+    /* Language and Environment */
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "jsx": "react-jsx",
   },
-  "include": ["src", "cypress"]
+  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
 }

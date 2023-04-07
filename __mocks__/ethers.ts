@@ -4,7 +4,7 @@ const ethers = {
   providers: {
     JsonRpcProvider: jest.fn(),
   },
-  Contract: jest.fn().mockImplementation((address) => ({
+  Contract: jest.fn().mockImplementation(address => ({
     decimals: () => {
       switch (address as string) {
         case '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48':

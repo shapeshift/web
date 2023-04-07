@@ -11,6 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: OpenJDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '11'
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -40,6 +46,9 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$TITLE" | npx commitlint
 
+      - name: Build Packages
+        run: yarn build:packages
+
       - name: Lint
         run: yarn lint
 
@@ -50,4 +59,4 @@ jobs:
         run: yarn env app
 
       - name: Test
-        run: yarn test
+        run: yarn test:ci

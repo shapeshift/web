@@ -7,9 +7,9 @@ import qs from 'qs'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { assets, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 
-import type { V2NftCollectionType, V2NftUserItem } from './client'
+import type { V2NftCollectionType, V2NftUserItem, ZapperAssetBase } from './client'
 import {
   chainIdToZapperNetwork,
   createApiClient,
@@ -34,7 +34,8 @@ const headers = {
 
 const zapperClient = createApiClient(ZAPPER_BASE_URL)
 
-type GetAppBalancesOutput = AssetId[]
+export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
+export type GetZapperAppBalancesOutput = Record<AssetId, ZapperAssetBase>
 
 type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
@@ -61,7 +62,7 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperUniV2PoolAssetIds: build.query<GetAppBalancesOutput, void>({
+    getZapperAppBalancesOutput: build.query<GetZapperAppBalancesOutput, void>({
       queryFn: async (_, { dispatch }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
@@ -79,12 +80,18 @@ export const zapperApi = createApi({
           },
         })
 
-        const data = zapperV2AppTokensData.map(appTokenData =>
-          toAssetId({
-            chainId: zapperNetworkToChainId(appTokenData.network)!,
-            assetNamespace: 'erc20', // TODO: bep20
-            assetReference: appTokenData.address,
-          }),
+        const data = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
+          (acc, appTokenData) => {
+            const assetId = toAssetId({
+              chainId: zapperNetworkToChainId(appTokenData.network)!,
+              assetNamespace: 'erc20', // TODO: bep20
+              assetReference: appTokenData.address,
+            })
+
+            acc[assetId] = appTokenData
+            return acc
+          },
+          {},
         )
 
         const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
@@ -109,7 +116,7 @@ export const zapperApi = createApi({
           { byId: {}, ids: [] },
         )
 
-        dispatch(assets.actions.upsertAssets(zapperAssets))
+        dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
 
         return { data }
       },
@@ -158,6 +165,35 @@ export const zapperApi = createApi({
             'collectionAddresses[]': collectionAddresses,
           },
         })
+        return { data }
+      },
+    }),
+  }),
+})
+
+// https://docs.zapper.xyz/docs/apis/getting-started
+export const zapper = createApi({
+  ...BASE_RTK_CREATE_API_CONFIG,
+  reducerPath: 'zapper',
+  endpoints: build => ({
+    getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
+      queryFn: async (_, { dispatch }) => {
+        const maybeZapperV2AppTokensData = await dispatch(
+          zapperApi.endpoints.getZapperAppBalancesOutput.initiate(),
+        )
+
+        if (!maybeZapperV2AppTokensData.data) throw new Error('No Zapper data, sadpepe.jpg')
+
+        const zapperV2AppTokensData = Object.values(maybeZapperV2AppTokensData.data)
+
+        const data = zapperV2AppTokensData.map(appTokenData =>
+          toAssetId({
+            chainId: zapperNetworkToChainId(appTokenData.network)!,
+            assetNamespace: 'erc20', // TODO: bep20
+            assetReference: appTokenData.address,
+          }),
+        )
+
         return { data }
       },
     }),

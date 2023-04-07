@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
 import type {
@@ -15,7 +15,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -73,13 +72,13 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const { lpAccountId } = useFoxEth()
-  const { allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
-    lpAssetId,
-    assetId0,
-    assetId1,
-  })
+  const { asset0Allowance, asset1Allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } =
+    useUniV2LiquidityPool({
+      accountId: accountId ?? '',
+      lpAssetId,
+      assetId0,
+      assetId1,
+    })
 
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
@@ -165,12 +164,22 @@ export const Deposit: React.FC<DepositProps> = ({
     )
     dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: true })
     try {
-      // Check if approval is required for user address
-      const lpAllowance = await allowance()
-      const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset1.precision))
+      // Check if approval is required for user address on any of the two assets
+      const asset0AllowanceCryptoBaseUnit = await asset0Allowance()
+      const asset0AllowanceAmount = bnOrZero(asset0AllowanceCryptoBaseUnit).div(
+        bn(10).pow(asset0.precision),
+      )
+      const asset1AllowanceCryptoBaseUnit = await asset1Allowance()
+      const asset1AllowanceAmount = bnOrZero(asset1AllowanceCryptoBaseUnit).div(
+        bn(10).pow(asset1.precision),
+      )
 
-      // Skip approval step if user allowance is greater than or equal requested deposit amount
-      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))) {
+      const isAsset0AllowanceGranted =
+        assetId0 === ethAssetId || asset0AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount0))
+      const isAsset1AllowanceGranted =
+        assetId1 === ethAssetId || asset1AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))
+      // Skip approval step if user allowance is greater than or equal requested deposit amount for that asset
+      if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
         const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(formValues)
         if (!estimatedGasCryptoPrecision) return
         dispatch({
@@ -180,16 +189,32 @@ export const Deposit: React.FC<DepositProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       } else {
+        // Same for both sides in case they need an approval since they're both ERC-20s
         const estimatedGasCrypto = await getApproveGasData()
         if (!estimatedGasCrypto) return
-        dispatch({
-          type: UniV2DepositActionType.SET_APPROVE,
-          payload: {
-            estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
-              .div(bn(10).pow(feeAsset.precision))
-              .toPrecision(),
-          },
-        })
+
+        if (!isAsset0AllowanceGranted) {
+          dispatch({
+            type: UniV2DepositActionType.SET_APPROVE_0,
+            payload: {
+              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+                .div(bn(10).pow(feeAsset.precision))
+                .toPrecision(),
+            },
+          })
+        }
+
+        if (!isAsset1AllowanceGranted) {
+          dispatch({
+            type: UniV2DepositActionType.SET_APPROVE_1,
+            payload: {
+              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+                .div(bn(10).pow(feeAsset.precision))
+                .toPrecision(),
+            },
+          })
+        }
+
         onNext(DefiStep.Approve)
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       }
@@ -211,7 +236,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = (value: string, isForAsset0: boolean) => {
     const crypto = bnOrZero(isForAsset0 ? asset0Balance : asset1Balance).div(
-      bn(10).pow((isForAsset0 ? asset1 : asset0).precision),
+      bn(10).pow((isForAsset0 ? asset0 : asset1).precision),
     )
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -221,7 +246,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = (value: string, isForAsset0: boolean) => {
     const crypto = bnOrZero(isForAsset0 ? asset0Balance : asset1Balance).div(
-      bn(10).pow((isForAsset0 ? asset1 : asset0).precision),
+      bn(10).pow((isForAsset0 ? asset0 : asset1).precision),
     )
     const fiat = crypto.times((isForAsset0 ? asset0MarketData : asset1MarketData).price)
     const _value = bnOrZero(value)
@@ -249,6 +274,7 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }
 
+  if (!accountId) return null
   return (
     <PairDeposit
       accountId={accountId}

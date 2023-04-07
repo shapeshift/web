@@ -67,17 +67,18 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   )
 
   const translate = useTranslate()
-  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
+  const { onOngoingLpTxIdChange } = useFoxEth()
 
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
   const { removeLiquidity } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
+    accountId: accountId ?? '',
     lpAssetId,
     assetId0,
     assetId1,
   })
 
+  const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
   const asset1 = useAppSelector(state => {
@@ -86,6 +87,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const assets = useAppSelector(selectAssets)
 
+  if (!feeAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
   if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
@@ -156,7 +158,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, 'FoxEthLpWithdraw:handleConfirm error')
+      moduleLogger.error(error, 'UniV2Withdraw:handleConfirm error')
     } finally {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     }
@@ -252,7 +254,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />
-            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: asset0.symbol }]} />
+            <Text translation={['modals.confirm.notEnoughGas', { assetSymbol: feeAsset.symbol }]} />
           </Alert>
         )}
       </Summary>

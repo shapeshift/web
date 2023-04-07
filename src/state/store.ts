@@ -10,7 +10,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
-import { zapperApi } from './apis/zapper/zapperApi'
+import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
@@ -40,6 +40,7 @@ const apiMiddleware = [
   foxyApi.middleware,
   swapperApi.middleware,
   fiatRampApi.middleware,
+  zapper.middleware,
   zapperApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
@@ -60,6 +61,8 @@ export const clearState = () => {
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
+  store.dispatch(apiSlices.zapperApi.util.resetApiState())
+  store.dispatch(apiSlices.zapper.util.resetApiState())
 }
 
 /**
@@ -80,6 +83,8 @@ const actionSanitizer = (action: any) => {
     'assetApi/executeQuery/fulfilled',
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
+    'zapperApi/executeQuery/fulfilled',
+    'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)
     ? {
@@ -110,7 +115,7 @@ export const createStore = () =>
     reducer: persistedReducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
-      return existingEnhancers.concat(autoBatchEnhancer())
+      return existingEnhancers.concat(autoBatchEnhancer({ type: 'tick' }))
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({

@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -12,6 +12,8 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import difference from 'lodash/difference'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -25,8 +27,9 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { zapperApi } from 'state/apis/zapper/zapperApi'
+import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -34,6 +37,7 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
@@ -43,7 +47,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  selectPortfolioAccounts,
+  // selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -62,6 +66,12 @@ import { useAppDispatch, useAppSelector } from 'state/store'
  * for some time as reselect does a really good job of memoizing things
  *
  */
+
+const { getOpportunityIds } = opportunitiesApi.endpoints
+const selectUniV2LpIds = getOpportunityIds.select({
+  defiType: DefiType.LiquidityPool,
+  defiProvider: DefiProvider.UniV2,
+})
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
@@ -72,7 +82,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-  const portfolioAccounts = useSelector(selectPortfolioAccounts)
+  // const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
@@ -165,7 +175,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    ;(async () => {
+    ;(() => {
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
@@ -174,69 +184,82 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
-      if (DynamicLpAssets) {
-        await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate())
-      }
-      await fetchAllOpportunitiesIds()
-      await fetchAllOpportunitiesMetadata()
+      const maybeFetchZapperData = DynamicLpAssets
+        ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
+        : setTimeoutAsync(0)
 
-      requestedAccountIds.forEach(accountId => {
-        const { chainId } = fromAccountId(accountId)
-        switch (chainId) {
-          case btcChainId:
-          case ltcChainId:
-          case dogeChainId:
-          case bchChainId:
-            fetchAllOpportunitiesUserData(accountId)
-            break
-          case cosmosChainId:
-          case osmosisChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
-            break
-          case avalancheChainId:
-            fetchAllOpportunitiesUserData(accountId)
-            break
-          case ethChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
+      maybeFetchZapperData.then(async () => {
+        await fetchAllOpportunitiesIds()
+        await fetchAllOpportunitiesMetadata()
 
-            /**
-             * fetch all rebase history for foxy
-             *
-             * foxy rebase history is most closely linked to transactions.
-             * unfortunately, we have to call this for a specific asset here
-             * because we need it for the dashboard balance chart
-             *
-             * if you're reading this and are about to add another rebase token here,
-             * stop, and make a getRebaseHistoryByAccountId that takes
-             * an accountId and assetId[] in the txHistoryApi
-             */
-            dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-            )
-            break
-          default:
-        }
+        requestedAccountIds.forEach(accountId => {
+          const { chainId } = fromAccountId(accountId)
+          switch (chainId) {
+            case btcChainId:
+            case ltcChainId:
+            case dogeChainId:
+            case bchChainId:
+              fetchAllOpportunitiesUserData(accountId)
+              break
+            case cosmosChainId:
+            case osmosisChainId:
+              // Don't await me, we don't want to block execution while this resolves and populates the store
+              fetchAllOpportunitiesUserData(accountId)
+              break
+            case avalancheChainId:
+              fetchAllOpportunitiesUserData(accountId)
+              break
+            case ethChainId:
+              // Don't await me, we don't want to block execution while this resolves and populates the store
+              fetchAllOpportunitiesUserData(accountId)
+
+              /**
+               * fetch all rebase history for foxy
+               *
+               * foxy rebase history is most closely linked to transactions.
+               * unfortunately, we have to call this for a specific asset here
+               * because we need it for the dashboard balance chart
+               *
+               * if you're reading this and are about to add another rebase token here,
+               * stop, and make a getRebaseHistoryByAccountId that takes
+               * an accountId and assetId[] in the txHistoryApi
+               */
+              dispatch(
+                getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
+              )
+              break
+            default:
+          }
+        })
       })
     })()
+    // TODO(gomes): revert me
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    dispatch,
+    // dispatch,
     portfolioLoadingStatus,
-    portfolioAccounts,
-    portfolioAssetIds,
-    wallet,
-    requestedAccountIds,
+    // portfolioAccounts,
+    // portfolioAssetIds,
+    // wallet,
+    // requestedAccountIds,
     DynamicLpAssets,
   ])
+
+  const uniV2LpIdsData = useAppSelector(selectUniV2LpIds)
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
 
+    // Exclude assets for which we are unable to get market data
+    // We would fire query thunks / XHRs that would slow down the app
+    // We insert price data for these as resolver-level, and are unable to get market data
+    const excluded: AssetId[] = [...(uniV2LpIdsData.data ?? [])]
+    const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
+
     const fetchMarketData = () =>
-      portfolioAssetIds.forEach(assetId => {
+      portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
         dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
         const timeframe = DEFAULT_HISTORY_TIMEFRAME
         const payload = { assetId, timeframe }
@@ -246,6 +269,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+    // Don't want to re-run this effect when uniV2LpIdsData change
+    // since it would set another fetchMarketData() interval
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
 
   /**

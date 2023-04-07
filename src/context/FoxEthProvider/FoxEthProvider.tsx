@@ -30,6 +30,7 @@ type FoxEthProviderProps = {
 type IFoxEthContext = {
   farmingAccountId: AccountId | undefined
   setFarmingAccountId: (accountId: AccountId | undefined) => void
+  // TODO(gomes): remove me, and this whole hook too pls thx
   lpAccountId: AccountId | undefined
   setLpAccountId: (accountId: AccountId | undefined) => void
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void

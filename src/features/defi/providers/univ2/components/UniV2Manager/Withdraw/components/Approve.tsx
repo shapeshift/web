@@ -19,7 +19,6 @@ import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUn
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -53,7 +52,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const { lpAccountId } = useFoxEth()
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
@@ -78,8 +76,12 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approve, allowance, getWithdrawGasData } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
+  const {
+    approveLp: approve,
+    lpAllowance,
+    getWithdrawGasData,
+  } = useUniV2LiquidityPool({
+    accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
     lpAssetId,
@@ -105,16 +107,24 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !state?.withdraw || !lpOpportunity || !wallet || !supportsETH(wallet)) return
+    if (
+      !dispatch ||
+      !lpAsset ||
+      !state?.withdraw ||
+      !lpOpportunity ||
+      !wallet ||
+      !supportsETH(wallet)
+    )
+      return
 
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
       await approve(true)
       await poll({
-        fn: () => allowance(true),
+        fn: () => lpAllowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset1.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          const lpAllowance = bnOrZero(result).div(bn(10).pow(lpAsset.precision))
+          return bnOrZero(lpAllowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
@@ -157,6 +167,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
+    lpAsset,
     state?.withdraw,
     lpOpportunity,
     wallet,
@@ -165,8 +176,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     feeAsset.precision,
     onNext,
     assets,
-    allowance,
-    asset1.precision,
+    lpAllowance,
     toast,
     translate,
   ])

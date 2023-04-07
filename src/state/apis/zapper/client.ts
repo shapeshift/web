@@ -667,6 +667,7 @@ export type V2NftUserItem = z.infer<typeof userNftItemSchema>
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
+export type ZapperAssetBase = z.infer<typeof ZapperAssetBaseSchema>
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
 

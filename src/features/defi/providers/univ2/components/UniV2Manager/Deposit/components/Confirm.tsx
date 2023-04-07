@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -46,7 +46,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
+  // TODO(gomes): remove this old boi
+  const { onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -68,7 +69,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
   const { addLiquidity } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
+    accountId: accountId ?? '',
     assetId0,
     assetId1,
     lpAssetId,
@@ -103,9 +104,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
+  const ethAmount: string = (() => {
+    // This should never happen, but just in case
+    if (!state) return '0'
+    // If any of the assets are ETH, return the amount of ETH needed
+    // Else return 0 (no ETH needed)
+    if (assetId0 === ethAssetId) return state.deposit.asset1CryptoAmount
+    if (assetId1 === ethAssetId) return state.deposit.asset0CryptoAmount
+
+    return '0'
+  })()
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceCryptoHuman)
     .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
-    .minus(bnOrZero(state?.deposit.asset0CryptoAmount))
+    .minus(ethAmount)
     .gte(0)
 
   useEffect(() => {

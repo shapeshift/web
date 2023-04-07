@@ -26,8 +26,12 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
 
-type KnownContract<T extends KnownContractAddress> = ReturnType<
+type KnownContractByAddress<T extends KnownContractAddress> = ReturnType<
   typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
+>
+
+type KnownContractByType<T extends ContractType> = ReturnType<
+  typeof CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[T]['connect']
 >
 
 type KnownContractAddress =
@@ -37,7 +41,7 @@ type KnownContractAddress =
   | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
 
 type DefinedContract = {
-  contract: KnownContract<KnownContractAddress>
+  contract: KnownContractByAddress<KnownContractAddress>
   address: KnownContractAddress
 }
 
@@ -55,27 +59,56 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
 } as const
 
-export const getOrCreateContract = <T extends KnownContractAddress>(
+export enum ContractType {
+  UniV2Pair = 'UniV2Pair',
+  ERC20 = 'ERC20',
+}
+
+export const CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT = {
+  [ContractType.UniV2Pair]: IUniswapV2Pair__factory,
+  [ContractType.ERC20]: ERC20ABI__factory,
+} as const
+
+export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
   address: T,
-): KnownContract<T> => {
+): KnownContractByAddress<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
   if (definedContract && definedContract.contract)
-    return definedContract.contract as KnownContract<T>
+    return definedContract.contract as KnownContractByAddress<T>
   const typechainContract = CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[address]
   const ethersProvider = getEthersProvider()
   const contract = typechainContract.connect(address, ethersProvider)
   definedContracts.push({ contract, address })
-  return contract as KnownContract<T>
+  return contract as KnownContractByAddress<T>
+}
+
+// temporary until I figure out the heuristics for it
+export const getOrCreateContractByType = <T extends ContractType>({
+  address,
+  type,
+}: {
+  address: string
+  type: T
+}): KnownContractByType<T> => {
+  const definedContract = definedContracts.find(contract => contract.address === address)
+  if (definedContract && definedContract.contract)
+    return definedContract.contract as KnownContractByType<T>
+  const typechainContract = CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[type]
+  const ethersProvider = getEthersProvider()
+  const contract = typechainContract.connect(address, ethersProvider)
+  // @ts-ignore temp ignore
+  definedContracts.push({ contract, address })
+  return contract as KnownContractByType<T>
 }
 
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   // Checksum
   const contractAddress = ethers.utils.getAddress(assetReference)
-  // TODO(gomes): remove casting
-  const pair: IUniswapV2Pair = getOrCreateContract(
-    contractAddress as typeof ETH_FOX_POOL_CONTRACT_ADDRESS,
-  )
+  const pair: IUniswapV2Pair = getOrCreateContractByType({
+    address: contractAddress,
+    type: ContractType.UniV2Pair,
+  })
   const ethersProvider = getEthersProvider()
 
   const token0Address = await pair.token0()

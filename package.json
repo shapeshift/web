@@ -9,22 +9,29 @@
     "version": "independent"
   },
   "scripts": {
+    "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
     "build": "yarn build:packages",
     "build:web": "yarn build && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node ./scripts/writeHeaders.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && ts-node --skipProject ./scripts/writeBuildMetadata.ts",
     "build:packages": "yarn clean:packages && yarn workspace @shapeshiftoss/unchained-client generate && yarn tsc --build tsconfig.packages.json",
     "clean": "yarn clean:packages && yarn clean:web && rm -rf node_modules coverage tsconfig.tsbuildinfo",
     "clean:web": "rm -rf build tsconfig.web.tsbuildinfo",
     "clean:packages": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run clean && rm -rf tsconfig.packages.tsbuildinfo",
+    "deadcode": "yarn ts-prune",
     "dev": "yarn dev:packages & yarn dev:web",
     "dev:web": "BROWSER=none NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
     "dev:packages": "yarn tsc --build --watch tsconfig.packages.json",
-    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
+    "env": "yarn ts-node --skipProject ./scripts/bootstrap-env.ts",
+    "generate:abis": "yarn typechain src/contracts/abis/*.json --target=ethers-v5 --out-dir ./src/contracts/__generated",
+    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build:web",
     "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "yarn lint --fix",
     "lint:cypress": "yarn eslint -c ./cypress/.eslintrc cypress --ext .ts,.tsx",
     "lint:cypress:fix": "yarn lint:cypress --fix",
-    "minify": "yarn yarn-minify",
+    "postinstall": "git config --local include.path '.gitconfig'",
+    "release": "yarn ts-node --skipProject ./scripts/release.ts",
+    "remove-outdated-translations": "yarn ts-node --skipProject ./scripts/removeOutdatedTranslations.ts",
+    "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "test": "yarn test:packages && yarn test:web",
     "test:web": "yarn jest react-app-rewired && react-app-rewired test --coverage --watchAll=false",
     "test:packages": "yarn jest packages",
@@ -36,15 +43,7 @@
     "test:dev:web": "yarn react-app-rewired test --watch",
     "test:dev:packages": "yarn test:packages --watch",
     "type-check": "yarn tsc --noEmit",
-    "type-check-watch": "yarn tsc --noEmit --watch",
-    "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
-    "postinstall": "./scripts/postinstall.sh",
-    "release": "yarn ts-node --skipProject ./scripts/release.ts",
-    "remove-outdated-translations": "yarn ts-node --skipProject ./scripts/removeOutdatedTranslations.ts",
-    "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
-    "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
-    "env": "yarn ts-node --skipProject ./scripts/bootstrap-env.ts",
-    "deadcode": "yarn ts-prune"
+    "type-check-watch": "yarn tsc --noEmit --watch"
   },
   "browserslist": {
     "production": [
@@ -246,7 +245,6 @@
     "patch-package": "^6.4.7",
     "path-browserify": "^1.0.1",
     "pify": "^5.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
     "react-scripts": "^5.0.0",
@@ -260,11 +258,15 @@
     "typescript": "^4.9.0",
     "val-loader": "^4.0.0",
     "webpack": "5.76.0",
-    "webpack-subresource-integrity": "^5.0.0",
-    "yarn-minify": "^1.0.1"
+    "webpack-subresource-integrity": "^5.0.0"
   },
   "peerDependencies": {
     "lit-html": "^2.6.1"
   },
-  "packageManager": "yarn@3.5.0"
+  "packageManager": "yarn@3.5.0",
+  "resolutions": {
+    "@bithighlander/bitcoin-cash-js-lib@^5.2.1": "patch:@bithighlander/bitcoin-cash-js-lib@npm%3A5.2.1#./.yarn/patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch",
+    "friendly-challenge@0.9.2": "patch:friendly-challenge@npm%3A0.9.2#./.yarn/patches/friendly-challenge-npm-0.9.2-db0cad46d3.patch",
+    "react-dom@^18.2.0": "patch:react-dom@npm%3A18.2.0#./.yarn/patches/react-dom-npm-18.2.0-dd675bca1c.patch"
+  }
 }

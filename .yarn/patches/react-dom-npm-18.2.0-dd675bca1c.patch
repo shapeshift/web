@@ -1,7 +1,7 @@
-diff --git a/node_modules/react-dom/cjs/react-dom.development.js b/node_modules/react-dom/cjs/react-dom.development.js
-index e4ed5ae..6a8ca9f 100644
---- a/node_modules/react-dom/cjs/react-dom.development.js
-+++ b/node_modules/react-dom/cjs/react-dom.development.js
+diff --git a/cjs/react-dom.development.js b/cjs/react-dom.development.js
+index e4ed5aecb725ca7db6a2e8780270f1edc45d0ba8..6a8ca9fca8d58fb63acd8b294564f751e86d98d2 100644
+--- a/cjs/react-dom.development.js
++++ b/cjs/react-dom.development.js
 @@ -28757,12 +28757,6 @@ function findHostInstanceWithWarning(component, methodName) {
  
          try {

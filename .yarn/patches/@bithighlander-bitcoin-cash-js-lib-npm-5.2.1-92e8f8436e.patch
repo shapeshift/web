@@ -1,7 +1,7 @@
-diff --git a/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js b/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
-index e7dd596..212ca83 100644
---- a/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
-+++ b/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
+diff --git a/src/crypto.js b/src/crypto.js
+index e7dd596bdd78cc36c3bdfb7bb32a3bf9de3413c5..212ca83084509aaabc89dabb11014445b2d237dc 100644
+--- a/src/crypto.js
++++ b/src/crypto.js
 @@ -30,6 +30,11 @@ function hash160(buffer) {
  }
  exports.hash160 = hash160;

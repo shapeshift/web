@@ -20,6 +20,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
   key: 'root',
@@ -122,7 +123,9 @@ export const createStore = () =>
           warnAfter: 128,
           ignoredActions: [PERSIST, PURGE],
         },
-      }).concat(apiMiddleware),
+      })
+        .concat(apiMiddleware)
+        .concat(updateWindowStoreMiddleware),
     devTools: {
       actionSanitizer,
       stateSanitizer,
@@ -131,6 +134,11 @@ export const createStore = () =>
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+export type ReduxStore = typeof store
+
+// dev QoL to access the store in the console
+if (window) window.store = store
 
 getStateWith(store.getState)
 registerSelectors(selectors)

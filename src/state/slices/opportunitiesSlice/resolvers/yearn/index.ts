@@ -7,7 +7,7 @@ import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInve
 import {
   selectAssetById,
   selectFeatureFlags,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 
 import type {
@@ -113,7 +113,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: stakingOpportunityId }
-    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, stakingOpportunityId)
     if (!asset) continue

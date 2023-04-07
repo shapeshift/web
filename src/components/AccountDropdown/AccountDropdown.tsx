@@ -39,7 +39,7 @@ import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectHighestFiatBalanceAccountByAssetId,
-  selectPortfolioAccountBalances,
+  selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
@@ -105,7 +105,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
 
-  const accountBalances = useSelector(selectPortfolioAccountBalances)
+  const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const highestFiatBalanceAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, { assetId }),

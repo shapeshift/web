@@ -32,7 +32,7 @@ import {
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -98,7 +98,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     [accountId],
   )
   const feeAssetBalanceCryptoHuman = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(

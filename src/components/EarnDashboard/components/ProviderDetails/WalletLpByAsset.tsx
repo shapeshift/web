@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -100,7 +100,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
         {groupedItems.map(group => {
           const [name, values] = group
           return (
-            <>
+            <Box key={name}>
               <OpportunityTableHeader>
                 <RawText>{name}</RawText>
                 <RawText display={{ base: 'none', md: 'block' }}>
@@ -117,7 +117,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
                   />
                 ))}
               </Flex>
-            </>
+            </Box>
           )
         })}
       </Flex>

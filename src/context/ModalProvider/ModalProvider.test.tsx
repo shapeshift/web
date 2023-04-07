@@ -8,7 +8,7 @@ import { makeUseModal } from 'hooks/useModal/useModal'
 
 import { createModalContext } from './ModalContext'
 
-function setup<M>(modals: M) {
+function setup<M extends {}>(modals: M) {
   const instanceInitialState = createInitialState(modals)
   const InstanceModalContext = createModalContext(instanceInitialState)
   const ModalProvider = createModalProvider({

@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import * as fs from 'fs'
 import * as path from 'path'
 

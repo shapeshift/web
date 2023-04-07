@@ -16,6 +16,7 @@ import { AssetActions } from 'components/AssetHeader/AssetActions'
 import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
+import { RawText } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -45,7 +46,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   if (!asset) return null
   return (
     <Card variant='footer-stub' overflow='hidden'>
-      <Card.Body display='flex' justifyContent='space-between' alignItems='center'>
+      <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
         <Button
           size='sm'
           leftIcon={<ArrowBackIcon />}
@@ -53,8 +54,11 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
         >
           {accountLabel}
         </Button>
-        <LazyLoadAvatar src={asset.icon} />
-      </Card.Body>
+        <Flex alignItems='center' gap={2}>
+          <LazyLoadAvatar src={asset.icon} />
+          <RawText fontWeight='bold'>{asset.name}</RawText>
+        </Flex>
+      </Card.Header>
       <Card.Body gap={4} fontWeight='bold' display='flex' alignItems='flex-start'>
         <Flex flexDir='column'>
           <Amount.Crypto

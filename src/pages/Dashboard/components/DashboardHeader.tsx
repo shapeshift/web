@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useRef } from 'react'
@@ -11,6 +11,7 @@ import { Text } from 'components/Text'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
+  selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
   selectWalletId,
 } from 'state/slices/selectors'
@@ -21,6 +22,7 @@ import { DashboardTab } from './DashboardTab'
 export const DashboardHeader = () => {
   const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
+  const loading = useAppSelector(selectPortfolioLoading)
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
@@ -121,7 +123,9 @@ export const DashboardHeader = () => {
           {walletId && <LazyLoadAvatar borderRadius='xl' size='xl' src={walletImage} />}
           <Flex flexDir='column'>
             <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
-            <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
+            <Skeleton isLoaded={!loading}>
+              <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
+            </Skeleton>
           </Flex>
         </Flex>
         <Flex gap={4}>

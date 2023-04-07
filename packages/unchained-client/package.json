@@ -1,0 +1,39 @@
+{
+  "name": "@shapeshiftoss/unchained-client",
+  "version": "10.14.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn generate && tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist src/generated tsconfig.build.tsbuildinfo",
+    "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+  },
+  "dependencies": {
+    "@yfi/sdk": "^1.2.0",
+    "axios": "^0.26.1",
+    "bignumber.js": "^9.1.1",
+    "ethers": "^5.5.3",
+    "isomorphic-ws": "^4.0.1",
+    "ws": "^8.3.0"
+  },
+  "peerDependencies": {
+    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/logger": "^1.1.2",
+    "@shapeshiftoss/types": "^8.1.0"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/common-api": "^8.3.0",
+    "@shapeshiftoss/logger": "^1.1.2",
+    "@shapeshiftoss/types": "^8.1.0",
+    "@types/ws": "^8.2.1"
+  }
+}

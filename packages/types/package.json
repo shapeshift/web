@@ -1,0 +1,24 @@
+{
+  "name": "@shapeshiftoss/types",
+  "version": "8.6.0",
+  "description": "Common types shared across packages",
+  "repository": "https://github.com/shapeshift/lib",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepare": "yarn build",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+  }
+}

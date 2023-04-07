@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "src",
+    "allowJs": true,
+  },
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+  ],
+}

@@ -1,0 +1,54 @@
+{
+  "name": "@shapeshiftoss/asset-service",
+  "version": "8.12.0",
+  "description": "Service to return supported asset details",
+  "homepage": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/*.js",
+    "dist/*.d.ts",
+    "dist/service"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shapeshift/lib"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "generate": "yarn build && node ./dist/generateAssetData/generateAssetData.js && yarn build",
+    "generate-color-map": "yarn build && node ./dist/generateAssetData/generateColorMap.js && yarn build",
+    "prepare": "yarn build",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "identicon.js": "^2.3.3",
+    "js-pixel-fonts": "^1.5.0",
+    "lodash": "^4.17.21",
+    "node-polyglot": "^2.4.2"
+  },
+  "peerDependencies": {
+    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/types": "^8.1.0"
+  },
+  "devDependencies": {
+    "@ethersproject/providers": "^5.5.3",
+    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/investor-idle": "^2.4.1",
+    "@shapeshiftoss/types": "^8.1.0",
+    "@types/node-polyglot": "^2.4.2",
+    "@yfi/sdk": "^1.2.0",
+    "colorthief": "^2.3.2",
+    "dotenv": "^14.3.0",
+    "web3": "1.7.4"
+  }
+}

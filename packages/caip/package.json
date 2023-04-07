@@ -1,0 +1,42 @@
+{
+  "name": "@shapeshiftoss/caip",
+  "version": "8.15.0",
+  "description": "CAIP Implementation",
+  "homepage": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shapeshift/lib"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn compile",
+    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
+    "compile": "tsc -p tsconfig.build.json",
+    "dev": "tsc --watch",
+    "generate-coingecko": "ts-node -P tsconfig.build.json src/adapters/coingecko/generate.ts",
+    "generate-coincap": "ts-node -P tsconfig.build.json src/adapters/coincap/generate.ts",
+    "generate-yearn": "ts-node -P tsconfig.build.json src/adapters/yearn/generate.ts",
+    "generate-osmosis": "ts-node -P tsconfig.build.json src/adapters/osmosis/generate.ts",
+    "generate": "yarn generate-coingecko && yarn generate-coincap && yarn generate-yearn && yarn generate-osmosis",
+    "prepare": "yarn build",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+  },
+  "peerDependencies": {
+    "@shapeshiftoss/types": "^8.1.0"
+  },
+  "devDependencies": {
+    "@shapeshiftoss/types": "^8.1.0",
+    "@yfi/sdk": "^1.2.0",
+    "axios": "^0.26.1",
+    "ts-node": "^10.7.0"
+  }
+}

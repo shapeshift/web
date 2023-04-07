@@ -41,8 +41,8 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         <Flex justifyContent='space-between' alignItems='center' gap={4} flexWrap='wrap' {...rest}>
           <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
             <TabList m={0} width={{ base: 'full', md: 'auto' }}>
-              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
               <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byProvider')}</Tab>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>
           <ChainDropdown
@@ -58,7 +58,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         </Flex>
         <TabPanels>
           <TabPanel px={0}>
-            <PositionTable
+            <WalletProviderTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
               includeEarnBalances={Boolean(includeEarnBalances)}
@@ -66,7 +66,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
             />
           </TabPanel>
           <TabPanel px={0}>
-            <WalletProviderTable
+            <PositionTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
               includeEarnBalances={Boolean(includeEarnBalances)}

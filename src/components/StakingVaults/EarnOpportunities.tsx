@@ -96,36 +96,5 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   if (allRows.length === 0) return null
 
-  return (
-    <Card>
-      <Card.Header flexDir='row' display='flex'>
-        <HStack gap={6} width='full'>
-          <Box>
-            <Card.Heading>
-              <Text translation='defi.earn' />
-            </Card.Heading>
-            <Text color='gray.500' translation='defi.earnBody' />
-          </Box>
-          <Box flex={1} textAlign='right'>
-            <Button
-              size='sm'
-              variant='link'
-              colorScheme='blue'
-              ml='auto'
-              as={NavLink}
-              to='/earn'
-              rightIcon={<ArrowForwardIcon />}
-            >
-              <Text translation='common.seeAll' />
-            </Button>
-          </Box>
-        </HStack>
-      </Card.Header>
-      {Boolean(allRows?.length) && (
-        <Card.Body pt={0} px={2}>
-          {renderRows}
-        </Card.Body>
-      )}
-    </Card>
-  )
+  return <>{renderRows}</>
 }

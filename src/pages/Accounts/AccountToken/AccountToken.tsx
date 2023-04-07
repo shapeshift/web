@@ -46,7 +46,6 @@ export const AccountToken = () => {
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance assetId={id} accountId={accountId} />
         <AssetAccounts assetId={id} accountId={accountId} />
-        <EarnOpportunities assetId={id} accountId={accountId} />
         <AssetTransactionHistory assetId={id} accountId={accountId} />
       </Stack>
       <Flex

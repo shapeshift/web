@@ -55,7 +55,7 @@ import {
   selectAssets,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -128,7 +128,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const assetBalanceCryptoBaseUnit = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, assetBalanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -272,7 +272,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         // React reconciliation algorithm makes it so this wouldn't change until the next time this is fired
         // But the balance actually changes from the gas fees of the reconciliation Tx if it's fired
         // So the next time we fire the actual send Tx, we should deduct from the udpated balance
-        const assetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceByFilter(
+        const assetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(
           store.getState(),
           assetBalanceFilter,
         )

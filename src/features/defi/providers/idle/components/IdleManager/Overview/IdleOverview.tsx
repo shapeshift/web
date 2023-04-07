@@ -36,7 +36,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedLocale,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
@@ -94,7 +94,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
   )
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
   const cryptoAmountAvailable = useMemo(

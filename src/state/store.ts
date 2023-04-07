@@ -105,8 +105,8 @@ const stateSanitizer = (state: any) => {
 }
 
 /// This allows us to create an empty store for tests
-export const createStore = () => {
-  return configureStore({
+export const createStore = () =>
+  configureStore({
     reducer: persistedReducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
@@ -132,7 +132,6 @@ export const createStore = () => {
       stateSanitizer,
     },
   })
-}
 
 export const store = createStore()
 export const persistor = persistStore(store)

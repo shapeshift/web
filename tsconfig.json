@@ -3,8 +3,6 @@
     "target": "es2020",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "declaration": true,
-    "composite": true,
     "skipLibCheck": true,
     "noEmit": true,
 
@@ -18,7 +16,7 @@
     "baseUrl": "src",
     "moduleResolution": "node",
     "paths": {
-      "@shapeshiftoss/*": ["packages/$1/src/*"]
+      "@shapeshiftoss/*": ["./packages/$1/src/*"]
     },
     "resolveJsonModule": true,
 

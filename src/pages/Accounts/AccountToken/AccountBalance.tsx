@@ -1,10 +1,21 @@
-import { Flex, Stat, StatGroup, StatLabel, StatNumber, useColorModeValue } from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  Flex,
+  Stat,
+  StatGroup,
+  StatLabel,
+  StatNumber,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
 import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -18,6 +29,7 @@ type AccountBalanceProps = {
 }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, accountId }) => {
+  const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
@@ -28,10 +40,18 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
+  const accountLabel = accountIdToLabel(accountId)
   if (!asset) return null
   return (
     <Card variant='footer-stub' overflow='hidden'>
-      <Card.Body>
+      <Card.Body display='flex' justifyContent='space-between' alignItems='center'>
+        <Button
+          size='sm'
+          leftIcon={<ArrowBackIcon />}
+          onClick={() => history.push(`/dashboard/accounts/${accountId}`)}
+        >
+          {accountLabel}
+        </Button>
         <LazyLoadAvatar src={asset.icon} />
       </Card.Body>
       <Card.Body gap={4} fontWeight='bold' display='flex' alignItems='flex-start'>

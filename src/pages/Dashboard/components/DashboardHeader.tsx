@@ -50,31 +50,36 @@ export const DashboardHeader = () => {
       {
         label: 'common.overview',
         path: '/dashboard',
-        color: 'blue.500',
+        color: 'blue',
         exact: true,
       },
       {
         label: 'navBar.wallet',
         path: '/dashboard/accounts',
-        color: 'blue.500',
+        color: 'blue',
         fiatAmount: portfolioTotalFiatBalance,
       },
       {
         label: 'navBar.earn',
         path: '/dashboard/earn',
-        color: 'purple.500',
+        color: 'purple',
         fiatAmount: earnFiatBalance,
       },
       {
         label: 'navBar.rewards',
         path: '/dashboard/rewards',
-        color: 'green.500',
+        color: 'green',
         fiatAmount: claimableRewardsFiatBalance,
+      },
+      {
+        label: 'NFTs',
+        path: '/dashboard/nfts',
+        color: 'pink',
       },
       {
         label: 'navBar.activity',
         path: '/dashboard/activity',
-        color: 'blue.500',
+        color: 'blue',
       },
     ]
   }, [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance])

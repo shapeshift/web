@@ -20,11 +20,7 @@ export type MatchParams = {
   assetId: AssetId
 }
 
-type AccountTokenProps = {
-  route?: Route
-}
-
-export const AccountToken = ({ route }: AccountTokenProps) => {
+export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
 
   /**

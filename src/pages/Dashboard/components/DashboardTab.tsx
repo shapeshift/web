@@ -40,10 +40,10 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         isActive={isActive}
         borderBottomWidth={4}
         fontWeight='bold'
-        _active={{ borderColor: color, color: 'chakra-body-text' }}
+        _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
         {...(fiatAmount && {
           rightIcon: (
-            <Tag>
+            <Tag colorScheme={color}>
               <Amount.Fiat value={fiatAmount} />
             </Tag>
           ),

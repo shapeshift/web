@@ -3,6 +3,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import { NftTable } from 'components/Nfts/NftTable'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -39,6 +40,9 @@ export const Dashboard = () => {
           </Route>
           <Route exact path={`${path}/activity`}>
             <TransactionHistory />
+          </Route>
+          <Route exact path={`${path}/nfts`}>
+            <NftTable />
           </Route>
           <Route>
             <RawText>Not found</RawText>

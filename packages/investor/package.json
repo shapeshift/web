@@ -11,23 +11,15 @@
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=14.18.1"
-  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn compile",
-    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "tsc -p tsconfig.build.json",
-    "dev": "tsc --watch",
-    "prepare": "yarn build",
-    "test": "jest --coverage"
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch"
   },
-  "devDependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.46.0",
-    "@shapeshiftoss/types": "8.1.0",
-    "bignumber.js": "^9.1.1"
+  "dependencies": {
+    "@shapeshiftoss/types": "workspace:^"
   }
 }

@@ -1,8 +1,8 @@
-import { AssetId } from '@shapeshiftoss/caip'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 
-import * as types from '../types'
-import { CosmosSdkChainId } from './CosmosSdkBaseAdapter'
+import type * as types from '../types'
+import type { CosmosSdkChainId } from './CosmosSdkBaseAdapter'
 
 export type Account = {
   sequence: string

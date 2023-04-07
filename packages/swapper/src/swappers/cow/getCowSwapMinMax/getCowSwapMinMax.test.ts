@@ -1,5 +1,5 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
 import { BTC, ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'

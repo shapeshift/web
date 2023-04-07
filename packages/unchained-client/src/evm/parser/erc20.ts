@@ -1,9 +1,11 @@
-import { ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { BigNumber, ethers } from 'ethers'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
+import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 
-import { BaseTxMetadata } from '../../types'
-import erc20 from './abi/erc20'
-import { SubParser, Tx, TxSpecific } from './types'
+import type { BaseTxMetadata } from '../../types'
+import { ERC20_ABI } from './abi/erc20'
+import type { SubParser, Tx, TxSpecific } from './types'
 import { getSigHash } from './utils'
 
 export interface TxMetadata extends BaseTxMetadata {
@@ -21,7 +23,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   provider: ethers.providers.JsonRpcProvider
 
   readonly chainId: ChainId
-  readonly abiInterface = new ethers.utils.Interface(erc20)
+  readonly abiInterface = new ethers.utils.Interface(ERC20_ABI)
 
   readonly supportedFunctions = {
     approveSigHash: this.abiInterface.getSighash('approve'),
@@ -37,7 +39,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
+    if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
@@ -56,12 +58,15 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
     switch (txSigHash) {
       case this.supportedFunctions.approveSigHash: {
-        const value = decoded.args.amount as BigNumber
-        if (value.isZero()) return { data: { ...data, method: 'revoke', value: value.toString() } }
-        return { data: { ...data, value: value.toString() } }
+        const amount = decoded.args.amount as BigNumber
+        const value = amount.toString()
+        if (amount.isZero()) {
+          return await Promise.resolve({ data: { ...data, method: 'revoke', value } })
+        }
+        return await Promise.resolve({ data: { ...data, value: value.toString() } })
       }
       default:
-        return { data }
+        return await Promise.resolve({ data })
     }
   }
 }

@@ -1,19 +1,16 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 
-import {
+import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
-  SwapError,
-  SwapErrorType,
   Swapper,
-  SwapperName,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from '../../api'
+import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 
 /**
  * Playground for testing different scenarios of multiple swappers in the manager.
@@ -39,20 +36,19 @@ export class TestSwapper implements Swapper<ChainId> {
     ]
   }
 
-  getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
-    console.info(input)
+  getUsdRate(_: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
     throw new Error('TestSwapper: getUsdRate unimplemented')
   }
 
-  async approvalNeeded(): Promise<ApprovalNeededOutput> {
+  approvalNeeded(): Promise<ApprovalNeededOutput> {
     throw new Error('TestSwapper: approvalNeeded unimplemented')
   }
 
-  async approveInfinite(): Promise<string> {
+  approveInfinite(): Promise<string> {
     throw new Error('TestSwapper: approveInfinite unimplemented')
   }
 
-  async approveAmount(): Promise<string> {
+  approveAmount(): Promise<string> {
     throw new SwapError('TestSwapper: approveAmount unimplemented', {
       code: SwapErrorType.RESPONSE_ERROR,
     })
@@ -68,19 +64,19 @@ export class TestSwapper implements Swapper<ChainId> {
     return this.supportAssets
   }
 
-  async buildTrade(): Promise<Trade<ChainId>> {
+  buildTrade(): Promise<Trade<ChainId>> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  async getTradeQuote(): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(): Promise<TradeQuote<ChainId>> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 
-  async executeTrade(): Promise<TradeResult> {
+  executeTrade(): Promise<TradeResult> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 
-  async getTradeTxs(): Promise<TradeTxs> {
+  getTradeTxs(): Promise<TradeTxs> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

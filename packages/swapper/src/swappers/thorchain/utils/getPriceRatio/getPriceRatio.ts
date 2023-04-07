@@ -1,8 +1,9 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
-import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
+import type { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
 
@@ -35,8 +36,8 @@ export const getPriceRatio = async (
       `${deps.daemonUrl}/lcd/thorchain/pools`,
     )
 
-    const buyPool = responseData.find((response) => response.asset === buyPoolId)
-    const sellPool = responseData.find((response) => response.asset === sellPoolId)
+    const buyPool = responseData.find(response => response.asset === buyPoolId)
+    const sellPool = responseData.find(response => response.asset === sellPoolId)
 
     /**
      * there is no rune pool, rune *is* the pool, special logic case buying RUNE

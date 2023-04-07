@@ -1,5 +1,5 @@
-import { AssetId, AssetNamespace } from './assetId/assetId'
-import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
+import type { AssetId, AssetNamespace } from './assetId/assetId'
+import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 
 export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 export const bchAssetId: AssetId = 'bip122:000000000000000000651ef99cb9fcbe/slip44:145'

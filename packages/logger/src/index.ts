@@ -1,7 +1,8 @@
-import Logger from './logger'
-import { LoggerOptions } from './logger.type'
+import { Logger } from './logger'
+import type { LoggerOptions } from './logger.type'
 
-export { LogData, LogLevel, LoggerFunction, LoggerOptions, FormattedError } from './logger.type'
+export { Logger } from './logger'
+export { LogLevel } from './logger.type'
+export type { LogData, LoggerFunction, LoggerOptions, FormattedError } from './logger.type'
 
 export const loggerFactory = (options?: LoggerOptions) => new Logger(options)
-export { default as Logger } from './logger'

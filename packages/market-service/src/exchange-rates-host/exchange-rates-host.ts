@@ -1,16 +1,21 @@
-import { HistoryData, HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
-import dayjs, { Dayjs } from 'dayjs'
+import { Logger } from '@shapeshiftoss/logger'
+import type { HistoryData, MarketData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 
-import { FiatMarketService } from '../api'
+import type { FiatMarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
-import {
+import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
 import { bnOrZero } from '../utils/bignumber'
 import { rateLimitedAxios } from '../utils/rateLimiters'
-import { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
+import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
+
+const logger = new Logger({ namespace: ['market-service', 'exchange-rates-host'] })
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 const baseCurrency = 'USD'
@@ -54,7 +59,7 @@ export class ExchangeRateHostService implements FiatMarketService {
         volume: '0',
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('FiatMarketService(findByFiatSymbol): error fetching market data')
     }
   }
@@ -93,7 +98,7 @@ export class ExchangeRateHostService implements FiatMarketService {
       const urls: string[] = makeExchangeRateRequestUrls(start, end, symbol, this.baseUrl)
 
       const results = await Promise.all(
-        urls.map((url) => axios.get<ExchangeRateHostHistoryData>(url)),
+        urls.map(url => axios.get<ExchangeRateHostHistoryData>(url)),
       )
 
       return results.reduce<HistoryData[]>((acc, { data }) => {
@@ -106,7 +111,7 @@ export class ExchangeRateHostService implements FiatMarketService {
         return acc
       }, [])
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error(
         'ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history',
       )

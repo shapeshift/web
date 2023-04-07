@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorType } from '../../../../api'
@@ -60,7 +60,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       destinationAddress,
       limit,
     })
-    const data = await deposit(
+    const data = deposit(
       router,
       vault,
       isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',

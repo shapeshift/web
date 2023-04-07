@@ -1,16 +1,16 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
   ASSET_NAMESPACE,
   avalancheChainId,
   bscChainId,
-  ChainId,
   ethChainId,
   optimismChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
-import { Asset } from '../service/AssetService'
+import type { Asset } from '../service/AssetService'
 import { avax, bnbsmartchain, ethereum, optimism } from './baseAssets'
 import { colorMap } from './colorMap'
 

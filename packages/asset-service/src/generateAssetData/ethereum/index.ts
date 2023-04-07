@@ -1,11 +1,13 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
 import uniqBy from 'lodash/uniqBy'
 
-import { Asset } from '../../service/AssetService'
-import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
+import type { Asset } from '../../service/AssetService'
+import type { IdenticonOptions } from '../../service/GenerateAssetIcon'
+import { getRenderedIdenticonBase64 } from '../../service/GenerateAssetIcon'
 import { generateTrustWalletUrl } from '../../service/TrustWalletService'
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
@@ -57,9 +59,9 @@ export const getAssets = async (): Promise<Asset[]> => {
   let modifiedAssets: Asset[] = []
   for (const [i, batch] of assetBatches.entries()) {
     console.info(`processing batch ${i + 1} of ${assetBatches.length}`)
-    const promises = batch.map(async ({ assetId }) => {
+    const promises = batch.map(({ assetId }) => {
       const { info } = generateTrustWalletUrl(assetId)
-      return axios.head(info) // return promise
+      return axios.head(info)
     })
     const result = await Promise.allSettled(promises)
     const newModifiedTokens = result.map((res, idx) => {

@@ -1,14 +1,17 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import Web3 from 'web3'
-import { AbiItem, numberToHex } from 'web3-utils'
+import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type Web3 from 'web3'
+import type { AbiItem } from 'web3-utils'
+import { numberToHex } from 'web3-utils'
 
-import { SwapError, SwapErrorType, TradeQuote } from '../../../api'
+import type { TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { MAX_ALLOWANCE } from '../../cow/utils/constants'
 import { erc20Abi as erc20AbiImported } from '../abi/erc20-abi'
-import { BN, bn, bnOrZero } from '../bignumber'
+import type { BN } from '../bignumber'
+import { bn, bnOrZero } from '../bignumber'
 
 export type IsApprovalRequiredArgs = {
   adapter: EvmChainAdapter
@@ -42,13 +45,13 @@ type GrantAllowanceArgs<T extends EvmChainId> = {
   web3: Web3
 }
 
-export const getERC20Allowance = async ({
+export const getERC20Allowance = ({
   erc20AllowanceAbi,
   web3,
   sellAssetErc20Address,
   ownerAddress,
   spenderAddress,
-}: GetERC20AllowanceArgs) => {
+}: GetERC20AllowanceArgs): Promise<any> => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }

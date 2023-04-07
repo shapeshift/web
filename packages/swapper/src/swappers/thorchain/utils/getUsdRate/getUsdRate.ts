@@ -1,9 +1,10 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
-import BigNumber from 'bignumber.js'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
+import type BigNumber from 'bignumber.js'
 
 import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
-import { ThornodePoolResponse } from '../../types'
+import type { ThornodePoolResponse } from '../../types'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
 
@@ -21,7 +22,7 @@ const getRuneUsdPrice = async (daemonUrl: string): Promise<BigNumber> => {
   const { data } = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/lcd/thorchain/pools`)
 
   const availableUsdPools = data.filter(
-    (pool) => pool.status === 'Available' && USD_POOLS.includes(pool.asset),
+    pool => pool.status === 'Available' && USD_POOLS.includes(pool.asset),
   )
 
   const { aggregatedRuneUsdPrice, numPools } = availableUsdPools.reduce(

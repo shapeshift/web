@@ -1,8 +1,10 @@
 import invertBy from 'lodash/invertBy'
 import toLower from 'lodash/toLower'
 
-import { AssetId, fromAssetId } from '../../assetId/assetId'
-import { ChainId, fromChainId, toChainId } from '../../chainId/chainId'
+import type { AssetId } from '../../assetId/assetId'
+import { fromAssetId } from '../../assetId/assetId'
+import type { ChainId } from '../../chainId/chainId'
+import { fromChainId, toChainId } from '../../chainId/chainId'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 import * as adapters from './generated'
 

@@ -2,8 +2,9 @@ import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import memoize from 'lodash/memoize'
 
-import { Asset } from '../../service/AssetService'
-import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
+import type { Asset } from '../../service/AssetService'
+import type { IdenticonOptions } from '../../service/GenerateAssetIcon'
+import { getRenderedIdenticonBase64 } from '../../service/GenerateAssetIcon'
 import { osmosis } from '../baseAssets'
 import { colorMap } from '../colorMap'
 
@@ -86,7 +87,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     const acc = await accPrevious
     if (!current) return acc
 
-    const denom = current.denom_units.find((item) => item.denom === current.display)
+    const denom = current.denom_units.find(item => item.denom === current.display)
     const precision = denom?.exponent ?? 6
 
     const { assetNamespace, assetReference } = (() => {

@@ -1,5 +1,5 @@
 import { addressNListToBIP32, bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
 
 export const toRootDerivationPath = (bip44Params: BIP44Params): string => {
   const { purpose, coinType, accountNumber } = bip44Params
@@ -23,7 +23,7 @@ export const fromPath = (path: string): BIP44Params => {
   const parts = path.split('/')
   const sliced = parts.slice(1) // discard the m/
   if (sliced.length !== 5) throw new Error(`fromPath: path only has ${sliced.length} parts`)
-  const partsWithoutPrimes = sliced.map((part) => part.replace("'", '')) // discard harderning
+  const partsWithoutPrimes = sliced.map(part => part.replace("'", '')) // discard harderning
   const [purpose, coinType, accountNumber, isChangeNumber, index] = partsWithoutPrimes.map(Number)
   const isChange = Boolean(isChangeNumber)
   return { purpose, coinType, accountNumber, isChange, index }

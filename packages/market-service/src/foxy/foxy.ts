@@ -1,6 +1,7 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   HistoryData,
   MarketCapResult,
   MarketData,
@@ -9,9 +10,11 @@ import {
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
-import { MarketService } from '../api'
+import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'
-import { ProviderUrls } from '../market-service-manager'
+import type { ProviderUrls } from '../market-service-manager'
+
+const logger = new Logger({ namespace: ['market-service', 'foxy'] })
 
 export const FOXY_ASSET_ID = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 const FOX_ASSET_ID = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -39,7 +42,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
 
       return { [assetId]: marketData } as MarketCapResult
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       return {}
     }
   }
@@ -47,7 +50,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
       if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
-        console.warn('FoxyMarketService(findByAssetId): Failed to find by AssetId')
+        logger.warn('FoxyMarketService(findByAssetId): Failed to find by AssetId')
         return null
       }
 
@@ -91,7 +94,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
         maxSupply: foxyTotalSupply?.div(`1e+${FOXY_ASSET_PRECISION}`).toString(),
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('FoxyMarketService(findByAssetId): error fetching market data')
     }
   }
@@ -101,7 +104,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
-      console.warn(
+      logger.warn(
         'FoxyMarketService(findPriceHistoryByAssetId): Failed to find price history by AssetId',
       )
       return []
@@ -114,7 +117,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
       })
       return priceHistory
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('FoxyMarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }

@@ -1,3 +1,3 @@
 import { createErrorClass } from './createErrorClass'
 
-export default createErrorClass('ForbiddenError')
+export const ForbiddenError = createErrorClass('ForbiddenError')

@@ -1,7 +1,9 @@
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
-import { Dex, Trade, TradeType, TransferType, TxStatus } from '../../../../types'
-import { ParsedTx } from '../../../parser'
+import type { Trade } from '../../../../types'
+import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { ParsedTx } from '../../../parser'
 import {
   FOXY_STAKING_CONTRACT,
   SHAPE_SHIFT_ROUTER_CONTRACT,
@@ -58,7 +60,7 @@ jest.mock('axios')
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
-mockedAxios.get.mockImplementation((url) => {
+mockedAxios.get.mockImplementation(url => {
   switch (url) {
     case YEARN_VAULTS_URL:
       return Promise.resolve({
@@ -72,7 +74,7 @@ mockedAxios.get.mockImplementation((url) => {
   }
 })
 
-const txParser = new TransactionParser({ rpcUrl: '', chainId: 'eip155:1' })
+const txParser = new TransactionParser({ rpcUrl: '', chainId: ethChainId, assetId: ethAssetId })
 
 describe('parseTx', () => {
   describe('multiSig', () => {

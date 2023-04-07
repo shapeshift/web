@@ -1,17 +1,18 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type Web3 from 'web3'
 
-import { BuildTradeInput, SwapperName } from '../../../api'
-import { IsApprovalRequiredArgs } from '../../utils/helpers/helpers'
+import type { BuildTradeInput } from '../../../api'
+import { SwapperName } from '../../../api'
+import type { IsApprovalRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
-import { CowSwapperDeps } from '../CowSwapper'
-import { CowTrade } from '../types'
+import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowTrade } from '../types'
 import { DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
-import { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
+import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
 
 jest.mock('@shapeshiftoss/chain-adapters')
@@ -194,7 +195,7 @@ describe('cowBuildTrade', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
       receiveAddress: '',
     }
 
@@ -211,7 +212,7 @@ describe('cowBuildTrade', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
       receiveAddress: '',
     }
 
@@ -248,7 +249,7 @@ describe('cowBuildTrade', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '100000000',
       sendMax: true,
       accountNumber: 0,
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
       receiveAddress: '',
     }
 
@@ -285,7 +286,7 @@ describe('cowBuildTrade', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
       receiveAddress: '',
     }
 

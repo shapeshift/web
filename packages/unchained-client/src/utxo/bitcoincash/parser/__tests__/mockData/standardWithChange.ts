@@ -1,4 +1,4 @@
-import { Tx } from '../../../../../generated/bitcoincash'
+import type { Tx } from '../../../../../generated/bitcoincash'
 
 const tx: Tx = {
   txid: '01b4faebc7c0eacc93acc1479a491b4e2889b37ef1c04e55270fc4ffbb1e3f7b',

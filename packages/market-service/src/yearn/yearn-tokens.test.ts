@@ -93,7 +93,6 @@ describe('yearn token market service', () => {
     it('should return null on network error', async () => {
       mockedYearnSdk.vaults.tokens.mockRejectedValueOnce(Error as never)
       mockedYearnSdk.tokens.supported.mockRejectedValueOnce(Error as never)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       expect(await yearnTokenMarketCapService.findByAssetId(args)).toEqual(null)
     })
   })

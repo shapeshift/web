@@ -2,7 +2,7 @@ import entries from 'lodash/entries'
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import { AssetId } from '../../assetId/assetId'
+import type { AssetId } from '../../assetId/assetId'
 import { avalancheAssetId, btcAssetId, cosmosAssetId, ethAssetId } from '../../constants'
 
 // source data https://docs.juno.finance/developers/reference/onjuno-pay/onjuno-pay-integration-guide

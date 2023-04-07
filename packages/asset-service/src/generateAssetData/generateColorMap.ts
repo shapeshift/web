@@ -1,10 +1,11 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import 'dotenv/config'
 
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 
-import { Asset } from '../service/AssetService'
+import type { Asset } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -64,4 +65,4 @@ generateColorMap()
   .then(() => {
     console.info('done')
   })
-  .catch((err) => console.info(err))
+  .catch(err => console.info(err))

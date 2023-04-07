@@ -1,9 +1,9 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosAdapter } from 'axios'
+import type { AxiosAdapter } from 'axios'
 import Web3 from 'web3'
 
-import { ApprovalNeededInput } from '../../../api'
+import type { ApprovalNeededInput } from '../../../api'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'

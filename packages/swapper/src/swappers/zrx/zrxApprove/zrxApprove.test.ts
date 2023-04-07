@@ -1,5 +1,5 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { AxiosAdapter } from 'axios'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AxiosAdapter } from 'axios'
 import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'

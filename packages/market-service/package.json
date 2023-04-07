@@ -2,7 +2,7 @@
   "name": "@shapeshiftoss/market-service",
   "version": "7.8.0",
   "description": "ShapeShift market data service",
-  "homepage": "",
+  "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,43 +12,24 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shapeshift/lib"
-  },
   "scripts": {
-    "build": "yarn clean && yarn compile",
-    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "tsc -p tsconfig.build.json",
-    "dev": "tsc --watch",
-    "prepare": "yarn build",
-    "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/investor-foxy": "workspace:^",
+    "@shapeshiftoss/investor-idle": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/unchained-client": "workspace:^",
     "@yfi/sdk": "^1.2.0",
-    "axios": "^0.26.1",
     "axios-rate-limit": "^1.3.0",
-    "bignumber.js": "^9.1.1",
-    "dayjs": "^1.10.6",
     "p-ratelimit": "^1.0.1"
   },
-  "peerDependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^11.0.0",
-    "@shapeshiftoss/investor-foxy": "^8.0.0",
-    "@shapeshiftoss/investor-idle": "^2.3.2",
-    "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.0.1"
-  },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^11.0.0",
-    "@shapeshiftoss/investor-foxy": "^8.0.0",
-    "@shapeshiftoss/investor-idle": "^2.3.2",
-    "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.0.1",
     "limiter": "^2.1.0"
   }
 }

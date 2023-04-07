@@ -1,8 +1,8 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 
-import * as common from '../types'
+import type * as common from '../types'
 
 export type Account = {
   nonce: number

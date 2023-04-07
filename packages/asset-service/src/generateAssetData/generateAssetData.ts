@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import 'dotenv/config'
 
 import { avalancheAssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
@@ -6,7 +7,7 @@ import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 
-import { Asset, AssetsById } from '../service/AssetService'
+import type { Asset, AssetsById } from '../service/AssetService'
 import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -45,10 +46,10 @@ const generateAssetData = async () => {
   const orderedAssetList = orderBy(filteredAssetData, 'assetId')
 
   const evmAssetNamesByChainId = {
-    [KnownChainIds.EthereumMainnet]: ethAssets.map((asset) => asset.name),
-    [KnownChainIds.AvalancheMainnet]: avalancheAssets.map((asset) => asset.name),
-    [KnownChainIds.OptimismMainnet]: optimismAssets.map((asset) => asset.name),
-    [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map((asset) => asset.name),
+    [KnownChainIds.EthereumMainnet]: ethAssets.map(asset => asset.name),
+    [KnownChainIds.AvalancheMainnet]: avalancheAssets.map(asset => asset.name),
+    [KnownChainIds.OptimismMainnet]: optimismAssets.map(asset => asset.name),
+    [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -116,4 +117,4 @@ generateAssetData()
   .then(() => {
     console.info('done')
   })
-  .catch((err) => console.info(err))
+  .catch(err => console.info(err))

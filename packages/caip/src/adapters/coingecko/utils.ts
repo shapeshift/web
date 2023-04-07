@@ -1,8 +1,10 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import axios from 'axios'
 import fs from 'fs'
 
-import { AssetId, toAssetId } from '../../assetId/assetId'
-import { ChainId } from '../../chainId/chainId'
+import type { AssetId } from '../../assetId/assetId'
+import { toAssetId } from '../../assetId/assetId'
+import type { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
   avalancheChainId,

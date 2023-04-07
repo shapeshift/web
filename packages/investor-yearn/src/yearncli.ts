@@ -1,5 +1,7 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 
@@ -88,6 +90,7 @@ const main = async (): Promise<void> => {
 
 main()
   .then(() => console.info('Exit'))
-  .catch((e) => {
-    console.error(e), process.exit(1)
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
   })

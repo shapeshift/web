@@ -1,9 +1,10 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApproveAmountInput, ApproveInfiniteInput, SwapError, SwapErrorType } from '../../../api'
+import type { ApproveAmountInput, ApproveInfiniteInput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { grantAllowance } from '../../utils/helpers/helpers'
-import { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapperDeps } from '../CowSwapper'
 import { MAX_ALLOWANCE } from '../utils/constants'
 
 export async function cowApproveInfinite(

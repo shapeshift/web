@@ -1,11 +1,12 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorType } from '../../../api'
+import type { ApprovalNeededInput, ApprovalNeededOutput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
-import { ThorchainSwapperDeps } from '../types'
+import type { ThorchainSwapperDeps } from '../types'
 
 export const thorTradeApprovalNeeded = async ({
   deps,

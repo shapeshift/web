@@ -1,4 +1,4 @@
-import { Tx } from '../../../../types'
+import type { Tx } from '../../../../types'
 
 const tx: Tx = {
   txid: 'BC138343E87825F0B727B74CD0C6175B03002D00B077D8766858E9DB6974BC1D',

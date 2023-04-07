@@ -1,4 +1,4 @@
-import { Tx } from '../../../../../generated/litecoin'
+import type { Tx } from '../../../../../generated/litecoin'
 
 const tx: Tx = {
   txid: 'f4d3a8c60154f13e29719efdc00b7ce8147e1bd0b5d02863310dc8dd401ac689',

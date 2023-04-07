@@ -1,6 +1,7 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Swapper, SwapperType, SwapperWithQuoteMetadata } from '../api'
+import type { Swapper, SwapperWithQuoteMetadata } from '../api'
+import { SwapperType } from '../api'
 import { CowSwapper, ThorchainSwapper, ZrxSwapper } from '../swappers'
 import { ETH } from '../swappers/utils/test-data/assets'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
@@ -38,7 +39,7 @@ describe('SwapperManager', () => {
       expect(swapperManager.getSwapper(SwapperType.Thorchain)).toBeInstanceOf(ThorchainSwapper)
     })
 
-    it('should be chainable', async () => {
+    it('should be chainable', () => {
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(thorchainSwapper).addSwapper(zrxEthereumSwapper)
       expect(swapperManager.getSwapper(SwapperType.ZrxEthereum)).toBeInstanceOf(ZrxSwapper)

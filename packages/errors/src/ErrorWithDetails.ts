@@ -1,14 +1,14 @@
 import cloneDeep from 'lodash.clonedeep'
 import snakeCase from 'lodash.snakecase'
 
-import ErrorWithCause from './ErrorWithCause'
+import { ErrorWithCause } from './ErrorWithCause'
 
-export default class ErrorWithDetails<
+export class ErrorWithDetails<
   T extends
     | { cause?: unknown; details?: Record<string, unknown>; code?: string }
     | undefined = undefined,
 > extends ErrorWithCause<T> {
-  public details: T extends { details: infer R } ? R : undefined
+  public details: (T extends { details: infer R } ? R : undefined) | undefined
   /**
    * A string representing the error state
    *

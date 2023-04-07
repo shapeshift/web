@@ -1,10 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ASSET_NAMESPACE, AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type Web3 from 'web3'
 
-import {
+import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveAmountInput,
@@ -14,19 +15,18 @@ import {
   ExecuteTradeInput,
   GetTradeQuoteInput,
   Swapper,
-  SwapperName,
-  SwapperType,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from '../../api'
+import { SwapperName, SwapperType } from '../../api'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveAmount, cowApproveInfinite } from './cowApprove/cowApprove'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import { CowTrade } from './types'
+import type { CowTrade } from './types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 
@@ -48,37 +48,33 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return SwapperType.CowSwap
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+  buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
     return cowBuildTrade(this.deps, args)
   }
 
-  async getTradeQuote(
-    input: GetTradeQuoteInput,
-  ): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
-  async getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<string> {
     return getUsdRate(this.deps, input)
   }
 
-  async executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
+  executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
     return cowExecuteTrade(this.deps, args)
   }
 
-  async approvalNeeded(
+  approvalNeeded(
     args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
   ): Promise<ApprovalNeededOutput> {
     return cowApprovalNeeded(this.deps, args)
   }
 
-  async approveInfinite(
-    args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<string> {
+  approveInfinite(args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>): Promise<string> {
     return cowApproveInfinite(this.deps, args)
   }
 
-  async approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
+  approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
     return cowApproveAmount(this.deps, args)
   }
 
@@ -91,7 +87,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
       return []
 
     return assetIds.filter(
-      (id) =>
+      id =>
         id !== sellAssetId &&
         fromAssetId(id).chainId === KnownChainIds.EthereumMainnet &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
@@ -99,7 +95,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return assetIds.filter((id) => {
+    return assetIds.filter(id => {
       const { chainId, assetNamespace } = fromAssetId(id)
       return (
         chainId === KnownChainIds.EthereumMainnet &&
@@ -109,7 +105,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     })
   }
 
-  async getTradeTxs(args: TradeResult): Promise<TradeTxs> {
+  getTradeTxs(args: TradeResult): Promise<TradeTxs> {
     return cowGetTradeTxs(this.deps, args)
   }
 }

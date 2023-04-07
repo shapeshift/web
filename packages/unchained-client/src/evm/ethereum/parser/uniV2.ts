@@ -1,12 +1,15 @@
-import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { Tx } from '../../../generated/ethereum'
-import { BaseTxMetadata, TransferType } from '../../../types'
-import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
-import ERC20_ABI from '../../parser/abi/erc20'
-import UNIV2_ABI from './abi/uniV2'
-import UNIV2_STAKING_REWARDS_ABI from './abi/uniV2StakingRewards'
+import type { Tx } from '../../../generated/ethereum'
+import type { BaseTxMetadata } from '../../../types'
+import { TransferType } from '../../../types'
+import type { SubParser, TxSpecific } from '../../parser'
+import { getSigHash, txInteractsWithContract } from '../../parser'
+import { ERC20_ABI } from '../../parser/abi/erc20'
+import { UNIV2_ABI } from './abi/uniV2'
+import { UNIV2_STAKING_REWARDS_ABI } from './abi/uniV2StakingRewards'
 import {
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
   UNI_V2_ROUTER_CONTRACT,
@@ -62,7 +65,7 @@ export class Parser implements SubParser<Tx> {
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
+    if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
@@ -151,12 +154,12 @@ export class Parser implements SubParser<Tx> {
     }
   }
 
-  async parseStakingRewards(tx: Tx): Promise<TxSpecific | undefined> {
+  parseStakingRewards(tx: Tx): TxSpecific | undefined {
     if (!tx.inputData) return
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedStakingRewardsFunctions).some((hash) => hash === txSigHash))
+    if (!Object.values(this.supportedStakingRewardsFunctions).some(hash => hash === txSigHash))
       return
 
     const decoded = this.stakingRewardsInterface.parseTransaction({ data: tx.inputData })
@@ -173,13 +176,14 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return this.parseUniV2(tx)
+    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return await this.parseUniV2(tx)
+
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
-    if (
-      UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some((contract) => txInteractsWithContract(tx, contract))
+    const isFoxStakingRewards = UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract =>
+      txInteractsWithContract(tx, contract),
     )
-      return this.parseStakingRewards(tx)
-    return
+
+    if (isFoxStakingRewards) return await Promise.resolve(this.parseStakingRewards(tx))
   }
 
   private static pairFor(tokenA: string, tokenB: string): string {

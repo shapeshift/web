@@ -1,6 +1,6 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
-  AssetId,
   cosmosAssetId,
   fromAssetId,
   osmosisAssetId,
@@ -9,8 +9,8 @@ import {
 } from '@shapeshiftoss/caip'
 import { Logger } from '@shapeshiftoss/logger'
 
-import { Message } from '../types'
-import { TxMetadata } from './types'
+import type { Message } from '../types'
+import type { TxMetadata } from './types'
 
 const logger = new Logger({
   namespace: ['unchained-client', 'cosmossdk', 'parser', 'utils'],

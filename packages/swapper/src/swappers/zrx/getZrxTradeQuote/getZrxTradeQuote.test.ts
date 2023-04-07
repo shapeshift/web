@@ -1,7 +1,7 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosStatic } from 'axios'
-import Web3 from 'web3'
+import type { AxiosStatic } from 'axios'
+import type Web3 from 'web3'
 
 import { ZrxSwapper } from '../..'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -28,10 +28,10 @@ describe('getZrxTradeQuote', () => {
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
   ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
   const zrxSwapperDeps = {
-    web3: <Web3>{},
-    adapter: <ethereum.ChainAdapter>{
+    web3: {} as Web3,
+    adapter: {
       getChainId: () => KnownChainIds.EthereumMainnet,
-    },
+    } as ethereum.ChainAdapter,
   }
 
   it('returns quote with fee data', async () => {

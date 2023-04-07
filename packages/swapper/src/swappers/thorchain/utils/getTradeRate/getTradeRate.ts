@@ -1,9 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 
 import { SwapError, SwapErrorType } from '../../../../api'
-import { BN, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
-import { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
+import type { BN } from '../../../utils/bignumber'
+import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
+import type { ThorchainSwapperDeps, ThornodePoolResponse } from '../../types'
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
@@ -78,8 +80,8 @@ export const getTradeRate = async (
     `${deps.daemonUrl}/lcd/thorchain/pools`,
   )
 
-  const buyPool = buyPoolId ? data.find((response) => response.asset === buyPoolId) : null
-  const sellPool = sellPoolId ? data.find((response) => response.asset === sellPoolId) : null
+  const buyPool = buyPoolId ? data.find(response => response.asset === buyPoolId) : null
+  const sellPool = sellPoolId ? data.find(response => response.asset === sellPoolId) : null
 
   if (!buyPool && !isRune(buyAssetId)) {
     throw new SwapError(`[getTradeRate]: no pools found`, {

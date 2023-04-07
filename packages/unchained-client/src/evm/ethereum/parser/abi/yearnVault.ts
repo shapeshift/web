@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const yearnVault: JsonFragment[] = [
+export const YEARN_VAULT_ABI: JsonFragment[] = [
   {
     name: 'Transfer',
     inputs: [
@@ -644,5 +644,3 @@ const yearnVault: JsonFragment[] = [
     gas: '3191',
   },
 ]
-
-export default yearnVault

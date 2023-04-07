@@ -1,9 +1,10 @@
-import { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { QuoteFeeData, SwapError, SwapErrorType } from '../../../../../api'
+import type { QuoteFeeData } from '../../../../../api'
+import { SwapError, SwapErrorType } from '../../../../../api'
 import { bn } from '../../../../utils/bignumber'
-import { ThorUtxoSupportedChainId } from '../../../ThorchainSwapper'
+import type { ThorUtxoSupportedChainId } from '../../../ThorchainSwapper'
 
 type GetUtxoTxFeesInput = {
   opReturnData: string

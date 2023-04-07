@@ -1,11 +1,11 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 
 import { SwapperName } from '../../api'
 import { OsmosisSwapper } from './OsmosisSwapper'
 
 describe('OsmosisSwapper', () => {
   const swapper = new OsmosisSwapper({
-    adapterManager: <ChainAdapterManager>{},
+    adapterManager: {} as ChainAdapterManager,
     osmoUrl: 'http://mock-osmo-url',
     cosmosUrl: 'http://mock-cosmos-url',
   })

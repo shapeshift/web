@@ -2,10 +2,10 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 import dayjs from 'dayjs'
 
-import { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
+import type { FiatMarketDataArgs, FiatPriceHistoryArgs } from '../fiat-market-service-types'
 import { mockERHFindByFiatSymbol, mockERHPriceHistoryData } from './erhMockData'
 import { ExchangeRateHostService, makeExchangeRateRequestUrls } from './exchange-rates-host'
-import { ExchangeRateHostRate } from './exchange-rates-host-types'
+import type { ExchangeRateHostRate } from './exchange-rates-host-types'
 
 jest.mock('axios')
 

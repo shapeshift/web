@@ -1,7 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
   "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip" },
+    { "path": "../types" },
+    { "path": "../unchained-client" },
+  ]
 }

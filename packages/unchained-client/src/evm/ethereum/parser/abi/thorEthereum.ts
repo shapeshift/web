@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const thorEthereum: JsonFragment[] = [
+export const THOR_ETHEREUM_ABI: JsonFragment[] = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -151,5 +151,3 @@ const thorEthereum: JsonFragment[] = [
     type: 'function',
   },
 ]
-
-export default thorEthereum

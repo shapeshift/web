@@ -1,15 +1,10 @@
 import { omit } from 'lodash'
 
-import { ChainNamespace, ChainReference, toChainId } from '../chainId/chainId'
+import type { ChainNamespace, ChainReference } from '../chainId/chainId'
+import { toChainId } from '../chainId/chainId'
 import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
-import {
-  AssetNamespace,
-  AssetReference,
-  fromAssetId,
-  fromCAIP19,
-  toAssetId,
-  toCAIP19,
-} from './assetId'
+import type { AssetNamespace, AssetReference } from './assetId'
+import { fromAssetId, fromCAIP19, toAssetId, toCAIP19 } from './assetId'
 
 describe('assetId', () => {
   it('should have matching CAIP19 aliases', () => {
@@ -30,7 +25,7 @@ describe('assetId', () => {
         ['cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'],
         ['cosmos:osmo-testnet-1/slip44:118'],
         ['cosmos:osmosis-1/ibc:gamm/pool/877'],
-      ])('returns an AssetId from the result of fromAssetId for %s', (assetId) => {
+      ])('returns an AssetId from the result of fromAssetId for %s', assetId => {
         const result = fromAssetId(assetId)
         expect(toAssetId(omit(result, 'chainId'))).toBe(assetId)
         expect(toAssetId(omit(result, ['chainNamespace', 'chainReference']))).toBe(assetId)

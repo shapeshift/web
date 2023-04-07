@@ -1,6 +1,6 @@
-import { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 
-import { Asset } from '../service/AssetService'
+import type { Asset } from '../service/AssetService'
 
 export const overrideAssets: Record<AssetId, Partial<Asset>> = {
   'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': {

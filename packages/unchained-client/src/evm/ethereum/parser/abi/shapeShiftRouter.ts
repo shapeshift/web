@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const shapeShiftRouter: JsonFragment[] = [
+export const SHAPESHIFT_ROUTER_ABI: JsonFragment[] = [
   {
     inputs: [
       {
@@ -491,5 +491,3 @@ const shapeShiftRouter: JsonFragment[] = [
     type: 'function',
   },
 ]
-
-export default shapeShiftRouter

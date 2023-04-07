@@ -1,9 +1,10 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { HistoryTimeframe, MarketData } from '@shapeshiftoss/types'
+import type { MarketData } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { CoinGeckoMarketService } from './coingecko'
-import { CoinGeckoMarketCap } from './coingecko-types'
+import type { CoinGeckoMarketCap } from './coingecko-types'
 
 jest.mock('axios')
 
@@ -355,7 +356,6 @@ describe('CoinGecko market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinGeckoMarketService.findByAssetId(args)).rejects.toEqual(
         new Error('CoinGeckoMarketService(findByAssetId): error fetching market data'),
       )
@@ -388,7 +388,6 @@ describe('CoinGecko market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinGeckoMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error(
           'CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history',

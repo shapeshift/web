@@ -1,7 +1,7 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApprovalNeededInput } from '../../../api'
+import type { ApprovalNeededInput } from '../../../api'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'

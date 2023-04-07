@@ -13,14 +13,14 @@ import { getDoubleSwapSlippage, getSingleSwapSlippage, getSlippage } from './get
 
 jest.mock('../utils/thorService')
 
-const mockedAxios = jest.mocked(thorService, true)
+const mockedAxios = jest.mocked(thorService)
 
 describe('getSlippage', () => {
   const expectedBtcRuneSlippage = bn('0.00109735998697522801')
   const expectedRuneEthSlippage = bn('0.00165514439633167301')
 
   beforeEach(() => {
-    mockedAxios.get.mockImplementation((url) => {
+    mockedAxios.get.mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve({ data: thornodePools })

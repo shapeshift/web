@@ -1,7 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
-import { ZrxQuoteResponse } from '../../types'
+import type { ZrxQuoteResponse } from '../../types'
 
 export const setupZrxTradeQuoteResponse = () => {
   const sellAsset: Asset = { ...FOX }

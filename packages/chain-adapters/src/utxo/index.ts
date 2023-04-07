@@ -1,4 +1,5 @@
-export { UtxoChainId, UtxoChainAdapter, utxoChainIds, UtxoBaseAdapter } from './UtxoBaseAdapter'
+export type { UtxoChainId, UtxoChainAdapter } from './UtxoBaseAdapter'
+export { utxoChainIds, UtxoBaseAdapter } from './UtxoBaseAdapter'
 
 export * as utxo from './types'
 

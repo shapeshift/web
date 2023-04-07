@@ -1,5 +1,6 @@
-import { AxiosInstance, AxiosRequestConfig } from 'axios'
-import { attach, RetryConfig } from 'retry-axios'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+import type { RetryConfig } from 'retry-axios'
+import { attach } from 'retry-axios'
 
 type PartialRaxConfig = { raxConfig?: RetryConfig } & AxiosRequestConfig
 

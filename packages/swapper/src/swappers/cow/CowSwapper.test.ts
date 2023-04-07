@@ -1,9 +1,10 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type Web3 from 'web3'
 
-import { SwapperName, SwapperType, TradeResult } from '../../api'
+import type { TradeResult } from '../../api'
+import { SwapperName, SwapperType } from '../../api'
 import { BTC, ETH, FOX, WBTC, WETH } from '../utils/test-data/assets'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
@@ -11,9 +12,10 @@ import { cowApproveAmount, cowApproveInfinite } from './cowApprove/cowApprove'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
-import { CowSwapper, CowSwapperDeps } from './CowSwapper'
+import type { CowSwapperDeps } from './CowSwapper'
+import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import { CowTrade } from './types'
+import type { CowTrade } from './types'
 import { getUsdRate } from './utils/helpers/helpers'
 
 jest.mock('./utils/helpers/helpers')
@@ -52,7 +54,7 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
 const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
 
 describe('CowSwapper', () => {
-  const wallet = <HDWallet>{}
+  const wallet = {} as HDWallet
   const swapper = new CowSwapper(COW_SWAPPER_DEPS)
 
   describe('name', () => {
@@ -62,7 +64,7 @@ describe('CowSwapper', () => {
   })
 
   describe('getType', () => {
-    it('returns the correct type for CowSwapper', async () => {
+    it('returns the correct type for CowSwapper', () => {
       expect(swapper.getType()).toEqual(SwapperType.CowSwap)
     })
   })

@@ -1,7 +1,9 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
 
-import { ChainId, ChainNamespace, ChainReference, fromChainId, toChainId } from '../chainId/chainId'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, VALID_ASSET_NAMESPACE } from '../constants'
+import type { ChainId, ChainNamespace, ChainReference } from '../chainId/chainId'
+import { fromChainId, toChainId } from '../chainId/chainId'
+import type { ASSET_NAMESPACE, ASSET_REFERENCE } from '../constants'
+import { VALID_ASSET_NAMESPACE } from '../constants'
 import {
   assertIsAssetNamespace,
   assertIsChainNamespace,
@@ -10,7 +12,8 @@ import {
   isAssetId,
   isAssetNamespace,
 } from '../typeGuards'
-import { Nominal, parseAssetIdRegExp } from '../utils'
+import type { Nominal } from '../utils'
+import { parseAssetIdRegExp } from '../utils'
 
 export type AssetId = Nominal<string, 'AssetId'>
 
@@ -123,7 +126,7 @@ type FromAssetIdReturn = {
 
 export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
 
-export const fromAssetId: FromAssetId = (assetId) => {
+export const fromAssetId: FromAssetId = assetId => {
   if (!isAssetId(assetId)) throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
   const matches = parseAssetIdRegExp.exec(assetId)
   if (!matches) throw new Error(`fromAssetId: could not parse AssetId: ${assetId}`)

@@ -1,11 +1,12 @@
 import { dogeAssetId, dogeChainId } from '@shapeshiftoss/caip'
 
-import { ParsedTx, TransferType, TxStatus } from '../../../../types'
+import type { ParsedTx } from '../../../../types'
+import { TransferType, TxStatus } from '../../../../types'
 import { TransactionParser } from '../index'
 import standardNoChange from './mockData/standardNoChange'
 import standardWithChange from './mockData/standardWithChange'
 
-const txParser = new TransactionParser({ chainId: dogeChainId })
+const txParser = new TransactionParser({ chainId: dogeChainId, assetId: dogeAssetId })
 
 describe('parseTx', () => {
   describe('standard', () => {

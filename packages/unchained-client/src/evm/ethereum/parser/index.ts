@@ -1,7 +1,6 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
-
-import { Tx } from '../../../generated/ethereum'
-import { BaseTransactionParser, TransactionParserArgs } from '../../parser'
+import type { Tx } from '../../../generated/ethereum'
+import type { TransactionParserArgs } from '../../parser'
+import { BaseTransactionParser } from '../../parser'
 import * as erc20 from '../../parser/erc20'
 import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
@@ -16,8 +15,6 @@ export const ZRX_ETHEREUM_PROXY_CONTRACT = '0xDef1C0ded9bec7F1a1670819833240f027
 export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: TransactionParserArgs) {
     super(args)
-
-    this.assetId = ethAssetId
 
     // due to the current parser logic, order here matters (register most generic first to most specific last)
     // weth and yearn have the same sigHash for deposit(), but the weth parser is stricter resulting in faster processing times

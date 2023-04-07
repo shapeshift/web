@@ -1,13 +1,14 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
-import Web3 from 'web3'
+import type Web3 from 'web3'
 
-import { ExecuteTradeInput, SwapperName } from '../../../api'
+import type { ExecuteTradeInput } from '../../../api'
+import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
-import { CowSwapperDeps } from '../CowSwapper'
-import { CowTrade } from '../types'
+import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowTrade } from '../types'
 import {
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
@@ -15,7 +16,8 @@ import {
   SIGNING_SCHEME,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
-import { CowSwapOrder, hashOrder } from '../utils/helpers/helpers'
+import type { CowSwapOrder } from '../utils/helpers/helpers'
+import { hashOrder } from '../utils/helpers/helpers'
 import { cowExecuteTrade } from './cowExecuteTrade'
 
 const OrderDigest = '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec60db10a0'
@@ -46,8 +48,8 @@ jest.mock('../utils/helpers/helpers', () => {
   }
 })
 
-const ethereumMock = jest.mocked(ethereum, true)
-const hashOrderMock = jest.mocked(hashOrder, true)
+const ethereumMock = jest.mocked(ethereum)
+const hashOrderMock = jest.mocked(hashOrder)
 
 const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',

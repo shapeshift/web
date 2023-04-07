@@ -1,5 +1,5 @@
-import format from './format'
-import {
+import { format } from './format'
+import type {
   Arg1,
   Arg2,
   Arg3,
@@ -7,8 +7,8 @@ import {
   LoggerFunction,
   LoggerOptions,
   LoggerT,
-  LogLevel,
 } from './logger.type'
+import { LogLevel } from './logger.type'
 
 const childIgnoredFields = Object.freeze([
   'name',
@@ -43,7 +43,7 @@ const defaultLogFn: LoggerFunction = (level, data) => {
   console[consoleFn](JSON.stringify(data))
 }
 
-export default class Logger implements LoggerT {
+export class Logger implements LoggerT {
   private readonly level: number
   private readonly defaultFields?: Record<string, unknown>
   private namespace: string[] = []

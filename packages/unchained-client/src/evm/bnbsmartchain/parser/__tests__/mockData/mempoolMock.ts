@@ -1,4 +1,4 @@
-import { Tx } from '../../../../../generated/bnbsmartchain'
+import type { Tx } from '../../../../../generated/bnbsmartchain'
 
 export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
   const mempoolSpecific = {

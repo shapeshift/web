@@ -1,8 +1,9 @@
-import { adapters, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
-import assetsDescriptions from './descriptions'
+import { descriptions } from './descriptions'
 import localAssetData from './generatedAssetData.json'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
@@ -40,13 +41,13 @@ export class AssetService {
   }
 
   async description(assetId: AssetId, locale = 'en'): Promise<DescriptionData> {
-    const localeDescriptions = assetsDescriptions[locale]
+    const localeDescriptions = descriptions[locale]
     // Return overridden asset description if it exists and add isTrusted for description links
-    if (localeDescriptions[assetId] || assetsDescriptions.en[assetId]) {
+    if (localeDescriptions[assetId] || descriptions.en[assetId]) {
       const polyglot = new Polyglot({
         phrases: localeDescriptions,
         allowMissing: true,
-        onMissingKey: (key) => assetsDescriptions.en[key], // fallback to English overriden description, which should always be added as a base translation
+        onMissingKey: key => descriptions.en[key], // fallback to English overriden description, which should always be added as a base translation
       })
       const overriddenDescription = polyglot.t(assetId)
 

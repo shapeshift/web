@@ -1,12 +1,14 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { utxo } from '@shapeshiftoss/common-api'
 import { BigNumber } from 'bignumber.js'
 
-import { ParsedTx, TransferType, TxStatus } from '../../types'
+import type { ParsedTx } from '../../types'
+import { TransferType, TxStatus } from '../../types'
 import { aggregateTransfer } from '../../utils'
 
 export interface BaseTransactionParserArgs {
   chainId: ChainId
+  assetId: AssetId
 }
 
 export class BaseTransactionParser<T extends utxo.Tx> {
@@ -15,9 +17,10 @@ export class BaseTransactionParser<T extends utxo.Tx> {
 
   constructor(args: BaseTransactionParserArgs) {
     this.chainId = args.chainId
+    this.assetId = args.assetId
   }
 
-  async parse(tx: T, address: string): Promise<ParsedTx> {
+  parse(tx: T, address: string): Promise<ParsedTx> {
     const parsedTx: ParsedTx = {
       address,
       blockHash: tx.blockHash,
@@ -30,7 +33,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       txid: tx.txid,
     }
 
-    tx.vin.forEach((vin) => {
+    tx.vin.forEach(vin => {
       if (vin.addresses?.includes(address)) {
         // send amount
         const sendValue = new BigNumber(vin.value ?? 0)
@@ -53,7 +56,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       }
     })
 
-    tx.vout.forEach((vout) => {
+    tx.vout.forEach(vout => {
       if (vout.addresses?.includes(address)) {
         // receive amount
         const receiveValue = new BigNumber(vout.value ?? 0)
@@ -70,6 +73,6 @@ export class BaseTransactionParser<T extends utxo.Tx> {
       }
     })
 
-    return parsedTx
+    return Promise.resolve(parsedTx)
   }
 }

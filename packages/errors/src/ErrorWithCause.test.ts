@@ -1,4 +1,4 @@
-import ErrorWithCause from './ErrorWithCause'
+import { ErrorWithCause } from './ErrorWithCause'
 
 describe('ErrorWithCause', () => {
   it('should create an error with no message', () => {

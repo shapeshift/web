@@ -7,12 +7,14 @@
  */
 
 import { ltcAssetId, ltcChainId } from '@shapeshiftoss/caip'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
-import { Account, BuildSendTxInput } from '../../types'
-import { ChainAdapterArgs } from '../UtxoBaseAdapter'
+import type { Account, BuildSendTxInput } from '../../types'
+import type { ChainAdapterArgs } from '../UtxoBaseAdapter'
 import * as litecoin from './LitecoinChainAdapter'
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
@@ -163,7 +165,7 @@ describe('LitecoinChainAdapter', () => {
   })
 
   describe('getType', () => {
-    it('should return KnownChainIds.LitecoinMainnet', async () => {
+    it('should return KnownChainIds.LitecoinMainnet', () => {
       const type = new litecoin.ChainAdapter(args).getType()
       expect(type).toEqual(KnownChainIds.LitecoinMainnet)
     })
@@ -426,18 +428,18 @@ describe('LitecoinChainAdapter', () => {
   })
   describe('getBIP44Params', () => {
     const adapter = new litecoin.ChainAdapter(args)
-    it('should throw for undefined accountType', async () => {
+    it('should throw for undefined accountType', () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: 0, accountType: undefined })
       }).toThrow('not a supported accountType undefined')
     })
-    it('should always be coinType 2', async () => {
+    it('should always be coinType 2', () => {
       for (const accountType of adapter.getSupportedAccountTypes()) {
         const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
         expect(r.coinType).toStrictEqual(2)
       }
     })
-    it('should properly map account types to purposes', async () => {
+    it('should properly map account types to purposes', () => {
       const accountTypes: UtxoAccountType[] = [
         UtxoAccountType.P2pkh,
         UtxoAccountType.SegwitP2sh,
@@ -454,7 +456,7 @@ describe('LitecoinChainAdapter', () => {
         expect(r).toStrictEqual(expected[i])
       })
     })
-    it('should respect accountNumber', async () => {
+    it('should respect accountNumber', () => {
       const accountTypes: UtxoAccountType[] = [
         UtxoAccountType.P2pkh,
         UtxoAccountType.SegwitP2sh,
@@ -471,7 +473,7 @@ describe('LitecoinChainAdapter', () => {
         expect(r).toStrictEqual(expected[accountNumber])
       })
     })
-    it('should throw for negative accountNumber', async () => {
+    it('should throw for negative accountNumber', () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: -1, accountType: UtxoAccountType.P2pkh })
       }).toThrow('accountNumber must be >= 0')

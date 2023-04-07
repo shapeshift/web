@@ -1,6 +1,6 @@
 import entries from 'lodash/entries'
 
-import { AssetId } from '../../assetId/assetId'
+import type { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -66,7 +66,7 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
 const invertMap = () => {
   const invertedMap: Record<OnRamperTokenId, AssetId> = {}
   entries(AssetIdToOnRamperIdMap).flatMap(([assetId, idList]) =>
-    idList.forEach((id) => {
+    idList.forEach(id => {
       invertedMap[id] = assetId
     }),
   )

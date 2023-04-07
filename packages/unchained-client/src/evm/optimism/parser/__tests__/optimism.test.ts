@@ -1,7 +1,8 @@
 import { optimismAssetId, optimismChainId } from '@shapeshiftoss/caip'
 
-import { Dex, Trade, TradeType, Transfer, TransferType, TxStatus } from '../../../../types'
-import { ParsedTx } from '../../../parser'
+import type { Trade, Transfer } from '../../../../types'
+import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { ParsedTx } from '../../../parser'
 import { TransactionParser, ZRX_OPTIMISM_PROXY_CONTRACT } from '../index'
 import erc20Approve from './mockData/erc20Approve'
 import ethSelfSend from './mockData/ethSelfSend'
@@ -13,7 +14,11 @@ import zrxTradeEthToUsdc from './mockData/zrxTradeEthToUsdc'
 import zrxTradeOpToEth from './mockData/zrxTradeOpToEth'
 import zrxTradeUsdcToOp from './mockData/zrxTradeUsdcToOp'
 
-const txParser = new TransactionParser({ rpcUrl: '', chainId: optimismChainId })
+const txParser = new TransactionParser({
+  rpcUrl: '',
+  chainId: optimismChainId,
+  assetId: optimismAssetId,
+})
 
 describe('parseTx', () => {
   describe('standard', () => {

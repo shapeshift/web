@@ -1,4 +1,4 @@
-import { Tx } from '../../../../../generated/bnbsmartchain'
+import type { Tx } from '../../../../../generated/bnbsmartchain'
 import { mempoolMock } from './mempoolMock'
 
 const bep20Approve: Tx = {

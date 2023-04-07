@@ -1,9 +1,9 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { SwapperType } from '@shapeshiftoss/swapper'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type Web3 from 'web3'
 
+import { SwapperType } from '../../api'
 import { ZrxSwapper } from '..'
 import { FOX } from '../utils/test-data/assets'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
@@ -42,11 +42,11 @@ jest.mock('./zrxApprove/zrxApprove', () => ({
 }))
 
 describe('ZrxSwapper', () => {
-  const wallet = <HDWallet>{}
-  const web3 = <Web3>{}
-  const adapter = <ethereum.ChainAdapter>{
+  const wallet = {} as HDWallet
+  const web3 = {} as Web3
+  const adapter = {
     getChainId: () => KnownChainIds.EthereumMainnet,
-  }
+  } as ethereum.ChainAdapter
   const zrxEthereumSwapperDeps = { web3, adapter }
 
   it('calls getZrxTradeQuote on getTradeQuote', async () => {

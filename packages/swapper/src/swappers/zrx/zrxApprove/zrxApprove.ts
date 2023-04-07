@@ -1,18 +1,13 @@
-import {
-  ApproveAmountInput,
-  ApproveInfiniteInput,
-  SwapError,
-  SwapErrorType,
-  TradeQuote,
-} from '../../../api'
+import type { ApproveAmountInput, ApproveInfiniteInput, TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { grantAllowance } from '../../utils/helpers/helpers'
-import { ZrxSwapperDeps } from '../types'
+import type { ZrxSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
-import { ZrxSupportedChainId } from '../ZrxSwapper'
+import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
-const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
+const grantAllowanceForAmount = <T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<T>,
   approvalAmount: string,
@@ -30,7 +25,7 @@ const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
       },
     },
   }
-  return await grantAllowance<T>({
+  return grantAllowance<T>({
     quote: approvalQuote,
     wallet,
     adapter,
@@ -39,7 +34,7 @@ const grantAllowanceForAmount = async <T extends ZrxSupportedChainId>(
   })
 }
 
-export async function zrxApproveAmount<T extends ZrxSupportedChainId>(
+export function zrxApproveAmount<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveAmountInput<T>,
 ) {
@@ -56,7 +51,7 @@ export async function zrxApproveAmount<T extends ZrxSupportedChainId>(
   }
 }
 
-export async function zrxApproveInfinite<T extends ZrxSupportedChainId>(
+export function zrxApproveInfinite<T extends ZrxSupportedChainId>(
   deps: ZrxSwapperDeps,
   args: ApproveInfiniteInput<T>,
 ) {

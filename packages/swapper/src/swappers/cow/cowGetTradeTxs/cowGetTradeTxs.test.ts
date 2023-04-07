@@ -1,8 +1,8 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
-import { TradeResult } from '../../../api'
-import { CowSwapperDeps } from '../CowSwapper'
+import type { TradeResult } from '../../../api'
+import type { CowSwapperDeps } from '../CowSwapper'
 import { cowService } from '../utils/cowService'
 import { cowGetTradeTxs } from './cowGetTradeTxs'
 

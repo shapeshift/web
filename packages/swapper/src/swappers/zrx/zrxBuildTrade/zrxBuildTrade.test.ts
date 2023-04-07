@@ -1,17 +1,17 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { AxiosStatic } from 'axios'
+import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
-import { BuildTradeInput, QuoteFeeData } from '../../../api'
+import type { BuildTradeInput, QuoteFeeData } from '../../../api'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
-import { ZrxTrade } from '../types'
+import type { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { ZrxSupportedChainId } from '../ZrxSwapper'
+import type { ZrxSupportedChainId } from '../ZrxSwapper'
 import { zrxBuildTrade } from './zrxBuildTrade'
 
 jest.mock('web3')

@@ -1,8 +1,9 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 
 import { assertIsDefined } from '../../../utils'
-import { BN } from '../../utils/bignumber'
-import { ThornodePoolResponse } from '../types'
+import type { BN } from '../../utils/bignumber'
+import type { ThornodePoolResponse } from '../types'
 import { getSwapOutput } from '../utils/getTradeRate/getTradeRate'
 import { isRune } from '../utils/isRune/isRune'
 import { thorService } from '../utils/thorService'
@@ -70,8 +71,8 @@ export const getSlippage = async ({
 
     const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
     const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAssetId })
-    const buyPool = buyPoolId ? poolData.find((response) => response.asset === buyPoolId) : null
-    const sellPool = sellPoolId ? poolData.find((response) => response.asset === sellPoolId) : null
+    const buyPool = buyPoolId ? poolData.find(response => response.asset === buyPoolId) : null
+    const sellPool = sellPoolId ? poolData.find(response => response.asset === sellPoolId) : null
     const toRune = isRune(buyAssetId)
     const fromRune = isRune(sellAssetId)
 

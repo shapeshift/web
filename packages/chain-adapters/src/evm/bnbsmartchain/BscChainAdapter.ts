@@ -1,12 +1,15 @@
-import { ASSET_REFERENCE, AssetId, bscAssetId } from '@shapeshiftoss/caip'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, bscAssetId } from '@shapeshiftoss/caip'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
+import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
-import { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { bn, bnOrZero, calcFee } from '../../utils'
-import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
-import { GasFeeDataEstimate } from '../types'
+import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
+import type { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BnbSmartChainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.BnbSmartChainMainnet
@@ -22,18 +25,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
 
   constructor(args: ChainAdapterArgs<unchained.bnbsmartchain.V1Api>) {
     super({
+      assetId: bscAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      parser: new unchained.bnbsmartchain.TransactionParser({
+        assetId: bscAssetId,
+        chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        rpcUrl: args.rpcUrl,
+      }),
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
 
     this.api = args.providers.http
-    this.assetId = bscAssetId
-    this.parser = new unchained.bnbsmartchain.TransactionParser({
-      chainId: this.chainId,
-      rpcUrl: this.rpcUrl,
-    })
   }
 
   getDisplayName() {

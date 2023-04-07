@@ -1,8 +1,8 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { sortBy } from 'lodash'
 import uniq from 'lodash/uniq'
 
-import {
+import type {
   BuyAssetBySellIdInput,
   ByPairInput,
   GetSwappersWithQuoteMetadataArgs,
@@ -11,7 +11,8 @@ import {
   Swapper,
   SwapperWithQuoteMetadata,
 } from '..'
-import { SwapError, SwapErrorType, SwapperType } from '../api'
+import type { SwapperType } from '../api'
+import { SwapError, SwapErrorType } from '../api'
 import { isFulfilled } from '../typeGuards'
 import { getRatioFromQuote } from './utils'
 
@@ -93,7 +94,7 @@ export class SwapperManager {
 
     const settledSwapperDetailRequests: PromiseSettledResult<SwapperWithQuoteMetadata>[] =
       await Promise.allSettled(
-        supportedSwappers.map(async (swapper) => {
+        supportedSwappers.map(async swapper => {
           const quote = await swapper.getTradeQuote(args)
           const ratio = await getRatioFromQuote(quote, swapper, feeAsset)
 
@@ -109,7 +110,7 @@ export class SwapperManager {
     const swappersWithDetail: SwapperWithQuoteMetadata[] = sortBy(
       settledSwapperDetailRequests
         .filter(isFulfilled)
-        .map((swapperDetailRequest) => swapperDetailRequest.value),
+        .map(swapperDetailRequest => swapperDetailRequest.value),
       ['inputOutputRatio'],
     ).reverse()
 

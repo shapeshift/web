@@ -1,18 +1,13 @@
-import {
-  ASSET_NAMESPACE,
-  ASSET_REFERENCE,
-  AssetId,
-  ChainId,
-  ethChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { Logger } from '@shapeshiftoss/logger'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import { Token, TransferType, TxStatus } from '../../types'
+import type { Token } from '../../types'
+import { TransferType, TxStatus } from '../../types'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
-import { ParsedTx, SubParser, Tx, TxSpecific } from './types'
+import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 
 export * from './types'
 export * from './utils'
@@ -24,6 +19,7 @@ const logger = new Logger({
 
 export interface TransactionParserArgs {
   chainId: ChainId
+  assetId: AssetId
   rpcUrl: string
 }
 
@@ -37,6 +33,7 @@ export class BaseTransactionParser<T extends Tx> {
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
+    this.assetId = args.assetId
     this.provider = new ethers.providers.JsonRpcProvider(args.rpcUrl)
   }
 
@@ -50,7 +47,7 @@ export class BaseTransactionParser<T extends Tx> {
   }
 
   protected registerParsers(parsers: SubParser<T>[]): void {
-    parsers.forEach((parser) => this.registerParser(parser))
+    parsers.forEach(parser => this.registerParser(parser))
   }
 
   async parse(tx: T, address: string): Promise<ParsedTx> {
@@ -59,7 +56,7 @@ export class BaseTransactionParser<T extends Tx> {
     // We expect only one Parser to return a result. If multiple do, we take the first and early exit.
     const contractParserResult = await findAsyncSequential<SubParser<T>, TxSpecific>(
       this.parsers,
-      async (parser) => await parser.parse(tx),
+      async parser => await parser.parse(tx),
     )
 
     const parsedTx: ParsedTx = {
@@ -126,7 +123,7 @@ export class BaseTransactionParser<T extends Tx> {
       }
     }
 
-    tx.tokenTransfers?.forEach((transfer) => {
+    tx.tokenTransfers?.forEach(transfer => {
       // FTX Token (FTT) name and symbol was set backwards on the ERC20 contract (Ethereum Mainnet)
       if (
         this.chainId === ethChainId &&
@@ -201,7 +198,7 @@ export class BaseTransactionParser<T extends Tx> {
       }
     })
 
-    tx.internalTxs?.forEach((internalTx) => {
+    tx.internalTxs?.forEach(internalTx => {
       const transferArgs = [this.assetId, internalTx.from, internalTx.to, internalTx.value] as const
 
       // internal eth send

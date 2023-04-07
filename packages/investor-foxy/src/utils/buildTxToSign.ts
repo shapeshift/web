@@ -1,6 +1,6 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params } from '@shapeshiftoss/types'
+import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
 
 type BuildTxToSignInput = {

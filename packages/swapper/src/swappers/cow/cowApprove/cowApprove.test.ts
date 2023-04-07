@@ -1,4 +1,4 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'

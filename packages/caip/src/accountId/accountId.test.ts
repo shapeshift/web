@@ -1,4 +1,5 @@
-import { ChainNamespace, ChainReference, toChainId } from '../chainId/chainId'
+import type { ChainNamespace, ChainReference } from '../chainId/chainId'
+import { toChainId } from '../chainId/chainId'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
 import { fromAccountId, fromCAIP10, toAccountId, toCAIP10 } from './accountId'
 

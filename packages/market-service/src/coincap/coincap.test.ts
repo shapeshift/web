@@ -3,7 +3,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { CoinCapMarketService } from './coincap'
-import { CoinCapMarketCap } from './coincap-types'
+import type { CoinCapMarketCap } from './coincap-types'
 
 const coinMarketService = new CoinCapMarketService()
 
@@ -171,10 +171,7 @@ describe('coincap market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(coinMarketService.findByAssetId(args1)).rejects.toEqual(
-        new Error('MarketService(findByAssetId): error fetching market data'),
-      )
+      await expect(coinMarketService.findByAssetId(args1)).rejects.toThrow()
     })
   })
 
@@ -204,7 +201,6 @@ describe('coincap market service', () => {
 
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
-      jest.spyOn(console, 'warn').mockImplementation(() => void 0)
       await expect(coinMarketService.findPriceHistoryByAssetId(args)).rejects.toEqual(
         new Error('MarketService(findPriceHistoryByAssetId): error fetching price history'),
       )

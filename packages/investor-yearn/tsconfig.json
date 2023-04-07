@@ -1,6 +1,16 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
   },
+  "include": ["src/**/*"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip" },
+    { "path": "../chain-adapters" },
+    { "path": "../investor" },
+    { "path": "../logger" },
+    { "path": "../types" },
+  ]
 }

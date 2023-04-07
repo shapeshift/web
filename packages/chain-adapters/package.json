@@ -1,8 +1,7 @@
 {
   "name": "@shapeshiftoss/chain-adapters",
   "version": "11.2.2",
-  "description": "> TODO: description",
-  "homepage": "",
+  "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,45 +11,23 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shapeshift/lib"
-  },
   "scripts": {
-    "adapterCli": "yarn build && node ./dist/ChainAdapterCLI.js",
-    "build": "yarn clean && yarn compile",
-    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "tsc -p tsconfig.build.json",
-    "dev": "tsc --watch",
-    "prepare": "yarn build",
-    "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch",
+    "cli": "yarn build && yarn node dist/ChainAdapterCLI.js"
   },
   "dependencies": {
-    "axios": "^0.26.1",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/unchained-client": "workspace:^",
     "bech32": "^2.0.0",
-    "bignumber.js": "^9.1.1",
     "bitcoinjs-lib": "^5.2.0",
     "coinselect": "^3.1.13",
-    "ethers": "^5.4.7",
     "multicoin-address-validator": "^0.5.12",
     "web3-utils": "1.7.4"
   },
-  "peerDependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.46.0",
-    "@shapeshiftoss/hdwallet-native": "^1.46.0",
-    "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.11.0",
-    "bs58check": "^2.0.2"
-  },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.46.0",
-    "@shapeshiftoss/hdwallet-native": "^1.46.0",
-    "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.0.1",
-    "@types/bs58check": "^2.1.0",
     "@types/multicoin-address-validator": "^0.5.0"
   }
 }

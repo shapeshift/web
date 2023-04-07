@@ -1,11 +1,14 @@
-import { avalancheChainId, ChainId, ethChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { avalancheChainId, ethChainId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { Tx } from '../../../generated/ethereum'
-import { BaseTxMetadata, Dex, TradeType } from '../../../types'
-import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
-import THOR_AVALANCHE_ABI from './abi/thorAvalanche'
-import THOR_ETHEREUM_ABI from './abi/thorEthereum'
+import type { Tx } from '../../../generated/ethereum'
+import type { BaseTxMetadata } from '../../../types'
+import { Dex, TradeType } from '../../../types'
+import type { SubParser, TxSpecific } from '../../parser'
+import { getSigHash, txInteractsWithContract } from '../../parser'
+import { THOR_AVALANCHE_ABI } from './abi/thorAvalanche'
+import { THOR_ETHEREUM_ABI } from './abi/thorEthereum'
 import { THOR_ROUTER_CONTRACT_AVAX_MAINNET, THOR_ROUTER_CONTRACT_ETH_MAINNET } from './constants'
 
 const SWAP_TYPES = ['SWAP', '=', 's']
@@ -70,7 +73,7 @@ export class Parser implements SubParser<Tx> {
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
+    if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
@@ -85,11 +88,17 @@ export class Parser implements SubParser<Tx> {
     const [type] = decoded.args.memo.split(':')
 
     if (SWAP_TYPES.includes(type) || type === 'OUT') {
-      return { trade: { dexName: Dex.Thor, type: TradeType.Trade, memo: decoded.args.memo }, data }
+      return await Promise.resolve({
+        trade: { dexName: Dex.Thor, type: TradeType.Trade, memo: decoded.args.memo },
+        data,
+      })
     }
 
     if (type === 'REFUND') {
-      return { trade: { dexName: Dex.Thor, type: TradeType.Refund, memo: decoded.args.memo }, data }
+      return await Promise.resolve({
+        trade: { dexName: Dex.Thor, type: TradeType.Refund, memo: decoded.args.memo },
+        data,
+      })
     }
 
     // memo type not supported

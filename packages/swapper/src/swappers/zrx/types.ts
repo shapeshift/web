@@ -1,8 +1,8 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type Web3 from 'web3'
 
-import { SwapSource, Trade } from '../../api'
-import { ZrxSupportedChainAdapter, ZrxSupportedChainId } from './ZrxSwapper'
+import type { SwapSource, Trade } from '../../api'
+import type { ZrxSupportedChainAdapter, ZrxSupportedChainId } from './ZrxSwapper'
 
 export type ZrxCommonResponse = {
   price: string

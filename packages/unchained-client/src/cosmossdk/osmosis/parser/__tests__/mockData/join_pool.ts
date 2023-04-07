@@ -1,4 +1,4 @@
-import { Tx } from '../../../../types'
+import type { Tx } from '../../../../types'
 
 // https://www.mintscan.io/osmosis/txs/AA58EDA8D4E86F1E532F1FEC4D4F1C645050DBF1261BAA607B74A9E92B2F17E3
 

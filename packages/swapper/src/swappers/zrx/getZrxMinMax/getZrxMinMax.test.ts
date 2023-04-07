@@ -1,9 +1,9 @@
-jest.mock('../utils/zrxService')
-jest.mock('../utils/helpers/helpers')
-
 import { AVAX, BSC, BTC, FOX, OPTIMISM, WETH } from '../../utils/test-data/assets'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getZrxMinMax } from './getZrxMinMax'
+
+jest.mock('../utils/zrxService')
+jest.mock('../utils/helpers/helpers')
 
 jest.mock('../utils/helpers/helpers', () => ({
   getUsdRate: () => '1',

@@ -1,6 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Trade } from '../../api'
+import type { Trade } from '../../api'
 
 export type CowSwapQuoteResponse = {
   quote: {

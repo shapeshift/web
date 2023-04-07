@@ -1,4 +1,4 @@
-import { Token } from '../../../../../types'
+import type { Token } from '../../../../../types'
 
 export const opToken: Token = {
   contract: '0x4200000000000000000000000000000000000042',

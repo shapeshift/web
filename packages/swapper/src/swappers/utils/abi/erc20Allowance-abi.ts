@@ -1,4 +1,4 @@
-import { AbiItem } from 'web3-utils'
+import type { AbiItem } from 'web3-utils'
 
 export const erc20AllowanceAbi: AbiItem[] = [
   {

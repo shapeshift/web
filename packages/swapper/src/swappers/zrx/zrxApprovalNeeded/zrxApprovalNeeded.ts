@@ -1,11 +1,12 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorType } from '../../../api'
+import type { ApprovalNeededInput, ApprovalNeededOutput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { getERC20Allowance } from '../../utils/helpers/helpers'
-import { ZrxSwapperDeps } from '../types'
-import { ZrxSupportedChainId } from '../ZrxSwapper'
+import type { ZrxSwapperDeps } from '../types'
+import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function zrxApprovalNeeded<T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,

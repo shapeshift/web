@@ -1,23 +1,26 @@
 import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   FindAllMarketArgs,
   HistoryData,
-  HistoryTimeframe,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
-import { ChainId, Yearn } from '@yfi/sdk'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { ChainId, Yearn } from '@yfi/sdk'
 import head from 'lodash/head'
 
-import { MarketService } from '../api'
+import type { MarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { createRateLimiter } from '../utils/rateLimiters'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
-import { VaultDayDataGQLResponse } from './yearn-types'
+import type { VaultDayDataGQLResponse } from './yearn-types'
+
+const logger = new Logger({ namespace: ['market-service', 'yearn', 'vaults'] })
 
 const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 
@@ -116,7 +119,7 @@ export class YearnVaultMarketCapService implements MarketService {
           return acc
         }, {} as MarketCapResult)
     } catch (e) {
-      console.info(e)
+      logger.warn(e, '')
       return {}
     }
   }
@@ -181,7 +184,7 @@ export class YearnVaultMarketCapService implements MarketService {
         changePercent24Hr,
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('YearnMarketService(findByAssetId): error fetching market data')
     }
   }
@@ -248,7 +251,7 @@ export class YearnVaultMarketCapService implements MarketService {
       return vaultDayData.reduce<HistoryData[]>((acc, current: VaultDayData) => {
         const date = Number(current.timestamp)
         if (!isValidDate(date)) {
-          console.error('Yearn SDK vault has invalid date')
+          logger.error('Yearn SDK vault has invalid date')
           return acc
         }
         const price = bn(current.tokenPriceUSDC)
@@ -258,7 +261,7 @@ export class YearnVaultMarketCapService implements MarketService {
           .dp(6)
 
         if (price.isNaN()) {
-          console.error('Yearn SDK vault has invalid price')
+          logger.error('Yearn SDK vault has invalid price')
           return acc
         }
         acc.push({
@@ -268,7 +271,7 @@ export class YearnVaultMarketCapService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('YearnMarketService(getPriceHistory): error fetching price history')
     }
   }

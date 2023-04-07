@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import Logger from './logger'
-import { LoggerFunction, LogLevel } from './logger.type'
+/* eslint-disable testing-library/no-debugging-utils */
+import { Logger } from './logger'
+import type { LoggerFunction } from './logger.type'
+import { LogLevel } from './logger.type'
 
 describe('Logger', () => {
   let dateSpy: jest.SpyInstance
@@ -231,7 +232,7 @@ describe('Logger', () => {
 
     describe.each([LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR])(
       '.%s(x: object, msg: string)',
-      (level) => {
+      level => {
         it('should log an object and message', () => {
           // @ts-ignore
           const spy = jest.spyOn(console, level).mockReturnValue(undefined)

@@ -1,6 +1,6 @@
-import { MarketData } from '@shapeshiftoss/types'
+import type { MarketData } from '@shapeshiftoss/types'
 
-import { OsmosisMarketCap } from './osmosis-types'
+import type { OsmosisMarketCap } from './osmosis-types'
 
 export const secretNetwork: OsmosisMarketCap = {
   price: 4.5456667708,

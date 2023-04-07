@@ -1,7 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Swapper, TradeQuote } from '../api'
+import type { Swapper, TradeQuote } from '../api'
 import { bnOrZero, fromBaseUnit } from '../swappers/utils/bignumber'
 import { isFulfilled } from '../typeGuards'
 
@@ -28,12 +28,12 @@ export const getRatioFromQuote = async (
     then the ratio would be incorrectly in its favour.
   */
   const quoteAssets = [quote.sellAsset, quote.buyAsset, feeAsset]
-  const usdRatePromises = quoteAssets.map((asset) => swapper.getUsdRate(asset))
+  const usdRatePromises = quoteAssets.map(asset => swapper.getUsdRate(asset))
   const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = (
     await Promise.allSettled(usdRatePromises)
   )
     .filter(isFulfilled)
-    .map((p) => p.value)
+    .map(p => p.value)
 
   const totalSellAmountFiat = bnOrZero(
     fromBaseUnit(quote.sellAmountBeforeFeesCryptoBaseUnit, quote.sellAsset.precision),

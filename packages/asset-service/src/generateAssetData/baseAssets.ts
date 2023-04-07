@@ -1,6 +1,6 @@
 import * as caip from '@shapeshiftoss/caip'
 
-import { Asset } from '../service/AssetService'
+import type { Asset } from '../service/AssetService'
 
 export const ethereum: Asset = {
   assetId: caip.ethAssetId,

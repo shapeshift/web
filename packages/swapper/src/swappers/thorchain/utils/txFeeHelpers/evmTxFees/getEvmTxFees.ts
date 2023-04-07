@@ -1,10 +1,12 @@
-import { AssetReference } from '@shapeshiftoss/caip'
-import { EvmBaseAdapter, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { AssetReference } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 
-import { QuoteFeeData, SwapError, SwapErrorType } from '../../../../../api'
+import type { QuoteFeeData } from '../../../../../api'
+import { SwapError, SwapErrorType } from '../../../../../api'
 import { bn, bnOrZero } from '../../../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../../../utils/constants'
-import { ThorEvmSupportedChainId } from '../../../ThorchainSwapper'
+import type { ThorEvmSupportedChainId } from '../../../ThorchainSwapper'
 import { THOR_EVM_GAS_LIMIT } from '../../constants'
 
 type GetEvmTxFeesArgs = {

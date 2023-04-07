@@ -1,22 +1,26 @@
-import { ASSET_REFERENCE, AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { supportsThorchain, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
-import {
+import type {
   BuildDepositTxInput,
   BuildSendTxInput,
-  ChainAdapterDisplayName,
   FeeDataEstimate,
   GetAddressInput,
   GetFeeDataInput,
   SignTxInput,
 } from '../../types'
+import { ChainAdapterDisplayName } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
-import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import { Message } from '../types'
+import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
+import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
+import type { Message } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://thornode.ninerealms.com/thorchain/constants
@@ -41,15 +45,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   constructor(args: ChainAdapterArgs) {
     super({
-      denom: 'rune',
+      assetId: thorchainAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      denom: 'rune',
+      parser: new unchained.thorchain.TransactionParser({
+        assetId: thorchainAssetId,
+        chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+      }),
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
-
-    this.assetId = thorchainAssetId
-    this.parser = new unchained.thorchain.TransactionParser({ chainId: this.chainId })
   }
 
   getDisplayName() {
@@ -172,13 +178,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  // @ts-ignore - keep type signature with unimplemented state
-  async getFeeData({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    sendMax,
-  }: Partial<GetFeeDataInput<KnownChainIds.ThorchainMainnet>>): Promise<
-    FeeDataEstimate<KnownChainIds.ThorchainMainnet>
-  > {
+  // eslint-disable-next-line require-await
+  async getFeeData(
+    _: Partial<GetFeeDataInput<KnownChainIds.ThorchainMainnet>>,
+  ): Promise<FeeDataEstimate<KnownChainIds.ThorchainMainnet>> {
     return {
       fast: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
       average: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },

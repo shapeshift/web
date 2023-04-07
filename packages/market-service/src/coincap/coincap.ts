@@ -1,22 +1,25 @@
 import { adapters } from '@shapeshiftoss/caip'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   FindAllMarketArgs,
   HistoryData,
-  HistoryTimeframe,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
-import { MarketService } from '../api'
+import type { MarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
-import { CoinCapMarketCap } from './coincap-types'
+import type { CoinCapMarketCap } from './coincap-types'
+
+const logger = new Logger({ namespace: ['market-service', 'coincap'] })
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
 
@@ -40,7 +43,7 @@ export class CoinCapMarketService implements MarketService {
     try {
       const combined = (
         await Promise.all(
-          pageCount.map(async (page) => axios.get<{ data: CoinCapMarketCap[] }>(urlAtPage(page))),
+          pageCount.map(page => axios.get<{ data: CoinCapMarketCap[] }>(urlAtPage(page))),
         )
       ).flat()
 
@@ -90,8 +93,7 @@ export class CoinCapMarketService implements MarketService {
         maxSupply: marketData.maxSupply?.toString(),
       }
     } catch (e) {
-      console.warn(e)
-      throw new Error('MarketService(findByAssetId): error fetching market data')
+      throw new Error(`MarketService(findByAssetId): error fetching market data: ${e}`)
     }
   }
 
@@ -153,12 +155,12 @@ export class CoinCapMarketService implements MarketService {
       return coincapData.reduce<HistoryData[]>((acc, current) => {
         const date = current.time
         if (!isValidDate(date)) {
-          console.error('Coincap asset history data has invalid date')
+          logger.error('Coincap asset history data has invalid date')
           return acc
         }
         const price = bn(current.priceUsd)
         if (price.isNaN()) {
-          console.error('Coincap asset history data has invalid price')
+          logger.error('Coincap asset history data has invalid price')
           return acc
         }
         acc.push({
@@ -168,7 +170,7 @@ export class CoinCapMarketService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }

@@ -1,9 +1,10 @@
 import { ethers } from 'ethers'
 
-import { Tx } from '../../../generated/ethereum'
-import { BaseTxMetadata } from '../../../types'
-import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
-import FOXY_STAKING_ABI from './abi/foxyStaking'
+import type { Tx } from '../../../generated/ethereum'
+import type { BaseTxMetadata } from '../../../types'
+import type { SubParser, TxSpecific } from '../../parser'
+import { getSigHash, txInteractsWithContract } from '../../parser'
+import { FOXY_STAKING_ABI } from './abi/foxyStaking'
 import { FOXY_STAKING_CONTRACT } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
@@ -26,18 +27,18 @@ export class Parser implements SubParser<Tx> {
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
+    if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
     // failed to decode input data
     if (!decoded) return
 
-    return {
+    return await Promise.resolve({
       data: {
         method: decoded.name,
         parser: 'foxy',
       },
-    }
+    })
   }
 }

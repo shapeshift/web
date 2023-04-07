@@ -1,3 +1,3 @@
 import { createErrorClass } from './createErrorClass'
 
-export default createErrorClass('RateLimitError')
+export const RateLimitError = createErrorClass('RateLimitError')

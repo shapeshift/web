@@ -1,17 +1,12 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
 import { BTC, ETH, FOX, USDC, WBTC } from '../../../utils/test-data/assets'
-import { CowSwapperDeps } from '../../CowSwapper'
+import type { CowSwapperDeps } from '../../CowSwapper'
 import { DEFAULT_ADDRESS, DEFAULT_APP_DATA, ORDER_KIND_BUY } from '../constants'
 import { cowService } from '../cowService'
-import {
-  CowSwapOrder,
-  domain,
-  getNowPlusThirtyMinutesTimestamp,
-  getUsdRate,
-  hashOrder,
-} from './helpers'
+import type { CowSwapOrder } from './helpers'
+import { domain, getNowPlusThirtyMinutesTimestamp, getUsdRate, hashOrder } from './helpers'
 
 jest.mock('../cowService')
 

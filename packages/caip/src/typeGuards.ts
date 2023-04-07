@@ -1,27 +1,27 @@
-import { AssetId, AssetNamespace, AssetReference } from './assetId/assetId'
-import { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
+import type { AssetId, AssetNamespace, AssetReference } from './assetId/assetId'
+import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from './constants'
 import { isValidChainPartsPair, parseAssetIdRegExp } from './utils'
 
 export const isChainNamespace = (
   maybeChainNamespace: ChainNamespace | string,
 ): maybeChainNamespace is ChainNamespace =>
-  Object.values(CHAIN_NAMESPACE).some((s) => s === maybeChainNamespace)
+  Object.values(CHAIN_NAMESPACE).some(s => s === maybeChainNamespace)
 
 export const isChainReference = (
   maybeChainReference: ChainReference | string,
 ): maybeChainReference is ChainReference =>
-  Object.values(CHAIN_REFERENCE).some((s) => s === maybeChainReference)
+  Object.values(CHAIN_REFERENCE).some(s => s === maybeChainReference)
 
 export const isAssetNamespace = (
   maybeAssetNamespace: AssetNamespace | string,
 ): maybeAssetNamespace is AssetNamespace =>
-  Object.values(ASSET_NAMESPACE).some((s) => s === maybeAssetNamespace)
+  Object.values(ASSET_NAMESPACE).some(s => s === maybeAssetNamespace)
 
 export const isAssetReference = (
   maybeAssetReference: AssetReference | string,
 ): maybeAssetReference is AssetReference =>
-  Object.values(ASSET_REFERENCE).some((s) => s === maybeAssetReference)
+  Object.values(ASSET_REFERENCE).some(s => s === maybeAssetReference)
 
 export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetReference => {
   const matches = parseAssetIdRegExp.exec(maybeAssetId)

@@ -1,10 +1,13 @@
-import { ChainId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
-import { Tx } from '../../../generated/ethereum'
-import { BaseTxMetadata, TransferType } from '../../../types'
-import { getSigHash, SubParser, txInteractsWithContract, TxSpecific } from '../../parser'
-import WETH_ABI from './abi/weth'
+import type { Tx } from '../../../generated/ethereum'
+import type { BaseTxMetadata } from '../../../types'
+import { TransferType } from '../../../types'
+import type { SubParser, TxSpecific } from '../../parser'
+import { getSigHash, txInteractsWithContract } from '../../parser'
+import { WETH_ABI } from './abi/weth'
 import { WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
@@ -50,7 +53,7 @@ export class Parser implements SubParser<Tx> {
 
     const txSigHash = getSigHash(tx.inputData)
 
-    if (!Object.values(this.supportedFunctions).some((hash) => hash === txSigHash)) return
+    if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
@@ -105,12 +108,12 @@ export class Parser implements SubParser<Tx> {
     // no supported function detected
     if (!transfers) return
 
-    return {
+    return await Promise.resolve({
       transfers,
       data: {
         parser: 'weth',
         method: decoded.name,
       },
-    }
+    })
   }
 }

@@ -1,6 +1,6 @@
 // https://github.com/Idle-Labs/idle-tranches/blob/master/abi/IdleStrategy.json
 
-import { AbiItem } from 'web3-utils'
+import type { AbiItem } from 'web3-utils'
 /* eslint-disable */
 export const idleStrategyAbi: AbiItem[] = [
   {

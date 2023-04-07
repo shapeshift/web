@@ -1,11 +1,12 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { ApproveInfiniteInput, SwapError, SwapErrorType } from '../../../api'
+import type { ApproveInfiniteInput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20Abi } from '../../utils/abi/erc20-abi'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { grantAllowance } from '../../utils/helpers/helpers'
-import { ThorchainSwapperDeps } from '../types'
+import type { ThorchainSwapperDeps } from '../types'
 import { MAX_ALLOWANCE } from '../utils/constants'
 
 export const thorTradeApproveInfinite = async ({

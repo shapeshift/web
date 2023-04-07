@@ -1,19 +1,18 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  AssetId,
   avalancheAssetId,
   bscAssetId,
-  ChainId,
   ethAssetId,
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 
 import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero } from '../../../utils/bignumber'
-import { ZrxPriceResponse } from '../../types'
+import type { ZrxPriceResponse } from '../../types'
 import { zrxServiceFactory } from '../zrxService'
 
 export const baseUrlFromChainId = (chainId: string): string => {

@@ -1,7 +1,7 @@
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import { AssetId } from '../../index'
+import type { AssetId } from '../../index'
 import { tickerMap } from './generated'
 
 // As of 2022/06/13 (ETH/BTC/COSMOS assets)

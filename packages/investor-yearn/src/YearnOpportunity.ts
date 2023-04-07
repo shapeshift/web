@@ -1,20 +1,22 @@
 import { toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
   ApprovalRequired,
   DepositWithdrawArgs,
   FeePriority,
   InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
-import { type ChainId, type Vault, type VaultMetadata, Yearn } from '@yfi/sdk'
+import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { Yearn } from '@yfi/sdk'
+import { type ChainId, type Vault, type VaultMetadata } from '@yfi/sdk'
 import type { BigNumber } from 'bignumber.js'
 import isNil from 'lodash/isNil'
 import toLower from 'lodash/toLower'
-import Web3 from 'web3'
-import { Contract } from 'web3-eth-contract'
+import type Web3 from 'web3'
+import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
 import { erc20Abi, MAX_ALLOWANCE, ssRouterContractAddress, yv2VaultAbi } from './constants'
@@ -65,7 +67,7 @@ export class YearnOpportunity
   public readonly symbol: string
   public readonly name: string
   public readonly id: string
-  public readonly isApprovalRequired: true
+  public readonly isApprovalRequired = true
   public readonly isNew: boolean
   public readonly metadata: VaultMetadata
   public readonly underlyingAsset: { assetId: string; balance: BigNumber }
@@ -76,7 +78,6 @@ export class YearnOpportunity
   }
   public readonly expired: boolean
   public readonly feeAsset: { assetId: string }
-  public readonly price: BigNumber
   public readonly supply: BigNumber
   public readonly tvl: {
     assetId: string

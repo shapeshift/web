@@ -1,5 +1,5 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
@@ -15,7 +15,7 @@ import { getThorTradeQuote } from './getTradeQuote'
 jest.mock('../utils/thorService')
 jest.mock('../utils/getUsdRate/getUsdRate')
 
-const mockedAxios = jest.mocked(thorService, true)
+const mockedAxios = jest.mocked(thorService)
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '59.658672054814851787728',
@@ -48,11 +48,11 @@ describe('getTradeQuote', () => {
     midgardUrl: '',
     daemonUrl: '',
     adapterManager,
-    web3: <Web3>{},
+    web3: {} as Web3,
   }
 
   it('should get a thorchain quote for a thorchain trade', async () => {
-    mockedAxios.get.mockImplementation((url) => {
+    mockedAxios.get.mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve({ data: thornodePools })

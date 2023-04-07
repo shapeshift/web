@@ -1,13 +1,15 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosResponse } from 'axios'
+import axios from 'axios'
 
-import { GetTradeQuoteInput, SwapError, SwapErrorType, TradeQuote } from '../../../api'
+import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, normalizeIntegerAmount } from '../../utils/helpers/helpers'
-import { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapperDeps } from '../CowSwapper'
 import { getCowSwapMinMax } from '../getCowSwapMinMax/getCowSwapMinMax'
-import { CowSwapQuoteResponse } from '../types'
+import type { CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -17,11 +19,8 @@ import {
   ORDER_KIND_SELL,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
-import {
-  CowSwapSellQuoteApiInput,
-  getNowPlusThirtyMinutesTimestamp,
-  getUsdRate,
-} from '../utils/helpers/helpers'
+import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
+import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/helpers'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,

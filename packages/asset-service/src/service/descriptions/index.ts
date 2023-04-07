@@ -7,8 +7,6 @@ import pt from './pt.json'
 import ru from './ru.json'
 import zh from './zh.json'
 
-const descriptions = { en, es, fr, id, ko, pt, ru, zh } as {
+export const descriptions = { en, es, fr, id, ko, pt, ru, zh } as {
   [locale: string]: Record<string, string>
 }
-
-export default descriptions

@@ -1,10 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { MinMaxOutput, SwapError, SwapErrorType } from '../../../api'
+import type { MinMaxOutput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapperDeps } from '../CowSwapper'
 import { MAX_COWSWAP_TRADE, MIN_COWSWAP_VALUE_USD } from '../utils/constants'
 import { getUsdRate } from '../utils/helpers/helpers'
 

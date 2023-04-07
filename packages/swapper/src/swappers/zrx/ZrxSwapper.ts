@@ -1,9 +1,10 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import {
+import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveAmountInput,
@@ -11,17 +12,14 @@ import {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
-  SwapError,
-  SwapErrorType,
   Swapper,
-  SwapperName,
-  SwapperType,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from '../../api'
+import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from './types'
+import type { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from './types'
 import { UNSUPPORTED_ASSETS } from './utils/blacklist'
 import { getUsdRate } from './utils/helpers/helpers'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
@@ -68,38 +66,38 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
+  buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
     return getZrxTradeQuote<T>(input)
   }
 
-  async getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<string> {
     return getUsdRate(input)
   }
 
-  async executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
+  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
-  async approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
+  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
     return zrxApprovalNeeded<T>(this.deps, args)
   }
 
-  async approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
+  approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
     return zrxApproveInfinite<T>(this.deps, args)
   }
 
-  async approveAmount(args: ApproveAmountInput<T>): Promise<string> {
+  approveAmount(args: ApproveAmountInput<T>): Promise<string> {
     return zrxApproveAmount<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
     return assetIds.filter(
-      (id) =>
+      id =>
         fromAssetId(id).chainId === this.chainId &&
         fromAssetId(sellAssetId).chainId === this.chainId &&
         !UNSUPPORTED_ASSETS.includes(id),
@@ -108,14 +106,14 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
     return assetIds.filter(
-      (id) => fromAssetId(id).chainId === this.chainId && !UNSUPPORTED_ASSETS.includes(id),
+      id => fromAssetId(id).chainId === this.chainId && !UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
-  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    return {
+  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+    return Promise.resolve({
       sellTxid: tradeResult.tradeId,
       buyTxid: tradeResult.tradeId,
-    }
+    })
   }
 }

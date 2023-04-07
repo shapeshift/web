@@ -1,25 +1,28 @@
 import { adapters, fromAssetId } from '@shapeshiftoss/caip'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   HistoryData,
-  HistoryTimeframe,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { MarketService } from '../api'
-import { ProviderUrls } from '../market-service-manager'
+import type { MarketService } from '../api'
+import type { ProviderUrls } from '../market-service-manager'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
-import { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
+import type { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 import { getPool, getPoolIdFromAssetReference, getPoolMarketData, isOsmosisLpAsset } from './utils'
+
+const logger = new Logger({ namespace: ['market-service', 'osmosis'] })
 
 const OSMOSIS_LP_TOKEN_PRECISION = 18
 
 export class OsmosisMarketService implements MarketService {
-  baseUrl: string // Unused, but present to satisfy MarketService interface definition
+  baseUrl = '' // Unused, but present to satisfy MarketService interface definition
   providerUrls: ProviderUrls
 
   constructor(providerUrls: ProviderUrls) {
@@ -31,7 +34,7 @@ export class OsmosisMarketService implements MarketService {
     try {
       const { data: osmosisData }: { data: OsmosisMarketCap[] } = await axios.get(osmosisApiUrl)
       const results = osmosisData
-        .map((data) => data ?? []) // filter out rate limited results
+        .map(data => data ?? []) // filter out rate limited results
         .sort((a, b) => (a.liquidity < b.liquidity ? 1 : -1))
         .reduce((acc, token) => {
           const assetId = adapters.osmosisToAssetId(token.symbol)
@@ -108,7 +111,7 @@ export class OsmosisMarketService implements MarketService {
         supply: bnOrZero(marketData.liquidity).div(marketData.price).toString(),
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('MarketService(findByAssetId): error fetching market data')
     }
   }
@@ -185,7 +188,7 @@ export class OsmosisMarketService implements MarketService {
         // convert timestamp from seconds to milliseconds
         const date = bnOrZero(current.time).times(1000).toNumber()
         if (!isValidDate(date)) {
-          console.error('Osmosis asset history data has invalid date')
+          logger.error('Osmosis asset history data has invalid date')
           return acc
         }
         const price = bnOrZero(current.close)
@@ -196,7 +199,7 @@ export class OsmosisMarketService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }

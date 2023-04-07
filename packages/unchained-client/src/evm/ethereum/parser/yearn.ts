@@ -1,13 +1,22 @@
-import { ChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
+import { Logger } from '@shapeshiftoss/logger'
 import axios from 'axios'
-import { BigNumber, ethers } from 'ethers'
+import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 
-import { Tx } from '../../../generated/ethereum'
-import { BaseTxMetadata } from '../../../types'
-import { getSigHash, SubParser, TxSpecific } from '../../parser'
-import shapeShiftRouter from './abi/shapeShiftRouter'
-import yearnVault from './abi/yearnVault'
+import type { Tx } from '../../../generated/ethereum'
+import type { BaseTxMetadata } from '../../../types'
+import type { SubParser, TxSpecific } from '../../parser'
+import { getSigHash } from '../../parser'
+import { SHAPESHIFT_ROUTER_ABI } from './abi/shapeShiftRouter'
+import { YEARN_VAULT_ABI } from './abi/yearnVault'
 import { SHAPE_SHIFT_ROUTER_CONTRACT } from './constants'
+
+const logger = new Logger({
+  namespace: ['unchained-client', 'evm', 'ethereum', 'parser', 'yearn'],
+  level: process.env.LOG_LEVEL,
+})
 
 export const YEARN_VAULTS_URL = 'https://ydaemon.yearn.finance/api/1/vaults/all'
 
@@ -52,8 +61,8 @@ export class Parser implements SubParser<Tx> {
 
   readonly chainId: ChainId
 
-  readonly shapeShiftInterface = new ethers.utils.Interface(shapeShiftRouter)
-  readonly yearnInterface = new ethers.utils.Interface(yearnVault)
+  readonly shapeShiftInterface = new ethers.utils.Interface(SHAPESHIFT_ROUTER_ABI)
+  readonly yearnInterface = new ethers.utils.Interface(YEARN_VAULT_ABI)
 
   readonly supportedYearnFunctions = {
     approveSigHash: this.yearnInterface.getSighash('approve'),
@@ -81,7 +90,7 @@ export class Parser implements SubParser<Tx> {
       ...Object.values(this.supportedYearnFunctions),
     ]
 
-    if (!supportedSigHashes.some((hash) => hash === txSigHash)) return
+    if (!supportedSigHashes.some(hash => hash === txSigHash)) return
 
     const abiInterface = this.getAbiInterface(txSigHash)
     if (!abiInterface) return
@@ -89,9 +98,9 @@ export class Parser implements SubParser<Tx> {
     if (!this.yearnTokenVaultAddresses) {
       try {
         const { data } = await axios.get<Vault[]>(YEARN_VAULTS_URL)
-        this.yearnTokenVaultAddresses = data?.map((vault) => vault.address)
-      } catch (e) {
-        console.error('yearn tx parser unable to fetch vaults', e)
+        this.yearnTokenVaultAddresses = data?.map(vault => vault.address)
+      } catch (err) {
+        logger.error(err, 'yearn tx parser unable to fetch vaults')
         return
       }
     }
@@ -138,9 +147,9 @@ export class Parser implements SubParser<Tx> {
   }
 
   getAbiInterface(txSigHash: string | undefined): ethers.utils.Interface | undefined {
-    if (Object.values(this.supportedYearnFunctions).some((abi) => abi === txSigHash))
+    if (Object.values(this.supportedYearnFunctions).some(abi => abi === txSigHash))
       return this.yearnInterface
-    if (Object.values(this.supportedShapeShiftFunctions).some((abi) => abi === txSigHash))
+    if (Object.values(this.supportedShapeShiftFunctions).some(abi => abi === txSigHash))
       return this.shapeShiftInterface
     return undefined
   }

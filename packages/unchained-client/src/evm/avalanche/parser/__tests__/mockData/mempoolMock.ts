@@ -1,4 +1,4 @@
-import { Tx } from '../../../../../generated/avalanche'
+import type { Tx } from '../../../../../generated/avalanche'
 
 export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
   const mempoolSpecific = {

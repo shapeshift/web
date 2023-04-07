@@ -1,7 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Swapper, TradeQuote } from '../api'
+import type { Swapper, TradeQuote } from '../api'
 import { ETH } from '../swappers/utils/test-data/assets'
 import { tradeQuote } from './testData'
 import { getRatioFromQuote } from './utils'

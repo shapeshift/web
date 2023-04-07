@@ -1,7 +1,7 @@
-import { HistoryData, MarketData } from '@shapeshiftoss/types'
+import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 
 import { FiatMarketProviders } from './fiat-market-providers'
-import {
+import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   FiatPriceHistoryType,

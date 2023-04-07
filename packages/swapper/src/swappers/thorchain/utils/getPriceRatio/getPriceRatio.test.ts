@@ -1,7 +1,7 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
-import { ThorchainSwapperDeps } from '../../types'
+import type { ThorchainSwapperDeps } from '../../types'
 import { ethThornodePool, foxThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getPriceRatio } from './getPriceRatio'
@@ -12,8 +12,8 @@ describe('getPriceRatio', () => {
   const deps: ThorchainSwapperDeps = {
     midgardUrl: '',
     daemonUrl: '',
-    adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{},
+    adapterManager: {} as ChainAdapterManager,
+    web3: {} as Web3,
   }
 
   it('should correctly calculate price ratio of between a given buy and sell asset', async () => {

@@ -1,21 +1,16 @@
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 
-import {
-  GetEvmTradeQuoteInput,
-  SwapError,
-  SwapErrorType,
-  SwapSource,
-  TradeQuote,
-} from '../../../api'
+import type { GetEvmTradeQuoteInput, SwapSource, TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { getZrxMinMax } from '../getZrxMinMax/getZrxMinMax'
-import { ZrxPriceResponse } from '../types'
+import type { ZrxPriceResponse } from '../types'
 import { DEFAULT_SOURCE } from '../utils/constants'
 import { assetToToken, baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { ZrxSupportedChainId } from '../ZrxSwapper'
+import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,

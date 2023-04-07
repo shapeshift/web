@@ -1,8 +1,9 @@
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import { IdleSdk, IdleVault } from '@shapeshiftoss/investor-idle'
+import type { IdleVault } from '@shapeshiftoss/investor-idle'
+import { IdleSdk } from '@shapeshiftoss/investor-idle'
 import axios from 'axios'
 
-import { Asset } from '../../service/AssetService'
+import type { Asset } from '../../service/AssetService'
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 

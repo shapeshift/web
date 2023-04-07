@@ -5,22 +5,20 @@
  * @group unit
  */
 import { ASSET_REFERENCE, CHAIN_REFERENCE, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
-import unchained from '@shapeshiftoss/unchained-client'
+import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import {
-  BuildSendTxInput,
-  SignMessageInput,
-  SignTxInput,
-  ValidAddressResultType,
-} from '../../types'
+import type { BuildSendTxInput, SignMessageInput, SignTxInput } from '../../types'
+import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
-import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -375,7 +373,7 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () => null
+      wallet.ethSendTx = async () => await Promise.resolve(null)
 
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -388,9 +386,10 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () => ({
-        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
-      })
+      wallet.ethSendTx = async () =>
+        await Promise.resolve({
+          hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
+        })
 
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -422,7 +421,7 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSignMessage = async () => null
+      wallet.ethSignMessage = async () => await Promise.resolve(null)
 
       const message: SignMessageInput<ETHSignMessage> = {
         wallet,
@@ -800,25 +799,25 @@ describe('EthereumChainAdapter', () => {
   describe('getBIP44Params', () => {
     const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
-    it('should return the correct coinType', async () => {
+    it('should return the correct coinType', () => {
       const result = adapter.getBIP44Params({ accountNumber: 0 })
       expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Ethereum))
     })
 
-    it('should respect accountNumber', async () => {
+    it('should respect accountNumber', () => {
       const testCases: BIP44Params[] = [
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 0 },
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 1 },
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 2 },
       ]
 
-      testCases.forEach((expected) => {
+      testCases.forEach(expected => {
         const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
         expect(result).toStrictEqual(expected)
       })
     })
 
-    it('should throw for negative accountNumber', async () => {
+    it('should throw for negative accountNumber', () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: -1 })
       }).toThrow('accountNumber must be >= 0')

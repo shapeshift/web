@@ -1,15 +1,19 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import { osmosis, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
+import { Logger } from '@shapeshiftoss/logger'
 import axios from 'axios'
 import { find } from 'lodash'
 
-import { SwapError, SwapErrorType, TradeResult } from '../../../api'
+import type { TradeResult } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import { OsmosisSupportedChainAdapter } from '../OsmosisSwapper'
+import type { OsmosisSupportedChainAdapter } from '../OsmosisSwapper'
 import { OSMOSIS_PRECISION } from './constants'
 import { osmoService } from './osmoService'
-import { IbcTransferInput, PoolInfo } from './types'
+import type { IbcTransferInput, PoolInfo } from './types'
+
+const logger = new Logger({ namespace: ['swapper', 'osmosis', 'utils', 'helpers'] })
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -29,13 +33,13 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
     if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
     if (txResponse?.data?.codespace) return 'failed'
   } catch (e) {
-    console.warn('Retrying to retrieve status')
+    logger.warn('Retrying to retrieve status')
   }
   return 'not found'
 }
 
 // TODO: leverage chain-adapters websockets
-export const pollForComplete = async (txid: string, baseUrl: string): Promise<string> => {
+export const pollForComplete = (txid: string, baseUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
@@ -60,7 +64,7 @@ export const pollForComplete = async (txid: string, baseUrl: string): Promise<st
 }
 
 export const getAtomChannelBalance = async (address: string, osmoUrl: string) => {
-  const osmoResponseBalance = await (async () => {
+  const osmoResponseBalance = await (() => {
     try {
       return axios.get(`${osmoUrl}/bank/balances/${address}`)
     } catch (e) {
@@ -73,19 +77,16 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
   try {
     const { amount } = find(
       osmoResponseBalance.data.result,
-      (b) => b.denom === symbolDenomMapping.ATOM,
+      b => b.denom === symbolDenomMapping.ATOM,
     )
     toAtomChannelBalance = Number(amount)
   } catch (e) {
-    console.warn('Retrying to get ibc balance')
+    logger.warn('Retrying to get ibc balance')
   }
   return toAtomChannelBalance
 }
 
-export const pollForAtomChannelBalance = async (
-  address: string,
-  osmoUrl: string,
-): Promise<string> => {
+export const pollForAtomChannelBalance = (address: string, osmoUrl: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
@@ -115,7 +116,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
 
   const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
 
-  const poolsResponse = await (async () => {
+  const poolsResponse = await (() => {
     try {
       return osmoService.get(poolsUrl)
     } catch (e) {
@@ -125,7 +126,7 @@ const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl
     }
   })()
 
-  const foundPool = find(poolsResponse.data.pools, (pool) => {
+  const foundPool = find(poolsResponse.data.pools, pool => {
     const token0Denom = pool.pool_assets[0].token.denom
     const token1Denom = pool.pool_assets[1].token.denom
     return (
@@ -209,7 +210,7 @@ export const performIbcTransfer = async (
 ): Promise<TradeResult> => {
   const { sender, receiver, amount } = input
 
-  const responseLatestBlock = await (async () => {
+  const responseLatestBlock = await (() => {
     try {
       return axios.get(`${blockBaseUrl}/blocks/latest`)
     } catch (e) {

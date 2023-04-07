@@ -1,18 +1,21 @@
 import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
 } from '@shapeshiftoss/types'
-import { ChainId, Token, Yearn } from '@yfi/sdk'
+import type { ChainId, Token, Yearn } from '@yfi/sdk'
 import uniqBy from 'lodash/uniqBy'
 
-import { MarketService } from '../api'
+import type { MarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bnOrZero } from '../utils/bignumber'
 import { createRateLimiter } from '../utils/rateLimiters'
+
+const logger = new Logger({ namespace: ['market-service', 'yearn', 'tokens'] })
 
 const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 
@@ -69,7 +72,7 @@ export class YearnTokenMarketCapService implements MarketService {
         return acc
       }, {} as MarketCapResult)
     } catch (e) {
-      console.info(e)
+      logger.warn(e, '')
       return {}
     }
   }
@@ -104,13 +107,13 @@ export class YearnTokenMarketCapService implements MarketService {
         changePercent24Hr: 0,
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('YearnMarketService(findByAssetId): error fetching market data')
     }
   }
 
-  async findPriceHistoryByAssetId(): Promise<HistoryData[]> {
+  findPriceHistoryByAssetId(): Promise<HistoryData[]> {
     // TODO: figure out a way to get zapper and underlying token historical data.
-    return []
+    return Promise.resolve([])
   }
 }

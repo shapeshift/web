@@ -38,7 +38,7 @@ jest.mock('./coingecko/coingecko', () => ({
   })),
 }))
 
-const coingeckoMock = jest.mocked(CoinGeckoMarketService, true)
+const coingeckoMock = jest.mocked(CoinGeckoMarketService)
 
 const coincapFindAllMock = jest.fn().mockImplementation(() => mockCGFindAllData)
 const coincapFindByAssetIdMock = jest.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -150,15 +150,8 @@ describe('market service', () => {
       osmosisPoolMetadataUrl: '',
     },
   }
+
   describe('findAll', () => {
-    beforeAll(() => {
-      jest.spyOn(console, 'info').mockImplementation()
-    })
-
-    afterAll(() => {
-      jest.restoreAllMocks()
-    })
-
     it('can return from first market service and skip the next', async () => {
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const findAllArgs = { count: Number() }

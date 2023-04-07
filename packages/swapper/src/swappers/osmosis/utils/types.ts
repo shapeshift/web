@@ -1,6 +1,6 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 
-import { TradeResult } from '../../../api'
+import type { TradeResult } from '../../../api'
 
 export type OsmoSwapperDeps = {
   adapterManager: ChainAdapterManager

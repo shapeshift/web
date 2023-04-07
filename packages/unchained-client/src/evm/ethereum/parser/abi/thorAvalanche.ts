@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const thorAvalanche: JsonFragment[] = [
+export const THOR_AVALANCHE_ABI: JsonFragment[] = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,
@@ -165,5 +165,3 @@ const thorAvalanche: JsonFragment[] = [
     type: 'function',
   },
 ]
-
-export default thorAvalanche

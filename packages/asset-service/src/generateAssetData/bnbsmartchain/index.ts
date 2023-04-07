@@ -6,7 +6,7 @@ import * as coingecko from '../coingecko'
 
 export const getAssets = async () => {
   const assets = await coingecko.getAssets(bscChainId)
-  return [...assets, bnbsmartchain].map((asset) => ({
+  return [...assets, bnbsmartchain].map(asset => ({
     ...asset,
     icon:
       asset.icon ||

@@ -1,5 +1,6 @@
 // import { JsonRpcProvider } from '@ethersproject/providers'
-import {
+import { Logger } from '@shapeshiftoss/logger'
+import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
@@ -9,7 +10,7 @@ import {
 } from '@shapeshiftoss/types'
 
 // import { Yearn } from '@yfi/sdk'
-import { MarketService } from './api'
+import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
@@ -17,6 +18,8 @@ import { IdleMarketService } from './idle/idle'
 import { OsmosisMarketService } from './osmosis/osmosis'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
+
+const logger = new Logger({ namespace: ['market-service', 'market-service-manager'] })
 
 export type ProviderUrls = {
   jsonRpcProviderUrl: string
@@ -67,7 +70,7 @@ export class MarketServiceManager {
       try {
         result = await this.marketProviders[i].findAll(args)
       } catch (e) {
-        console.info(e)
+        logger.warn(e, '')
       }
     }
     if (!result) throw new Error('Cannot find market service provider for market data.')

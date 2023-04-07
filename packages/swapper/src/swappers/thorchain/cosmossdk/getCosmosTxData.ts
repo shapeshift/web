@@ -1,11 +1,13 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { ChainId, cosmosAssetId } from '@shapeshiftoss/caip'
-import { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId } from '@shapeshiftoss/caip'
+import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorType, TradeQuote } from '../../../api'
-import { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
+import type { TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
+import type { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
 import { getLimit } from '../utils/getLimit/getLimit'
@@ -38,7 +40,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     wallet,
     sellAdapter,
   } = input
-  const fromThorAsset = sellAsset.chainId == KnownChainIds.ThorchainMainnet
+  const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const gaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
   const vault = gaiaAddressData?.address
 
@@ -64,10 +66,10 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     limit,
   })
 
-  const builtTxResponse = await (async () => {
+  const builtTxResponse = await (() => {
     switch (true) {
       case fromThorAsset:
-        return await (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
+        return (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
           accountNumber,
           value: sellAmountCryptoBaseUnit,
           wallet,
@@ -84,7 +86,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
             fn: 'buildTrade',
             details: { chainId: input.chainId },
           })
-        return await (
+        return (
           sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
         ).buildSendTransaction({
           accountNumber,

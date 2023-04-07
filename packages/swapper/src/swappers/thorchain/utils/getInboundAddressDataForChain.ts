@@ -1,4 +1,5 @@
-import { adapters, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { adapters } from '@shapeshiftoss/caip'
 
 import type { InboundAddressResponse } from '../types'
 import { thorService } from './thorService'
@@ -14,8 +15,8 @@ export const getInboundAddressDataForChain = async (
   const { data: inboundAddresses } = await thorService.get<InboundAddressResponse[]>(
     `${daemonUrl}/lcd/thorchain/inbound_addresses`,
   )
-  const activeInboundAddresses = inboundAddresses.filter((a) => !a.halted)
+  const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
   return (excludeHalted ? activeInboundAddresses : inboundAddresses).find(
-    (inbound) => inbound.chain === assetChainSymbol,
+    inbound => inbound.chain === assetChainSymbol,
   )
 }

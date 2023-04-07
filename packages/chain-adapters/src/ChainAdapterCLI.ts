@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
@@ -115,8 +117,8 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
 
   await chainAdapter.subscribeTxs(
     { wallet, accountNumber, accountType: UtxoAccountType.SegwitNative },
-    (msg) => console.log('bitcoin: tx:', msg),
-    (err) => console.log(err),
+    msg => console.log('bitcoin: tx:', msg),
+    err => console.log(err),
   )
 
   try {
@@ -135,7 +137,7 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
       const txid = await chainAdapter.broadcastTransaction(signedTx)
       console.log('bitcoin: txid: ', txid)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('bitcoin: tx error:', err.message)
   }
 }
@@ -156,8 +158,8 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
 
   await chainAdapter.subscribeTxs(
     { accountNumber, wallet },
-    (msg) => console.log('ethereum: tx:', msg),
-    (err) => console.log(err),
+    msg => console.log('ethereum: tx:', msg),
+    err => console.log(err),
   )
 
   try {
@@ -170,7 +172,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       },
     })
     console.log('ethereum: feeData', feeData)
-  } catch (err) {
+  } catch (err: any) {
     console.log('ethereum: feeData error:', err.message)
   }
 
@@ -206,7 +208,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       const txid = await chainAdapter.broadcastTransaction(signedTx)
       console.log('ethereum: txid:', txid)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('ethereum: tx error:', err.message)
   }
 
@@ -219,7 +221,7 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
       },
     })
     console.log('ethereum: signedMessage', signedMessage)
-  } catch (err) {
+  } catch (err: any) {
     console.log('ethereum: signMessage error:', err.message)
   }
 }
@@ -245,8 +247,8 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
 
   await chainAdapter.subscribeTxs(
     { accountNumber, wallet },
-    (msg) => console.log('cosmos: tx:', msg),
-    (err) => console.log(err),
+    msg => console.log('cosmos: tx:', msg),
+    err => console.log(err),
   )
 
   // send cosmos example
@@ -288,7 +290,7 @@ const testCosmos = async (wallet: NativeHDWallet, broadcast = false) => {
       })
       console.log('cosmos: txid:', txid)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('cosmos: tx error:', err.message)
   }
 }
@@ -309,8 +311,8 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
 
   await chainAdapter.subscribeTxs(
     { wallet, accountNumber },
-    (msg) => console.log('thorchain: tx:', msg),
-    (err) => console.log(err),
+    msg => console.log('thorchain: tx:', msg),
+    err => console.log(err),
   )
 
   // send thorchain example
@@ -333,7 +335,7 @@ const testThorchain = async (wallet: NativeHDWallet, broadcast = false) => {
       })
       console.log('thorchain: txid:', txid)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('thorchain: tx error:', err.message)
   }
 }
@@ -359,8 +361,8 @@ const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
 
   await chainAdapter.subscribeTxs(
     { accountNumber, wallet },
-    (msg) => console.log('osmosis: tx:', msg),
-    (err) => console.log(err),
+    msg => console.log('osmosis: tx:', msg),
+    err => console.log(err),
   )
 
   // send osmosis example
@@ -460,7 +462,7 @@ const testOsmosis = async (wallet: NativeHDWallet, broadcast = false) => {
       })
       console.log('cosmos: txid:', txid)
     }
-  } catch (err) {
+  } catch (err: any) {
     console.log('cosmos: tx error:', err.message)
   }
 }

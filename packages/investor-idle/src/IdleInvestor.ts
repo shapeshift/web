@@ -1,15 +1,17 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { Investor } from '@shapeshiftoss/investor'
-import { Logger } from '@shapeshiftoss/logger'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Investor } from '@shapeshiftoss/investor'
+import type { Logger } from '@shapeshiftoss/logger'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 // import https from 'https'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
 import Web3 from 'web3'
-import { Contract } from 'web3-eth-contract'
+import type { Contract } from 'web3-eth-contract'
 
-import { IdleVault, ssRouterAbi, ssRouterContractAddress } from './constants'
-import { IdleOpportunity, PreparedTransaction } from './IdleOpportunity'
+import type { IdleVault } from './constants'
+import { ssRouterAbi, ssRouterContractAddress } from './constants'
+import type { PreparedTransaction } from './IdleOpportunity'
+import { IdleOpportunity } from './IdleOpportunity'
 import { IdleSdk } from './IdleSdk'
 
 type ConstructorArgs = {
@@ -49,11 +51,11 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
 
   async initialize() {
     const vaults: IdleVault[] = await idleSdk.getVaults()
-    this.#opportunities = vaults.map((vault) => new IdleOpportunity(this.#deps, vault))
+    this.#opportunities = vaults.map(vault => new IdleOpportunity(this.#deps, vault))
   }
 
-  async findAll() {
-    return this.#opportunities
+  findAll() {
+    return Promise.resolve(this.#opportunities)
   }
 
   async findByOpportunityId(opportunityId: string) {

@@ -1,8 +1,8 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { ApprovalNeededInput } from '../../../api'
+import type { ApprovalNeededInput } from '../../../api'
 import { BTC, ETH } from '../../utils/test-data/assets'
 import { setupDeps } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -32,12 +32,12 @@ describe('cowApprovalNeeded', () => {
   it('returns false if sellAsset assetId is ETH / non ERC-20', async () => {
     const input1 = {
       quote: { ...tradeQuote, sellAsset: ETH },
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
     }
 
     const input2 = {
       quote: { ...tradeQuote, sellAsset: BTC },
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
     }
 
     await expect(cowApprovalNeeded(args, input1)).rejects.toThrow(
@@ -55,7 +55,7 @@ describe('cowApprovalNeeded', () => {
         ...tradeQuote,
         sellAmountBeforeFeesCryptoBaseUnit: '10',
       },
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
     }
     const mockedAllowance = jest.fn(() => ({
       call: jest.fn(() => allowanceOnChain),
@@ -83,7 +83,7 @@ describe('cowApprovalNeeded', () => {
         ...tradeQuote,
         sellAmount: '10',
       },
-      wallet: <HDWallet>{},
+      wallet: {} as HDWallet,
     }
 
     const mockedAllowance = jest.fn(() => ({

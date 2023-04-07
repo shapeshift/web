@@ -2,7 +2,7 @@
   "name": "@shapeshiftoss/swapper",
   "version": "17.6.2",
   "description": "An interface and implementations to trade coins via various protocols",
-  "repository": "https://github.com/shapeshift/lib",
+  "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,39 +13,22 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn compile",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "tsc -p tsconfig.build.json",
-    "prepare": "yarn build",
-    "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.build.json --noEmit",
-    "swapcli": "yarn build && node ./dist/swappercli.js"
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch",
+    "cli": "yarn build && yarn run -T node ./dist/swappercli.js"
   },
   "dependencies": {
-    "axios": "^0.26.1",
+    "@shapeshiftoss/asset-service": "workspace:^",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/errors": "workspace:^",
+    "@shapeshiftoss/logger": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
     "axios-cache-adapter": "^2.7.3",
-    "bignumber.js": "^9.1.1",
-    "lodash": "^4.17.21",
-    "retry-axios": "^2.6.0",
-    "web3": "1.7.4"
-  },
-  "peerDependencies": {
-    "@shapeshiftoss/asset-service": "^8.0.1",
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^11.0.0",
-    "@shapeshiftoss/errors": "^1.1.2",
-    "@shapeshiftoss/hdwallet-core": "^1.46.0",
-    "@shapeshiftoss/types": "^8.1.0"
+    "retry-axios": "^2.6.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/asset-service": "^8.0.1",
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/chain-adapters": "^11.0.0",
-    "@shapeshiftoss/errors": "^1.1.2",
-    "@shapeshiftoss/hdwallet-core": "^1.46.0",
-    "@shapeshiftoss/types": "^8.1.0",
-    "@shapeshiftoss/unchained-client": "^10.0.1",
     "@types/readline-sync": "^1.4.4",
     "readline-sync": "^1.4.10",
     "web3-utils": "1.7.4"

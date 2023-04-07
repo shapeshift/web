@@ -72,25 +72,25 @@ const makeThorchainMockCoingeckoResponse = () => ({
 
 jest.mock('fs', () => ({
   promises: {
-    writeFile: jest.fn(async () => undefined),
+    writeFile: jest.fn(() => undefined),
   },
 }))
 
 describe('adapters:coingecko:utils', () => {
   describe('makeData', () => {
-    it('can make btc data', async () => {
+    it('can make btc data', () => {
       const result = bitcoinAssetMap
       const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
       expect(result).toEqual(expected)
     })
 
-    it('can make cosmos data', async () => {
+    it('can make cosmos data', () => {
       const result = cosmosAssetMap
       const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
       expect(result).toEqual(expected)
     })
 
-    it('can make osmosis data', async () => {
+    it('can make osmosis data', () => {
       const result = osmosisAssetMap
       const expected = { 'cosmos:osmosis-1/slip44:118': 'osmosis' }
       expect(result).toEqual(expected)
@@ -98,7 +98,7 @@ describe('adapters:coingecko:utils', () => {
   })
 
   describe('parseData', () => {
-    it('can parse all data', async () => {
+    it('can parse all data', () => {
       const result = parseData([
         makeEthMockCoingeckoResponse(),
         makeWethMockCoingeckoResponse(),

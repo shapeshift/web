@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const erc20: JsonFragment[] = [
+export const ERC20_ABI: JsonFragment[] = [
   {
     inputs: [
       { internalType: 'string', name: 'name_', type: 'string' },
@@ -126,5 +126,3 @@ const erc20: JsonFragment[] = [
     type: 'function',
   },
 ]
-
-export default erc20

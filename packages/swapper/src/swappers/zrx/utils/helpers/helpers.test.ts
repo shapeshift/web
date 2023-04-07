@@ -1,4 +1,4 @@
-import { AxiosStatic } from 'axios'
+import type { AxiosStatic } from 'axios'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
 import { zrxServiceFactory } from '../zrxService'

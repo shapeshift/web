@@ -1,11 +1,12 @@
 import { thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 
-import { Fee, TransferType, TxStatus } from '../../../../types'
-import { ParsedTx } from '../../../parser'
+import type { Fee } from '../../../../types'
+import { TransferType, TxStatus } from '../../../../types'
+import type { ParsedTx } from '../../../parser'
 import { TransactionParser } from '../index'
 import standard from './mockData/standard'
 
-const txParser = new TransactionParser({ chainId: thorchainChainId })
+const txParser = new TransactionParser({ chainId: thorchainChainId, assetId: thorchainAssetId })
 
 describe('parseTx', () => {
   it('should be able to parse a standard send tx', async () => {

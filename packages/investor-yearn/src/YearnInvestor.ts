@@ -1,15 +1,16 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { Investor } from '@shapeshiftoss/investor'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Investor } from '@shapeshiftoss/investor'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { type ChainId, type VaultMetadata, Yearn } from '@yfi/sdk'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
 import Web3 from 'web3'
-import { Contract } from 'web3-eth-contract'
+import type { Contract } from 'web3-eth-contract'
 
 import { ssRouterAbi, ssRouterContractAddress } from './constants'
-import { PreparedTransaction, YearnOpportunity } from './YearnOpportunity'
+import type { PreparedTransaction } from './YearnOpportunity'
+import { YearnOpportunity } from './YearnOpportunity'
 
 type ConstructorArgs = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
@@ -46,12 +47,12 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
   async initialize() {
     await this.#deps.yearnSdk.ready
     this.#opportunities = (await this.#deps.yearnSdk.vaults.get()).map(
-      (vault) => new YearnOpportunity(this.#deps, vault),
+      vault => new YearnOpportunity(this.#deps, vault),
     )
   }
 
-  async findAll() {
-    return this.#opportunities
+  findAll() {
+    return Promise.resolve(this.#opportunities)
   }
 
   async findByOpportunityId(opportunityId: string) {

@@ -1,15 +1,15 @@
 import type { evm } from '@shapeshiftoss/common-api'
 
-import { StandardTx } from '../../types'
-import * as bep20 from '../bnbsmartchain/parser/bep20'
-import * as cowswap from '../ethereum/parser/cowswap'
-import * as foxy from '../ethereum/parser/foxy'
-import * as thor from '../ethereum/parser/thor'
-import * as uniV2 from '../ethereum/parser/uniV2'
-import * as weth from '../ethereum/parser/weth'
-import * as yearn from '../ethereum/parser/yearn'
-import * as erc20 from '../parser/erc20'
-import * as zrx from '../parser/zrx'
+import type { StandardTx } from '../../types'
+import type * as bep20 from '../bnbsmartchain/parser/bep20'
+import type * as cowswap from '../ethereum/parser/cowswap'
+import type * as foxy from '../ethereum/parser/foxy'
+import type * as thor from '../ethereum/parser/thor'
+import type * as uniV2 from '../ethereum/parser/uniV2'
+import type * as weth from '../ethereum/parser/weth'
+import type * as yearn from '../ethereum/parser/yearn'
+import type * as erc20 from '../parser/erc20'
+import type * as zrx from '../parser/zrx'
 
 export type Tx = evm.Tx
 

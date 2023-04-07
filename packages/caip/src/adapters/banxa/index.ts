@@ -2,8 +2,9 @@ import entries from 'lodash/entries'
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import { AssetId, fromAssetId } from '../../assetId/assetId'
-import { ChainId } from '../../chainId/chainId'
+import type { AssetId } from '../../assetId/assetId'
+import { fromAssetId } from '../../assetId/assetId'
+import type { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
   avalancheChainId,

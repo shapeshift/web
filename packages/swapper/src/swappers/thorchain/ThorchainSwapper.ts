@@ -1,13 +1,7 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  adapters,
-  AssetId,
-  CHAIN_NAMESPACE,
-  ChainId,
-  fromAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
-import {
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { adapters, CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type {
   ChainAdapterManager,
   CosmosSdkBaseAdapter,
   EvmBaseAdapter,
@@ -15,7 +9,7 @@ import {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import Web3 from 'web3'
+import type Web3 from 'web3'
 
 import type {
   ApprovalNeededInput,
@@ -36,7 +30,7 @@ import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
 import { thorTradeApproveInfinite } from './thorTradeApproveInfinite/thorTradeApproveInfinite'
-import {
+import type {
   MidgardActionsResponse,
   ThorchainSwapperDeps,
   ThornodePoolResponse,
@@ -112,9 +106,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         `${this.deps.daemonUrl}/lcd/thorchain/pools`,
       )
 
-      const availablePools = allPools.filter((pool) => pool.status === 'Available')
+      const availablePools = allPools.filter(pool => pool.status === 'Available')
 
-      availablePools.forEach((pool) => {
+      availablePools.forEach(pool => {
         const assetId = adapters.poolAssetIdToAssetId(pool.asset)
         if (!assetId) return
 
@@ -135,21 +129,21 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return SwapperType.Thorchain
   }
 
-  async getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
+  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
     return getUsdRate(this.daemonUrl, assetId)
   }
 
-  async approvalNeeded(
+  approvalNeeded(
     input: ApprovalNeededInput<ThorEvmSupportedChainId>,
   ): Promise<ApprovalNeededOutput> {
     return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 
-  async approveInfinite(input: ApproveInfiniteInput<ThorEvmSupportedChainId>): Promise<string> {
+  approveInfinite(input: ApproveInfiniteInput<ThorEvmSupportedChainId>): Promise<string> {
     return thorTradeApproveInfinite({ deps: this.deps, input })
   }
 
-  async approveAmount(): Promise<string> {
+  approveAmount(): Promise<string> {
     throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
       code: SwapErrorType.RESPONSE_ERROR,
     })
@@ -159,7 +153,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     const { assetIds = [], sellAssetId } = args
     if (!this.supportedSellAssetIds.includes(sellAssetId)) return []
     return assetIds.filter(
-      (assetId) => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId,
+      assetId => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId,
     )
   }
 
@@ -167,11 +161,11 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return this.supportedSellAssetIds
   }
 
-  async buildTrade(input: BuildTradeInput): Promise<Trade<ChainId>> {
+  buildTrade(input: BuildTradeInput): Promise<Trade<ChainId>> {
     return buildTrade({ deps: this.deps, input })
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 

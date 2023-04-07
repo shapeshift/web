@@ -1,19 +1,21 @@
-import { ASSET_REFERENCE, AssetId, ethAssetId } from '@shapeshiftoss/caip'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId } from '@shapeshiftoss/caip'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 
-import { ChainAdapterDisplayName } from '../../types'
-import {
+import type {
   FeeDataEstimate,
   GetFeeDataInput,
   ValidAddressResult,
-  ValidAddressResultType,
   ZrxGasApiResponse,
 } from '../../types'
+import { ChainAdapterDisplayName, ValidAddressResultType } from '../../types'
 import { bn, bnOrZero, calcFee } from '../../utils'
-import { ChainAdapterArgs, EvmBaseAdapter } from '../EvmBaseAdapter'
-import { GasFeeDataEstimate } from '../types'
+import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import { EvmBaseAdapter } from '../EvmBaseAdapter'
+import type { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -29,18 +31,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
   constructor(args: ChainAdapterArgs<unchained.ethereum.V1Api>) {
     super({
+      assetId: ethAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      parser: new unchained.ethereum.TransactionParser({
+        assetId: ethAssetId,
+        chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        rpcUrl: args.rpcUrl,
+      }),
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
 
     this.api = args.providers.http
-    this.assetId = ethAssetId
-    this.parser = new unchained.ethereum.TransactionParser({
-      chainId: this.chainId,
-      rpcUrl: this.rpcUrl,
-    })
   }
 
   getDisplayName() {
@@ -64,7 +67,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
-    const medianFees = responseData.result.find((result) => result.source === 'MEDIAN')
+    const medianFees = responseData.result.find(result => result.source === 'MEDIAN')
 
     if (!medianFees) throw new TypeError('ETH Gas Fees should always exist')
 
@@ -128,7 +131,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     }
   }
 
-  async validateEnsAddress(address: string): Promise<ValidAddressResult> {
+  validateEnsAddress(address: string): ValidAddressResult {
     const isValidEnsAddress = /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(address)
     if (isValidEnsAddress) return { valid: true, result: ValidAddressResultType.Valid }
     return { valid: false, result: ValidAddressResultType.Invalid }

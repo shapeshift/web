@@ -6,17 +6,18 @@ import {
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX, RUNE } from '../../../utils/test-data/assets'
-import { ThorchainSwapperDeps } from '../../types'
+import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { getTradeRate } from '../getTradeRate/getTradeRate'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { mockInboundAddresses } from '../test-data/responses'
-import { getLimit, GetLimitArgs } from './getLimit'
+import type { GetLimitArgs } from './getLimit'
+import { getLimit } from './getLimit'
 
 jest.mock('../getUsdRate/getUsdRate')
 jest.mock('../getTradeRate/getTradeRate')
@@ -30,7 +31,7 @@ const thorchainSwapperDeps: ThorchainSwapperDeps = {
     [ethChainId, { getFeeAssetId: () => ethAssetId }],
     [btcChainId, { getFeeAssetId: () => btcAssetId }],
   ]) as ChainAdapterManager,
-  web3: <Web3>{},
+  web3: {} as Web3,
 }
 
 describe('getLimit', () => {
@@ -40,7 +41,7 @@ describe('getLimit', () => {
       .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.07714399680893498205'))
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find((address) => address.chain === 'ETH')),
+      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
@@ -60,7 +61,7 @@ describe('getLimit', () => {
       .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.00000199048641810579'))
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find((address) => address.chain === 'ETH')),
+      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
@@ -80,7 +81,7 @@ describe('getLimit', () => {
       .mockReturnValueOnce(Promise.resolve('14.51')) // buyAssetUsdRate (RUNE)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.02583433052665346349'))
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find((address) => address.chain === 'ETH')),
+      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,

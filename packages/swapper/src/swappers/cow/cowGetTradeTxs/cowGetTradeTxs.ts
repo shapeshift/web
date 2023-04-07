@@ -1,6 +1,7 @@
-import { SwapError, SwapErrorType, TradeResult, TradeTxs } from '../../../api'
-import { CowSwapperDeps } from '../CowSwapper'
-import { CowSwapGetOrdersResponse, CowSwapGetTradesResponse } from '../types'
+import type { TradeResult, TradeTxs } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
+import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapGetOrdersResponse, CowSwapGetTradesResponse } from '../types'
 import { ORDER_STATUS_FULFILLED } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 

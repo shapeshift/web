@@ -1,6 +1,6 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import axios from 'axios'
-import Web3 from 'web3'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type axios from 'axios'
+import type Web3 from 'web3'
 
 import { SwapperName } from '../../api'
 import { ThorchainSwapper } from './ThorchainSwapper'
@@ -14,8 +14,8 @@ describe('ThorchainSwapper', () => {
   const swapper = new ThorchainSwapper({
     midgardUrl: '',
     daemonUrl: '',
-    adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{},
+    adapterManager: {} as ChainAdapterManager,
+    web3: {} as Web3,
   })
 
   describe('name', () => {

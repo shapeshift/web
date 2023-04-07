@@ -1,13 +1,14 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 
-import { BuildTradeInput, SwapError, SwapErrorType } from '../../../api'
+import type { BuildTradeInput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, isApprovalRequired } from '../../utils/helpers/helpers'
-import { CowSwapperDeps } from '../CowSwapper'
-import { CowSwapQuoteResponse, CowTrade } from '../types'
+import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapQuoteResponse, CowTrade } from '../types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,

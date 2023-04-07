@@ -1,8 +1,8 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 
-import { FeePriority } from './Extensions'
+import type { FeePriority } from './Extensions'
 
 export type DepositWithdrawArgs = {
   /** User's wallet address */
@@ -11,7 +11,7 @@ export type DepositWithdrawArgs = {
   amount: BigNumber
 }
 
-export abstract class InvestorOpportunity<TxType = unknown, MetaData = unknown> {
+export interface InvestorOpportunity<TxType = unknown, MetaData = unknown> {
   /**
    * Opportunity id e.g., contract address or validator address
    */

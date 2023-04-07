@@ -1,4 +1,6 @@
-import axios, { AxiosAdapter, AxiosRequestConfig } from 'axios'
+/* eslint-disable no-throw-literal */
+import type { AxiosAdapter, AxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import { RateLimiter as ServerRateLimiter } from 'limiter'
 
 import { createRateLimiter, rateLimitedAxios } from './rateLimiters'
@@ -39,7 +41,7 @@ describe('rate limiters utilities', () => {
         try {
           await testAxiosInstance.get('/')
           onSuccess()
-        } catch (error) {
+        } catch (error: any) {
           errorStatus = error.status
         }
       }
@@ -77,7 +79,7 @@ describe('rate limiters utilities', () => {
         try {
           await functionToBeCalled()
           onSuccess()
-        } catch (error) {
+        } catch (error: any) {
           errorStatus = error.status
         }
       }
@@ -126,7 +128,7 @@ describe('rate limiters utilities', () => {
         try {
           await testAxiosInstance.get('/')
           onSuccess()
-        } catch (error) {
+        } catch (error: any) {
           errorStatus = error.status
         }
       }
@@ -177,7 +179,7 @@ describe('rate limiters utilities', () => {
         try {
           await rateLimiter(() => functionToBeCalled())
           onSuccess()
-        } catch (error) {
+        } catch (error: any) {
           errorStatus = error.status
         }
       }

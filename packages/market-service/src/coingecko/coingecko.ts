@@ -1,27 +1,24 @@
 import { adapters } from '@shapeshiftoss/caip'
 import { Logger } from '@shapeshiftoss/logger'
-import {
+import type {
   FindAllMarketArgs,
   HistoryData,
-  HistoryTimeframe,
   MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 
-import { MarketService } from '../api'
+import type { MarketService } from '../api'
 import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
-import { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
+import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
-const logger = new Logger({
-  namespace: ['market-service', 'coingecko'],
-  level: process.env.LOG_LEVEL,
-})
+const logger = new Logger({ namespace: ['market-service', 'coingecko'] })
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINGECKO)
 
@@ -65,7 +62,7 @@ export class CoinGeckoMarketService implements MarketService {
 
     try {
       const marketData = await Promise.all(
-        pageCount.map(async (page) => {
+        pageCount.map(async page => {
           const { data } = await axios.get<CoinGeckoMarketCap>(
             `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false${this.maybeApiKeyQueryParam}`,
           )
@@ -77,7 +74,7 @@ export class CoinGeckoMarketService implements MarketService {
         const assetIds = adapters.coingeckoToAssetIds(asset.id)
         if (!assetIds) return prev
 
-        assetIds.forEach((assetId) => {
+        assetIds.forEach(assetId => {
           prev[assetId] = {
             price: asset.current_price.toString(),
             marketCap: asset.market_cap.toString(),
@@ -123,7 +120,7 @@ export class CoinGeckoMarketService implements MarketService {
           marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined,
       }
     } catch (e) {
-      console.warn(e)
+      logger.warn(e, '')
       throw new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
     }
   }

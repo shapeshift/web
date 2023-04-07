@@ -4,11 +4,11 @@ import { getUsdRate } from './getUsdRate'
 
 jest.mock('../thorService')
 
-const mockedAxios = jest.mocked(thorService, true)
+const mockedAxios = jest.mocked(thorService)
 
 describe('getUsdRate', () => {
   it('should return USD rate of given Thorchain asset', async () => {
-    mockedAxios.get.mockImplementation((url) => {
+    mockedAxios.get.mockImplementation(url => {
       if (url.includes('lcd/thorchain/pools')) return Promise.resolve({ data: [usdcThornodePool] })
       return Promise.resolve({ data: foxThornodePool })
     })
@@ -45,7 +45,7 @@ describe('getUsdRate', () => {
 
   it('should throw if there is no avaialable usd pool to calculate price from', async () => {
     const assetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-    mockedAxios.get.mockImplementation((url) => {
+    mockedAxios.get.mockImplementation(url => {
       if (url.includes('lcd/thorchain/pools')) return Promise.resolve({ data: [] })
       return Promise.resolve({ data: foxThornodePool })
     })

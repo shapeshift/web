@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-import { Asset, AssetService } from './AssetService'
-import descriptions from './descriptions'
+import type { Asset } from './AssetService'
+import { AssetService } from './AssetService'
+import { descriptions } from './descriptions'
 
 jest.mock('axios')
 
@@ -20,9 +21,8 @@ const EthAsset: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-jest.mock(
-  './descriptions',
-  () => ({
+jest.mock('./descriptions', () => ({
+  descriptions: {
     en: {
       'eip155:1/slip44:60': 'overridden en description',
     },
@@ -47,20 +47,15 @@ jest.mock(
     zh: {
       'eip155:1/slip44:60': 'overridden zh description',
     },
-  }),
-  { virtual: true },
-)
+  },
+}))
 
-jest.mock(
-  './generatedAssetData.json',
-  () => ({
-    'eip155:1/slip44:60': {
-      assetId: 'eip155:1/slip44:60',
-      chainId: 'eip155:1',
-    },
-  }),
-  { virtual: true },
-)
+jest.mock('./generatedAssetData.json', () => ({
+  'eip155:1/slip44:60': {
+    assetId: 'eip155:1/slip44:60',
+    chainId: 'eip155:1',
+  },
+}))
 
 describe('AssetService', () => {
   describe('description', () => {

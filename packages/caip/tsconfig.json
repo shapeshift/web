@@ -1,8 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "composite": true
+    "rootDir": "src",
+    "outDir": "dist"
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../types" },
+  ]
 }

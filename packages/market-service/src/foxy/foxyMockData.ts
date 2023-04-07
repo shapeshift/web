@@ -1,4 +1,4 @@
-import { CoinGeckoMarketData } from '../coingecko/coingecko-types'
+import type { CoinGeckoMarketData } from '../coingecko/coingecko-types'
 
 export const fox: CoinGeckoMarketData = {
   circulating_supply: 272087306.915483,

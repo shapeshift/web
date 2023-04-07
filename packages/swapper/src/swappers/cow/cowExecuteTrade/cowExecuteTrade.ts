@@ -1,13 +1,15 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { SignMessageInput, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
+import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import { ExecuteTradeInput, SwapError, SwapErrorType, TradeResult } from '../../../api'
-import { CowSwapperDeps } from '../CowSwapper'
-import { CowTrade } from '../types'
+import type { ExecuteTradeInput, TradeResult } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
+import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowTrade } from '../types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
@@ -17,12 +19,8 @@ import {
   SIGNING_SCHEME,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
-import {
-  CowSwapOrder,
-  domain,
-  getNowPlusThirtyMinutesTimestamp,
-  hashOrder,
-} from '../utils/helpers/helpers'
+import type { CowSwapOrder } from '../utils/helpers/helpers'
+import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from '../utils/helpers/helpers'
 
 export async function cowExecuteTrade(
   { apiUrl, adapter }: CowSwapperDeps,

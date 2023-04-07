@@ -1,17 +1,18 @@
-import { AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
-import { BuildTradeInput, SwapError, SwapErrorType } from '../../../api'
+import type { BuildTradeInput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { isApprovalRequired, normalizeAmount } from '../../utils/helpers/helpers'
-import { ZrxQuoteResponse, ZrxSwapperDeps, ZrxTrade } from '../types'
+import type { ZrxQuoteResponse, ZrxSwapperDeps, ZrxTrade } from '../types'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from '../utils/constants'
 import { assetToToken, baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { ZrxSupportedChainId } from '../ZrxSwapper'
+import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
@@ -51,7 +52,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
 
     const zrxRetry = applyAxiosRetry(zrxService, {
       statusCodesToRetry: [[400, 400]],
-      shouldRetry: (err) => {
+      shouldRetry: err => {
         const cfg = rax.getConfig(err)
         const retryAttempt = cfg?.currentRetryAttempt ?? 0
         const retry = cfg?.retry ?? 3
@@ -132,7 +133,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       txData,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmount,
       buyAmountCryptoBaseUnit,
-      sources: sources?.filter((s) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      sources: sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
     return trade as ZrxTrade<T>
   } catch (e) {

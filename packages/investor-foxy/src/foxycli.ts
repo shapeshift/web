@@ -1,5 +1,7 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WithdrawType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
@@ -372,6 +374,8 @@ const main = async (): Promise<void> => {
       case 13:
         await claimToke()
         break
+      default:
+        console.error('invalid action')
     }
     index = readline.keyInSelect(options, 'Select an action.\n')
   }

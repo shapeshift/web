@@ -1,9 +1,10 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, evm, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
-import { ThorchainSwapperDeps } from '../../types'
+import type { ThorchainSwapperDeps } from '../../types'
 
 jest.mock('web3')
 export const setupThorswapDeps = (): ThorchainSwapperDeps => {

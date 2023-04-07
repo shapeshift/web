@@ -1,4 +1,4 @@
-import ErrorWithDetails from './ErrorWithDetails'
+import { ErrorWithDetails } from './ErrorWithDetails'
 
 export function createErrorClass<
   T extends Record<string, unknown>,

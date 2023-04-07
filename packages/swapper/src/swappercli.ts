@@ -1,8 +1,12 @@
-import { Asset, AssetService } from '@shapeshiftoss/asset-service'
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
+import type { Asset } from '@shapeshiftoss/asset-service'
+import { AssetService } from '@shapeshiftoss/asset-service'
 import { CHAIN_NAMESPACE, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { bitcoin, ethereum, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { UtxoAccountType } from '@shapeshiftoss/types'
+import type { ethereum, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { bitcoin } from '@shapeshiftoss/chain-adapters'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
@@ -10,7 +14,8 @@ import Web3 from 'web3'
 
 import { getAdapterManager } from './adapters'
 import { SwapperManager } from './manager'
-import { ThorchainSwapper, ThorchainSwapperDeps, ZrxSwapper } from './swappers'
+import type { ThorchainSwapperDeps } from './swappers'
+import { ThorchainSwapper, ZrxSwapper } from './swappers'
 import { fromBaseUnit } from './swappers/utils/bignumber'
 import { setupQuote } from './swappers/utils/test-data/setupSwapQuote'
 
@@ -139,7 +144,7 @@ const main = async (): Promise<void> => {
     return
   }
 
-  if (sellAdapter == undefined || sellAdapter == null) {
+  if (sellAdapter === undefined || sellAdapter == null) {
     throw new Error('huh')
   }
 
@@ -158,13 +163,8 @@ const main = async (): Promise<void> => {
   }
 
   const { chainNamespace: sellChainNamespace } = fromAssetId(sellAsset.assetId)
-  switch (sellChainNamespace) {
-    case CHAIN_NAMESPACE.Evm:
-    case CHAIN_NAMESPACE.Utxo:
-    case CHAIN_NAMESPACE.CosmosSdk:
-  }
   let publicKey
-  if (sellChainNamespace == CHAIN_NAMESPACE.Utxo) {
+  if (sellChainNamespace === CHAIN_NAMESPACE.Utxo) {
     if (!utxoAccountType) {
       throw new Error('utxoAccountType must be defined')
     }

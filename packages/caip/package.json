@@ -2,41 +2,30 @@
   "name": "@shapeshiftoss/caip",
   "version": "8.15.0",
   "description": "CAIP Implementation",
-  "homepage": "",
+  "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shapeshift/lib"
-  },
   "scripts": {
-    "build": "yarn clean && yarn compile",
-    "clean": "rm -rf dist && rm -rf tsconfig.build.tsbuildinfo",
-    "compile": "tsc -p tsconfig.build.json",
-    "dev": "tsc --watch",
-    "generate-coingecko": "ts-node -P tsconfig.build.json src/adapters/coingecko/generate.ts",
-    "generate-coincap": "ts-node -P tsconfig.build.json src/adapters/coincap/generate.ts",
-    "generate-yearn": "ts-node -P tsconfig.build.json src/adapters/yearn/generate.ts",
-    "generate-osmosis": "ts-node -P tsconfig.build.json src/adapters/osmosis/generate.ts",
-    "generate": "yarn generate-coingecko && yarn generate-coincap && yarn generate-yearn && yarn generate-osmosis",
-    "prepare": "yarn build",
-    "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.build.json --noEmit"
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch",
+    "generate": "yarn generate:coingecko && yarn generate:coincap && yarn generate:yearn && yarn generate:osmosis",
+    "generate:coingecko": "yarn run -T ts-node src/adapters/coingecko/generate.ts",
+    "generate:coincap": "yarn run -T ts-node src/adapters/coincap/generate.ts",
+    "generate:yearn": "yarn run -T ts-node src/adapters/yearn/generate.ts",
+    "generate:osmosis": "yarn run -T ts-node src/adapters/osmosis/generate.ts"
   },
-  "peerDependencies": {
-    "@shapeshiftoss/types": "^8.1.0"
+  "dependencies": {
+    "@shapeshiftoss/types": "workspace:^"
   },
   "devDependencies": {
-    "@shapeshiftoss/types": "^8.1.0",
-    "@yfi/sdk": "^1.2.0",
-    "axios": "^0.26.1",
-    "ts-node": "^10.7.0"
+    "@yfi/sdk": "^1.2.0"
   }
 }

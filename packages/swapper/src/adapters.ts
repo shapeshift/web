@@ -1,12 +1,6 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import {
-  bitcoin,
-  ChainAdapter,
-  ChainAdapterManager,
-  cosmos,
-  ethereum,
-  thorchain,
-} from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { bitcoin, cosmos, ethereum, thorchain } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'

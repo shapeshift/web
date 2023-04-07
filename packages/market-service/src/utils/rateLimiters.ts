@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
+import axios from 'axios'
 import rateLimit from 'axios-rate-limit'
 import { pRateLimit } from 'p-ratelimit'
 

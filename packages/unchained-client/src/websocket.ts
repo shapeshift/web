@@ -56,9 +56,9 @@ export class Client<T> {
       setTimeout(() => reject(new Error('timeout while trying to connect')), 5000)
 
       ws.onopen = ({ target }) => this.onOpen(target, resolve, reject)
-      ws.onclose = (event) => this.onClose(event, resolve, reject)
-      ws.onerror = (event) => this.onError(event)
-      ws.onmessage = (event) => this.onMessage(event)
+      ws.onclose = event => this.onClose(event, resolve, reject)
+      ws.onerror = event => this.onError(event)
+      ws.onmessage = event => this.onMessage(event)
     })
   }
 
@@ -204,7 +204,7 @@ export class Client<T> {
 
     // initialize websocket connection if one does not already exist
     if (!this.connections.txs?.ws) {
-      return this.initialize()
+      return await this.initialize()
     }
 
     // subscribe if connection exists and is ready
@@ -237,7 +237,7 @@ export class Client<T> {
       // unsubscribe addresses from the current subscribed address set if addresses provided
       if (data?.addresses?.length) {
         this.txs[subscriptionId].data.addresses = this.txs[subscriptionId].data.addresses.filter(
-          (address) => !data.addresses.includes(address),
+          address => !data.addresses.includes(address),
         )
       } else {
         // delete subscription if no addresses provided

@@ -1,26 +1,28 @@
-import { AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import { ChainAdapter, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import {
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
   ApprovalRequired,
   DepositWithdrawArgs,
   FeePriority,
   InvestorOpportunity,
 } from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import toLower from 'lodash/toLower'
-import Web3 from 'web3'
-import { Contract } from 'web3-eth-contract'
+import type Web3 from 'web3'
+import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
 
+import type { IdleVault } from './constants'
 import {
   erc20Abi,
   idleCdoAbi,
   idleStrategyAbi,
   idleTokenV4Abi,
-  IdleVault,
   MAX_ALLOWANCE,
   referralAddress,
   ssRouterContractAddress,
@@ -86,7 +88,7 @@ export class IdleOpportunity
   readonly strategy: string
   readonly name: string
   readonly displayName: string
-  readonly isApprovalRequired: true
+  readonly isApprovalRequired = true
   readonly underlyingAsset: { assetId: string; balance: BigNumber }
   readonly positionAsset: {
     /**

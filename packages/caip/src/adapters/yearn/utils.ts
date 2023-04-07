@@ -1,5 +1,7 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { Token, Vault, Yearn } from '@yfi/sdk'
+import type { Token, Vault } from '@yfi/sdk'
+import { Yearn } from '@yfi/sdk'
 import fs from 'fs'
 import toLower from 'lodash/toLower'
 import uniqBy from 'lodash/uniqBy'

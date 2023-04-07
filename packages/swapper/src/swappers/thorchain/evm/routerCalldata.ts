@@ -2,7 +2,7 @@ import Web3 from 'web3'
 
 import { routerAbi } from './routerAbi'
 
-export const deposit = async (
+export const deposit = (
   contractAddress: string,
   vault: string,
   asset: string,

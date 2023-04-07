@@ -1,4 +1,6 @@
-import { AssetId } from '../../assetId/assetId'
+import invert from 'lodash/invert'
+
+import type { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
   bchAssetId,
@@ -66,9 +68,6 @@ const thorPoolIdAssetIdSymbolMap: Record<string, AssetId> = {
   'AVAX.USDC-0XB97EF9EF8734C71904D8002F8B6BC66DD9C48A6E':
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
 }
-
-const invert = <T extends Record<string, string>>(data: T) =>
-  Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
 const assetIdToPoolAssetIdMap = invert(thorPoolIdAssetIdSymbolMap)
 

@@ -1,4 +1,4 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
 import { erc20Abi } from '../abi/erc20-abi'
@@ -6,10 +6,10 @@ import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
 import { bn } from '../bignumber'
 import { setupDeps } from '../test-data/setupDeps'
 import { setupQuote } from '../test-data/setupSwapQuote'
+import type { IsApprovalRequiredArgs } from './helpers'
 import {
   grantAllowance,
   isApprovalRequired,
-  IsApprovalRequiredArgs,
   normalizeAmount,
   normalizeIntegerAmount,
 } from './helpers'

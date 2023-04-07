@@ -1,27 +1,22 @@
-import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import {
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type {
   CosmosSdkBaseAdapter,
   EvmBaseAdapter,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 
-import {
-  GetTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
-  SwapError,
-  SwapErrorType,
-  SwapperName,
-  TradeQuote,
-} from '../../../api'
+import type { GetTradeQuoteInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType, SwapperName } from '../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../constants'
-import {
+import type {
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from '../ThorchainSwapper'
-import { ThorchainSwapperDeps } from '../types'
+import type { ThorchainSwapperDeps } from '../types'
 import {
   MAX_THORCHAIN_TRADE,
   THOR_MINIMUM_PADDING,

@@ -29,7 +29,7 @@ describe('createErrorClass', () => {
     expect(err).toBeInstanceOf(TestError)
     expect(err.cause).toBeInstanceOf(Error)
     expect(err.cause.message).toBe('test')
-    expect(err.details.prop).toBe(true)
+    expect(err.details?.prop).toBe(true)
   })
 
   it('should create a new Error with a default error code based on the error name', () => {

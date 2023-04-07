@@ -1,15 +1,16 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 
 import { TransferType, TxStatus } from '../../types'
 import { aggregateTransfer } from '../../utils'
-import { ParsedTx, Tx } from './types'
+import type { ParsedTx, Tx } from './types'
 import { getAssetIdByDenom, metaData } from './utils'
 
 export * from './types'
 
 export interface BaseTransactionParserArgs {
   chainId: ChainId
+  assetId: AssetId
 }
 
 export class BaseTransactionParser<T extends Tx> {
@@ -18,9 +19,10 @@ export class BaseTransactionParser<T extends Tx> {
 
   constructor(args: BaseTransactionParserArgs) {
     this.chainId = args.chainId
+    this.assetId = args.assetId
   }
 
-  async parse(tx: T, address: string): Promise<ParsedTx> {
+  parse(tx: T, address: string): Promise<ParsedTx> {
     const parsedTx: ParsedTx = {
       address,
       blockHash: tx.blockHash,
@@ -75,7 +77,7 @@ export class BaseTransactionParser<T extends Tx> {
       }
     })
 
-    return parsedTx
+    return Promise.resolve(parsedTx)
   }
 
   private getStatus(tx: T): TxStatus {

@@ -1,13 +1,14 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_REFERENCE,
   bchChainId,
   btcChainId,
-  ChainId,
   dogeChainId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
 
 /**

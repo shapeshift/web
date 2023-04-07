@@ -1,7 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
-import { MinMaxOutput, SwapError, SwapErrorType } from '../../../api'
+import type { MinMaxOutput } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getUsdRate } from '../utils/helpers/helpers'

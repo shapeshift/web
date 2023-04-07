@@ -1,18 +1,9 @@
-import { osmosisAssetId } from '@shapeshiftoss/caip'
-
-import { Tx } from '../../../generated/osmosis'
+import type { Tx } from '../../../generated/osmosis'
 import { Dex, TradeType } from '../../../types'
-import { BaseTransactionParser, BaseTransactionParserArgs } from '../../parser'
-import { ParsedTx } from '../../parser/types'
-
-export type TransactionParserArgs = BaseTransactionParserArgs
+import { BaseTransactionParser } from '../../parser'
+import type { ParsedTx } from '../../parser/types'
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
-  constructor(args: TransactionParserArgs) {
-    super(args)
-    this.assetId = osmosisAssetId
-  }
-
   async parse(tx: Tx, address: string): Promise<ParsedTx> {
     const parsedTx = await super.parse(tx, address)
 

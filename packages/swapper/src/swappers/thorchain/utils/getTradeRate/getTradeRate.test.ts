@@ -1,19 +1,19 @@
-jest.mock('../thorService')
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import type Web3 from 'web3'
 
 import { BTC, ETH, FOX, UNSUPPORTED } from '../../../utils/test-data/assets'
-import { ThorchainSwapperDeps } from '../../types'
+import type { ThorchainSwapperDeps } from '../../types'
 import { btcThornodePool, ethThornodePool, foxThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getTradeRate } from './getTradeRate'
+jest.mock('../thorService')
 
 describe('getTradeRate', () => {
   const deps: ThorchainSwapperDeps = {
     midgardUrl: '',
     daemonUrl: '',
-    adapterManager: <ChainAdapterManager>{},
-    web3: <Web3>{},
+    adapterManager: {} as ChainAdapterManager,
+    web3: {} as Web3,
   }
 
   it('should calculate a correct rate for trading fox to eth', async () => {

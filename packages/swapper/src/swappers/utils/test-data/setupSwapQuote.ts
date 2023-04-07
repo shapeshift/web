@@ -1,8 +1,8 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { BuildTradeInput, GetTradeQuoteInput, TradeQuote } from '../../../api'
+import type { BuildTradeInput, GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { FOX, WETH } from './assets'
 
 export const setupQuote = () => {
@@ -49,7 +49,7 @@ export const setupBuildTrade = () => {
     sendMax: false,
     accountNumber: 0,
     sellAsset,
-    wallet: <HDWallet>{},
+    wallet: {} as HDWallet,
     receiveAddress: '',
   }
   return { buildTradeInput, buyAsset, sellAsset }

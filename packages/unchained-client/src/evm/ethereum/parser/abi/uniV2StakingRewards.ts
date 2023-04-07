@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const uniV2StakingRewards: JsonFragment[] = [
+export const UNIV2_STAKING_REWARDS_ABI: JsonFragment[] = [
   {
     inputs: [
       {
@@ -411,5 +411,3 @@ const uniV2StakingRewards: JsonFragment[] = [
     type: 'function',
   },
 ]
-
-export default uniV2StakingRewards

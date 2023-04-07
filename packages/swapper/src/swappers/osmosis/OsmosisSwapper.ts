@@ -1,31 +1,23 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import {
-  AssetId,
-  ChainId,
-  cosmosAssetId,
-  cosmosChainId,
-  osmosisAssetId,
-  osmosisChainId,
-} from '@shapeshiftoss/caip'
-import { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import { osmosis } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import {
+import type {
   ApprovalNeededOutput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
   MinMaxOutput,
-  SwapError,
-  SwapErrorType,
   Swapper,
-  SwapperName,
-  SwapperType,
   Trade,
   TradeQuote,
   TradeTxs,
 } from '../../api'
+import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 import { bn, bnOrZero } from '../utils/bignumber'
 import {
   COSMO_OSMO_CHANNEL,
@@ -33,16 +25,16 @@ import {
   MAX_SWAPPER_SELL,
   OSMO_COSMO_CHANNEL,
 } from './utils/constants'
+import type { SymbolDenomMapping } from './utils/helpers'
 import {
   buildTradeTx,
   getRateInfo,
   performIbcTransfer,
   pollForAtomChannelBalance,
   pollForComplete,
-  SymbolDenomMapping,
   symbolDenomMapping,
 } from './utils/helpers'
-import { OsmosisTradeResult, OsmoSwapperDeps } from './utils/types'
+import type { OsmosisTradeResult, OsmoSwapperDeps } from './utils/types'
 
 export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
 
@@ -127,20 +119,24 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async approvalNeeded(): Promise<ApprovalNeededOutput> {
-    return { approvalNeeded: false }
+  approvalNeeded(): Promise<ApprovalNeededOutput> {
+    return Promise.resolve({ approvalNeeded: false })
   }
 
-  async approveInfinite(): Promise<string> {
-    throw new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
-      code: SwapErrorType.RESPONSE_ERROR,
-    })
+  approveInfinite(): Promise<string> {
+    return Promise.reject(
+      new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
+        code: SwapErrorType.RESPONSE_ERROR,
+      }),
+    )
   }
 
-  async approveAmount(): Promise<string> {
-    throw new SwapError('Osmosis: approveAmount unimplemented', {
-      code: SwapErrorType.RESPONSE_ERROR,
-    })
+  approveAmount(): Promise<string> {
+    return Promise.reject(
+      new SwapError('Osmosis: approveAmount unimplemented', {
+        code: SwapErrorType.RESPONSE_ERROR,
+      }),
+    )
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
@@ -148,7 +144,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     if (!this.supportedAssetIds.includes(sellAssetId)) return []
 
     return assetIds.filter(
-      (assetId) => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId,
+      assetId => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId,
     )
   }
 
@@ -351,7 +347,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
-      await new Promise((resolve) => setTimeout(resolve, 5000))
+      await new Promise(resolve => setTimeout(resolve, 5000))
     } else {
       sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
 
@@ -397,7 +393,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
-      await new Promise((resolve) => setTimeout(resolve, 5000))
+      await new Promise(resolve => setTimeout(resolve, 5000))
 
       const cosmosTxHistory = await cosmosAdapter.getTxHistory({
         pubkey: cosmosAddress,

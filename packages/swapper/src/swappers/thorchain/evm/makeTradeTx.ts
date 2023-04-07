@@ -1,11 +1,11 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { numberToHex } from 'web3-utils'
 
 import { SwapError, SwapErrorType } from '../../../api'
-import { ThorEvmSupportedChainId } from '../ThorchainSwapper'
+import type { ThorEvmSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo } from './utils/getThorTxData'
 

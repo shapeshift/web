@@ -1,4 +1,4 @@
-import { Token } from '../../../../../types'
+import type { Token } from '../../../../../types'
 
 export const busdToken: Token = {
   contract: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',

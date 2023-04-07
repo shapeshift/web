@@ -1,7 +1,7 @@
-import { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 
-import {
+import type {
   Account,
   BuildSendTxInput,
   FeeDataEstimate,

@@ -1,9 +1,9 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
   binanceChainId,
   btcChainId,
-  ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,

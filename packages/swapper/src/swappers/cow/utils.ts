@@ -1,7 +1,7 @@
-import { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 
-import { Trade } from '../../api'
-import { CowTrade } from './types'
+import type { Trade } from '../../api'
+import type { CowTrade } from './types'
 
 export const isCowTrade = <C extends ChainId>(
   trade: CowTrade<C> | Trade<C>,

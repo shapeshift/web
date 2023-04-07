@@ -1,4 +1,5 @@
-import { SwapperName, SwapSource } from '../../../api'
+import type { SwapSource } from '../../../api'
+import { SwapperName } from '../../../api'
 
 export const MAX_ALLOWANCE = '100000000000000000000000000'
 export const MAX_ZRX_TRADE = '100000000000000000000000000'

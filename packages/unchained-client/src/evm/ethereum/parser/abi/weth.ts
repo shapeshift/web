@@ -1,6 +1,6 @@
-import { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
 
-const weth: JsonFragment[] = [
+export const WETH_ABI: JsonFragment[] = [
   {
     constant: true,
     inputs: [],
@@ -279,5 +279,3 @@ const weth: JsonFragment[] = [
     type: 'event',
   },
 ]
-
-export default weth

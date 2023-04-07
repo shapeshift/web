@@ -1,5 +1,5 @@
-import { BaseTxMetadata, StandardTx } from '../../types'
-import * as cosmossdk from '../types'
+import type { BaseTxMetadata, StandardTx } from '../../types'
+import type * as cosmossdk from '../types'
 
 export type Tx = cosmossdk.Tx
 

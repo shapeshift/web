@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-import { apiKey, baseUrl, IdleVault } from './constants'
+import type { IdleVault } from './constants'
+import { apiKey, baseUrl } from './constants'
 
 export class IdleSdk {
   async getVaults(): Promise<IdleVault[]> {

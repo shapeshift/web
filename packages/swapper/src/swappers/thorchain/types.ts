@@ -1,9 +1,9 @@
-import { ChainId } from '@shapeshiftoss/caip'
-import { ChainAdapterManager, SignTx } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapterManager, SignTx } from '@shapeshiftoss/chain-adapters'
 import type Web3 from 'web3'
 
 import type { Trade } from '../../api'
-import {
+import type {
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,

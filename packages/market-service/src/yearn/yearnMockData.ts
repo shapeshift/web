@@ -1,4 +1,4 @@
-import { Token, Vault } from '@yfi/sdk'
+import type { Token, Vault } from '@yfi/sdk'
 
 export const mockYearnVaultRestData: Vault[] = [
   {

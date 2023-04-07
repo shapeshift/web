@@ -1,11 +1,11 @@
-import {
+import type {
   FindAllMarketType,
   MarketData,
   MarketDataArgs,
   PriceHistoryType,
 } from '@shapeshiftoss/types'
 
-import { FiatPriceHistoryType, FindByFiatMarketType } from './fiat-market-service-types'
+import type { FiatPriceHistoryType, FindByFiatMarketType } from './fiat-market-service-types'
 
 export type FindByAssetIdMarketType = (args: MarketDataArgs) => Promise<MarketData | null>
 

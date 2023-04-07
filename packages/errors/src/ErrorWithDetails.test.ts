@@ -1,4 +1,4 @@
-import ErrorWithDetails from './ErrorWithDetails'
+import { ErrorWithDetails } from './ErrorWithDetails'
 
 describe('ErrorWithDetails', () => {
   it('should create an error with no message', () => {

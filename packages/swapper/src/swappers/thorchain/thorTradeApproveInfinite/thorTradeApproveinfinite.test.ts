@@ -1,4 +1,4 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
@@ -11,7 +11,7 @@ jest.mock('../../utils/helpers/helpers', () => ({
 describe('thorTradeApproveInfinite', () => {
   const deps = setupThorswapDeps()
   const { tradeQuote: quote } = setupQuote()
-  const wallet = <HDWallet>{}
+  const wallet = {} as HDWallet
   const input = { wallet, quote }
 
   it('should return a broadcastedTxId', async () => {

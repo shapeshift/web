@@ -1,27 +1,23 @@
-import { CHAIN_NAMESPACE, ChainId, fromAssetId } from '@shapeshiftoss/caip'
-import {
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type {
   CosmosSdkBaseAdapter,
   EvmBaseAdapter,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 
-import {
-  BuildTradeInput,
-  GetUtxoTradeQuoteInput,
-  SwapError,
-  SwapErrorType,
-  TradeQuote,
-} from '../../../api'
+import type { BuildTradeInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
+import { SwapError, SwapErrorType } from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getCosmosTxData } from '../cosmossdk/getCosmosTxData'
 import { makeTradeTx } from '../evm/makeTradeTx'
 import { getThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
-import {
+import type {
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from '../ThorchainSwapper'
-import { ThorchainSwapperDeps, ThorTrade } from '../types'
+import type { ThorchainSwapperDeps, ThorTrade } from '../types'
 import { getThorTxInfo } from '../utxo/utils/getThorTxData'
 
 type BuildTradeArgs = {

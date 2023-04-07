@@ -1,9 +1,10 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Stat, StatGroup, StatLabel, StatNumber, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
 import { Card } from 'components/Card/Card'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -19,6 +20,7 @@ type AccountBalanceProps = {
 export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, accountId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
   const fiatBalance = useAppSelector(s =>
     selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
@@ -28,7 +30,10 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   )
   if (!asset) return null
   return (
-    <Card>
+    <Card variant='footer-stub' overflow='hidden'>
+      <Card.Body>
+        <LazyLoadAvatar src={asset.icon} />
+      </Card.Body>
       <Card.Body gap={4} fontWeight='bold' display='flex' alignItems='flex-start'>
         <Flex flexDir='column'>
           <Amount.Crypto
@@ -41,6 +46,37 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
       </Card.Body>
+      <Card.Footer
+        bg={footerBg}
+        display='flex'
+        alignItems='flex-start'
+        justifyContent='space-between'
+        gap={4}
+      >
+        <Card.Heading lineHeight='shorter' flex={1}>
+          Performance
+        </Card.Heading>
+        <StatGroup gap={8} flex={1}>
+          <Stat>
+            <StatLabel lineHeight='shorter'>24hr return</StatLabel>
+            <StatNumber>
+              <Amount.Percent value='0.2' autoColor />
+            </StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel lineHeight='shorter'>24hr return</StatLabel>
+            <StatNumber>
+              <Amount.Percent value='0.2' autoColor />
+            </StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel lineHeight='shorter'>24hr return</StatLabel>
+            <StatNumber>
+              <Amount.Percent value='0.2' autoColor />
+            </StatNumber>
+          </Stat>
+        </StatGroup>
+      </Card.Footer>
     </Card>
   )
 }

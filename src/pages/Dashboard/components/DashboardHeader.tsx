@@ -3,29 +3,23 @@ import { Button, Container, Flex, Stack, useColorModeValue } from '@chakra-ui/re
 import { getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useRef } from 'react'
-import { IoIosSwap } from 'react-icons/io'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
-import { BoltIcon } from 'components/Icons/Bolt'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { Text } from 'components/Text'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { RawText } from 'components/Text'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
-  const {
-    state: { walletInfo },
-  } = useWallet()
+  const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -57,6 +51,7 @@ export const DashboardHeader = () => {
         label: 'common.overview',
         path: '/dashboard',
         color: 'blue.500',
+        exact: true,
       },
       {
         label: 'navBar.wallet',
@@ -87,19 +82,21 @@ export const DashboardHeader = () => {
   const renderNavItems = useMemo(() => {
     return NavItems.map(navItem => (
       <DashboardTab
+        key={navItem.label}
         label={navItem.label}
         path={navItem.path}
         ref={location.pathname === navItem.path ? activeRef : null}
         color={navItem.color}
         fiatAmount={navItem.fiatAmount}
+        exact={navItem.exact}
       />
     ))
   }, [NavItems, location.pathname])
 
   const walletImage = useMemo(() => {
-    if (!walletInfo) return ''
-    return getRenderedIdenticonBase64(walletInfo.deviceId, 'bobdogcat')
-  }, [walletInfo])
+    if (!walletId) return ''
+    return getRenderedIdenticonBase64(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
+  }, [walletId])
 
   return (
     <Stack spacing={0} borderColor={borderColor}>
@@ -116,14 +113,9 @@ export const DashboardHeader = () => {
         flexDir={{ base: 'column', md: 'row' }}
       >
         <Flex alignItems='center' gap={4}>
-          {walletInfo?.icon && <LazyLoadAvatar borderRadius={6} size='xl' src={walletImage} />}
+          {walletId && <LazyLoadAvatar borderRadius={6} size='xl' src={walletImage} />}
           <Flex flexDir='column'>
-            <MiddleEllipsis
-              fontWeight='bold'
-              fontSize='lg'
-              lineHeight='shorter'
-              value={walletInfo?.meta?.address ?? ''}
-            />
+            <RawText>Net worth</RawText>
             <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
           </Flex>
         </Flex>

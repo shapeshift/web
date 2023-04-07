@@ -10,10 +10,11 @@ type DashboardTabProps = {
   path: string
   color: string
   fiatAmount?: string
+  exact?: boolean
 } & ButtonProps
 
 export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
-  ({ path, color, label, fiatAmount, ...rest }, ref) => {
+  ({ path, color, label, fiatAmount, exact, ...rest }, ref) => {
     const history = useHistory()
     const location = useLocation()
     const translate = useTranslate()
@@ -24,11 +25,11 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
     const isActive = useMemo(() => {
       const match = matchPath(location.pathname, {
         path,
-        exact: false,
-        strict: true,
+        exact,
+        strict: false,
       })
       return !!match
-    }, [path, location.pathname])
+    }, [location.pathname, path, exact])
 
     return (
       <Button

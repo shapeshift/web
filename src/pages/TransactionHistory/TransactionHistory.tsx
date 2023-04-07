@@ -2,11 +2,9 @@ import { Flex } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { isSome } from 'lib/utils'
-import { DashboardHeader } from 'pages/Dashboard/components/DashboardHeader'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,24 +39,22 @@ export const TransactionHistory = () => {
   }, [handleInputChange, resetFilters])
 
   return (
-    <Main headerComponent={<DashboardHeader />}>
+    <Card>
       <SEO title={translate('transactionHistory.transactionHistory')} />
-      <Card>
-        <Card.Heading p={[2, 3, 6]}>
-          <Flex justifyContent='space-between'>
-            <Flex>
-              <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
-              <TransactionHistoryFilter
-                resetFilters={handleReset}
-                setFilters={setFilters}
-                hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
-              />
-            </Flex>
-            <DownloadButton txIds={txIds} />
+      <Card.Heading p={[2, 3, 6]}>
+        <Flex justifyContent='space-between'>
+          <Flex>
+            <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
+            <TransactionHistoryFilter
+              resetFilters={handleReset}
+              setFilters={setFilters}
+              hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
+            />
           </Flex>
-        </Card.Heading>
-        <TransactionHistoryList txIds={txIds} />
-      </Card>
-    </Main>
+          <DownloadButton txIds={txIds} />
+        </Flex>
+      </Card.Heading>
+      <TransactionHistoryList txIds={txIds} />
+    </Card>
   )
 }

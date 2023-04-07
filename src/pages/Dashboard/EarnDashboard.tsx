@@ -2,11 +2,8 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
-import { Main } from 'components/Layout/Main'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
 import { RawText } from 'components/Text'
-
-import { DashboardHeader } from './components/DashboardHeader'
 
 const EarnHeader = () => {
   const translate = useTranslate()
@@ -33,9 +30,5 @@ const EarnHeader = () => {
 }
 
 export const EarnDashboard = () => {
-  return (
-    <Main headerComponent={<DashboardHeader />}>
-      <DeFiEarn includeEarnBalances header={<EarnHeader />} />
-    </Main>
-  )
+  return <DeFiEarn includeEarnBalances header={<EarnHeader />} />
 }

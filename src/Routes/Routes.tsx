@@ -76,7 +76,6 @@ export const Routes = () => {
           <PrivateRoute
             key={isUnstableRoute ? Date.now() : 'privateRoute'}
             path={route.path}
-            exact
             hasWallet={hasWallet}
           >
             <Layout>{MainComponent && <MainComponent />}</Layout>

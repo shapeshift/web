@@ -1,12 +1,18 @@
 import { Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import { Route, Switch } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { Accounts } from 'pages/Accounts/Accounts'
+import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import { DashboardHeader } from './components/DashboardHeader'
 import { DashboardSidebar } from './DashboardSidebar'
+import { EarnDashboard } from './EarnDashboard'
 import { Portfolio } from './Portfolio'
+import { RewardsDashboard } from './RewardsDashboard'
 import { WalletDashboard } from './WalletDashboard'
 
 export const Dashboard = () => {
@@ -17,8 +23,26 @@ export const Dashboard = () => {
     return (
       <Main headerComponent={<DashboardHeader />}>
         <SEO title={translate('navBar.dashboard')} />
-
-        <WalletDashboard />
+        <Switch>
+          <Route exact path='/dashboard'>
+            <WalletDashboard />
+          </Route>
+          <Route exact path='/dashboard/earn'>
+            <EarnDashboard />
+          </Route>
+          <Route exact path='/dashboard/rewards'>
+            <RewardsDashboard />
+          </Route>
+          <Route path='/dashboard/accounts'>
+            <Accounts />
+          </Route>
+          <Route exact path='/dashboard/activity'>
+            <TransactionHistory />
+          </Route>
+          <Route>
+            <RawText>Not found</RawText>
+          </Route>
+        </Switch>
       </Main>
     )
 

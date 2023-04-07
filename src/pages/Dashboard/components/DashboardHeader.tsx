@@ -1,10 +1,18 @@
-import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Button, Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useEffect, useMemo, useRef } from 'react'
+import { IoIosSwap } from 'react-icons/io'
+import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { Card } from 'components/Card/Card'
 import { BoltIcon } from 'components/Icons/Bolt'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
@@ -15,6 +23,9 @@ import { useAppSelector } from 'state/store'
 import { DashboardTab } from './DashboardTab'
 
 export const DashboardHeader = () => {
+  const {
+    state: { walletInfo },
+  } = useWallet()
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -67,7 +78,7 @@ export const DashboardHeader = () => {
       },
       {
         label: 'navBar.activity',
-        path: '/dashboard/transaction-history',
+        path: '/dashboard/activity',
         color: 'blue.500',
       },
     ]
@@ -86,6 +97,11 @@ export const DashboardHeader = () => {
     ))
   }, [NavItems, location.pathname])
 
+  const walletImage = useMemo(() => {
+    if (!walletInfo) return ''
+    return getRenderedIdenticonBase64(walletInfo.deviceId, 'bobdogcat')
+  }, [walletInfo])
+
   return (
     <Stack spacing={0} borderColor={borderColor}>
       <Container
@@ -93,18 +109,29 @@ export const DashboardHeader = () => {
         display='flex'
         maxWidth='container.xl'
         px={8}
-        py={4}
+        pt={8}
+        pb={4}
         alignItems='center'
+        justifyContent='space-between'
         gap={{ base: 2, md: 6 }}
         flexDir={{ base: 'column', md: 'row' }}
       >
-        <Text translation='navBar.dashboard' fontSize='xl' fontWeight='medium' />
         <Flex alignItems='center' gap={4}>
-          <Flex alignItems='center' gap={2}>
-            <BoltIcon color='yellow.500' />
-            <Text translation='defi.netWorth' color='gray.500' />
+          {walletInfo?.icon && <LazyLoadAvatar borderRadius={6} size='xl' src={walletImage} />}
+          <Flex flexDir='column'>
+            <MiddleEllipsis
+              fontWeight='bold'
+              fontSize='lg'
+              lineHeight='shorter'
+              value={walletInfo?.meta?.address ?? ''}
+            />
+            <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
           </Flex>
-          <Amount.Fiat value={netWorth} fontSize='xl' fontWeight='bold' />
+        </Flex>
+        <Flex gap={4}>
+          <Button leftIcon={<ArrowUpIcon />}>Send</Button>
+          <Button leftIcon={<ArrowDownIcon />}>Recieve</Button>
+          <Button leftIcon={<IoSwapVerticalSharp />}>Trade</Button>
         </Flex>
       </Container>
       <Flex

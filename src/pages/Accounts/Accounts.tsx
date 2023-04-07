@@ -1,10 +1,13 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { Main } from 'components/Layout/Main'
-import { DashboardHeader } from 'pages/Dashboard/components/DashboardHeader'
+import { Route, Switch, useRouteMatch } from 'react-router'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
+import { Account } from './Account'
+import { AccountToken } from './AccountToken/AccountToken'
+import { AccountTokenTxHistory } from './AccountToken/AccountTokenTxHistory'
+import { AccountTxHistory } from './AccountTxHistory'
 import { ChainRow } from './components/ChainRow'
 
 // const AccountHeader = () => {
@@ -44,17 +47,25 @@ import { ChainRow } from './components/ChainRow'
 // }
 
 export const Accounts = () => {
+  const { path } = useRouteMatch()
   const portfolioChainIdsSortedFiat = useSelector(selectPortfolioChainIdsSortedFiat)
   const chainRows = useMemo(
     () => portfolioChainIdsSortedFiat.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
     [portfolioChainIdsSortedFiat],
   )
 
+  console.info(path)
+
   return (
-    <Main headerComponent={<DashboardHeader />}>
-      <List ml={0} mt={0} spacing={4}>
-        {chainRows}
-      </List>
-    </Main>
+    <Switch>
+      <Route exact path={`${path}/`}>
+        <List ml={0} mt={0} spacing={4}>
+          {chainRows}
+        </List>
+      </Route>
+      <Route path={`${path}/:accountId`}>
+        <Account />
+      </Route>
+    </Switch>
   )
 }

@@ -31,9 +31,5 @@ const RewardsHeader = () => {
 }
 
 export const RewardsDashboard = () => {
-  return (
-    <Main headerComponent={<DashboardHeader />}>
-      <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
-    </Main>
-  )
+  return <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
 }

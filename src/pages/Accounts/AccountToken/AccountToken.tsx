@@ -1,9 +1,17 @@
+import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
+import { AccountAssets } from 'components/AccountAssets/AccountAssets'
+import { AccountDetails } from 'components/AccountDetails'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
+import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
+import { RelatedAssets } from 'components/RelatedAssets/RelatedAssets'
+import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectWalletAccountIds } from 'state/slices/selectors'
 export type MatchParams = {
   accountId: AccountId
@@ -30,5 +38,29 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
 
   const id = assetId ? decodeURIComponent(assetId) : null
   if (!id) return null
-  return <AssetAccountDetails assetId={id} accountId={accountId} route={route} key={accountId} />
+  return (
+    <Stack
+      alignItems='flex-start'
+      spacing={4}
+      width='full'
+      direction={{ base: 'column', xl: 'row' }}
+    >
+      <Stack spacing={4} flex='1 1 0%' width='full'>
+        {accountId && <AccountAssets assetId={id} accountId={accountId} />}
+        <RelatedAssets assetId={id} />
+        <AssetAccounts assetId={id} accountId={accountId} />
+        <EarnOpportunities assetId={id} accountId={accountId} />
+        <AssetTransactionHistory limit={10} assetId={id} accountId={accountId} />
+      </Stack>
+      <Flex
+        flexDir='column'
+        flex='1 1 0%'
+        width='full'
+        maxWidth={{ base: 'full', xl: 'sm' }}
+        gap={4}
+      >
+        <TradeCard defaultBuyassetId={id} display={{ base: 'none', md: 'block' }} />
+      </Flex>
+    </Stack>
+  )
 }

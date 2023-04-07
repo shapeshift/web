@@ -1,25 +1,34 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, forwardRef, Tag } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { matchPath, useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 
 type DashboardTabProps = {
   label: string
   path: string
   color: string
-  isActive?: boolean
   fiatAmount?: string
 } & ButtonProps
 
 export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
-  ({ path, isActive, color, label, fiatAmount, ...rest }, ref) => {
+  ({ path, color, label, fiatAmount, ...rest }, ref) => {
     const history = useHistory()
+    const location = useLocation()
     const translate = useTranslate()
     const handleClick = useCallback(() => {
       history.push(path)
     }, [history, path])
+
+    const isActive = useMemo(() => {
+      const match = matchPath(location.pathname, {
+        path,
+        exact: false,
+        strict: true,
+      })
+      return !!match
+    }, [path, location.pathname])
 
     return (
       <Button

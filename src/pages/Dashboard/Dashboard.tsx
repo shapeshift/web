@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch } from 'react-router'
+import { Route, Switch, useRouteMatch } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { RawText } from 'components/Text'
@@ -18,25 +18,26 @@ import { WalletDashboard } from './WalletDashboard'
 export const Dashboard = () => {
   const translate = useTranslate()
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
+  const { path } = useRouteMatch()
 
   if (isDefiDashboardEnabled)
     return (
       <Main headerComponent={<DashboardHeader />}>
         <SEO title={translate('navBar.dashboard')} />
         <Switch>
-          <Route exact path='/dashboard'>
+          <Route exact path={`${path}`}>
             <WalletDashboard />
           </Route>
-          <Route exact path='/dashboard/earn'>
+          <Route exact path={`${path}/earn`}>
             <EarnDashboard />
           </Route>
-          <Route exact path='/dashboard/rewards'>
+          <Route exact path={`${path}/rewards`}>
             <RewardsDashboard />
           </Route>
-          <Route path='/dashboard/accounts'>
+          <Route path={`${path}/accounts`}>
             <Accounts />
           </Route>
-          <Route exact path='/dashboard/activity'>
+          <Route exact path={`${path}/activity`}>
             <TransactionHistory />
           </Route>
           <Route>

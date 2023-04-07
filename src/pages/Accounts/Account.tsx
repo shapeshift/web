@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
+import { AccountDetails } from 'components/AccountDetails'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
@@ -27,10 +28,10 @@ export const Account = () => {
 
   return (
     <Flex flexDir='column'>
-      <AssetHeader assetId={feeAssetId} accountId={accountId} />
       <Switch>
-        <Route exact path={`${path}/`}>
-          <AssetAccountDetails assetId={feeAsset.assetId} accountId={accountId} />
+        <Route exact path={`${path}`}>
+          <AssetHeader assetId={feeAssetId} accountId={accountId} />
+          <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
         </Route>
         <Route exact path={`${path}/transactions`}>
           <AccountTxHistory />

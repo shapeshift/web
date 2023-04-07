@@ -54,8 +54,6 @@ export const Accounts = () => {
     [portfolioChainIdsSortedFiat],
   )
 
-  console.info(path)
-
   return (
     <Switch>
       <Route exact path={`${path}/`}>

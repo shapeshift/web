@@ -53,7 +53,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
         onClick={
           // accountIds is strictly length 1 per accountNumber for account-based chains
           !isUtxoAccountId(accountIds[0])
-            ? () => history.push(`accounts/${accountIds[0]}`)
+            ? () => history.push(`/accounts/${accountIds[0]}`)
             : undefined
         }
       />

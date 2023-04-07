@@ -90,7 +90,6 @@ export const DashboardHeader = () => {
         label={navItem.label}
         path={navItem.path}
         ref={location.pathname === navItem.path ? activeRef : null}
-        isActive={location.pathname === navItem.path}
         color={navItem.color}
         fiatAmount={navItem.fiatAmount}
       />

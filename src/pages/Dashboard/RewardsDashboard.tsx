@@ -3,7 +3,7 @@ import { Button, Flex, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
 import { Main } from 'components/Layout/Main'
-import { WalletDefiEarn } from 'components/StakingVaults/WalletDefiEarn'
+import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
 import { RawText } from 'components/Text'
 
 import { DashboardHeader } from './components/DashboardHeader'
@@ -33,7 +33,7 @@ const RewardsHeader = () => {
 export const RewardsDashboard = () => {
   return (
     <Main headerComponent={<DashboardHeader />}>
-      <WalletDefiEarn includeRewardsBalances header={<RewardsHeader />} />
+      <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
     </Main>
   )
 }

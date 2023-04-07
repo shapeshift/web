@@ -11,9 +11,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 
 import { Account } from './Account'
-import { AccountToken } from './AccountToken/AccountToken'
-import { AccountTokenTxHistory } from './AccountToken/AccountTokenTxHistory'
-import { AccountTxHistory } from './AccountTxHistory'
 import { ChainRow } from './components/ChainRow'
 
 const AccountHeader = () => {

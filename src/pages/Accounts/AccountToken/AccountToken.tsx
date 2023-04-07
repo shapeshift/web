@@ -3,13 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
-import { AccountAssets } from 'components/AccountAssets/AccountAssets'
-import { AccountDetails } from 'components/AccountDetails'
-import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
-import { RelatedAssets } from 'components/RelatedAssets/RelatedAssets'
-import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectWalletAccountIds } from 'state/slices/selectors'
@@ -55,7 +49,7 @@ export const AccountToken = () => {
         maxWidth={{ base: 'full', xl: 'sm' }}
         gap={4}
       >
-        <TradeCard defaultBuyassetId={id} display={{ base: 'none', md: 'block' }} />
+        <TradeCard display={{ base: 'none', md: 'block' }} />
       </Flex>
     </Stack>
   )

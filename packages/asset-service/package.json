@@ -18,8 +18,8 @@
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
-    "generate": "yarn build && yarn run -T node ./dist/generateAssetData/generateAssetData.js && yarn build",
-    "generate:color-map": "yarn build && yarn run -T node ./dist/generateAssetData/generateColorMap.js && yarn build"
+    "generate": "yarn build && yarn node ./dist/generateAssetData/generateAssetData.js && yarn build",
+    "generate:color-map": "yarn build && yarn node ./dist/generateAssetData/generateColorMap.js && yarn build"
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",

@@ -17,10 +17,10 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "yarn generate:coingecko && yarn generate:coincap && yarn generate:yearn && yarn generate:osmosis",
-    "generate:coingecko": "yarn run -T ts-node src/adapters/coingecko/generate.ts",
-    "generate:coincap": "yarn run -T ts-node src/adapters/coincap/generate.ts",
-    "generate:yearn": "yarn run -T ts-node src/adapters/yearn/generate.ts",
-    "generate:osmosis": "yarn run -T ts-node src/adapters/osmosis/generate.ts"
+    "generate:coingecko": "yarn node dist/adapters/coingecko/generate.js",
+    "generate:coincap": "yarn node dist/adapters/coincap/generate.js",
+    "generate:yearn": "yarn node dist/adapters/yearn/generate.js",
+    "generate:osmosis": "yarn node dist/adapters/osmosis/generate.js"
   },
   "dependencies": {
     "@shapeshiftoss/types": "workspace:^"

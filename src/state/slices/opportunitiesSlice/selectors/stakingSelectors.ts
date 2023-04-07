@@ -23,7 +23,7 @@ import {
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
 } from '../../common-selectors'
@@ -577,7 +577,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
 
 export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   (aggregatedEarnUserStakingOpportunities, assetBalances): StakingEarnOpportunityType[] => {
     const eligibleOpportunities = aggregatedEarnUserStakingOpportunities.reduce<
       StakingEarnOpportunityType[]

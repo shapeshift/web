@@ -29,7 +29,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -81,7 +81,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [accountId, underlyingAssetId],
   )
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, cryptoBalanceFilter),
   )
 
   const { getLpTokenPrice } = useUniV2LiquidityPool({

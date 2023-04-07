@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export const chainIdToLabel = (chainId: ChainId): string => {
@@ -27,7 +27,7 @@ export const canCoverTxFees = ({
   accountId: AccountId
 }) => {
   const state = store.getState()
-  const feeAssetBalanceCryptoHuman = selectPortfolioCryptoHumanBalanceByFilter(state, {
+  const feeAssetBalanceCryptoHuman = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
     accountId,
     assetId: feeAsset.assetId,
   })

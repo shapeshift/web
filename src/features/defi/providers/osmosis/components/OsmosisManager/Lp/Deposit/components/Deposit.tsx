@@ -37,7 +37,7 @@ import {
 import {
   selectAssetById,
   selectAssets,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -86,13 +86,13 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const underlyingAsset0Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: osmosisOpportunity?.underlyingAssetIds[0],
       accountId: accountId ?? '',
     }),
   )
   const underlyingAsset1Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: osmosisOpportunity?.underlyingAssetIds[1],
       accountId: accountId ?? '',
     }),

@@ -54,8 +54,8 @@ import { genericBalanceIncludingStakingByFilter } from 'state/slices/portfolioSl
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import {
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
   selectWalletId,
@@ -96,7 +96,7 @@ export const selectPortfolioAccounts = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalances,
+  selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): AssetId[] =>
     Array.from(new Set(Object.values(accountBalancesById).flatMap(Object.keys))),
 )
@@ -159,7 +159,7 @@ export const selectPortfolioLoadingStatus = createSelector(
 
 export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
   selectAssets,
-  selectPortfolioAccountBalances,
+  selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataSortedByMarketCap,
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
@@ -273,8 +273,8 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
 export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
   createDeepEqualOutputSelector(
     selectAssets,
-    selectPortfolioAccountBalances,
-    selectPortfolioAssetBalances,
+    selectPortfolioAccountBalancesBaseUnit,
+    selectPortfolioAssetBalancesBaseUnit,
     selectMarketDataSortedByMarketCap,
     selectBalanceThreshold,
     selectPortfolioAccounts,
@@ -436,7 +436,7 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
  * delegation, undelegation, and redelegation balances, with base unit crypto balances
  */
 export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalances,
+  selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioStakingCryptoBalances,
   (accountBalances, stakingBalances): PortfolioAccountBalancesById => {
     return Object.entries(accountBalances).reduce<PortfolioAccountBalancesById>(
@@ -673,7 +673,7 @@ export type AccountRowData = {
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataSortedByMarketCap,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalFiatBalance,
   selectBalanceThreshold,
   (
@@ -744,7 +744,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   selectWalletId,
   selectWalletName,
   selectPortfolioFiatBalances,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   (
     assetsById,
     walletId,

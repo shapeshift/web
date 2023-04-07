@@ -10,7 +10,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 
 import type {
@@ -121,7 +121,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: foxyAssetId }
-    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, foxyAssetId)
     if (!asset) continue

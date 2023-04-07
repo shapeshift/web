@@ -29,7 +29,7 @@ import {
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumAmountFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromRoutes/getMinimumAmountFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
-import { selectPortfolioCryptoBalanceByFilter } from 'state/slices/common-selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectMarketDataById,
@@ -88,7 +88,7 @@ export async function getTradeQuote(
         })
       }
 
-      const balance = selectPortfolioCryptoBalanceByFilter(store.getState(), {
+      const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(store.getState(), {
         accountId,
         assetId: sellAsset.assetId,
       })

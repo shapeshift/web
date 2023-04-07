@@ -113,7 +113,7 @@ export const DashboardHeader = () => {
         flexDir={{ base: 'column', md: 'row' }}
       >
         <Flex alignItems='center' gap={4}>
-          {walletId && <LazyLoadAvatar borderRadius={6} size='xl' src={walletImage} />}
+          {walletId && <LazyLoadAvatar borderRadius='xl' size='xl' src={walletImage} />}
           <Flex flexDir='column'>
             <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
             <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />

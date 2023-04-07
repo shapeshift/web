@@ -29,7 +29,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { IdleTag } from 'state/slices/opportunitiesSlice/resolvers/idle/constants'
-import { selectAssetById, selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type OnboardingStep = {
@@ -104,7 +107,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const bgImage = useColorModeValue('none', IdleBg)
   const assetSupportsFiatRamp = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const cryptoBalance =
-    useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter)) ?? '0'
+    useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)) ?? '0'
   const hasZeroCryptoBalance = bnOrZero(cryptoBalance).eq(0)
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',

@@ -14,7 +14,7 @@ import {
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
 import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
@@ -84,7 +84,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
   selectLpIdParamFromFilter,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
   selectMarketDataSortedByMarketCap,
   (
@@ -162,7 +162,7 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
 export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpIdParamFromFilter,
   selectLpOpportunitiesById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
   selectMarketDataSortedByMarketCap,
   (

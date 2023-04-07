@@ -5,7 +5,7 @@ import React, { useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
 import {
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,7 +43,9 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
     }),
     [accountId, assetId],
   )
-  const balance = useAppSelector(state => selectPortfolioCryptoHumanBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+  )
   const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
 
   return <TradeAmountInput balance={balance} fiatBalance={fiatBalance} {...props} />

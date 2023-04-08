@@ -11,10 +11,15 @@ export const fromBaseUnit = (
   precision: number,
   displayDecimals?: number,
 ): string => {
-  return bnOrZero(value)
-    .div(bn(10).pow(precision))
-    .decimalPlaces(displayDecimals ?? precision, BigNumber.ROUND_DOWN)
-    .toFixed()
+  const precisionNumber = bnOrZero(value).div(bn(10).pow(precision))
+
+  if (displayDecimals && typeof displayDecimals === 'number') {
+    return precisionNumber
+      .decimalPlaces(displayDecimals, BigNumber.ROUND_DOWN)
+      .toFixed(displayDecimals)
+  }
+
+  return precisionNumber.toFixed()
 }
 
 export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {

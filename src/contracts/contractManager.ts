@@ -5,7 +5,6 @@ import { Fetcher } from '@uniswap/sdk'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 
 import type { IUniswapV2Pair } from './__generated'
 import {
@@ -25,25 +24,13 @@ import {
   FOX_TOKEN_CONTRACT_ADDRESS,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from './constants'
-
-type KnownContractByAddress<T extends KnownContractAddress> = ReturnType<
-  typeof CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT[T]['connect']
->
-
-type KnownContractByType<T extends ContractType> = ReturnType<
-  typeof CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[T]['connect']
->
-
-type KnownContractAddress =
-  | typeof ETH_FOX_POOL_CONTRACT_ADDRESS
-  | FoxEthStakingContractAddress
-  | typeof FOX_TOKEN_CONTRACT_ADDRESS
-  | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
-
-type DefinedContract = {
-  contract: KnownContractByAddress<KnownContractAddress>
-  address: KnownContractAddress
-}
+import type {
+  DefinedContract,
+  KnownContractAddress,
+  KnownContractByAddress,
+  KnownContractByType,
+} from './types'
+import { ContractType } from './types'
 
 const definedContracts: DefinedContract[] = []
 
@@ -58,11 +45,6 @@ export const CONTRACT_ADDRESS_TO_TYPECHAIN_CONTRACT = {
   [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20ABI__factory,
   [UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS]: IUniswapV2Router02__factory,
 } as const
-
-export enum ContractType {
-  UniV2Pair = 'UniV2Pair',
-  ERC20 = 'ERC20',
-}
 
 export const CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT = {
   [ContractType.UniV2Pair]: IUniswapV2Pair__factory,

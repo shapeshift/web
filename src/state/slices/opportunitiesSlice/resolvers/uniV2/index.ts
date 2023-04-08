@@ -2,11 +2,8 @@ import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@
 import type { MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
-import {
-  ContractType,
-  fetchUniV2PairData,
-  getOrCreateContractByType,
-} from 'contracts/contractManager'
+import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import memoize from 'lodash/memoize'

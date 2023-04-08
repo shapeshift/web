@@ -8,11 +8,8 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from 'contracts/constants'
-import {
-  ContractType,
-  getOrCreateContractByAddress,
-  getOrCreateContractByType,
-} from 'contracts/contractManager'
+import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'

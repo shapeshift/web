@@ -9,7 +9,7 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/uniV2/utils'
 
 jest.mock('contracts/contractManager', () => ({
-  getOrCreateContract: () => ({
+  getOrCreateContractByAddress: () => ({
     filters: {
       Swap: jest.fn(() => {}),
     },

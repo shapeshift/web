@@ -47,7 +47,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  // selectPortfolioAccounts,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -82,7 +82,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-  // const portfolioAccounts = useSelector(selectPortfolioAccounts)
+  const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
@@ -175,7 +175,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is loaded, fetch remaining chain specific data
   useEffect(() => {
-    ;(() => {
+    ;(async () => {
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
@@ -186,54 +186,60 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
-        : setTimeoutAsync(0)
+        : () => setTimeoutAsync(0)
 
-      maybeFetchZapperData.then(async () => {
-        await fetchAllOpportunitiesIds()
-        await fetchAllOpportunitiesMetadata()
+      await maybeFetchZapperData
+      await fetchAllOpportunitiesIds()
+      await fetchAllOpportunitiesMetadata()
 
-        requestedAccountIds.forEach(accountId => {
-          const { chainId } = fromAccountId(accountId)
-          switch (chainId) {
-            case btcChainId:
-            case ltcChainId:
-            case dogeChainId:
-            case bchChainId:
-              fetchAllOpportunitiesUserData(accountId)
-              break
-            case cosmosChainId:
-            case osmosisChainId:
-              // Don't await me, we don't want to block execution while this resolves and populates the store
-              fetchAllOpportunitiesUserData(accountId)
-              break
-            case avalancheChainId:
-              fetchAllOpportunitiesUserData(accountId)
-              break
-            case ethChainId:
-              // Don't await me, we don't want to block execution while this resolves and populates the store
-              fetchAllOpportunitiesUserData(accountId)
+      requestedAccountIds.forEach(accountId => {
+        const { chainId } = fromAccountId(accountId)
+        switch (chainId) {
+          case btcChainId:
+          case ltcChainId:
+          case dogeChainId:
+          case bchChainId:
+            fetchAllOpportunitiesUserData(accountId)
+            break
+          case cosmosChainId:
+          case osmosisChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
+            break
+          case avalancheChainId:
+            fetchAllOpportunitiesUserData(accountId)
+            break
+          case ethChainId:
+            // Don't await me, we don't want to block execution while this resolves and populates the store
+            fetchAllOpportunitiesUserData(accountId)
 
-              /**
-               * fetch all rebase history for foxy
-               *
-               * foxy rebase history is most closely linked to transactions.
-               * unfortunately, we have to call this for a specific asset here
-               * because we need it for the dashboard balance chart
-               *
-               * if you're reading this and are about to add another rebase token here,
-               * stop, and make a getRebaseHistoryByAccountId that takes
-               * an accountId and assetId[] in the txHistoryApi
-               */
-              dispatch(
-                getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-              )
-              break
-            default:
-          }
-        })
+            /**
+             * fetch all rebase history for foxy
+             *
+             * foxy rebase history is most closely linked to transactions.
+             * unfortunately, we have to call this for a specific asset here
+             * because we need it for the dashboard balance chart
+             *
+             * if you're reading this and are about to add another rebase token here,
+             * stop, and make a getRebaseHistoryByAccountId that takes
+             * an accountId and assetId[] in the txHistoryApi
+             */
+            dispatch(
+              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
+            )
+            break
+          default:
+        }
       })
     })()
-  }, [portfolioLoadingStatus, DynamicLpAssets, dispatch, requestedAccountIds, portfolioAssetIds])
+  }, [
+    portfolioLoadingStatus,
+    portfolioAccounts,
+    DynamicLpAssets,
+    dispatch,
+    requestedAccountIds,
+    portfolioAssetIds,
+  ])
 
   const uniV2LpIdsData = useAppSelector(selectUniV2LpIds)
 

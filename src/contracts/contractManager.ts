@@ -82,7 +82,6 @@ export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
   return contract as KnownContractByAddress<T>
 }
 
-// temporary until I figure out the heuristics for it
 export const getOrCreateContractByType = <T extends ContractType>({
   address,
   type,

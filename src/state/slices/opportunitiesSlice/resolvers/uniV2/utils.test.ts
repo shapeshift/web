@@ -15,6 +15,12 @@ jest.mock('contracts/contractManager', () => ({
     },
     queryFilter: mockGetPastEvents,
   }),
+  getOrCreateContractByType: () => ({
+    filters: {
+      Swap: jest.fn(() => {}),
+    },
+    queryFilter: mockGetPastEvents,
+  }),
 }))
 
 jest.mock('@ethersproject/contracts', () => ({

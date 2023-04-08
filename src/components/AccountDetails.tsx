@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -17,6 +18,7 @@ type AccountDetailsProps = {
 }
 
 export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
+  if (!accountId || !assetId) return null
   return (
     <Main>
       <Stack
@@ -28,7 +30,10 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         <Stack spacing={4} flex='1 1 0%' width='full'>
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
-          <AssetAccounts assetId={assetId} accountId={accountId} />
+          <AssetAccounts
+            assetId={assetId}
+            accountId={isUtxoAccountId(accountId) ? '' : accountId}
+          />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>

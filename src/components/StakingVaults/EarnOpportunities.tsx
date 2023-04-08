@@ -5,6 +5,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { OpportunityRow } from 'components/EarnDashboard/components/ProviderDetails/OpportunityRow'
+import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -14,6 +15,7 @@ import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
+  selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,6 +41,21 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
+  const userStakingOpportunitiesFilter = useMemo(
+    () => ({
+      accountId: accountId ?? '',
+      assetId: assetId ?? '',
+    }),
+    [accountId, assetId],
+  )
+  const userStakingOpportunities = useAppSelector(state =>
+    selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
+  )
+
+  const userStakingIds = useMemo(
+    () => userStakingOpportunities.map(opportunity => opportunity.id),
+    [userStakingOpportunities],
+  )
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
@@ -101,5 +118,5 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   if (allRows.length === 0) return null
 
-  return <>{renderRows}</>
+  return <WalletStakingByAsset ids={userStakingIds} />
 }

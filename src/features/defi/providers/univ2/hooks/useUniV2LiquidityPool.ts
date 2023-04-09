@@ -692,10 +692,10 @@ export const useUniV2LiquidityPool = ({
   const approveAsset = useCallback(
     async (contractAddress: string) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
-      const contract =
-        contractAddress.toLowerCase() === asset1ContractAddress.toLowerCase()
-          ? asset1Contract
-          : asset0Contract
+      const contract = getOrCreateContractByType({
+        address: contractAddress,
+        type: ContractType.ERC20,
+      })
 
       if (!contract) return
 
@@ -746,16 +746,7 @@ export const useUniV2LiquidityPool = ({
       })()
       return broadcastTXID
     },
-    [
-      accountNumber,
-      adapter,
-      asset0Contract,
-      asset1Contract,
-      asset1ContractAddress,
-      getApproveGasData,
-      skip,
-      wallet,
-    ],
+    [accountNumber, adapter, getApproveGasData, skip, wallet],
   )
 
   return {

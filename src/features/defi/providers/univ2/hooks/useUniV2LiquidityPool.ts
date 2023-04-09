@@ -1,4 +1,4 @@
-import { MaxInt256 } from '@ethersproject/constants'
+import { MaxUint256 } from '@ethersproject/constants'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
@@ -563,7 +563,7 @@ export const useUniV2LiquidityPool = ({
       if (adapter && accountId && contract) {
         const data = contract.interface.encodeFunctionData('approve', [
           fromAssetId(uniswapV2Router02AssetId).assetReference,
-          MaxInt256,
+          MaxUint256,
         ])
         const fees = await adapter.getFeeData({
           to: contract.address,
@@ -707,7 +707,7 @@ export const useUniV2LiquidityPool = ({
       const uniV2ContractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const data = contract.interface.encodeFunctionData('approve', [
         uniV2ContractAddress,
-        MaxInt256,
+        MaxUint256,
       ])
       const gasData = await getApproveGasData()
       if (!gasData) return
@@ -774,7 +774,7 @@ export const useUniV2LiquidityPool = ({
       const uniswapV2Router02ContractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const data = contract.interface.encodeFunctionData('approve', [
         uniswapV2Router02ContractAddress,
-        MaxInt256,
+        MaxUint256,
       ])
       const gasData = await getApproveGasData(forWithdrawal)
       if (!gasData) return

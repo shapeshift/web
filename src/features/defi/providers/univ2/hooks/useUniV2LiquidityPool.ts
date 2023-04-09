@@ -770,8 +770,11 @@ export const useUniV2LiquidityPool = ({
 
       if (!contract) return
 
-      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      const data = contract.interface.encodeFunctionData('approve', [contractAddress, MaxUint256])
+      const uniswapV2Router02ContractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
+      const data = contract.interface.encodeFunctionData('approve', [
+        uniswapV2Router02ContractAddress,
+        MaxUint256,
+      ])
       const gasData = await getApproveGasData(forWithdrawal)
       if (!gasData) return
       const fees = gasData.average as FeeData<EvmChainId>

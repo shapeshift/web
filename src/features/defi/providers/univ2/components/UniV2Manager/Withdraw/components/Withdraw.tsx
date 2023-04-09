@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -194,7 +194,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       onNext(DefiStep.Confirm)
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     } else {
-      const estimatedGasCryptoPrecision = await getApproveGasData(true)
+      const estimatedGasCryptoPrecision = await getApproveGasData(
+        fromAssetId(lpAssetId).assetReference,
+      )
       if (!estimatedGasCryptoPrecision) return
       dispatch({
         type: UniV2WithdrawActionType.SET_APPROVE,

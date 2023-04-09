@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
 import type {
@@ -189,26 +189,32 @@ export const Deposit: React.FC<DepositProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       } else {
-        // Same for both sides in case they need an approval since they're both ERC-20s
-        const estimatedGasCrypto = await getApproveGasData()
-        if (!estimatedGasCrypto) return
+        debugger
+        // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
+        // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
+        // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
+        const asset0EstimatedGasCrypto =
+          assetId0 !== ethAssetId && (await getApproveGasData(fromAssetId(assetId0).assetReference))
+        const asset1EstimatedGasCrypto =
+          assetId1 !== ethAssetId && (await getApproveGasData(fromAssetId(assetId1).assetReference))
+        if (!(asset0EstimatedGasCrypto || asset1EstimatedGasCrypto)) return
 
-        if (!isAsset0AllowanceGranted) {
+        if (!isAsset0AllowanceGranted && asset0EstimatedGasCrypto) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_0,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset0EstimatedGasCrypto.average.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
           })
         }
 
-        if (!isAsset1AllowanceGranted) {
+        if (!isAsset1AllowanceGranted && asset1EstimatedGasCrypto) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_1,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset1EstimatedGasCrypto.average.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },

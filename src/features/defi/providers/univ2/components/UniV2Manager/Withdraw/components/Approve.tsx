@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -76,11 +76,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const {
-    approveLp: approve,
-    lpAllowance,
-    getWithdrawGasData,
-  } = useUniV2LiquidityPool({
+  const { approveAsset, lpAllowance, getWithdrawGasData } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
@@ -119,7 +115,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
-      await approve(true)
+      await approveAsset(fromAssetId(lpAssetId).assetReference)
       await poll({
         fn: () => lpAllowance(),
         validate: (result: string) => {
@@ -171,7 +167,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     state?.withdraw,
     lpOpportunity,
     wallet,
-    approve,
+    approveAsset,
+    lpAssetId,
     getWithdrawGasData,
     feeAsset.precision,
     onNext,

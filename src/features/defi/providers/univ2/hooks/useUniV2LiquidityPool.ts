@@ -1,5 +1,4 @@
 import { MaxUint256 } from '@ethersproject/constants'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
@@ -143,30 +142,16 @@ export const useUniV2LiquidityPool = ({
   )
 
   const makeAddLiquidtyData = useCallback(
-    ({
-      asset0ContractAddress,
-      asset1ContractAddress,
-      token0Amount,
-      token1Amount,
-      wethAssetId,
-      weth,
-      asset0,
-      asset1,
-      accountId,
-    }: {
-      asset0ContractAddress: string
-      asset1ContractAddress: string
-      token0Amount: string
-      token1Amount: string
-      wethAssetId: AssetId
-      weth: Asset
-      asset0: Asset
-      asset1: Asset
-      accountId: AccountId
-    }) => {
+    ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (!uniswapRouterContract) throw new Error('Uniswap router contract instance is undefined')
       const deadline = Date.now() + 1000 * 60 * 10 // 10 minutes from now
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
+        const ethAmount = (() => {
+          if (assetId0OrWeth === wethAssetId) return token0Amount
+          if (assetId1OrWeth === wethAssetId) return token1Amount
+          return '0'
+        })()
+
         const otherAssetContractAddress =
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
@@ -175,7 +160,7 @@ export const useUniV2LiquidityPool = ({
         const accountAddress = fromAccountId(accountId).account
 
         const amountOtherAssetMin = calculateSlippageMargin(otherAssetAmount, otherAsset.precision)
-        const amountEthMin = calculateSlippageMargin(token0Amount, weth.precision)
+        const amountEthMin = calculateSlippageMargin(ethAmount, weth.precision)
 
         return uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
           otherAssetContractAddress,
@@ -201,11 +186,21 @@ export const useUniV2LiquidityPool = ({
         ])
       }
     },
-    [assetId0OrWeth, assetId1OrWeth, uniswapRouterContract],
+    [
+      accountId,
+      asset0,
+      asset0ContractAddress,
+      asset1,
+      asset1ContractAddress,
+      assetId0OrWeth,
+      assetId1OrWeth,
+      uniswapRouterContract,
+      weth.precision,
+    ],
   )
 
   const addLiquidity = useCallback(
-    async (token0Amount: string, token1Amount: string) => {
+    async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
@@ -221,15 +216,8 @@ export const useUniV2LiquidityPool = ({
         const value = bnOrZero(ethValue).isZero() ? '0' : ethValue
 
         const data = makeAddLiquidtyData({
-          asset0ContractAddress,
-          asset1ContractAddress,
           token0Amount,
           token1Amount,
-          wethAssetId,
-          weth,
-          asset0,
-          asset1,
-          accountId,
         })
 
         const adapterType = adapter.getChainId()
@@ -308,9 +296,6 @@ export const useUniV2LiquidityPool = ({
       accountNumber,
       adapter,
       asset0,
-      asset0ContractAddress,
-      asset1,
-      asset1ContractAddress,
       assetId0OrWeth,
       assetId1OrWeth,
       makeAddLiquidtyData,
@@ -381,7 +366,15 @@ export const useUniV2LiquidityPool = ({
     ],
   )
   const removeLiquidity = useCallback(
-    async (lpAmount: string, asset1Amount: string, asset0Amount: string) => {
+    async ({
+      lpAmount,
+      asset1Amount,
+      asset0Amount,
+    }: {
+      lpAmount: string
+      asset1Amount: string
+      asset0Amount: string
+    }) => {
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return

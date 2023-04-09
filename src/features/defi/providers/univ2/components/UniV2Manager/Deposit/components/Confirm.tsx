@@ -132,10 +132,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(
-        state.deposit.asset0CryptoAmount,
-        state.deposit.asset1CryptoAmount,
-      )
+      const txid = await addLiquidity({
+        token0Amount: state.deposit.asset0CryptoAmount,
+        token1Amount: state.deposit.asset1CryptoAmount,
+      })
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: UniV2DepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)

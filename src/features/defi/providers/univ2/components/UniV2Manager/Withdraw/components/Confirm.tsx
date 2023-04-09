@@ -133,11 +133,11 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
 
-      const txid = await removeLiquidity(
-        state.withdraw.lpAmount,
-        state.withdraw.asset1Amount,
-        state.withdraw.asset0Amount,
-      )
+      const txid = await removeLiquidity({
+        lpAmount: state.withdraw.lpAmount,
+        asset0Amount: state.withdraw.asset0Amount,
+        asset1Amount: state.withdraw.asset1Amount,
+      })
       if (!txid) throw new Error(`Transaction failed`)
       dispatch({ type: UniV2WithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)

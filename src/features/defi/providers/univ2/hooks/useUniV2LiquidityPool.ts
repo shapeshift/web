@@ -346,13 +346,14 @@ export const useUniV2LiquidityPool = ({
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const otherAssetContractAddress =
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
-        const ethAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
+        const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
+        const ethAmount = assetId0OrWeth === wethAssetId ? asset0Amount : asset1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
         return uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
           otherAssetContractAddress,
           lpAmountBaseUnit,
-          calculateSlippageMargin(otherAssetAmount, asset1.precision),
-          calculateSlippageMargin(ethAmount, asset0.precision),
+          calculateSlippageMargin(otherAssetAmount, otherAsset.precision),
+          calculateSlippageMargin(ethAmount, weth.precision),
           to,
           deadline,
         ])
@@ -370,12 +371,13 @@ export const useUniV2LiquidityPool = ({
     },
     [
       accountId,
-      asset0.precision,
-      asset1.precision,
+      asset0,
+      asset1,
       assetId0OrWeth,
       assetId1OrWeth,
       lpAsset.precision,
       uniswapRouterContract,
+      weth.precision,
     ],
   )
   const removeLiquidity = useCallback(

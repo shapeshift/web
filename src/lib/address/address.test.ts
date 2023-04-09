@@ -1,4 +1,4 @@
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, ltcAssetId, ltcChainId } from '@shapeshiftoss/caip'
 
 import { parseMaybeUrlByChainId } from './address'
 
@@ -65,6 +65,22 @@ describe('lib/address', () => {
         assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         chainId: 'bip122:000000000019d6689c085ae165831e93',
         value: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
+      }
+
+      expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)
+    })
+
+    it('should not parse address if there is a mismatch between chainId and URN scheme', () => {
+      const input = {
+        assetId: ltcAssetId,
+        chainId: ltcChainId,
+        value: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
+      }
+
+      const expectedOutput = {
+        assetId: ltcAssetId,
+        chainId: ltcChainId,
+        value: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
       }
 
       expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)

@@ -343,15 +343,20 @@ export const useUniV2LiquidityPool = ({
         .toFixed(0)
       const deadline = Date.now() + 1200000
       const to = fromAccountId(accountId).account
-      if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId))
+      if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
+        const otherAssetContractAddress =
+          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
+        const ethAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
+        const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
         return uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
-          asset1ContractAddress,
+          otherAssetContractAddress,
           lpAmountBaseUnit,
-          calculateSlippageMargin(asset1Amount, asset1.precision),
-          calculateSlippageMargin(asset0Amount, asset0.precision),
+          calculateSlippageMargin(otherAssetAmount, asset1.precision),
+          calculateSlippageMargin(ethAmount, asset0.precision),
           to,
           deadline,
         ])
+      }
 
       return uniswapRouterContract.interface.encodeFunctionData('removeLiquidity', [
         asset0ContractAddress,

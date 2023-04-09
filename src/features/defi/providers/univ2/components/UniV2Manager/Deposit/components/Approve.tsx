@@ -64,13 +64,16 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     [state?.approve1?.estimatedGasCryptoPrecision],
   )
 
-  // Initially set to false if no approval is needed
-  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(false)
-  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(false)
+  // Initially set to true optimistically, see the comments in the useEffect below
+  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(true)
+  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(true)
 
   useEffect(() => {
-    if (isApprove0Needed) setIsAsset0AllowanceGranted(false)
-    if (isApprove1Needed) setIsAsset1AllowanceGranted(false)
+    // We could theoretically do the same as an initial state field value
+    // However routing is tricky and this every step component re-renders every step, no matter the current step
+    // This gives us additional safety
+    setIsAsset0AllowanceGranted(!isApprove0Needed)
+    setIsAsset1AllowanceGranted(!isApprove1Needed)
   }, [isApprove0Needed, isApprove1Needed])
 
   const estimatedGasCryptoPrecision =
@@ -105,11 +108,10 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     if (assetId1 === ethAssetId) return ''
     return ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
   }, [assetId1])
-  const contractAddresses = useMemo(
-    () => [asset0ContractAddress, asset1ContractAddress],
-    [asset0ContractAddress, asset1ContractAddress],
-  )
-  const neededApprovals = [isApprove0Needed, isApprove1Needed].filter(Boolean).length
+  const neededApprovals = [
+    isApprove0Needed && asset0ContractAddress,
+    isApprove1Needed && asset1ContractAddress,
+  ].filter(Boolean)
   const { approveAsset, asset0Allowance, asset1Allowance, getDepositGasDataCryptoBaseUnit } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
@@ -299,9 +301,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       ...(!isAsset0AllowanceGranted
         ? [
             <>
-              <Text>{`${
-                contractAddresses.indexOf(asset0ContractAddress) + 1
-              } out of ${neededApprovals}`}</Text>
+              <Text>{`${neededApprovals.indexOf(asset0ContractAddress) + 1} out of ${
+                neededApprovals.length
+              }`}</Text>
               <ReusableApprove
                 key={'approve0'}
                 asset={asset0}
@@ -328,9 +330,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       ...(!isAsset1AllowanceGranted
         ? [
             <>
-              <Text>{`${
-                contractAddresses.indexOf(asset1ContractAddress) + 1
-              } out of ${neededApprovals}`}</Text>
+              <Text>{`${neededApprovals.indexOf(asset1ContractAddress) + 1} out of ${
+                neededApprovals.length
+              }`}</Text>
               <ReusableApprove
                 key={'approve1'}
                 asset={asset1}
@@ -357,7 +359,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     ],
     [
       isAsset0AllowanceGranted,
-      contractAddresses,
       asset0ContractAddress,
       neededApprovals,
       asset0,

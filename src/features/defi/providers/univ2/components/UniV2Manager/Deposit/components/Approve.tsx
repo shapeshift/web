@@ -233,7 +233,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       if (!(state && dispatch && lpOpportunity)) return
       if (!(isApprove0Needed || isApprove1Needed)) return
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
-        debugger
         // Get deposit gas estimate
         const gasData = await getDepositGasDataCryptoBaseUnit({
           token0Amount: state.deposit.asset0CryptoAmount,
@@ -260,6 +259,19 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
           },
           assets,
         )
+
+        // Set empty approve 0 and 1 gas estimation fields
+        // This is to prevent this effect from running again and re-routing to confirm step
+        // This is because of the way routing works in DeFi modals, components for **all** steps always render (possibly returning null)
+        // no matter the current step
+        dispatch({
+          type: UniV2DepositActionType.SET_APPROVE_0,
+          payload: {},
+        })
+        dispatch({
+          type: UniV2DepositActionType.SET_APPROVE_1,
+          payload: {},
+        })
 
         onNext(DefiStep.Confirm)
       }

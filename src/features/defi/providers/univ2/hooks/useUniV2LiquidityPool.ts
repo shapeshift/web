@@ -711,7 +711,7 @@ export const useUniV2LiquidityPool = ({
       ])
       const gasData = await getApproveGasData()
       if (!gasData) return
-      const fees = gasData.average as FeeData<EvmChainId>
+      const fees = gasData.fast as FeeData<EvmChainId>
       const {
         chainSpecific: { gasPrice, gasLimit },
       } = fees
@@ -720,10 +720,11 @@ export const useUniV2LiquidityPool = ({
       }
       const result = await adapter.buildCustomTx({
         to: contract!.address,
-        value: '0x00',
+        value: '0',
         wallet,
         data,
-        gasLimit,
+        // See comment on fees below. We want to ensure we don't run out of gas
+        gasLimit: bn(gasLimit).times(1.2).toFixed(0),
         accountNumber,
         gasPrice,
       })

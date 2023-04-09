@@ -137,8 +137,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     try {
       const fee = await getWithdrawGasData(
         withdraw.cryptoAmount,
-        asset1AmountCryptoPrecision,
         asset0AmountCryptoPrecision,
+        asset1AmountCryptoPrecision,
       )
       if (!fee) return
       return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()

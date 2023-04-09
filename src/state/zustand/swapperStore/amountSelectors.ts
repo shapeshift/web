@@ -1,7 +1,7 @@
 import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
 import { TradeAmountInputField } from 'components/Trade/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import {
   selectAction,
@@ -11,6 +11,7 @@ import {
   selectSelectedCurrencyToUsdRate,
   selectSellAsset,
   selectSellAssetFiatRate,
+  selectSlippage,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
@@ -489,6 +490,7 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
   selectQuoteSellAmountPlusFeesFiat,
   selectQuoteBuyAmountAfterFeesCryptoPrecision,
   selectQuoteBuyAmountAfterFeesFiat,
+  selectSlippage,
   (
     buyAmountBeforeFeesFiat,
     sellAmountBeforeFeesFiat,
@@ -504,6 +506,7 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
     quoteSellAmountPlusFeesFiat,
     quoteBuyAmountAfterFeesCryptoPrecision,
     quoteBuyAmountAfterFeesFiat,
+    slippage,
   ) => {
     const defaultReturn: SelectTradeAmountsByActionAndAmountReturn = {
       buyAmountBuyAssetCryptoPrecision: '0',
@@ -512,11 +515,16 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       fiatBuyAmount: '0',
     }
     if (!sellAsset || !buyAsset || bnOrZero(amount).isZero()) return defaultReturn
+    const quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage = bnOrZero(
+      quoteBuyAmountAfterFeesCryptoPrecision,
+    )
+      .times(bn(1).minus(slippage))
+      .toFixed()
     switch (action) {
       case TradeAmountInputField.SELL_CRYPTO: {
         return {
           sellAmountSellAssetCryptoPrecision: amount,
-          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecision,
+          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage,
           fiatSellAmount: sellAmountBeforeFeesFiat,
           fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }
@@ -524,7 +532,7 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       case TradeAmountInputField.SELL_FIAT: {
         return {
           sellAmountSellAssetCryptoPrecision: sellAmountBeforeFeesCryptoPrecision,
-          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecision,
+          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage,
           fiatSellAmount: amount,
           fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }

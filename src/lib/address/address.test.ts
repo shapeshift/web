@@ -1,4 +1,11 @@
-import { ethAssetId, ethChainId, ltcAssetId, ltcChainId } from '@shapeshiftoss/caip'
+import {
+  btcAssetId,
+  btcChainId,
+  ethAssetId,
+  ethChainId,
+  ltcAssetId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 
 import { parseMaybeUrlByChainId } from './address'
 
@@ -56,14 +63,14 @@ describe('lib/address', () => {
 
     it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {
       const input = {
-        assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        chainId: 'bip122:000000000019d6689c085ae165831e93',
+        assetId: btcAssetId,
+        chainId: btcChainId,
         value: 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
       }
 
       const expectedOutput = {
-        assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        chainId: 'bip122:000000000019d6689c085ae165831e93',
+        assetId: btcAssetId,
+        chainId: btcChainId,
         value: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
       }
 

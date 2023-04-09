@@ -98,9 +98,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
   const asset0ContractAddress = useMemo(() => {
+    if (assetId0 === ethAssetId) return ''
     return ethers.utils.getAddress(fromAssetId(assetId0).assetReference)
   }, [assetId0])
   const asset1ContractAddress = useMemo(() => {
+    if (assetId1 === ethAssetId) return ''
     return ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
   }, [assetId1])
   const contractAddresses = useMemo(

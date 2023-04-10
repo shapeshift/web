@@ -514,8 +514,8 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       fiatSellAmount: '0',
       fiatBuyAmount: '0',
     }
-    if (!sellAsset || !buyAsset || bnOrZero(amount).isZero()) return defaultReturn
-    const quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage = bnOrZero(
+    if (!sellAsset || !buyAsset || bnOrZero(amount).lte(0)) return defaultReturn
+    const quoteBuyAmountAfterFeesAndSlippageCryptoPrecision = bnOrZero(
       quoteBuyAmountAfterFeesCryptoPrecision,
     )
       .times(bn(1).minus(slippage))
@@ -524,7 +524,7 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       case TradeAmountInputField.SELL_CRYPTO: {
         return {
           sellAmountSellAssetCryptoPrecision: amount,
-          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage,
+          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesAndSlippageCryptoPrecision,
           fiatSellAmount: sellAmountBeforeFeesFiat,
           fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }
@@ -532,7 +532,7 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       case TradeAmountInputField.SELL_FIAT: {
         return {
           sellAmountSellAssetCryptoPrecision: sellAmountBeforeFeesCryptoPrecision,
-          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesCryptoPrecisionAfterSlippage,
+          buyAmountBuyAssetCryptoPrecision: quoteBuyAmountAfterFeesAndSlippageCryptoPrecision,
           fiatSellAmount: amount,
           fiatBuyAmount: quoteBuyAmountAfterFeesFiat,
         }

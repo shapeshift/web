@@ -72,6 +72,21 @@ export const CardStyle = {
         borderRadius: 'xl',
       },
     }),
+    default: (props: Record<string, any>) => ({
+      card: {
+        bg: mode('white', 'gray.785')(props),
+        borderWidth: 1,
+        borderColor: mode('blackAlpha.50', 'gray.750')(props),
+      },
+      header: {
+        borderBottomWidth: 1,
+        borderColor: mode('gray.200', 'gray.750')(props),
+      },
+      footer: {
+        borderTopWidth: 1,
+        borderColor: mode('gray.200', 'gray.750')(props),
+      },
+    }),
     outline: (props: Record<string, any>) => ({
       card: {
         borderWidth: 1,

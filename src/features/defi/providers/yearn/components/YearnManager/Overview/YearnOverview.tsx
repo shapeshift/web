@@ -29,7 +29,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -84,7 +84,7 @@ export const YearnOverview: React.FC<YearnOverviewProps> = ({
   )
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
   const cryptoAmountAvailable = useMemo(

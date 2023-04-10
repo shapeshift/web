@@ -27,7 +27,7 @@ import {
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -95,13 +95,13 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // user info
   const asset1Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: assetId1,
       accountId: accountId ?? '',
     }),
   )
   const asset0Balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
       assetId: assetId0,
       accountId: accountId ?? '',
     }),

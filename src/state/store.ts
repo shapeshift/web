@@ -1,4 +1,5 @@
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
+import { getConfig } from 'config'
 import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,6 +21,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
   key: 'root',
@@ -122,7 +124,9 @@ export const createStore = () =>
           warnAfter: 128,
           ignoredActions: [PERSIST, PURGE],
         },
-      }).concat(apiMiddleware),
+      })
+        .concat(apiMiddleware)
+        .concat(getConfig().REACT_APP_REDUX_WINDOW ? [updateWindowStoreMiddleware] : []),
     devTools: {
       actionSanitizer,
       stateSanitizer,
@@ -131,6 +135,11 @@ export const createStore = () =>
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+export type ReduxStore = typeof store
+
+// dev QoL to access the store in the console
+if (window && getConfig().REACT_APP_REDUX_WINDOW) window.store = store
 
 getStateWith(store.getState)
 registerSelectors(selectors)

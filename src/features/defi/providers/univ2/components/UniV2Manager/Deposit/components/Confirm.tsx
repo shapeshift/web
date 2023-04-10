@@ -184,20 +184,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset1.icon} />
-              <RawText>{asset1.name}</RawText>
-            </Stack>
-            <Row.Value>
-              <Amount.Crypto value={state.deposit.asset1CryptoAmount} symbol={asset1.symbol} />
-            </Row.Value>
-          </Row>
-          <Row px={0} fontWeight='medium'>
-            <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={asset0.icon} />
               <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
               <Amount.Crypto value={state.deposit.asset0CryptoAmount} symbol={asset0.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.asset1CryptoAmount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
         </Row>

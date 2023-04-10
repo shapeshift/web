@@ -210,20 +210,20 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset1.icon} />
-              <RawText>{asset1.name}</RawText>
-            </Stack>
-            <Row.Value>
-              <Amount.Crypto value={state.withdraw.asset1Amount} symbol={asset1.symbol} />
-            </Row.Value>
-          </Row>
-          <Row px={0} fontWeight='medium'>
-            <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={asset0.icon} />
               <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
               <Amount.Crypto value={state.withdraw.asset0Amount} symbol={asset0.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.withdraw.asset1Amount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
         </Row>

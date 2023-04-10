@@ -1,0 +1,53 @@
+export default {
+  tx: {
+    txid: '0x1ef254f4bbe63d167f71cf28d458d5b353b4548bca7926de86b92b65ff1e44a6',
+    blockHash: '0x101883ea283a8fb2518cc2e58072eed593110d79a1660854f158d16919221afa',
+    blockHeight: 26093591,
+    timestamp: 1677693269,
+    status: 1,
+    from: '0x1bE0Db7727c53b16a22af5Cb12F4680e784cf7eF',
+    to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+    confirmations: 306,
+    value: '0',
+    fee: '467445000000000',
+    gasLimit: '211139',
+    gasUsed: '93489',
+    gasPrice: '5000000000',
+    inputData:
+      '0xc43c9ef6000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000014aa1bf9a721c4e10000000000000000000000000000000000000000000000000011444e7af2773d00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000002000000000000000000000000e9e7cea3dedca5984780bafc599bd69add087d56000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee869584cd00000000000000000000000008a3c2a819e3de7aca384c798269b3ce1cd0e43700000000000000000000000000000000000000000000009b52e627a763ff912d',
+    tokenTransfers: [
+      {
+        contract: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        decimals: 18,
+        name: 'BUSD Token',
+        symbol: 'BUSD',
+        type: 'BEP20',
+        from: '0x1bE0Db7727c53b16a22af5Cb12F4680e784cf7eF',
+        to: '0x51e6D27FA57373d8d4C256231241053a70Cb1d93',
+        value: '1489033385864185057',
+      },
+      {
+        contract: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+        decimals: 18,
+        name: 'Wrapped BNB',
+        symbol: 'WBNB',
+        type: 'BEP20',
+        from: '0x51e6D27FA57373d8d4C256231241053a70Cb1d93',
+        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        value: '4904343838640863',
+      },
+    ],
+    internalTxs: [
+      {
+        from: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        value: '4904343838640863',
+      },
+      {
+        from: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        to: '0x1bE0Db7727c53b16a22af5Cb12F4680e784cf7eF',
+        value: '4904343838640863',
+      },
+    ],
+  },
+}

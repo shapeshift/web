@@ -1,0 +1,153 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "6.1.0",
+    "storageDir": "~/.openapitools",
+    "generators": {
+      "avalanche": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/avalanche/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/avalanche",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "bitcoin": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bitcoin/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/bitcoin",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "bitcoincash": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bitcoincash/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/bitcoincash",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "bnbsmartchain": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bnbsmartchain/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/bnbsmartchain",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "cosmos": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/cosmos/api/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/cosmos",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "dogecoin": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/dogecoin/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/dogecoin",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "ethereum": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/ethereum/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/ethereum",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "litecoin": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/litecoin/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/litecoin",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "optimism": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/optimism/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/optimism",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "osmosis": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/osmosis/api/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/osmosis",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
+      "thorchain": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain/api/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/thorchain",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      }
+    }
+  }
+}

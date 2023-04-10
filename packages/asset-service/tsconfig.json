@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["dist"],
+  "references": [
+    { "path": "../caip" },
+    { "path": "../investor-idle" },
+    { "path": "../types" },
+  ]
+}

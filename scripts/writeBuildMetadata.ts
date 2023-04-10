@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { writeFileSync } from 'fs'
 
-import { getLatestSemverTag } from './utils';
+import { getLatestSemverTag } from './utils'
 
 const main = async () => {
   const latestTag = await getLatestSemverTag()

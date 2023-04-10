@@ -189,7 +189,6 @@ export const Deposit: React.FC<DepositProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       } else {
-        debugger
         // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119

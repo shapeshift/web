@@ -70,7 +70,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     // We could theoretically do the same as an initial state field value
-    // However routing is tricky and this every step component re-renders every step, no matter the current step
+    // However routing is tricky and this component re-renders every step, no matter the current step
     // This gives us additional safety
     setIsAsset0AllowanceGranted(!isApprove0Needed)
     setIsAsset1AllowanceGranted(!isApprove1Needed)

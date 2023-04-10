@@ -160,7 +160,6 @@ export const useAvailableSwappers = () => {
     dispatch,
     feeAsset,
     getIsTradingActive,
-    sellAsset?.assetId,
     sellAssetId,
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,

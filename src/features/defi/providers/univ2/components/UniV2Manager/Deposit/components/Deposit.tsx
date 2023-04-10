@@ -178,7 +178,7 @@ export const Deposit: React.FC<DepositProps> = ({
         assetId0 === ethAssetId || asset0AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount0))
       const isAsset1AllowanceGranted =
         assetId1 === ethAssetId || asset1AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))
-      // Skip approval step if user allowance is greater than or equal requested deposit amount for that asset
+      // Skip approval step if user allowance is greater than or equal requested deposit amount for both assets
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
         const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(formValues)
         if (!estimatedGasCryptoPrecision) return

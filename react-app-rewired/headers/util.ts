@@ -1,3 +1,4 @@
+/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -70,7 +71,6 @@ export function collectCsps(dir: string): Csp[] {
       if (!item.isFile() || !/\.(j|t)s$/.test(item.name)) continue
       const csp = require(itemPath).csp
       if (!csp) throw new Error(`expected ${itemPath} to export a member named 'csp'`)
-      console.info(`using CSP from ${itemPath}`)
       out.push(csp)
     }
   }

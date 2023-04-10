@@ -4,7 +4,6 @@ import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/Defi
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { OpportunityRow } from 'components/EarnDashboard/components/ProviderDetails/OpportunityRow'
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -112,11 +111,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     [dispatch, history, isConnected, isDemoWallet, location],
   )
 
-  const renderRows = useMemo(() => {
-    return allRows.map(row => <OpportunityRow onClick={handleClick} opportunity={row} />)
-  }, [allRows, handleClick])
+  // const renderRows = useMemo(() => {
+  //   return allRows.map(row => <OpportunityRow onClick={handleClick} opportunity={row} />)
+  // }, [allRows, handleClick])
 
-  if (allRows.length === 0) return null
+  // if (allRows.length === 0) return null
 
   return <WalletStakingByAsset ids={userStakingIds} />
 }

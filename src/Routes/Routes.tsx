@@ -78,7 +78,7 @@ export const Routes = () => {
             path={route.path}
             hasWallet={hasWallet}
           >
-            <Layout>{MainComponent && <MainComponent />}</Layout>
+            {MainComponent && <MainComponent />}
           </PrivateRoute>
         )
       }),
@@ -101,7 +101,9 @@ export const Routes = () => {
           ) : null
         }}
       </Route>
-      {privateRoutesList}
+      <Layout>
+        <Switch>{privateRoutesList}</Switch>
+      </Layout>
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>

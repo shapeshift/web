@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
+import { Container, Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
@@ -66,33 +66,35 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   if (!assetId) return null
 
   return (
-    <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
-      <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
-      <Flex alignItems='center' mr='auto' flex={1}>
-        <AssetIcon assetId={asset.assetId} boxSize='40px' />
-        <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
-          <Heading fontSize='2xl' lineHeight='shorter'>
-            {name} {`(${symbol})`}
-          </Heading>
+    <Container width='full' maxWidth='container.xl' px={{ base: 4, xl: 8 }} pb={4} pt={6}>
+      <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1}>
+        <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
+        <Flex alignItems='center' mr='auto' flex={1}>
+          <AssetIcon assetId={asset.assetId} boxSize='40px' />
+          <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
+            <Heading fontSize='2xl' lineHeight='shorter'>
+              {name} {`(${symbol})`}
+            </Heading>
 
-          <IconButton
-            as={Link}
-            isExternal
-            href={href}
-            colorScheme='blue'
-            aria-label={translate('defi.viewOnChain')}
-            variant='ghost'
-            icon={<ExternalLinkIcon />}
-          />
+            <IconButton
+              as={Link}
+              isExternal
+              href={href}
+              colorScheme='blue'
+              aria-label={translate('defi.viewOnChain')}
+              variant='ghost'
+              icon={<ExternalLinkIcon />}
+            />
+          </Flex>
         </Flex>
+        {walletSupportsChain ? (
+          <AssetActions
+            assetId={assetId}
+            accountId={accountId ? accountId : singleAccount}
+            cryptoBalance={cryptoBalance}
+          />
+        ) : null}
       </Flex>
-      {walletSupportsChain ? (
-        <AssetActions
-          assetId={assetId}
-          accountId={accountId ? accountId : singleAccount}
-          cryptoBalance={cryptoBalance}
-        />
-      ) : null}
-    </Flex>
+    </Container>
   )
 }

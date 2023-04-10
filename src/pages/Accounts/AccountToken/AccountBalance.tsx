@@ -15,7 +15,6 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
 import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { RawText } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -70,9 +69,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
           <Amount.Fiat value={fiatBalance} fontSize='4xl' lineHeight='shorter' />
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
-      </Card.Body>
-      <Card.Body px={2}>
-        <EarnOpportunities assetId={assetId} accountId={accountId} />
       </Card.Body>
       <Card.Footer
         bg={footerBg}

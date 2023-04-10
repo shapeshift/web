@@ -1,22 +1,25 @@
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
-import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
+import { useEffect } from 'react'
+import { NavLink, useHistory, useLocation } from 'react-router-dom'
+import { Card } from 'components/Card/Card'
+import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
-  selectUserStakingOpportunitiesWithMetadataByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
@@ -29,7 +32,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const history = useHistory()
   const location = useLocation()
   const {
-    state: { isConnected, isDemoWallet },
+    state: { isConnected },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -40,21 +43,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const userStakingOpportunitiesFilter = useMemo(
-    () => ({
-      accountId: accountId ?? '',
-      assetId: assetId ?? '',
-    }),
-    [accountId, assetId],
-  )
-  const userStakingOpportunities = useAppSelector(state =>
-    selectUserStakingOpportunitiesWithMetadataByFilter(state, userStakingOpportunitiesFilter),
-  )
-
-  const userStakingIds = useMemo(
-    () => userStakingOpportunities.map(opportunity => opportunity.id),
-    [userStakingOpportunities],
-  )
 
   const { setLpAccountId, setFarmingAccountId } = useFoxEth()
 
@@ -74,48 +62,63 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
   )
 
-  const handleClick = useCallback(
-    (opportunity: StakingEarnOpportunityType, action: DefiAction) => {
-      const {
-        type,
-        provider,
-        contractAddress,
+  const handleClick = (opportunity: EarnOpportunityType) => {
+    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { assetReference, assetNamespace } = fromAssetId(assetId)
+    if (!isConnected) {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      return
+    }
+
+    history.push({
+      pathname: location.pathname,
+      search: qs.stringify({
         chainId,
-        rewardAddress,
-        assetId,
-        highestBalanceAccountAddress,
-      } = opportunity
-      const { assetReference, assetNamespace } = fromAssetId(assetId)
+        contractAddress,
+        assetNamespace,
+        assetReference,
+        highestBalanceAccountAddress: opportunity.highestBalanceAccountAddress,
+        rewardId: rewardAddress,
+        provider,
+        type,
+        modal: 'overview',
+      }),
+      state: { background: location },
+    })
+  }
 
-      if (!isConnected && isDemoWallet) {
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-        return
-      }
+  if (allRows.length === 0) return null
 
-      history.push({
-        pathname: location.pathname,
-        search: qs.stringify({
-          type,
-          provider,
-          chainId,
-          contractAddress,
-          assetNamespace,
-          assetReference,
-          highestBalanceAccountAddress,
-          rewardId: rewardAddress,
-          modal: action,
-        }),
-        state: { background: location },
-      })
-    },
-    [dispatch, history, isConnected, isDemoWallet, location],
+  return (
+    <Card>
+      <Card.Header flexDir='row' display='flex'>
+        <HStack gap={6} width='full'>
+          <Box>
+            <Card.Heading>
+              <Text translation='defi.earn' />
+            </Card.Heading>
+            <Text color='gray.500' translation='defi.earnBody' />
+          </Box>
+          <Box flex={1} textAlign='right'>
+            <Button
+              size='sm'
+              variant='link'
+              colorScheme='blue'
+              ml='auto'
+              as={NavLink}
+              to='/earn'
+              rightIcon={<ArrowForwardIcon />}
+            >
+              <Text translation='common.seeAll' />
+            </Button>
+          </Box>
+        </HStack>
+      </Card.Header>
+      {Boolean(allRows?.length) && (
+        <Card.Body pt={0} px={2}>
+          <StakingTable data={allRows} onClick={handleClick} />
+        </Card.Body>
+      )}
+    </Card>
   )
-
-  // const renderRows = useMemo(() => {
-  //   return allRows.map(row => <OpportunityRow onClick={handleClick} opportunity={row} />)
-  // }, [allRows, handleClick])
-
-  // if (allRows.length === 0) return null
-
-  return <WalletStakingByAsset ids={userStakingIds} />
 }

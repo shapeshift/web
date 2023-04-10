@@ -2,12 +2,16 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
 import { getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
+import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { Text } from 'components/Text'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
@@ -22,6 +26,12 @@ import { DashboardTab } from './DashboardTab'
 export const DashboardHeader = () => {
   const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
+  const { send, receive } = useModal()
+  const { history } = useBrowserRouter()
+  const {
+    state: { isConnected },
+  } = useWallet()
+  const translate = useTranslate()
   const loading = useAppSelector(selectPortfolioLoading)
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -105,6 +115,18 @@ export const DashboardHeader = () => {
     return getRenderedIdenticonBase64(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
   }, [walletId])
 
+  const handleSendClick = useCallback(() => {
+    send.open({})
+  }, [send])
+
+  const handleReceiveClick = useCallback(() => {
+    receive.open({})
+  }, [receive])
+
+  const handleTradeClick = useCallback(() => {
+    history.push('/trade')
+  }, [history])
+
   return (
     <Stack spacing={0} borderColor={borderColor}>
       <Container
@@ -129,9 +151,19 @@ export const DashboardHeader = () => {
           </Flex>
         </Flex>
         <Flex gap={4}>
-          <Button leftIcon={<ArrowUpIcon />}>Send</Button>
-          <Button leftIcon={<ArrowDownIcon />}>Recieve</Button>
-          <Button leftIcon={<IoSwapVerticalSharp />}>Trade</Button>
+          <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={<ArrowUpIcon />}>
+            {translate('common.send')}
+          </Button>
+          <Button
+            isDisabled={!isConnected}
+            onClick={handleReceiveClick}
+            leftIcon={<ArrowDownIcon />}
+          >
+            {translate('common.receive')}
+          </Button>
+          <Button onClick={handleTradeClick} leftIcon={<IoSwapVerticalSharp />}>
+            {translate('common.trade')}
+          </Button>
         </Flex>
       </Container>
       <Flex

@@ -4,6 +4,7 @@ import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
+import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectWalletAccountIds } from 'state/slices/selectors'
@@ -40,6 +41,7 @@ export const AccountToken = () => {
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <AccountBalance assetId={id} accountId={accountId} />
         <AssetAccounts assetId={id} accountId={accountId} />
+        <EarnOpportunities assetId={id} accountId={accountId} />
         <AssetTransactionHistory assetId={id} accountId={accountId} />
       </Stack>
       <Flex

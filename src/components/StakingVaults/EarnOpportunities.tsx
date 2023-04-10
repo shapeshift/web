@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useEffect } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
@@ -10,7 +10,6 @@ import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -55,8 +54,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   const allRows = [...lpOpportunities, ...stakingOpportunities].filter(
     row =>
       row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
-      // show FOX_ETH LP token on FOX and ETH pages
-      (row.assetId === foxEthLpAssetId && [ethAssetId, foxAssetId].includes(asset.assetId)) ||
+      (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
       // show foxy opportunity in the foxy asset page
       (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
   )

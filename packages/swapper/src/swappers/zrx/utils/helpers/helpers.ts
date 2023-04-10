@@ -6,6 +6,7 @@ import {
   ethAssetId,
   fromAssetId,
   optimismAssetId,
+  polygonAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosResponse } from 'axios'
@@ -25,6 +26,8 @@ export const baseUrlFromChainId = (chainId: string): string => {
       return 'https://optimism.api.0x.org/'
     case KnownChainIds.BnbSmartChainMainnet:
       return 'https://bsc.api.0x.org/'
+    case KnownChainIds.PolygonMainnet:
+      return 'https://polygon.api.0x.org/'
     default:
       throw new SwapError(`baseUrlFromChainId] - Unsupported chainId: ${chainId}`, {
         code: SwapErrorType.UNSUPPORTED_CHAIN,
@@ -42,6 +45,8 @@ export const usdcContractAddressFromChainId = (chainId: ChainId): string => {
       return '0x7f5c764cbc14f9669b88837ca1490cca17c31607'
     case KnownChainIds.BnbSmartChainMainnet:
       return '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
+    case KnownChainIds.PolygonMainnet:
+      return '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
     default:
       throw new SwapError(`usdcContractFromChainId] - Unsupported chainId: ${chainId}`, {
         code: SwapErrorType.UNSUPPORTED_CHAIN,
@@ -60,6 +65,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === optimismAssetId
     case KnownChainIds.BnbSmartChainMainnet:
       return assetId === bscAssetId
+    case KnownChainIds.PolygonMainnet:
+      return assetId === polygonAssetId
     default:
       return false
   }

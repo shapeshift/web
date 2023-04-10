@@ -122,6 +122,19 @@
           "useSingleRequestParameter": true
         }
       },
+      "polygon": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/344fe7496a302760c40f18ec3bfcba588e0f5a7e/node/coinstacks/polygon/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/polygon",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "osmosis": {
         "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/osmosis/api/swagger.json",
         "generatorName": "typescript-fetch",

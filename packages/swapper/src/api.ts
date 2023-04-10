@@ -34,6 +34,12 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
+    [KnownChainIds.PolygonMainnet]: {
+      estimatedGas?: string
+      gasPriceCryptoBaseUnit?: string
+      approvalFeeCryptoBaseUnit?: string
+      totalFee?: string
+    }
     [KnownChainIds.BitcoinMainnet]: {
       byteCount: string
       satsPerByte: string

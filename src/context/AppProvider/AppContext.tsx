@@ -265,10 +265,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-    // Don't want to re-run this effect when uniV2LpIdsData change
-    // since it would set another fetchMarketData() interval
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**
    * fetch forex spot and history for user's selected currency

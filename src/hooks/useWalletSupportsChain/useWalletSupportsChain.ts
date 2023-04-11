@@ -10,6 +10,7 @@ import {
   ltcChainId,
   optimismChainId,
   osmosisChainId,
+  polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -36,6 +37,9 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case btcChainId:
     case bchChainId:
     case dogeChainId:
+    case polygonChainId:
+      // TODO patch when HDWallet is updated
+      return false
     case ltcChainId:
       return supportsBTC(wallet)
     case ethChainId:

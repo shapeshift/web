@@ -15,6 +15,7 @@ import {
   ltcChainId,
   optimismChainId,
   osmosisChainId,
+  polygonChainId,
   thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -62,6 +63,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case avalancheChainId:
     case optimismChainId:
     case ethChainId:
+    case polygonChainId:
     case bscChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
@@ -260,6 +262,9 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    // TODO fix when wallet is done
+    // case polygonChainId:
+    // return supportsPolygon(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

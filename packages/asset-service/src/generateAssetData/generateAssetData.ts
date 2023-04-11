@@ -15,6 +15,7 @@ import * as ethereum from './ethereum'
 import * as optimism from './optimism'
 import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
+import * as polygon from './polygon'
 import { filterOutBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {
@@ -23,6 +24,7 @@ const generateAssetData = async () => {
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
+  const polygonchainAssets = await polygon.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -37,6 +39,7 @@ const generateAssetData = async () => {
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,
+    ...polygonchainAssets,
   ]
 
   // remove blacklisted assets
@@ -50,6 +53,7 @@ const generateAssetData = async () => {
     [KnownChainIds.AvalancheMainnet]: avalancheAssets.map(asset => asset.name),
     [KnownChainIds.OptimismMainnet]: optimismAssets.map(asset => asset.name),
     [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map(asset => asset.name),
+    [KnownChainIds.PolygonMainnet]: polygonchainAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -86,6 +90,11 @@ const generateAssetData = async () => {
     // mark any bnbsmartchain assets that also exist on other evm chains
     if (chainId === KnownChainIds.BnbSmartChainMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on BNB Smart Chain`
+    }
+
+    // mark any polygon assets that also exist on other evm chains
+    if (chainId === KnownChainIds.PolygonMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Polygon`
     }
 
     // mark any optimism assets that also exist on other evm chains

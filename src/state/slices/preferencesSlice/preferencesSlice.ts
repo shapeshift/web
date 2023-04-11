@@ -15,6 +15,7 @@ export type FeatureFlags = {
   OsmosisLPAdditionalPools: boolean
   Optimism: boolean
   BnbSmartChain: boolean
+  Polygon: boolean
   ThorSwap: boolean
   IdleFinance: boolean
   Axelar: boolean
@@ -30,6 +31,7 @@ export type FeatureFlags = {
   Cowswap: boolean
   ZrxAvalancheSwap: boolean
   ZrxBnbSmartChain: boolean
+  ZrxPolygonSwap: boolean
   ZrxEthereumSwap: boolean
   ZrxOptimismSwap: boolean
   Mixpanel: boolean
@@ -67,6 +69,7 @@ const initialState: Preferences = {
     OsmosisLPAdditionalPools: getConfig().REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS,
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
+    Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
@@ -82,6 +85,7 @@ const initialState: Preferences = {
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE_SWAP,
     ZrxBnbSmartChain: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
+    ZrxPolygonSwap: getConfig().REACT_APP_FEATURE_ZRX_POLYGON,
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM_SWAP,
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,

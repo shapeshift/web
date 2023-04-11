@@ -36,7 +36,6 @@ export const getTradeRate = async ({
   receiveAddress: string
   deps: ThorchainSwapperDeps
 }): Promise<string> => {
-  // TODO(gomes): is this still valid?
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
     return getPriceRatio(deps, {

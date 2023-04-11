@@ -74,6 +74,15 @@ export const getTradeRate = async ({
     `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}`,
   )
 
+  // There was an error getting a quote from the thorchain api. This could be because e.g the amount being swapped is too small
+  // Fallback to returning a rate based on pools data
+  if ('error' in data) {
+    return getPriceRatio(deps, {
+      sellAssetId: sellAsset.assetId,
+      buyAssetId,
+    })
+  }
+
   const { slippage_bps, fees, expected_amount_out: expectedAmountOutThorBaseUnit } = data
 
   // Add back the outbound fees

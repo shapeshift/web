@@ -67,11 +67,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
  *
  */
 
-const { getOpportunityIds } = opportunitiesApi.endpoints
-const selectUniV2LpIds = getOpportunityIds.select({
-  defiType: DefiType.LiquidityPool,
-  defiProvider: DefiProvider.UniV2,
-})
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
@@ -241,7 +236,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     portfolioAssetIds,
   ])
 
-  const uniV2LpIdsData = useAppSelector(selectUniV2LpIds)
+  const uniV2LpIdsData = useAppSelector(
+    opportunitiesApi.endpoints.getOpportunityIds.select({
+      defiType: DefiType.LiquidityPool,
+      defiProvider: DefiProvider.UniV2,
+    }),
+  )
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date

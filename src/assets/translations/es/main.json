@@ -94,7 +94,8 @@
     "needAsset": "¿Necesita %{asset}?",
     "buyNow": "Comprar ahora",
     "manage": "Administre",
-    "selectedAccount": "Cuenta Seleccionada"
+    "selectedAccount": "Cuenta Seleccionada",
+    "allChains": "Todas las cadenas"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +222,8 @@
       "triggerButton": "Conectar billetera",
       "switchWallet": "Cambiar Proveedor de Billetera",
       "disconnect": "Desconectar",
-      "disconnected": "(Desconectado)"
+      "disconnected": "(Desconectado)",
+      "connecting": "Conectando..."
     }
   },
   "defi": {
@@ -392,6 +394,11 @@
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
     "clickHereToEarn": "Haga clic aquí para ganar %{apr} APR* farming sus tokens en el pool ETH-FOX",
     "overview": "Overview",
+    "myPositions": "Mis Posiciones",
+    "myPositionsBody": "Sus posiciones activas aparecerán aquí.",
+    "myRewards": "Mis Recompensas",
+    "myRewardsBody": "Sus posiciones activas con recompensas reclamables aparecerán aquí.",
+    "viewAllPositions": "Ver Todas las Posiciones",
     "liquidityPools": "Pools de liquidez",
     "stakingVaults": "Staking & Bóvedas",
     "farming": "Farming",
@@ -402,12 +409,13 @@
     "poolValue": "Valor de Pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valor Total",
-    "byPosition": "Por Posición",
+    "byAsset": "Por Activo",
     "byProvider": "Por Proveedor",
     "claimableRewards": "Recompensas reclamables",
     "reawrds": "Recompensas",
     "stakingPosition": "Posición Staking",
     "liquidityPool": "Pool de Liquidez",
+    "noActivePositions": "Sin Posiciones Activas",
     "emptyEarn": "Las oportunidades para Ganar recompensas aparecerán aquí.",
     "empty": {
       "farming": {
@@ -1470,6 +1478,7 @@
         "trade": "Intercambiar"
       },
       "accountTokens": "Tokens de la Cuenta",
+      "relatedAssets": "Activos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",
       "hideTokens": "Ocultar Tokens (%{amount})",
       "underlyingAssets": "Activos Subyacentes",

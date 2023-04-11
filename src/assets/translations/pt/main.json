@@ -94,7 +94,8 @@
     "needAsset": "Precisa de algum %{asset}?",
     "buyNow": "Comprar agora",
     "manage": "Gerenciar",
-    "selectedAccount": "Conta selecionada"
+    "selectedAccount": "Conta selecionada",
+    "allChains": "Todas as redes"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +222,8 @@
       "triggerButton": "Conectar Carteira",
       "switchWallet": "Trocar de Carteira",
       "disconnect": "Desconectar",
-      "disconnected": "(Sem conexão)"
+      "disconnected": "(Sem conexão)",
+      "connecting": "Conectando..."
     }
   },
   "defi": {
@@ -392,6 +394,11 @@
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
+    "myPositions": "Minhas Posições",
+    "myPositionsBody": "Suas posições ativas aparecerão aqui.",
+    "myRewards": "Minhas recompensas",
+    "myRewardsBody": "Suas posições ativas com recompensas resgatáveis aparecerão aqui.",
+    "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "stakingVaults": "Poupança e Cofres",
     "farming": "Farming",
@@ -402,12 +409,13 @@
     "poolValue": "Valor da Pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valor total",
-    "byPosition": "Por posição",
+    "byAsset": "Por ativo",
     "byProvider": "Por Provedor de Liquidez",
     "claimableRewards": "Recompensas Resgatáveis",
     "reawrds": "Recompensas",
     "stakingPosition": "Posição em Stake",
     "liquidityPool": "Pool de Liquidez",
+    "noActivePositions": "Nenhuma posição ativa",
     "emptyEarn": "As oportunidades de ganhos aparecerão aqui.",
     "empty": {
       "farming": {
@@ -1470,6 +1478,7 @@
         "trade": "Trocar"
       },
       "accountTokens": "Meus Tokens",
+      "relatedAssets": "Ativos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",
       "hideTokens": "Esconder Tokens (%{amount})",
       "underlyingAssets": "Ativos subjacentes",

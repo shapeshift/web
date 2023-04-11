@@ -28,10 +28,6 @@ export const selectAvailableSwapperApiMostRecentQueryTimestamp = (state: ReduxSt
     query => query?.endpointName === 'getAvailableSwappers',
   )
 
-  if (queries.length === 0) {
-    return null
-  }
-
   const startedTimeStamps = queries.map(query => query?.startedTimeStamp).filter(isSome)
 
   return startedTimeStamps.length > 0 ? Math.max(...startedTimeStamps) : null

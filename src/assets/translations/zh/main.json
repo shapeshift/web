@@ -507,7 +507,6 @@
       }
     },
     "approve": {
-      "header": "允许ShapeShift DAO路由使用您的%{asset}",
       "body": "我们需要您的许可以使用您的%{asset}",
       "learnMore": "为什么我需要这样做？",
       "depositFee": "存款需要支付额外网络费。",

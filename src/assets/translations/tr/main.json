@@ -310,7 +310,6 @@
       "saversVaults": {
         "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
-        "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "estimatedFee": "Tahmini Ücret",
@@ -956,7 +955,6 @@
       }
     },
     "approve": {
-      "header": "ShapeShift DAO Router'ın %{asset} varlığınızı kullanmasına izin verin",
       "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",

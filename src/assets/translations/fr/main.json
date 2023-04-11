@@ -310,7 +310,6 @@
       "saversVaults": {
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "vaultCap": "Plafond du Vault",
-        "vaultCapTooltip": "Quelque chose à propos des plafonds de Vaults",
         "haltedTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "estimatedFee": "Frais estimés",
@@ -956,7 +955,6 @@
       }
     },
     "approve": {
-      "header": "Autoriser le Routeur ShapeShift DAO à dépenser vos %{asset}",
       "shapeshiftRouterName": "Routeur ShapeShift DAO",
       "body": "a besoin de votre permission pour utiliser vos %{asset}",
       "learnMore": "Pourquoi dois-je faire cela ?",

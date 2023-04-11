@@ -310,7 +310,6 @@
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
         "vaultCap": "Limite da Vault",
-        "vaultCapTooltip": "Algo sobre o limite das vaults",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
         "estimatedFee": "Taxa estimada",
@@ -956,7 +955,6 @@
       }
     },
     "approve": {
-      "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
       "shapeshiftRouterName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
